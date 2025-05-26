@@ -1,2 +1,5 @@
 [05/23/25]
 Tonight marks the very beginning of the "Nostalgia Engine" project (also referred to unofficially as the "Rose Tinted Engine"). The goal for this engine will be to capture the style, feeling, and "vibe" of PC and console games from the early PS2 era while including more modern sensibilities and quality of life features (e.g: better controls, higher resolutions, framerate != game logic speed, etc). The file structure for this project was initially inspired by the file structure for Valve's "Source Engine" (or at least the SDK and the 2020 leaks). I don't know if I'll stick to this way of organizing my files, but I thought it'd be fitting since the Source engine is from the time period that I'm trying to capture.
+
+[05/26/25]
+I'm gonna try and start on this engine. I want to begin with the renderer; specifically, I want to implement a debug rendering function that gets called after the normal one which will use custom render commands specifically for debug drawing (i.e: simple lines, points, tris, etc).
