@@ -3,3 +3,7 @@ Tonight marks the very beginning of the "Nostalgia Engine" project (also referre
 
 [05/26/25]
 I'm gonna try and start on this engine. I want to begin with the renderer; specifically, I want to implement a debug rendering function that gets called after the normal one which will use custom render commands specifically for debug drawing (i.e: simple lines, points, tris, etc).
+
+All right all right all right! I've gotten a decent amount of work done tonight; I created the _Manager and Manager classes, changed up the project structure a bit, updated the Makefile, and added a much-needed gitignore file. Currently, the RenderManager class is what's being worked on and isn't fully finished yet. I think for tonight, however, I'm gonna call it here and wrap up.
+
+All in all, it was a good fuckin' sesh :3
