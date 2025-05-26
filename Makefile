@@ -4,15 +4,15 @@ CC  := clang
 CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20
 CCFLAGS  := -g -Wall -fsanitize=address
 
-INCLUDE   := -I src/common
+INCLUDE   := -I src/common -I src/thirdparty/imgui
 LIBRARIES := -L src/lib/public -l glfw3
 
 OUT := build
 APP := $(OUT)/Nostalgia.x86_64
 DEBUG_APP := $(OUT)/Nostalgia_Debug.x86_64
 
-SRC_DIRS := src/core
-DIRTY_SRC_DIRS := src/imgui src/common
+SRC_DIRS       := src/engine src/app
+DIRTY_SRC_DIRS := src/common src/common/glad src/common/DearImGui
 
 CXX_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
 CC_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
@@ -45,6 +45,9 @@ $(DEBUG_APP): $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 $(OUT)/%.obj: %.cpp | build
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
+$(OUT)/%.o: %.c | build
+	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
+
 build:
 	-mkdir -p $(OUT)
 
@@ -53,7 +56,7 @@ clean:
 
 # "dirty_clean" won't remove object files built from source code in DIRTY_SRC_DIRS
 dirty_clean:
-	-rm -r $(CXX_OBJS) $(CC_OBJS)
+	-rm -r $(CXX_OBJS) $(CC_OBJS) $(APP) $(DEBUG_APP)
 
 run: run_debug run_release
 
