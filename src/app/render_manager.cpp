@@ -15,8 +15,8 @@ void CameraProperty::GetForward(glm::vec3* forward_vector)
 }
 
 // Singleton Accessor
-static RenderManager s_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
-RenderManager* g_RenderManager = &s_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
+static RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
+RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
 
 bool RenderManager::Init()
 {

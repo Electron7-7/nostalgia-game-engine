@@ -65,6 +65,6 @@ private:
 };
 
 // Singleton accessor
-extern RenderManager* global_render_manager;
+extern RenderManager* global_RenderManager;
 
 #endif // RENDER_MANAGER_H
