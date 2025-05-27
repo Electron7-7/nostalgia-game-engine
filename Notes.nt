@@ -7,3 +7,6 @@ I'm gonna try and start on this engine. I want to begin with the renderer; speci
 All right all right all right! I've gotten a decent amount of work done tonight; I created the _Manager and Manager classes, changed up the project structure a bit, updated the Makefile, and added a much-needed gitignore file. Currently, the RenderManager class is what's being worked on and isn't fully finished yet. I think for tonight, however, I'm gonna call it here and wrap up.
 
 All in all, it was a good fuckin' sesh :3
+
+[05/27/25]
+Okay, today I want to finish the render manager and then move onto perhaps designing how a game would interface with the engine. All the engine needs to know is where to draw a mesh and some specific properties of that mesh (like scale, material, etc). The game could invoke certain functions or classes to generate render commands based on certain information, with no possibility of undefined behaviour. But for now, I work on the render manager.
