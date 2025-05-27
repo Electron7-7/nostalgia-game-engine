@@ -5,7 +5,7 @@
 #include <macros/forward_declaration.hpp>
 
 // FORWARD_DECLARE(class HeightField)
-FORWARD_DECLARE(class CameraProperty)
+FORWARD_DECLARE(class CameraProperty;)
 
 // Actor type
 class NostalgiaPlayerActor
