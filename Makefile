@@ -4,7 +4,7 @@ CC  := clang
 CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20
 CCFLAGS  := -g -Wall -fsanitize=address
 
-INCLUDE   := -I src/common -I src/thirdparty/imgui
+INCLUDE   := -I src/ -I src/common -I src/thirdparty/imgui
 LIBRARIES := -L src/lib/public -l glfw3
 
 OUT := build
