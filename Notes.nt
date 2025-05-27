@@ -10,3 +10,7 @@ All in all, it was a good fuckin' sesh :3
 
 [05/27/25]
 Okay, today I want to finish the render manager and then move onto perhaps designing how a game would interface with the engine. All the engine needs to know is where to draw a mesh and some specific properties of that mesh (like scale, material, etc). The game could invoke certain functions or classes to generate render commands based on certain information, with no possibility of undefined behaviour. But for now, I work on the render manager.
+
+Note: the fov of 90 degrees is hardcoded into the engine. I want to change that.
+
+Finished the first pass of the RenderManager class! Things related to the world manager are missing, of course, but I've implemented pretty much everything else. The whole CameraProperty thing as well as the GetForward function are kind of strange and I'm not 100% on whether or not I want to keep them as they are or use a different system. It does make sense to do those calculations in the render manager, but I want to keep an eye on it so I know how the game should get the proper data to that function.
