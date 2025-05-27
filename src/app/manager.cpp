@@ -6,11 +6,11 @@ int _Manager::frame_number = 0;
 bool _Manager::stop_requested = false;
 bool _Manager::is_running = false;
 bool _Manager::is_initialized = false;
-bool _Manager::level_start_requested = false;
-bool _Manager::level_shutdown_requested = false;
+bool _Manager::theatre_start_requested = false;
+bool _Manager::theatre_shutdown_requested = false;
 float _Manager::current_time = 0.0f;
 float _Manager::last_time = 0.0f;
-LevelState_t _Manager::level_state = NOT_IN_LEVEL;
+TheatreState_t _Manager::theatre_state = NOT_IN_LEVEL;
 
 std::vector<_Manager*> _Manager::game_managers = {};
 
@@ -51,12 +51,12 @@ bool _Manager::InvokeMethod(ManagerInitFunc_t function)
     return true;
 }
 
-LevelReturnValue_t _Manager::InvokeLevelMethod(ManagerLevelFunction_t function, bool is_first_call)
+TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t function, bool is_first_call)
 {
-    LevelReturnValue_t return_value = FINISHED;
+    TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < game_managers.size() ; ++i)
     {
-        LevelReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             return FUCKED;
         if(catch_return_value == MORE_WORK)
@@ -65,12 +65,12 @@ LevelReturnValue_t _Manager::InvokeLevelMethod(ManagerLevelFunction_t function, 
     return return_value;
 }
 
-LevelReturnValue_t _Manager::InvokeLevelMethodReverseOrder(ManagerLevelFunction_t function, bool is_first_call)
+TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t function, bool is_first_call)
 {
-    LevelReturnValue_t return_value = FINISHED;
+    TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < game_managers.size() ; ++i)
     {
-        LevelReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             return_value = FUCKED;
         if((catch_return_value == MORE_WORK) && (return_value != FUCKED))
@@ -99,49 +99,49 @@ void _Manager::ShutdownAllManagers()
     }
 }
 
-void _Manager::UpdateLevelStateMachine()
+void _Manager::UpdateTheatreStateMachine()
 {
-    bool first_level_shutdown_frame = false; // Naming convention taken from Valve; a bit iffy on the specifics of this variable
-    if(level_shutdown_requested)
+    bool first_theatre_shutdown_frame = false; // Naming convention taken from Valve; a bit iffy on the specifics of this variable
+    if(theatre_shutdown_requested)
     {
-        if(level_state != LOADING_LEVEL)
-            level_shutdown_requested = false; // Todo: make this prettier
-        if(level_state == IN_LEVEL)
+        if(theatre_state != LOADING_LEVEL)
+            theatre_shutdown_requested = false; // Todo: make this prettier
+        if(theatre_state == IN_LEVEL)
         {
-            level_state = SHUTTING_DOWN_LEVEL;
-            first_level_shutdown_frame = true;
+            theatre_state = SHUTTING_DOWN_LEVEL;
+            first_theatre_shutdown_frame = true;
         }
     }
 
-    // Perform level shutdown
-    if(level_state == SHUTTING_DOWN_LEVEL)
+    // Perform theatre shutdown
+    if(theatre_state == SHUTTING_DOWN_LEVEL)
     {
-        LevelReturnValue_t return_value = InvokeLevelMethodReverseOrder(&_Manager::LevelShutdown, first_level_shutdown_frame);
+        TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
-            level_state = NOT_IN_LEVEL;
+            theatre_state = NOT_IN_LEVEL;
     }
 
-    // Do we want to switch into the level startup state?
-    bool first_level_startup_frame = false;
-    if(level_start_requested)
+    // Do we want to switch into the theatre startup state?
+    bool first_theatre_startup_frame = false;
+    if(theatre_start_requested)
     {
-        if(level_state != SHUTTING_DOWN_LEVEL)
-            level_start_requested = false; // Todo: make this prettier
-        if(level_state == NOT_IN_LEVEL)
+        if(theatre_state != SHUTTING_DOWN_LEVEL)
+            theatre_start_requested = false; // Todo: make this prettier
+        if(theatre_state == NOT_IN_LEVEL)
         {
-            level_state = LOADING_LEVEL;
-            first_level_startup_frame = true;
+            theatre_state = LOADING_LEVEL;
+            first_theatre_startup_frame = true;
         }
     }
 
-    // Perform level load
-    if(level_state == LOADING_LEVEL)
+    // Perform theatre load
+    if(theatre_state == LOADING_LEVEL)
     {
-        LevelReturnValue_t return_value = InvokeLevelMethod(&_Manager::LevelInit, first_level_startup_frame);
+        TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
-            level_state = NOT_IN_LEVEL; // Todo: make this prettier
+            theatre_state = NOT_IN_LEVEL; // Todo: make this prettier
         else if(return_value == FINISHED)
-            level_state = IN_LEVEL;
+            theatre_state = IN_LEVEL;
     }
 }
 
@@ -166,7 +166,7 @@ void _Manager::Start()
 
     while(!stop_requested)
     {
-        UpdateLevelStateMachine();
+        UpdateTheatreStateMachine();
 
         last_time = current_time;
         current_time = glfwGetTime();
@@ -215,16 +215,16 @@ float _Manager::CurrentTime()
 float _Manager::DeltaTime()
 { return current_time - last_time; }
 
-LevelState_t _Manager::GetLevelState()
-{ return level_state; }
+TheatreState_t _Manager::GetTheatreState()
+{ return theatre_state; }
 
-void _Manager::StartNewLevel()
+void _Manager::StartNewTheatre()
 {
-    level_shutdown_requested = true;
-    level_start_requested = true;
+    theatre_shutdown_requested = true;
+    theatre_start_requested = true;
 }
 
-void _Manager::ShutdownLevel()
+void _Manager::ShutdownTheatre()
 {
-    level_shutdown_requested = true;
+    theatre_shutdown_requested = true;
 }

@@ -27,10 +27,10 @@ bool RenderManager::Init()
 void RenderManager::Shutdown()
 {}
 
-LevelReturnValue_t RenderManager::LevelInit(bool is_first_call)
+TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 { return FINISHED; }
 
-LevelReturnValue_t RenderManager::LevelShutdown(bool is_first_call)
+TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 { return FINISHED; }
 
 CameraProperty* RenderManager::CreateCameraProperty()
@@ -68,7 +68,7 @@ void RenderManager::UpdateLocalPlayerCamera()
 void RenderManager::Update()
 {
     // MaterialRenderContextPointer render_context(material_system);
-    if(GetLevelState() == NOT_IN_LEVEL)
+    if(GetTheatreState() == NOT_IN_LEVEL)
     {
         // material_system->BeginFrame(0);
         // render_context->ClearColor4ub(76, 88, 68, 255);

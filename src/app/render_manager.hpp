@@ -28,9 +28,9 @@ class RenderManager : public Manager<>
 public:
     // Inherited from _Manager
     virtual bool Init();
-    virtual LevelReturnValue_t LevelInit(bool IsFirstCall);
+    virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual void Update();
-    virtual LevelReturnValue_t LevelShutdown(bool IsFirstCall);
+    virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
 
     // Property allocation
