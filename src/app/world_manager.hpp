@@ -2,7 +2,7 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include <Macros/forward_declaration.hpp>
+#include <macros/forward_declaration.hpp>
 
 // FORWARD_DECLARE(class HeightField)
 FORWARD_DECLARE(class CameraProperty)
