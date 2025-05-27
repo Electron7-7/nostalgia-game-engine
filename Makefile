@@ -1,8 +1,8 @@
 CXX := clang++
 CC  := clang
 
-CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20
-CCFLAGS  := -g -Wall -fsanitize=address
+CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20 -D COMPILER_FORWARD_DECLARATIONS
+CCFLAGS  := -g -Wall -fsanitize=address -D COMPILER_FORWARD_DECLARATIONS
 
 INCLUDE   := -I src/ -I src/common
 LIBRARIES := -L src/lib/public -l glfw3
