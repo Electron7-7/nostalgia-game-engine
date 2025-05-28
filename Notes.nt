@@ -7,3 +7,18 @@ I'm gonna try and start on this engine. I want to begin with the renderer; speci
 All right all right all right! I've gotten a decent amount of work done tonight; I created the _Manager and Manager classes, changed up the project structure a bit, updated the Makefile, and added a much-needed gitignore file. Currently, the RenderManager class is what's being worked on and isn't fully finished yet. I think for tonight, however, I'm gonna call it here and wrap up.
 
 All in all, it was a good fuckin' sesh :3
+
+[05/27/25]
+Okay, today I want to finish the render manager and then move onto perhaps designing how a game would interface with the engine. All the engine needs to know is where to draw a mesh and some specific properties of that mesh (like scale, material, etc). The game could invoke certain functions or classes to generate render commands based on certain information, with no possibility of undefined behaviour. But for now, I work on the render manager.
+
+Note: the fov of 90 degrees is hardcoded into the engine. I want to change that.
+
+Finished the first pass of the RenderManager class! Things related to the world manager are missing, of course, but I've implemented pretty much everything else. The whole CameraProperty thing as well as the GetForward function are kind of strange and I'm not 100% on whether or not I want to keep them as they are or use a different system. It does make sense to do those calculations in the render manager, but I want to keep an eye on it so I know how the game should get the proper data to that function.
+
+Yeah, I think it's time to move on to the world manager (although, I want to rename it to "TheatreManager", because I'm quirky).
+
+I implemented as much of the "WorldManager" class as I could; I changed it back to "WorldManager", since it makes more sense to rename "Levels" to "Theatres" and keep "World".
+
+I've implemented a bit of the input system and input manager classes. The idea for them will be to have the input system running constantly, using the glfw key callback function to store and/or send inputs as well as polling the mouse, etc etc. The input manager will then check the input system for new inputs during its Update function, and will then go on to process them as commands (ideally).
+
+I also added a shitty little "press enter to exit" type function & thread so the program can be exited while there is no input handling (or even a window).

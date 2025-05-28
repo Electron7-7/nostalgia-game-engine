@@ -1,17 +1,18 @@
 CXX := clang++
 CC  := clang
 
-CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20
-CCFLAGS  := -g -Wall -fsanitize=address
+# LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
+CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20 -D COMPILER_FORWARD_DECLARATIONS
+CCFLAGS  := -g -Wall -fsanitize=address -D COMPILER_FORWARD_DECLARATIONS
 
-INCLUDE   := -I src/common -I src/thirdparty/imgui
+INCLUDE   := -I src/ -I src/common
 LIBRARIES := -L src/lib/public -l glfw3
 
 OUT := build
 APP := $(OUT)/Nostalgia.x86_64
 DEBUG_APP := $(OUT)/Nostalgia_Debug.x86_64
 
-SRC_DIRS       := src/engine src/app
+SRC_DIRS       := src/app src/dedicated
 DIRTY_SRC_DIRS := src/common src/common/glad src/common/DearImGui
 
 CXX_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
@@ -43,9 +44,11 @@ $(DEBUG_APP): $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
 
 $(OUT)/%.obj: %.cpp | build
+	$(info Compiling: "$<")
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OUT)/%.o: %.c | build
+	$(info Compiling: "$<")
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
 
 build:
