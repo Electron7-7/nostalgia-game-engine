@@ -18,3 +18,7 @@ Finished the first pass of the RenderManager class! Things related to the world 
 Yeah, I think it's time to move on to the world manager (although, I want to rename it to "TheatreManager", because I'm quirky).
 
 I implemented as much of the "WorldManager" class as I could; I changed it back to "WorldManager", since it makes more sense to rename "Levels" to "Theatres" and keep "World".
+
+I've implemented a bit of the input system and input manager classes. The idea for them will be to have the input system running constantly, using the glfw key callback function to store and/or send inputs as well as polling the mouse, etc etc. The input manager will then check the input system for new inputs during its Update function, and will then go on to process them as commands (ideally).
+
+I also added a shitty little "press enter to exit" type function & thread so the program can be exited while there is no input handling (or even a window).
