@@ -39,7 +39,7 @@ void _Manager::InvokeMethod(ManagerFunc_t function)
 
 void _Manager::InvokeMethodReverseOrder(ManagerFunc_t function)
 {
-    for(int i = game_managers.size() ; i >= 0 ; --i) // See note in _Manager::InvokeMethod
+    for(int i = game_managers.size() - 1 ; i >= 0 ; --i) // See note in _Manager::InvokeMethod
         (game_managers.at(i)->*function)();
 }
 
