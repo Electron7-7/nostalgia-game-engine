@@ -1,6 +1,7 @@
 CXX := clang++
 CC  := clang
 
+# LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
 CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20 -D COMPILER_FORWARD_DECLARATIONS
 CCFLAGS  := -g -Wall -fsanitize=address -D COMPILER_FORWARD_DECLARATIONS
 
@@ -43,9 +44,11 @@ $(DEBUG_APP): $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
 
 $(OUT)/%.obj: %.cpp | build
+	$(info Compiling: "$<")
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OUT)/%.o: %.c | build
+	$(info Compiling: "$<")
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
 
 build:
