@@ -22,3 +22,14 @@ I implemented as much of the "WorldManager" class as I could; I changed it back 
 I've implemented a bit of the input system and input manager classes. The idea for them will be to have the input system running constantly, using the glfw key callback function to store and/or send inputs as well as polling the mouse, etc etc. The input manager will then check the input system for new inputs during its Update function, and will then go on to process them as commands (ideally).
 
 I also added a shitty little "press enter to exit" type function & thread so the program can be exited while there is no input handling (or even a window).
+
+[05/28/25]
+Today, I wanna work a bit on the input manager. At least see if I can get some ideas down in Milanote.
+
+Notes from Milanote: "The input manager will interface with some sort of "input system", which is always running and always processing inputs. I'm thinking that I could implement some object that stores a giant list of all valid inputs and whether or not they're currently down. Maybe a custom type/struct".
+
+While working on app systems, I've realized that I should abstract all API calls (and library calls related to API like GLFW) to a "window manager" class that is interfaced with via simple functions. This way I can account for any number of APIs and libraries, as well as add/remove support for them, without having to worry about how it will affect the rest of the engine.
+
+I spent a whole bunch of time working on `WindowManager` and the `API` class templates... just to realize that I don't need allat and I can move WindowManager's code into RenderManager. I'll keep the API class, but it won't be a template anymore.
+
+Okay, I've implemented `API` and integrated it with `RenderManager` and it works like a charm! `API` handles all the api-specific calls, while `RenderManager` just interfaces with `API` via simple functions. This means that (hopefully) `RenderManager` will not be affected by any additions/removals/changes to any api-specific code.
