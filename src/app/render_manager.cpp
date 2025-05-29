@@ -18,9 +18,22 @@ void CameraProperty::GetForward(glm::vec3* forward_vector)
 static RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
 RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
 
+// TODO: probably want to change the default to "true" for release builds
+bool RenderManager::is_main_window_fullscreen = false;
+// NOTE: if the automatic centering function is wrong or otherwise unwanted, set this to false (or set 'is_main_window_fullscreen' to true)
+bool RenderManager::center_main_window_if_windowed = true;
+
+// Main window variables
+const char* RenderManager::main_WindowName = "Fucking Nostalgia";
+int RenderManager::main_WindowWidth = 1280;
+int RenderManager::main_WindowHeight = 720;
+int RenderManager::main_WindowPositionX = 0;
+int RenderManager::main_WindowPositionY = 0;
+
 bool RenderManager::Init()
 {
-    render_world_fullscreen = true;
+    if(!current_GraphicsAPI->Init())
+        return false;
     return true;
 }
 
@@ -39,16 +52,26 @@ CameraProperty* RenderManager::CreateCameraProperty()
 void RenderManager::DestroyCameraProperty(CameraProperty* property)
 { delete property; }
 
-void RenderManager::RenderWorldFullscreen()
-{ render_world_fullscreen = true; }
+bool RenderManager::ChangeGraphicsAPI(API* new_api)
+{
+    if(!new_api->Init())
+        return false;
+
+    current_GraphicsAPI->Shutdown();
+    current_GraphicsAPI = new_api;
+    return true;
+}
+
+// void RenderManager::RenderWorldFullscreen()
+// { render_world_fullscreen = true; }
 
 void RenderManager::RenderWorldInrect(int x, int y, int width, int height)
 {
-    render_world_fullscreen = false;
-    render_x = x;
-    render_y = y;
-    render_width = width;
-    render_height = height;
+    // render_world_fullscreen = false;
+    // render_x = x;
+    // render_y = y;
+    // render_width = width;
+    // render_height = height;
 }
 
 void RenderManager::UpdateLocalPlayerCamera()
@@ -141,16 +164,16 @@ void RenderManager::RenderWorld()
     // render_context->PushMatrix();
     // render_context->LoadIdentity();
 
-    if(render_world_fullscreen)
-    {
-        render_x = render_y = 0;
+    // if(render_world_fullscreen)
+    // {
+        // render_x = render_y = 0;
         // render_context->GetRenderTargetDimensions(render_width, render_height);
-    }
+    // }
 
     // render_context->DepthRange(0, 1);
     // render_context->Viewport(render_x, render_y, render_width, render_height);
 
-    SetupProjectionMatrix(render_width, render_height, 90);
+    // SetupProjectionMatrix(render_width, render_height, 90);
 
     SetupCameraRenderState();
 

@@ -2,6 +2,7 @@
 #define RENDER_MANAGER_H
 
 #include "manager.hpp"
+#include "api_abstraction/api_dedicated.hpp"
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -37,8 +38,21 @@ public:
     CameraProperty* CreateCameraProperty();
     void DestroyCameraProperty(CameraProperty* Property);
 
+    // TODO: Decide whether or not to keep this
     void RenderWorldInrect(int X, int Y, int Width, int Height);
-    void RenderWorldFullscreen();
+    // void RenderWorldFullscreen();
+
+    // Changes the graphics API
+    bool ChangeGraphicsAPI(API* NewAPI);
+
+    // Variables related to the main window (made static so the API class can access them)
+    static bool is_main_window_fullscreen;
+    static bool center_main_window_if_windowed;
+    static const char* main_WindowName;
+    static int main_WindowWidth;
+    static int main_WindowHeight;
+    static int main_WindowPositionX;
+    static int main_WindowPositionY;
 
 private:
     // Set up a projection matrix for a 90 degree fov
@@ -57,11 +71,7 @@ private:
     // Done completely client-side, want total smoothness, so simulate at render interval
     void UpdateLocalPlayerCamera();
 
-    bool render_world_fullscreen;
-    int render_x;
-    int render_y;
-    int render_width;
-    int render_height;
+    API* current_GraphicsAPI = GraphicsAPI::Default;
 };
 
 // Singleton accessor
