@@ -12,7 +12,7 @@ OUT := build
 APP := $(OUT)/Nostalgia.x86_64
 DEBUG_APP := $(OUT)/Nostalgia_Debug.x86_64
 
-SRC_DIRS       := src/app src/dedicated
+SRC_DIRS       := src/app src/dedicated src/api_abstraction src/app_systems
 DIRTY_SRC_DIRS := src/common src/common/glad src/common/DearImGui
 
 CXX_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
