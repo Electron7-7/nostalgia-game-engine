@@ -33,3 +33,22 @@ While working on app systems, I've realized that I should abstract all API calls
 I spent a whole bunch of time working on `WindowManager` and the `API` class templates... just to realize that I don't need allat and I can move WindowManager's code into RenderManager. I'll keep the API class, but it won't be a template anymore.
 
 Okay, I've implemented `API` and integrated it with `RenderManager` and it works like a charm! `API` handles all the api-specific calls, while `RenderManager` just interfaces with `API` via simple functions. This means that (hopefully) `RenderManager` will not be affected by any additions/removals/changes to any api-specific code.
+
+[05/27/25]
+Goal for today: try and get a window running.
+
+Just realized, it makes no sense to have an input system (at least in the way I'm doing it). Instead, I just need a class that interfaces with the specific key & mouse callback functions and InputManager will be responsible for interacting with that class + polling inputs otherwise. Oh, and the class to interface with the callback functions can just be the API class.
+
+[05/30/25]
+Okay, I'm at the point where I really should start diverging from Source; it's (obviously) overscoped for my project, so I want to take a step back and try to get a working window and main app loop working today.
+
+[06/02/25]
+Today, I'm going to try and get the program to a state where I have a working window that I can close with the 'esc' key.
+
+Finally!! The main issue was that the render manager had an early return in the Update function for if there was no level loaded (which there never would be, since levels don't exist yet). Now, the engine crashes on exit; it might be due to my shitty prototype functions, but it's more likely that it's not so I'm gonna try and fix it before comitting.
+
+It works! Before comitting, I have one last thing I want to do, which is consolidate the backends into one class since the windowing library depends on the graphics API and the main function for the backend is graphics related (with window inputs being an outlier). Then, I can commit lmfao.
+
+Actually, I *do* like the separation (since the windowing library doesn't have to be one specific library), but I think I'll keep most of the functions in the manager, and the more anal/dedicated functions in their respective graphics/windowing backend class.
+
+Alright, time to commit!
