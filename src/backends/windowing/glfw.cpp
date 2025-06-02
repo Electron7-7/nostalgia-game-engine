@@ -1,28 +1,49 @@
-#include "api_opengl.hpp"
-#include "app/render_manager.hpp"
-#include <glad/glad.h>
+#include "glfw.hpp"
+#include <debugging.hpp>
+#include <opengl_includes.hpp>
+#include <app/render_manager.hpp>
+#include <app/input_manager.hpp>
 #include <GLFW/glfw3.h>
 
-bool API_GL::Init()
+
+//--------------------
+// PROTOTYPE FUNCTIONS
+//--------------------
+void GLFW_Backend::prototype_SwapBuffers()
+{
+    glfwSwapBuffers(glfw_MainWindow);
+}
+
+void GLFW_Backend::prototype_PollEvents()
+{
+    glfwPollEvents();
+}
+//------------------------
+// END PROTOTYPE FUNCTIONS
+//------------------------
+
+
+bool GLFW_Backend::Init()
 {
     if(is_initialized)
         return true;
 
     glfwInit();
 
-    if(!CreateMainWindow())
-        return false;
-
     is_initialized = true;
     return true;
 }
 
-void API_GL::Shutdown()
+void GLFW_Backend::Shutdown()
 {
+    assert(is_initialized);
+
     glfwTerminate();
+
+    is_initialized = false;
 }
 
-bool API_GL::CreateMainWindow()
+bool GLFW_Backend::CreateMainWindow()
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -57,5 +78,20 @@ bool API_GL::CreateMainWindow()
         glfwSetWindowPos(glfw_MainWindow, window_position_x, window_position_y);
     }
 
+    glfwSetKeyCallback(glfw_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
+    glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
+
     return true;
+}
+
+void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    // FIXME: This is the generic "exit on escape" case; it's currently in its shitty, prototype stage
+    if(key == GLFW_KEY_ESCAPE)
+        global_InputManager->prototype_ExitOnEscapeCalled();
+}
+
+void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double position_x, double position_y)
+{
+
 }

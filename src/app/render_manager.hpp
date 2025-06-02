@@ -2,7 +2,8 @@
 #define RENDER_MANAGER_H
 
 #include "manager.hpp"
-#include "api_abstraction/api_dedicated.hpp"
+#include <backends/backends.hpp>
+#include <backends/backend_manager.hpp>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -42,10 +43,7 @@ public:
     void RenderWorldInrect(int X, int Y, int Width, int Height);
     // void RenderWorldFullscreen();
 
-    // Changes the graphics API
-    bool ChangeGraphicsAPI(API* NewAPI);
-
-    // Variables related to the main window (made static so the API class can access them)
+    // Variables related to the main window
     static bool is_main_window_fullscreen;
     static bool center_main_window_if_windowed;
     static const char* main_WindowName;
@@ -70,8 +68,6 @@ private:
     // Note: I'm not currently planning on implementing multiplayer, but idk, maybe following Source's source code will make multiplayer easier?
     // Done completely client-side, want total smoothness, so simulate at render interval
     void UpdateLocalPlayerCamera();
-
-    API* current_GraphicsAPI = GraphicsAPI::Default;
 };
 
 // Singleton accessor

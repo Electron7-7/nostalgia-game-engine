@@ -1,12 +1,10 @@
 #include "render_manager.hpp"
 #include <math/math_definitions.hpp>
 
-
 CameraProperty::CameraProperty()
 {}
 
-// FIXME: use global orientation functions, similar to "graphx::orientation::up/front/right"
-// (use functions so that I can account for different graphics APIs)
+// FIXME: use global orientation functions, similar to "graphx::orientation::up/front/right" (also so I can account for different graphics APIs)
 glm::vec3 shitty_global_front = glm::vec3(0.0f, 1.0f, -1.0f);
 
 void CameraProperty::GetForward(glm::vec3* forward_vector)
@@ -16,6 +14,7 @@ void CameraProperty::GetForward(glm::vec3* forward_vector)
 
 // Singleton Accessor
 static RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
+RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
 RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
 
 // TODO: probably want to change the default to "true" for release builds
@@ -24,16 +23,14 @@ bool RenderManager::is_main_window_fullscreen = false;
 bool RenderManager::center_main_window_if_windowed = true;
 
 // Main window variables
-const char* RenderManager::main_WindowName = "Fucking Nostalgia";
-int RenderManager::main_WindowWidth = 1280;
-int RenderManager::main_WindowHeight = 720;
-int RenderManager::main_WindowPositionX = 0;
-int RenderManager::main_WindowPositionY = 0;
+const char* RenderManager::main_WindowName = "Nostalgia";
+int RenderManager::main_WindowWidth        = 1280;
+int RenderManager::main_WindowHeight       = 720;
+int RenderManager::main_WindowPositionX    = 0;
+int RenderManager::main_WindowPositionY    = 0;
 
 bool RenderManager::Init()
 {
-    if(!current_GraphicsAPI->Init())
-        return false;
     return true;
 }
 
@@ -52,16 +49,6 @@ CameraProperty* RenderManager::CreateCameraProperty()
 void RenderManager::DestroyCameraProperty(CameraProperty* property)
 { delete property; }
 
-bool RenderManager::ChangeGraphicsAPI(API* new_api)
-{
-    if(!new_api->Init())
-        return false;
-
-    current_GraphicsAPI->Shutdown();
-    current_GraphicsAPI = new_api;
-    return true;
-}
-
 // void RenderManager::RenderWorldFullscreen()
 // { render_world_fullscreen = true; }
 
@@ -76,7 +63,7 @@ void RenderManager::RenderWorldInrect(int x, int y, int width, int height)
 
 void RenderManager::UpdateLocalPlayerCamera()
 {
-    float delta_time = _Manager::DeltaTime();
+    // float delta_time = _Manager::DeltaTime();
     // CameraProperty* camera = world_manager->GetLocalPlayer()->camera_property;
 
     // camera->origin.x = camera->origin.x + delta_time * camera->velocity.x;
@@ -99,7 +86,7 @@ void RenderManager::Update()
         // ui_manager->DrawUI();
         // material_system->EndFrame();
         // material_system->SwapBuffers();
-        return;
+        // return; // NOTE: Because levels aren't implemented yet, this causes the main loop to be infinite
     }
 
     UpdateLocalPlayerCamera();
@@ -176,6 +163,9 @@ void RenderManager::RenderWorld()
     // SetupProjectionMatrix(render_width, render_height, 90);
 
     SetupCameraRenderState();
+
+    // TODO: This function should probably not be so generic/abstract
+    global_BackendManager->prototype_RenderFrame();
 
     // world_manager->DrawWorld();
 

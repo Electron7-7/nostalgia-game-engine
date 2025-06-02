@@ -2,6 +2,7 @@
 #include "manager.hpp"
 #include "world_manager.hpp"
 #include "render_manager.hpp"
+#include "input_manager.hpp"
 
 static TheToyMaker singleton_TheToyMakerApp;
 TheToyMaker* global_App = &singleton_TheToyMakerApp;
@@ -11,7 +12,8 @@ bool TheToyMaker::Create()
     if(!BaseClass::Create())
         return false;
 
-    // Add app systems...
+    // Add app systems
+    // _System::Add(global_InputSystem);
 
     return true;
 }
@@ -19,6 +21,9 @@ bool TheToyMaker::Create()
 bool TheToyMaker::PreInit()
 {
     if(!BaseClass::PreInit())
+        return false;
+
+    if(!global_BackendManager->Init())
         return false;
 
     // Check for missing interfaces...
@@ -49,12 +54,19 @@ int TheToyMaker::Main()
 
     // Input
     // _Manager::Add(global_NetworkManager);
-    // _Manager::Add(global_InputManager);
+    _Manager::Add(global_InputManager);
     // _Manager::Add(global_MenuManager);
     // _Manager::Add(global_UIManager);
 
     // Physics
     // _Manager::Add(global_PhysicsManager);
+
+    // Init the systems
+    // if(!_System::InitAllSystems())
+        // return 0;
+
+    // Start the main system loop
+    // _System::Start();
 
     // Init the managers
     if(!_Manager::InitAllManagers())

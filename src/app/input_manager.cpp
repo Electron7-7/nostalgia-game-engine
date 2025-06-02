@@ -1,8 +1,17 @@
 #include "input_manager.hpp"
-#include "toymaker.hpp"
+// #include "toymaker.hpp"
+#include <backends/windowing/glfw.hpp>
 
 static InputManager singleton_InputManager;
+InputManager singleton_InputManager;
 InputManager* global_InputManager = &singleton_InputManager;
+
+// PROTOTYPE FUNCTIONS
+
+void InputManager::prototype_ExitOnEscapeCalled()
+{ _Manager::Stop(); }
+
+// END PROTOTYPE FUNCTIONS
 
 bool InputManager::Init()
 {
@@ -13,19 +22,6 @@ bool InputManager::Init()
     // m_KeyBindings.SetBinding( "`", "toggleconsole" );
     // m_ButtonUpToEngine.ClearAll();
     return true;
-}
-
-void InputManager::AddCommand(const char* new_command)
-{
-    // command_buffer.AddText(new_command);
-}
-
-void InputManager::ProcessCommands()
-{
-    // command_buffer.BeginProcessingCommands(1);
-    // while(command_buffer.DequeueNextCommand())
-    // ...process console commands
-    // command_buffer.EndProcessingCommands();
 }
 
 void InputManager::Update()
@@ -39,4 +35,17 @@ void InputManager::Update()
             5. add the binding (which will be a command) to the command buffer
             6. run ProcessCommands() after every input event is processed
     */
+}
+
+void InputManager::AddCommand(const char* new_command)
+{
+    // command_buffer.AddText(new_command);
+}
+
+void InputManager::ProcessCommands()
+{
+    // command_buffer.BeginProcessingCommands(1);
+    // while(command_buffer.DequeueNextCommand())
+    // ...process console commands
+    // command_buffer.EndProcessingCommands();
 }
