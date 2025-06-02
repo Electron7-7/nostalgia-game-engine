@@ -1,5 +1,5 @@
-CXX := clang++
-CC  := clang
+CXX := @ clang++
+CC  := @ clang
 
 # LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
 CXXFLAGS := -g -Wall -fsanitize=address -frtti -std=c++20 -D COMPILER_FORWARD_DECLARATIONS
@@ -12,8 +12,17 @@ OUT := build
 APP := $(OUT)/Nostalgia.x86_64
 DEBUG_APP := $(OUT)/Nostalgia_Debug.x86_64
 
-SRC_DIRS       := src/app src/dedicated src/api_abstraction src/app_systems
-DIRTY_SRC_DIRS := src/common src/common/glad src/common/DearImGui
+SRC_DIRS :=                \
+	src/app                \
+	src/system             \
+	src/backends           \
+	src/backends/graphics  \
+	src/backends/windowing
+
+DIRTY_SRC_DIRS :=        \
+	src/common           \
+	src/common/glad      \
+	src/common/DearImGui
 
 CXX_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
 CC_SRCS = $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
@@ -25,17 +34,31 @@ DIRTY_CC_SRCS = $(foreach directory,$(DIRTY_SRC_DIRS),$(wildcard $(directory)/*.
 DIRTY_CXX_OBJS = $(addprefix $(OUT)/,$(notdir $(DIRTY_CXX_SRCS:.cpp=.obj)))
 DIRTY_CC_OBJS = $(addprefix $(OUT)/,$(notdir $(DIRTY_CC_SRCS:.c=.o)))
 
+SRCS = $(CXX_SRCS)$(DIRTY_CXX_SRCS)$(CC_SRCS)$(DIRTY_CC_SRCS)
+OBJS = $(CXX_OBJS)$(DIRTY_CXX_OBJS)$(CC_OBJS)$(DIRTY_CC_OBJS)
+
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
-.PHONY: all clean dirty_clean build run run_debug run_release debug release
+RESET = \\033[0m
+RED   = \\033[31m
+GREEN = \\033[32m
+BLUE  = \\033[34m
+
+.PHONY: all clean dirty_clean build run run_debug run_release debug release sublime
+sublime: ;@:
+	$(eval RESET="")
+	$(eval RED="")
+	$(eval GREEN="")
+	$(eval BLUE="")
+
 all: $(APP) $(DEBUG_APP)
-	$(info Finished compiling: "$(APP)" & "$(DEBUG_APP)")
+	@echo -e "Finished compiling: $(BLUE)$(APP)$(RESET) & $(BLUE)$(DEBUG_APP)$(RESET)"
 
 debug: $(DEBUG_APP)
-	$(info Finished compiling: "$(DEBUG_APP)")
+	@echo -e "Finished compiling: $(BLUE)$(DEBUG_APP)$(RESET)"
 
 release: $(APP)
-	$(info Finished compiling: "$(APP)")
+	@echo -e "Finished compiling: $(BLUE)$(APP)$(RESET)"
 
 $(APP): $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
@@ -44,22 +67,29 @@ $(DEBUG_APP): $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $^ -o $@ $(LIBRARIES)
 
 $(OUT)/%.obj: %.cpp | build
-	$(info Compiling: "$<")
+	@echo -e "Compiling: $(GREEN)$<$(RESET)"
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 
 $(OUT)/%.o: %.c | build
-	$(info Compiling: "$<")
+	@echo -e "Compiling: $(GREEN)$<$(RESET)"
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
 
 build:
-	-mkdir -p $(OUT)
+	@ -mkdir -p $(OUT)
+
+IS_CLEAN = $(shell [ -d $(OUT) ]; echo $$? )
 
 clean:
-	-rm -r $(OUT)
+ifeq ($(IS_CLEAN), 1)
+	@ echo "Build is already clean"
+else
+	@ -rm -rf $(OUT)
+	@ echo -e "[In directory: $(OUT)/]$(shell find $(OUT) -type f | sed -re 's/build\/(.+)/\\n$(RESET)Cleaning: $(RED)\1/g')$(RESET)"
+endif
 
-# "dirty_clean" won't remove object files built from source code in DIRTY_SRC_DIRS
+
 dirty_clean:
-	-rm -r $(CXX_OBJS) $(CC_OBJS) $(APP) $(DEBUG_APP)
+	@-rm -f $(CXX_OBJS) $(CC_OBJS) $(APP) $(DEBUG_APP)
 
 run: run_debug run_release
 
