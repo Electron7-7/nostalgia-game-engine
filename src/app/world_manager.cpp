@@ -1,7 +1,7 @@
 #include "world_manager.hpp"
 #include "render_manager.hpp"
 
-static WorldManager singleton_WorldManager;
+WorldManager singleton_WorldManager;
 WorldManager* global_WorldManager = &singleton_WorldManager;
 
 // Console variables for setting the forward and backward speed of the camera (hl2_src/app/legion/worldmanager.cpp:24-25)

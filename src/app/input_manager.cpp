@@ -2,7 +2,6 @@
 // #include "toymaker.hpp"
 #include <backends/windowing/glfw.hpp>
 
-static InputManager singleton_InputManager;
 InputManager singleton_InputManager;
 InputManager* global_InputManager = &singleton_InputManager;
 
