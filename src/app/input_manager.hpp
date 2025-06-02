@@ -2,7 +2,6 @@
 #define INPUT_MANAGER_H
 
 #include "manager.hpp"
-#include <macros/forward_declaration.hpp>
 #include <containers/double_vectors.hpp>
 
 FORWARD_DECLARE(struct GLFWwindow;)

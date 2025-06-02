@@ -2,7 +2,7 @@
 #define THE_TOYMAKER_H
 
 #include "application.hpp"
-#include <macros/forward_declare.hpp>
+#include <common/macros.hpp>
 
 FORWARD_DECLARE(class TheToyMaker;)
 FORWARD_DECLARE(extern TheToyMaker* global_App;)
