@@ -33,7 +33,10 @@ bool TheToyMaker::PreInit()
 
 void TheToyMaker::Shutdown()
 {
+    // NOTE: This might not be safe/enough
     _Manager::Stop();
+    _Manager::ShutdownAllManagers();
+    _Manager::RemoveAll();
 }
 
 void TheToyMaker::PostShutdown()

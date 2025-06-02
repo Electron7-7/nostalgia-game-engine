@@ -28,6 +28,7 @@ void _Manager::Remove(_Manager* old_manager)
             game_managers.erase(game_managers.begin() + i); // Possible point of error: I fucked up the index and it should be "i - 1", instead
 }
 
+// FIXME: This don't feel right... _Manager::Remove has all these checks and is much more delicate
 void _Manager::RemoveAll()
 { game_managers.clear(); }
 
