@@ -1,37 +1,28 @@
 #ifndef DEBUGGING_H
 #define DEBUGGING_H
-#include <iostream>
 
-//-------------------
-// PRINTOUT FUNCTIONS
-//-------------------
+#include <iostream> // IWYU pragma: keep // Used in macro
 
-// Macros, for my sanity
-#define _PRINT(label, content) std::cout << std::string(label) << std::string(content) << "\n";
-#define _PRINTERR(content) std::cerr << std::string("[ERROR]\t") << std::string(content) << "\n";
+// Yes, this is technically a debugging tool, but it's only used in cases where the entire program has a high likelihood of crashing so
+// I've decided to make sure it always prints, even in the release builds.
+#define PRINTCATASTROPHIC(content) std::cerr << std::string("[CATASTROPHIC ERROR]\t" + std::string(content)) << std::endl
 
-// Normal Printout
-template<typename T>
-constexpr void PRINT(const T& thing)
-{
-    if constexpr(std::is_arithmetic_v<T>) _PRINT("", std::to_string(thing))
-    if constexpr(!std::is_arithmetic_v<T>) _PRINT("", std::string(thing))
-}
+#ifdef NOSTALGIA_DEBUGGING // See Makefile
 
-// Warning Printout
-template<typename T>
-constexpr void PRINTWARN(const T& thing)
-{
-    if constexpr(std::is_arithmetic_v<T>) _PRINT("[WARNING]\t", std::to_string(thing))
-    if constexpr(!std::is_arithmetic_v<T>) _PRINT("[WARNING]\t", std::string(thing))
-}
+// PRINTOUT MACROS
+#define PRINT(content) std::cout << std::string(content) << std::endl
+#define PRINTLABEL(label, content) std::cout << std::string(std::string(label) + "\t") << std::string(content) << std::endl
+#define PRINTERR(content) PRINTLABEL("[ERROR]", content)
+#define PRINTWARN(content) PRINTLABEL("[WARNING]", content)
+#define PRINTDEBUG(content) PRINTLABEL("[DEBUG]", content)
 
-// Error Printout
-template<typename T>
-constexpr void PRINTERR(const T& thing)
-{
-    if constexpr(std::is_arithmetic_v<T>) _PRINTERR(std::to_string(thing))
-    if constexpr(!std::is_arithmetic_v<T>) _PRINTERR(std::string(thing))
-}
+#else // NOSTALGIA_DEBUGGING
 
+#define PRINT(content)
+#define PRINTERR(content)
+#define PRINTLABEL(label, content)
+#define PRINTWARN(content)
+#define PRINTDEBUG(content)
+
+#endif // NOSTALGIA_DEBUGGING
 #endif // DEBUGGING_H

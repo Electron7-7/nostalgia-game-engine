@@ -44,7 +44,7 @@ RED   = \\033[31m
 GREEN = \\033[32m
 BLUE  = \\033[34m
 
-.PHONY: all clean dirty_clean build run run_debug run_release debug release sublime
+.PHONY: all clean dirty_clean build run run_debug run_release eval_debug debug release sublime
 sublime: ;@:
 	$(eval RESET="")
 	$(eval RED="")
@@ -54,7 +54,10 @@ sublime: ;@:
 all: $(APP) $(DEBUG_APP)
 	@echo -e "Finished compiling: $(BLUE)$(APP)$(RESET) & $(BLUE)$(DEBUG_APP)$(RESET)"
 
-debug: $(DEBUG_APP)
+eval_debug:
+	$(eval CXXFLAGS += -D NOSTALGIA_DEBUGGING)
+
+debug: eval_debug $(DEBUG_APP)
 	@echo -e "Finished compiling: $(BLUE)$(DEBUG_APP)$(RESET)"
 
 release: $(APP)
