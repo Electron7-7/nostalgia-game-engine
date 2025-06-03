@@ -1,7 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
-#include <glm/glm.hpp>
+#include <rendering/render_context.hpp>
 
 class _Backend
 {

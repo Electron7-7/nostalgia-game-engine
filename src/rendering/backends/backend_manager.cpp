@@ -59,6 +59,9 @@ bool BackendManager::Init()
     return true;
 }
 
+int BackendManager::GetBackendID()
+{ return current_backend; }
+
 GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
     if(!map_GraphicsBackends.contains(current_backend))

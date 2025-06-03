@@ -1,7 +1,7 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
-#include <backends/backends.hpp>
+#include <rendering/backends/backends.hpp>
 #include <common/macros.hpp>
 
 FORWARD_DECLARE(struct GLFWwindow;)

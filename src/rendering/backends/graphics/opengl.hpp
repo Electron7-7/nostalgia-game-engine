@@ -1,8 +1,8 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include <backends/backends.hpp>
-#include <glad/glad.h>
+#include <rendering/backends/backends.hpp>
+#include <common/opengl_includes.hpp>
 
 class OpenGL_Backend : public GraphicsBackend
 {

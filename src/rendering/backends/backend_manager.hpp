@@ -12,6 +12,7 @@ class BackendManager
 public:
     bool Init();
 
+    static int GetBackendID();
     static GraphicsBackend* GetGraphicsBackend();
     static WindowingBackend* GetWindowingBackend();
     static int RequestBackendChange(int BackendID); // Note: probably not good (see source code for more detail)
