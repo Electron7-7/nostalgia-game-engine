@@ -34,6 +34,7 @@ void InputManager::Update()
             5. add the binding (which will be a command) to the command buffer
             6. run ProcessCommands() after every input event is processed
     */
+    global_BackendManager->GetWindowingBackend()->prototype_PollEvents();
 }
 
 void InputManager::AddCommand(const char* new_command)
