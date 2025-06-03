@@ -52,3 +52,11 @@ It works! Before comitting, I have one last thing I want to do, which is consoli
 Actually, I *do* like the separation (since the windowing library doesn't have to be one specific library), but I think I'll keep most of the functions in the manager, and the more anal/dedicated functions in their respective graphics/windowing backend class.
 
 Alright, time to commit!
+
+Okay, now what? I think I want to try and dig into Source's rendering pipeline, but it's a fucking mess and I don't know if I really wanna spend all that time giving myself a headache. I'll look at Godot's a little bit but if it's too much, I'll just default to a render command based pipeline.
+
+I might also want to work on the whole "console commmands" pipeline, too, but that might be a bit too high level rn.
+
+Okay, here's the structure for the render manager: one (or a few) main functions for rendering that will ALWAYS return and will NEVER crash the engine, and various smaller functions for more specific tasks (generating buffers, interfacing with shaders, etc). Those functions will interface with the backend manager which will interface with the backend classes which will do the direct API calls.
+
+Okay, I finished a basic framework for the render commands system, as well as the "camera property" system for the main "camera". I'm fucking tired, lmfao, but it works and I'm committing and pushing this shit.
