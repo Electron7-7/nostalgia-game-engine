@@ -60,3 +60,5 @@ I might also want to work on the whole "console commmands" pipeline, too, but th
 Okay, here's the structure for the render manager: one (or a few) main functions for rendering that will ALWAYS return and will NEVER crash the engine, and various smaller functions for more specific tasks (generating buffers, interfacing with shaders, etc). Those functions will interface with the backend manager which will interface with the backend classes which will do the direct API calls.
 
 Okay, I finished a basic framework for the render commands system, as well as the "camera property" system for the main "camera". I'm fucking tired, lmfao, but it works and I'm committing and pushing this shit.
+
+Last minute addition: added a character callback function to GLFW_Backend so it can use PRINTDEBUG to output which keys I've pressed.
