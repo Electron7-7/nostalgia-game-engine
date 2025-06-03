@@ -2,10 +2,10 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include <common/macros.hpp>
+#include <rendering/camera_property.hpp>
+// #include <common/macros.hpp>
 
 // FORWARD_DECLARE(class HeightField)
-FORWARD_DECLARE(class CameraProperty;)
 
 // Actor type
 class NostalgiaPlayerActor

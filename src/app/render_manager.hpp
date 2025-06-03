@@ -1,29 +1,14 @@
 #ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
 
+// I'm assuming that Valve used their RenderManager to delegate rendering to the various renderers (seeing as it's in src/app). I kind of
+// want to keep all the abstract rendering code contained to one "renderer" class, so I'll be taking many liberties with the structure
+// of this guy.
+
 #include "manager.hpp"
-#include <backends/backends.hpp>
-#include <backends/backend_manager.hpp>
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
-
-// Valve comment: "Physics property for entities"
-class CameraProperty
-{
-public:
-    CameraProperty();
-
-    void GetForward(glm::vec3* ForwardVector);
-
-    glm::vec3 origin;
-    glm::quat quaternion;
-    glm::vec3 velocity;
-    glm::vec3 angular_velocity;
-
-private:
-    friend class RenderManager;
-};
+#include <rendering/backends/backends.hpp>
+#include <rendering/backends/backend_manager.hpp>
+#include <rendering/camera_property.hpp>
 
 class RenderManager : public Manager<>
 {
@@ -35,13 +20,7 @@ public:
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
 
-    // Property allocation
-    CameraProperty* CreateCameraProperty();
-    void DestroyCameraProperty(CameraProperty* Property);
-
-    // TODO: Decide whether or not to keep this
-    void RenderWorldInrect(int X, int Y, int Width, int Height);
-    // void RenderWorldFullscreen();
+    bool TrySetActiveCameraProperty(CameraProperty* NewCameraProperty);
 
     // Variables related to the main window
     static bool is_main_window_fullscreen;
@@ -53,21 +32,21 @@ public:
     static int main_WindowPositionY;
 
 private:
-    // Set up a projection matrix for a 90 degree fov
-    void SetupProjectionMatrix(int Width, int Height, float FOV);
+    // Set the current projection matrix
+    void SetProjectionMatrix(int Width, int Height, float FOV);
 
-    // Set up an orthographic projection matrix
-    void SetupOrthoMatrix(int Width, int Height);
-
-    // Sets up the camera
-    void SetupCameraRenderState();
+    // Set the current orthographic matrix
+    void SetOrthoMatrix(int Width, int Height);
 
     // Draws the world
     void RenderWorld();
 
     // Note: I'm not currently planning on implementing multiplayer, but idk, maybe following Source's source code will make multiplayer easier?
     // Done completely client-side, want total smoothness, so simulate at render interval
-    void UpdateLocalPlayerCamera();
+    // void UpdateLocalPlayerCamera();
+
+    CameraProperty default_FallbackMainCameraProperty;
+    CameraProperty* current_CameraProperty = &default_FallbackMainCameraProperty;
 };
 
 // Singleton accessor

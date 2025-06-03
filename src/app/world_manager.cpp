@@ -47,10 +47,10 @@ TheatreReturnValue_t WorldManager::TheatreShutdown(bool is_first_call)
 }
 
 void WorldManager::CreateThings()
-{ world_Player.player_CameraProperty = global_RenderManager->CreateCameraProperty(); }
+{}
 
 void WorldManager::DestroyThings()
-{ global_RenderManager->DestroyCameraProperty(world_Player.player_CameraProperty); }
+{}
 
 NostalgiaPlayerActor* WorldManager::GetLocalPlayer()
 { return &world_Player; }

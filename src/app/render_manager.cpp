@@ -1,16 +1,9 @@
 #include "render_manager.hpp"
+#include <world/3d_common.hpp>
 #include <math/math_definitions.hpp>
-
-CameraProperty::CameraProperty()
-{}
-
-// FIXME: use global orientation functions, similar to "graphx::orientation::up/front/right" (also so I can account for different graphics APIs)
-glm::vec3 shitty_global_front = glm::vec3(0.0f, 1.0f, -1.0f);
-
-void CameraProperty::GetForward(glm::vec3* forward_vector)
-{
-    *forward_vector = quaternion * shitty_global_front;
-}
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/quaternion.hpp>
 
 // Singleton Accessor
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
@@ -42,37 +35,19 @@ TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 { return FINISHED; }
 
-CameraProperty* RenderManager::CreateCameraProperty()
-{ return new CameraProperty; }
-
-void RenderManager::DestroyCameraProperty(CameraProperty* property)
-{ delete property; }
-
-// void RenderManager::RenderWorldFullscreen()
-// { render_world_fullscreen = true; }
-
-void RenderManager::RenderWorldInrect(int x, int y, int width, int height)
+/*void RenderManager::UpdateLocalPlayerCamera()
 {
-    // render_world_fullscreen = false;
-    // render_x = x;
-    // render_y = y;
-    // render_width = width;
-    // render_height = height;
-}
+    float delta_time = _Manager::DeltaTime();
+    R_Camera* camera = world_manager->GetLocalPlayer()->camera_property;
 
-void RenderManager::UpdateLocalPlayerCamera()
-{
-    // float delta_time = _Manager::DeltaTime();
-    // CameraProperty* camera = world_manager->GetLocalPlayer()->camera_property;
+    camera->origin.x = camera->origin.x + delta_time * camera->velocity.x;
+    camera->origin.y = camera->origin.y + delta_time * camera->velocity.y;
+    camera->origin.z = camera->origin.z + delta_time * camera->velocity.z;
 
-    // camera->origin.x = camera->origin.x + delta_time * camera->velocity.x;
-    // camera->origin.y = camera->origin.y + delta_time * camera->velocity.y;
-    // camera->origin.z = camera->origin.z + delta_time * camera->velocity.z;
-
-    // camera->angles.x = camera->angles.x + delta_time * camera->angular_velocity.x;
-    // camera->angles.y = camera->angles.y + delta_time * camera->angular_velocity.y;
-    // camera->angles.z = camera->angles.z + delta_time * camera->angular_velocity.z;
-}
+    camera->angles.x = camera->angles.x + delta_time * camera->angular_velocity.x;
+    camera->angles.y = camera->angles.y + delta_time * camera->angular_velocity.y;
+    camera->angles.z = camera->angles.z + delta_time * camera->angular_velocity.z;
+}*/
 
 void RenderManager::Update()
 {
@@ -80,35 +55,38 @@ void RenderManager::Update()
     if(GetTheatreState() == NOT_IN_LEVEL)
     {
         // material_system->BeginFrame(0);
-        // render_context->ClearColor4ub(76, 88, 68, 255);
-        // render_context->ClearBuffers(true, true);
+        global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
         // ui_manager->DrawUI();
         // material_system->EndFrame();
-        // material_system->SwapBuffers();
-        // return; // NOTE: Because levels aren't implemented yet, this causes the main loop to be infinite
+        global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
+        return;
     }
 
-    UpdateLocalPlayerCamera();
+    // UpdateLocalPlayerCamera();
 
     // material_system->BeginFrame(0);
-    // render_context->ClearColor4ub(0, 0, 0, 255);
-    // render_context->ClearBuffers(true, true);
+    global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     RenderWorld();
     // ui_manager->DrawUI();
     // material_system->EndFrame();
-    // material_system->SwapBuffers();
+    global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
 }
 
-void RenderManager::SetupCameraRenderState()
+bool RenderManager::TrySetActiveCameraProperty(CameraProperty* new_camera_property)
 {
+    // TODO: I predict this will eventually be needed in order to weed out bad camera_propertys. Currently, it just avoids null pointers.
+    if(!new_camera_property)
+        return false;
 
+    current_CameraProperty = new_camera_property;
+    return true;
 }
 
-// FIXME: Better control over Z range
+// FIXME: Replace with functions for better control over view distance & near-clip distance
 #define ZNEAR 0.01f
 #define ZFAR 100000.0f
 
-void RenderManager::SetupProjectionMatrix(int width, int height, float fov)
+void RenderManager::SetProjectionMatrix(int width, int height, float fov)
 {
     glm::mat4 projection_matrix;
     float z_near = ZNEAR;
@@ -129,7 +107,7 @@ void RenderManager::SetupProjectionMatrix(int width, int height, float fov)
     // render_context->LoadMatrix(projection_matrix);
 }
 
-void RenderManager::SetupOrthoMatrix(int width, int height)
+void RenderManager::SetOrthoMatrix(int width, int height)
 {
     // MaterialRenderContextPointer render_context(material_system);
     // render_context->MatrixMode(MATERIAL_PROJECTION);
@@ -150,6 +128,8 @@ void RenderManager::RenderWorld()
     // render_context->PushMatrix();
     // render_context->LoadIdentity();
 
+    current_CameraProperty->UpdateView();
+
     // if(render_world_fullscreen)
     // {
         // render_x = render_y = 0;
@@ -157,16 +137,12 @@ void RenderManager::RenderWorld()
     // }
 
     // render_context->DepthRange(0, 1);
-    // render_context->Viewport(render_x, render_y, render_width, render_height);
+    // render_context->CameraProperty(render_x, render_y, render_width, render_height);
 
     // SetupProjectionMatrix(render_width, render_height, 90);
 
-    SetupCameraRenderState();
-
     // TODO: This function should probably not be so generic/abstract
     global_BackendManager->prototype_RenderFrame();
-
-    // world_manager->DrawWorld();
 
     // render_context->MatrixMode(MATERIAL_PROJECTION);
     // render_context->PopMatrix();
