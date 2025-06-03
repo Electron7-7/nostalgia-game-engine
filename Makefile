@@ -12,12 +12,14 @@ OUT := build
 APP := $(OUT)/Nostalgia.x86_64
 DEBUG_APP := $(OUT)/Nostalgia_Debug.x86_64
 
-SRC_DIRS :=                \
-	src/app                \
-	src/system             \
-	src/backends           \
-	src/backends/graphics  \
-	src/backends/windowing
+SRC_DIRS :=                          \
+	src/app                          \
+	src/system                       \
+	src/world                        \
+	src/rendering                    \
+	src/rendering/backends           \
+	src/rendering/backends/graphics  \
+	src/rendering/backends/windowing
 
 DIRTY_SRC_DIRS :=        \
 	src/common           \
