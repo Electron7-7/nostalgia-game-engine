@@ -5,7 +5,6 @@
 #include <app/input_manager.hpp>
 #include <GLFW/glfw3.h>
 
-
 //--------------------
 // PROTOTYPE FUNCTIONS
 //--------------------
@@ -79,9 +78,15 @@ bool GLFW_Backend::CreateMainWindow()
     }
 
     glfwSetKeyCallback(glfw_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
+    glfwSetCharCallback(glfw_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
     glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
     return true;
+}
+
+void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
+{
+    PRINTDEBUG(std::string("Key pressed: ").append(1, static_cast<char>(codepoint)));
 }
 
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)

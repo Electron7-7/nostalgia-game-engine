@@ -23,6 +23,7 @@ protected:
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods);
     static void glfw_CursorPosCallbackFunction(GLFWwindow* Window, double XPosition, double YPosition);
+    static void glfw_CharacterCallbackFunction(GLFWwindow* Window, unsigned int CodePoint);
     /*
     For raw mouse motion, use:
     --------------------------
