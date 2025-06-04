@@ -2,8 +2,8 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include <rendering/camera_property.hpp>
-// #include <common/macros.hpp>
+#include "engine/rendering/camera_property.hpp"
+// #include "common/macros.hpp"
 
 // FORWARD_DECLARE(class HeightField)
 

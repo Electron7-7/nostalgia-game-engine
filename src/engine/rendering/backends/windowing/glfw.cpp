@@ -1,9 +1,9 @@
 #include "glfw.hpp"
-#include <debugging.hpp>
-#include <opengl_includes.hpp>
-#include <app/render_manager.hpp>
-#include <app/input_manager.hpp>
-#include <GLFW/glfw3.h>
+#include "debugging.hpp"
+#include "opengl_includes.hpp"
+#include "engine/managers/render_manager.hpp"
+#include "engine/managers/input_manager.hpp"
+// #include <GLFW/glfw3.h>
 
 //--------------------
 // PROTOTYPE FUNCTIONS

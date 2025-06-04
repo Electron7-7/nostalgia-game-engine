@@ -4,8 +4,8 @@
 #include <shellapi.h>
 #endif // _WIN32
 
-#include <debugging.hpp>
-#include <app/toymaker.hpp>
+#include "debugging.hpp"
+#include "app/toymaker.hpp"
 
 int DedicatedMain(int argc, char* argv[])
 {

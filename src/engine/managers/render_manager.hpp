@@ -6,9 +6,9 @@
 // of this guy.
 
 #include "manager.hpp"
-#include <rendering/backends/backends.hpp>
-#include <rendering/backends/backend_manager.hpp>
-#include <rendering/camera_property.hpp>
+#include "engine/rendering/backends/backends.hpp"
+#include "engine/rendering/backends/backend_manager.hpp"
+#include "engine/rendering/camera_property.hpp"
 
 class RenderManager : public Manager<>
 {

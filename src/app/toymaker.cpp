@@ -1,8 +1,8 @@
 #include "toymaker.hpp"
-#include "manager.hpp"
-#include "world_manager.hpp"
-#include "render_manager.hpp"
-#include "input_manager.hpp"
+#include "engine/managers/manager.hpp"
+#include "engine/managers/world_manager.hpp"
+#include "engine/managers/render_manager.hpp"
+#include "engine/managers/input_manager.hpp"
 
 static TheToyMaker singleton_TheToyMakerApp;
 TheToyMaker* global_App = &singleton_TheToyMakerApp;
