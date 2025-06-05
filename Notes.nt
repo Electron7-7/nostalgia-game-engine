@@ -62,3 +62,8 @@ Okay, here's the structure for the render manager: one (or a few) main functions
 Okay, I finished a basic framework for the render commands system, as well as the "camera property" system for the main "camera". I'm fucking tired, lmfao, but it works and I'm committing and pushing this shit.
 
 Last minute addition: added a character callback function to GLFW_Backend so it can use PRINTDEBUG to output which keys I've pressed.
+
+[06/04/25]
+After spending most of my time on the GraphX project structure & makefile overhaul (ughhhhhhhh), I did a smaller one for Nostalgia (smaller bc it didn't need nearly as large of a change as GraphX did). I might work a bit on Nostalgia, but I'm pretty mentally tired so idk.
+
+Okay, I want to move input-related code out of `WindowingBackend`, so I'm going to make functions for assigning the various callback functions.
