@@ -73,7 +73,7 @@ void RenderManager::Update()
     global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
 }
 
-bool RenderManager::TrySetActiveCameraProperty(CameraProperty* new_camera_property)
+bool RenderManager::try_SetActiveCameraProperty(CameraProperty* new_camera_property)
 {
     // TODO: I predict this will eventually be needed in order to weed out bad camera_propertys. Currently, it just avoids null pointers.
     if(!new_camera_property)

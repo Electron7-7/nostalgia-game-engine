@@ -18,7 +18,11 @@ public:
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
 
-    bool TrySetActiveCameraProperty(CameraProperty* NewCameraProperty);
+    // Prototype functions
+    bool prototype_SetFullscreen(bool EnableFullscreen);
+
+    // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
+    bool try_SetActiveCameraProperty(CameraProperty* NewCameraProperty);
 
     // Variables related to the main window
     static bool is_main_window_fullscreen;
