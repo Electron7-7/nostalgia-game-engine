@@ -1,7 +1,8 @@
 #include "input_manager.hpp"
-// #include "toymaker.hpp"
-#include "engine/rendering/backends/windowing/glfw.hpp"
+#include "engine/backends/backends.hpp"
+#include "engine/backends/backend_manager.hpp"
 
+// Singleton accessor
 InputManager singleton_InputManager;
 InputManager* global_InputManager = &singleton_InputManager;
 

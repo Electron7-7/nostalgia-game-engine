@@ -98,5 +98,10 @@ void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int sca
 
 void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double position_x, double position_y)
 {
-
+    /*
+    For raw mouse motion, use:
+    --------------------------
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    */
 }

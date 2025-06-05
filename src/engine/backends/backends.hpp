@@ -1,7 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
-#include "engine/rendering/render_context.hpp"
+#include <glm/glm.hpp>
 
 class _Backend
 {
@@ -26,9 +26,6 @@ public:
     // Prototype Functions
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
     virtual void prototype_RenderFrame() {}
-
-protected:
-    friend class RenderManager;
 };
 
 class WindowingBackend : public _Backend
@@ -43,11 +40,6 @@ public:
     // Prototype Functions
     virtual void prototype_SwapBuffers() {}
     virtual void prototype_PollEvents() {}
-
-protected:
-    friend class RenderManager;
-
-    bool center_aligned_if_windowed = true;
 };
 
 namespace BackendIDs
