@@ -3,7 +3,9 @@
 #include "opengl_includes.hpp"
 #include "engine/managers/render_manager.hpp"
 #include "engine/managers/input_manager.hpp"
-// #include <GLFW/glfw3.h>
+
+#define ASSERT_KEY(glfw_key_id) if(!key_id_map.contains(glfw_key_id)) return;
+#define CONVERT_KEY(glfw_key_id) key_id_map.at(glfw_key_id) // FIXME: give this a better name
 
 //--------------------
 // PROTOTYPE FUNCTIONS
@@ -91,9 +93,13 @@ void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned i
 
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    // FIXME: This is the generic "exit on escape" case; it's currently in its shitty, prototype stage
-    if(key == GLFW_KEY_ESCAPE)
-        global_InputManager->prototype_ExitOnEscapeCalled();
+    ASSERT_KEY(key);
+
+    if(action == 1)
+        global_KeyHandler->Press(CONVERT_KEY(key));
+
+    else if(action == 0)
+        global_KeyHandler->Release(CONVERT_KEY(key));
 }
 
 void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double position_x, double position_y)

@@ -2,6 +2,7 @@
 #define INPUT_MANAGER_H
 
 #include "manager.hpp"
+#include "engine/handlers/key_handler.hpp"
 
 class InputManager : public Manager<>
 {
@@ -14,7 +15,7 @@ public:
     void AddCommand(const char* NewCommand);
 
     // PROTOTYPE FUNCTIONS
-    void prototype_ExitOnEscapeCalled(); // NOTE: Temporary way of making sure we can exit the main loop
+    void prototype_CustomKeyCallback(KeyID Key, KeyAction Action);
 
 private:
     // Per-frame update of commands

@@ -1,6 +1,7 @@
 #include "input_manager.hpp"
 #include "engine/backends/backends.hpp"
 #include "engine/backends/backend_manager.hpp"
+#include "engine/handlers/key_handler.hpp"
 
 // Singleton accessor
 InputManager singleton_InputManager;
@@ -8,19 +9,19 @@ InputManager* global_InputManager = &singleton_InputManager;
 
 // PROTOTYPE FUNCTIONS
 
-void InputManager::prototype_ExitOnEscapeCalled()
-{ _Manager::Stop(); }
+void InputManager::prototype_CustomKeyCallback(KeyID key, KeyAction action)
+{
+    if(key == KEY::ESC && action == KEY_PRESSED)
+        _Manager::Stop();
+}
 
 // END PROTOTYPE FUNCTIONS
 
 bool InputManager::Init()
 {
-    // FIXME: Read keybindings from a file
-    // Note: idk if that means to remove or add this functionality
-    // m_KeyBindings.SetBinding( "w", "+forward" );
-    // m_KeyBindings.SetBinding( "s", "+back" );
     // m_KeyBindings.SetBinding( "`", "toggleconsole" );
     // m_ButtonUpToEngine.ClearAll();
+    global_KeyHandler->Init();
     return true;
 }
 
