@@ -1,19 +1,18 @@
 #include "toymaker.hpp"
 #include "engine/managers/manager.hpp"
+#include "engine/managers/input_manager.hpp"
 #include "engine/managers/world_manager.hpp"
 #include "engine/managers/render_manager.hpp"
-#include "engine/managers/input_manager.hpp"
+#include "engine/backends/backend_manager.hpp"
 
-static TheToyMaker singleton_TheToyMakerApp;
+// Singleton accessor
+TheToyMaker singleton_TheToyMakerApp;
 TheToyMaker* global_App = &singleton_TheToyMakerApp;
 
 bool TheToyMaker::Create()
 {
     if(!BaseClass::Create())
         return false;
-
-    // Add app systems
-    // _System::Add(global_InputSystem);
 
     return true;
 }
@@ -25,8 +24,6 @@ bool TheToyMaker::PreInit()
 
     if(!global_BackendManager->Init())
         return false;
-
-    // Check for missing interfaces...
 
     return true;
 }
@@ -44,11 +41,6 @@ void TheToyMaker::PostShutdown()
 
 int TheToyMaker::Main()
 {
-    // if(!SetVideoMode())
-    //  return 0;
-
-    // global_MaterialSystem->ModInit();
-
     // World database
     _Manager::Add(global_WorldManager);
 
@@ -56,20 +48,12 @@ int TheToyMaker::Main()
     _Manager::Add(global_RenderManager);
 
     // Input
-    // _Manager::Add(global_NetworkManager);
     _Manager::Add(global_InputManager);
     // _Manager::Add(global_MenuManager);
     // _Manager::Add(global_UIManager);
 
     // Physics
     // _Manager::Add(global_PhysicsManager);
-
-    // Init the systems
-    // if(!_System::InitAllSystems())
-        // return 0;
-
-    // Start the main system loop
-    // _System::Start();
 
     // Init the managers
     if(!_Manager::InitAllManagers())
@@ -83,11 +67,6 @@ int TheToyMaker::Main()
 
     // Shut down game systems after main loop ends
     _Manager::ShutdownAllManagers();
-
-    // global_MaterialSystem->ModShutdown();
-
-    // Note: I'm assuming that the last function called would exit the program and this is if that function fails? Idk, so I'm gonna just write 'return 0'
-    // return 1;
 
     return 0;
 }

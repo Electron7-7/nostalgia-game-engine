@@ -2,10 +2,6 @@
 #define THE_TOYMAKER_H
 
 #include "application.hpp"
-#include "common/macros.hpp"
-
-FORWARD_DECLARE(class TheToyMaker;)
-FORWARD_DECLARE(extern TheToyMaker* global_App;)
 
 class TheToyMaker : public _Application
 {
@@ -19,5 +15,7 @@ public:
     virtual void PostShutdown();
     virtual const char* GetAppName() { return "TheToyMaker"; };
 };
+
+extern TheToyMaker* global_App;
 
 #endif // THE_TOYMAKER_H
