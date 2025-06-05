@@ -1,6 +1,6 @@
 #include "render_manager.hpp"
-#include "engine/backends/backends.hpp"
-#include "engine/backends/backend_manager.hpp"
+#include "backend_manager.hpp"
+#include "engine/backends/backend.hpp"
 #include "math/math_definitions.hpp"
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

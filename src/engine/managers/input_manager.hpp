@@ -2,7 +2,7 @@
 #define INPUT_MANAGER_H
 
 #include "manager.hpp"
-#include "engine/handlers/key_handler.hpp"
+#include "engine/input/key_handler.hpp"
 
 class InputManager : public Manager<>
 {

@@ -1,7 +1,7 @@
 #include "input_manager.hpp"
-#include "engine/backends/backends.hpp"
-#include "engine/backends/backend_manager.hpp"
-#include "engine/handlers/key_handler.hpp"
+#include "backend_manager.hpp"
+#include "engine/backends/backend.hpp"
+#include "engine/input/key_handler.hpp"
 
 // Singleton accessor
 InputManager singleton_InputManager;

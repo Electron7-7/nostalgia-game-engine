@@ -3,8 +3,8 @@ standard library maps for comparing input IDs from various windowing libraries t
 --------------------------------------------------------------------------------------------------------------
 */
 
-#include "engine/handlers/key_handler.hpp"
-#include "windowing/glfw.hpp"
+#include "engine/input/key_handler.hpp"
+#include "engine/backends/windowing/glfw.hpp"
 #include "opengl_includes.hpp" // IWYU pragma: keep // Used by GLFW_Backend::key_id_map
 
 const std::map<GLFW_Backend::GLFW_KeyID, KeyID> GLFW_Backend::key_id_map =
