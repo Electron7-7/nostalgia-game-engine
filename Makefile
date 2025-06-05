@@ -18,6 +18,7 @@ SRC_DIRS :=                       \
 	src/world                     \
 	src/math                      \
 	src/engine                    \
+	src/engine/handlers           \
 	src/engine/managers           \
 	src/engine/rendering          \
 	src/engine/backends           \
