@@ -1,7 +1,7 @@
-#include "backend.hpp"
 #include "backend_manager.hpp"
-#include "graphics/opengl.hpp"
-#include "windowing/glfw.hpp"
+#include "engine/backends/backend.hpp"
+#include "engine/backends/graphics/opengl.hpp"
+#include "engine/backends/windowing/glfw.hpp"
 #include "debugging.hpp"
 
 // BackendManager Singleton
