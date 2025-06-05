@@ -67,3 +67,5 @@ Last minute addition: added a character callback function to GLFW_Backend so it 
 After spending most of my time on the GraphX project structure & makefile overhaul (ughhhhhhhh), I did a smaller one for Nostalgia (smaller bc it didn't need nearly as large of a change as GraphX did). I might work a bit on Nostalgia, but I'm pretty mentally tired so idk.
 
 Okay, I want to move input-related code out of `WindowingBackend`, so I'm going to make functions for assigning the various callback functions.
+
+I actually eneded up going in a totally different direction and I think it paid off! I made a custom "KeyboardHandler" class that interfaces with each windowing backend directly (via the backend). Basically, each windowing backend will interface with the KeyboardHandler in their respective key callback function, driving the KeyboardHandler's own pseudo-callback. Then, the KeyboardHandler interfaces directly with the InputManager's pseudo-callback function, which drives the actual input code. Basically, I've made a system for translating various windowing libraries' key handling to my own in a way that should be super modular and API/library agnostic.
