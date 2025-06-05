@@ -100,6 +100,7 @@ OBJS ?= $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
 RESET   = \\033[0m
+BLACK   = \\033[30m
 RED     = \\033[31m
 GREEN   = \\033[32m
 YELLOW  = \\033[33m
@@ -110,22 +111,22 @@ WHITE   = \\033[37m
 DEFAULT = \\033[39m
 GREY    = \\033[90m
 
-.PHONY: default sublime linux windows debug release build clean dirty_clean
+.PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
-	@ echo -e "::Compile command: $(WHITE)$(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(WHITE) -c <source file> -o <object file>$(RESET)"
-	@ echo -e "::Variable Definitions:"
-	@ echo -e "\t$(YELLOW)CXXFLAGS: $(WHITE)$(CXXFLAGS)$(RESET)"
-	@ echo -e "\t$(YELLOW)INCLUDE: $(WHITE)$(INCLUDE)$(RESET)\n"
+	@ echo -e "$(BLACK)::Compile command: $(GREY)$(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(GREY) -c <source file> -o <object file>$(RESET)"
+	@ echo -e "$(BLACK)::Variable Definitions:$(RESET)"
+	@ echo -e "\t$(YELLOW)CXXFLAGS: $(GREY)$(CXXFLAGS)$(RESET)"
+	@ echo -e "\t$(YELLOW)INCLUDE: $(GREY)$(INCLUDE)$(RESET)\n"
 
 	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(OBJS)
 
-	@ echo -e "::Linking command: $(WHITE)$(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(WHITE)-o$(YELLOW) (BUILD_OUT)$(WHITE)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
-	@ echo -e "::Variables:"
-	@ echo -e "\t$(YELLOW)LIBRARIES: $(WHITE)$(LIBRARIES)$(RESET)"
-	@ echo -e "\t$(YELLOW)OBJS: $(WHITE)all the object files previously compiled$(RESET)"
-	@ echo -e "\t$(YELLOW)BUILD_OUT: $(WHITE)$(BUILD_OUT)$(RESET)"
-	@ echo -e "\t$(YELLOW)APP_OUT: $(WHITE)$(APP_OUT)$(RESET)\n"
+	@ echo -e "$(BLACK)::Linking command: $(GREY)$(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(GREY)-o$(YELLOW) (BUILD_OUT)$(GREY)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
+	@ echo -e "$(BLACK)::Variables:$(RESET)"
+	@ echo -e "\t$(YELLOW)LIBRARIES: $(GREY)$(LIBRARIES)$(RESET)"
+	@ echo -e "\t$(YELLOW)OBJS: $(GREY)all the object files previously compiled$(RESET)"
+	@ echo -e "\t$(YELLOW)BUILD_OUT: $(GREY)$(BUILD_OUT)$(RESET)"
+	@ echo -e "\t$(YELLOW)APP_OUT: $(GREY)$(APP_OUT)$(RESET)\n"
 
 	$(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
 
@@ -134,6 +135,7 @@ default:
 
 sublime: ;@:
 	$(eval RESET="")
+	$(eval BLACK="")
 	$(eval RED="")
 	$(eval GREEN="")
 	$(eval YELLOW="")
@@ -182,47 +184,56 @@ endef
 build:
 	@ -mkdir -p $(BUILD_OUT)
 
-
 $(BUILD_OUT)/$(APP_OUT):
-	@ echo -e "Linking: $(CYAN)$@$(RESET)"
+	@ echo -e "$(BLACK)Linking: $(CYAN)$@$(RESET)"
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $@ $(LIBRARIES)
-	@ echo -e "Finished Linking: $(GREEN)$(BUILD_OUT)/$(APP_OUT)$(RESET)"
+	@ echo -e "$(BLACK)Finished Linking: $(GREEN)$(BUILD_OUT)/$(APP_OUT)$(RESET)"
 
 $(BUILD_OUT)/%.obj: src/%.cpp | build
-	@ echo -e "Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(BLACK)Compiling: $(GREY)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
-	@ echo -e "Finished Compiling: $(GREEN)$@$(RESET)"
+	@ echo -e "$(BLACK)Finished Compiling: $(GREEN)$@$(RESET)"
 
 $(BUILD_OUT)/%.o: src/%.c | build
-	@ echo -e "Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(BLACK)Compiling: $(GREY)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
-	@ echo -e "Finished Compiling: $(GREEN)$@$(RESET)"
+	@ echo -e "$(BLACK)Finished Compiling: $(GREEN)$@$(RESET)"
 
-IS_CLEAN = $(shell [ -d $(OUT) ]; echo $$? )
-
-clean:
-ifeq ($(IS_CLEAN), 1)
-	@ echo "Build is already clean"
-else
-	@ -rm -rf $(BUILD_ROOT)
-	@ echo -e "Cleaned: $(RED)$(BUILD_ROOT)/$(RESET)"
-endif
-
-define selective_clean
-	@ if [ -d $(1) ]; then echo -e "Cleaned: $(RED)$(1)/$(RESET)"; fi
+#
+# Clean Targets
+#
+define clean_with_message
+	@ if [ -d $(1) ]; then echo -e "$(BLACK)Cleaned: $(RED)$(1)$(RESET)"; fi
 	@ -rm -rf $(1)
 endef
 
-# These variables help make 'dirty_clean' less awful
+clean:
+	$(call clean_with_message,$(BUILD_ROOT))
+
+clean_debug:
+	$(call clean_with_message,$(BUILD_LINUX_DEBUG))
+	$(call clean_with_message,$(BUILD_WINDOWS_DEBUG))
+
+clean_release:
+	$(call clean_with_message,$(BUILD_LINUX_RELEASE))
+	$(call clean_with_message,$(BUILD_WINDOWS_RELEASE))
+
+clean_linux:
+	$(call clean_with_message,$(BUILD_ROOT)/$(BUILD_PATH_LINUX))
+
+clean_windows:
+	$(call clean_with_message,$(BUILD_ROOT)/$(BUILD_PATH_WINDOWS))
+
+# These variables help make 'clean_dirty' less awful
 BUILD_LINUX_RELEASE   := $(BUILD_ROOT)/$(BUILD_PATH_LINUX)/$(BUILD_PATH_RELEASE)
 BUILD_LINUX_DEBUG     := $(BUILD_ROOT)/$(BUILD_PATH_LINUX)/$(BUILD_PATH_DEBUG)
 BUILD_WINDOWS_RELEASE := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_RELEASE)
 BUILD_WINDOWS_DEBUG   := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_DEBUG)
 
-dirty_clean:
-	$(call selective_clean,$(BUILD_LINUX_RELEASE))
-	$(call selective_clean,$(BUILD_LINUX_DEBUG))
-	$(call selective_clean,$(BUILD_WINDOWS_RELEASE))
-	$(call selective_clean,$(BUILD_WINDOWS_DEBUG))
+clean_dirty:
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_RELEASE)/%)
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_DEBUG)/%)
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_RELEASE)/%)
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_DEBUG)/%)
