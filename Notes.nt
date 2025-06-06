@@ -69,3 +69,14 @@ After spending most of my time on the GraphX project structure & makefile overha
 Okay, I want to move input-related code out of `WindowingBackend`, so I'm going to make functions for assigning the various callback functions.
 
 I actually eneded up going in a totally different direction and I think it paid off! I made a custom "KeyboardHandler" class that interfaces with each windowing backend directly (via the backend). Basically, each windowing backend will interface with the KeyboardHandler in their respective key callback function, driving the KeyboardHandler's own pseudo-callback. Then, the KeyboardHandler interfaces directly with the InputManager's pseudo-callback function, which drives the actual input code. Basically, I've made a system for translating various windowing libraries' key handling to my own in a way that should be super modular and API/library agnostic.
+
+[06/05/25]
+All right, I fiddled with the Makefile this morning (and a little more just now) and I think it's in a really nice state. On to actual coding! I'm thinking that what I could do next could be to flesh out the render manager more and try to get a shader and a default cube going!
+
+I think the BackendManager will be interfaced with for the most abstracted calls, since it can interface with the graphics API & the windowing library at the same time. Granted, it also has functions for accessing the backends to the API & library respectively, but I feel like the more contained I keep these direct calls, the better. Two degrees of separation feels better to me.
+
+Hmm, while working in the backend manager code, I realized I want to quickly change the whole BackendID system; basically, I need for one graphics API to be able to work with different windowing libraries, but only if those libraries are for that graphics API. This way I can account for things like how GLFW can be used with OpenGL and Vulkan but not DirectX, while SDL can be used with all 3 (iirc). A simple struct should do.
+
+UGH I'M SO STUPID LMFAO. Keep it simple, stupid: give the responsibility of keeping track of compatible backends to the fucking windowing backend class. I didn't need to do all the coding I just did.
+
+Aight, I implemented a way for the windowing backends to check their compatibility with any of the graphics backends. All the functional code is contained in the 'WindowingBackend' base class, so the only code that needs to be written for any new derived windowing backends is a simple one-line definition of the 'compatible_graphics_ids' set in the 'Init' function (see 'src/engine/backends/windowing/glfw.cpp' for an example).
