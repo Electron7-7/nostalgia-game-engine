@@ -4,6 +4,7 @@
 #include "vertex.hpp"
 #include "debugging.hpp"
 #include <glm/glm.hpp>
+#include <vector>
 #include <map>
 
 struct Mesh
@@ -11,10 +12,26 @@ struct Mesh
 public:
     typedef unsigned int Index;
 
-    void AddVertex(Vertex NewVertex)
+    std::vector<float> GetVertexData() const
     {
-        vertices[vertices.size()] = NewVertex;
+        std::vector<float> all_vertex_data = {};
+        for(auto& [index, vertex] : vertices)
+        {
+            std::array<float, 11> iterative_vertex_data = vertex.VertexData();
+            all_vertex_data.insert(all_vertex_data.end(), iterative_vertex_data.begin(), iterative_vertex_data.end());
+        }
+
+        return all_vertex_data;
     }
+
+    std::vector<Index> GetIndices() const
+    { return face_indices; }
+
+    void AddVertex(Vertex NewVertex)
+    { vertices[vertices.size()] = NewVertex; }
+
+    void AddIndex(Index NewIndex)
+    { face_indices.insert(face_indices.end(), NewIndex); }
 
     void RemoveVertex(Index IndexOfVertexToRemove)
     {
@@ -38,7 +55,7 @@ public:
 
 private:
     std::map<Index, Vertex> vertices = {};
-    // std::vector<Tri> tris = {}; // TODO: Decide whether or not to make Tris their own class
+    std::vector<Index> face_indices;
 };
 
 #endif // MESH_H

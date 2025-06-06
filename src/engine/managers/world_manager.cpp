@@ -1,5 +1,8 @@
 #include "world_manager.hpp"
-#include "render_manager.hpp"
+#include "backend_manager.hpp"
+#include "engine/backends/backend.hpp"
+#include "engine/rendering/camera_property.hpp"
+#include <glm/glm.hpp>
 
 WorldManager singleton_WorldManager;
 WorldManager* global_WorldManager = &singleton_WorldManager;
@@ -8,23 +11,16 @@ WorldManager* global_WorldManager = &singleton_WorldManager;
 
 WorldManager::WorldManager()
 {
-    // world_HeightManager = nullptr;
 }
 
 WorldManager::~WorldManager()
 {
-    // assert(world_HeightManager == nullptr);
 }
 
 TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
 {
     if(!is_first_call)
         return FINISHED;
-
-    // assert(!world_HeightField);
-    // world_HeightField = new HeightField(6, 6, 4);
-    // if(!world_HeightField->LoadHeightFromFile("maps/testheight.psd"))
-    //     return FAILED;
 
     CreateThings();
     SetInitialLocalPlayerPosition();
@@ -38,11 +34,6 @@ TheatreReturnValue_t WorldManager::TheatreShutdown(bool is_first_call)
 
     DestroyThings();
 
-    // if(world_HeightField)
-    // {
-    //  delete world_HeightField;
-    //  world_HeightField = nullptr;
-    // }
     return FINISHED;
 }
 
@@ -57,18 +48,43 @@ NostalgiaPlayerActor* WorldManager::GetLocalPlayer()
 
 void WorldManager::SetInitialLocalPlayerPosition()
 {
+    // FIXME: This is hardcoded and bad; don't do this
     float distance = 1024.0;
     glm::vec3 camera_direction(1.0f, 1.0f, -0.5f);
     camera_direction = glm::normalize(camera_direction);
 
-    world_Player.player_CameraProperty->origin.x = 512 + camera_direction.x * distance;
-    world_Player.player_CameraProperty->origin.y = 0   + camera_direction.y * distance;
-    world_Player.player_CameraProperty->origin.z = 512 + camera_direction.z * distance;
+    world_Player.GetCameraProperty()->origin.x = 512 + camera_direction.x * distance;
+    world_Player.GetCameraProperty()->origin.y = 0   + camera_direction.y * distance;
+    world_Player.GetCameraProperty()->origin.z = 512 + camera_direction.z * distance;
 }
 
-void WorldManager::DrawWorld()
+const Mesh* WorldManager::GetMesh(MeshID mesh_uid)
 {
-    // world_HeightField->Draw();
+    if(!world_MeshStorage.contains(mesh_uid))
+    {
+        PRINTERR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr");
+        return nullptr;
+    }
+
+    return world_MeshStorage.at(mesh_uid).GetMesh();
 }
 
+WorldManager::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
+{
+    int mesh_uid = world_MeshStorage.size();
+    // FIXME: This could probably do to be safer...
+    world_MeshStorage[mesh_uid] = MeshWrapper(new_mesh, mesh_uid);
+    return mesh_uid;
+}
+
+void WorldManager::RenderWorld()
+{
+    GraphicsBackend* current_GraphicsBackend = global_BackendManager->GetGraphicsBackend();
+
+    for(int i = 0 ; i < world_RenderCommandQueue.size() ; i++)
+    {
+        // This function should contain as few conditionals as possible and just be a straight shot down.
+        current_GraphicsBackend->GetShader(Shaders::BLINN_PHONG)->Bind();
+    }
+}
 // The rest are the console command functions (see hl2_src/app/legion/worldmanager.cpp:128-166)

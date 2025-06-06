@@ -2,30 +2,42 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include "engine/rendering/camera_property.hpp"
-// #include "common/macros.hpp"
+#include "engine/rendering/mesh.hpp"
+#include "engine/rendering/render_command.hpp"
+#include "engine/things/actors/nostalgia_player.hpp"
+#include <memory>
 
-// FORWARD_DECLARE(class HeightField)
-
-// Actor type
-class NostalgiaPlayerActor
+struct MeshWrapper
 {
 public:
-    CameraProperty* player_CameraProperty;
+    MeshWrapper(const Mesh& Mesh, const int UID): _mesh(Mesh), _uid(UID) {}
+    MeshWrapper(): MeshWrapper(Mesh(), 0) {}
+
+    int GetUID() const { return _uid; }
+    Mesh* GetMesh() { return &_mesh; }
+
+private:
+    Mesh _mesh;
+    int _uid = 0;
 };
 
 class WorldManager : public Manager<>
 {
 public:
+    typedef int MeshID;
+
     WorldManager();
     virtual ~WorldManager();
 
     virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
-    void DrawWorld();
-
     NostalgiaPlayerActor* GetLocalPlayer();
+
+    const Mesh* GetMesh(int MeshID);
+    MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
+
+    void RenderWorld();
 
 private:
     // Various console commands created via Macro; see hl2_src/external/vpc/public/tier1/convar.h (~line 958) for more details
@@ -37,8 +49,11 @@ private:
     // Sets the initial camera position
     void SetInitialLocalPlayerPosition();
 
-    // HeightField* world_HeightField;
     NostalgiaPlayerActor world_Player;
+
+    std::vector<RenderCommand> world_RenderCommandQueue = {};
+    std::vector<std::unique_ptr<Thing>> world_ThingStorage = {};
+    std::map<MeshID, MeshWrapper> world_MeshStorage = {};
 };
 
 // Singleton accessor

@@ -1,5 +1,6 @@
 #include "render_manager.hpp"
 #include "backend_manager.hpp"
+#include "world_manager.hpp"
 #include "engine/backends/backend.hpp"
 #include "math/math_definitions.hpp"
 #include <glm/glm.hpp>
@@ -51,35 +52,18 @@ TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 
 void RenderManager::Update()
 {
-    // MaterialRenderContextPointer render_context(material_system);
     if(GetTheatreState() == NOT_IN_LEVEL)
     {
-        // material_system->BeginFrame(0);
         global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
         // ui_manager->DrawUI();
-        // material_system->EndFrame();
         global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
         return;
     }
 
-    // UpdateLocalPlayerCamera();
-
-    // material_system->BeginFrame(0);
     global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    RenderWorld();
+    global_WorldManager->RenderWorld();
     // ui_manager->DrawUI();
-    // material_system->EndFrame();
     global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
-}
-
-bool RenderManager::try_SetActiveCameraProperty(CameraProperty* new_camera_property)
-{
-    // TODO: I predict this will eventually be needed in order to weed out bad camera_propertys. Currently, it just avoids null pointers.
-    if(!new_camera_property)
-        return false;
-
-    current_CameraProperty = new_camera_property;
-    return true;
 }
 
 // FIXME: Replace with functions for better control over view distance & near-clip distance
@@ -113,40 +97,4 @@ void RenderManager::SetOrthoMatrix(int width, int height)
     // render_context->MatrixMode(MATERIAL_PROJECTION);
     // render_context->LoadIdentity();
     // render_context->Ortho(0, 0, width, height, -1.0f, 1.0f);
-}
-
-void RenderManager::RenderWorld()
-{
-    // MaterialRenderContextPointer render_context(material_system);
-    // render_context->MatrixMode(MATERIAL_PROJECTION);
-    // render_context->PushMatrix();
-
-    // render_context->MatrixMode(MATERIAL_VIEW);
-    // render_context->PushMatrix();
-
-    // render_context->MatrixMode(MATERIAL_MODEL);
-    // render_context->PushMatrix();
-    // render_context->LoadIdentity();
-
-    current_CameraProperty->UpdateView();
-
-    // if(render_world_fullscreen)
-    // {
-        // render_x = render_y = 0;
-        // render_context->GetRenderTargetDimensions(render_width, render_height);
-    // }
-
-    // render_context->DepthRange(0, 1);
-    // render_context->CameraProperty(render_x, render_y, render_width, render_height);
-
-    // SetupProjectionMatrix(render_width, render_height, 90);
-
-    // render_context->MatrixMode(MATERIAL_PROJECTION);
-    // render_context->PopMatrix();
-
-    // render_context->MatrixMode(MATERIAL_VIEW);
-    // render_context->PopMatrix();
-
-    // render_context->MatrixMode(MATERIAL_MODEL);
-    // render_context->PopMatrix();
 }

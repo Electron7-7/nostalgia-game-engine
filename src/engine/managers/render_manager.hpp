@@ -9,7 +9,6 @@
 // be the delegator/controller/...manager but the more detailed functions should go to their respective renderers.
 
 #include "manager.hpp"
-#include "engine/rendering/camera_property.hpp"
 
 class RenderManager : public Manager<>
 {
@@ -20,29 +19,18 @@ public:
     virtual void Update();
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
+    virtual bool PleaseTickMeInAFixedUpdateLoop() { return true; }
 
     // Prototype functions
     bool prototype_SetFullscreen(bool EnableFullscreen);
 
     // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
-    bool try_SetActiveCameraProperty(CameraProperty* NewCameraProperty);
+    // (these should be guaranteed not to be important enough to cause a crash or other major problems)
+    // bool try_SetActiveCameraProperty(CameraProperty* NewCameraProperty);
 
 private:
-    // Set the current projection matrix
     void SetProjectionMatrix(int Width, int Height, float FOV);
-
-    // Set the current orthographic matrix
     void SetOrthoMatrix(int Width, int Height);
-
-    // Draws the world
-    void RenderWorld();
-
-    // Note: I'm not currently planning on implementing multiplayer, but idk, maybe following Source's source code will make multiplayer easier?
-    // Done completely client-side, want total smoothness, so simulate at render interval
-    // void UpdateLocalPlayerCamera();
-
-    CameraProperty default_FallbackMainCameraProperty;
-    CameraProperty* current_CameraProperty = &default_FallbackMainCameraProperty;
 };
 
 // Singleton accessor
