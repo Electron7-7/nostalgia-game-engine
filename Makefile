@@ -213,7 +213,7 @@ $(BUILD_OUT)/%.o: src/%.c | build
 # Clean Targets
 #
 define clean_with_message
-	@ $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "$(DEFAULT)Cleaned: $(RED)$(dir)$(RESET)"; fi))
+	@ echo -e $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "\n$(DEFAULT)Cleaned: $(RED)$(dir)$(RESET)"; fi))
 	@ -rm -rf $(1)
 endef
 
