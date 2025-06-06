@@ -80,3 +80,8 @@ Hmm, while working in the backend manager code, I realized I want to quickly cha
 UGH I'M SO STUPID LMFAO. Keep it simple, stupid: give the responsibility of keeping track of compatible backends to the fucking windowing backend class. I didn't need to do all the coding I just did.
 
 Aight, I implemented a way for the windowing backends to check their compatibility with any of the graphics backends. All the functional code is contained in the 'WindowingBackend' base class, so the only code that needs to be written for any new derived windowing backends is a simple one-line definition of the 'compatible_graphics_ids' set in the 'Init' function (see 'src/engine/backends/windowing/glfw.cpp' for an example).
+
+[06/06/25]
+Fixed up the makefile a bit and started working on some rendering-related code. I fixed that issue with address sanitizer: the makefile works fine on my laptop, but had some issues on my PC that I addressed and fixed.
+
+I created a 'Vertex' struct, a 'Mesh' struct, and gave 'RenderContext' a Mesh variable & function preemptively.
