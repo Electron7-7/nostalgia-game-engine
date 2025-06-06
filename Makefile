@@ -134,6 +134,9 @@ default:
 	$(eval BUILD_OUT=$(BUILD_OUT))
 	$(eval APP_OUT=$(APP_OUT))
 
+# This target is for disabling the ANSI colors. The reason it's called 'sublime' (and an example use-case) is because
+# Sublime Text's output panel doesn't support ANSI colors natively, so I call this target in every build system that's
+# in my Sublime Text project file for Nostalgia.
 sublime: ;@:
 	$(eval export RESET="")
 	$(eval export BLACK="")
