@@ -210,7 +210,8 @@ define clean_with_message
 endef
 
 clean:
-	$(call clean_with_message,$(BUILD_ROOT))
+	@ if [ -d $(BUILD_ROOT) ]; then echo -e "$(DEFAULT)Cleaned: $(RED)$(BUILD_ROOT)$(RESET)"; fi
+	@ -rm -rf $(BUILD_ROOT)
 
 clean_debug:
 	$(call clean_with_message,$(BUILD_LINUX_DEBUG))
