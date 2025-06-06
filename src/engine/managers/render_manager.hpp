@@ -24,15 +24,6 @@ public:
     // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
     bool try_SetActiveCameraProperty(CameraProperty* NewCameraProperty);
 
-    // Variables related to the main window
-    static bool is_main_window_fullscreen;
-    static bool center_main_window_if_windowed;
-    static const char* main_WindowName;
-    static int main_WindowWidth;
-    static int main_WindowHeight;
-    static int main_WindowPositionX;
-    static int main_WindowPositionY;
-
 private:
     // Set the current projection matrix
     void SetProjectionMatrix(int Width, int Height, float FOV);

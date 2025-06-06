@@ -38,6 +38,7 @@ public:
     virtual bool CreateMainWindow() { return true; }
 
     // Prototype Functions
+    virtual bool prototype_SetFullscreen(bool FullscreenOn) { return true; }
     virtual void prototype_SwapBuffers() {}
     virtual void prototype_PollEvents() {}
 };
@@ -48,5 +49,15 @@ namespace BackendIDs
 
     constexpr int Default = OpenGL_GLFW;
 }
+protected:
+    friend class RenderManager;
+    friend class BackendManager;
+    inline static int main_WindowPositionX = 0;
+    inline static int main_WindowPositionY = 0;
+    inline static int main_WindowWidth = 1280;
+    inline static int main_WindowHeight = 720;
+    inline static bool main_WindowIsFullscreen = false;
+    inline static bool main_WindowIsCentered = true;
+    inline static const char* main_WindowName = "Nostalgia";
 
 #endif // BACKENDS_H

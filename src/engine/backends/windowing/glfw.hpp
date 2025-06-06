@@ -6,6 +6,7 @@
 #include "common/macros.hpp"
 
 FORWARD_DECLARE(struct GLFWwindow;)
+FORWARD_DECLARE(struct GLFWmonitor;)
 
 class GLFW_Backend : public WindowingBackend
 {
@@ -14,12 +15,14 @@ public:
     virtual void Shutdown();
     virtual bool CreateMainWindow();
 
-    // PROTOTYPE FUNCTIONS
+    // PROTOTYPE FUNCTIONS (inherited from Backend)
+    virtual bool prototype_SetFullscreen(bool FullscreenOn);
     virtual void prototype_SwapBuffers();
     virtual void prototype_PollEvents();
 
 private:
     GLFWwindow* glfw_MainWindow = nullptr;
+    GLFWmonitor* glfw_LastFullscreenedMonitor = nullptr;
 
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods);

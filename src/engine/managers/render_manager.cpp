@@ -10,17 +10,16 @@
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
 RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
 
-// TODO: probably want to change the default to "true" for release builds
-bool RenderManager::is_main_window_fullscreen = false;
-// NOTE: if the automatic centering function is wrong or otherwise unwanted, set this to false (or set 'is_main_window_fullscreen' to true)
-bool RenderManager::center_main_window_if_windowed = true;
+// Prototype Functions
+bool RenderManager::prototype_SetFullscreen(bool enable_fullscreen)
+{
+    if(global_BackendManager->GetWindowingBackend()->prototype_SetFullscreen(enable_fullscreen))
+        return true;
 
-// Main window variables
-const char* RenderManager::main_WindowName = "Nostalgia";
-int RenderManager::main_WindowWidth        = 1280;
-int RenderManager::main_WindowHeight       = 720;
-int RenderManager::main_WindowPositionX    = 0;
-int RenderManager::main_WindowPositionY    = 0;
+    return false;
+}
+// End Prototype Functions
+
 
 bool RenderManager::Init()
 {
