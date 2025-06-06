@@ -2,6 +2,8 @@
 #include "opengl_includes.hpp"
 #include "debugging.hpp"
 #include "world/3d_common.hpp"
+#include "engine/rendering/shader_interface.hpp"
+#include "engine/rendering/shader_interfaces/gl_shader.hpp"
 
 //--------------------
 // PROTOTYPE FUNCTIONS
@@ -34,3 +36,14 @@ bool OpenGL_Backend::Init()
 
 void OpenGL_Backend::Shutdown()
 { is_initialized = false; }
+
+const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
+{
+    if(shaders.size() <= shader_selection)
+    {
+        PRINTERR("OpenGL_Backend::GetShader - index overflow! Returning nullptr");
+        return nullptr;
+    }
+
+    return &shaders.at(shader_selection);
+}

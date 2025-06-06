@@ -1,6 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
+#include "engine/rendering/shader_interface.hpp"
 #include <glm/glm.hpp>
 #include <set>
 
@@ -38,6 +39,8 @@ public:
     virtual ~GraphicsBackend() = default;
     virtual bool Init() { return true; }
     virtual void Shutdown() {}
+
+    virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
 
     // Prototype Functions
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
