@@ -5,6 +5,9 @@
 // want to keep all the abstract rendering code contained to one "renderer" class, so I'll be taking many liberties with the structure
 // of this guy.
 
+// Secondary note: I actually might want to split up rendering between the game, the UI, the window/app, etc. The RenderManager will still
+// be the delegator/controller/...manager but the more detailed functions should go to their respective renderers.
+
 #include "manager.hpp"
 #include "engine/rendering/camera_property.hpp"
 
