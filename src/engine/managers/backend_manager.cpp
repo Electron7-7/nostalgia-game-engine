@@ -24,18 +24,7 @@ WindowingBackendID BackendManager::current_WindowingBackend = BackendIDs::defaul
 // PROTOTYPE FUNCTIONS
 //--------------------
 
-void BackendManager::prototype_RenderFrame()
-{
-    // These render steps can (and should) be changed in the future
 
-    // Step 1: Swap & clear the buffer and poll input events
-    GetWindowingBackend()->prototype_SwapBuffers();
-    GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.9f, 0.1f, 1.0f, 1.0f)); // TODO: replace hardcoded clear color with variable(s)
-    GetWindowingBackend()->prototype_PollEvents();
-
-    // Step 2: Render frame
-    GetGraphicsBackend()->prototype_RenderFrame();
-}
 
 //------------------------
 // END PROTOTYPE FUNCTIONS

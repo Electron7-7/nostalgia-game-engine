@@ -34,29 +34,29 @@ protected:
 class GraphicsBackend : public _Backend
 {
 public:
+    // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
-
     virtual bool Init() { return true; }
     virtual void Shutdown() {}
 
     // Prototype Functions
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
-    virtual void prototype_RenderFrame() {}
 };
 
 class WindowingBackend : public _Backend
 {
 public:
+    // Inherited by _Backend
     virtual ~WindowingBackend() = default;
-
     virtual bool Init() { return true; }
     virtual void Shutdown() {}
-    virtual bool CreateMainWindow() { return true; }
+
+    virtual bool CreateMainWindow() = 0;
 
     // Prototype Functions
-    virtual bool prototype_SetFullscreen(bool FullscreenOn) { return true; }
-    virtual void prototype_SwapBuffers() {}
-    virtual void prototype_PollEvents() {}
+    virtual bool prototype_SetFullscreen(bool FullscreenOn) = 0;
+    virtual void prototype_SwapBuffers() = 0;
+    virtual void prototype_PollEvents() = 0;
 
     // Compatibility Functions
     bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }

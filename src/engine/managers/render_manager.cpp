@@ -141,9 +141,6 @@ void RenderManager::RenderWorld()
 
     // SetupProjectionMatrix(render_width, render_height, 90);
 
-    // TODO: This function should probably not be so generic/abstract
-    global_BackendManager->prototype_RenderFrame();
-
     // render_context->MatrixMode(MATERIAL_PROJECTION);
     // render_context->PopMatrix();
 

@@ -5,12 +5,16 @@
 
 class OpenGL_Backend : public GraphicsBackend
 {
+public:
+    virtual ~OpenGL_Backend() = default;
+
     virtual bool Init();
     virtual void Shutdown();
 
     // PROTOTYPE FUNCTIONS
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor);
-    virtual void prototype_RenderFrame();
+
+private:
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;
