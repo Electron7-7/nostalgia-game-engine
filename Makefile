@@ -114,22 +114,22 @@ export DEFAULT = \\033[39m
 .PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
-	@ echo -e "$(DEFAULT)::Compile command: $(WHITE)$(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(WHITE) -c <source file> -o <object file>$(RESET)"
+	@ echo -e "$(DEFAULT)::Compile command: $(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(DEFAULT) -c <source file> -o <object file>$(RESET)"
 	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
-	@ echo -e "\t$(YELLOW)CXXFLAGS: $(WHITE)$(CXXFLAGS)$(RESET)"
-	@ echo -e "\t$(YELLOW)INCLUDE: $(WHITE)$(INCLUDE)$(RESET)\n"
+	@ echo -e "\t$(YELLOW)CXXFLAGS: $(DEFAULT)$(CXXFLAGS)$(RESET)"
+	@ echo -e "\t$(YELLOW)INCLUDE: $(DEFAULT)$(INCLUDE)$(RESET)\n"
 
 	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(OBJS)
 
-	@ echo -e "$(DEFAULT)::Linking command: $(WHITE)$(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(WHITE)-o$(YELLOW) (BUILD_OUT)$(WHITE)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
+	@ echo -e "$(DEFAULT)::Linking command: $(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(DEFAULT)-o$(YELLOW) (BUILD_OUT)$(DEFAULT)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
 	@ echo -e "$(DEFAULT)::Variables:$(RESET)"
-	@ echo -e "\t$(YELLOW)LIBRARIES: $(WHITE)$(LIBRARIES)$(RESET)"
-	@ echo -e "\t$(YELLOW)OBJS: $(WHITE)all the object files previously compiled$(RESET)"
-	@ echo -e "\t$(YELLOW)BUILD_OUT: $(WHITE)$(BUILD_OUT)$(RESET)"
-	@ echo -e "\t$(YELLOW)APP_OUT: $(WHITE)$(APP_OUT)$(RESET)\n"
+	@ echo -e "\t$(YELLOW)LIBRARIES: $(DEFAULT)$(LIBRARIES)$(RESET)"
+	@ echo -e "\t$(YELLOW)OBJS: $(DEFAULT)all the object files previously compiled$(RESET)"
+	@ echo -e "\t$(YELLOW)BUILD_OUT: $(DEFAULT)$(BUILD_OUT)$(RESET)"
+	@ echo -e "\t$(YELLOW)APP_OUT: $(DEFAULT)$(APP_OUT)$(RESET)\n"
 
 	@ -rm -f $(BUILD_OUT)/$(APP_OUT) # in case it already exists
-	$(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
+	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
 
 	$(eval BUILD_OUT=$(BUILD_OUT))
 	$(eval APP_OUT=$(APP_OUT))
@@ -168,9 +168,9 @@ windows: ;@:
 	$(eval CC_SELECT = $(WINDOWS_CC))
 	$(eval APP_ARCH = $(APP_NAME_WINDOWS))
 	$(eval BUILD_ARCH = $(BUILD_PATH_WINDOWS))
-	@ $(eval DEBUG_FLAGS = $(filter-out -fsanitize=address,$(DEBUG_FLAGS)))
+	$(eval DEBUG_FLAGS = $(filter-out -fsanitize=address,$(DEBUG_FLAGS)))
 
-debug: CXX_FLAGS += $(DEBUG_FLAGS)
+debug: PROGRAM_FLAGS += $(DEBUG_FLAGS)
 debug: APP_VERSION = $(APP_NAME_DEBUG)
 debug: BUILD_VERSION = $(BUILD_PATH_DEBUG)
 debug:
@@ -185,7 +185,7 @@ release:
 	$(call recursive_make)
 
 define recursive_make
-	@ $(MAKE) -s OBJS="$(OBJS)" CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
+	@ $(MAKE) -s OBJS="$(OBJS)" CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" PROGRAM_FLAGS="$(PROGRAM_FLAGS)" CXX_FLAGS="$(CXX_FLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
 endef
 
 
@@ -198,13 +198,13 @@ $(BUILD_OUT)/$(APP_OUT):
 	@ echo -e "$(DEFAULT)Finished Linking: $(GREEN)$(BUILD_OUT)/$(APP_OUT)$(RESET)"
 
 $(BUILD_OUT)/%.obj: src/%.cpp | build
-	@ echo -e "$(DEFAULT)Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Compiling: $(DEFAULT)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
 	@ echo -e "$(DEFAULT)Finished Compiling: $(GREEN)$@$(RESET)"
 
 $(BUILD_OUT)/%.o: src/%.c | build
-	@ echo -e "$(DEFAULT)Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Compiling: $(DEFAULT)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
 	@ echo -e "$(DEFAULT)Finished Compiling: $(GREEN)$@$(RESET)"
@@ -213,13 +213,12 @@ $(BUILD_OUT)/%.o: src/%.c | build
 # Clean Targets
 #
 define clean_with_message
-	@ echo -e $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "\n$(DEFAULT)Cleaned: $(RED)$(dir)$(RESET)"; fi))
+	@ if [ -d $(1) ]; then echo -e "\n$(DEFAULT)Cleaned: $(RED)$(1)$(RESET)"; fi
 	@ -rm -rf $(1)
 endef
 
 clean:
-	@ if [ -d $(BUILD_ROOT) ]; then echo -e "$(DEFAULT)Cleaned: $(RED)$(BUILD_ROOT)$(RESET)"; fi
-	@ -rm -rf $(BUILD_ROOT)
+	$(call clean_with_message,$(BUILD_ROOT))
 
 clean_debug:
 	$(call clean_with_message,$(BUILD_LINUX_DEBUG))
@@ -241,8 +240,12 @@ BUILD_LINUX_DEBUG     := $(BUILD_ROOT)/$(BUILD_PATH_LINUX)/$(BUILD_PATH_DEBUG)
 BUILD_WINDOWS_RELEASE := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_RELEASE)
 BUILD_WINDOWS_DEBUG   := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_DEBUG)
 
-clean_dirty:
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_RELEASE)/%))
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_DEBUG)/%))
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_RELEASE)/%))
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_DEBUG)/%))
+define _dirty_clean
+	$(shell if [ -d $(1) ]; then echo -e "Cleaned:\t$(DEFAULT)$(RED)$(1)$(RESET)"; rm -rf $(1); fi;)
+endef
+
+clean_dirty: ;@:
+	@ echo -e $(foreach dir,$(SRC_DIRS:src/%=$(BUILD_LINUX_RELEASE)/%),$(call _dirty_clean,$(dir)))
+	@ echo -e $(foreach dir,$(SRC_DIRS:src/%=$(BUILD_LINUX_DEBUG)/%),$(call _dirty_clean,$(dir)))
+	@ echo -e $(foreach dir,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_RELEASE)/%),$(call _dirty_clean,$(dir)))
+	@ echo -e $(foreach dir,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_DEBUG)/%),$(call _dirty_clean,$(dir)))
