@@ -58,6 +58,9 @@ public:
     virtual void prototype_SwapBuffers() {}
     virtual void prototype_PollEvents() {}
 
+    // Compatibility Functions
+    bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }
+    std::set<GraphicsBackendID> GetCompatibleGraphicsIDs() const { return compatible_graphics_ids; }
 
 protected:
     friend class RenderManager;
@@ -70,6 +73,7 @@ protected:
     inline static bool main_WindowIsCentered = true;
     inline static const char* main_WindowName = "Nostalgia";
 
+    std::set<BackendID> compatible_graphics_ids = {};
 };
 
 #endif // BACKENDS_H

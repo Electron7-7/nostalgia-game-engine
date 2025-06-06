@@ -90,7 +90,12 @@ bool BackendManager::InitBackend()
     if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
         return false;
 
-{
+    if(!GetWindowingBackend()->CompatibleWith(current_GraphicsBackend))
+    {
+        // TODO: Figure out what I wanna do if this happens (probably just load the default backends and try again)
+        PRINTERR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)");
+        return false;
+    }
 
     GetWindowingBackend()->CreateMainWindow();
 
