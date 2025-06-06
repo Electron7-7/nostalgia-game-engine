@@ -85,3 +85,9 @@ Aight, I implemented a way for the windowing backends to check their compatibili
 Fixed up the makefile a bit and started working on some rendering-related code. I fixed that issue with address sanitizer: the makefile works fine on my laptop, but had some issues on my PC that I addressed and fixed.
 
 I created a 'Vertex' struct, a 'Mesh' struct, and gave 'RenderContext' a Mesh variable & function preemptively.
+
+NOTE: Interfaces can be classes/structs that other classes/structs implement (via multiple inheritance).
+
+Hmm, how am I gonna store and reference Mesh objects? Maybe either the render manager or another class can store all relevant resources! Probably the render manager.
+
+Okay, the world manager will be what stores all relevant world resources and delegates world rendering.
