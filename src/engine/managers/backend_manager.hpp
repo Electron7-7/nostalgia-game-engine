@@ -6,27 +6,32 @@
 
 FORWARD_DECLARE(class GraphicsBackend;)
 FORWARD_DECLARE(class WindowingBackend;)
+// This typedef keeps the code self-documenting
+typedef int BackendID;
+// These typedefs help make the code easier to understand in certain areas (so, more self-documentation)
+typedef int GraphicsBackendID;
+typedef int WindowingBackendID;
 
 class BackendManager
 {
 public:
     bool Init();
 
-    static int GetBackendID();
     static GraphicsBackend* GetGraphicsBackend();
     static WindowingBackend* GetWindowingBackend();
-    static int RequestBackendChange(int BackendID); // Note: probably not good (see source code for more detail)
+    // static int RequestBackendChange(BackendID BackendID); // Note: probably not good (see source code for more detail)
 
     // Prototype Functions
-    virtual void prototype_RenderFrame();
+    void prototype_RenderFrame();
 
 private:
-    static std::map<int, GraphicsBackend*>  map_GraphicsBackends;
-    static std::map<int, WindowingBackend*> map_WindowingBackends;
+    static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends;
+    static std::map<BackendID, WindowingBackend*> map_WindowingBackends;
 
     static bool is_initialized;
     static bool is_backend_initialized;
-    static int current_backend;
+    static GraphicsBackendID current_GraphicsBackend;
+    static WindowingBackendID current_WindowingBackend;
 
     static bool InitBackend();
 };

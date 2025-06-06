@@ -2,7 +2,6 @@
 #include "opengl_includes.hpp"
 #include "common/debugging.hpp"
 #include "world/3d_common.hpp"
-// #include "engine/managers/render_manager.hpp"
 #include "engine/rendering/render_command.hpp"
 
 //--------------------

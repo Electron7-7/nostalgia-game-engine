@@ -2,6 +2,22 @@
 #define BACKENDS_H
 
 #include <glm/glm.hpp>
+#include <set>
+
+// This typedef keeps the code self-documenting
+typedef int BackendID;
+// These typedefs help make the code easier to understand in certain areas (so, more self-documentation)
+typedef int GraphicsBackendID;
+typedef int WindowingBackendID;
+
+namespace BackendIDs
+{
+    constexpr GraphicsBackendID OpenGL = 0;
+    constexpr WindowingBackendID GLFW  = 0;
+
+    constexpr BackendID default_Graphics = OpenGL;
+    constexpr BackendID default_Windowing = GLFW;
+}
 
 class _Backend
 {
@@ -41,14 +57,8 @@ public:
     virtual bool prototype_SetFullscreen(bool FullscreenOn) { return true; }
     virtual void prototype_SwapBuffers() {}
     virtual void prototype_PollEvents() {}
-};
 
-namespace BackendIDs
-{
-    constexpr int OpenGL_GLFW = 0;
 
-    constexpr int Default = OpenGL_GLFW;
-}
 protected:
     friend class RenderManager;
     friend class BackendManager;
@@ -59,5 +69,7 @@ protected:
     inline static bool main_WindowIsFullscreen = false;
     inline static bool main_WindowIsCentered = true;
     inline static const char* main_WindowName = "Nostalgia";
+
+};
 
 #endif // BACKENDS_H

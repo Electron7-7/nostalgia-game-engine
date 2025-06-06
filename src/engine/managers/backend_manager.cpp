@@ -12,11 +12,12 @@ BackendManager* global_BackendManager = &singleton_BackendManager;
 OpenGL_Backend singleton_OpenGL_Backend;
 GLFW_Backend singleton_GLFW_Backend;
 
-std::map<int, GraphicsBackend*> BackendManager::map_GraphicsBackends = {};
-std::map<int, WindowingBackend*> BackendManager::map_WindowingBackends = {};
+std::map<BackendID, GraphicsBackend*> BackendManager::map_GraphicsBackends = {};
+std::map<BackendID, WindowingBackend*> BackendManager::map_WindowingBackends = {};
 bool BackendManager::is_initialized = false;
 bool BackendManager::is_backend_initialized = false;
-int BackendManager::current_backend = BackendIDs::Default;
+GraphicsBackendID BackendManager::current_GraphicsBackend = BackendIDs::default_Graphics;
+WindowingBackendID BackendManager::current_WindowingBackend = BackendIDs::default_Windowing;
 
 
 //--------------------
@@ -46,10 +47,10 @@ bool BackendManager::Init()
         return true;
 
     // Set up graphics backends map
-    map_GraphicsBackends[BackendIDs::OpenGL_GLFW] = &singleton_OpenGL_Backend;
+    map_GraphicsBackends[BackendIDs::OpenGL] = &singleton_OpenGL_Backend;
 
     // Set up windowing backends map
-    map_WindowingBackends[BackendIDs::OpenGL_GLFW] = &singleton_GLFW_Backend;
+    map_WindowingBackends[BackendIDs::GLFW] = &singleton_GLFW_Backend;
 
     is_initialized = true;
 
@@ -59,36 +60,47 @@ bool BackendManager::Init()
     return true;
 }
 
-int BackendManager::GetBackendID()
-{ return current_backend; }
-
 GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
-    if(!map_GraphicsBackends.contains(current_backend))
+    if(!map_GraphicsBackends.contains(current_GraphicsBackend))
     {
-        PRINTWARN("BackendManager::Graphics - current backend ID is invalid; returning default backend ID");
-        current_backend = BackendIDs::Default;
+        PRINTWARN("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID");
+        current_GraphicsBackend = BackendIDs::default_Graphics;
     }
 
-    return map_GraphicsBackends.at(current_backend);
+    return map_GraphicsBackends.at(current_GraphicsBackend);
 }
 
 WindowingBackend* BackendManager::GetWindowingBackend()
 {
-    if(!map_WindowingBackends.contains(current_backend))
+    if(!map_WindowingBackends.contains(current_WindowingBackend))
     {
-        PRINTWARN("BackendManager::Windowing - current backend ID is invalid; returning default backend ID");
-        current_backend = BackendIDs::Default;
+        PRINTWARN("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID");
+        current_WindowingBackend = BackendIDs::default_Windowing;
     }
 
-    return map_WindowingBackends.at(current_backend);
+    return map_WindowingBackends.at(current_WindowingBackend);
 }
 
-
-int BackendManager::RequestBackendChange(int backend_id)
+bool BackendManager::InitBackend()
 {
-    // FIXME: I'm like 99% sure that if you were to actually try and do this, you'd crash or some other nasty outcome, but there's only one backend rn so...
+    if(is_backend_initialized)
+        return true;
 
+    if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
+        return false;
+
+{
+
+    GetWindowingBackend()->CreateMainWindow();
+
+    is_backend_initialized = true;
+    return true;
+}
+
+// FIXME: I'm like 99% sure that if you were to actually try and do this, you'd crash or some other nasty outcome, but there's only one backend rn so...
+/*int BackendManager::RequestBackendChange(int backend_id)
+{
     if(!map_GraphicsBackends.contains(backend_id) || !map_WindowingBackends.contains(backend_id))
     {
         PRINTWARN("BackendManager::RequestBackendChange - supplied backend ID invalid; returning previous backend ID");
@@ -114,18 +126,4 @@ int BackendManager::RequestBackendChange(int backend_id)
     }
 
     return current_backend;
-}
-
-bool BackendManager::InitBackend()
-{
-    if(is_backend_initialized)
-        return true;
-
-    if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
-        return false;
-
-    GetWindowingBackend()->CreateMainWindow();
-
-    is_backend_initialized = true;
-    return true;
-}
+}*/
