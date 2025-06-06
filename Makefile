@@ -99,37 +99,34 @@ OBJS ?= $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
-DO_COLORS ?= "true"
-ifeq ($(DO_COLORS),true)
-RESET   = \\033[0m
-BLACK   = \\033[30m
-RED     = \\033[31m
-GREEN   = \\033[32m
-YELLOW  = \\033[33m
-BLUE    = \\033[34m
-MAGENTA = \\033[35m
-CYAN    = \\033[36m
-WHITE   = \\033[37m
-DEFAULT = \\033[39m
-GREY    = \\033[90m
-endif
+export RESET   = \\033[0m
+export BLACK   = \\033[30m
+export RED     = \\033[31m
+export GREEN   = \\033[32m
+export YELLOW  = \\033[33m
+export BLUE    = \\033[34m
+export MAGENTA = \\033[35m
+export CYAN    = \\033[36m
+export WHITE   = \\033[37m
+export DEFAULT = \\033[39m
+
 
 .PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
-	@ echo -e "$(BLACK)::Compile command: $(GREY)$(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(GREY) -c <source file> -o <object file>$(RESET)"
-	@ echo -e "$(BLACK)::Variable Definitions:$(RESET)"
-	@ echo -e "\t$(YELLOW)CXXFLAGS: $(GREY)$(CXXFLAGS)$(RESET)"
-	@ echo -e "\t$(YELLOW)INCLUDE: $(GREY)$(INCLUDE)$(RESET)\n"
+	@ echo -e "$(DEFAULT)::Compile command: $(WHITE)$(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(WHITE) -c <source file> -o <object file>$(RESET)"
+	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
+	@ echo -e "\t$(YELLOW)CXXFLAGS: $(WHITE)$(CXXFLAGS)$(RESET)"
+	@ echo -e "\t$(YELLOW)INCLUDE: $(WHITE)$(INCLUDE)$(RESET)\n"
 
 	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(OBJS)
 
-	@ echo -e "$(BLACK)::Linking command: $(GREY)$(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(GREY)-o$(YELLOW) (BUILD_OUT)$(GREY)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
-	@ echo -e "$(BLACK)::Variables:$(RESET)"
-	@ echo -e "\t$(YELLOW)LIBRARIES: $(GREY)$(LIBRARIES)$(RESET)"
-	@ echo -e "\t$(YELLOW)OBJS: $(GREY)all the object files previously compiled$(RESET)"
-	@ echo -e "\t$(YELLOW)BUILD_OUT: $(GREY)$(BUILD_OUT)$(RESET)"
-	@ echo -e "\t$(YELLOW)APP_OUT: $(GREY)$(APP_OUT)$(RESET)\n"
+	@ echo -e "$(DEFAULT)::Linking command: $(WHITE)$(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(WHITE)-o$(YELLOW) (BUILD_OUT)$(WHITE)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
+	@ echo -e "$(DEFAULT)::Variables:$(RESET)"
+	@ echo -e "\t$(YELLOW)LIBRARIES: $(WHITE)$(LIBRARIES)$(RESET)"
+	@ echo -e "\t$(YELLOW)OBJS: $(WHITE)all the object files previously compiled$(RESET)"
+	@ echo -e "\t$(YELLOW)BUILD_OUT: $(WHITE)$(BUILD_OUT)$(RESET)"
+	@ echo -e "\t$(YELLOW)APP_OUT: $(WHITE)$(APP_OUT)$(RESET)\n"
 
 	@ -rm -f $(BUILD_OUT)/$(APP_OUT) # in case it already exists
 	$(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
@@ -138,7 +135,16 @@ default:
 	$(eval APP_OUT=$(APP_OUT))
 
 sublime: ;@:
-	$(eval DO_COLORS="false")
+	$(eval export RESET="")
+	$(eval export BLACK="")
+	$(eval export RED="")
+	$(eval export GREEN="")
+	$(eval export YELLOW="")
+	$(eval export BLUE="")
+	$(eval export MAGENTA="")
+	$(eval export CYAN="")
+	$(eval export WHITE="")
+	$(eval export DEFAULT="")
 
 linux: ;@:
 	$(eval INCLUDE_SELECT = $(INCLUDE_LINUX))
@@ -171,7 +177,7 @@ release:
 	$(call recursive_make)
 
 define recursive_make
-	@ $(MAKE) -s CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" DO_COLORS="$(DO_COLORS)"
+	@ $(MAKE) -s CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
 endef
 
 
@@ -179,27 +185,27 @@ build:
 	@ -mkdir -p $(BUILD_OUT)
 
 $(BUILD_OUT)/$(APP_OUT):
-	@ echo -e "$(BLACK)Linking: $(CYAN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Linking: $(CYAN)$@$(RESET)"
 	$(CXX) $(CXXFLAGS) $(INCLUDE) $(OBJS) -o $@ $(LIBRARIES)
-	@ echo -e "$(BLACK)Finished Linking: $(GREEN)$(BUILD_OUT)/$(APP_OUT)$(RESET)"
+	@ echo -e "$(DEFAULT)Finished Linking: $(GREEN)$(BUILD_OUT)/$(APP_OUT)$(RESET)"
 
 $(BUILD_OUT)/%.obj: src/%.cpp | build
-	@ echo -e "$(BLACK)Compiling: $(GREY)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
-	@ echo -e "$(BLACK)Finished Compiling: $(GREEN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Finished Compiling: $(GREEN)$@$(RESET)"
 
 $(BUILD_OUT)/%.o: src/%.c | build
-	@ echo -e "$(BLACK)Compiling: $(GREY)$<$(RESET) -> $(CYAN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Compiling: $(WHITE)$<$(RESET) -> $(CYAN)$@$(RESET)"
 	@ -mkdir -p $(dir $@)
 	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
-	@ echo -e "$(BLACK)Finished Compiling: $(GREEN)$@$(RESET)"
+	@ echo -e "$(DEFAULT)Finished Compiling: $(GREEN)$@$(RESET)"
 
 #
 # Clean Targets
 #
 define clean_with_message
-	@ $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "$(BLACK)Cleaned: $(RED)$(dir)$(RESET)"; fi))
+	@ $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "$(DEFAULT)Cleaned: $(RED)$(dir)$(RESET)"; fi))
 	@ -rm -rf $(1)
 endef
 
