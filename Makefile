@@ -71,7 +71,7 @@ SRC_DIRS :=                       \
 	src/world                     \
 	src/math                      \
 	src/engine                    \
-	src/engine/handlers           \
+	src/engine/input              \
 	src/engine/managers           \
 	src/engine/rendering          \
 	src/engine/backends           \
@@ -99,6 +99,8 @@ OBJS ?= $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
+DO_COLORS ?= "true"
+ifeq ($(DO_COLORS),true)
 RESET   = \\033[0m
 BLACK   = \\033[30m
 RED     = \\033[31m
@@ -110,6 +112,7 @@ CYAN    = \\033[36m
 WHITE   = \\033[37m
 DEFAULT = \\033[39m
 GREY    = \\033[90m
+endif
 
 .PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
@@ -128,23 +131,14 @@ default:
 	@ echo -e "\t$(YELLOW)BUILD_OUT: $(GREY)$(BUILD_OUT)$(RESET)"
 	@ echo -e "\t$(YELLOW)APP_OUT: $(GREY)$(APP_OUT)$(RESET)\n"
 
+	@ -rm -f $(BUILD_OUT)/$(APP_OUT) # in case it already exists
 	$(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
 
 	$(eval BUILD_OUT=$(BUILD_OUT))
 	$(eval APP_OUT=$(APP_OUT))
 
 sublime: ;@:
-	$(eval RESET="")
-	$(eval BLACK="")
-	$(eval RED="")
-	$(eval GREEN="")
-	$(eval YELLOW="")
-	$(eval BLUE="")
-	$(eval MAGENTA="")
-	$(eval CYAN="")
-	$(eval WHITE="")
-	$(eval DEFAULT="")
-	$(eval GREY="")
+	$(eval DO_COLORS="false")
 
 linux: ;@:
 	$(eval INCLUDE_SELECT = $(INCLUDE_LINUX))
@@ -163,12 +157,12 @@ windows: ;@:
 	$(eval CC_SELECT = $(WINDOWS_CC))
 	$(eval APP_ARCH = $(APP_NAME_WINDOWS))
 	$(eval BUILD_ARCH = $(BUILD_PATH_WINDOWS))
+	@ $(eval DEBUG_FLAGS = $(filter-out -fsanitize=address,$(DEBUG_FLAGS)))
 
 debug: PROGRAM_FLAGS += $(DEBUG_FLAGS)
 debug: APP_VERSION = $(APP_NAME_DEBUG)
 debug: BUILD_VERSION = $(BUILD_PATH_DEBUG)
 debug:
-	@ if [ $(CXX_SELECT:@%=%) == x86_64-w64-mingw32-g++ ]; then echo 'Removing address sanitizer for mingw build' $(eval DEBUG_FLAGS = $(filter-out -fsanitize=address,$(DEBUG_FLAGS))); fi
 	$(call recursive_make)
 
 release: APP_VERSION = $(APP_NAME_RELEASE)
@@ -177,7 +171,7 @@ release:
 	$(call recursive_make)
 
 define recursive_make
-	@ $(MAKE) -s CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)"
+	@ $(MAKE) -s CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" DO_COLORS="$(DO_COLORS)"
 endef
 
 
@@ -205,7 +199,7 @@ $(BUILD_OUT)/%.o: src/%.c | build
 # Clean Targets
 #
 define clean_with_message
-	@ if [ -d $(1) ]; then echo -e "$(BLACK)Cleaned: $(RED)$(1)$(RESET)"; fi
+	@ $(foreach dir,$(1),$(shell if [ -d $(dir) ]; then echo -e "$(BLACK)Cleaned: $(RED)$(dir)$(RESET)"; fi))
 	@ -rm -rf $(1)
 endef
 
@@ -233,7 +227,7 @@ BUILD_WINDOWS_RELEASE := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_RELEAS
 BUILD_WINDOWS_DEBUG   := $(BUILD_ROOT)/$(BUILD_PATH_WINDOWS)/$(BUILD_PATH_DEBUG)
 
 clean_dirty:
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_RELEASE)/%)
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_DEBUG)/%)
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_RELEASE)/%)
-	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_DEBUG)/%)
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_RELEASE)/%))
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_LINUX_DEBUG)/%))
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_RELEASE)/%))
+	$(call clean_with_message,$(SRC_DIRS:src/%=$(BUILD_WINDOWS_DEBUG)/%))
