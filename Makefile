@@ -150,6 +150,7 @@ sublime: ;@:
 	$(eval export DEFAULT="")
 
 linux: ;@:
+	@ echo -e "$(DEFAULT)::Building for Linux$(RESET)"
 	$(eval INCLUDE_SELECT = $(INCLUDE_LINUX))
 	$(eval LIBRARIES_SELECT = $(LIBRARIES_LINUX))
 	$(eval PROGRAM_FLAGS = $(LINUX_FLAGS))
@@ -159,6 +160,7 @@ linux: ;@:
 	$(eval BUILD_ARCH = $(BUILD_PATH_LINUX))
 
 windows: ;@:
+	@ echo -e "$(DEFAULT)::Building for Windows$(RESET)"
 	$(eval INCLUDE_SELECT = $(INCLUDE_WINDOWS))
 	$(eval LIBRARIES_SELECT = $(LIBRARIES_WINDOWS))
 	$(eval PROGRAM_FLAGS = $(WINDOWS_FLAGS))
@@ -168,19 +170,22 @@ windows: ;@:
 	$(eval BUILD_ARCH = $(BUILD_PATH_WINDOWS))
 	@ $(eval DEBUG_FLAGS = $(filter-out -fsanitize=address,$(DEBUG_FLAGS)))
 
-debug: PROGRAM_FLAGS += $(DEBUG_FLAGS)
+debug: CXX_FLAGS += $(DEBUG_FLAGS)
 debug: APP_VERSION = $(APP_NAME_DEBUG)
 debug: BUILD_VERSION = $(BUILD_PATH_DEBUG)
 debug:
+	@ echo -e "$(DEFAULT)::Building Debug$(RESET)"
 	$(call recursive_make)
 
+release: CXX_FLAGS = $(filter-out $(DEBUG_FLAGS),$(CXX_FLAGS))
 release: APP_VERSION = $(APP_NAME_RELEASE)
 release: BUILD_VERSION = $(BUILD_PATH_RELEASE)
 release:
+	@ echo -e "$(DEFAULT)::Building Release$(RESET)"
 	$(call recursive_make)
 
 define recursive_make
-	@ $(MAKE) -s CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
+	@ $(MAKE) -s OBJS="$(OBJS)" CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
 endef
 
 
