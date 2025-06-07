@@ -3,6 +3,7 @@
 
 #include "engine/backends/backend.hpp"
 #include "engine/rendering/shader_interfaces/gl_shader.hpp"
+#include <vector>
 
 class OpenGL_Backend : public GraphicsBackend
 {
