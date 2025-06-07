@@ -2,8 +2,8 @@ LINUX_CXX := @clang++
 LINUX_CC  := @clang
 
 ifeq ($(OS),Windows_NT)
-	WINDOWS_CXX := @clang++
-	WINDOWS_CC  := @clang
+	WINDOWS_CXX := @g++
+	WINDOWS_CC  := @gcc
 else
 	WINDOWS_CXX := @x86_64-w64-mingw32-g++
 	WINDOWS_CC  := @x86_64-w64-mingw32-gcc
