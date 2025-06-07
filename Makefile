@@ -65,17 +65,18 @@ BUILD_OUT ?= $(BUILD_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 APP_OUT ?= $(APP_VERSION)_$(APP_ARCH)
 
 
-SRC_DIRS :=                       \
-	src/app                       \
-	src/system                    \
-	src/world                     \
-	src/math                      \
-	src/engine                    \
-	src/engine/input              \
-	src/engine/managers           \
-	src/engine/rendering          \
-	src/engine/backends           \
-	src/engine/backends/graphics  \
+SRC_DIRS :=                                \
+	src/app                                \
+	src/system                             \
+	src/world                              \
+	src/math                               \
+	src/engine                             \
+	src/engine/input                       \
+	src/engine/managers                    \
+	src/engine/rendering                   \
+	src/engine/rendering/shader_interfaces \
+	src/engine/backends                    \
+	src/engine/backends/graphics           \
 	src/engine/backends/windowing
 
 # Object files compiled from "DIRTY_SRC_DIRS" will not be cleaned during a dirty clean
