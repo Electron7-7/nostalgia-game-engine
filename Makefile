@@ -177,7 +177,6 @@ debug:
 	@ echo -e "$(DEFAULT)::Building Debug$(RESET)"
 	$(call recursive_make)
 
-release: CXX_FLAGS = $(filter-out $(DEBUG_FLAGS),$(CXX_FLAGS))
 release: APP_VERSION = $(APP_NAME_RELEASE)
 release: BUILD_VERSION = $(BUILD_PATH_RELEASE)
 release:
