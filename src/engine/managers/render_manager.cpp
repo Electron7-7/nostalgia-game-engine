@@ -24,6 +24,9 @@ bool RenderManager::prototype_SetFullscreen(bool enable_fullscreen)
 
 bool RenderManager::Init()
 {
+    if(!global_BackendManager->Init())
+        return false;
+
     return true;
 }
 
