@@ -64,7 +64,6 @@ endif
 BUILD_OUT ?= $(BUILD_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 APP_OUT ?= $(APP_VERSION)_$(APP_ARCH)
 
-
 SRC_DIRS :=                                \
 	src/app                                \
 	src/system                             \
@@ -84,6 +83,9 @@ DIRTY_SRC_DIRS :=        \
 	src/common           \
 	src/common/glad      \
 	src/common/DearImGui
+
+
+RESOURCES_DIR := src/resources
 
 CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
 CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
@@ -115,6 +117,8 @@ export DEFAULT = \\033[39m
 .PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
+	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" $(RESOURCES_DIR)
+
 	@ echo -e "$(DEFAULT)::Compile command: $(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(DEFAULT) -c <source file> -o <object file>$(RESET)"
 	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
 	@ echo -e "\t$(YELLOW)CXXFLAGS: $(DEFAULT)$(CXXFLAGS)$(RESET)"
