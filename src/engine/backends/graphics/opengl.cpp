@@ -37,6 +37,15 @@ bool OpenGL_Backend::Init()
 void OpenGL_Backend::Shutdown()
 { is_initialized = false; }
 
+bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
+{
+    if(shaders.contains(shader_label))
+        PRINTWARN("OpenGL_Backend::BuildShader - a shader with the supplied label already exists and will be overwritten");
+
+    shaders[shader_label] = GLShader(vertex_shader_code, fragment_shader_code);
+    return shaders.at(shader_label).IsValid();
+}
+
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
     if(shaders.size() <= shader_selection)

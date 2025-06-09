@@ -3,7 +3,7 @@
 
 #include "engine/backends/backend.hpp"
 #include "engine/rendering/shader_interfaces/gl_shader.hpp"
-#include <vector>
+#include <map>
 
 class OpenGL_Backend : public GraphicsBackend
 {
@@ -13,12 +13,14 @@ public:
     virtual bool Init();
     virtual void Shutdown();
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
+    virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
+    virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
 
     // PROTOTYPE FUNCTIONS
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor);
 
 private:
-    std::vector<GLShader> shaders;
+    std::map<unsigned int, GLShader> shaders;
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;
