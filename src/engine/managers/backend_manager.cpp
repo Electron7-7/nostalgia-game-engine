@@ -86,7 +86,8 @@ bool BackendManager::InitBackend()
         return false;
     }
 
-    GetWindowingBackend()->CreateMainWindow();
+    if(!GetWindowingBackend()->CreateMainWindow())
+        return false;
 
     is_backend_initialized = true;
     return true;
