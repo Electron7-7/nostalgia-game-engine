@@ -2,7 +2,7 @@
 #include "opengl_includes.hpp"
 #include "debugging.hpp"
 #include "world/3d_common.hpp"
-#include "engine/rendering/shader_interface.hpp"
+#include "engine/rendering/shader_interfaces/shader_interface.hpp"
 #include "engine/rendering/shader_interfaces/gl_shader.hpp"
 
 //--------------------

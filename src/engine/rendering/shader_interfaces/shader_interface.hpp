@@ -17,6 +17,7 @@ class ShaderInterface
 public:
     virtual ~ShaderInterface() = default;
 
+    virtual bool IsValid() const = 0;
     virtual void Bind() const = 0;
     virtual void SetUniform(const std::string& Name, int Value) const = 0;
     virtual void SetUniform(const std::string& Name, float Value) const = 0;
@@ -26,6 +27,7 @@ public:
 
 protected:
     unsigned int _id = 0;
+    bool shader_compiled_properly = false;
 };
 
 #endif // SHADER_INTERFACE_H

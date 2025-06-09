@@ -1,7 +1,7 @@
 #ifndef GL_SHADER_H
 #define GL_SHADER_H
 
-#include "engine/rendering/shader_interface.hpp"
+#include "shader_interface.hpp"
 
 class GLShader : public ShaderInterface
 {
