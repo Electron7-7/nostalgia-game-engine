@@ -10,6 +10,7 @@ public:
 
     GLShader(const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
 
+    bool IsValid() const final;
     void Bind() const final;
 
     void SetUniform(const std::string& Name, int Value) const final;
@@ -19,7 +20,7 @@ public:
     void SetUniform(const std::string& Name, glm::mat4 Value) const final;
 
 private:
-    void GLShaderErrorHandler(unsigned int ID, bool IsLinkingInsteadOfCompiling = false) const;
+    bool GLShaderErrorHandler(unsigned int ID, bool IsLinkingInsteadOfCompiling = false) const;
 };
 
 #endif // GL_SHADER_H

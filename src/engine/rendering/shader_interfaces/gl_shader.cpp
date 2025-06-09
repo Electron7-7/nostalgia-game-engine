@@ -1,6 +1,7 @@
 #include "gl_shader.hpp"
 #include "debugging.hpp"
 #include "opengl_includes.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
 GLShader::GLShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
@@ -12,42 +13,50 @@ GLShader::GLShader(const std::string& vertex_shader_code, const std::string& fra
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &v_shader_code, nullptr);
     glCompileShader(vertex);
-    GLShaderErrorHandler(vertex);
+    if(!GLShaderErrorHandler(vertex))
+        return;
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &f_shader_code, nullptr);
     glCompileShader(fragment);
-    GLShaderErrorHandler(fragment);
+    if(!GLShaderErrorHandler(fragment))
+        return;
 
     _id = glCreateProgram();
     glAttachShader(_id, vertex);
     glAttachShader(_id, fragment);
     glLinkProgram(_id);
-    GLShaderErrorHandler(_id, true);
+    if(!GLShaderErrorHandler(_id, true))
+        return;
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+
+    shader_compiled_properly = true;
 }
+
+bool GLShader::IsValid() const
+{ return shader_compiled_properly; }
 
 void GLShader::Bind() const
 { glUseProgram(_id); }
 
 void GLShader::SetUniform(const std::string& name, int value) const
-{}
+{ glProgramUniform1i(_id, glGetUniformLocation(_id, name.c_str()), value); }
 
 void GLShader::SetUniform(const std::string& name, float value) const
-{}
+{ glProgramUniform1f(_id, glGetUniformLocation(_id, name.c_str()), value); }
 
 void GLShader::SetUniform(const std::string& name, glm::vec2 value) const
-{}
+{ glProgramUniform2fv(_id, glGetUniformLocation(_id, name.c_str()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(const std::string& name, glm::vec3 value) const
-{}
+{ glProgramUniform3fv(_id, glGetUniformLocation(_id, name.c_str()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(const std::string& name, glm::mat4 value) const
-{}
+{ glProgramUniformMatrix4fv(_id, glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value)); }
 
-void GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_linking) const
+bool GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_linking) const
 {
     // FIXME: This is from GraphX and iirc there's some finnicky business with the if statements
 
@@ -75,5 +84,8 @@ void GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_link
             glGetShaderInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data());
 
         PRINTERR("GLSL " + shader_error_type + " Error(s):\n" + shader_error_message.data());
+        return false;
     }
+
+    return true;
 }
