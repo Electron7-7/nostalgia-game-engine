@@ -4,8 +4,8 @@
 KeyHandler singleton_KeyHandler;
 KeyHandler* global_KeyHandler = &singleton_KeyHandler;
 
-std::map<KeyID, Key> KeyHandler::keys;
 bool KeyHandler::is_initialized = false;
+std::map<KeyID, Key> KeyHandler::keys = {};
 
 #define ASSERT_KEY(KeyID) if(!keys.contains(KeyID)) return STATUS_KEY_NOT_FOUND;
 
@@ -15,8 +15,8 @@ void KeyHandler::Init()
         return;
 
     // NOTE: I use unsigned int for "i" here because KeyID is also unsigned int (yay, buffer overflow!)
-    for(unsigned int i = 0 ; i <= CURRENT_NUMBER_OF_HANDLED_KEYS ; i++)
-        keys.insert( { i, Key(i) } );
+    for(unsigned int i = 0 ; i < CURRENT_NUMBER_OF_HANDLED_KEYS ; i++)
+        keys[i] = Key(i);
 
     is_initialized = true;
 }
