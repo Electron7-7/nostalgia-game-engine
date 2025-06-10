@@ -8,10 +8,11 @@ class GLShader : public ShaderInterface
 public:
     virtual ~GLShader() = default;
 
-    GLShader(const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
-
+    bool CompileShader(const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     bool IsValid() const final;
-    void Bind() const final;
+    void Bind() final;
+    void Unbind() final;
+    void Delete() final;
 
     void SetUniform(const std::string& Name, int Value) const final;
     void SetUniform(const std::string& Name, float Value) const final;
@@ -21,6 +22,7 @@ public:
 
 private:
     bool GLShaderErrorHandler(unsigned int ID, bool IsLinkingInsteadOfCompiling = false) const;
+    bool GLShaderClear(unsigned int ID);
 };
 
 #endif // GL_SHADER_H

@@ -44,15 +44,61 @@ bool OpenGL_Backend::Init()
 void OpenGL_Backend::Shutdown()
 { is_initialized = false; }
 
+bool OpenGL_Backend::BindShader(unsigned int shader_label)
+{
+    if(!shaders.contains(shader_label))
+    {
+        PRINTWARN("OpenGL_Backend::BindShader - invalid shader label! Returning false");
+        return false;
+    }
+
+    if(currently_bound_shader == shader_label)
+        return true;
+
+    // FIXME: Can this fail even if the shaders are compiled successfuly?
+    shaders.at(currently_bound_shader).Unbind();
+    shaders.at(shader_label).Bind();
+    currently_bound_shader = shader_label;
+    return true;
+}
+
 bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
     if(shaders.contains(shader_label))
-        PRINTWARN("OpenGL_Backend::BuildShader - a shader with the supplied label already exists and will be overwritten");
+    {
+        PRINTWARN("OpenGL_Backend::BuildShader - a shader with the supplied label already exists; returning result of ::IsValid");
+        return shaders.at(shader_label).IsValid();
+    }
 
-    shaders[shader_label] = GLShader(vertex_shader_code, fragment_shader_code);
-    return shaders.at(shader_label).IsValid();
+    shaders[shader_label] = GLShader();
+    return shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
 }
 
+bool OpenGL_Backend::RebuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
+{
+    if(!shaders.contains(shader_label))
+    {
+        PRINTWARN("OpenGL_Backend::RebuildShader - invalid shader label! Returning false");
+        return false;
+    }
+
+    if(shader_label == currently_bound_shader)
+    {
+        shaders.at(shader_label).Unbind();
+        shaders.at(Shaders::SAFETY).Bind();
+    }
+
+    shaders.at(shader_label).Delete();
+    bool was_successful = shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
+
+    if(shader_label == currently_bound_shader && was_successful)
+    {
+        shaders.at(Shaders::SAFETY).Unbind();
+        shaders.at(shader_label).Bind();
+    }
+
+    return was_successful;
+}
 
 // FIXME: Is it a good idea to let outside code access shader interfaces directly?
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const

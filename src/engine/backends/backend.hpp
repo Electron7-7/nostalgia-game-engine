@@ -41,6 +41,7 @@ public:
     virtual void Shutdown() {}
 
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
+    virtual bool BindShader(unsigned int ShaderSelection) = 0;
     virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
     virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
 

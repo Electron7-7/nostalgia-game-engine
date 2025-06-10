@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
-GLShader::GLShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
+bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
     const char *v_shader_code = vertex_shader_code.c_str();
     const char *f_shader_code = fragment_shader_code.c_str();
@@ -13,33 +13,58 @@ GLShader::GLShader(const std::string& vertex_shader_code, const std::string& fra
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &v_shader_code, nullptr);
     glCompileShader(vertex);
+    PRINTDEBUG("Checking For Errors: Vertex Shader");
     if(!GLShaderErrorHandler(vertex))
-        return;
+    {
+        PRINTDEBUG(v_shader_code);
+        return false;
+    }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &f_shader_code, nullptr);
     glCompileShader(fragment);
+    PRINTDEBUG("Checking For Errors: Fragment Shader");
     if(!GLShaderErrorHandler(fragment))
-        return;
+    {
+        PRINTDEBUG(f_shader_code);
+        return false;
+    }
 
     _id = glCreateProgram();
     glAttachShader(_id, vertex);
     glAttachShader(_id, fragment);
     glLinkProgram(_id);
+    PRINTDEBUG("Checking For Errors: Shader Program");
     if(!GLShaderErrorHandler(_id, true))
-        return;
+        return false;
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 
-    shader_compiled_properly = true;
+    is_compiled = true;
+    return true;
 }
 
 bool GLShader::IsValid() const
-{ return shader_compiled_properly; }
+{ return is_compiled; }
 
-void GLShader::Bind() const
-{ glUseProgram(_id); }
+void GLShader::Bind()
+{
+    if(is_bound)
+        return;
+    is_bound = true;
+    glUseProgram(_id);
+}
+
+void GLShader::Unbind()
+{
+    if(!is_bound)
+        return;
+    is_bound = false;
+}
+
+void GLShader::Delete()
+{ glDeleteShader(_id); }
 
 void GLShader::SetUniform(const std::string& name, int value) const
 { glProgramUniform1i(_id, glGetUniformLocation(_id, name.c_str()), value); }

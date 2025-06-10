@@ -13,6 +13,7 @@ public:
     virtual bool Init();
     virtual void Shutdown();
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
+    virtual bool BindShader(unsigned int ShaderLabel);
     virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
 
@@ -21,6 +22,7 @@ public:
 
 private:
     std::map<unsigned int, GLShader> shaders;
+    unsigned int currently_bound_shader = Shaders::SAFETY;
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;
