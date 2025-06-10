@@ -4,6 +4,7 @@
 #include "world/3d_common.hpp"
 #include "engine/rendering/shader_interfaces/shader_interface.hpp"
 #include "engine/rendering/shader_interfaces/gl_shader.hpp"
+#include "engine/embedded/opengl_shaders.hpp"
 
 //--------------------
 // PROTOTYPE FUNCTIONS
@@ -30,6 +31,12 @@ bool OpenGL_Backend::Init()
     World::Orientation::SetWorldRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::Orientation::SetWorldFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
+    // The safety shader must ALWAYS compile; the rest can fail without causing crashes
+    if(!BuildShader(Shaders::SAFETY, glsl_safety_shader_vert, glsl_safety_shader_frag))
+        return false;
+
+    BuildShader(Shaders::BLINN_PHONG, glsl_blinn_phong_vert, glsl_blinn_phong_frag);
+
     is_initialized = true;
     return true;
 }
@@ -46,6 +53,8 @@ bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& v
     return shaders.at(shader_label).IsValid();
 }
 
+
+// FIXME: Is it a good idea to let outside code access shader interfaces directly?
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
     if(shaders.size() <= shader_selection)
