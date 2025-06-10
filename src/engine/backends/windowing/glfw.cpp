@@ -47,10 +47,13 @@ bool GLFW_Backend::Init()
     if(is_initialized)
         return true;
 
+    PRINTDEBUG("GLFW_Backend::Init");
+
     glfwInit();
+    if(!CreateMainWindow())
+        return false;
 
     compatible_graphics_ids = { BackendIDs::OpenGL };
-
     is_initialized = true;
     return true;
 }
