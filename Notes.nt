@@ -100,3 +100,6 @@ I've gotten shader compilation working, and it's a really well-oiled machine now
 I've overhauled the key id system to include codepoints; it works, but now it's tremendously slower. I'm probably going to undo all that work and just use the GLFW character callback function and pipe it straight to the input manager instead of the key handler.
 
 Honestly, the character callback isn't too useful aside from typing to the screen.
+
+[06/10/25]
+I had an idea: finish up a rough draft of Levitate, and include it in Nostalgia (as a library) to act as the default UI text editor!
