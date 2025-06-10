@@ -70,6 +70,7 @@ SRC_DIRS :=                                \
 	src/world                              \
 	src/math                               \
 	src/engine                             \
+	src/engine/embedded                    \
 	src/engine/input                       \
 	src/engine/managers                    \
 	src/engine/rendering                   \
@@ -114,10 +115,10 @@ export WHITE   = \\033[37m
 export DEFAULT = \\033[39m
 
 
-.PHONY: default sublime linux windows debug release build clean clean_debug clean_release clean_linux clean_windows clean_dirty
+.PHONY: default sublime linux windows debug release resources build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
-	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" $(RESOURCES_DIR)
+	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" -C $(RESOURCES_DIR)
 
 	@ echo -e "$(DEFAULT)::Compile command: $(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(DEFAULT) -c <source file> -o <object file>$(RESET)"
 	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
@@ -188,10 +189,13 @@ release:
 	@ echo -e "$(DEFAULT)::Building Release$(RESET)"
 	$(call recursive_make)
 
+resources:
+	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" -C $(RESOURCES_DIR)
+
+
 define recursive_make
 	@ $(MAKE) -s OBJS="$(OBJS)" CXX_SELECT="$(CXX_SELECT)" CC_SELECT="$(CC_SELECT)" PROGRAM_FLAGS="$(PROGRAM_FLAGS)" CXX_FLAGS="$(CXX_FLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_VERSION="$(BUILD_VERSION)" BUILD_ARCH="$(BUILD_ARCH)" BUILD_OUT="$(BUILD_OUT)" APP_OUT="$(APP_OUT)" RESET="$(RESET)" BLACK="$(BLACK)" RED="$(RED)" GREEN="$(GREEN)" YELLOW="$(YELLOW)" BLUE="$(BLUE)" MAGENTA="$(MAGENTA)" CYAN="$(CYAN)" WHITE="$(WHITE)" DEFAULT="$(DEFAULT)"
 endef
-
 
 build:
 	@ -mkdir -p $(BUILD_OUT)
