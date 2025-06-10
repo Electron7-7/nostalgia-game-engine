@@ -91,3 +91,12 @@ NOTE: Interfaces can be classes/structs that other classes/structs implement (vi
 Hmm, how am I gonna store and reference Mesh objects? Maybe either the render manager or another class can store all relevant resources! Probably the render manager.
 
 Okay, the world manager will be what stores all relevant world resources and delegates world rendering.
+
+[06/09/25]
+Spent an hour getting the changes I made off my Linux install from my Windows install from a VNC server from my laptop... fucking sucked, but I got it! I'm gonna continue on with the shader stuff today; finish up the Makefile (at least to a functional degree and spruce it up later), and start working on rendering a simple cube.
+
+I've gotten shader compilation working, and it's a really well-oiled machine now! There's even a safety shader so that if all shaders fail to compile, that one (which has a high likelihood of succeeding) can be a fallback to stop the program from crashing. Speaking of crashes, I had a one related to not making a window before attempting to compile shaders, another one due to forgetting a '!' when checking that the safety shader compiled correctly, and while they weren't crashes I did have some errors due to the Makefile adding an extra '"' to the end of the shader files. Those are all fixed now, though, and it works like a dream!
+
+I've overhauled the key id system to include codepoints; it works, but now it's tremendously slower. I'm probably going to undo all that work and just use the GLFW character callback function and pipe it straight to the input manager instead of the key handler.
+
+Honestly, the character callback isn't too useful aside from typing to the screen.
