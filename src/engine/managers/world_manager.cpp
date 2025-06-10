@@ -84,7 +84,7 @@ void WorldManager::RenderWorld()
     for(int i = 0 ; i < world_RenderCommandQueue.size() ; i++)
     {
         // This function should contain as few conditionals as possible and just be a straight shot down.
-        current_GraphicsBackend->GetShader(Shaders::BLINN_PHONG)->Bind();
+        current_GraphicsBackend->BindShader(Shaders::BLINN_PHONG);
     }
 }
 // The rest are the console command functions (see hl2_src/app/legion/worldmanager.cpp:128-166)
