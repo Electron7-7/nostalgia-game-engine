@@ -16,6 +16,8 @@ public:
 
     // PROTOTYPE FUNCTIONS
     void prototype_CustomKeyCallback(KeyID Key, KeyAction Action);
+    void prototype_CustomCharacterCallback(unsigned int Codepoint) const;
+    void prototype_TextToScreen(KeyID Key);
 
 private:
     // Per-frame update of commands

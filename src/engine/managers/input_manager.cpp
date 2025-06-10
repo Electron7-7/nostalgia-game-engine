@@ -1,5 +1,6 @@
 #include "input_manager.hpp"
 #include "backend_manager.hpp"
+#include "debugging.hpp"
 #include "engine/backends/backend.hpp"
 #include "engine/input/key_handler.hpp"
 
@@ -13,6 +14,11 @@ void InputManager::prototype_CustomKeyCallback(KeyID key, KeyAction action)
 {
     if(key == KEY::ESC && action == KEY_PRESSED)
         _Manager::Stop();
+}
+
+void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) const
+{
+    PRINTDEBUG(std::string("Key pressed: ").append(1, static_cast<char>(codepoint)) + "\tKey Codepoint: " + std::to_string(codepoint));
 }
 
 // END PROTOTYPE FUNCTIONS

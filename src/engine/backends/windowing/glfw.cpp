@@ -1,5 +1,6 @@
 #include "glfw.hpp"
 #include "debugging.hpp"
+#include "engine/managers/input_manager.hpp"
 #include "opengl_includes.hpp"
 
 #define ASSERT_KEY(glfw_key_id) if(!key_id_map.contains(glfw_key_id)) return;
@@ -113,7 +114,7 @@ bool GLFW_Backend::CreateMainWindow()
 
 void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
 {
-    PRINTDEBUG(std::string("Key pressed: ").append(1, static_cast<char>(codepoint)));
+    global_InputManager->prototype_CustomCharacterCallback(codepoint);
 }
 
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
