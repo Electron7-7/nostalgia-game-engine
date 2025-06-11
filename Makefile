@@ -32,7 +32,8 @@ INCLUDE_WINDOWS := $(INCLUDE_COMMON) -I src/system/common/windows # Not yet impl
 INCLUDE_SELECT ?= $(INCLUDE_LINUX)
 INCLUDE = $(INCLUDE_SELECT)
 
-LIBRARIES_LINUX   := -L src/lib/public -l glfw3
+# LIBRARIES_LINUX   := -lz -lbz2 -lpng16 -lbrotlidec -lpthread -L src/system/lib/linux -l glfw3 -l:libfreetype.a
+LIBRARIES_LINUX   := -L src/system/lib/linux -l glfw3
 LIBRARIES_WINDOWS := -L src/system/lib/windows -l:glfw-lib-mingw-w64/libglfw3.a -l gdi32
 LIBRARIES_SELECT ?= $(LIBRARIES_LINUX)
 LIBRARIES = $(LIBRARIES_SELECT)
