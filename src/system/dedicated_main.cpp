@@ -1,5 +1,4 @@
-#include "app/application.hpp"
-#include <iostream>
+#include "app/nostalgia_goggles.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -10,12 +9,6 @@
 
 int DedicatedMain(int argc, char* argv[])
 {
-    if(!global_Application)
-    {
-        std::cerr << "DedicatedMain - global_Application is nullptr! This isn't the editor or the engine, what the fuck?!" << std::endl;
-        return false;
-    }
-
     // TODO: Implement a class that handles apps & implements a function called "Run" that will then execute "TheToyMaker::Main" at some point
     global_Application->Create();
     global_Application->PreInit();

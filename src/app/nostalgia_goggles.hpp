@@ -16,6 +16,6 @@ public:
     virtual const char* GetAppName() { return "Nostalgia Goggles"; };
 };
 
-extern NostalgiaGoggles* global_EngineApp;
+extern NostalgiaGoggles* global_Application;
 
 #endif // NOSTALGIA_GOGGLES_H

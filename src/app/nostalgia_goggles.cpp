@@ -6,7 +6,7 @@
 
 // Singleton accessor
 NostalgiaGoggles singleton_NostalgiaGogglesApp;
-NostalgiaGoggles* global_EngineApp = &singleton_NostalgiaGogglesApp;
+NostalgiaGoggles* global_Application = &singleton_NostalgiaGogglesApp;
 
 bool NostalgiaGoggles::Create()
 {
