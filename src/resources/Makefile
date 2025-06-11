@@ -1,11 +1,3 @@
-LINUX := linux
-WINDOWS := windows
-RELEASE := release
-DEBUG := debug
-
-ARCHITECTURE ?= $(LINUX)
-VERSION ?= $(RELEASE)
-
 EMBEDDED_RESOURCES_OUTPUT_DIR := ../engine/embedded
 
 GL_SHADERS_DIR   := shaders/GLSL
