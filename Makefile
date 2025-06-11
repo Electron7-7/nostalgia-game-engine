@@ -65,11 +65,7 @@ endif
 BUILD_OUT ?= $(BUILD_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 APP_OUT ?= $(APP_VERSION)_$(APP_ARCH)
 
-SRC_DIRS :=                                \
-	src/app                                \
-	src/system                             \
-	src/world                              \
-	src/math                               \
+ENGINE_DIRS :=                             \
 	src/engine                             \
 	src/engine/embedded                    \
 	src/engine/input                       \
@@ -79,6 +75,12 @@ SRC_DIRS :=                                \
 	src/engine/backends                    \
 	src/engine/backends/graphics           \
 	src/engine/backends/windowing
+
+SRC_DIRS :=        \
+	src/app        \
+	src/system     \
+	src/world      \
+	src/math
 
 # Object files compiled from "DIRTY_SRC_DIRS" will not be cleaned during a dirty clean
 DIRTY_SRC_DIRS :=        \
@@ -102,6 +104,14 @@ DIRTY_CC_OBJS  ?= $(addprefix $(BUILD_OUT)/,$(subst .c,.o,$(DIRTY_CC_SRCS:src/%=
 SRCS  = $(CXX_SRCS) $(DIRTY_CXX_SRCS) $(CC_SRCS) $(DIRTY_CC_SRCS)
 OBJS ?= $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
 
+
+LIBRARY_OUT  := src/lib
+LIBRARY_NAME := libNostalgiaEngine.a
+LIBCOMPILER  := @llvm-ar rc
+LIBRARY_SRCS := $(foreach directory,$(ENGINE_DIRS),$(wildcard $(directory)/*.cpp))
+LIBRARY_OBJS ?= $(addprefix $(BUILD_OUT)/,$(subst .cpp,.obj,$(LIBRARY_SRCS:src/%=%)))
+
+
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
 export RESET   = \\033[0m
@@ -119,8 +129,20 @@ export DEFAULT = \\033[39m
 .PHONY: default sublime linux windows debug release resources build clean clean_debug clean_release clean_linux clean_windows clean_dirty
 
 default:
-	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" -C $(RESOURCES_DIR)
+	@ $(MAKE) -s ARCHITECTURE="$(BUILD_ARCH)" VERSION="$(BUILD_VERSION)" -C $(RESOURCES_DIR) # Embedded Resources
 
+	@ echo -e "$(DEFAULT)::Compiling library objects$(RESET)"
+	@ echo -e "$(DEFAULT)::Compile command: $(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(DEFAULT) -c <source file> -o <object file>$(RESET)"
+	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
+	@ echo -e "\t$(YELLOW)CXXFLAGS: $(DEFAULT)$(CXXFLAGS)$(RESET)"
+	@ echo -e "\t$(YELLOW)INCLUDE: $(DEFAULT)$(INCLUDE)$(RESET)\n"
+
+	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(LIBRARY_OBJS)
+
+	@ echo -e "$(DEFAULT)::Compiling library$(RESET)"
+	@ $(MAKE) -s BUILD_OUT="$(BUILD_OUT)" library
+
+	@ echo -e "$(DEFAULT)::Compiling application objects$(RESET)"
 	@ echo -e "$(DEFAULT)::Compile command: $(CXX:@%=%) $(YELLOW)(CXXFLAGS) (INCLUDE)$(DEFAULT) -c <source file> -o <object file>$(RESET)"
 	@ echo -e "$(DEFAULT)::Variable Definitions:$(RESET)"
 	@ echo -e "\t$(YELLOW)CXXFLAGS: $(DEFAULT)$(CXXFLAGS)$(RESET)"
@@ -128,7 +150,7 @@ default:
 
 	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(OBJS)
 
-	@ echo -e "$(DEFAULT)::Linking command: $(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(YELLOW)(OBJS) $(DEFAULT)-o$(YELLOW) (BUILD_OUT)$(DEFAULT)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
+	@ echo -e "$(DEFAULT)::Linking command: $(CXX:@%=%) (CXXFLAGS) (INCLUDE) $(DEFAULT)-o$(YELLOW) (BUILD_OUT)$(DEFAULT)/$(YELLOW)(APP_OUT) (LIBRARIES)$(RESET)"
 	@ echo -e "$(DEFAULT)::Variables:$(RESET)"
 	@ echo -e "\t$(YELLOW)LIBRARIES: $(DEFAULT)$(LIBRARIES)$(RESET)"
 	@ echo -e "\t$(YELLOW)OBJS: $(DEFAULT)all the object files previously compiled$(RESET)"
@@ -136,10 +158,12 @@ default:
 	@ echo -e "\t$(YELLOW)APP_OUT: $(DEFAULT)$(APP_OUT)$(RESET)\n"
 
 	@ -rm -f $(BUILD_OUT)/$(APP_OUT) # in case it already exists
-	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
+	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES) src/lib/libNostalgiaEngine.a" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
 
-	$(eval BUILD_OUT=$(BUILD_OUT))
-	$(eval APP_OUT=$(APP_OUT))
+library:
+	@ echo -e "$(DEFAULT)Building: $(CYAN)$(LIBRARY_OUT)/$(LIBRARY_NAME)$(RESET)"
+	$(LIBCOMPILER) $(LIBRARY_OUT)/$(LIBRARY_NAME) $(LIBRARY_OBJS)
+	@ echo -e "$(DEFAULT)Finished Building: $(GREEN)$(LIBRARY_OUT)/$(LIBRARY_NAME)$(RESET)"
 
 # This target is for disabling the ANSI colors. The reason it's called 'sublime' (and an example use-case) is because
 # Sublime Text's output panel doesn't support ANSI colors natively, so I call this target in every build system that's
