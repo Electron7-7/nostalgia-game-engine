@@ -51,10 +51,13 @@ BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
 
 APP_NAME_RELEASE := Nostalgia
 APP_NAME_DEBUG   := DEBUG__Nostalgia
+APP_NAME_ENGINE  := Engine
+APP_NAME_EDITOR  := Editor
 APP_NAME_LINUX   := $(shell uname -s)_$(subst .,_,$(shell uname -r)).$(shell uname -m)
 APP_NAME_WINDOWS := Win64.exe
 
 APP_VERSION ?= $(APP_NAME_RELEASE)
+APP_TYPE ?= $(APP_NAME_ENGINE)
 ifeq ($(OS),Windows_NT)
 	APP_ARCH ?= $(APP_NAME_WINDOWS)
 else
@@ -63,9 +66,9 @@ endif
 
 
 BUILD_OUT ?= $(BUILD_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
-APP_OUT ?= $(APP_VERSION)_$(APP_ARCH)
+APP_OUT ?= $(APP_VERSION)_$(APP_TYPE)_$(APP_ARCH)
 
-ENGINE_DIRS :=                             \
+ENGINE_DIRS :=                           \
 	src/engine                             \
 	src/engine/embedded                    \
 	src/engine/input                       \
