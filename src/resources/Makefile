@@ -1,4 +1,4 @@
-EMBEDDED_RESOURCES_OUTPUT_DIR := ../engine/embedded
+EMBEDDED_RESOURCES_OUTPUT_DIR := ../embedded
 
 GL_SHADERS_DIR   := shaders/GLSL
 GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*.vert) $(wildcard $(GL_SHADERS_DIR)/*.frag)
