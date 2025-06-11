@@ -1,21 +1,29 @@
+#include "app/application.hpp"
+#include <iostream>
+
 #ifdef _WIN32
 #include <windows.h>
 #include <winbase.h>
 #include <shellapi.h>
 #endif // _WIN32
 
-#include "app/nostalgia_goggles.hpp"
 
 int DedicatedMain(int argc, char* argv[])
 {
+    if(!global_Application)
+    {
+        std::cerr << "DedicatedMain - global_Application is nullptr! This isn't the editor or the engine, what the fuck?!" << std::endl;
+        return false;
+    }
+
     // TODO: Implement a class that handles apps & implements a function called "Run" that will then execute "TheToyMaker::Main" at some point
-    global_EngineApp->Create();
-    global_EngineApp->PreInit();
+    global_Application->Create();
+    global_Application->PreInit();
 
-    int return_value = global_EngineApp->Main();
+    int return_value = global_Application->Main();
 
-    global_EngineApp->Shutdown();
-    global_EngineApp->PostShutdown();
+    global_Application->Shutdown();
+    global_Application->PostShutdown();
 
     return return_value;
 }

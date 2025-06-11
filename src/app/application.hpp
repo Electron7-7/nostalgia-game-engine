@@ -25,4 +25,6 @@ public:
     virtual void PostShutdown() {}
     virtual const char* GetAppName() { return "_Application (you really shouldn't fucking see this!!!)"; }
 };
+
+extern _Application* global_Application;
 #endif // APPLICATION_H

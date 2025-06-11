@@ -51,10 +51,13 @@ BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
 
 APP_NAME_RELEASE := Nostalgia
 APP_NAME_DEBUG   := DEBUG__Nostalgia
+APP_NAME_ENGINE  := Engine
+APP_NAME_EDITOR  := Editor
 APP_NAME_LINUX   := $(shell uname -s)_$(subst .,_,$(shell uname -r)).$(shell uname -m)
 APP_NAME_WINDOWS := Win64.exe
 
 APP_VERSION ?= $(APP_NAME_RELEASE)
+APP_TYPE ?= $(APP_NAME_ENGINE)
 ifeq ($(OS),Windows_NT)
 	APP_ARCH ?= $(APP_NAME_WINDOWS)
 else
@@ -63,13 +66,13 @@ endif
 
 
 BUILD_OUT ?= $(BUILD_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
-APP_OUT ?= $(APP_VERSION)_$(APP_ARCH)
+APP_OUT ?= $(APP_VERSION)_$(APP_TYPE)_$(APP_ARCH)
 
 SRC_DIRS :=                                \
 	src/app                                \
-	src/system                             \
 	src/world                              \
 	src/math                               \
+	src/system                             \
 	src/engine                             \
 	src/engine/embedded                    \
 	src/engine/input                       \
@@ -101,6 +104,9 @@ DIRTY_CC_OBJS  ?= $(addprefix $(BUILD_OUT)/,$(subst .c,.o,$(DIRTY_CC_SRCS:src/%=
 
 SRCS  = $(CXX_SRCS) $(DIRTY_CXX_SRCS) $(CC_SRCS) $(DIRTY_CC_SRCS)
 OBJS ?= $(CXX_OBJS) $(DIRTY_CXX_OBJS) $(CC_OBJS) $(DIRTY_CC_OBJS)
+
+EDITOR_OBJ ?= $(BUILD_OUT)/system/nostalgia_editor.obj
+ENGINE_OBJ ?= $(BUILD_OUT)/system/nostalgia_engine.obj
 
 VPATH := $(SRC_DIRS) $(DIRTY_SRC_DIRS)
 
@@ -135,11 +141,11 @@ default:
 	@ echo -e "\t$(YELLOW)BUILD_OUT: $(DEFAULT)$(BUILD_OUT)$(RESET)"
 	@ echo -e "\t$(YELLOW)APP_OUT: $(DEFAULT)$(APP_OUT)$(RESET)\n"
 
-	@ -rm -f $(BUILD_OUT)/$(APP_OUT) # in case it already exists
-	@ $(MAKE) -s CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_VERSION="$(APP_VERSION)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_OUT)
+	@ -rm -f $(BUILD_OUT)/$(APP_VERSION)_$(APP_NAME_EDITOR)_$(APP_ARCH) # in case it already exists
+	@ $(MAKE) -s OBJS="$(filter-out $(ENGINE_OBJ),$(OBJS))" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_OUT="$(APP_VERSION)_$(APP_NAME_EDITOR)_$(APP_ARCH)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_VERSION)_$(APP_NAME_EDITOR)_$(APP_ARCH)
 
-	$(eval BUILD_OUT=$(BUILD_OUT))
-	$(eval APP_OUT=$(APP_OUT))
+	@ -rm -f $(BUILD_OUT)/$(APP_VERSION)_$(APP_NAME_ENGINE)_$(APP_ARCH) # in case it already exists
+	@ $(MAKE) -s OBJS="$(filter-out $(EDITOR_OBJ),$(OBJS))" CXXFLAGS="$(CXXFLAGS)" INCLUDE="$(INCLUDE)" LIBRARIES="$(LIBRARIES)" APP_OUT="$(APP_VERSION)_$(APP_NAME_ENGINE)_$(APP_ARCH)" BUILD_OUT="$(BUILD_OUT)" $(BUILD_OUT)/$(APP_VERSION)_$(APP_NAME_ENGINE)_$(APP_ARCH)
 
 # This target is for disabling the ANSI colors. The reason it's called 'sublime' (and an example use-case) is because
 # Sublime Text's output panel doesn't support ANSI colors natively, so I call this target in every build system that's
