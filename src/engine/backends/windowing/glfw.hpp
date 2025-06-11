@@ -4,6 +4,7 @@
 #include "engine/backends/backend.hpp"
 #include "engine/input/key_handler.hpp"
 #include "common/macros.hpp"
+#include <vector>
 
 FORWARD_DECLARE(struct GLFWwindow;)
 FORWARD_DECLARE(struct GLFWmonitor;)
@@ -14,6 +15,7 @@ public:
     virtual bool Init();
     virtual void Shutdown();
     virtual bool CreateMainWindow();
+    virtual int CreateWindow(const char* WindowName);
 
     // PROTOTYPE FUNCTIONS (inherited from Backend)
     virtual bool prototype_SetFullscreen(bool FullscreenOn);
@@ -23,6 +25,7 @@ public:
 private:
     GLFWwindow* glfw_MainWindow = nullptr;
     GLFWmonitor* glfw_LastFullscreenedMonitor = nullptr;
+    std::vector<GLFWwindow*> glfw_Windows = {};
 
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods);

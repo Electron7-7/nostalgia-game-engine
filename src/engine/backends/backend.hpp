@@ -58,6 +58,8 @@ public:
     virtual void Shutdown() {}
 
     virtual bool CreateMainWindow() = 0;
+    virtual int CreateWindow(const char* WindowName) = 0;
+    // virtual bool SwitchWindowFocus(unsigned int WindowID) = 0;
 
     // Prototype Functions
     virtual bool prototype_SetFullscreen(bool FullscreenOn) = 0;
@@ -67,6 +69,10 @@ public:
     // Compatibility Functions
     bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }
     std::set<GraphicsBackendID> GetCompatibleGraphicsIDs() const { return compatible_graphics_ids; }
+
+    typedef int WindowingError;
+    static constexpr WindowingError NO_ERROR = 0;
+    static constexpr WindowingError WINDOW_CREATION_FAILED = -1;
 
 protected:
     friend class RenderManager;

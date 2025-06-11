@@ -70,19 +70,14 @@ void GLFW_Backend::Shutdown()
 
 bool GLFW_Backend::CreateMainWindow()
 {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWmonitor* is_fullscreen = (main_WindowIsFullscreen) ? glfwGetPrimaryMonitor() : nullptr;
-    glfw_MainWindow = glfwCreateWindow(main_WindowWidth, main_WindowHeight, main_WindowName, is_fullscreen, nullptr);
-
-    if(glfw_MainWindow == nullptr)
+    unsigned int new_window = CreateWindow(main_WindowName);
+    if(new_window == WindowingBackend::WINDOW_CREATION_FAILED)
     {
-        PRINTERR("Failed to create GLFW window!");
         glfwTerminate();
         return false;
     }
+
+    glfw_MainWindow = glfw_Windows.at(new_window);
 
     glfwMakeContextCurrent(glfw_MainWindow);
 
@@ -110,6 +105,25 @@ bool GLFW_Backend::CreateMainWindow()
     glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
     return true;
+}
+
+int GLFW_Backend::CreateWindow(const char* window_name)
+{
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    GLFWmonitor* is_fullscreen = (main_WindowIsFullscreen) ? glfwGetPrimaryMonitor() : nullptr;
+    GLFWwindow* glfw_NewWindow = glfwCreateWindow(main_WindowWidth, main_WindowHeight, window_name, is_fullscreen, nullptr);
+
+    if(glfw_NewWindow == nullptr)
+    {
+        PRINTERR("Failed to create GLFW window!");
+        return WindowingBackend::WINDOW_CREATION_FAILED;
+    }
+
+    glfw_Windows.insert(glfw_Windows.end(), glfw_NewWindow);
+    return glfw_Windows.size() - 1;
 }
 
 void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
