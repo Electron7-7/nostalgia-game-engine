@@ -4,19 +4,18 @@
 #include <shellapi.h>
 #endif // _WIN32
 
-#include "debugging.hpp"
-#include "app/toymaker.hpp"
+#include "app/nostalgia_goggles.hpp"
 
 int DedicatedMain(int argc, char* argv[])
 {
     // TODO: Implement a class that handles apps & implements a function called "Run" that will then execute "TheToyMaker::Main" at some point
-    global_App->Create();
-    global_App->PreInit();
+    global_EngineApp->Create();
+    global_EngineApp->PreInit();
 
-    int return_value = global_App->Main();
+    int return_value = global_EngineApp->Main();
 
-    global_App->Shutdown();
-    global_App->PostShutdown();
+    global_EngineApp->Shutdown();
+    global_EngineApp->PostShutdown();
 
     return return_value;
 }

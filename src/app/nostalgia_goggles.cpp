@@ -1,14 +1,14 @@
-#include "toymaker.hpp"
+#include "nostalgia_goggles.hpp"
 #include "engine/managers/manager.hpp"
 #include "engine/managers/input_manager.hpp"
 #include "engine/managers/world_manager.hpp"
 #include "engine/managers/render_manager.hpp"
 
 // Singleton accessor
-TheToyMaker singleton_TheToyMakerApp;
-TheToyMaker* global_App = &singleton_TheToyMakerApp;
+NostalgiaGoggles singleton_NostalgiaGogglesApp;
+NostalgiaGoggles* global_EngineApp = &singleton_NostalgiaGogglesApp;
 
-bool TheToyMaker::Create()
+bool NostalgiaGoggles::Create()
 {
     if(!BaseClass::Create())
         return false;
@@ -16,7 +16,7 @@ bool TheToyMaker::Create()
     return true;
 }
 
-bool TheToyMaker::PreInit()
+bool NostalgiaGoggles::PreInit()
 {
     if(!BaseClass::PreInit())
         return false;
@@ -24,7 +24,7 @@ bool TheToyMaker::PreInit()
     return true;
 }
 
-void TheToyMaker::Shutdown()
+void NostalgiaGoggles::Shutdown()
 {
     // NOTE: This might not be safe/enough
     _Manager::Stop();
@@ -32,10 +32,10 @@ void TheToyMaker::Shutdown()
     _Manager::RemoveAll();
 }
 
-void TheToyMaker::PostShutdown()
+void NostalgiaGoggles::PostShutdown()
 {}
 
-int TheToyMaker::Main()
+int NostalgiaGoggles::Main()
 {
     // World database
     _Manager::Add(global_WorldManager);
