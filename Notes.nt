@@ -107,3 +107,6 @@ I had an idea: finish up a rough draft of Levitate, and include it in Nostalgia 
 Levitate is going to take a fucking SECOND and a half to finish.
 
 I have an idea: "TheToyMaker" will be the name for the editor window/app and the engine will have it's own!
+
+[06/11/25]
+I started off by changing the Makefile to spit out two executables: one for the engine and one for the editor. Then, I realized that the engine doesn't need a window, or application-related code and that it really needs to be a library. The rest of my time was spent in the Makefile, doing just that, and I'm happy to say it's a success! The engine now compiles to a static library and the application properly uses it when linking. While this works, I still need to decide what to do about the project structure. I'm thinking of moving all the application-related code to a separate repository/branch that's just for the editor/game(s), and changing the Makefile to build a library instead of a binary. Then, when making the editor/game(s), I just need to go build the game engine library in its own repo and add the resulting files to my other project.
