@@ -1,6 +1,6 @@
 #include "gl_shader.hpp"
-#include "debugging.hpp"
-#include "opengl_includes.hpp"
+#include "common/debugging.hpp"
+#include "common/opengl_includes.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 

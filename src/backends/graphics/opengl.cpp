@@ -1,10 +1,10 @@
 #include "opengl.hpp"
-#include "opengl_includes.hpp"
-#include "debugging.hpp"
+#include "common/opengl_includes.hpp"
+#include "common/debugging.hpp"
 #include "world/3d_common.hpp"
-#include "engine/rendering/shader_interfaces/shader_interface.hpp"
-#include "engine/rendering/shader_interfaces/gl_shader.hpp"
-#include "engine/embedded/opengl_shaders.hpp"
+#include "rendering/shader_interfaces/shader_interface.hpp"
+#include "rendering/shader_interfaces/gl_shader.hpp"
+#include "embedded/opengl_shaders.hpp"
 
 //--------------------
 // PROTOTYPE FUNCTIONS
@@ -26,7 +26,7 @@ bool OpenGL_Backend::Init()
     if(is_initialized)
         return true;
 
-    // TODO: See note in 'src/world/3d_common.hpp'
+    // TODO: See note in 'src/engine/world/3d_common.hpp'
     World::Orientation::SetWorldUp(glm::vec3(0.0f, 1.0f, 0.0f));
     World::Orientation::SetWorldRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::Orientation::SetWorldFront(glm::vec3(0.0f, 0.0f, -1.0f));

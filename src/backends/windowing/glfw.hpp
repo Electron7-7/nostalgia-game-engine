@@ -1,8 +1,8 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
-#include "engine/backends/backend.hpp"
-#include "engine/input/key_handler.hpp"
+#include "backends/backend.hpp"
+#include "input/key_handler.hpp"
 #include "common/macros.hpp"
 #include <vector>
 

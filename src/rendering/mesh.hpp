@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include "vertex.hpp"
-#include "debugging.hpp"
+#include "common/debugging.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>

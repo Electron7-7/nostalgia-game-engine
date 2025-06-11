@@ -1,5 +1,5 @@
 #include "key_handler.hpp"
-#include "engine/managers/input_manager.hpp"
+#include "managers/input_manager.hpp"
 
 KeyHandler singleton_KeyHandler;
 KeyHandler* global_KeyHandler = &singleton_KeyHandler;

@@ -1,8 +1,8 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include "engine/backends/backend.hpp"
-#include "engine/rendering/shader_interfaces/gl_shader.hpp"
+#include "backends/backend.hpp"
+#include "rendering/shader_interfaces/gl_shader.hpp"
 #include <map>
 
 class OpenGL_Backend : public GraphicsBackend

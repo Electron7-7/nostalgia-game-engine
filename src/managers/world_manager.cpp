@@ -1,7 +1,7 @@
 #include "world_manager.hpp"
 #include "backend_manager.hpp"
-#include "engine/backends/backend.hpp"
-#include "engine/rendering/camera_property.hpp"
+#include "backends/backend.hpp"
+#include "rendering/camera_property.hpp"
 #include <glm/glm.hpp>
 
 WorldManager singleton_WorldManager;

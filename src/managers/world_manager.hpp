@@ -2,9 +2,9 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include "engine/rendering/mesh.hpp"
-#include "engine/rendering/render_command.hpp"
-#include "engine/things/actors/nostalgia_player.hpp"
+#include "rendering/mesh.hpp"
+#include "rendering/render_command.hpp"
+#include "things/actors/nostalgia_player.hpp"
 #include <memory>
 
 struct MeshWrapper

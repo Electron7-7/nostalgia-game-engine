@@ -1,8 +1,8 @@
 #include "backend_manager.hpp"
-#include "engine/backends/backend.hpp"
-#include "engine/backends/graphics/opengl.hpp"
-#include "engine/backends/windowing/glfw.hpp"
-#include "debugging.hpp"
+#include "backends/backend.hpp"
+#include "backends/graphics/opengl.hpp"
+#include "backends/windowing/glfw.hpp"
+#include "common/debugging.hpp"
 
 // BackendManager Singleton
 BackendManager singleton_BackendManager;

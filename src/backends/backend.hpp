@@ -1,7 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
-#include "engine/rendering/shader_interfaces/shader_interface.hpp"
+#include "rendering/shader_interfaces/shader_interface.hpp"
 #include <glm/glm.hpp>
 #include <set>
 
