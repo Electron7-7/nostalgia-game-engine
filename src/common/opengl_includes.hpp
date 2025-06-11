@@ -3,6 +3,6 @@
 */
 #ifndef OPENGL_INCLUDES_H
 #define OPENGL_INCLUDES_H
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
 #endif // OPENGL_INCLUDES_H
