@@ -1,66 +1,80 @@
-LINUX_CXX := @clang++
-LINUX_CC  := @clang
+export LINUX_CXX := @clang++
+export LINUX_CC  := @clang
 
 ifeq ($(OS),Windows_NT)
-WINDOWS_CXX := @g++
-WINDOWS_CC  := @gcc
+export WINDOWS_CXX := @g++
+export WINDOWS_CC  := @gcc
 else
-WINDOWS_CXX := @x86_64-w64-mingw32-g++
-WINDOWS_CC  := @x86_64-w64-mingw32-gcc
+export WINDOWS_CXX := @x86_64-w64-mingw32-g++
+export WINDOWS_CC  := @x86_64-w64-mingw32-gcc
 endif
 
 # LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
 export DEBUG_FLAGS := -g -Wall -O0 -fsanitize=address -D NOSTALGIA_DEBUGGING
 export RELEASE_FLAGS := -O3
-export COMMON_FLAGS := -std=c++20 -frtti -D COMPILER_FORWARD_DECLARATIONS
+export DYNAMIC_FLAGS := -fPIC
+export COMMON_FLAGS := -frtti -D COMPILER_FORWARD_DECLARATIONS
+export COMMON_CXXFLAGS := -std=c++20
+export WINDOWS_FLAGS := -mwindows
+export LINUX_FLAGS :=
 
 export LINUX_INCLUDE := -I src/system/linux/common
 export WINDOWS_INCLUDE := -I src/system/windows/common
 export COMMON_INCLUDE := -I src -I src/thirdparty
 
-export LINUX_LIBRARIES := -L src/system/linux/lib
-export WINDOWS_LIBRARIES := -L src/system/windows/lib
-
+export LINUX_GLFW := src/lib/glfw-lib-linux/libglfw3.a
+ifeq ($(OS),Windows_NT)
+export WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.dll src/lib/glfw-lib-mingw-w64/libglfw3dll.a # idk what I'm doing, lmfao
+else
+export WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.a
+endif
 
 export BUILD_ROOT         := build
 export BUILD_PATH_LINUX   := linux
 export BUILD_PATH_WINDOWS := windows
 export BUILD_PATH_RELEASE := release
 export BUILD_PATH_DEBUG   := debug
+export BUILD_PATH_DYNAMIC := dynamic
+export BUILD_PATH_STATIC  := static
 
 export BUILD_ARCH    ?= $(BUILD_PATH_LINUX)
 export BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
+export BUILD_TYPE    ?= $(BUILD_PATH_STATIC)
 
-export BUILD_DIR ?= $(BUILD_ROOT)/$(BUILD_ARCH)_$(BUILD_VERSION)
-export BUILD_OBJS_DIR ?= $(BUILD_DIR)/object_files
+export BUILD_DIR ?= $(BUILD_ROOT)/$(BUILD_ARCH)_$(BUILD_TYPE)_$(BUILD_VERSION)
+export BUILD_OBJS_DIR ?= $(BUILD_DIR)/.object_files
 
-CXX         ?= $(LINUX_CXX)
-CC          ?= $(LINUX_CC)
-CXXFLAGS    ?= $(COMMON_FLAGS)
-INCLUDE     ?= $(COMMON_INCLUDE) $(LINUX_INCLUDE)
-LIBRARIES   ?= $(LINUX_LIBRARIES)
+export CXX         ?= $(LINUX_CXX)
+export CC          ?= $(LINUX_CC)
+export CXXFLAGS    ?= $(COMMON_FLAGS) $(COMMON_CXXFLAGS)
+export CCFLAGS     ?= $(COMMON_FLAGS)
+export INCLUDE     ?= $(COMMON_INCLUDE) $(LINUX_INCLUDE)
+export GLFW_LIB    ?= $(LINUX_GLFW)
 ifeq ($(OS),Windows_NT)
-CXX         ?= $(WINDOWS_CXX)
-CC          ?= $(WINDOWS_CC)
-INCLUDE     ?= $(COMMON_INCLUDE) $(WINDOWS_INCLUDE)
-LIBRARIES   ?= $(WINDOWS_LIBRARIES)
+export CXX         ?= $(WINDOWS_CXX)
+export CC          ?= $(WINDOWS_CC)
+export INCLUDE     ?= $(COMMON_INCLUDE) $(WINDOWS_INCLUDE)
+export GLFW_LIB    ?= $(WINDOWS_GLFW)
 endif
-
-SRC_DIRS :=                         \
-	src/input                       \
-	src/common                      \
-	src/managers                    \
-	src/backends                    \
-	src/embedded                    \
-	src/rendering                   \
-	src/backends/graphics           \
-	src/backends/windowing          \
-	src/rendering/shader_interfaces \
-	$(THIRDPARTY_SRC_DIRS)
 
 THIRDPARTY_SRC_DIRS :=       \
 	src/thirdparty/DearImGui \
 	src/thirdparty/glad
+
+SRC_DIRS :=                         \
+	src/backends                    \
+	src/backends/graphics           \
+	src/backends/windowing          \
+	src/common                      \
+	src/embedded                    \
+	src/input                       \
+	src/managers                    \
+	src/rendering                   \
+	src/rendering/shader_interfaces \
+	src/things                      \
+	src/things/actors               \
+	$(THIRDPARTY_SRC_DIRS)          \
+	src/world                       \
 
 RESOURCES_DIR := src/resources
 
@@ -69,24 +83,37 @@ export CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(CXX_SRCS:src/%=%)))
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .c,.o,$(CC_SRCS:src/%=%)))
 
+export GLFW_OBJS ?= $(BUILD_OBJS_DIR)/glfw_extracted_object_files
+
 export HEADER_FILES := $(foreach directory,$(filter-out $(THIRDPARTY_SRC_DIRS),$(SRC_DIRS)),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
 export HEADERS_OUT  ?= $(addprefix $(BUILD_DIR)/include/,$(HEADER_FILES:src/%=%))
 
+export AR := @llvm-ar
+export DYNAMIC_LIBRARY_LINUX_FLAGS := -fvisibility=hidden
+export DYNAMIC_LIBRARY_FLAGS ?= -fPIC -shared
 
-LIBRARY_COMPILER := @llvm-ar
-LIBRARY_COMPILER_OPTIONS := rc
+export LINUX_LIBRARY_DYNAMIC   := .so
+export WINDOWS_LIBRARY_DYNAMIC := .dll
+export LIBRARY_DYNAMIC ?= $(LINUX_LIBRARY_DYNAMIC)
+export LIBRARY_STATIC  := .a
 
-LIBRARY_STATIC  := .a
-LIBRARY_DYNAMIC := .lib
-export LIBRARY_TYPE    ?= $(LIBRARY_STATIC)
+export LIBRARY_TYPE ?= $(LIBRARY_STATIC)
 
-LIBRARY_NAME := libNostalgiaEngine
+export WINDOWS_DYNAMIC_LIBRARY_LD_FLAGS := -shared --out-implib $(BUILD_DIR)/$(LIBRARY_NAME).dll.a
+export WINDOWS_DYNAMIC_LIBRARY_COMPILE_FLAGS := -DMYLIB_EXPORT
+export LINUX_DYNAMIC_LIBRARY_LD_FLAGS := -shared
+export LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS := -fvisibility=hidden -fvisibility-inlines-hidden
 
-.PHONY: install build resources linux windows release debug clean
+export DYNAMIC_LIBRARY_LD_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_LD_FLAGS)
+export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
+
+export LIBRARY_NAME := libNostalgiaEngine
+
+.PHONY: install build resources linux windows release debug static dynamic clean
 
 install: resources build
 	@ $(MAKE) -s $(HEADERS_OUT) $(CC_OBJS) $(CXX_OBJS) $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
-	@ echo -e "Successfully compiled: $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
+	@ echo -e "Successfully made: $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
 	@ echo -e "To use Nostalgia for your project, you need the library file and the headers located in the \"include\" directory."
 
 build:
@@ -99,33 +126,71 @@ linux:
 ifeq ($(OS),Windows_NT)
 	$(eval BUILD_ARCH := $(BUILD_PATH_LINUX))
 	$(eval INCLUDE    := $(COMMON_INCLUDE) $(LINUX_INCLUDE))
-	$(eval LIBRARIES  := $(LINUX_LIBRARIES))
+	$(eval DYNAMIC_LIBRARY_FLAGS += $(DYNAMIC_LIBRARY_LINUX_FLAGS))
+	$(eval GLFW_LIB := $(LINUX_GLFW))
 endif
+	$(eval LIBRARY_DYNAMIC := $(LINUX_LIBRARY_DYNAMIC))
+	$(eval DYNAMIC_LIBRARY_LD_FLAGS := $(LINUX_DYNAMIC_LIBRARY_LD_FLAGS))
+	$(eval DYNAMIC_LIBRARY_COMPILE_FLAGS := $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS))
+	$(eval CXXFLAGS := $(filter-out $(WINDOWS_FLAGS),$(CXXFLAGS)))
+	$(eval CXX := $(LINUX_CXX))
+	$(eval CC := $(LINUX_CC))
 	@ echo -e "::Architecture - Linux"
 
 windows:
 ifneq ($(OS),Windows_NT)
 	$(eval BUILD_ARCH := $(BUILD_PATH_WINDOWS))
 	$(eval INCLUDE    := $(COMMON_INCLUDE) $(WINDOWS_INCLUDE))
-	$(eval LIBRARIES  := $(WINDOWS_LIBRARIES))
+	$(eval GLFW_LIB   := $(WINDOWS_GLFW))
 endif
-	$(eval CXXFLAGS := $(filter-out -fsanitize=address,$(CXXFLAGS)))
+	$(eval LIBRARY_DYNAMIC := $(WINDOWS_LIBRARY_DYNAMIC))
+	$(eval DYNAMIC_LIBRARY_LD_FLAGS := $(WINDOWS_DYNAMIC_LIBRARY_LD_FLAGS))
+	$(eval DYNAMIC_LIBRARY_COMPILE_FLAGS := $(WINDOWS_DYNAMIC_LIBRARY_COMPILE_FLAGS))
+	$(eval CXXFLAGS := $(filter-out -fsanitize=address,$(CXXFLAGS)) $(WINDOWS_FLAGS))
+	$(eval CXX := $(WINDOWS_CXX))
+	$(eval CC := $(WINDOWS_CC))
 	@ echo -e "::Architecture - Windows"
 
 debug:
 	$(eval BUILD_VERSION := $(BUILD_PATH_DEBUG))
-	$(eval CXXFLAGS := $(filter-out $(RELEASE_FLAGS),$(CXXFLAGS)) $(COMMON_FLAGS) $(DEBUG_FLAGS))
+	$(eval CXXFLAGS := $(filter-out $(RELEASE_FLAGS),$(CXXFLAGS)) $(DEBUG_FLAGS))
 	@ echo -e "::Version - Debug"
 
 release:
 	$(eval BUILD_VERSION := $(BUILD_PATH_RELEASE))
-	$(eval CXXFLAGS := $(filter-out $(DEBUG_FLAGS),$(CXXFLAGS)) $(COMMON_FLAGS) $(RELEASE_FLAGS))
+	$(eval CXXFLAGS := $(filter-out $(DEBUG_FLAGS),$(CXXFLAGS)) $(RELEASE_FLAGS))
 	@ echo -e "::Version - Release"
 
+static:
+	$(eval BUILD_TYPE := $(BUILD_PATH_STATIC))
+	$(eval LIBRARY_TYPE := $(LIBRARY_STATIC))
+	$(eval COMPILE_LIBRARY := $(COMPILE_STATIC_LIBRARY))
+	$(eval CXXFLAGS := $(filter-out $(DYNAMIC_FLAGS),$(CXXFLAGS)))
+	$(eval CCFLAGS := $(filter-out $(DYNAMIC_FLAGS),$(CCFLAGS)))
+	@ echo -e "::Library Type - Static"
 
-$(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE): $(CC_OBJS) $(CXX_OBJS) | build
-	@ echo -e "Linking: $@"
-	$(LIBRARY_COMPILER) $(LIBRARY_COMPILER_OPTIONS) $@ $^
+dynamic:
+	$(eval BUILD_TYPE := $(BUILD_PATH_DYNAMIC))
+	$(eval LIBRARY_TYPE := $(LIBRARY_DYNAMIC))
+	$(eval COMPILE_LIBRARY := $(COMPILE_DYNAMIC_LIBRARY))
+	$(eval CXXFLAGS += $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
+	$(eval CCFLAGS += $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
+	@ echo -e "::Library Type - Dynamic"
+
+clean:
+	@ -rm -rf $(BUILD_ROOT)
+
+# Static Library
+$(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC): $(CC_OBJS) $(CXX_OBJS) | build
+	@ $(shell mkdir -p $(GLFW_OBJS))
+	@ $(shell cd $(GLFW_OBJS) && $(AR:@%=%) x ../../../../$(GLFW_LIB))
+	@ echo -e "Building: $@"
+	$(AR) cr $@ $(wildcard $(GLFW_OBJS)/*.o) $^
+
+# Dynamic Library
+$(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_DYNAMIC): $(CC_OBJS) $(CXX_OBJS) | build
+	@ echo -e "Building: $@"
+	$(CXX) $(CXXFLAGS) $(DYNAMIC_LIBRARY_LD_FLAGS) $(GLFW_LIB) $^ -o $@
 
 $(BUILD_OBJS_DIR)/%.o: src/%.c | build
 	@ echo -e "Compiling: $< -> $@"
@@ -146,6 +211,3 @@ $(BUILD_DIR)/include/%.h: src/%.h | build
 	@ echo -e "Including Header File: $@"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
-
-clean:
-	@ -rm -rf $(BUILD_ROOT)
