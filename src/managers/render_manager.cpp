@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
+#ifdef _WIN32
+#include "common/fuck_windows.hpp" // :3
+#endif
 
 // Singleton Accessor
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
