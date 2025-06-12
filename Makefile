@@ -13,6 +13,7 @@ endif
 export DEBUG_FLAGS := -g -Wall -O0 -fsanitize=address -D NOSTALGIA_DEBUGGING
 export RELEASE_FLAGS := -O3
 export DYNAMIC_FLAGS := -fPIC
+export LIBRARY_FLAGS ?=
 export COMMON_FLAGS := -frtti -D COMPILER_FORWARD_DECLARATIONS
 export COMMON_CXXFLAGS := -std=c++20
 export WINDOWS_FLAGS := -mwindows
@@ -132,7 +133,7 @@ endif
 	$(eval LIBRARY_DYNAMIC := $(LINUX_LIBRARY_DYNAMIC))
 	$(eval DYNAMIC_LIBRARY_LD_FLAGS := $(LINUX_DYNAMIC_LIBRARY_LD_FLAGS))
 	$(eval DYNAMIC_LIBRARY_COMPILE_FLAGS := $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS))
-	$(eval CXXFLAGS := $(filter-out $(WINDOWS_FLAGS),$(CXXFLAGS)))
+	$(eval CXXFLAGS += $(COMMON_FLAGS) $(COMMON_CXXFLAGS) $(LINUX_FLAGS))
 	$(eval CXX := $(LINUX_CXX))
 	$(eval CC := $(LINUX_CC))
 	@ echo -e "::Architecture - Linux"
@@ -146,35 +147,33 @@ endif
 	$(eval LIBRARY_DYNAMIC := $(WINDOWS_LIBRARY_DYNAMIC))
 	$(eval DYNAMIC_LIBRARY_LD_FLAGS := $(WINDOWS_DYNAMIC_LIBRARY_LD_FLAGS))
 	$(eval DYNAMIC_LIBRARY_COMPILE_FLAGS := $(WINDOWS_DYNAMIC_LIBRARY_COMPILE_FLAGS))
-	$(eval CXXFLAGS := $(filter-out -fsanitize=address,$(CXXFLAGS)) $(WINDOWS_FLAGS))
+	$(eval CXXFLAGS := $(filter-out -fsanitize=address,$(CXXFLAGS)) $(COMMON_FLAGS) $(COMMON_CXXFLAGS) $(WINDOWS_FLAGS))
 	$(eval CXX := $(WINDOWS_CXX))
 	$(eval CC := $(WINDOWS_CC))
 	@ echo -e "::Architecture - Windows"
 
 debug:
 	$(eval BUILD_VERSION := $(BUILD_PATH_DEBUG))
-	$(eval CXXFLAGS := $(filter-out $(RELEASE_FLAGS),$(CXXFLAGS)) $(DEBUG_FLAGS))
+	$(eval CXXFLAGS += $(DEBUG_FLAGS))
 	@ echo -e "::Version - Debug"
 
 release:
 	$(eval BUILD_VERSION := $(BUILD_PATH_RELEASE))
-	$(eval CXXFLAGS := $(filter-out $(DEBUG_FLAGS),$(CXXFLAGS)) $(RELEASE_FLAGS))
+	$(eval CXXFLAGS += $(RELEASE_FLAGS))
 	@ echo -e "::Version - Release"
 
 static:
 	$(eval BUILD_TYPE := $(BUILD_PATH_STATIC))
 	$(eval LIBRARY_TYPE := $(LIBRARY_STATIC))
 	$(eval COMPILE_LIBRARY := $(COMPILE_STATIC_LIBRARY))
-	$(eval CXXFLAGS := $(filter-out $(DYNAMIC_FLAGS),$(CXXFLAGS)))
-	$(eval CCFLAGS := $(filter-out $(DYNAMIC_FLAGS),$(CCFLAGS)))
+	$(eval LIBRARY_FLAGS := )
 	@ echo -e "::Library Type - Static"
 
 dynamic:
 	$(eval BUILD_TYPE := $(BUILD_PATH_DYNAMIC))
 	$(eval LIBRARY_TYPE := $(LIBRARY_DYNAMIC))
 	$(eval COMPILE_LIBRARY := $(COMPILE_DYNAMIC_LIBRARY))
-	$(eval CXXFLAGS += $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
-	$(eval CCFLAGS += $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
+	$(eval LIBRARY_FLAGS := $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
 	@ echo -e "::Library Type - Dynamic"
 
 clean:
