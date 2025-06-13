@@ -10,7 +10,7 @@ export WINDOWS_CC  := @x86_64-w64-mingw32-gcc
 endif
 
 # LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
-export DEBUG_FLAGS := -g -Wall -O0 -fsanitize=address -D NOSTALGIA_DEBUGGING
+export DEBUG_FLAGS := -g -Wall -O0 -D NOSTALGIA_DEBUGGING
 export RELEASE_FLAGS := -O3
 export DYNAMIC_FLAGS := -fPIC
 export LIBRARY_FLAGS ?=
@@ -75,9 +75,18 @@ SRC_DIRS :=                         \
 	src/things                      \
 	src/things/actors               \
 	$(THIRDPARTY_SRC_DIRS)          \
+	src/ui                          \
 	src/world                       \
 
+TEST_APP_SRC_DIRS :=            \
+	src/test_application/app    \
+	src/test_application/system \
+	src/test_application/ui     \
+
 RESOURCES_DIR := src/resources
+
+export TEST_APP_SRCS := $(foreach directory,$(TEST_APP_SRC_DIRS),$(wildcard $(directory)/*.cpp))
+export TEST_APP_OBJS ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(TEST_APP_SRCS:src/%=%)))
 
 export CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
 export CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
@@ -108,7 +117,8 @@ export LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS := -fvisibility=hidden -fvisibility-i
 export DYNAMIC_LIBRARY_LD_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_LD_FLAGS)
 export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
 
-export LIBRARY_NAME := libNostalgiaEngine
+export LIBRARY_NAME_BASE := NostalgiaEngine
+export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
 .PHONY: install build resources linux windows release debug static dynamic clean
 
@@ -154,10 +164,14 @@ endif
 
 debug:
 	$(eval BUILD_VERSION := $(BUILD_PATH_DEBUG))
-	$(eval CXXFLAGS += $(DEBUG_FLAGS))
+	$(eval CXXFLAGS += $(DEBUG_FLAGS) -I src/test_application)
+	$(eval CXX_OBJS := $(CXX_OBJS) $(TEST_APP_OBJS))
+	$(eval LIBRARY_NAME := $(LIBRARY_NAME_BASE))
+	$(eval LIBRARY_TYPE := .x86_64)
 	@ echo -e "::Version - Debug"
 
 release:
+	$(eval LIBRARY_NAME := lib$(LIBRARY_NAME_BASE))
 	$(eval BUILD_VERSION := $(BUILD_PATH_RELEASE))
 	$(eval CXXFLAGS += $(RELEASE_FLAGS))
 	@ echo -e "::Version - Release"
@@ -178,6 +192,11 @@ dynamic:
 
 clean:
 	@ -rm -rf $(BUILD_ROOT)
+
+# Test Application
+$(BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64: $(CC_OBJS) $(CXX_OBJS) | build
+	@ echo -e "Linking Test Application: $@"
+	$(CXX) $(CXXFLAGS) $^ $(GLFW_LIB) -o $@
 
 # Static Library
 $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC): $(CC_OBJS) $(CXX_OBJS) | build
