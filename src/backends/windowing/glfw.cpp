@@ -1,4 +1,6 @@
 #include "glfw.hpp"
+#include "DearImGui/imgui_impl_glfw.h"
+#include "DearImGui/imgui_impl_opengl3.h"
 #include "common/debugging.hpp"
 #include "managers/input_manager.hpp"
 #include "common/opengl_includes.hpp"
@@ -59,13 +61,39 @@ bool GLFW_Backend::Init()
     return true;
 }
 
+bool GLFW_Backend::InitImGui()
+{
+    if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
+        return false;
+
+    if(!ImGui_ImplOpenGL3_Init())
+        return false;
+
+    return true;
+}
+
 void GLFW_Backend::Shutdown()
 {
     assert(is_initialized);
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     glfwTerminate();
 
     is_initialized = false;
+}
+
+void GLFW_Backend::ImGuiNewFrame()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void GLFW_Backend::ImGuiRender()
+{
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 bool GLFW_Backend::CreateMainWindow()

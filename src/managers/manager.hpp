@@ -1,6 +1,7 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 #include <vector>
+#include <chrono>
 
 // Theatre State
 enum TheatreState_t
@@ -52,6 +53,7 @@ public:
 
     // Start/Stop running all game managers
     static void Start();
+    static void Tick();
     static void Stop();
 
     // Return the current frame number
@@ -93,9 +95,9 @@ protected:
     static bool is_running;
     static bool is_initialized;
     static int frame_number;
-    static float current_time;
-    static float last_time;
+    static int tick_number;
     static TheatreState_t theatre_state;
+    inline static std::chrono::time_point start_time = std::chrono::steady_clock::now();
 };
 
 template<typename BaseClass = _Manager>

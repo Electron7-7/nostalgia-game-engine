@@ -13,7 +13,10 @@ class GLFW_Backend : public WindowingBackend
 {
 public:
     virtual bool Init();
+    virtual bool InitImGui();
     virtual void Shutdown();
+    virtual void ImGuiNewFrame();
+    virtual void ImGuiRender();
     virtual bool CreateMainWindow();
     virtual int CreateWindow(const char* WindowName);
 

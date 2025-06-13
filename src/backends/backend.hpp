@@ -55,11 +55,13 @@ public:
     // Inherited by _Backend
     virtual ~WindowingBackend() = default;
     virtual bool Init() { return true; }
+    virtual bool InitImGui() { return true; }
     virtual void Shutdown() {}
+    virtual void ImGuiNewFrame() = 0;
+    virtual void ImGuiRender() = 0;
 
     virtual bool CreateMainWindow() = 0;
     virtual int CreateWindow(const char* WindowName) = 0;
-    // virtual bool SwitchWindowFocus(unsigned int WindowID) = 0;
 
     // Prototype Functions
     virtual bool prototype_SetFullscreen(bool FullscreenOn) = 0;

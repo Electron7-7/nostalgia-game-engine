@@ -1,6 +1,7 @@
 #include "render_manager.hpp"
-#include "backend_manager.hpp"
 #include "world_manager.hpp"
+#include "ui_manager.hpp"
+#include "backend_manager.hpp"
 #include "backends/backend.hpp"
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -62,14 +63,14 @@ void RenderManager::Update()
     if(GetTheatreState() == NOT_IN_LEVEL)
     {
         global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
-        // ui_manager->DrawUI();
+        global_UIManager->DrawUI();
         global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
         return;
     }
 
     global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     global_WorldManager->RenderWorld();
-    // ui_manager->DrawUI();
+    global_UIManager->DrawUI();
     global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
 }
 

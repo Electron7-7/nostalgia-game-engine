@@ -21,9 +21,6 @@ public:
     static WindowingBackend* GetWindowingBackend();
     // static int RequestBackendChange(BackendID BackendID); // Note: probably not good (see source code for more detail)
 
-    // Prototype Functions
-    void prototype_RenderFrame();
-
 private:
     static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends;
     static std::map<BackendID, WindowingBackend*> map_WindowingBackends;

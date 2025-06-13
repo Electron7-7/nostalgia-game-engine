@@ -19,7 +19,7 @@ public:
     virtual void Update();
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
-    virtual bool PleaseTickMeInAFixedUpdateLoop() { return true; }
+    // virtual bool PleaseTickMeInAFixedUpdateLoop() { return true; }
 
     // Prototype functions
     bool prototype_SetFullscreen(bool EnableFullscreen);
