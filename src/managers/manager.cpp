@@ -1,15 +1,15 @@
 #include "manager.hpp"
 #include <cassert>
 #include <GLFW/glfw3.h>
+#include <thread>
 
 int _Manager::frame_number = 0;
+int _Manager::tick_number = 0;
 bool _Manager::stop_requested = false;
 bool _Manager::is_running = false;
 bool _Manager::is_initialized = false;
 bool _Manager::theatre_start_requested = false;
 bool _Manager::theatre_shutdown_requested = false;
-float _Manager::current_time = 0.0f;
-float _Manager::last_time = 0.0f;
 TheatreState_t _Manager::theatre_state = NOT_IN_LEVEL;
 
 std::vector<_Manager*> _Manager::game_managers = {};
@@ -161,41 +161,49 @@ void _Manager::Start()
         bool bPlayNice = ( CommandLine()->CheckParm( "-yieldcycles" ) != 0 );
     */
 
-    float start_time = current_time = last_time = glfwGetTime();
-    int number_of_fixed_update_frames_ticked = 0;
+    std::thread tick_thread(_Manager::Tick);
+
     int number_of_managers = game_managers.size();
 
     while(!stop_requested)
     {
         UpdateTheatreStateMachine();
 
-        last_time = current_time;
-        current_time = glfwGetTime();
-        int number_of_fixed_update_frames_needed = 1 + (int)((current_time - start_time) / TICK_INTERVAL);
-        while(number_of_fixed_update_frames_needed > number_of_fixed_update_frames_ticked)
-        {
-            for(int i = 0 ; i < number_of_managers ; ++i)
-                if(game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
-                    game_managers.at(i)->Update();
-            ++frame_number;
-            ++number_of_fixed_update_frames_ticked;
-        }
-
         for(int i = 0 ; i < number_of_managers ; ++i)
             if(!game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
                 game_managers.at(i)->Update();
 
-        /*
-        See last multi-line comment
-        ---------------------------
-            if ( bPlayNice )
-            {
-                Sleep( 1 );
-            }
-        */
+        ++frame_number;
     }
 
+    tick_thread.join();
     is_running = false;
+}
+
+void _Manager::Tick()
+{
+    int tick_number_local = 1;
+    double last_time = 0.0;
+    int number_of_managers = game_managers.size();
+
+    while(!stop_requested)
+    {
+        float current_tick_length = 0.0f;
+        auto now = std::chrono::steady_clock::now();
+        auto duration = now - start_time;
+        double current_time = std::chrono::duration<double>(duration).count();
+        current_tick_length += (current_time - last_time) / TICK_INTERVAL;
+        last_time = current_time;
+
+        while(current_tick_length >= 1.0f)
+        {
+            for(int i = 0 ; i < number_of_managers ; ++i)
+                if(game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
+                    game_managers.at(i)->Update();
+            ++tick_number;
+            current_tick_length--;
+        }
+    }
 }
 
 void _Manager::Stop()
@@ -203,18 +211,6 @@ void _Manager::Stop()
 
 int _Manager::FrameNumber()
 { return frame_number; }
-
-float _Manager::FixedUpdateCurrentTime()
-{ return frame_number * TICK_INTERVAL; }
-
-float _Manager::FixedUpdateDeltaTime()
-{ return TICK_INTERVAL; }
-
-float _Manager::CurrentTime()
-{ return current_time; }
-
-float _Manager::DeltaTime()
-{ return current_time - last_time; }
 
 TheatreState_t _Manager::GetTheatreState()
 { return theatre_state; }
