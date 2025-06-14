@@ -67,7 +67,9 @@ SRC_DIRS :=                         \
 	src/backends/graphics           \
 	src/backends/windowing          \
 	src/common                      \
+	src/console                     \
 	src/embedded                    \
+	src/events                      \
 	src/input                       \
 	src/managers                    \
 	src/rendering                   \
