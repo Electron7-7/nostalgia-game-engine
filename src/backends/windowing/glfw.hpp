@@ -16,7 +16,6 @@ public:
     virtual bool InitImGui();
     virtual void Shutdown();
     virtual void ImGuiNewFrame();
-    virtual void ImGuiRender();
     virtual bool CreateMainWindow();
     virtual int CreateWindow(const char* WindowName);
 

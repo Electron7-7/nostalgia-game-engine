@@ -11,7 +11,10 @@ public:
     virtual ~OpenGL_Backend() = default;
 
     virtual bool Init();
+    virtual bool InitImGui();
     virtual void Shutdown();
+    virtual void ImGuiNewFrame();
+    virtual void ImGuiRender();
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
     virtual bool BindShader(unsigned int ShaderLabel);
     virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);

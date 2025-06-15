@@ -1,4 +1,6 @@
 #include "opengl.hpp"
+#include "DearImGui/imgui.h"
+#include "DearImGui/imgui_impl_opengl3.h"
 #include "common/opengl_includes.hpp"
 #include "common/debugging.hpp"
 #include "world/3d_common.hpp"
@@ -41,6 +43,17 @@ bool OpenGL_Backend::Init()
     return true;
 }
 
+bool OpenGL_Backend::InitImGui()
+{
+    if(!ImGui_ImplOpenGL3_Init())
+    {
+        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
+        return false;
+    }
+
+    return true;
+}
+
 void OpenGL_Backend::Shutdown()
 { is_initialized = false; }
 
@@ -61,6 +74,12 @@ bool OpenGL_Backend::BindShader(unsigned int shader_label)
     currently_bound_shader = shader_label;
     return true;
 }
+
+void OpenGL_Backend::ImGuiNewFrame()
+{ ImGui_ImplOpenGL3_NewFrame(); }
+
+void OpenGL_Backend::ImGuiRender()
+{ ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
 bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {

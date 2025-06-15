@@ -15,10 +15,13 @@ typedef int WindowingBackendID;
 class BackendManager
 {
 public:
-    bool Init();
+    static bool Init();
 
     static GraphicsBackend* GetGraphicsBackend();
     static WindowingBackend* GetWindowingBackend();
+    static bool InitImGui();
+    static void ImGuiNewFrame();
+    static void ImGuiRender();
     // static int RequestBackendChange(BackendID BackendID); // Note: probably not good (see source code for more detail)
 
 private:
@@ -27,6 +30,7 @@ private:
 
     static bool is_initialized;
     static bool is_backend_initialized;
+    static bool is_imgui_initialized;
     static GraphicsBackendID current_GraphicsBackend;
     static WindowingBackendID current_WindowingBackend;
 

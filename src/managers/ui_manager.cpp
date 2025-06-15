@@ -36,12 +36,12 @@ TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return Theat
 
 void UIManager::DrawUI()
 {
-    global_BackendManager->GetWindowingBackend()->ImGuiNewFrame();
+    global_BackendManager->ImGuiNewFrame();
 
     for(ImGui_Object* imgui_object : imgui_objects)
         imgui_object->Update();
 
-    global_BackendManager->GetWindowingBackend()->ImGuiRender();
+    global_BackendManager->ImGuiRender();
 }
 
 void UIManager::Shutdown()

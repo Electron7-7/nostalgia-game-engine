@@ -64,10 +64,10 @@ bool GLFW_Backend::Init()
 bool GLFW_Backend::InitImGui()
 {
     if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
+    {
+        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
         return false;
-
-    if(!ImGui_ImplOpenGL3_Init())
-        return false;
+    }
 
     return true;
 }
@@ -76,7 +76,6 @@ void GLFW_Backend::Shutdown()
 {
     assert(is_initialized);
 
-    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     glfwTerminate();
 
@@ -84,17 +83,7 @@ void GLFW_Backend::Shutdown()
 }
 
 void GLFW_Backend::ImGuiNewFrame()
-{
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-}
-
-void GLFW_Backend::ImGuiRender()
-{
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
+{ ImGui_ImplGlfw_NewFrame(); }
 
 bool GLFW_Backend::CreateMainWindow()
 {

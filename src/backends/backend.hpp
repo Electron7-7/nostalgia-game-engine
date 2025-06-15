@@ -38,7 +38,10 @@ public:
     // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
     virtual bool Init() { return true; }
+    virtual bool InitImGui() { return true; }
     virtual void Shutdown() {}
+    virtual void ImGuiNewFrame() {}
+    virtual void ImGuiRender() {}
 
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
@@ -57,8 +60,7 @@ public:
     virtual bool Init() { return true; }
     virtual bool InitImGui() { return true; }
     virtual void Shutdown() {}
-    virtual void ImGuiNewFrame() = 0;
-    virtual void ImGuiRender() = 0;
+    virtual void ImGuiNewFrame() {}
 
     virtual bool CreateMainWindow() = 0;
     virtual int CreateWindow(const char* WindowName) = 0;
