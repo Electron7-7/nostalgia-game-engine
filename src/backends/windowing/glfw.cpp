@@ -1,6 +1,5 @@
 #include "glfw.hpp"
 #include "DearImGui/imgui_impl_glfw.h"
-#include "DearImGui/imgui_impl_opengl3.h"
 #include "common/debugging.hpp"
 #include "managers/input_manager.hpp"
 #include "common/opengl_includes.hpp"
@@ -63,12 +62,16 @@ bool GLFW_Backend::Init()
 
 bool GLFW_Backend::InitImGui()
 {
+    if(is_imgui_initialized)
+        return true;
+
     if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
     {
         PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
         return false;
     }
 
+    is_imgui_initialized = true;
     return true;
 }
 

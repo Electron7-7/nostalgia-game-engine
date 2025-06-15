@@ -50,6 +50,9 @@ public:
 
     // Prototype Functions
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
+
+protected:
+    bool is_imgui_initialized = false;
 };
 
 class WindowingBackend : public _Backend
@@ -90,6 +93,7 @@ protected:
     inline static const char* main_WindowName = "Nostalgia";
 
     std::set<BackendID> compatible_graphics_ids = {};
+    bool is_imgui_initialized = false;
 };
 
 #endif // BACKENDS_H
