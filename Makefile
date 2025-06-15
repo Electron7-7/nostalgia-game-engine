@@ -97,7 +97,7 @@ export CC_OBJS  ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .c,.o,$(CC_SRCS:src/%=
 
 export GLFW_OBJS ?= $(BUILD_OBJS_DIR)/glfw_extracted_object_files
 
-export HEADER_FILES := $(foreach directory,$(filter-out $(THIRDPARTY_SRC_DIRS),$(SRC_DIRS)),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
+export HEADER_FILES := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
 export HEADERS_OUT  ?= $(addprefix $(BUILD_DIR)/include/,$(HEADER_FILES:src/%=%))
 
 export AR := @llvm-ar
