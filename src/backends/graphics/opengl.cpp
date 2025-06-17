@@ -50,7 +50,7 @@ bool OpenGL_Backend::InitImGui()
 
     if(!ImGui_ImplOpenGL3_Init())
     {
-        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
+        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!");
         return false;
     }
 
