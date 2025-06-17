@@ -211,7 +211,7 @@ $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC):
 # Dynamic Library
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_DYNAMIC):
 	@ echo -e "Building: $@"
-	$(CXX) $(CXXFLAGS) $(DYNAMIC_LIBRARY_LD_FLAGS) $(GLFW_LIB) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(DYNAMIC_LIBRARY_LD_FLAGS) $(GLFW_LIB) $(wildcard $(GLFW_OBJS)/*.o) $(LIB_CXX_OBJS) $(LIB_CC_OBJS) -o $@
 
 $(LIB_BUILD_OBJS_DIR)/%.o: src/%.c | build
 	@ echo -e "Compiling: $< -> $@"
