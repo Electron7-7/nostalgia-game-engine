@@ -90,10 +90,10 @@ RESOURCES_DIR := src/resources
 TEST_APP_SRCS := $(foreach directory,$(TEST_APP_SRC_DIRS),$(wildcard $(directory)/*.cpp))
 export TEST_APP_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(TEST_APP_SRCS:src/%=%)))
 
-CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
-CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
-export LIB_CXX_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(CXX_SRCS:src/%=%)))
-export LIB_CC_OBJS  ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .c,.o,$(CC_SRCS:src/%=%)))
+LIB_CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
+LIB_CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
+export LIB_CXX_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(LIB_CXX_SRCS:src/%=%)))
+export LIB_CC_OBJS  ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .c,.o,$(LIB_CC_SRCS:src/%=%)))
 
 export GLFW_OBJS ?= $(LIB_BUILD_OBJS_DIR)/glfw_extracted_object_files
 
