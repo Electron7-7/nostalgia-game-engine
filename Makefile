@@ -125,6 +125,7 @@ export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 .PHONY: install build resources linux windows release debug static dynamic clean
 
 install: resources build
+	@ -rm -f $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
 	@ $(MAKE) -s $(HEADERS_OUT) $(LIB_CC_OBJS) $(LIB_CXX_OBJS) $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
 	@ echo -e "Successfully made: $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
 	@ echo -e "To use Nostalgia for your project, you need the library file and the headers located in the \"include\" directory."
@@ -198,14 +199,14 @@ clean:
 # Test Application
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64:
 	@ echo -e "Linking Test Application: $@"
-	$(CXX) $(CXXFLAGS) $^ $(GLFW_LIB) -o $@
+	$(CXX) $(CXXFLAGS) $(TEST_APP_OBJS) $(GLFW_LIB) -o $@
 
 # Static Library
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC):
 	@ $(shell mkdir -p $(GLFW_OBJS))
 	@ $(shell cd $(GLFW_OBJS) && $(AR:@%=%) x ../../../../$(GLFW_LIB))
 	@ echo -e "Building: $@"
-	$(AR) cr $@ $(wildcard $(GLFW_OBJS)/*.o) $^
+	$(AR) cr $@ $(wildcard $(GLFW_OBJS)/*.o) $(LIB_CXX_OBJS) $(LIB_CC_OBJS)
 
 # Dynamic Library
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_DYNAMIC):
