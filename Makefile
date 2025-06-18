@@ -137,7 +137,7 @@ export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
 install: resources build
 	@ -rm -f $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
-	@ $(MAKE) -s $(HEADERS_OUT) $(LIB_CC_OBJS) $(LIB_CXX_OBJS) $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
+	$(MAKE) -s $(HEADERS_OUT) $(LIB_CC_OBJS) $(LIB_CXX_OBJS) $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
 	@ echo -e "Successfully made: $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
 	@ echo -e "To use Nostalgia for your project, you need the library file and the headers located in the \"include\" directory."
 
@@ -145,7 +145,7 @@ build:
 	@ -mkdir -p $(LIB_BUILD_OBJS_DIR)
 
 resources:
-	@ $(MAKE) -s -C $(RESOURCES_DIR)
+	$(MAKE) -s -C $(RESOURCES_DIR)
 
 linux:
 ifeq ($(OS),Windows_NT)
@@ -235,7 +235,6 @@ $(LIB_BUILD_OBJS_DIR)/%.o: src/%.c | build
 $(LIB_BUILD_OBJS_DIR)/%.obj: src/%.cpp | build
 	@ echo -e "Compiling: $< -> $@"
 	@ -mkdir -p $(dir $@)
-	@ echo -e $(CXXFLAGS)
 	$(CXX) $(CXXFLAGS) $(LIB_INCLUDE) -c $< -o $@
 
 $(LIB_BUILD_DIR)/include/%.hpp: src/%.hpp | build
