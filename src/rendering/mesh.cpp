@@ -14,11 +14,21 @@ Mesh::Mesh(const std::string& init_name, const std::vector<Vertex>& init_vertice
 : Mesh(init_name, init_vertices, std::vector<Index>{})
 {}
 
+Mesh::Mesh(const std::string& init_name, const std::vector<Vertex>& init_vertices, const std::vector<uintvec3>& init_faces)
+: Mesh(init_name, init_vertices)
+{
+    for(uintvec3 face : init_faces)
+        _face_indices.insert(_face_indices.end(), {face[0], face[1], face[2]});
+}
+
 void Mesh::AddVertex(Vertex vertex)
 { _vertices[_vertices.size()] = vertex; }
 
 void Mesh::AddIndex(Mesh::Index index)
 { _face_indices.insert(_face_indices.end(), index); }
+
+void Mesh::AddFace(uintvec3 face_indices)
+{ _face_indices.insert(_face_indices.end(), {face_indices[0], face_indices[1], face_indices[2]}); }
 
 void Mesh::RemoveVertex(Mesh::Index index_of_vertex_to_remove)
 {
