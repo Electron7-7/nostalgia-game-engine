@@ -72,6 +72,7 @@ SRC_DIRS :=                         \
 	src/events                      \
 	src/input                       \
 	src/managers                    \
+	src/math                        \
 	src/rendering                   \
 	src/rendering/shader_interfaces \
 	src/things                      \
