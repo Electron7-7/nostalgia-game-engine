@@ -115,3 +115,6 @@ Finally!!! This repository now contains only the engine-related code and the Mak
 
 [06/13/25]
 Note for later today: that video on Doom 3's source code discussed the event queue and I want to emulate it for many reasons but especially for the logs.
+
+[06/17/25]
+I had to fiddle with the Makefile a bit to get the editor build system to work nicely, but now I want to start working on maybe implementing some rendering?
