@@ -1,0 +1,184 @@
+#ifndef GRAPHX_CUBE
+#include "math/unsigned_int_vector.hpp"
+#include "rendering/mesh.hpp"
+#include <vector>
+#include <glm/glm.hpp>
+#include <string> // IWYU pragma: keep
+#define NOSTALGIA_CUBE std::string("NOSTALGIA_CUBE")
+
+inline Mesh mesh_Cube
+(
+	NOSTALGIA_CUBE,
+	{
+		{
+			glm::vec3(-1.0f, -1.0f, -1.0f), // Position - Left    Down    Forward    0
+			glm::vec3(-1.0f,  0.0f, 0.0f),  // Normal
+			glm::vec3(1.0f),                // Color
+			glm::vec2(0.0f, 0.0f),          // UV
+		},
+		{
+			glm::vec3(-1.0f, -1.0f,  1.0f), // Left    Down    Back    1
+			glm::vec3(-1.0f,  0.0f, 0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f, -1.0f), // Left    Up    Forward    2
+			glm::vec3(-1.0f,  0.0f, 0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f,  1.0f), // Left    Up    Back    3
+			glm::vec3(-1.0f,  0.0f, 0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f, -1.0f), // Right    Down    Forward    4
+			glm::vec3(1.0f,  0.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f,  1.0f), // Right    Down    Back    5
+			glm::vec3(1.0f,  0.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f, -1.0f), // Right    Up    Forward    6
+			glm::vec3(1.0f,  0.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f,  1.0f), // Right    Up    Back    7
+			glm::vec3(1.0f,  0.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3(-1.0f, -1.0f, -1.0f), // Left    Down    Forward    8
+			glm::vec3(0.0f, -1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3(-1.0f, -1.0f,  1.0f), // Left    Down    Back    9
+			glm::vec3(0.0f, -1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f, -1.0f), // Right    Down    Forward    10
+			glm::vec3(0.0f, -1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f,  1.0f), // Right    Down    Back    11
+			glm::vec3(0.0f, -1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f, -1.0f), // Left    Up    Forward    12
+			glm::vec3(0.0f,  1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f,  1.0f), // Left    Up    Back    13
+			glm::vec3(0.0f,  1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f, -1.0f), // Right    Up    Forward    14
+			glm::vec3(0.0f,  1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f,  1.0f), // Right    Up    Back    15
+			glm::vec3(0.0f,  1.0f,  0.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3(-1.0f, -1.0f, -1.0f), // Left    Down    Forward    16
+			glm::vec3(0.0f,  0.0f, -1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f, -1.0f), // Left    Up    Forward    17
+			glm::vec3(0.0f,  0.0f, -1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f, -1.0f), // Right    Down    Forward    18
+			glm::vec3(0.0f,  0.0f, -1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f, -1.0f), // Right    Up    Forward    19
+			glm::vec3(0.0f,  0.0f, -1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3(-1.0f, -1.0f,  1.0f), // Left    Down    Back    20
+			glm::vec3(0.0f,  0.0f,  1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 0.0f),
+		},
+		{
+			glm::vec3(-1.0f,  1.0f,  1.0f), // Left    Up    Back    21
+			glm::vec3(0.0f,  0.0f,  1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(0.0f, 1.0f),
+		},
+		{
+			glm::vec3( 1.0f, -1.0f,  1.0f), // Right    Down    Back    22
+			glm::vec3(0.0f,  0.0f,  1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 0.0f),
+		},
+		{
+			glm::vec3( 1.0f,  1.0f,  1.0f), // Right    Up    Back    23
+			glm::vec3(0.0f,  0.0f,  1.0f),
+			glm::vec3(1.0f),
+			glm::vec2(1.0f, 1.0),
+		},
+	},
+	{
+		// -X Square
+		uintvec3(0, 1, 2),	// Bottom Triangle
+		uintvec3(1, 2, 3),	// Top Triangle
+
+		// +X Square
+		uintvec3(4, 5, 6),
+		uintvec3(7, 5, 6),
+
+		// -Y Square
+		uintvec3(8, 9, 10),
+		uintvec3(11, 9, 10),
+
+		// +Y Square
+		uintvec3(12, 13, 14),
+		uintvec3(15, 13, 14),
+
+		// -Z Square
+		uintvec3(16, 17, 18),
+		uintvec3(19, 17, 18),
+
+		// +Z Square
+		uintvec3(20, 21, 22),
+		uintvec3(23, 21, 22),
+	}
+);
+#endif
