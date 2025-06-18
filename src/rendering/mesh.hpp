@@ -17,6 +17,7 @@ public:
         std::vector<float> all_vertex_data = {};
         for(auto& [index, vertex] : vertices)
         {
+            // FIXME: change hardcoded '11' to a variable that helps identify the vertex data stride
             std::array<float, 11> iterative_vertex_data = vertex.VertexData();
             all_vertex_data.insert(all_vertex_data.end(), iterative_vertex_data.begin(), iterative_vertex_data.end());
         }
@@ -55,7 +56,7 @@ public:
 
 private:
     std::map<Index, Vertex> vertices = {};
-    std::vector<Index> face_indices;
+    std::vector<Index> face_indices = {};
 };
 
 #endif // MESH_H

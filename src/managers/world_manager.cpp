@@ -24,6 +24,9 @@ TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
 
     CreateThings();
     SetInitialLocalPlayerPosition();
+
+    global_BackendManager->GetGraphicsBackend()->InitNewTheatre();
+
     return FINISHED;
 }
 
@@ -58,7 +61,15 @@ void WorldManager::SetInitialLocalPlayerPosition()
     world_Player.GetCameraProperty()->origin.z = 512 + camera_direction.z * distance;
 }
 
-const Mesh* WorldManager::GetMesh(MeshID mesh_uid)
+MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
+{
+    int mesh_uid = world_MeshStorage.size();
+    // FIXME: This could probably do to be safer...
+    world_MeshStorage[mesh_uid] = MeshWrapper(new_mesh, mesh_uid);
+    return mesh_uid;
+}
+
+const Mesh* WorldManager::GetMesh(MeshWrapper::MeshID mesh_uid)
 {
     if(!world_MeshStorage.contains(mesh_uid))
     {
@@ -69,22 +80,22 @@ const Mesh* WorldManager::GetMesh(MeshID mesh_uid)
     return world_MeshStorage.at(mesh_uid).GetMesh();
 }
 
-WorldManager::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
+std::map<MeshWrapper::MeshID, const Mesh*> WorldManager::GetAllCurrentMeshes()
 {
-    int mesh_uid = world_MeshStorage.size();
-    // FIXME: This could probably do to be safer...
-    world_MeshStorage[mesh_uid] = MeshWrapper(new_mesh, mesh_uid);
-    return mesh_uid;
+    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes;
+
+    for(auto& [mesh_uid, mesh_wrapper] : world_MeshStorage)
+        all_meshes[mesh_uid] = mesh_wrapper.GetMesh();
+
+    return all_meshes;
 }
 
 void WorldManager::RenderWorld()
 {
-    GraphicsBackend* current_GraphicsBackend = global_BackendManager->GetGraphicsBackend();
-
-    for(int i = 0 ; i < world_RenderCommandQueue.size() ; i++)
-    {
-        // This function should contain as few conditionals as possible and just be a straight shot down.
-        current_GraphicsBackend->BindShader(Shaders::BLINN_PHONG);
-    }
+    // for(int i = 0 ; i < world_RenderCommandQueue.size() ; i++)
+    // {
+        // global_BackendManager->GetGraphicsBackend()->RenderSingleCommand(world_RenderCommandQueue.at(i));
+        // world_RenderCommandQueue.erase(world_RenderCommandQueue.begin() + i);
+    // }
 }
 // The rest are the console command functions (see hl2_src/app/legion/worldmanager.cpp:128-166)

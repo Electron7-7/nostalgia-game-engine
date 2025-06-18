@@ -1,6 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
+#include "rendering/render_command.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include <glm/glm.hpp>
 #include <set>
@@ -37,8 +38,10 @@ class GraphicsBackend : public _Backend
 public:
     // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
+
     virtual bool Init() { return true; }
     virtual bool InitImGui() { return true; }
+    virtual bool InitNewTheatre() { return true; }
     virtual void Shutdown() {}
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
@@ -47,12 +50,14 @@ public:
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
     virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
     virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
+    virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
 
     // Prototype Functions
     virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
 
 protected:
     bool is_imgui_initialized = false;
+    bool is_theatre_data_initialized = false;
 };
 
 class WindowingBackend : public _Backend
