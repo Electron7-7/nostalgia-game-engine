@@ -11,6 +11,9 @@ struct Mesh
 public:
     typedef unsigned int Index;
 
+    Mesh();
+    Mesh(const std::string& Name, const std::vector<Vertex>& Vertices);
+    Mesh(const std::string& Name, const std::vector<Vertex>& Vertices, const std::vector<Index>& Indices);
 
     void AddVertex(Vertex NewVertex);
     void RemoveVertex(Index IndexOfVertexToRemove);
@@ -20,8 +23,10 @@ public:
 
     std::vector<float> GetVertexData() const;
     std::vector<Index> GetIndices() const;
+    std::string GetName() const;
 
 private:
+    std::string _mesh_name = "UNDEFINED";
     std::map<Index, Vertex> _vertices = {};
     std::vector<Index> _face_indices = {};
 };
