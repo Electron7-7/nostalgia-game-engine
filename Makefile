@@ -76,9 +76,11 @@ SRC_DIRS :=                         \
 	src/rendering/shader_interfaces \
 	src/things                      \
 	src/things/actors               \
-	$(THIRDPARTY_SRC_DIRS)          \
 	src/ui                          \
 	src/world                       \
+
+DIRTY_SRC_DIRS :=          \
+	$(THIRDPARTY_SRC_DIRS) \
 
 TEST_APP_SRC_DIRS :=            \
 	src/test_application/app    \
@@ -90,14 +92,23 @@ RESOURCES_DIR := src/resources
 TEST_APP_SRCS := $(foreach directory,$(TEST_APP_SRC_DIRS),$(wildcard $(directory)/*.cpp))
 export TEST_APP_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(TEST_APP_SRCS:src/%=%)))
 
-LIB_CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
-LIB_CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
+LIB_CXX_SRCS := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp)) \
+	$(foreach directory,$(DIRTY_SRC_DIRS),$(wildcard $(directory)/*.cpp))
+
+LIB_CC_SRCS  := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c)) \
+	$(foreach directory,$(DIRTY_SRC_DIRS),$(wildcard $(directory)/*.c))
+
 export LIB_CXX_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(LIB_CXX_SRCS:src/%=%)))
 export LIB_CC_OBJS  ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .c,.o,$(LIB_CC_SRCS:src/%=%)))
 
 export GLFW_OBJS ?= $(LIB_BUILD_OBJS_DIR)/glfw_extracted_object_files
 
-HEADER_FILES := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
+HEADER_FILES := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h)) \
+	$(foreach directory,$(THIRDPARTY_SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
+
 export HEADERS_OUT  ?= $(addprefix $(LIB_BUILD_DIR)/include/,$(HEADER_FILES:src/%=%))
 
 AR := @llvm-ar
@@ -122,7 +133,7 @@ export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
 LIBRARY_NAME_BASE := NostalgiaEngine
 export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
-.PHONY: install build resources linux windows release debug static dynamic clean
+.PHONY: install build resources linux windows release debug static dynamic clean clean_dirty
 
 install: resources build
 	@ -rm -f $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
@@ -196,6 +207,9 @@ dynamic:
 clean:
 	@ -rm -rf $(BUILD_ROOT)
 
+clean_dirty:
+	@ echo -e $(foreach directory,$(wildcard $(BUILD_ROOT)/*),$(foreach clean_dir,$(SRC_DIRS:src/%=%),$(shell rm -rf $(directory)/$(clean_dir) && echo -e "$(DEFAULT)Cleaned: $(RED)$(directory)/$(clean_dir)$(RESET)")))
+
 # Test Application
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64:
 	@ echo -e "Linking Test Application: $@"
@@ -221,6 +235,7 @@ $(LIB_BUILD_OBJS_DIR)/%.o: src/%.c | build
 $(LIB_BUILD_OBJS_DIR)/%.obj: src/%.cpp | build
 	@ echo -e "Compiling: $< -> $@"
 	@ -mkdir -p $(dir $@)
+	@ echo -e $(CXXFLAGS)
 	$(CXX) $(CXXFLAGS) $(LIB_INCLUDE) -c $< -o $@
 
 $(LIB_BUILD_DIR)/include/%.hpp: src/%.hpp | build
