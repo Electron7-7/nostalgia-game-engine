@@ -2,6 +2,7 @@
 #include "backend_manager.hpp"
 #include "backends/backend.hpp"
 #include "rendering/camera_property.hpp"
+#include "common/debugging.hpp"
 #include <glm/glm.hpp>
 
 WorldManager singleton_WorldManager;
@@ -63,6 +64,15 @@ void WorldManager::SetInitialLocalPlayerPosition()
 
 MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
 {
+    for(auto& [mesh_id, mesh] : world_MeshStorage) // FIXME: This might be more dangerous than an iterative for-loop
+    {
+        if(!mesh.GetMesh()->GetName().compare(new_mesh.GetName()))
+        {
+            PRINTERR("WorldManager::AddMesh - A Mesh with the same name \"" + new_mesh.GetName() + "\" already exists! Returning that Mesh's UID");
+            return mesh_id;
+        }
+    }
+
     int mesh_uid = world_MeshStorage.size();
     // FIXME: This could probably do to be safer...
     world_MeshStorage[mesh_uid] = MeshWrapper(new_mesh, mesh_uid);
