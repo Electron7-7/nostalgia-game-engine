@@ -1,8 +1,8 @@
 #include "backend_manager.hpp"
 #include "DearImGui/imgui.h"
-#include "backends/backend.hpp"
-#include "backends/graphics/opengl.hpp"
-#include "backends/windowing/glfw.hpp"
+#include "rendering/backends/backend.hpp"
+#include "rendering/backends/graphics/opengl.hpp"
+#include "rendering/backends/windowing/glfw.hpp"
 #include "common/debugging.hpp"
 
 // BackendManager Singleton

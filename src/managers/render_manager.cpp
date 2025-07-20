@@ -2,7 +2,7 @@
 #include "world_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
-#include "backends/backend.hpp"
+#include "rendering/backends/backend.hpp"
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>

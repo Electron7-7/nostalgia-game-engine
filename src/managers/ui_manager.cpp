@@ -1,6 +1,6 @@
 #include "ui_manager.hpp"
 #include "DearImGui/imgui.h"
-#include "backends/backend.hpp"
+#include "rendering/backends/backend.hpp"
 #include "managers/backend_manager.hpp"
 
 UIManager singleton_UIManager;

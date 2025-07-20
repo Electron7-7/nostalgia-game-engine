@@ -62,28 +62,28 @@ THIRDPARTY_SRC_DIRS :=       \
 	src/thirdparty/DearImGui \
 	src/thirdparty/glad
 
-SRC_DIRS :=                         \
-	src/backends                    \
-	src/backends/graphics           \
-	src/backends/windowing          \
-	src/common                      \
-	src/console                     \
-	src/embedded                    \
-	src/events                      \
-	src/input                       \
-	src/managers                    \
-	src/rendering                   \
-	src/rendering/shader_interfaces \
-	src/things                      \
-	src/things/actors               \
-	$(THIRDPARTY_SRC_DIRS)          \
-	src/ui                          \
-	src/world                       \
 
 TEST_APP_SRC_DIRS :=            \
 	src/test_application/app    \
 	src/test_application/system \
 	src/test_application/ui     \
+SRC_DIRS :=                          \
+	src/common                       \
+	src/console                      \
+	src/embedded                     \
+	src/events                       \
+	src/input                        \
+	src/managers                     \
+	src/rendering                    \
+	src/rendering/backends           \
+	src/rendering/backends/graphics  \
+	src/rendering/backends/windowing \
+	src/rendering/shader_interfaces  \
+	src/things                       \
+	src/things/actors                \
+	$(THIRDPARTY_SRC_DIRS)           \
+	src/ui                           \
+	src/world                        \
 
 RESOURCES_DIR := src/resources
 
