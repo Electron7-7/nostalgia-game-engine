@@ -37,6 +37,7 @@ export BUILD_PATH_RELEASE := release
 export BUILD_PATH_DEBUG   := debug
 export BUILD_PATH_DYNAMIC := dynamic
 export BUILD_PATH_STATIC  := static
+export BUILD_PATH_APP     := test_app
 
 export BUILD_ARCH    ?= $(BUILD_PATH_LINUX)
 export BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
@@ -62,11 +63,6 @@ THIRDPARTY_SRC_DIRS :=       \
 	src/thirdparty/DearImGui \
 	src/thirdparty/glad
 
-
-TEST_APP_SRC_DIRS :=            \
-	src/test_application/app    \
-	src/test_application/system \
-	src/test_application/ui     \
 SRC_DIRS :=                          \
 	src/common                       \
 	src/console                      \
@@ -84,6 +80,11 @@ SRC_DIRS :=                          \
 	$(THIRDPARTY_SRC_DIRS)           \
 	src/ui                           \
 	src/world                        \
+
+TEST_APP_SRC_DIRS :=       \
+	src/testing_app/app    \
+	src/testing_app/system \
+	src/testing_app/ui     \
 
 RESOURCES_DIR := src/resources
 
@@ -122,12 +123,22 @@ export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
 export LIBRARY_NAME_BASE := NostalgiaEngine
 export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
-.PHONY: install build resources linux windows release debug static dynamic clean
+export TEST_APP_NAME := NostalgiaEngineTestApp
+export TEST_APP_LDFLAGS ?= -L $(BUILD_ROOT)/$(BUILD_PATH_LINUX)_$(BUILD_PATH_STATIC)_$(BUILD_VERSION) -l NostalgiaEngine
+
+.PHONY: install test build resources linux windows release debug static dynamic clean
 
 install: resources build
 	@ $(MAKE) -s $(HEADERS_OUT) $(CC_OBJS) $(CXX_OBJS) $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
 	@ echo -e "Successfully made: $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
 	@ echo -e "To use Nostalgia for your project, you need the library file and the headers located in the \"include\" directory."
+
+test:
+	@ -mkdir -p $(BUILD_ROOT)/$(BUILD_PATH_APP)
+	@ $(MAKE) -s $(TEST_APP_OBJS) $(BUILD_ROOT)/$(BUILD_PATH_APP)/$(TEST_APP_NAME)
+
+$(BUILD_ROOT)/$(BUILD_PATH_APP)/$(TEST_APP_NAME): $(TEST_APP_OBJS) | build
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -D NOSTALGIA_DEBUGGING -D COMPILER_FORWARD_DECLARATIONS -fsanitize=address -g -Wall -O0 -std=c++20 $^ -o $@ $(TEST_APP_LDFLAGS)
 
 build:
 	@ -mkdir -p $(BUILD_OBJS_DIR)
