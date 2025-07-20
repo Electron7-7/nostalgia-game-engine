@@ -136,8 +136,8 @@ export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
 LIBRARY_NAME_BASE := NostalgiaEngine
 export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
-export TEST_APP_NAME := NostalgiaEngineTestApp
-export TEST_APP_LDFLAGS ?= -L $(BUILD_ROOT)/$(BUILD_PATH_LINUX)_$(BUILD_PATH_STATIC)_$(BUILD_VERSION) -l NostalgiaEngine
+TEST_APP_NAME := NostalgiaEngineTestApp
+export TEST_APP_LDFLAGS ?= -L $(BUILD_ROOT)/$(BUILD_PATH_LINUX)_$(BUILD_PATH_STATIC)_$(LIB_BUILD_VERSION) -l NostalgiaEngine
 
 .PHONY: install test build resources linux windows release debug static dynamic clean clean_dirty
 
@@ -151,6 +151,7 @@ test:
 	@ -mkdir -p $(BUILD_ROOT)/$(BUILD_PATH_APP)
 	@ $(MAKE) -s $(TEST_APP_OBJS) $(BUILD_ROOT)/$(BUILD_PATH_APP)/$(TEST_APP_NAME)
 
+# Testing Application
 $(BUILD_ROOT)/$(BUILD_PATH_APP)/$(TEST_APP_NAME): $(TEST_APP_OBJS) | build
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -D NOSTALGIA_DEBUGGING -D COMPILER_FORWARD_DECLARATIONS -fsanitize=address -g -Wall -O0 -std=c++20 $^ -o $@ $(TEST_APP_LDFLAGS)
 
@@ -222,11 +223,6 @@ clean:
 
 clean_dirty:
 	@ echo -e $(foreach directory,$(wildcard $(BUILD_ROOT)/*),$(foreach clean_dir,$(SRC_DIRS:src/%=%),$(shell rm -rf $(directory)/$(clean_dir) && echo -e "$(DEFAULT)Cleaned: $(RED)$(directory)/$(clean_dir)$(RESET)")))
-
-# Test Application
-$(LIB_BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64:
-	@ echo -e "Linking Test Application: $@"
-	$(CXX) $(CXXFLAGS) $(TEST_APP_OBJS) $(GLFW_LIB) -o $@
 
 # Static Library
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC):
