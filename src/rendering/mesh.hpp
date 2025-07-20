@@ -2,60 +2,37 @@
 #define MESH_H
 
 #include "vertex.hpp"
-#include "common/debugging.hpp"
+#include "math/unsigned_int_vector.hpp"
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>
+#include <string>
 
 struct Mesh
 {
 public:
     typedef unsigned int Index;
 
-    std::vector<float> GetVertexData() const
-    {
-        std::vector<float> all_vertex_data = {};
-        for(auto& [index, vertex] : vertices)
-        {
-            std::array<float, 11> iterative_vertex_data = vertex.VertexData();
-            all_vertex_data.insert(all_vertex_data.end(), iterative_vertex_data.begin(), iterative_vertex_data.end());
-        }
+    Mesh();
+    Mesh(const std::string& Name, const std::vector<Vertex>& Vertices);
+    Mesh(const std::string& Name, const std::vector<Vertex>& Vertices, const std::vector<Index>& Indices);
+    Mesh(const std::string& Name, const std::vector<Vertex>& Vertices, const std::vector<uintvec3>& Faces);
 
-        return all_vertex_data;
-    }
+    void AddVertex(Vertex NewVertex);
+    void RemoveVertex(Index IndexOfVertexToRemove);
+    void RemoveVertex(Vertex VertexToRemove); // Much less efficient, but more direct
+    void AddIndex(Index NewIndex);
+    void AddFace(uintvec3 NewFaceIndices);
+    void SetName(const std::string& NewName);
 
-    std::vector<Index> GetIndices() const
-    { return face_indices; }
-
-    void AddVertex(Vertex NewVertex)
-    { vertices[vertices.size()] = NewVertex; }
-
-    void AddIndex(Index NewIndex)
-    { face_indices.insert(face_indices.end(), NewIndex); }
-
-    void RemoveVertex(Index IndexOfVertexToRemove)
-    {
-        if(vertices.contains(IndexOfVertexToRemove))
-            vertices.erase(IndexOfVertexToRemove);
-        else
-            PRINTWARN("Mesh::RemoveVertex(Index) - No index matching the argument was found in this mesh");
-    }
-
-    void RemoveVertex(Vertex VertexToRemove) // Much less efficient, but more direct
-    {
-        for(auto& [index, vertex] : vertices)
-            if(vertex == VertexToRemove)
-            {
-                vertices.erase(index);
-                return;
-            }
-
-        PRINTWARN("Mesh::RemoveVertex(Vertex) - No vertex matching the argument was found in this mesh");
-    }
+    std::vector<float> GetVertexData() const;
+    std::vector<Index> GetIndices() const;
+    std::string GetName() const;
 
 private:
-    std::map<Index, Vertex> vertices = {};
-    std::vector<Index> face_indices;
+    std::string _mesh_name = "UNDEFINED";
+    std::map<Index, Vertex> _vertices = {};
+    std::vector<Index> _face_indices = {};
 };
 
 #endif // MESH_H

@@ -10,6 +10,8 @@
 struct MeshWrapper
 {
 public:
+    typedef int MeshID;
+
     MeshWrapper(const Mesh& Mesh, const int UID): _mesh(Mesh), _uid(UID) {}
     MeshWrapper(): MeshWrapper(Mesh(), 0) {}
 
@@ -18,24 +20,22 @@ public:
 
 private:
     Mesh _mesh;
-    int _uid = 0;
+    MeshID _uid = 0;
 };
 
 class WorldManager : public Manager<>
 {
 public:
-    typedef int MeshID;
-
     WorldManager();
     virtual ~WorldManager();
-
     virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     NostalgiaPlayerActor* GetLocalPlayer();
 
+    MeshWrapper::MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
     const Mesh* GetMesh(int MeshID);
-    MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
+    std::map<MeshWrapper::MeshID, const Mesh*> GetAllCurrentMeshes();
 
     void RenderWorld();
 
@@ -53,7 +53,7 @@ private:
 
     std::vector<RenderCommand> world_RenderCommandQueue = {};
     std::vector<std::unique_ptr<Thing>> world_ThingStorage = {};
-    std::map<MeshID, MeshWrapper> world_MeshStorage = {};
+    std::map<MeshWrapper::MeshID, MeshWrapper> world_MeshStorage = {};
 };
 
 // Singleton accessor

@@ -7,6 +7,14 @@
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
+#include "managers/world_manager.hpp"
+
+std::map<MeshWrapper::MeshID, OpenGL_MeshData> OpenGL_Backend::gl_mesh_data = {};
+std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::VAOs = {};
+std::map<unsigned int, GLShader> OpenGL_Backend::shaders = {};
+unsigned int OpenGL_Backend::currently_bound_shader = Shaders::SAFETY;
+unsigned int OpenGL_Backend::VBO = 0;
+unsigned int OpenGL_Backend::IBO = 0;
 
 //--------------------
 // PROTOTYPE FUNCTIONS
@@ -28,16 +36,16 @@ bool OpenGL_Backend::Init()
     if(is_initialized)
         return true;
 
+    glGenVertexArrays(VAOS_AMOUNT, VAOs.data());
+
+    // The safety shader must ALWAYS compile; the rest can fail without causing crashes
+    if(!BuildShader(Shaders::SAFETY, glsl_safety_shader_vert, glsl_safety_shader_frag)) return false;
+    BuildShader(Shaders::BLINN_PHONG, glsl_blinn_phong_vert, glsl_blinn_phong_frag);
+
     // TODO: See note in 'src/engine/world/3d_common.hpp'
     World::Orientation::SetWorldUp(glm::vec3(0.0f, 1.0f, 0.0f));
     World::Orientation::SetWorldRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::Orientation::SetWorldFront(glm::vec3(0.0f, 0.0f, -1.0f));
-
-    // The safety shader must ALWAYS compile; the rest can fail without causing crashes
-    if(!BuildShader(Shaders::SAFETY, glsl_safety_shader_vert, glsl_safety_shader_frag))
-        return false;
-
-    BuildShader(Shaders::BLINN_PHONG, glsl_blinn_phong_vert, glsl_blinn_phong_frag);
 
     is_initialized = true;
     return true;
@@ -50,11 +58,50 @@ bool OpenGL_Backend::InitImGui()
 
     if(!ImGui_ImplOpenGL3_Init())
     {
-        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
+        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!");
         return false;
     }
 
     is_imgui_initialized = true;
+    return true;
+}
+
+bool OpenGL_Backend::InitNewTheatre()
+{
+    if(is_theatre_data_initialized)
+        return true;
+
+    // FIXME: Make this shit safer
+
+    std::vector<float> all_vertex_data = {};
+    std::vector<unsigned int> all_indices = {};
+
+    glBindVertexArray(VAOs.at(VAO_DEFAULT));
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &IBO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &IBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_WorldManager->GetAllCurrentMeshes();
+
+    for(auto& [mesh_id, mesh_ptr] : all_meshes)
+        BufferMeshData(mesh_id, mesh_ptr, &all_vertex_data, &all_indices);
+
+    glBufferData(GL_ARRAY_BUFFER, all_vertex_data.size() * sizeof(float), all_vertex_data.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, all_indices.size() * sizeof(unsigned int), all_indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+
+    is_theatre_data_initialized = true;
     return true;
 }
 
@@ -133,4 +180,44 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
     }
 
     return &shaders.at(shader_selection);
+}
+
+void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
+{
+    RenderContext context = rendercmd.GetRenderContext();
+
+    glBindVertexArray(VAOs.at(VAO_DEFAULT));
+
+    GetShader(context.GetShaderID())->SetUniform("point_lights_count", context.GetPointLightsCount());
+    GetShader(context.GetShaderID())->SetUniform("spot_lights_count", context.GetSpotLightsCount());
+    GetShader(context.GetShaderID())->SetUniform("directional_lights_count", context.GetDirectionalLightsCount());
+
+    glEnable(GL_BLEND);
+
+    BindShader(context.GetShaderID());
+
+    GetShader(context.GetShaderID())->SetUniform("model_matrix", context.GetModelMatrix());
+    GetShader(context.GetShaderID())->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(context.GetModelMatrix()))));
+    GetShader(context.GetShaderID())->SetUniform("view_matrix", context.GetViewMatrix());
+    GetShader(context.GetShaderID())->SetUniform("projection_matrix", context.GetProjectionMatrix());
+    GetShader(context.GetShaderID())->SetUniform("view_position", context.GetViewPosition());
+
+    const OpenGL_MeshData* mesh_data = &gl_mesh_data.at(context.GetMeshID());
+
+    glDrawElementsBaseVertex(GL_TRIANGLES, mesh_data->IndicesCount(), GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh_data->BaseIndex()), mesh_data->BaseVertex());
+}
+
+void OpenGL_Backend::BufferMeshData(const int mesh_id, const Mesh* mesh, std::vector<float>* all_vertex_data, std::vector<unsigned int>* all_indices)
+{
+    // FIXME: Make this shit safer
+
+    gl_mesh_data[mesh_id] = OpenGL_MeshData();
+    gl_mesh_data.at(mesh_id).SetBaseVertex(all_vertex_data->size() / VAO_DEFAULT_STRIDE);
+    gl_mesh_data.at(mesh_id).SetBaseIndex(all_indices->size());
+
+    std::vector<float> vertex_data = mesh->GetVertexData();
+    std::vector<unsigned int> indices = mesh->GetIndices();
+
+    all_vertex_data->insert(all_vertex_data->end(), vertex_data.begin(), vertex_data.end());
+    all_indices->insert(all_indices->end(), indices.begin(), indices.end());
 }

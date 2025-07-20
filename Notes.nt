@@ -116,5 +116,12 @@ Finally!!! This repository now contains only the engine-related code and the Mak
 [06/13/25]
 Note for later today: that video on Doom 3's source code discussed the event queue and I want to emulate it for many reasons but especially for the logs.
 
+[06/17/25]
+I had to fiddle with the Makefile a bit to get the editor build system to work nicely, but now I want to start working on maybe implementing some rendering?
+
+[06/18/25]
+I'm really tired today but so far I fiddled with the build system a tad and gave Meshes a '_mesh_name' variable so the WorldManager can identify them before wrapping and adding them to the map.
+
+I also ended up re-making 'uintvec3' from GraphX, as well as a header file "cube mesh" resource. I updated 'Mesh' to support using uintvec3 for initializing face indices and gave it some constructors as well.
 [07/20/25]
 I wanna dick around before going to bed; it's 0046 rn lmfao. Lmfao, all I did was add 'imgui.ini' to the gitignore and move 'backends/' to 'rendering/backends', since that makes the most sense to me.

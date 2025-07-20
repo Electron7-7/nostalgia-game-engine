@@ -67,7 +67,7 @@ bool GLFW_Backend::InitImGui()
 
     if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
     {
-        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
+        PRINTERR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!");
         return false;
     }
 

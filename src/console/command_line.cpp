@@ -123,7 +123,7 @@ int CommandLine::assert_variable(const std::string& function_name, const std::st
 {
     if(!VariableExists(variable_name))
     {
-        PRINTWARN(fuction_name + " - requested a variable that does not exist!");
+        PRINTWARN(function_name + " - requested a variable that does not exist!");
         return ERR_VAR_NONEXISTANT;
     }
 

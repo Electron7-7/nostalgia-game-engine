@@ -1,33 +1,33 @@
-export LINUX_CXX := @clang++
-export LINUX_CC  := @clang
+LINUX_CXX := @clang++
+LINUX_CC  := @clang
 
 ifeq ($(OS),Windows_NT)
-export WINDOWS_CXX := @g++
-export WINDOWS_CC  := @gcc
+WINDOWS_CXX := @g++
+WINDOWS_CC  := @gcc
 else
-export WINDOWS_CXX := @x86_64-w64-mingw32-g++
-export WINDOWS_CC  := @x86_64-w64-mingw32-gcc
+WINDOWS_CXX := @x86_64-w64-mingw32-g++
+WINDOWS_CC  := @x86_64-w64-mingw32-gcc
 endif
 
 # LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
-export DEBUG_FLAGS := -g -Wall -O0 -D NOSTALGIA_DEBUGGING
-export RELEASE_FLAGS := -O3
-export DYNAMIC_FLAGS := -fPIC
+DEBUG_FLAGS := -g -Wall -O0 -D NOSTALGIA_DEBUGGING
+RELEASE_FLAGS := -O3
+DYNAMIC_FLAGS := -fPIC
 export LIBRARY_FLAGS ?=
-export COMMON_FLAGS := -frtti -D COMPILER_FORWARD_DECLARATIONS
-export COMMON_CXXFLAGS := -std=c++20
-export WINDOWS_FLAGS := -mwindows
-export LINUX_FLAGS :=
+COMMON_FLAGS := -frtti -D COMPILER_FORWARD_DECLARATIONS
+COMMON_CXXFLAGS := -std=c++20
+WINDOWS_FLAGS := -mwindows
+LINUX_FLAGS :=
 
-export LINUX_INCLUDE := -I src/system/linux/common
-export WINDOWS_INCLUDE := -I src/system/windows/common
-export COMMON_INCLUDE := -I src -I src/thirdparty
+LINUX_INCLUDE := -I src/system/linux/common
+WINDOWS_INCLUDE := -I src/system/windows/common
+COMMON_INCLUDE := -I src -I src/thirdparty
 
-export LINUX_GLFW := src/lib/glfw-lib-linux/libglfw3.a
+LINUX_GLFW := src/lib/glfw-lib-linux/libglfw3.a
 ifeq ($(OS),Windows_NT)
-export WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.dll src/lib/glfw-lib-mingw-w64/libglfw3dll.a # idk what I'm doing, lmfao
+WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.dll src/lib/glfw-lib-mingw-w64/libglfw3dll.a # idk what I'm doing, lmfao
 else
-export WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.a
+WINDOWS_GLFW := src/lib/glfw-lib-mingw-w64/libglfw3.a
 endif
 
 export BUILD_ROOT         := build
@@ -39,23 +39,23 @@ export BUILD_PATH_DYNAMIC := dynamic
 export BUILD_PATH_STATIC  := static
 export BUILD_PATH_APP     := test_app
 
-export BUILD_ARCH    ?= $(BUILD_PATH_LINUX)
-export BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
-export BUILD_TYPE    ?= $(BUILD_PATH_STATIC)
+export LIB_BUILD_ARCH    ?= $(BUILD_PATH_LINUX)
+export LIB_BUILD_VERSION ?= $(BUILD_PATH_RELEASE)
+export LIB_BUILD_TYPE    ?= $(BUILD_PATH_STATIC)
 
-export BUILD_DIR ?= $(BUILD_ROOT)/$(BUILD_ARCH)_$(BUILD_TYPE)_$(BUILD_VERSION)
-export BUILD_OBJS_DIR ?= $(BUILD_DIR)/.object_files
+export LIB_BUILD_DIR ?= $(BUILD_ROOT)/$(LIB_BUILD_ARCH)_$(LIB_BUILD_TYPE)_$(LIB_BUILD_VERSION)
+export LIB_BUILD_OBJS_DIR ?= $(LIB_BUILD_DIR)/.object_files
 
 export CXX         ?= $(LINUX_CXX)
 export CC          ?= $(LINUX_CC)
 export CXXFLAGS    ?= $(COMMON_FLAGS) $(COMMON_CXXFLAGS)
 export CCFLAGS     ?= $(COMMON_FLAGS)
-export INCLUDE     ?= $(COMMON_INCLUDE) $(LINUX_INCLUDE)
+export LIB_INCLUDE ?= $(COMMON_INCLUDE) $(LINUX_INCLUDE)
 export GLFW_LIB    ?= $(LINUX_GLFW)
 ifeq ($(OS),Windows_NT)
 export CXX         ?= $(WINDOWS_CXX)
 export CC          ?= $(WINDOWS_CC)
-export INCLUDE     ?= $(COMMON_INCLUDE) $(WINDOWS_INCLUDE)
+export LIB_INCLUDE ?= $(COMMON_INCLUDE) $(WINDOWS_INCLUDE)
 export GLFW_LIB    ?= $(WINDOWS_GLFW)
 endif
 
@@ -70,6 +70,7 @@ SRC_DIRS :=                          \
 	src/events                       \
 	src/input                        \
 	src/managers                     \
+	src/math                         \
 	src/rendering                    \
 	src/rendering/backends           \
 	src/rendering/backends/graphics  \
@@ -81,6 +82,9 @@ SRC_DIRS :=                          \
 	src/ui                           \
 	src/world                        \
 
+DIRTY_SRC_DIRS :=          \
+	$(THIRDPARTY_SRC_DIRS) \
+
 TEST_APP_SRC_DIRS :=       \
 	src/testing_app/app    \
 	src/testing_app/system \
@@ -88,49 +92,59 @@ TEST_APP_SRC_DIRS :=       \
 
 RESOURCES_DIR := src/resources
 
-export TEST_APP_SRCS := $(foreach directory,$(TEST_APP_SRC_DIRS),$(wildcard $(directory)/*.cpp))
-export TEST_APP_OBJS ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(TEST_APP_SRCS:src/%=%)))
+TEST_APP_SRCS := $(foreach directory,$(TEST_APP_SRC_DIRS),$(wildcard $(directory)/*.cpp))
+export TEST_APP_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(TEST_APP_SRCS:src/%=%)))
 
-export CXX_SRCS := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp))
-export CC_SRCS  := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c))
-export CXX_OBJS ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(CXX_SRCS:src/%=%)))
-export CC_OBJS  ?= $(addprefix $(BUILD_OBJS_DIR)/,$(subst .c,.o,$(CC_SRCS:src/%=%)))
+LIB_CXX_SRCS := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.cpp)) \
+	$(foreach directory,$(DIRTY_SRC_DIRS),$(wildcard $(directory)/*.cpp))
 
-export GLFW_OBJS ?= $(BUILD_OBJS_DIR)/glfw_extracted_object_files
+LIB_CC_SRCS  := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.c)) \
+	$(foreach directory,$(DIRTY_SRC_DIRS),$(wildcard $(directory)/*.c))
 
-export HEADER_FILES := $(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
-export HEADERS_OUT  ?= $(addprefix $(BUILD_DIR)/include/,$(HEADER_FILES:src/%=%))
+export LIB_CXX_OBJS ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .cpp,.obj,$(LIB_CXX_SRCS:src/%=%)))
+export LIB_CC_OBJS  ?= $(addprefix $(LIB_BUILD_OBJS_DIR)/,$(subst .c,.o,$(LIB_CC_SRCS:src/%=%)))
 
-export AR := @llvm-ar
-export DYNAMIC_LIBRARY_LINUX_FLAGS := -fvisibility=hidden
+export GLFW_OBJS ?= $(LIB_BUILD_OBJS_DIR)/glfw_extracted_object_files
+
+HEADER_FILES := \
+	$(foreach directory,$(SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h)) \
+	$(foreach directory,$(THIRDPARTY_SRC_DIRS),$(wildcard $(directory)/*.hpp) $(wildcard $(directory)/*.h))
+
+export HEADERS_OUT  ?= $(addprefix $(LIB_BUILD_DIR)/include/,$(HEADER_FILES:src/%=%))
+
+AR := @llvm-ar
+DYNAMIC_LIBRARY_LINUX_FLAGS := -fvisibility=hidden
 export DYNAMIC_LIBRARY_FLAGS ?= -fPIC -shared
 
-export LINUX_LIBRARY_DYNAMIC   := .so
-export WINDOWS_LIBRARY_DYNAMIC := .dll
+LINUX_LIBRARY_DYNAMIC   := .so
+WINDOWS_LIBRARY_DYNAMIC := .dll
 export LIBRARY_DYNAMIC ?= $(LINUX_LIBRARY_DYNAMIC)
-export LIBRARY_STATIC  := .a
+LIBRARY_STATIC  := .a
 
 export LIBRARY_TYPE ?= $(LIBRARY_STATIC)
 
-export WINDOWS_DYNAMIC_LIBRARY_LD_FLAGS := -shared --out-implib $(BUILD_DIR)/$(LIBRARY_NAME).dll.a
-export WINDOWS_DYNAMIC_LIBRARY_COMPILE_FLAGS := -DMYLIB_EXPORT
-export LINUX_DYNAMIC_LIBRARY_LD_FLAGS := -shared
-export LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS := -fvisibility=hidden -fvisibility-inlines-hidden
+WINDOWS_DYNAMIC_LIBRARY_LD_FLAGS := -shared --out-implib $(LIB_BUILD_DIR)/$(LIBRARY_NAME).dll.a
+WINDOWS_DYNAMIC_LIBRARY_COMPILE_FLAGS := -DMYLIB_EXPORT
+LINUX_DYNAMIC_LIBRARY_LD_FLAGS := -shared
+LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS := -fvisibility=hidden -fvisibility-inlines-hidden
 
 export DYNAMIC_LIBRARY_LD_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_LD_FLAGS)
 export DYNAMIC_LIBRARY_COMPILE_FLAGS ?= $(LINUX_DYNAMIC_LIBRARY_COMPILE_FLAGS)
 
-export LIBRARY_NAME_BASE := NostalgiaEngine
+LIBRARY_NAME_BASE := NostalgiaEngine
 export LIBRARY_NAME ?= lib$(LIBRARY_NAME_BASE)
 
 export TEST_APP_NAME := NostalgiaEngineTestApp
 export TEST_APP_LDFLAGS ?= -L $(BUILD_ROOT)/$(BUILD_PATH_LINUX)_$(BUILD_PATH_STATIC)_$(BUILD_VERSION) -l NostalgiaEngine
 
-.PHONY: install test build resources linux windows release debug static dynamic clean
+.PHONY: install test build resources linux windows release debug static dynamic clean clean_dirty
 
 install: resources build
-	@ $(MAKE) -s $(HEADERS_OUT) $(CC_OBJS) $(CXX_OBJS) $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
-	@ echo -e "Successfully made: $(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
+	@ -rm -f $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
+	@ $(MAKE) -s $(HEADERS_OUT) $(LIB_CC_OBJS) $(LIB_CXX_OBJS) $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)
+	@ echo -e "Successfully made: $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_TYPE)"
 	@ echo -e "To use Nostalgia for your project, you need the library file and the headers located in the \"include\" directory."
 
 test:
@@ -141,15 +155,15 @@ $(BUILD_ROOT)/$(BUILD_PATH_APP)/$(TEST_APP_NAME): $(TEST_APP_OBJS) | build
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -D NOSTALGIA_DEBUGGING -D COMPILER_FORWARD_DECLARATIONS -fsanitize=address -g -Wall -O0 -std=c++20 $^ -o $@ $(TEST_APP_LDFLAGS)
 
 build:
-	@ -mkdir -p $(BUILD_OBJS_DIR)
+	@ -mkdir -p $(LIB_BUILD_OBJS_DIR)
 
 resources:
 	@ $(MAKE) -s -C $(RESOURCES_DIR)
 
 linux:
 ifeq ($(OS),Windows_NT)
-	$(eval BUILD_ARCH := $(BUILD_PATH_LINUX))
-	$(eval INCLUDE    := $(COMMON_INCLUDE) $(LINUX_INCLUDE))
+	$(eval LIB_BUILD_ARCH := $(BUILD_PATH_LINUX))
+	$(eval LIB_INCLUDE    := $(COMMON_INCLUDE) $(LINUX_INCLUDE))
 	$(eval DYNAMIC_LIBRARY_FLAGS += $(DYNAMIC_LIBRARY_LINUX_FLAGS))
 	$(eval GLFW_LIB := $(LINUX_GLFW))
 endif
@@ -163,8 +177,8 @@ endif
 
 windows:
 ifneq ($(OS),Windows_NT)
-	$(eval BUILD_ARCH := $(BUILD_PATH_WINDOWS))
-	$(eval INCLUDE    := $(COMMON_INCLUDE) $(WINDOWS_INCLUDE))
+	$(eval LIB_BUILD_ARCH := $(BUILD_PATH_WINDOWS))
+	$(eval LIB_INCLUDE    := $(COMMON_INCLUDE) $(WINDOWS_INCLUDE))
 	$(eval GLFW_LIB   := $(WINDOWS_GLFW))
 endif
 	$(eval LIBRARY_DYNAMIC := $(WINDOWS_LIBRARY_DYNAMIC))
@@ -176,28 +190,28 @@ endif
 	@ echo -e "::Architecture - Windows"
 
 debug:
-	$(eval BUILD_VERSION := $(BUILD_PATH_DEBUG))
+	$(eval LIB_BUILD_VERSION := $(BUILD_PATH_DEBUG))
 	$(eval CXXFLAGS += $(DEBUG_FLAGS) -I src/test_application)
-	$(eval CXX_OBJS := $(CXX_OBJS) $(TEST_APP_OBJS))
+	$(eval LIB_CXX_OBJS := $(LIB_CXX_OBJS) $(TEST_APP_OBJS))
 	$(eval LIBRARY_NAME := $(LIBRARY_NAME_BASE))
 	$(eval LIBRARY_TYPE := .x86_64)
 	@ echo -e "::Version - Debug"
 
 release:
 	$(eval LIBRARY_NAME := lib$(LIBRARY_NAME_BASE))
-	$(eval BUILD_VERSION := $(BUILD_PATH_RELEASE))
+	$(eval LIB_BUILD_VERSION := $(BUILD_PATH_RELEASE))
 	$(eval CXXFLAGS += $(RELEASE_FLAGS))
 	@ echo -e "::Version - Release"
 
 static:
-	$(eval BUILD_TYPE := $(BUILD_PATH_STATIC))
+	$(eval LIB_BUILD_TYPE := $(BUILD_PATH_STATIC))
 	$(eval LIBRARY_TYPE := $(LIBRARY_STATIC))
 	$(eval COMPILE_LIBRARY := $(COMPILE_STATIC_LIBRARY))
 	$(eval LIBRARY_FLAGS := )
 	@ echo -e "::Library Type - Static"
 
 dynamic:
-	$(eval BUILD_TYPE := $(BUILD_PATH_DYNAMIC))
+	$(eval LIB_BUILD_TYPE := $(BUILD_PATH_DYNAMIC))
 	$(eval LIBRARY_TYPE := $(LIBRARY_DYNAMIC))
 	$(eval COMPILE_LIBRARY := $(COMPILE_DYNAMIC_LIBRARY))
 	$(eval LIBRARY_FLAGS := $(DYNAMIC_FLAGS) $(DYNAMIC_LIBRARY_COMPILE_FLAGS))
@@ -206,39 +220,42 @@ dynamic:
 clean:
 	@ -rm -rf $(BUILD_ROOT)
 
+clean_dirty:
+	@ echo -e $(foreach directory,$(wildcard $(BUILD_ROOT)/*),$(foreach clean_dir,$(SRC_DIRS:src/%=%),$(shell rm -rf $(directory)/$(clean_dir) && echo -e "$(DEFAULT)Cleaned: $(RED)$(directory)/$(clean_dir)$(RESET)")))
+
 # Test Application
-$(BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64: $(CC_OBJS) $(CXX_OBJS) | build
+$(LIB_BUILD_DIR)/$(LIBRARY_NAME_BASE).x86_64:
 	@ echo -e "Linking Test Application: $@"
-	$(CXX) $(CXXFLAGS) $^ $(GLFW_LIB) -o $@
+	$(CXX) $(CXXFLAGS) $(TEST_APP_OBJS) $(GLFW_LIB) -o $@
 
 # Static Library
-$(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC): $(CC_OBJS) $(CXX_OBJS) | build
+$(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC):
 	@ $(shell mkdir -p $(GLFW_OBJS))
 	@ $(shell cd $(GLFW_OBJS) && $(AR:@%=%) x ../../../../$(GLFW_LIB))
 	@ echo -e "Building: $@"
-	$(AR) cr $@ $(wildcard $(GLFW_OBJS)/*.o) $^
+	$(AR) cr $@ $(wildcard $(GLFW_OBJS)/*.o) $(LIB_CXX_OBJS) $(LIB_CC_OBJS)
 
 # Dynamic Library
-$(BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_DYNAMIC): $(CC_OBJS) $(CXX_OBJS) | build
+$(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_DYNAMIC):
 	@ echo -e "Building: $@"
-	$(CXX) $(CXXFLAGS) $(DYNAMIC_LIBRARY_LD_FLAGS) $(GLFW_LIB) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(DYNAMIC_LIBRARY_LD_FLAGS) $(GLFW_LIB) $(wildcard $(GLFW_OBJS)/*.o) $(LIB_CXX_OBJS) $(LIB_CC_OBJS) -o $@
 
-$(BUILD_OBJS_DIR)/%.o: src/%.c | build
+$(LIB_BUILD_OBJS_DIR)/%.o: src/%.c | build
 	@ echo -e "Compiling: $< -> $@"
 	@ -mkdir -p $(dir $@)
-	$(CC) $(CCFLAGS) $(INCLUDE) -c $< -o $@
+	$(CC) $(CCFLAGS) $(LIB_INCLUDE) -c $< -o $@
 
-$(BUILD_OBJS_DIR)/%.obj: src/%.cpp | build
+$(LIB_BUILD_OBJS_DIR)/%.obj: src/%.cpp | build
 	@ echo -e "Compiling: $< -> $@"
 	@ -mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(LIB_INCLUDE) -c $< -o $@
 
-$(BUILD_DIR)/include/%.hpp: src/%.hpp | build
+$(LIB_BUILD_DIR)/include/%.hpp: src/%.hpp | build
 	@ echo -e "Including Header File: $@"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
 
-$(BUILD_DIR)/include/%.h: src/%.h | build
+$(LIB_BUILD_DIR)/include/%.h: src/%.h | build
 	@ echo -e "Including Header File: $@"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
