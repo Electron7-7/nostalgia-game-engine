@@ -53,7 +53,7 @@ public:
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
 
     // Prototype Functions
-    virtual void prototype_ClearBuffer(glm::vec4 ClearColor) {}
+    virtual void prototype_ClearBuffer(glm::vec4 ClearColor) = 0;
 
 protected:
     bool is_imgui_initialized = false;
