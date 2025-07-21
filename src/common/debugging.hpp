@@ -7,7 +7,7 @@
 // I've decided to make sure it always prints, even in the release builds.
 #define PRINTCATASTROPHIC(content) std::cerr << std::string("[CATASTROPHIC ERROR]\t" + std::string(content)) << std::endl
 
-#ifdef NOSTALGIA_DEBUGGING // See Makefile
+#ifdef DEBUGGING // See Makefile
 
 // PRINTOUT MACROS
 #define PRINT(content) std::cout << std::string(content) << std::endl
@@ -16,7 +16,7 @@
 #define PRINTWARN(content) PRINTLABEL("[WARNING]", content)
 #define PRINTDEBUG(content) PRINTLABEL("[DEBUG]", content)
 
-#else // NOSTALGIA_DEBUGGING
+#else // DEBUGGING
 
 #define PRINT(content)
 #define PRINTERR(content)
@@ -24,5 +24,5 @@
 #define PRINTWARN(content)
 #define PRINTDEBUG(content)
 
-#endif // NOSTALGIA_DEBUGGING
+#endif // DEBUGGING
 #endif // DEBUGGING_H

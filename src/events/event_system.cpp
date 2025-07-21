@@ -36,7 +36,7 @@ bool EventSystem::LoadDemoFromFile(const std::string &demo_file_path)
     if(!demo_parser.LoadDemoFromFile(demo_file_path))
         return false;
 
-#ifdef NOSTALGIA_DEBUGGING
+#ifdef DEBUGGING
     PRINTDEBUG("Demo file parsed! Printing out old Event queue before loading new one");
     PrintQueueLog();
 #endif
@@ -52,7 +52,7 @@ bool EventSystem::LoadDemoFromMemory(const std::string &demo_file)
     if(!demo_parser.LoadDemoFromMemory(demo_file))
         return false;
 
-#ifdef NOSTALGIA_DEBUGGING
+#ifdef DEBUGGING
     PRINTDEBUG("Demo file parsed! Printing out old Event queue before loading new one");
     PrintQueueLog();
 #endif
@@ -80,7 +80,7 @@ unsigned int EventSystem::GetQueueSize()
 
 void EventSystem::ClearQueue()
 {
-#ifdef NOSTALGIA_DEBUGGING
+#ifdef DEBUGGING
     PRINTDEBUG("EventSystem::PanicClearQueue called. Printing the queue log:");
     PrintQueueLog();
 #endif

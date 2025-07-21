@@ -9,8 +9,7 @@ else
 	WINDOWS_CC  := @x86_64-w64-mingw32-gcc
 endif
 
-# LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
-DEBUG_FLAGS := -g -Wall -O0 -D NOSTALGIA_DEBUGGING
+DEBUG_FLAGS := -g -Wall -O0 -D DEBUGGING
 RELEASE_FLAGS := -O3
 DYNAMIC_FLAGS := -fPIC
 export LIBRARY_FLAGS ?=

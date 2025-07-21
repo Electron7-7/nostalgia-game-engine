@@ -9,10 +9,10 @@
 #endif // COMPILER_FORWARD_DECLARATIONS
 
 // Debug only macro
-#ifdef NOSTALGIA_DEBUGGING
+#ifdef DEBUGGING
 #define DEBUGGING(content) content
 #else
 #define DEBUGGING(content)
-#endif // NOSTALGIA_DEBUGGING
+#endif // DEBUGGING
 
 #endif // COMMON_MACROS_H
