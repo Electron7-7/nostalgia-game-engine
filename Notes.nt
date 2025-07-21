@@ -123,5 +123,11 @@ I had to fiddle with the Makefile a bit to get the editor build system to work n
 I'm really tired today but so far I fiddled with the build system a tad and gave Meshes a '_mesh_name' variable so the WorldManager can identify them before wrapping and adding them to the map.
 
 I also ended up re-making 'uintvec3' from GraphX, as well as a header file "cube mesh" resource. I updated 'Mesh' to support using uintvec3 for initializing face indices and gave it some constructors as well.
+
+[06/30/25]
+On a flight to San Francisco; thinking I might get some coding in.
+
+Working on a "Thing Spawner" for the editor debug menu and I'm running into some issues related to me trying to get vector of Thing pointers after creating a new Thing.
+
 [07/20/25]
 I wanna dick around before going to bed; it's 0046 rn lmfao. Lmfao, all I did was add 'imgui.ini' to the gitignore and move 'backends/' to 'rendering/backends', since that makes the most sense to me.

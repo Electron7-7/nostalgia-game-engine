@@ -2,11 +2,11 @@ LINUX_CXX := @clang++
 LINUX_CC  := @clang
 
 ifeq ($(OS),Windows_NT)
-WINDOWS_CXX := @g++
-WINDOWS_CC  := @gcc
+	WINDOWS_CXX := @g++
+	WINDOWS_CC  := @gcc
 else
-WINDOWS_CXX := @x86_64-w64-mingw32-g++
-WINDOWS_CC  := @x86_64-w64-mingw32-gcc
+	WINDOWS_CXX := @x86_64-w64-mingw32-g++
+	WINDOWS_CC  := @x86_64-w64-mingw32-gcc
 endif
 
 # LSAN_OPTIONS=verbosity=1:log_threads=1 # Use this environment variable for more verbosity with address sanitizer
@@ -222,7 +222,7 @@ clean:
 	@ -rm -rf $(BUILD_ROOT)
 
 clean_dirty:
-	@ echo -e $(foreach directory,$(wildcard $(BUILD_ROOT)/*),$(foreach clean_dir,$(SRC_DIRS:src/%=%),$(shell rm -rf $(directory)/$(clean_dir) && echo -e "$(DEFAULT)Cleaned: $(RED)$(directory)/$(clean_dir)$(RESET)")))
+	@ printf $(foreach directory,$(wildcard $(BUILD_ROOT)/*),$(foreach clean_dir,$(SRC_DIRS:src/%=.object_files/%),$(shell rm -rf $(directory)/$(clean_dir) && echo -e "$(DEFAULT)Cleaned: $(RED)$(directory)/$(clean_dir)$(RESET)\n")))
 
 # Static Library
 $(LIB_BUILD_DIR)/$(LIBRARY_NAME)$(LIBRARY_STATIC):
