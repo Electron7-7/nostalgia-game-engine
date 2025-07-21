@@ -1,5 +1,10 @@
-.cache/
+# build system
 build/
+
+# clangd + bear
+.cache/
 compile_commands.json
-old.Makefile
+
+# misc files
 imgui.ini
+backup_Makefile
