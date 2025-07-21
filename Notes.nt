@@ -131,3 +131,6 @@ Working on a "Thing Spawner" for the editor debug menu and I'm running into some
 
 [07/20/25]
 I wanna dick around before going to bed; it's 0046 rn lmfao. Lmfao, all I did was add 'imgui.ini' to the gitignore and move 'backends/' to 'rendering/backends', since that makes the most sense to me.
+
+[07/21/25]
+Okay, I want to work on the renderer now. Lemme just commit these old changes I forgot to commit on my laptop. Hmm, maybe not; I might not want to start work on Actors and Things before making the rendering engine, lmfao.
