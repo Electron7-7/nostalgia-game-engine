@@ -1,18 +1,7 @@
 #ifndef COMMON_MACROS_H
 #define COMMON_MACROS_H
 
-// Forward declaration macro
-#ifdef COMPILER_FORWARD_DECLARATIONS
+// Forward declaration macro (used to be more ivolved but now it's just for readability)
 #define FORWARD_DECLARE(forward_declaration) forward_declaration
-#else
-#define FORWARD_DECLARE(forward_declaration)
-#endif // COMPILER_FORWARD_DECLARATIONS
-
-// Debug only macro
-#ifdef DEBUGGING
-#define DEBUGGING(content) content
-#else
-#define DEBUGGING(content)
-#endif // DEBUGGING
 
 #endif // COMMON_MACROS_H

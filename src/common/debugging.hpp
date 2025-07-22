@@ -3,20 +3,16 @@
 
 #include <iostream> // IWYU pragma: keep // Used in macro
 
-// Yes, this is technically a debugging tool, but it's only used in cases where the entire program has a high likelihood of crashing so
-// I've decided to make sure it always prints, even in the release builds.
-#define PRINTCATASTROPHIC(content) std::cerr << std::string("[CATASTROPHIC ERROR]\t" + std::string(content)) << std::endl
-
+// PRINTOUT MACROS
 #ifdef DEBUGGING // See Makefile
 
-// PRINTOUT MACROS
-#define PRINT(content) std::cout << std::string(content) << std::endl
-#define PRINTLABEL(label, content) std::cout << std::string(std::string(label) + "\t") << std::string(content) << std::endl
+#define PRINT(content) std::cout << std::string(content) << "\n"
+#define PRINTLABEL(label, content) std::cout << std::string(std::string(label) + "\t") << std::string(content) << "\n"
 #define PRINTERR(content) PRINTLABEL("[ERROR]", content)
 #define PRINTWARN(content) PRINTLABEL("[WARNING]", content)
 #define PRINTDEBUG(content) PRINTLABEL("[DEBUG]", content)
 
-#else // DEBUGGING
+#else
 
 #define PRINT(content)
 #define PRINTERR(content)
