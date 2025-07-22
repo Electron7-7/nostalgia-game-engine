@@ -18,17 +18,17 @@ GRAPHX_MESHES     := $(wildcard $(MESHES_DIR)/*.graphxmesh)
 GRAPHX_MESHES_HPP := $(EMBEDDED_RESOURCES_OUTPUT_DIR)/graphx_meshes.hpp
 GRAPHX_MESHES_HEADER_GUARD := GRAPHX_MESHES_H
 
-.PHONY: all clean glsl
+.PHONY: all clean glsl graphxmeshes
 
 # FIXME: Don't clean build every time
-all: clean glsl graphxmodels
+all: glsl graphxmeshes
 
 # FIXME: when implementing different APIs and, therefore, shaders, have a better 'clean' target
 clean:
 	@ -rm -f $(GL_SHADERS_HPP) $(GL_SHADERS_CPP)
 
 glsl: $(GL_SHADERS_CPP)
-	@ echo -e "Embedded: $(GL_SHADERS)\n"
+	@ printf "::Embedded $(YELLOW)$(GL_SHADERS)$(DEFAULT)\n"
 
 $(GL_SHADERS_CPP): $(GL_SHADERS_HPP)
 	$(shell printf "#include <string>\n" > $(GL_SHADERS_CPP))
@@ -39,8 +39,8 @@ $(GL_SHADERS_HPP):
 	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_GL_SHADER_HEADER_VAR,$(shader_file),$(GL_SHADERS_HPP)))
 	$(shell echo -e "#endif // $(GL_SHADERS_HEADER_GUARD)" >> $(GL_SHADERS_HPP))
 
-graphxmodels: $(GRAPHX_MESHES_HPP)
-	@ echo -e "Embedded: $(GRAPHX_MESHES_HPP)\n"
+graphxmeshes: $(GRAPHX_MESHES_HPP)
+	@ printf "::Embedded $(YELLOW)$(GRAPHX_MESHES)$(DEFAULT)\n"
 
 $(GRAPHX_MESHES_HPP):
 	$(shell echo -e "#ifndef $(GRAPHX_MESHES_HEADER_GUARD)\n#define $(GRAPHX_MESHES_HEADER_GUARD)\n" > $(GRAPHX_MESHES_HPP))
