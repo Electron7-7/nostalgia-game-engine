@@ -134,3 +134,5 @@ I wanna dick around before going to bed; it's 0046 rn lmfao. Lmfao, all I did wa
 
 [07/21/25]
 Okay, I want to work on the renderer now. Lemme just commit these old changes I forgot to commit on my laptop. Hmm, maybe not; I might not want to start work on Actors and Things before making the rendering engine, lmfao.
+
+I ended up spending all my time reworking the Makefile, but I'm very happy with it. It's so much cleaner, better represents my skills, and is much more aesthetically pleasing. It can only make the static version of the library but that's for two reasons: the first being that I don't like the idea of the entire engine not being compiled into whatever game/editor binary I create, and the second being that as much as I still dislike Microsoft, I've had a bit of a change of heart and want to make native Windows compilation easier. That means, on top of all the other stuff, configuring the Makefile to be able to build a '.so' version *and* a '.dll' version. The static library should be fine because that gets compiled into the binary anyways (I hope it's fine, at least).
