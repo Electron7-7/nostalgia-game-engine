@@ -44,7 +44,7 @@ LINUX_DYNAMIC_LDFLAGS   := -shared
 WINDOWS_DYNAMIC_LDFLAGS := -shared --out-implib
 export COMMON_DYNAMIC_LDFLAGS ?= -L $(GLFW_LIB) -l glfw
 
-export APP         ?= $(APP_BASE)
+export APP_NAME    ?= $(APP_BASE)
 export BUILD_DIR   ?= $(BUILD_ROOT)/$(BUILD_LINUX)/$(BUILD_VERSION)
 export DEBUG_FLAGS ?= $(COMMON_DEBUG_FLAGS) $(LINUX_DEBUG_FLAGS)
 export GLFW_LIB    ?= $(GLFW_LINUX)
@@ -55,7 +55,7 @@ export NAME_STATIC     ?= $(NAME_STATIC_LINUX)
 export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_LINUX)
 export DYNAMIC_LDFLAGS ?= $(COMMON_DYNAMIC_LDFLAGS) $(LINUX_DYNAMIC_LDFLAGS)
 ifeq ($(OS),Windows_NT)
-	export APP         ?= $(APP_BASE).exe
+	export APP_NAME    ?= $(APP_BASE).exe
 	export BUILD_DIR   ?= $(BUILD_ROOT)/$(BUILD_WINDOWS)/$(BUILD_VERSION)
 	export DEBUG_FLAGS ?= $(COMMON_DEBUG_FLAGS)
 	export GLFW_LIB    ?= $(GLFW_WINDOWS)
@@ -79,6 +79,8 @@ export BUILD_GLFW    ?= $(BUILD_OBJS)/thirdparty/libglfw3
 export BUILD_VERSION ?= $(BUILD_RELEASE)
 export CXXFLAGS      ?= $(COMMON_CXX_FLAGS) $(CXX_FLAGS) $(VERSION_FLAGS)
 export CCFLAGS       ?= $(COMMON_CC_FLAGS)
+
+export APP ?= $(APP_NAME)
 
 VPATH := $(SRC_DIRS)
 
@@ -180,7 +182,7 @@ headers:
 	@ $(MAKE) -s $(HEADERS_OUT)
 
 statictestapp:
-	$(eval APP := Static$(APP))
+	$(eval APP := Static$(APP_NAME))
 	$(eval NAME_EXTENSION := $(NAME_STATIC))
 	$(eval OBJS_DIR := .objs_static)
 	@ -rm -f $(BUILD_DIR)/$(APP)
@@ -188,7 +190,7 @@ statictestapp:
 	@ $(MAKE) -s $(BUILD_DIR)/$(APP)
 
 dynamictestapp:
-	$(eval APP := Dynamic$(APP))
+	$(eval APP := Dynamic$(APP_NAME))
 	$(eval NAME_EXTENSION := $(NAME_DYNAMIC))
 	$(eval OBJS_DIR := .objs_dynamic)
 	@ -rm -f $(BUILD_DIR)/$(APP)
