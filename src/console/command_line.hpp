@@ -2,33 +2,26 @@
 #define CONSOLE_H
 
 #include "command.hpp"
-#include "variable.hpp"
-#include <unordered_map>
 
-class CommandLine
+#include <vector>
+
+struct CommandLine
 {
 public:
-    static bool VariableExists(const std::string& Name);
-    static std::string GetStringVariable(const std::string& Name);
-    static int GetIntVariable(const std::string& Name);
-    static float GetFloatVariable(const std::string& Name);
-    static bool GetBoolVariable(const std::string& Name);
-    static void AddVariable(const ConsoleVariable& Variable);
-    static bool SetVariable(const std::string& VariableName, const std::string& Value);
-    static void RemoveVariable(const std::string& VariableName);
-    static void ClearAllVariables();
-
-    static bool RunCommand(const ConsoleCommand& Command);
+    static void BeginProcessingCommands();
+    static void EndProcessingCommands();
+    static bool DequeueNextCommand();
+    static ConsoleCommand& GetCommandInQueue();
+    static int RunCommandInQueue();
+    static bool AddCommandToQueue(ConsoleCommand);
 
 private:
-    typedef std::string ConVar_Name;
-    static std::unordered_map<ConVar_Name, ConsoleVariable> _console_variables;
+    static bool is_processing_commands;
 
-    static int assert_variable(const std::string& FunctionName, const std::string& VariableName, const unsigned int VariableType);
+    static std::vector<ConsoleCommand> _commands;
+    static ConsoleCommand _current_command_in_queue;
 
-    static constexpr int NO_ERR              =  0;
-    static constexpr int ERR_VAR_NONEXISTANT = -1;
-    static constexpr int ERR_VAR_TYPE_WRONG  = -2;
+    static int RunCommand(ConsoleCommand&);
 };
 
 #endif // CONSOLE_H
