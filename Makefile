@@ -14,14 +14,14 @@ LAR := llvm-ar
 WAR := $(LAR)
 
 COMMON_DEBUG_FLAGS := -g -Wall -O0 -D DEBUGGING
-COMMON_CXX_FLAGS   := -std=c++20 -frtti
+COMMON_CXX_FLAGS   := -std=c++23 -frtti
 LINUX_DEBUG_FLAGS  := -fsanitize=address
 WINDOWS_FLAGS      := -mwindows
 LINUX_FLAGS        := # Nothing yet
 GLFW_LINUX         := src/lib/glfw-lib-linux
 GLFW_WINDOWS       := src/lib/glfw-lib-mingw-w64
 
-INCLUDE := -I src -I src/thirdparty
+INCLUDE := -I src -I src/thirdparty -I src/common
 
 BUILD_ROOT      := build
 BUILD_LINUX     := Linux
