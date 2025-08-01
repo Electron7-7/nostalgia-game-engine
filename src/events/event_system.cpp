@@ -1,6 +1,6 @@
 #include "event_system.hpp"
 #include "demo_parser.hpp"
-#include "common/debugging.hpp"
+#include "printing.hpp"
 #include <climits>
 #include <iostream>
 #include <filesystem> // Yes, the devil hath been invoked... I'm sorry
@@ -37,7 +37,7 @@ bool EventSystem::LoadDemoFromFile(const std::string &demo_file_path)
         return false;
 
 #ifdef DEBUGGING
-    PRINTDEBUG("Demo file parsed! Printing out old Event queue before loading new one");
+    PRINT_DEBUG("Demo file parsed! Printing out old Event queue before loading new one");
     PrintQueueLog();
 #endif
 
@@ -53,7 +53,7 @@ bool EventSystem::LoadDemoFromMemory(const std::string &demo_file)
         return false;
 
 #ifdef DEBUGGING
-    PRINTDEBUG("Demo file parsed! Printing out old Event queue before loading new one");
+    PRINT_DEBUG("Demo file parsed! Printing out old Event queue before loading new one");
     PrintQueueLog();
 #endif
 
@@ -81,7 +81,7 @@ unsigned int EventSystem::GetQueueSize()
 void EventSystem::ClearQueue()
 {
 #ifdef DEBUGGING
-    PRINTDEBUG("EventSystem::PanicClearQueue called. Printing the queue log:");
+    PRINT_DEBUG("EventSystem::PanicClearQueue called. Printing the queue log:");
     PrintQueueLog();
 #endif
 
@@ -110,8 +110,8 @@ bool EventSystem::StopRecordingDemo()
     {
         if(demo_recording_number == AN_UNREASONABLE_AMOUNT_OF_DEMO_FILES)
         {
-            PRINTERR("EventSystem::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong");
-            PRINTDEBUG("The demo file that attempted to save: " + demo_recording_storage);
+            std::print("%s EventSystem::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong%s\n", ERROR(), Color::Reset);
+            PRINT_DEBUG("The demo file that attempted to save:\n%s\n", demo_recording_storage);
             return false;
         }
 

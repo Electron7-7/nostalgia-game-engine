@@ -1,6 +1,6 @@
 #include "command_line.hpp"
-#include "common/debugging.hpp"
 std::unordered_map<std::string, ConsoleVariable> CommandLine::_console_variables = {};
+#include "printing.hpp"
 
 bool CommandLine::VariableExists(const std::string& name)
 { return (_console_variables.contains(name)); }

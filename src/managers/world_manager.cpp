@@ -2,7 +2,8 @@
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
 #include "rendering/camera_property.hpp"
-#include "common/debugging.hpp"
+#include "printing.hpp"
+
 #include <glm/glm.hpp>
 
 WorldManager singleton_WorldManager;
@@ -68,7 +69,7 @@ MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
     {
         if(!mesh.GetMesh()->GetName().compare(new_mesh.GetName()))
         {
-            PRINTERR("WorldManager::AddMesh - A Mesh with the same name \"" + new_mesh.GetName() + "\" already exists! Returning that Mesh's UID");
+            PRINT_ERROR("WorldManager::AddMesh - A Mesh with the same name \"%s\" already exists! Returning that Mesh's UID", new_mesh.GetName());
             return mesh_id;
         }
     }
@@ -83,7 +84,7 @@ const Mesh* WorldManager::GetMesh(MeshWrapper::MeshID mesh_uid)
 {
     if(!world_MeshStorage.contains(mesh_uid))
     {
-        PRINTERR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr");
+        PRINTERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr");
         return nullptr;
     }
 
