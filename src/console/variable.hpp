@@ -1,5 +1,6 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
+
 #include <string>
 
 // NOTE: I might want to give each 'ConVar_<type>' struct a constructor that takes a std::string as the value, in case I want to pipe string data to a variable constructor

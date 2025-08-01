@@ -1,4 +1,5 @@
 #include "time.hpp"
+
 #include <chrono>
 
 std::chrono::time_point constant_ProgramStartTime = std::chrono::steady_clock::now();
