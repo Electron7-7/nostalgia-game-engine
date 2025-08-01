@@ -126,4 +126,4 @@ bool EventSystem::StopRecordingDemo()
 }
 
 void EventSystem::RecordEventToDemo(const Event& event)
-{ demo_recording_storage += "Creation Time: [" + std::to_string(event.GetCreationTime()) + "] Command: <" + event.GetCommand().Command() + "> Command UID: (" + std::to_string(event.GetCommand().UID()) + ")\n"; }
+{ demo_recording_storage += "Creation Time: [" + std::to_string(event.GetCreationTime()) + "] Command: <" + event.GetCommand().GetCommand() + ">\n"; }

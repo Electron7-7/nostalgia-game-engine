@@ -1,10 +1,10 @@
 #include "input_manager.hpp"
 #include "backend_manager.hpp"
-#include "common/debugging.hpp"
 #include "rendering/backends/backend.hpp"
 #include "input/key_handler.hpp"
+#include "printing.hpp"
+#include "console/command_line.hpp"
 
-// Singleton accessor
 InputManager singleton_InputManager;
 InputManager* global_InputManager = &singleton_InputManager;
 
@@ -18,7 +18,7 @@ void InputManager::prototype_CustomKeyCallback(KeyID key, KeyAction action)
 
 void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) const
 {
-    PRINTDEBUG(std::string("Key pressed: ").append(1, static_cast<char>(codepoint)) + "\tKey Codepoint: " + std::to_string(codepoint));
+    PRINT_DEBUG("Key pressed: '%c'    Key Codepoint: %3d", static_cast<char>(codepoint), codepoint);
 }
 
 // END PROTOTYPE FUNCTIONS
@@ -47,13 +47,18 @@ void InputManager::Update()
 
 void InputManager::AddCommand(const char* new_command)
 {
-    // command_buffer.AddText(new_command);
+    // TODO: Add printouts if/when this fails to add a command to the queue.
+    CommandLine::AddCommandToQueue(ConsoleCommand(new_command));
 }
 
 void InputManager::ProcessCommands()
 {
-    // command_buffer.BeginProcessingCommands(1);
-    // while(command_buffer.DequeueNextCommand())
-    // ...process console commands
-    // command_buffer.EndProcessingCommands();
+    CommandLine::BeginProcessingCommands();
+    while(CommandLine::DequeueNextCommand())
+    {
+        // ConsoleCommand current_command = CommandLine::GetCommandInQueue();
+        // do something with the command(?)
+        CommandLine::RunCommandInQueue();
+    }
+    CommandLine::EndProcessingCommands();
 }

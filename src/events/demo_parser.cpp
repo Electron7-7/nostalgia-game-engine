@@ -55,7 +55,6 @@ bool DemoParser::ParseLine(const std::string& line)
 {
     std::string creation_time_buffer;
     std::string command_buffer;
-    std::string command_uid_buffer;
 
     for(int i = 0 ; i < line.length() ; i++)
     {
@@ -76,25 +75,6 @@ bool DemoParser::ParseLine(const std::string& line)
                 i++;
             }
         }
-
-        if(line.at(i) == '(')
-        {
-            while(line.at(i) != ')')
-            {
-                command_uid_buffer.append(1, line.at(i));
-                i++;
-            }
-        }
-    }
-
-    uint8_t command_uid;
-    try
-    {
-        command_uid = std::stod(command_uid_buffer);
-    }
-    catch(std::invalid_argument const& exception)
-    {
-        command_uid = 0;
     }
 
     double creation_time;
@@ -104,10 +84,11 @@ bool DemoParser::ParseLine(const std::string& line)
     }
     catch(std::invalid_argument const& exception)
     {
+        // TODO: Add printouts for this exception.
         creation_time = 0.0;
     }
 
-    _event_queue.insert(_event_queue.end(), Event(ConsoleCommand(command_uid, command_buffer.c_str()), creation_time));
+    _event_queue.insert(_event_queue.end(), Event(ConsoleCommand(command_buffer.c_str()), creation_time));
 
     return true;
 }

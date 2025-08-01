@@ -14,7 +14,7 @@ public:
 
     double GetCreationTime() const { return _creation_time; }
     const ConsoleCommand& GetCommand() const { return _console_command; }
-    std::string EventLog() const { return std::string("EventLog - Creation time: " + std::to_string(_creation_time) + ", ConsoleCommand: \"" + _console_command.Command() + "\""); }
+    std::string EventLog() const { return std::string("EventLog - Creation time: " + std::to_string(_creation_time) + ", ConsoleCommand: \"" + _console_command.GetCommand() + "\""); }
 
     constexpr bool operator==(const Event& other) const
     {
