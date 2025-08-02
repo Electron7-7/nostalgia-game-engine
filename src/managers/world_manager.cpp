@@ -69,7 +69,7 @@ MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
     {
         if(!mesh.GetMesh()->GetName().compare(new_mesh.GetName()))
         {
-            PRINT_ERROR("WorldManager::AddMesh - A Mesh with the same name \"%s\" already exists! Returning that Mesh's UID", new_mesh.GetName());
+            PRINT_ERROR("WorldManager::AddMesh - A Mesh with the same name \"{}\" already exists! Returning that Mesh's UID", new_mesh.GetName())
             return mesh_id;
         }
     }
@@ -84,7 +84,7 @@ const Mesh* WorldManager::GetMesh(MeshWrapper::MeshID mesh_uid)
 {
     if(!world_MeshStorage.contains(mesh_uid))
     {
-        PRINTERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr");
+        PRINTERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
         return nullptr;
     }
 

@@ -24,25 +24,25 @@ constexpr std::string COLOR(const std::string& color)
 constexpr std::string COLOR_BOLD(const std::string& color)
 { return "\x1b[1;" + color + "m"; }
 
-constexpr std::string ERROR() { return COLOR_BOLD(Color::Red)     + "[ERROR]";   }
-constexpr std::string WARN()  { return COLOR_BOLD(Color::Yellow)  + "[WARNING]"; }
-constexpr std::string DEBUG() { return COLOR_BOLD(Color::Cyan)    + "[DEBUG]";   }
+const std::string ERROR = std::string( COLOR_BOLD(Color::Red)     + "[ERROR]"                );
+const std::string WARN  = std::string( COLOR_BOLD(Color::Yellow)  + "[WARNING]"              );
+const std::string DEBUG = std::string( COLOR_BOLD(Color::Default) + "[DEBUG]" + Color::Reset );
 
 // Useful macros
-#define __LABELLED_PRINT(LABEL, FORMAT, ARGS...) std::print("%s " FORMAT "%s\n", LABEL, ARGS, Color::Reset)
-#define __LABELLED_PRINT_NO_ARGS(LABEL, FORMAT, ARGS...) std::print("%s " FORMAT "%s\n", LABEL, Color::Reset)
+#define __LABELLED_PRINT(LABEL, FORMAT, ARGS...) std::println("{}" FORMAT "{}", LABEL, ARGS, Color::Reset);
+#define __LABELLED_PRINT_NO_ARGS(LABEL, FORMAT) __LABELLED_PRINT(LABEL, FORMAT, "")
 
-#define PRINT_ERROR(FORMAT, ARGS...)   __LABELLED_PRINT(ERROR(), FORMAT, ARGS)
-#define PRINTERROR(FORMAT)   __LABELLED_PRINT_NO_ARGS(ERROR(), FORMAT)
-#define PRINT_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(WARN(),  FORMAT, ARGS)
-#define PRINTWARNING(FORMAT) __LABELLED_PRINT_NO_ARGS(WARN(), FORMAT)
+#define PRINT_ERROR(FORMAT, ARGS...)  __LABELLED_PRINT(ERROR, FORMAT, ARGS)
+#define PRINTERROR(FORMAT) __LABELLED_PRINT_NO_ARGS(ERROR, FORMAT)
+#define PRINT_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(WARN,  FORMAT, ARGS)
+#define PRINTWARNING(FORMAT) __LABELLED_PRINT_NO_ARGS(WARN, FORMAT)
 
 #ifdef DEBUGGING // PRINT_DEBUG should do nothing in the Release build
-    #define PRINT_DEBUG(FORMAT, ARGS...) __LABELLED_PRINT(DEBUG(), FORMAT, ARGS)
-    #define PRINTDEBUG(FORMAT) __LABELLED_PRINT_NO_ARGS(DEBUG(), FORMAT)
+    #define PRINT_DEBUG(FORMAT, ARGS...) __LABELLED_PRINT(DEBUG, FORMAT, ARGS)
+    #define PRINTDEBUG(FORMAT) __LABELLED_PRINT_NO_ARGS(DEBUG, FORMAT)
 #else
-    #define PRINT_DEBUG(FORMAT, ARGS...)
-    #define PRINTDEBUG(FORMAT)
+    #define PRINT_DEBUG(FORMAT, ARGS...) {}
+    #define PRINTDEBUG(FORMAT) {}
 #endif // DEBUGGING
 
 #endif // PRINTING_H

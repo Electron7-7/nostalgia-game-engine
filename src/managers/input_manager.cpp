@@ -18,7 +18,7 @@ void InputManager::prototype_CustomKeyCallback(KeyID key, KeyAction action)
 
 void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) const
 {
-    PRINT_DEBUG("Key pressed: '%c'    Key Codepoint: %3d", static_cast<char>(codepoint), codepoint);
+    PRINT_DEBUG("Key pressed: '%c'    Key Codepoint: {}d", static_cast<char>(codepoint), codepoint)
 }
 
 // END PROTOTYPE FUNCTIONS

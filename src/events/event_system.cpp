@@ -1,8 +1,8 @@
 #include "event_system.hpp"
 #include "demo_parser.hpp"
 #include "printing.hpp"
+
 #include <climits>
-#include <iostream>
 #include <filesystem> // Yes, the devil hath been invoked... I'm sorry
 #include <fstream>
 
@@ -16,6 +16,19 @@ std::string EventSystem::demo_recording_name = "demo";
 int EventSystem::demo_recording_number = 1;
 std::string EventSystem::demo_recording_extension = ".demo";
 #define DEMO_FILENAME (demo_recording_name + std::to_string(demo_recording_number) + demo_recording_extension)
+
+void EventSystem::DebugPrintQueueLog()
+{
+    PRINTDEBUG("EventSystem::PanicClearQueue called. Printing the queue log...")
+
+    size_t queue_size = _queue.size();
+    std::string queue_printout = "";
+
+    for(size_t i = 0 ; i < queue_size ; i++)
+        queue_printout += _queue.at(i).EventLog() + "\n";
+
+    std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", COLOR_BOLD(Color::Blue), Color::Reset, queue_printout);
+}
 
 EventSystem::~EventSystem()
 {
@@ -36,10 +49,7 @@ bool EventSystem::LoadDemoFromFile(const std::string &demo_file_path)
     if(!demo_parser.LoadDemoFromFile(demo_file_path))
         return false;
 
-#ifdef DEBUGGING
-    PRINT_DEBUG("Demo file parsed! Printing out old Event queue before loading new one");
-    PrintQueueLog();
-#endif
+    DebugPrintQueueLog();
 
     _queue = demo_parser.GetEventQueue();
     return true;
@@ -52,10 +62,7 @@ bool EventSystem::LoadDemoFromMemory(const std::string &demo_file)
     if(!demo_parser.LoadDemoFromMemory(demo_file))
         return false;
 
-#ifdef DEBUGGING
-    PRINT_DEBUG("Demo file parsed! Printing out old Event queue before loading new one");
-    PrintQueueLog();
-#endif
+    DebugPrintQueueLog();
 
     _queue = demo_parser.GetEventQueue();
     return true;
@@ -80,22 +87,9 @@ unsigned int EventSystem::GetQueueSize()
 
 void EventSystem::ClearQueue()
 {
-#ifdef DEBUGGING
-    PRINT_DEBUG("EventSystem::PanicClearQueue called. Printing the queue log:");
-    PrintQueueLog();
-#endif
+    DebugPrintQueueLog();
 
     _queue.clear();
-}
-
-void EventSystem::PrintQueueLog()
-{
-    unsigned int queue_size = _queue.size();
-
-    std::cout << "-- Start of Queue --\n";
-    for(unsigned int i = 0 ; i < queue_size ; i++)
-        std::cout << _queue.at(i).EventLog() << "\n";
-    std::cout << "--- End of Queue ---" << std::endl;
 }
 
 void EventSystem::StartRecordingDemo()
@@ -110,8 +104,8 @@ bool EventSystem::StopRecordingDemo()
     {
         if(demo_recording_number == AN_UNREASONABLE_AMOUNT_OF_DEMO_FILES)
         {
-            std::print("%s EventSystem::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong%s\n", ERROR(), Color::Reset);
-            PRINT_DEBUG("The demo file that attempted to save:\n%s\n", demo_recording_storage);
+            PRINTERROR("EventSystem::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong")
+            PRINT_DEBUG("The demo file that attempted to save:\n{}\n", demo_recording_storage)
             return false;
         }
 

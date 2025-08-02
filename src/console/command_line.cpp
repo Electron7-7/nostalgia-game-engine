@@ -51,17 +51,17 @@ int CommandLine::RunCommand(ConsoleCommand& command)
 {
     if(Commands::IsValid(command))
     {
-        PRINT_WARNING("CommandLine::RunCommand - Command \"%s\" is invalid.", command.GetCommand());
+        PRINT_WARNING("CommandLine::RunCommand - Command \"{}\" is invalid.", command.GetCommand())
         return 1;
     }
 
     if(command == Commands::_NULL)
     {
-        PRINT_WARNING("CommandLine::RunCommand - Command \"%s\" is NULL!", command.GetCommand());
+        PRINT_WARNING("CommandLine::RunCommand - Command \"{}\" is NULL!", command.GetCommand())
         return 1;
     }
 
-    PRINT_DEBUG("Attempting to execute command \"%s\".", command.GetCommand());
+    PRINT_DEBUG("Attempting to execute command \"{}\".", command.GetCommand())
     // NOTE: Maybe change this to return '0' if 'command.ExecuteCommand' returns 'ExecuteStatus::FALLBACK_FUNCTION_EXECUTED'
     return(command.ExecuteCommand());
 }

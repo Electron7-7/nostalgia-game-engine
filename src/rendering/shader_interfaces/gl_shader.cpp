@@ -16,20 +16,20 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &v_shader_code, nullptr);
     glCompileShader(vertex);
-    PRINT_DEBUG("Checking For Errors: Vertex Shader");
+    PRINTDEBUG("Checking for Vertex Shader errors")
     if(!GLShaderErrorHandler(vertex))
     {
-        PRINT_DEBUG("Vertex shader failed to compile! Shader code:\n'%s'", v_shader_code);
+        PRINT_DEBUG("Vertex shader failed to compile! Shader code:\n'{}'", v_shader_code)
         return false;
     }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &f_shader_code, nullptr);
     glCompileShader(fragment);
-    PRINT_DEBUG("Checking For Errors: Fragment Shader");
+    PRINTDEBUG("Checking for Fragment Shader errors")
     if(!GLShaderErrorHandler(fragment))
     {
-        PRINT_DEBUG("Fragment shader failed to compile! Shader code:\n'%s'", f_shader_code);
+        PRINT_DEBUG("Fragment shader failed to compile! Shader code:\n'{}'", f_shader_code)
         return false;
     }
 
@@ -37,7 +37,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glAttachShader(_id, vertex);
     glAttachShader(_id, fragment);
     glLinkProgram(_id);
-    PRINTDEBUG("Checking For Errors: Shader Program");
+    PRINTDEBUG("Checking for Shader Program errors")
     if(!GLShaderErrorHandler(_id, true))
         return false;
 
@@ -111,7 +111,7 @@ bool GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_link
         else
             glGetShaderInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data());
 
-        PRINT_ERROR("GLSL %s Error(s):\n%s", shader_error_type, shader_error_message.data());
+        PRINT_ERROR("GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data())
         return false;
     }
 

@@ -55,7 +55,7 @@ GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
     if(!map_GraphicsBackends.contains(current_GraphicsBackend))
     {
-        PRINTWARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID");
+        PRINTWARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
         current_GraphicsBackend = BackendIDs::default_Graphics;
     }
 
@@ -66,7 +66,7 @@ WindowingBackend* BackendManager::GetWindowingBackend()
 {
     if(!map_WindowingBackends.contains(current_WindowingBackend))
     {
-        PRINTWARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID");
+        PRINTWARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
         current_WindowingBackend = BackendIDs::default_Windowing;
     }
 
@@ -119,7 +119,7 @@ bool BackendManager::InitBackend()
     if(!GetWindowingBackend()->CompatibleWith(current_GraphicsBackend))
     {
         // TODO: Figure out what I wanna do if this happens (probably just load the default backends and try again)
-        PRINTERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)");
+        PRINTERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
         return false;
     }
 
@@ -132,7 +132,7 @@ bool BackendManager::InitBackend()
 {
     if(!map_GraphicsBackends.contains(backend_id) || !map_WindowingBackends.contains(backend_id))
     {
-        PRINT_WARNING("BackendManager::RequestBackendChange - supplied backend ID invalid; returning previous backend ID");
+        PRINT_WARNING("BackendManager::RequestBackendChange - supplied backend ID invalid; returning previous backend ID")
         return current_backend;
     }
 
@@ -146,11 +146,11 @@ bool BackendManager::InitBackend()
     {
         if(current_backend == BackendIDs::Default)
         {
-            PRINT_ERROR("BackendManager::RequestBackendChange - default backend(s) failed to initialize!");
+            PRINT_ERROR("BackendManager::RequestBackendChange - default backend(s) failed to initialize!")
             return -1; // FIXME: Probably not a good return value
         }
 
-        PRINT_WARNING("BackendManager::RequestBackendChange - requested backend failed to initialize! Changing to default backend");
+        PRINT_WARNING("BackendManager::RequestBackendChange - requested backend failed to initialize! Changing to default backend")
         RequestBackendChange(BackendIDs::Default);
     }
 

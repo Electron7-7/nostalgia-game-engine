@@ -7,7 +7,7 @@ bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
 {
     if(!std::filesystem::is_regular_file(demo_file_path))
     {
-        PRINT_ERROR("DemoParser::LoadDemoFromFile - demo doesn't exist at path: '%s'", demo_file_path);
+        PRINT_ERROR("DemoParser::LoadDemoFromFile - demo doesn't exist at path: '{}'", demo_file_path)
         return false;
     }
 
@@ -21,14 +21,14 @@ bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
             if(ParseLine(line))
                 at_least_one_line_was_parsed = true;
             else
-                PRINT_WARNING("A line failed to parse - \"%s\"", line);
+                PRINT_WARNING("DemoParser::LoadDemoFromFile - a line failed to parse: '{}'", line)
         }
 
         demo_file.close();
         return true;
     }
 
-    PRINT_ERROR("DemoParser::LoadDemoFromFile - unable to open file at path: '%s'", demo_file_path);
+    PRINT_ERROR("DemoParser::LoadDemoFromFile - unable to open file at path: '{}'", demo_file_path)
     return false;
 }
 
@@ -42,7 +42,7 @@ bool DemoParser::LoadDemoFromMemory(const std::string& demo_file_data)
         if(ParseLine(line))
             at_least_one_line_was_parsed = true;
         else
-            PRINT_WARNING("A line failed to parse - \"%s\"", line);
+            PRINT_WARNING("A line failed to parse - \"{}\"", line)
     }
 
     return at_least_one_line_was_parsed;

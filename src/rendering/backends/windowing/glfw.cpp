@@ -49,7 +49,7 @@ bool GLFW_Backend::Init()
     if(is_initialized)
         return true;
 
-    PRINTDEBUG("GLFW_Backend::Init");
+    PRINTDEBUG("GLFW_Backend::Init")
 
     glfwInit();
     if(!CreateMainWindow())
@@ -67,7 +67,7 @@ bool GLFW_Backend::InitImGui()
 
     if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
     {
-        PRINTERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!");
+        PRINTERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
         return false;
     }
 
@@ -103,7 +103,7 @@ bool GLFW_Backend::CreateMainWindow()
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        PRINTERROR("Failed to initialize GLAD!");
+        PRINTERROR("Failed to initialize GLAD!")
         return false;
     }
 
@@ -138,7 +138,7 @@ int GLFW_Backend::CreateWindow(const char* window_name)
 
     if(glfw_NewWindow == nullptr)
     {
-        PRINTERROR("Failed to create GLFW window!");
+        PRINTERROR("Failed to create GLFW window!")
         return WindowingBackend::WINDOW_CREATION_FAILED;
     }
 

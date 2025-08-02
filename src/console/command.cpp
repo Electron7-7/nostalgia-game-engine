@@ -18,7 +18,7 @@ int ConsoleCommand::ExecuteCommand()
     int execute_status = _function();
 
     if(execute_status == ExecuteStatus::FALLBACK_FUNCTION_EXECUTED)
-        PRINT_DEBUG("Command \"%s\" executed the fallback command execution function, meaning its execution function was unassigned.", _command);
+        PRINT_DEBUG("Command \"{}\" executed the fallback command execution function, meaning its execution function was unassigned.", _command)
 
     return execute_status;
 }
