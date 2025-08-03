@@ -139,3 +139,15 @@ I ended up spending all my time reworking the Makefile, but I'm very happy with 
 
 [07/31/25]
 I think I want to overhaul the command line system to more closely follow my command line arguments library I made, as well as be more restricted to strings. I'm thinking that getting rid of variables is a good idea; something like "+forward" can just flag a function/class to move forwards while "-forward" flags them to stop, instead of setting a variable.
+
+[08/01/25]
+I forgot about the demo system!! That's what the commands were made for! I'm gonna take a look at both of these systems and review them. I should also start integrating ImGui into my debugging process a lot more, instead of changing values manually and re-compiling.
+
+Okay, I thought that `std::print` was being weird because it wasn't correctly replacing `%s`, but I finally realized that the problem was me not reading the fucking documentation; `std::print` uses '{#}' instead of '%s'. I'm gonna try and add dependency file generation to the Makefile while I'm here, though, because that should make it so that if I change a header file, the correct source files get re-compiled.
+
+Oh god, I'm gonna have to redo the entire Makefile... thank god for `makemake`; that should make my life a little bit easier.
+
+Okay, for some reason, `makemake` is spitting garbage data out when I run it in this directory, but ONLY when I run it in this directory.
+
+[08/03/25]
+Fucking... spent all day in the Makefile; specifically, finally made the resources embed perfectly the way I want them to. Okay, more like 95% the way I want them to, but that's pretty good!
