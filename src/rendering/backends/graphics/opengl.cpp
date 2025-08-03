@@ -39,8 +39,8 @@ bool OpenGL_Backend::Init()
     glGenVertexArrays(VAOS_AMOUNT, VAOs.data());
 
     // The safety shader must ALWAYS compile; the rest can fail without causing crashes
-    if(!BuildShader(Shaders::SAFETY, glsl_safety_shader_vert, glsl_safety_shader_frag)) return false;
-    BuildShader(Shaders::BLINN_PHONG, glsl_blinn_phong_vert, glsl_blinn_phong_frag);
+    if(!BuildShader(Shaders::SAFETY, glsl_VERT_SafetyShader, glsl_FRAG_SafetyShader)) return false;
+    BuildShader(Shaders::BLINN_PHONG, glsl_VERT_BlinnPhong, glsl_FRAG_BlinnPhong);
 
     // TODO: See note in 'src/engine/world/3d_common.hpp'
     World::Orientation::SetWorldUp(glm::vec3(0.0f, 1.0f, 0.0f));
