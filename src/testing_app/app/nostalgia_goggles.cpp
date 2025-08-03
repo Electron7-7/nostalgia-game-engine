@@ -4,7 +4,9 @@
 #include "managers/world_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/ui_manager.hpp"
-#include "testing_app/ui/prototype_debug_window.hpp"
+#include "testing_app/ui/imgui_debugger.hpp"
+
+#include "printing.hpp"
 
 // Singleton accessor
 NostalgiaGoggles singleton_NostalgiaGogglesApp;
@@ -50,7 +52,7 @@ int NostalgiaGoggles::Main()
     // _Manager::Add(global_MenuManager);
     _Manager::Add(global_UIManager);
 
-    global_UIManager->AddImGuiObject(global_DebugWindow);
+    global_UIManager->AddImGuiObject(global_Debugger);
 
     // Physics
     // _Manager::Add(global_PhysicsManager);
