@@ -151,3 +151,5 @@ Okay, for some reason, `makemake` is spitting garbage data out when I run it in 
 
 [08/03/25]
 Fucking... spent all day in the Makefile; specifically, finally made the resources embed perfectly the way I want them to. Okay, more like 95% the way I want them to, but that's pretty good!
+
+TODO: Change Makefile printouts to match the ones in Levitate (specifically the 'resources' Makefile).
