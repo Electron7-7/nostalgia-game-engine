@@ -35,7 +35,7 @@ void Mesh::RemoveVertex(Mesh::Index index_of_vertex_to_remove)
     if(_vertices.contains(index_of_vertex_to_remove))
         _vertices.erase(index_of_vertex_to_remove);
     else
-        PRINTWARNING("Mesh::RemoveVertex(Index) - No index matching the argument was found in this mesh");
+        PRINTWARNING("Mesh::RemoveVertex(Index) - No index matching the argument was found in this mesh")
 }
 
 void Mesh::RemoveVertex(Vertex vertex_to_remove) // Much less efficient, but more direct
@@ -47,7 +47,7 @@ void Mesh::RemoveVertex(Vertex vertex_to_remove) // Much less efficient, but mor
             return;
         }
 
-    PRINTWARNING("Mesh::RemoveVertex(Vertex) - No vertex matching the argument was found in this mesh");
+    PRINTWARNING("Mesh::RemoveVertex(Vertex) - No vertex matching the argument was found in this mesh")
 }
 
 void Mesh::SetName(const std::string& name)

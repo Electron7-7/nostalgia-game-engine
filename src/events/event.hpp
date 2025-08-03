@@ -9,7 +9,7 @@ struct Event
 {
 public:
     Event(): _console_command(Commands::_NULL) {}
-    Event(const ConsoleCommand& Command, const double& CreationTime = CurrentTime()): _console_command(Command), _creation_time(CreationTime) {}
+    Event(const ConsoleCommand& Command, const double& CreationTime = CurrentTime()): _creation_time(CreationTime), _console_command(Command) {}
     Event(const Event& CopyFrom): _creation_time(CopyFrom._creation_time), _console_command(CopyFrom._console_command) {}
 
     double GetCreationTime() const { return _creation_time; }

@@ -19,7 +19,7 @@ public:
     static Event GetNextEvent(); // This will also remove that Event from the queue!
     static unsigned int GetQueueSize();
     static void ClearQueue();
-    static void PrintQueueLog();
+    static void DebugPrintQueueLog();
     static void StartRecordingDemo();
     static bool StopRecordingDemo();
 

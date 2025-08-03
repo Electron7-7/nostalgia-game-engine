@@ -25,7 +25,7 @@ bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
         }
 
         demo_file.close();
-        return true;
+        return at_least_one_line_was_parsed;
     }
 
     PRINT_ERROR("DemoParser::LoadDemoFromFile - unable to open file at path: '{}'", demo_file_path)

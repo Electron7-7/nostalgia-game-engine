@@ -2,7 +2,6 @@
 #define CONSOLE_COMMAND_H
 
 #include <string>
-#include <set>
 
 struct ConsoleCommand
 {
@@ -28,11 +27,11 @@ public:
     };
 
 private:
-    static int FallbackExecutionFunction();
+    std::string _command = "how_the_fuck_did_you_get_this_holy_shit_you_fucked_up_big_time";
 
     ExecutionFunction _function = &ConsoleCommand::FallbackExecutionFunction;
 
-    std::string _command = "how_the_fuck_did_you_get_this_holy_shit_you_fucked_up_big_time";
+    static int FallbackExecutionFunction();
 };
 
 struct Commands
