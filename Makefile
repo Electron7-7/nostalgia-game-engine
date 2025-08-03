@@ -167,7 +167,7 @@ export DEFAULT ?= \\x1b[1;39m
 
 .PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dirs clean clean_dirty clean_static clean_dynamic disable_colors
 
-all: build_dirs headers libraries testapps ;@:
+all: build_dirs headers resources static dynamic testapp_static testapp_dynamic ;@:
 
 printout:
 	@ printf "$(DEFAULT)::Architecture - $(BLUE)$(BUILD_ARCH)$(RESET)\n"
@@ -262,9 +262,6 @@ build_dirs:
 clean:
 	@ -rm -r $(DIR_ROOT)
 	@ echo -ne "::Cleaned $(RED)$(DIR_ROOT)/$(RESET)\n"
-
-# $(shell rm -r $(clean_dir) &>/dev/null)
-# 	@ echo -ne "$(foreach architecture,$(wildcard $(DIR_ROOT)/*),$(foreach version,$(wildcard $(architecture)/*),$(foreach clean_dir,$(shell ls -I='$(DIRTY_SRC_DIR)' $(version)/.objs*),::Cleaned: $(RED)$(clean_dir)$(RESET)\\n)))\n"
 
 clean_dirty:
 	@ echo -ne "$(foreach architecture,$(wildcard $(DIR_ROOT)/*),$(foreach version,$(wildcard $(architecture)/*),$(foreach clean_dir,$(subst $(DIRTY_SRC_DIR),,$(SRC_DIRS:$(SRC)/%=%)),$(shell rm -r $(version)/{.objs_dynamic,.objs_static}/$(clean_dir) >& /dev/null)::Cleaned $(RED)$(version)/.objs_{dynamic,static}/$(clean_dir)$(RESET)\\n)))\n"
