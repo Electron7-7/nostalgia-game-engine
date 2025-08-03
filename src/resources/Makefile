@@ -1,48 +1,125 @@
-EMBEDDED_RESOURCES_OUTPUT_DIR := ../embedded
+# Output Colors
+export RESET   ?= \\x1b[0m
+export BLACK   ?= \\x1b[1;30m
+export RED     ?= \\x1b[1;31m
+export GREEN   ?= \\x1b[1;32m
+export YELLOW  ?= \\x1b[1;33m
+export BLUE    ?= \\x1b[1;34m
+export MAGENTA ?= \\x1b[1;35m
+export CYAN    ?= \\x1b[1;36m
+export WHITE   ?= \\x1b[1;37m
+export DEFAULT ?= \\x1b[1;39m
 
+# Common Variables
+EMBED_DIR   := ../embedded
+
+#-------------------------------#
+# C++ Variable Naming Functions #
+#-------------------------------#
+UPPER_CASE = $(shell echo '$1' | tr '[:lower:]' '[:upper:]')
+SNAKE_CASE = $(subst -,_,$(subst .,_,$(basename $(notdir $(1)))))
+CAMEL_CASE = $(shell echo "$(call SNAKE_CASE,$(1))" | sed -re 's/(_|^)(\w)/\U\2/g')
+FILENAME   = $(2)_$(call UPPER_CASE,$(subst .,,$(suffix $(1))))_$(call CAMEL_CASE,$(1))
+
+#---------------------------#
+# Code Generation Functions #
+#---------------------------#------------#
+# Embedding Files as Strings (via `cat`) #
+#----------------------------------------#
+CAT_FILE_TO_STRING  = R\"($(subst ^M,,$(subst $$,,$(subst $$ ,\n,$(shell cat --show-ends $(1))))))\";
+MAKE_STR_SOURCE_VAR = $(shell printf "\nconst char* $(call FILENAME,$(1),$(2)) = $(call CAT_FILE_TO_STRING,$(1))" >> $(3))
+MAKE_STR_HEADER_VAR = $(shell printf "\nextern const char* $(call FILENAME,$(1),$(2));" >> $(3))
+
+#--------------------------------------------#
+# Embedding Files as Data Arrays (via `xxd`) #
+#--------------------------------------------#
+XXD=HEX_LEN="$$(stat -c %s $(1))"; xxd -ps -c 16 $(1)
+SED = sed \
+-re 's/([0-9a-z]{2})/0x\1, /gm' \
+-re 's/^/\t/' \
+-e '1i \\nunsigned int  $(1)_len = '$$HEX_LEN';\nunsigned char $(1)[] =\n{' \
+-e '$$a};'
+DECLARE_DATA_VARS   = extern unsigned char $(1)[];\\nextern unsigned int  $(1)_len;\\n
+MAKE_DAT_SOURCE_VAR = $(shell $(call XXD,$(1)) | $(call SED,$(call FILENAME,$(1),$(2))) >> $(3))
+MAKE_DAT_HEADER_VAR = $(shell printf "\n$(call DECLARE_DATA_VARS,$(call FILENAME,$(1),$(2)))" >> $(3))
+
+# Font Variables
+FONTS_GUARD := FONTS_H
+FONTS_DIR   := fonts
+FONTS       := $(wildcard $(FONTS_DIR)/*.ttf) $(wildcard $(FONTS_DIR)/*.otf)
+FONTS_CPP   := $(EMBED_DIR)/fonts.cpp
+FONTS_HPP   := $(EMBED_DIR)/fonts.hpp
+
+# GLSL Variables
+GL_SHADERS_GUARD := OPENGL_SHADERS_H
 GL_SHADERS_DIR   := shaders/GLSL
-GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*.vert) $(wildcard $(GL_SHADERS_DIR)/*.frag)
-GL_SHADERS_CPP   := $(EMBEDDED_RESOURCES_OUTPUT_DIR)/opengl_shaders.cpp
-GL_SHADERS_HPP   := $(EMBEDDED_RESOURCES_OUTPUT_DIR)/opengl_shaders.hpp
-GL_SHADERS_HEADER_GUARD := OPENGL_SHADERS_H
+GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*)
+GL_SHADER_STEMS  := $(sort $(basename $(GL_SHADERS)))
+GL_SHADERS_CPP   := $(EMBED_DIR)/opengl_shaders.cpp
+GL_SHADERS_HPP   := $(EMBED_DIR)/opengl_shaders.hpp
 
-define MAKE_GL_SHADER_HEADER_VAR
-	$(shell echo -e "extern std::string glsl_$(subst .,_,$(notdir $(1)));" >> $(2))
-endef
-define MAKE_GL_SHADER_SOURCE_VAR
-	$(shell printf "std::string glsl_$(subst .,_,$(notdir $(1))) = R\"~(\n" >> $(2) && cat $(1) >> $(2) && printf ")~\";\n" >> $(2))
-endef
+# GLSL Naming Function
+GLSL_HEADER_PAIR = \
+	$(call MAKE_STR_HEADER_VAR,$(1).vert,$(2),$(3)) \
+	$(call MAKE_STR_HEADER_VAR,$(1).frag,$(2),$(3)) \
+	$(shell printf "\n" >> $(3))
 
-MESHES_DIR        := meshes
-GRAPHX_MESHES     := $(wildcard $(MESHES_DIR)/*.graphxmesh)
-GRAPHX_MESHES_HPP := $(EMBEDDED_RESOURCES_OUTPUT_DIR)/graphx_meshes.hpp
-GRAPHX_MESHES_HEADER_GUARD := GRAPHX_MESHES_H
+# Mesh Variables
+MESHES_GUARD  := MESHES_H
+MESHES_DIR    := meshes
+OBJ_MESHES    := $(wildcard $(MESHES_DIR)/*.obj)
+GRAPHX_MESHES := $(wildcard $(MESHES_DIR)/*.graphxmesh)
+MESHES_HPP    := $(EMBED_DIR)/meshes.hpp
+MESHES_CPP    := $(EMBED_DIR)/meshes.cpp
 
-.PHONY: all clean glsl graphxmeshes
+.PHONY: all clean shaders glsl meshes fonts
 
 # FIXME: Don't clean build every time
-all: glsl graphxmeshes
+all: shaders meshes fonts
 
 # FIXME: when implementing different APIs and, therefore, shaders, have a better 'clean' target
 clean:
 	@ -rm -f $(GL_SHADERS_HPP) $(GL_SHADERS_CPP)
 
+# Fonts
+fonts: $(FONTS_CPP)
+	@ printf "::Embedded $(YELLOW)$(FONTS)$(RESET)\n"
+
+$(FONTS_CPP): $(FONTS_HPP)
+	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
+	$(foreach font_file,$(FONTS),$(call MAKE_DAT_SOURCE_VAR,$(font_file),font,$@))
+
+$(FONTS_HPP):
+	$(shell printf "#ifndef $(FONTS_GUARD)\n#define $(FONTS_GUARD)\n" > $(FONTS_HPP))
+	$(foreach font_file,$(FONTS),$(call MAKE_DAT_HEADER_VAR,$(font_file),font,$@))
+	$(shell printf "\n\n#endif // $(FONTS_GUARD)\n" >> $(FONTS_HPP))
+
+# Shaders (all this does is build every shader type; so far, I've only implemented GLSL)
+shaders: glsl ;@:
+
+# GLSL
 glsl: $(GL_SHADERS_CPP)
-	@ printf "::Embedded $(YELLOW)$(GL_SHADERS)$(DEFAULT)\n"
+	@ printf "::Embedded $(YELLOW)$(GL_SHADERS)$(RESET)\n"
 
 $(GL_SHADERS_CPP): $(GL_SHADERS_HPP)
-	$(shell printf "#include <string>\n" > $(GL_SHADERS_CPP))
-	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_GL_SHADER_SOURCE_VAR,$(shader_file),$(GL_SHADERS_CPP)))
+	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
+	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_STR_SOURCE_VAR,$(shader_file),glsl,$@))
 
 $(GL_SHADERS_HPP):
-	$(shell echo -e "#ifndef $(GL_SHADERS_HEADER_GUARD)\n#define $(GL_SHADERS_HEADER_GUARD)\n#include <string>" > $(GL_SHADERS_HPP))
-	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_GL_SHADER_HEADER_VAR,$(shader_file),$(GL_SHADERS_HPP)))
-	$(shell echo -e "#endif // $(GL_SHADERS_HEADER_GUARD)" >> $(GL_SHADERS_HPP))
+	$(shell printf "#ifndef $(GL_SHADERS_GUARD)\n#define $(GL_SHADERS_GUARD)\n" > $(GL_SHADERS_HPP))
+	$(foreach shader_stem,$(GL_SHADER_STEMS),$(call GLSL_HEADER_PAIR,$(shader_stem),glsl,$@))
+	$(shell printf "\n#endif // $(GL_SHADERS_GUARD)\n" >> $(GL_SHADERS_HPP))
 
-graphxmeshes: $(GRAPHX_MESHES_HPP)
-	@ printf "::Embedded $(YELLOW)$(GRAPHX_MESHES)$(DEFAULT)\n"
+# Meshes
+meshes: $(MESHES_CPP)
+	@ printf "::Embedded $(YELLOW)$(GRAPHX_MESHES) $(OBJ_MESHES)$(RESET)\n"
 
-$(GRAPHX_MESHES_HPP):
-	$(shell echo -e "#ifndef $(GRAPHX_MESHES_HEADER_GUARD)\n#define $(GRAPHX_MESHES_HEADER_GUARD)\n" > $(GRAPHX_MESHES_HPP))
-	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell echo -e "#include $(graphx_mesh)" >> $(GRAPHX_MESHES_HPP)))
-	$(shell echo -e "#endif // $(GL_SHADERS_HEADER_GUARD)" >> $(GL_SHADERS_HPP))
+$(MESHES_CPP): $(MESHES_HPP)
+	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
+	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_SOURCE_VAR,$(obj_mesh),mesh,$@))
+
+$(MESHES_HPP):
+	$(shell printf "#ifndef $(MESHES_GUARD)\n#define $(MESHES_GUARD)\n\n" > $(MESHES_HPP))
+	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_HPP)))
+	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_HEADER_VAR,$(obj_mesh),mesh,$@))
+	$(shell printf "\n\n#endif // $(MESHES_GUARD)" >> $(MESHES_HPP))
