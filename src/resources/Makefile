@@ -34,11 +34,11 @@ MAKE_STR_HEADER_VAR = $(shell printf "\nextern const char* $(call FILENAME,$(1),
 # Embedding Files as Data Arrays (via `xxd`) #
 #--------------------------------------------#
 XXD=HEX_LEN="$$(stat -c %s $(1))"; xxd -ps -c 16 $(1)
-SED = sed \
+SED = sed                       \
 -re 's/([0-9a-z]{2})/0x\1, /gm' \
--re 's/^/\t/' \
--e '1i \\nunsigned int  $(1)_len = '$$HEX_LEN';\nunsigned char $(1)[] =\n{' \
--e '$$a};'
+-re 's/^/\t/'                   \
+-e '$$a};'                      \
+-e '1i \\nunsigned int  $(1)_len = '$$HEX_LEN';\nunsigned char $(1)[] =\n{'
 DECLARE_DATA_VARS   = extern unsigned char $(1)[];\\nextern unsigned int  $(1)_len;\\n
 MAKE_DAT_SOURCE_VAR = $(shell $(call XXD,$(1)) | $(call SED,$(call FILENAME,$(1),$(2))) >> $(3))
 MAKE_DAT_HEADER_VAR = $(shell printf "\n$(call DECLARE_DATA_VARS,$(call FILENAME,$(1),$(2)))" >> $(3))
