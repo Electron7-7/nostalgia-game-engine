@@ -13,6 +13,12 @@ export DEFAULT ?= \\x1b[1;39m
 # Common Variables
 EMBED_DIR   := ../embedded
 
+#-----------------#
+# Print Functions #
+#-----------------#
+PRINT_GENERATING = printf "$(DEFAULT)::Generating Embedded $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
+PRINT_CLEANED    = @ printf "$(RESET)::Cleaned $(RED)$(subst ../,src/,$(1))$(RESET)\n"
+
 #-------------------------------#
 # C++ Variable Naming Functions #
 #-------------------------------#
@@ -72,24 +78,41 @@ GRAPHX_MESHES := $(wildcard $(MESHES_DIR)/*.graphxmesh)
 MESHES_HPP    := $(EMBED_DIR)/meshes.hpp
 MESHES_CPP    := $(EMBED_DIR)/meshes.cpp
 
-.PHONY: all clean shaders glsl meshes fonts
+.PHONY: all build clean shaders glsl meshes fonts
 
-# FIXME: Don't clean build every time
-all: shaders meshes fonts
+all:
+	@ $(MAKE) -s shaders meshes fonts
+	@ printf "$(DEFAULT)::Embedded Resources Directory - $(GREEN)$(EMBED_DIR:../%=src/%)$(RESET)\n"
 
-# FIXME: when implementing different APIs and, therefore, shaders, have a better 'clean' target
+build:
+	@ -mkdir -p $(EMBED_DIR)
+
 clean:
-	@ -rm -f $(GL_SHADERS_HPP) $(GL_SHADERS_CPP)
+	@ -rm -rf $(OUT_DIR)
+	$(call cleaned,$(OUT_DIR))
+
+clean_glsl:
+	@ -rm -f $(GL_SHADERS_CPP)
+	$(call cleaned,$(GL_SHADERS_CPP))
+	@ -rm -f $(GL_SHADERS_HPP)
+	$(call cleaned,$(GL_SHADERS_HPP))
+
+clean_fonts:
+	@ -rm -f $(FONTS_CPP)
+	$(call cleaned,$(FONTS_CPP))
+	@ -rm -f $(FONTS_HPP)
+	$(call cleaned,$(FONTS_HPP))
 
 # Fonts
-fonts: $(FONTS_CPP)
-	@ printf "::Embedded $(YELLOW)$(FONTS)$(RESET)\n"
+fonts: $(FONTS_CPP) $(FONTS_HPP) | build
 
-$(FONTS_CPP): $(FONTS_HPP)
+$(FONTS_CPP): $(FONTS_HPP) | build
+	@ $(call PRINT_GENERATING,Fonts,$@,$<)
+	@ $(MAKE) -s $(FONTS:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_SOURCE_VAR,$(font_file),font,$@))
 
-$(FONTS_HPP):
+$(FONTS_HPP): | build
 	$(shell printf "#ifndef $(FONTS_GUARD)\n#define $(FONTS_GUARD)\n" > $(FONTS_HPP))
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_HEADER_VAR,$(font_file),font,$@))
 	$(shell printf "\n\n#endif // $(FONTS_GUARD)\n" >> $(FONTS_HPP))
@@ -98,28 +121,35 @@ $(FONTS_HPP):
 shaders: glsl ;@:
 
 # GLSL
-glsl: $(GL_SHADERS_CPP)
-	@ printf "::Embedded $(YELLOW)$(GL_SHADERS)$(RESET)\n"
+glsl: $(GL_SHADERS_CPP) $(GL_SHADERS_HPP) | build
 
-$(GL_SHADERS_CPP): $(GL_SHADERS_HPP)
+$(GL_SHADERS_CPP): $(GL_SHADERS_HPP) | build
+	@ $(call PRINT_GENERATING,GLSL Shaders,$@,$<)
+	@ $(MAKE) -s $(GL_SHADERS:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_STR_SOURCE_VAR,$(shader_file),glsl,$@))
 
-$(GL_SHADERS_HPP):
+$(GL_SHADERS_HPP): | build
 	$(shell printf "#ifndef $(GL_SHADERS_GUARD)\n#define $(GL_SHADERS_GUARD)\n" > $(GL_SHADERS_HPP))
 	$(foreach shader_stem,$(GL_SHADER_STEMS),$(call GLSL_HEADER_PAIR,$(shader_stem),glsl,$@))
 	$(shell printf "\n#endif // $(GL_SHADERS_GUARD)\n" >> $(GL_SHADERS_HPP))
 
 # Meshes
-meshes: $(MESHES_CPP)
-	@ printf "::Embedded $(YELLOW)$(GRAPHX_MESHES) $(OBJ_MESHES)$(RESET)\n"
+meshes: $(MESHES_CPP) $(MESHES_HPP) | build
 
-$(MESHES_CPP): $(MESHES_HPP)
+$(MESHES_CPP): $(MESHES_HPP) | build
+	@ $(call PRINT_GENERATING,Meshes,$@,$<)
+	@ $(MAKE) -s $(GRAPHX_MESHES:%=%.print) $(OBJ_MESHES:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_SOURCE_VAR,$(obj_mesh),mesh,$@))
 
-$(MESHES_HPP):
+$(MESHES_HPP): | build
 	$(shell printf "#ifndef $(MESHES_GUARD)\n#define $(MESHES_GUARD)\n\n" > $(MESHES_HPP))
 	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_HPP)))
 	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_HEADER_VAR,$(obj_mesh),mesh,$@))
 	$(shell printf "\n\n#endif // $(MESHES_GUARD)" >> $(MESHES_HPP))
+
+
+# Printouts
+%.print: %
+	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/$<$(RESET)\n"
