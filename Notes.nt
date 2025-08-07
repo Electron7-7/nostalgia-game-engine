@@ -185,3 +185,25 @@ i also have learned my second lesson regarding Linux and deleting things.
 fuck...
 
 i need a couple minutes to calm down and re-motivate myself.
+
+
+Thanks to Sublime Merge, I found some of the deleted commit messages:
+-----START COMMIT MESSAGES-----
+build: Updated Makefile to match my new "standard" and cleaned up a lot of nasty shit"
+
+build: Complete overhaul of the "resources" Makefile. I'd say it's 95% perfect and that's good enough for me/
+
+build/chores: cleanup & re-ordering the targets that `all` calls, just in case
+
+fix/chore(resources): Forgot to use the new variable names for embedded resources
+
+refactor: prettied up the 'sed' function
+
+build(resources): Implemented better printouts and `clean` targets from `Levitate`
+
+docs(notes)
+
+refactor: Deleted 'command_line' files, moved 'command' files to 'src/events/', moved the `Key` struct into its own 'key.hpp' file, renamed 'input_id_conversion_maps.cpp' to 'key_id_lookup_tables.cpp'
+-----END COMMIT MESSAGES-----
+
+These should help me keep track of what I did.
