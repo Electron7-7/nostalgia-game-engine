@@ -156,3 +156,32 @@ TODO: Change Makefile printouts to match the ones in Levitate (specifically the 
 
 [08/04/25]
 Aight, time to do just that.
+
+[08/05/25] (These notes were salvaged from Sublime Text)
+I'm working on the events system before therapy & work. I've decided to remove the command line bc it was accidentally recreating the event system. The idea is that keys and commands are separate, and the key handler will have a map pairing the string names of keys with the string names of their bound command. Bindings can be set, removed, and cleared by key handler functions. I think I want to be able to bind multiple commands to the same key; the drawback to this would be that clearing all bindings for a key is the only way to replace a binding instead of add to it.
+
+Okay, so here's the structure: KeyHandler - Abstracts the window library's key callback function. - Passes key data to the input manager. - That's literally it. - Must be as static as possible. InputManager - Decides what to do with inputs based on certain conditions. - i.e: populates the event queue if it's time to do so - This should be done on demand. - Every tick, processes the current event queue (or initiates another object to process it) - This flushes the current event queue - Acts as a delegator
+
+[08/06/25] (These notes were salvaged from Sublime Text)
+Okay, I'm gonna try and re-work the input handling framework around this: (https://app.milanote.com/1UJKjG1xRu4f1s/input-system).
+
+[08/07/25]
+i'm so broken... i just lost three days of work... because i wanted to make the `make clean` target slightly better...
+
+i just lost so much
+
+i had done so much
+
+i'm... i'm genuinely devastated
+
+and like, i know i can always rebuild, and thankfully it was only three days and not something crazy, but...
+
+fuck, man... i had *just* figured out the input system!!
+
+maybe this is a blessing in disguise: i can figure out a better way to do things.
+
+i also have learned my second lesson regarding Linux and deleting things.
+
+fuck...
+
+i need a couple minutes to calm down and re-motivate myself.
