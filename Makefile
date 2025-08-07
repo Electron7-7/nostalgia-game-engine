@@ -57,7 +57,6 @@ NAME_DYNAMIC_WINDOWS := .dll
 
 APP_BASE := LibraryTestingApp
 
-
 # LINUX
 ifneq ($(OS),Windows_NT)
 	export APP_NAME      ?= $(APP_BASE)
@@ -99,30 +98,23 @@ export BUILD_DEPENDS  ?= $(BUILD_OBJS)/$(DIR_DEPS)
 export BUILD_GLFW     ?= $(BUILD_OBJS)/thirdparty/libglfw3
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
-export APP_LD_FLAGS   ?= $(BUILD_LIBRARY)/$(NAME)
+export APP_LD_FLAGS   ?= -L $(BUILD_LIBRARY) -l $(NAME_BASE)
 export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
 export APP            ?= $(APP_TYPE)$(APP_NAME)
 
 export FLAGS_LIBRARY ?= $(FLAGS_LIB_STATIC)
 
+export CLEAN_TARGET ?= 0
+export CLEAN_ARCH ?= .+
+export CLEAN_VERSION ?= .+
+
 VPATH := $(SRC_DIRS)
 
 SRC := src
 
-DIRTY_SRC_DIR := thirdparty
-
-APP_SRC_DIRS :=               \
-    $(SRC)/testing_app/app    \
-    $(SRC)/testing_app/system \
-    $(SRC)/testing_app/ui
-
-THIRDPARTY_SRC_DIRS :=          \
-	$(SRC)/thirdparty/DearImGui \
-	$(SRC)/thirdparty/glad
-
 SRC_DIRS :=                             \
+    $(SRC)/commands                     \
     $(SRC)/common                       \
-    $(SRC)/console                      \
     $(SRC)/embedded                     \
     $(SRC)/events                       \
     $(SRC)/input                        \
@@ -133,6 +125,18 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/world                        \
 
+
+THIRDPARTY_SRC_DIRS :=          \
+	$(SRC)/thirdparty/DearImGui \
+	$(SRC)/thirdparty/glad
+
+APP_SRC_DIRS :=               \
+    $(SRC)/testing_app/app    \
+    $(SRC)/testing_app/system \
+    $(SRC)/testing_app/ui
+
+DIRTY_SRC_DIRS := \
+	thirdparty    \
 
 RESOURCES_DIR := $(SRC)/resources
 
@@ -165,7 +169,7 @@ export CYAN    ?= \\x1b[1;36m
 export WHITE   ?= \\x1b[1;37m
 export DEFAULT ?= \\x1b[1;39m
 
-.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dirs clean clean_dirty clean_static clean_dynamic disable_colors
+.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dirs clean cleanDirty disable_colors
 
 all: build_dirs headers resources static dynamic testapp_static testapp_dynamic ;@:
 
@@ -178,6 +182,10 @@ ifeq ($(BUILDING_APP),1)
 	@ printf "$(DEFAULT)::Linker Flags - $(YELLOW)$(APP_LD_FLAGS)$(RESET)\n"
 endif
 
+# FIXME: Sometimes it takes two builds for the app to link correctly (due to undefined errors related to GLFW)
+# Clues: the only operation that actually happens both times is linking the library/app & extracting the glfw archive
+# so I think maybe it doesn't link correctly the first time but it does the second time? Maybe the glfw objects have to
+# be added to the library last/after it's created?
 static: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval FLAGS_LIBRARY = $(FLAGS_LIB_STATIC))
@@ -233,6 +241,8 @@ linux: ;@:
 	$(eval CXX_COMPILER  = $(LINUX_CXX))
 	$(eval C_COMPILER    = $(LINUX_CC))
 	$(eval GLFW_LIBRARY  = $(GLFW_LINUX))
+	$(eval TARGET_CALLED = 1)
+	$(eval CLEAN_ARCH    = $(DIR_LINUX))
 
 windows: ;@:
 	$(eval APP_NAME      = $(APP_BASE).exe)
@@ -247,32 +257,57 @@ windows: ;@:
 	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
 	$(eval C_COMPILER    = $(WINDOWS_CC))
 	$(eval GLFW_LIBRARY  = $(GLFW_WINDOWS))
+	$(eval TARGET_CALLED = 1)
+	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
 
 release: ;@:
 	$(eval VERSION_FLAGS = $(RELEASE_FLAGS))
 	$(eval BUILD_VERSION = $(DIR_RELEASE))
+	$(eval TARGET_CALLED = 1)
+	$(eval CLEAN_VERSION = $(DIR_RELEASE))
 
 debug: ;@:
 	$(eval VERSION_FLAGS = $(DEBUG_FLAGS))
 	$(eval BUILD_VERSION = $(DIR_DEBUG))
+	$(eval TARGET_CALLED = 1)
+	$(eval CLEAN_VERSION = $(DIR_DEBUG))
 
 build_dirs:
 	@ -mkdir -p $(BUILD_DIR) $(BUILD_OBJS) $(BUILD_GLFW) $(BUILD_HEADERS) $(BUILD_LIBRARY) $(BUILD_DEPENDS)
 
+# Cleaning Functions
+# CLEAN = find . -type $(1) $(2) -delete -print 2>/dev/null
+CLEAN_OBJS = $(call CLEAN,$(1),-regex '.+\.objs_.+/.+' $(2))
+CLEAN_DIRTY = $(call CLEAN_OBJS,$(1),$(DIRTY_SRC_DIRS:%=-not -path "*%*"))
+CLEAN_PRINTOUT = \
+$(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
+$(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
+
+clean_target: ;@:
+	$(info CLEAN TARGET)
+	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d -empty,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/'))
+	@ $(call CLEAN_PRINTOUT,$(CLEAN_FILES))
+
+clean_all: ;@:
+	$(info CLEAN ALL)
+	$(eval CLEAN_FILES != $(call CLEAN,f))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d -empty))
+	@ $(call CLEAN_PRINTOUT,$(CLEAN_FILES))
+
 clean:
-	@ -rm -r $(DIR_ROOT)
-	@ echo -ne "::Cleaned $(RED)$(DIR_ROOT)/$(RESET)\n"
+	@ if [ $(TARGET_CALLED) -eq 1 ]; then \
+		$(MAKE) -s clean_target;           \
+	else                                   \
+		$(MAKE) -s clean_all;              \
+	fi
 
-clean_dirty:
-	@ echo -ne "$(foreach architecture,$(wildcard $(DIR_ROOT)/*),$(foreach version,$(wildcard $(architecture)/*),$(foreach clean_dir,$(subst $(DIRTY_SRC_DIR),,$(SRC_DIRS:$(SRC)/%=%)),$(shell rm -r $(version)/{.objs_dynamic,.objs_static}/$(clean_dir) >& /dev/null)::Cleaned $(RED)$(version)/.objs_{dynamic,static}/$(clean_dir)$(RESET)\\n)))\n"
-
-clean_static:
-	@ echo -ne "$(foreach architecture,$(wildcard $(DIR_ROOT)/*),$(foreach version,$(wildcard $(architecture)/*),$(shell rm -r $(version)/.objs_static/ $(version)/lib/libNostalgia$(NAME_STATIC_LINUX) $(version)/lib/libNostalgia$(NAME_STATIC_WINDOWS) &>/dev/null)Cleaned $(DEFAULT)$(RED)$(version)/.objs_static/  $(version)/lib/libNostalgia (static)$(RESET)\\n))\n"
-	@ -rmdir $(DIR_ROOT)/{$(BUILD_LINUX),$(BUILD_WINDOWS)}/{$(BUILD_RELEASE),$(BUILD_DEBUG)}/lib >& /dev/null || true
-
-clean_dynamic:
-	@ echo -ne "$(foreach architecture,$(wildcard $(DIR_ROOT)/*),$(foreach version,$(wildcard $(architecture)/*),$(shell rm -r $(version)/.objs_dynamic/ $(version)/lib/libNostalgia$(NAME_DYNAMIC_LINUX) $(version)/lib/libNostalgia$(NAME_DYNAMIC_WINDOWS) &>/dev/null)Cleaned $(DEFAULT)$(RED)$(version)/.objs_dynamic/  $(version)/lib/libNostalgia (dynamic)$(RESET)\\n))\n"
-	@ -rmdir $(DIR_ROOT)/{$(BUILD_LINUX),$(BUILD_WINDOWS)}/{$(BUILD_RELEASE),$(BUILD_DEBUG)}/lib >& /dev/null || true
+# Dirty Clean: Clean all obj files+dirs that *aren't* `DIRTY_SRC_DIRS`
+cleanDirty:
+	$(eval CLEAN_FILES != $(call CLEAN_DIRTY,f))
+	$(eval CLEAN_DIRS  != $(call CLEAN_DIRTY,d -empty))
+	@ printf "FILES: '$(CLEAN_FILES)'\nDIRS: '$(CLEAN_DIRS)'\n"
+	@ $(call CLEAN_PRINTOUT, $(CLEAN_FILES)$(CLEAN_DIRS))
 
 disable_colors:
 	$(eval RESET   := "")
@@ -307,17 +342,31 @@ $(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build
 
 # Static Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS)
-	@ printf "::Extracting GLFW Object Files\n"
-	@ $(AR) x --output $(BUILD_GLFW) $(GLFW_LIBRARY)/libglfw3.a
 	@ printf "::Building $(GREEN)$@$(RESET)\n"
-	$(AR) cr $@ $(wildcard $(BUILD_GLFW)/*.o) $^
+	@ $(AR) cr $@ $^
+	@ printf "$(DEFAULT)::Extracting $(CYAN)GLFW Object Files$(RESET)\n"
+	@ $(MAKE) -s $(shell $(AR) t $(GLFW_LIBRARY)/libglfw3.a | sed -re 's/(.+)/\1.print-ar-x/g')
+	@ $(AR) x --output $(BUILD_GLFW) $(GLFW_LIBRARY)/libglfw3.a
+	@ printf "$(DEFAULT)::Injecting $(CYAN)GLFW Object Files$(RESET)\n"
+	@ $(AR) q $@ $(wildcard $(BUILD_GLFW)/*.o)
 
 # Dynamic Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS)
 	@ printf "::Building $(GREEN)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
-# Library Testing Application
-$(BUILD_DIR)/$(APP): $(APP_OBJS)
+# Static Library Testing Application
+$(BUILD_DIR)/$(PRETTY_STRING_STATIC)$(APP_BASE): $(APP_OBJS)
 	@ printf "::Linking $(GREEN)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(APP_LD_FLAGS)
+
+
+# GLFW Library Extraction Printouts
+%.print-ar-x:
+	@ printf "::Extracting $(BLUE)$(BUILD_GLFW)/$*$(RESET)\n"
+
+NOTHING_TO_CLEAN.clean:
+	@ printf "::Nothing left to clean\n"
+
+%.clean:
+	@ printf "::Cleaned $(RED)$*$(RESET)\n"
