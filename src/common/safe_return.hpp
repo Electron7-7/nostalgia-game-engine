@@ -1,9 +1,6 @@
 #ifndef SAFE_RETURN_H
 #define SAFE_RETURN_H
 
-#include <map>
-#include <string>
-
 struct SafeStatus
 {
 public:
@@ -11,7 +8,7 @@ public:
     SafeStatus(const SafeStatus& CopyFrom): _status(CopyFrom._status), _printout(CopyFrom._printout) {}
 
     const unsigned short Status() const { return _status; }
-    const char* Printout() const { return _printout.c_str(); }
+    const char* Printout() const { return _printout; }
 
     constexpr bool operator==(const SafeStatus& CompareTo) const { return (_status == CompareTo._status); }
     constexpr bool operator!=(const SafeStatus& CompareTo) const { return (_status != CompareTo._status); }
@@ -24,7 +21,7 @@ public:
 
 private:
     unsigned short _status;
-    std::string _printout = "ERR";
+    const char* _printout = "ERR";
 
     friend struct Status;
     constexpr SafeStatus(const unsigned short Status, const char* Printout): _status(Status), _printout(Printout) {}
@@ -42,21 +39,6 @@ struct Status
     inline static SafeStatus CommandLineFALLBACK_FUNCTION_USED = SafeStatus( 0b01000000, "CommandLineFALLBACK_FUNCTION_USED" );
     inline static SafeStatus CommandLineINVALID_COMMAND        = SafeStatus( 0b01000000, "CommandLineINVALID_COMMAND"        );
 };
-
-
-inline const std::map<SafeStatus*, const char*> StatusPrintouts =
-{
-    { &Status::NO_ERROR,                          "NO_ERROR"                          },
-    { &Status::ERROR_GENERIC,                     "ERROR_GENERIC"                     },
-    { &Status::ERROR_ALREADY_ACTIVE,              "ERROR_ALREADY_ACTIVE"              },
-    { &Status::EventQueueNOT_ENABLED,             "EventQueueNOT_ENABLED"             },
-    { &Status::EventQueueNOT_PROCESSING_EVENTS,   "EventQueueNOT_PROCESSING_EVENTS"   },
-    { &Status::EventQueueQUEUE_EMPTY,             "EventQueueQUEUE_EMPTY"             },
-    { &Status::EventQueueINVALID_KEY_ID,          "EventQueueINVALID_KEY_ID"          },
-    { &Status::CommandLineFALLBACK_FUNCTION_USED, "CommandLineFALLBACK_FUNCTION_USED" },
-    { &Status::CommandLineINVALID_COMMAND,        "CommandLineINVALID_COMMAND"        },
-};
-
 
 template<typename T>
 struct SafeReturn
