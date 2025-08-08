@@ -207,3 +207,35 @@ refactor: Deleted 'command_line' files, moved 'command' files to 'src/events/', 
 -----END COMMIT MESSAGES-----
 
 These should help me keep track of what I did.
+
+[08/08/25]
+Okay, I'm gonna try and redo all my fucking work, lmfao. Honestly, I'm motivated to try and redo everything in a cleaner and better way.
+
+Aight, after re-evaluating things, I've decided on a framework... kinda:
+
+  - Input starts with the windowing library
+  - Its key callback function will be controlled by the windowing backend
+  - Key input is sent to the key handler
+  - The key handler formats the inputs and sends them to the input manager
+    - This could be done with only functions instead of using a class
+  - The input manager does the most work of all the classes/functions
+    - It checks whether or not to send inputs to the event queue or the UI manager
+    - Then it actually sends inputs to the correct place
+      - If it's to the event queue, the input manager first checks whether or not the input is valid and has a binding before sending it to the queue
+    - It also processes events from the event queue once every frame
+    - Finally, it will be responsible for managing key binds
+
+And here are some of the data types:
+  - Event
+    - Container for a keybind and a timestamp
+  - KeyBind
+    - Container for a key id and a command name (e.g: '+forward')
+  - ConsoleCommand/Command
+    - Contains an unsigned short ID, and function pointer
+    - A separate, public map will pair up string names to command objects
+
+I'm gonna ignore demos for the time being; those will be integrated afterwards, as they can just be a file full of string representations of events. If I wanna be *really* cheeky, demo files could be hex data (with an option for generating an additional "human readable" demo file with strings).
+
+Finally got the compile_commands.json file built; time to actually get to work.
+
+Actually, I'm gonna quickly merge 'indev' into 'trunk' and change my workflow. When I wanna work on new changes, I'll start a new branch. I can commit broken or unfinished code there all I want, because when I'm all done and it all works, I'll merge/rebase it into/onto 'trunk', which will bring it to a working state, and I can decide what to do about commits of broken/unfinished code before I merge/rebase.
