@@ -55,7 +55,7 @@ KeyHandler::STATUS KeyHandler::SimulateHold(KeyID key_id)
     keys.at(key_id).is_pressed = true;
     keys.at(key_id).is_simulating_hold = true;
 
-    global_InputManager->prototype_CustomKeyCallback(key_id, KEY_PRESSED);
+    global_InputManager->KeyCallback(key_id, KeyAction::PRESSED);
     return STATUS_SUCCESS;
 }
 
@@ -66,7 +66,7 @@ KeyHandler::STATUS KeyHandler::SimulateHoldRelease(KeyID key_id)
     keys.at(key_id).is_simulating_hold = false;
     keys.at(key_id).is_pressed = false;
 
-    global_InputManager->prototype_CustomKeyCallback(key_id, KEY_RELEASED);
+    global_InputManager->KeyCallback(key_id, KeyAction::RELEASED);
     return STATUS_SUCCESS;
 }
 
@@ -85,13 +85,23 @@ KeyHandler::STATUS KeyHandler::Press(KeyID key_id)
         handlers or backends.
     */
 
-    keys.at(key_id).is_pressed = true;
-
     // This is useful if you want to check that the key wasn't being held when ::Press was called
     if(keys.at(key_id).is_simulating_hold)
         return STATUS_KEY_IS_SIMULATING_HOLD;
 
-    global_InputManager->prototype_CustomKeyCallback(key_id, KEY_PRESSED);
+    keys.at(key_id).is_pressed = true;
+
+    global_InputManager->KeyCallback(key_id, KeyAction::PRESSED);
+    return STATUS_SUCCESS;
+}
+
+KeyHandler::STATUS KeyHandler::Repeat(KeyID key_id)
+{
+    ASSERT_KEY(key_id)
+
+    keys.at(key_id).is_pressed = true; // Just to be safe...
+
+    global_InputManager->KeyCallback(key_id, KeyAction::REPEATED);
     return STATUS_SUCCESS;
 }
 
@@ -102,8 +112,8 @@ KeyHandler::STATUS KeyHandler::Release(KeyID key_id)
     if(keys.at(key_id).is_simulating_hold)
         return STATUS_KEY_IS_SIMULATING_HOLD;
 
-    keys.at(key_id).is_pressed = true;
+    keys.at(key_id).is_pressed = false;
 
-    global_InputManager->prototype_CustomKeyCallback(key_id, KEY_RELEASED);
+    global_InputManager->KeyCallback(key_id, KeyAction::RELEASED);
     return STATUS_SUCCESS;
 }

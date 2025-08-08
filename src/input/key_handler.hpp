@@ -104,6 +104,7 @@ public:
     KeyHandler::STATUS SimulateHoldRelease(KeyID Key);
 
     KeyHandler::STATUS Press(KeyID Key);
+    KeyHandler::STATUS Repeat(KeyID Key);
     KeyHandler::STATUS Release(KeyID Key);
 
 private:
@@ -112,9 +113,12 @@ private:
 };
 
 // TODO: move these somewhere nicer
-typedef int KeyAction;
-static constexpr KeyAction KEY_RELEASED = 0;
-static constexpr KeyAction KEY_PRESSED = 1;
+enum class KeyAction
+{
+    RELEASED = 0b00,
+    PRESSED  = 0b01,
+    REPEATED = 0b10
+};
 
 extern KeyHandler *global_KeyHandler;
 #endif // KEYBOARD_HANDLER_H
