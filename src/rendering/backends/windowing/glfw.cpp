@@ -27,22 +27,10 @@ bool GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
     }
 
     return main_WindowIsFullscreen;
-
-}
-
-void GLFW_Backend::prototype_SwapBuffers()
-{
-    glfwSwapBuffers(glfw_MainWindow);
-}
-
-void GLFW_Backend::prototype_PollEvents()
-{
-    glfwPollEvents();
 }
 //------------------------
 // END PROTOTYPE FUNCTIONS
 //------------------------
-
 
 bool GLFW_Backend::Init()
 {
@@ -146,6 +134,13 @@ int GLFW_Backend::CreateWindow(const char* window_name)
     return glfw_Windows.size() - 1;
 }
 
+void GLFW_Backend::SwapBuffers()
+{ glfwSwapBuffers(glfw_MainWindow); }
+
+void GLFW_Backend::PollEvents()
+{ glfwPollEvents(); }
+
+// PRIVATE FUNCTIONS
 void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
 {
     global_InputManager->prototype_CustomCharacterCallback(codepoint);

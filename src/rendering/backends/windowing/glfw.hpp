@@ -19,10 +19,11 @@ public:
     virtual bool CreateMainWindow();
     virtual int CreateWindow(const char* WindowName);
 
+    virtual void SwapBuffers();
+    virtual void PollEvents();
+
     // PROTOTYPE FUNCTIONS (inherited from Backend)
     virtual bool prototype_SetFullscreen(bool FullscreenOn);
-    virtual void prototype_SwapBuffers();
-    virtual void prototype_PollEvents();
 
 private:
     GLFWwindow* glfw_MainWindow = nullptr;

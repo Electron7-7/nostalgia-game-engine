@@ -64,14 +64,14 @@ void RenderManager::Update()
     {
         global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
         global_UIManager->DrawUI();
-        global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
+        global_BackendManager->GetWindowingBackend()->SwapBuffers();
         return;
     }
 
     global_BackendManager->GetGraphicsBackend()->prototype_ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     global_WorldManager->RenderWorld();
     global_UIManager->DrawUI();
-    global_BackendManager->GetWindowingBackend()->prototype_SwapBuffers();
+    global_BackendManager->GetWindowingBackend()->SwapBuffers();
 }
 
 // FIXME: Replace with functions for better control over view distance & near-clip distance
