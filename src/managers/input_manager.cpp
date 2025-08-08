@@ -38,7 +38,7 @@ void InputManager::Update()
     */
     global_BackendManager->GetWindowingBackend()->PollEvents();
 
-    SafeStatus process_status = global_EventSystem->try_BeginProcessing();
+    /*SafeStatus process_status = global_EventSystem->try_BeginProcessing();
 
     if(process_status != Status::NO_ERROR && process_status != Status::EventQueueQUEUE_EMPTY)
     {
@@ -62,16 +62,16 @@ void InputManager::Update()
             PRINT_WARNING("InputManager::ProcessEvents - CommandLine::try_RunCommand returned '{}'\n", command_status.Printout())
     }
 
-    global_EventSystem->EndProcessing();
+    global_EventSystem->EndProcessing();*/
 
 }
 
 void InputManager::KeyCallback(KeyID key, KeyAction action)
 {
-    PRINT_DEBUG("InputManager::KeyCallback - Key: '{}' | KeyAction: '{}'\n", key, (int)action);
+    /*PRINT_DEBUG("InputManager::KeyCallback - Key: '{}' | KeyAction: '{}'\n", key, (int)action);
     SafeStatus event_status = EventQueue::try_QueueEvents(key, (action == KeyAction::RELEASED));
     if(event_status != Status::NO_ERROR)
-        PRINT_DEBUG("InputManager::KeyCallback - EventQueue::try_QueueEvents returned '{}'\n", event_status.Printout());
+        PRINT_DEBUG("InputManager::KeyCallback - EventQueue::try_QueueEvents returned '{}'\n", event_status.Printout());*/
 
     // FIXME: Remove this later
     if(key == KEY::ESC && action == KeyAction::PRESSED)

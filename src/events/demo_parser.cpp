@@ -1,4 +1,4 @@
-#include "demo_parser.hpp"
+/*#include "demo_parser.hpp"
 #include "printing.hpp"
 #include <filesystem> // Yes, the devil hath been invoked... I'm sorry
 #include <fstream>
@@ -92,3 +92,4 @@ bool DemoParser::ParseLine(const std::string& line)
 
     return true;
 }
+*/

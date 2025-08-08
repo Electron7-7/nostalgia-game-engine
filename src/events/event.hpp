@@ -1,7 +1,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "common/time.hpp"
+/*#include "common/time.hpp"
 #include "console/command.hpp"
 #include <string>
 
@@ -29,6 +29,6 @@ public:
 private:
     double _creation_time = CurrentTime();
     ConsoleCommand _console_command;
-};
+};*/
 
 #endif // EVENT_H

@@ -1,4 +1,4 @@
-#include "event_system.hpp"
+/*#include "event_system.hpp"
 #include "demo_parser.hpp"
 #include "printing.hpp"
 
@@ -275,3 +275,4 @@ bool EventQueue::StopRecordingDemo()
 
 void EventQueue::RecordEventToDemo(const Event& event)
 { demo_recording_storage += "Creation Time: [" + std::to_string(event.GetCreationTime()) + "] Command: <" + event.GetCommand() + ">\n"; }
+*/
