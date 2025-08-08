@@ -98,11 +98,13 @@ export BUILD_DEPENDS  ?= $(BUILD_OBJS)/$(DIR_DEPS)
 export BUILD_GLFW     ?= $(BUILD_OBJS)/thirdparty/libglfw3
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
-export APP_LD_FLAGS   ?= -L $(BUILD_LIBRARY) -l $(NAME_BASE)
+export APP_LD_FLAGS   ?= $(BUILD_LIBRARY)/$(NAME)
 export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
 export APP            ?= $(APP_TYPE)$(APP_NAME)
 
 export FLAGS_LIBRARY ?= $(FLAGS_LIB_STATIC)
+
+export BUILDING_APP ?=
 
 export CLEAN_TARGET ?= 0
 export CLEAN_ARCH ?= .+
@@ -178,9 +180,7 @@ printout:
 	@ printf "$(DEFAULT)::Version - $(BLUE)$(BUILD_VERSION)$(RESET)\n"
 	@ printf "$(DEFAULT)::C Compile Command - $(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE)$(RESET)\n"
 	@ printf "$(DEFAULT)::C++ Compile Command - $(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE)$(RESET)\n"
-ifeq ($(BUILDING_APP),1)
-	@ printf "$(DEFAULT)::Linker Flags - $(YELLOW)$(APP_LD_FLAGS)$(RESET)\n"
-endif
+	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(DEFAULT)::Linker Flags - $(YELLOW)$(APP_LD_FLAGS)$(RESET)\n"; fi
 
 # FIXME: Sometimes it takes two builds for the app to link correctly (due to undefined errors related to GLFW)
 # Clues: the only operation that actually happens both times is linking the library/app & extracting the glfw archive
@@ -208,16 +208,18 @@ testapp_static:
 	$(eval APP_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
+	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
-	@ $(MAKE) -s BUILDING_APP:=1 printout $(BUILD_DIR)/$(APP)
+	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
 
 testapp_dynamic:
 	$(eval APP_TYPE = $(PRETTY_STRING_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
+	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
-	@ $(MAKE) -s BUILDING_APP:=1 printout $(BUILD_DIR)/$(APP)
+	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
 
 testapps: testapp_static testapp_dynamic ;@:
@@ -276,7 +278,7 @@ build_dirs:
 	@ -mkdir -p $(BUILD_DIR) $(BUILD_OBJS) $(BUILD_GLFW) $(BUILD_HEADERS) $(BUILD_LIBRARY) $(BUILD_DEPENDS)
 
 # Cleaning Functions
-# CLEAN = find . -type $(1) $(2) -delete -print 2>/dev/null
+CLEAN = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -delete -print 2>/dev/null
 CLEAN_OBJS = $(call CLEAN,$(1),-regex '.+\.objs_.+/.+' $(2))
 CLEAN_DIRTY = $(call CLEAN_OBJS,$(1),$(DIRTY_SRC_DIRS:%=-not -path "*%*"))
 CLEAN_PRINTOUT = \
@@ -284,19 +286,19 @@ $(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; e
 $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 
 clean_target: ;@:
-	$(info CLEAN TARGET)
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d -empty,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/'))
-	@ $(call CLEAN_PRINTOUT,$(CLEAN_FILES))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)'))
+	$(eval EMPTY_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)'))
+	@ $(call CLEAN_PRINTOUT,$(EMPTY_DIRS))
 
 clean_all: ;@:
-	$(info CLEAN ALL)
-	$(eval CLEAN_FILES != $(call CLEAN,f))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d -empty))
-	@ $(call CLEAN_PRINTOUT,$(CLEAN_FILES))
+	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/.*'))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/.*'))
+	$(eval EMPTY_DIR   != find ./ -type d -not -path "*.git*" -empty -delete -print 2>/dev/null)
+	@ $(call CLEAN_PRINTOUT,$(EMPTY_DIR))
 
 clean:
-	@ if [ $(TARGET_CALLED) -eq 1 ]; then \
+	@ if [ "$(TARGET_CALLED)" == "1" ]; then \
 		$(MAKE) -s clean_target;           \
 	else                                   \
 		$(MAKE) -s clean_all;              \
@@ -355,8 +357,8 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS
 	@ printf "::Building $(GREEN)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
-# Static Library Testing Application
-$(BUILD_DIR)/$(PRETTY_STRING_STATIC)$(APP_BASE): $(APP_OBJS)
+# Library Testing Applications
+$(BUILD_DIR)/$(APP): $(APP_OBJS)
 	@ printf "::Linking $(GREEN)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(APP_LD_FLAGS)
 
