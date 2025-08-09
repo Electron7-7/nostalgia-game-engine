@@ -29,7 +29,7 @@ public:
     static bool try_ClearBindings(const char* KeyName);
     static void ClearAllBindings();
 
-    static SafeStatus try_QueueEvents(const KeyID& KeyID, bool IsReleased);
+    static SafeStatus try_QueueEvents(const Key& Key, bool IsReleased);
     static SafeReturn<Event> GetNextEvent(); // This will also remove that Event from the queue!
     static unsigned int GetCurrentQueueSize();
     static void ClearQueue();
@@ -54,9 +54,9 @@ private:
     static std::string demo_recording_extension;
     static std::string demo_recording_storage;
 
-    static std::map<KeyID, std::set<KeyBind>> keybinds_map;
+    static std::map<Key, std::set<KeyBind>> keybinds_map;
 
-    static KeyID GetKeyID(const char* KeyName);
+    static Key GetKey(const char* KeyName);
     static void RecordEventToDemo(const Event& Event);
 };
 

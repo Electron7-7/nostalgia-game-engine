@@ -10,8 +10,8 @@
 
 // TODO: Is this a good idea? Seems find to me...
 #define ASSERT_KEYNAME(KEY_NAME)  \
-KeyID KEYID = GetKeyID(KEY_NAME); \
-if(KEYID == KEY::INVALID)         \
+Key KEYID = GetKey(KEY_NAME); \
+if(KEYID == Key::INVALID)         \
     return false;
 
 EventQueue singleton_EventSystem;
@@ -31,7 +31,7 @@ std::string EventQueue::demo_recording_name = "demo";
 int EventQueue::demo_recording_number = 1;
 std::string EventQueue::demo_recording_extension = ".demo";
 
-std::map<KeyID, std::set<KeyBind>> EventQueue::keybinds_map = {};
+std::map<Key, std::set<KeyBind>> EventQueue::keybinds_map = {};
 
 void EventQueue::DebugPrintQueueLog()
 {
@@ -169,18 +169,18 @@ void EventQueue::ClearAllBindings()
 {
     keybinds_map.clear();
     // TODO: Remove this binding later; it's for the prototype/debug program
-    keybinds_map[KEY::ESC] = { CommandLine::cmd_HardQuitProgram };
+    keybinds_map[Key::ESC] = { CommandLine::cmd_HardQuitProgram };
 }
 
-KeyID EventQueue::GetKeyID(const char* key_name)
+Key EventQueue::GetKey(const char* key_name)
 {
     if(!key_strings_map.contains(key_name))
-        return KEY::INVALID;
+        return Key::INVALID;
 
     return key_strings_map.at(key_name);
 }
 
-SafeStatus EventQueue::try_QueueEvents(const KeyID& key_id, bool is_released)
+SafeStatus EventQueue::try_QueueEvents(const Key& key_id, bool is_released)
 {
     if(!can_queue_events)
         return Status::EventQueueNOT_ENABLED;

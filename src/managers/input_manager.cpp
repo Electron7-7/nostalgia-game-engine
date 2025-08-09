@@ -52,13 +52,13 @@ void InputManager::Update()
     {
         SafeReturn<Event> next_event = global_EventSystem->GetNextEvent();
 
-        if(next_event.GetStatus() != Status::NO_ERROR)
+        if(next_event.Status() != Status::NO_ERROR)
         {
-            PRINT_WARNING("InputManager::ProcessEvents - global_EventSystem::GetNextEvent returned '{}'!", next_event.GetStatus().Printout());
+            PRINT_WARNING("InputManager::ProcessEvents - global_EventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
             continue;
         }
 
-        SafeStatus command_status = CommandLine::try_RunCommand(next_event.GetData().GetCommand());
+        SafeStatus command_status = CommandLine::try_RunCommand(next_event.Data().GetCommand());
 
         if(command_status != Status::NO_ERROR)
             PRINT_WARNING("InputManager::ProcessEvents - CommandLine::try_RunCommand returned '{}'\n", command_status.Printout())
