@@ -1,7 +1,7 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-/*#include "event.hpp"
+#include "event.hpp"
 #include "common/safe_return.hpp"
 #include "input/key.hpp"
 
@@ -60,6 +60,6 @@ private:
     static void RecordEventToDemo(const Event& Event);
 };
 
-extern EventQueue* global_EventSystem;*/
+extern EventQueue* global_EventSystem;
 
 #endif // EVENT_QUEUE_H
