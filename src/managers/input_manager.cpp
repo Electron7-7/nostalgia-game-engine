@@ -1,14 +1,17 @@
 #include "input_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
-#include "input/key.hpp"
-#include "events/event.hpp"
-#include "input/key_handler.hpp"
-#include "printing.hpp"
-#include "events/event_system.hpp"
+// #include "events/event.hpp"
+// #include "printing.hpp"
+// #include "events/event_system.hpp"
 
 InputManager singleton_InputManager;
 InputManager* global_InputManager = &singleton_InputManager;
+
+#define ASSERT_KEY(KEY)                                                       \
+if(KEY > Key::HandledKeysLastIndex) return Status::InputManagerKEY_NOT_FOUND; \
+if(_locked_keys.contains(KEY))      return Status::InputManagerKEY_IS_LOCKED;
+
 
 // PROTOTYPE FUNCTIONS
 void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) const
@@ -21,7 +24,6 @@ bool InputManager::Init()
 {
     // m_KeyBindings.SetBinding( "`", "toggleconsole" );
     // m_ButtonUpToEngine.ClearAll();
-    global_KeyHandler->Init();
     return true;
 }
 
@@ -66,14 +68,34 @@ void InputManager::Update()
 
 }
 
-void InputManager::KeyCallback(KeyID key, KeyAction action)
+SafeStatus InputManager::Press(KeyID key)
 {
+    ASSERT_KEY(key)
+
+    // FIXME: Remove this later
+    if(key == Key::ESC) _Manager::Stop();
+
+    return Status::NO_ERROR;
+}
+
+SafeStatus InputManager::Repeat(KeyID key)
+{
+    ASSERT_KEY(key)
+
+    return Status::NO_ERROR;
+}
+
+SafeStatus InputManager::Release(KeyID key)
+{
+    ASSERT_KEY(key)
+
+    return Status::NO_ERROR;
+}
+
+// SafeStatus InputManager::ProcessKey(KeyID key, Key::Action action)
+// {
     /*PRINT_DEBUG("InputManager::KeyCallback - Key: '{}' | KeyAction: '{}'\n", key, (int)action);
     SafeStatus event_status = EventQueue::try_QueueEvents(key, (action == KeyAction::RELEASED));
     if(event_status != Status::NO_ERROR)
         PRINT_DEBUG("InputManager::KeyCallback - EventQueue::try_QueueEvents returned '{}'\n", event_status.Printout());*/
-
-    // FIXME: Remove this later
-    if(key == KEY::ESC && action == KeyAction::PRESSED)
-        _Manager::Stop();
-}
+// }
