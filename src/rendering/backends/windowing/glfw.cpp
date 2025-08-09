@@ -152,11 +152,18 @@ void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int sca
 {
     ASSERT_KEY(key);
 
-    if(action == 1)
-        global_KeyHandler->Press(CONVERT_KEY(key));
-
-    else if(action == 0)
-        global_KeyHandler->Release(CONVERT_KEY(key));
+    switch(action)
+    {
+    case GLFW_RELEASE:
+        global_InputManager->Release(CONVERT_KEY(key));
+        break;
+    case GLFW_PRESS:
+        global_InputManager->Press(CONVERT_KEY(key));
+        break;
+    case GLFW_REPEAT:
+        global_InputManager->Repeat(CONVERT_KEY(key));
+        break;
+    }
 }
 
 void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double position_x, double position_y)

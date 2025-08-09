@@ -1,10 +1,12 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
+#include "input/key.hpp"
 #include "rendering/backends/backend.hpp"
-#include "input/key_handler.hpp"
 #include "common/macros.hpp"
+
 #include <vector>
+#include <map>
 
 FORWARD_DECLARE(struct GLFWwindow;)
 FORWARD_DECLARE(struct GLFWmonitor;)
