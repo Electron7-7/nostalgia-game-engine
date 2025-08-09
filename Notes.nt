@@ -239,3 +239,9 @@ I'm gonna ignore demos for the time being; those will be integrated afterwards, 
 Finally got the compile_commands.json file built; time to actually get to work.
 
 Actually, I'm gonna quickly merge 'indev' into 'trunk' and change my workflow. When I wanna work on new changes, I'll start a new branch. I can commit broken or unfinished code there all I want, because when I'm all done and it all works, I'll merge/rebase it into/onto 'trunk', which will bring it to a working state, and I can decide what to do about commits of broken/unfinished code before I merge/rebase.
+
+Okay, time to do this shit... again. First, I'm gonna check the key handler and windowing backend and see if I really need the key handler. Yeah, actually, the key handler functions can just be input manager functions.
+
+Aight, I cleaned up the key handling process up to the input manager. Basically, I gave 'InputManager' the 'Press', 'Release', and 'Repeat' functions; I had the windowing backend send keys to 'InputManager' instead of 'KeyHandler'; I changed keys from a struct to just unsigned integers; and I replaced my old error handling shit with the new 'SafeReturn' and 'SafeStatus' methods.
+
+Oh, I also removed 'KeyHandler'.
