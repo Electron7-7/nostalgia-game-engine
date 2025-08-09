@@ -17,7 +17,7 @@ public:
     virtual void Shutdown();
     virtual void ImGuiNewFrame();
     virtual bool CreateMainWindow();
-    virtual int CreateWindow(const char* WindowName);
+    virtual SafeReturn<size_t> CreateWindow(const char* WindowName);
 
     virtual void SwapBuffers();
     virtual void PollEvents();

@@ -3,6 +3,8 @@
 
 #include "rendering/render_command.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
+#include "safe_return.hpp"
+
 #include <glm/glm.hpp>
 #include <set>
 
@@ -71,7 +73,7 @@ public:
     virtual void ImGuiNewFrame() {}
 
     virtual bool CreateMainWindow() = 0;
-    virtual int CreateWindow(const char* WindowName) = 0;
+    virtual SafeReturn<size_t> CreateWindow(const char* WindowName) = 0;
 
     virtual void SwapBuffers() = 0;
     virtual void PollEvents() = 0;
@@ -82,10 +84,6 @@ public:
     // Compatibility Functions
     bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }
     std::set<GraphicsBackendID> GetCompatibleGraphicsIDs() const { return compatible_graphics_ids; }
-
-    typedef int WindowingError;
-    static constexpr WindowingError NO_ERROR = 0;
-    static constexpr WindowingError WINDOW_CREATION_FAILED = -1;
 
 protected:
     friend class RenderManager;

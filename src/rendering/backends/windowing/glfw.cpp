@@ -1,6 +1,6 @@
 #include "glfw.hpp"
-#include "DearImGui/imgui_impl_glfw.h"
 #include "printing.hpp"
+#include "DearImGui/imgui_impl_glfw.h"
 #include "managers/input_manager.hpp"
 #include "common/opengl_includes.hpp"
 
@@ -78,20 +78,22 @@ void GLFW_Backend::ImGuiNewFrame()
 
 bool GLFW_Backend::CreateMainWindow()
 {
-    unsigned int new_window = CreateWindow(main_WindowName);
-    if(new_window == WindowingBackend::WINDOW_CREATION_FAILED)
+    SafeReturn<size_t> new_window = CreateWindow(main_WindowName);
+
+    if(new_window.Status() == Status::WindowingBackendWINDOW_CREATION_FAILED)
     {
+        PRINT_ERROR("{}", new_window.Status().Printout())
         glfwTerminate();
         return false;
     }
 
-    glfw_MainWindow = glfw_Windows.at(new_window);
+    glfw_MainWindow = glfw_Windows.at(new_window.Data());
 
     glfwMakeContextCurrent(glfw_MainWindow);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        PRINTERROR("Failed to initialize GLAD!")
+        PRINTERROR("GLFW_Backend::CreateMainWindow - Failed to initialize GLAD!")
         return false;
     }
 
@@ -115,7 +117,7 @@ bool GLFW_Backend::CreateMainWindow()
     return true;
 }
 
-int GLFW_Backend::CreateWindow(const char* window_name)
+SafeReturn<size_t> GLFW_Backend::CreateWindow(const char* window_name)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -127,7 +129,7 @@ int GLFW_Backend::CreateWindow(const char* window_name)
     if(glfw_NewWindow == nullptr)
     {
         PRINTERROR("Failed to create GLFW window!")
-        return WindowingBackend::WINDOW_CREATION_FAILED;
+        return SafeReturn(glfw_Windows.size() - 1, Status::WindowingBackendWINDOW_CREATION_FAILED);
     }
 
     glfw_Windows.insert(glfw_Windows.end(), glfw_NewWindow);
