@@ -1,7 +1,7 @@
 #include "opengl.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
-#include "common/opengl_includes.hpp"
+#include "opengl_includes.hpp"
 #include "printing.hpp"
 #include "world/3d_common.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"

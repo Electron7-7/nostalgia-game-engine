@@ -1,5 +1,5 @@
 #include "gl_shader.hpp"
-#include "common/opengl_includes.hpp"
+#include "opengl_includes.hpp"
 #include "printing.hpp"
 
 #include <glm/gtc/type_ptr.hpp>

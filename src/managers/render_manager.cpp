@@ -7,7 +7,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 #ifdef _WIN32
-#include "common/fuck_windows.hpp" // :3
+#include "fuck_windows.hpp" // :3
 #endif
 
 // Singleton Accessor

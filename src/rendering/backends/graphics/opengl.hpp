@@ -4,7 +4,7 @@
 #include "rendering/backends/backend.hpp"
 #include "rendering/render_command.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
-#include "common/macros.hpp"
+#include "macros.hpp"
 #include <map>
 #include <array>
 #include <vector>

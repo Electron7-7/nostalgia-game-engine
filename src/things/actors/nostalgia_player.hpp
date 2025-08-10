@@ -1,7 +1,7 @@
 #ifndef NOSTALGIA_PLAYER_H
 #define NOSTALGIA_PLAYER_H
 
-#include "common/macros.hpp"
+#include "macros.hpp"
 #include "things/actor.hpp"
 
 FORWARD_DECLARE(class CameraProperty;)

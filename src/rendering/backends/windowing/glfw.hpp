@@ -3,7 +3,7 @@
 
 #include "input/key.hpp"
 #include "rendering/backends/backend.hpp"
-#include "common/macros.hpp"
+#include "macros.hpp"
 
 #include <vector>
 #include <map>

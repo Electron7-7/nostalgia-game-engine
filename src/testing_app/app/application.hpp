@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "common/macros.hpp"
+#include "macros.hpp"
 
 FORWARD_DECLARE(struct GLFWwindow;)
 

@@ -1,7 +1,7 @@
 #ifndef BACKEND_MANAGER_H
 #define BACKEND_MANAGER_H
 
-#include "common/macros.hpp"
+#include "macros.hpp"
 #include <map>
 
 FORWARD_DECLARE(class GraphicsBackend;)
