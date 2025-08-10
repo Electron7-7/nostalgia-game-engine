@@ -1,19 +1,16 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
+#include "key.hpp"
 #include "event.hpp"
-#include "common/safe_return.hpp"
-#include "input/key.hpp"
+#include "safe_return.hpp"
 
-#include <vector>
-#include <set>
+#include <list>
 
 class EventQueue
 {
 public:
-    ~EventQueue();
-
-    static void LoadQueue(const std::vector<Event>& InitFromQueue);
+    static void LoadQueue(const std::list<Event>& InitFromQueue);
     // TODO: idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...
     static bool LoadDemoFromFile(const std::string& DemoFilePath);
     static bool LoadDemoFromMemory(const std::string& DemoFile);
@@ -24,12 +21,7 @@ public:
     static SafeStatus try_BeginProcessing();
     static bool EndProcessing();
 
-    static bool try_AddBinding(const char* KeyName, const char* CommandName);
-    static bool try_RemoveBinding(const char* KeyName, const char* CommandName);
-    static bool try_ClearBindings(const char* KeyName);
-    static void ClearAllBindings();
-
-    static SafeStatus try_QueueEvents(const Key& Key, bool IsReleased);
+    static SafeStatus try_QueueEvents(KeyID Key, bool IsReleased = false);
     static SafeReturn<Event> GetNextEvent(); // This will also remove that Event from the queue!
     static unsigned int GetCurrentQueueSize();
     static void ClearQueue();
@@ -40,13 +32,14 @@ public:
     static bool StopRecordingDemo();
 
 private:
-    static std::vector<Event> _active_queue;
-    static std::vector<Event> _safe_queue;
+    static std::list<Event> _active_queue;
+    static std::list<Event> _safe_queue;
     static unsigned int _last_processed_event_index;
 
     static bool can_queue_events;
     static bool is_processing_events;
     static bool is_queueing_events;
+    static bool is_copying_queue;
 
     static bool do_demo_recording;
     static int demo_recording_number;
@@ -54,12 +47,10 @@ private:
     static std::string demo_recording_extension;
     static std::string demo_recording_storage;
 
-    static std::map<Key, std::set<KeyBind>> keybinds_map;
+    static void PushFront(Event event);
+    static bool PopFront();
 
-    static Key GetKey(const char* KeyName);
     static void RecordEventToDemo(const Event& Event);
 };
-
-extern EventQueue* global_EventSystem;
 
 #endif // EVENT_QUEUE_H
