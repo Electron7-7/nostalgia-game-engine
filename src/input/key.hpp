@@ -1,6 +1,10 @@
 #ifndef KEY_H
 #define KEY_H
 
+#include <climits>
+#include <string>
+#include <map>
+
 typedef unsigned int KeyID;
 
 namespace Key
@@ -14,6 +18,7 @@ namespace Key
 
     static constexpr unsigned short HandledKeysLastIndex = 0x31; // Update this number as more keys are added
 
+    static constexpr KeyID INVALID      = USHRT_MAX;
     static constexpr KeyID ZERO         = 0x00;
     static constexpr KeyID ONE          = 0x01;
     static constexpr KeyID TWO          = 0x02;
@@ -65,5 +70,85 @@ namespace Key
     static constexpr KeyID SPACE        = 0x30;
     static constexpr KeyID ESC          = 0x31;
 }
+
+inline const std::map<std::string, KeyID> key_strings_map =
+{
+    { "0",         Key::ZERO         },
+    { "1",         Key::ONE          },
+    { "2",         Key::TWO          },
+    { "3",         Key::THREE        },
+    { "4",         Key::FOUR         },
+    { "5",         Key::FIVE         },
+    { "6",         Key::SIX          },
+    { "7",         Key::SEVEN        },
+    { "8",         Key::EIGHT        },
+    { "9",         Key::NINE         },
+    { "q",         Key::Q            },
+    { "Q",         Key::Q            },
+    { "w",         Key::W            },
+    { "W",         Key::W            },
+    { "e",         Key::E            },
+    { "E",         Key::E            },
+    { "r",         Key::R            },
+    { "R",         Key::R            },
+    { "t",         Key::T            },
+    { "T",         Key::T            },
+    { "y",         Key::Y            },
+    { "Y",         Key::Y            },
+    { "u",         Key::U            },
+    { "U",         Key::U            },
+    { "i",         Key::I            },
+    { "I",         Key::I            },
+    { "o",         Key::O            },
+    { "O",         Key::O            },
+    { "p",         Key::P            },
+    { "P",         Key::P            },
+    { "a",         Key::A            },
+    { "A",         Key::A            },
+    { "s",         Key::S            },
+    { "S",         Key::S            },
+    { "d",         Key::D            },
+    { "D",         Key::D            },
+    { "f",         Key::F            },
+    { "F",         Key::F            },
+    { "g",         Key::G            },
+    { "G",         Key::G            },
+    { "h",         Key::H            },
+    { "H",         Key::H            },
+    { "j",         Key::J            },
+    { "J",         Key::J            },
+    { "k",         Key::K            },
+    { "K",         Key::K            },
+    { "l",         Key::L            },
+    { "L",         Key::L            },
+    { "z",         Key::Z            },
+    { "Z",         Key::Z            },
+    { "x",         Key::X            },
+    { "X",         Key::X            },
+    { "c",         Key::C            },
+    { "C",         Key::C            },
+    { "v",         Key::V            },
+    { "V",         Key::V            },
+    { "b",         Key::B            },
+    { "B",         Key::B            },
+    { "n",         Key::N            },
+    { "N",         Key::N            },
+    { "m",         Key::M            },
+    { "M",         Key::M            },
+    { "LShift",    Key::LEFTSHIFT    },
+    { "RShift",    Key::RIGHTSHIFT   },
+    { "LCtrl",     Key::LEFTCONTROL  },
+    { "RCtrl",     Key::RIGHTCONTROL },
+    { "LAlt",      Key::LEFTALT      },
+    { "RAlt",      Key::RIGHTALT     },
+    { "Fn",        Key::FUNCTION     },
+    { "LSuper",    Key::LEFTSUPER    },
+    { "RSuper",    Key::RIGHTSUPER   },
+    { "Enter",     Key::ENTER        },
+    { "Backspace", Key::BACKSPACE    },
+    { "Tab",       Key::TAB          },
+    { "Space",     Key::SPACE        },
+    { "Escape",    Key::ESC          },
+};
 
 #endif // KEY_H
