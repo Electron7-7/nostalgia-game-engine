@@ -6,8 +6,6 @@
 #include "managers/ui_manager.hpp"
 #include "testing_app/ui/imgui_debugger.hpp"
 
-#include "printing.hpp"
-
 // Singleton accessor
 NostalgiaGoggles singleton_NostalgiaGogglesApp;
 NostalgiaGoggles* global_Application = &singleton_NostalgiaGogglesApp;
@@ -30,9 +28,6 @@ bool NostalgiaGoggles::PreInit()
 
 void NostalgiaGoggles::Shutdown()
 {
-    // NOTE: This might not be safe/enough
-    _Manager::Stop();
-    _Manager::ShutdownAllManagers();
     _Manager::RemoveAll();
 }
 
