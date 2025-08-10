@@ -22,3 +22,233 @@ I implemented as much of the "WorldManager" class as I could; I changed it back 
 I've implemented a bit of the input system and input manager classes. The idea for them will be to have the input system running constantly, using the glfw key callback function to store and/or send inputs as well as polling the mouse, etc etc. The input manager will then check the input system for new inputs during its Update function, and will then go on to process them as commands (ideally).
 
 I also added a shitty little "press enter to exit" type function & thread so the program can be exited while there is no input handling (or even a window).
+
+[05/28/25]
+Today, I wanna work a bit on the input manager. At least see if I can get some ideas down in Milanote.
+
+Notes from Milanote: "The input manager will interface with some sort of "input system", which is always running and always processing inputs. I'm thinking that I could implement some object that stores a giant list of all valid inputs and whether or not they're currently down. Maybe a custom type/struct".
+
+While working on app systems, I've realized that I should abstract all API calls (and library calls related to API like GLFW) to a "window manager" class that is interfaced with via simple functions. This way I can account for any number of APIs and libraries, as well as add/remove support for them, without having to worry about how it will affect the rest of the engine.
+
+I spent a whole bunch of time working on `WindowManager` and the `API` class templates... just to realize that I don't need allat and I can move WindowManager's code into RenderManager. I'll keep the API class, but it won't be a template anymore.
+
+Okay, I've implemented `API` and integrated it with `RenderManager` and it works like a charm! `API` handles all the api-specific calls, while `RenderManager` just interfaces with `API` via simple functions. This means that (hopefully) `RenderManager` will not be affected by any additions/removals/changes to any api-specific code.
+
+[05/27/25]
+Goal for today: try and get a window running.
+
+Just realized, it makes no sense to have an input system (at least in the way I'm doing it). Instead, I just need a class that interfaces with the specific key & mouse callback functions and InputManager will be responsible for interacting with that class + polling inputs otherwise. Oh, and the class to interface with the callback functions can just be the API class.
+
+[05/30/25]
+Okay, I'm at the point where I really should start diverging from Source; it's (obviously) overscoped for my project, so I want to take a step back and try to get a working window and main app loop working today.
+
+[06/02/25]
+Today, I'm going to try and get the program to a state where I have a working window that I can close with the 'esc' key.
+
+Finally!! The main issue was that the render manager had an early return in the Update function for if there was no level loaded (which there never would be, since levels don't exist yet). Now, the engine crashes on exit; it might be due to my shitty prototype functions, but it's more likely that it's not so I'm gonna try and fix it before comitting.
+
+It works! Before comitting, I have one last thing I want to do, which is consolidate the backends into one class since the windowing library depends on the graphics API and the main function for the backend is graphics related (with window inputs being an outlier). Then, I can commit lmfao.
+
+Actually, I *do* like the separation (since the windowing library doesn't have to be one specific library), but I think I'll keep most of the functions in the manager, and the more anal/dedicated functions in their respective graphics/windowing backend class.
+
+Alright, time to commit!
+
+Okay, now what? I think I want to try and dig into Source's rendering pipeline, but it's a fucking mess and I don't know if I really wanna spend all that time giving myself a headache. I'll look at Godot's a little bit but if it's too much, I'll just default to a render command based pipeline.
+
+I might also want to work on the whole "console commmands" pipeline, too, but that might be a bit too high level rn.
+
+Okay, here's the structure for the render manager: one (or a few) main functions for rendering that will ALWAYS return and will NEVER crash the engine, and various smaller functions for more specific tasks (generating buffers, interfacing with shaders, etc). Those functions will interface with the backend manager which will interface with the backend classes which will do the direct API calls.
+
+Okay, I finished a basic framework for the render commands system, as well as the "camera property" system for the main "camera". I'm fucking tired, lmfao, but it works and I'm committing and pushing this shit.
+
+Last minute addition: added a character callback function to GLFW_Backend so it can use PRINTDEBUG to output which keys I've pressed.
+
+[06/04/25]
+After spending most of my time on the GraphX project structure & makefile overhaul (ughhhhhhhh), I did a smaller one for Nostalgia (smaller bc it didn't need nearly as large of a change as GraphX did). I might work a bit on Nostalgia, but I'm pretty mentally tired so idk.
+
+Okay, I want to move input-related code out of `WindowingBackend`, so I'm going to make functions for assigning the various callback functions.
+
+I actually eneded up going in a totally different direction and I think it paid off! I made a custom "KeyboardHandler" class that interfaces with each windowing backend directly (via the backend). Basically, each windowing backend will interface with the KeyboardHandler in their respective key callback function, driving the KeyboardHandler's own pseudo-callback. Then, the KeyboardHandler interfaces directly with the InputManager's pseudo-callback function, which drives the actual input code. Basically, I've made a system for translating various windowing libraries' key handling to my own in a way that should be super modular and API/library agnostic.
+
+[06/05/25]
+All right, I fiddled with the Makefile this morning (and a little more just now) and I think it's in a really nice state. On to actual coding! I'm thinking that what I could do next could be to flesh out the render manager more and try to get a shader and a default cube going!
+
+I think the BackendManager will be interfaced with for the most abstracted calls, since it can interface with the graphics API & the windowing library at the same time. Granted, it also has functions for accessing the backends to the API & library respectively, but I feel like the more contained I keep these direct calls, the better. Two degrees of separation feels better to me.
+
+Hmm, while working in the backend manager code, I realized I want to quickly change the whole BackendID system; basically, I need for one graphics API to be able to work with different windowing libraries, but only if those libraries are for that graphics API. This way I can account for things like how GLFW can be used with OpenGL and Vulkan but not DirectX, while SDL can be used with all 3 (iirc). A simple struct should do.
+
+UGH I'M SO STUPID LMFAO. Keep it simple, stupid: give the responsibility of keeping track of compatible backends to the fucking windowing backend class. I didn't need to do all the coding I just did.
+
+Aight, I implemented a way for the windowing backends to check their compatibility with any of the graphics backends. All the functional code is contained in the 'WindowingBackend' base class, so the only code that needs to be written for any new derived windowing backends is a simple one-line definition of the 'compatible_graphics_ids' set in the 'Init' function (see 'src/engine/backends/windowing/glfw.cpp' for an example).
+
+[06/06/25]
+Fixed up the makefile a bit and started working on some rendering-related code. I fixed that issue with address sanitizer: the makefile works fine on my laptop, but had some issues on my PC that I addressed and fixed.
+
+I created a 'Vertex' struct, a 'Mesh' struct, and gave 'RenderContext' a Mesh variable & function preemptively.
+
+NOTE: Interfaces can be classes/structs that other classes/structs implement (via multiple inheritance).
+
+Hmm, how am I gonna store and reference Mesh objects? Maybe either the render manager or another class can store all relevant resources! Probably the render manager.
+
+Okay, the world manager will be what stores all relevant world resources and delegates world rendering.
+
+[06/09/25]
+Spent an hour getting the changes I made off my Linux install from my Windows install from a VNC server from my laptop... fucking sucked, but I got it! I'm gonna continue on with the shader stuff today; finish up the Makefile (at least to a functional degree and spruce it up later), and start working on rendering a simple cube.
+
+I've gotten shader compilation working, and it's a really well-oiled machine now! There's even a safety shader so that if all shaders fail to compile, that one (which has a high likelihood of succeeding) can be a fallback to stop the program from crashing. Speaking of crashes, I had a one related to not making a window before attempting to compile shaders, another one due to forgetting a '!' when checking that the safety shader compiled correctly, and while they weren't crashes I did have some errors due to the Makefile adding an extra '"' to the end of the shader files. Those are all fixed now, though, and it works like a dream!
+
+I've overhauled the key id system to include codepoints; it works, but now it's tremendously slower. I'm probably going to undo all that work and just use the GLFW character callback function and pipe it straight to the input manager instead of the key handler.
+
+Honestly, the character callback isn't too useful aside from typing to the screen.
+
+[06/10/25]
+I had an idea: finish up a rough draft of Levitate, and include it in Nostalgia (as a library) to act as the default UI text editor!
+
+Levitate is going to take a fucking SECOND and a half to finish.
+
+I have an idea: "TheToyMaker" will be the name for the editor window/app and the engine will have it's own!
+
+[06/11/25]
+I started off by changing the Makefile to spit out two executables: one for the engine and one for the editor. Then, I realized that the engine doesn't need a window, or application-related code and that it really needs to be a library. The rest of my time was spent in the Makefile, doing just that, and I'm happy to say it's a success! The engine now compiles to a static library and the application properly uses it when linking. While this works, I still need to decide what to do about the project structure. I'm thinking of moving all the application-related code to a separate repository/branch that's just for the editor/game(s), and changing the Makefile to build a library instead of a binary. Then, when making the editor/game(s), I just need to go build the game engine library in its own repo and add the resulting files to my other project.
+
+Finally!!! This repository now contains only the engine-related code and the Makefile only creates a library (static and dynamic). I still need to make sure that compiling a .dll works, but the static library does and I'm fairly certain the dynamic linux library does as well. I've already tested linking this library to an app executable and it works! Hell yeah!
+
+[06/13/25]
+Note for later today: that video on Doom 3's source code discussed the event queue and I want to emulate it for many reasons but especially for the logs.
+
+[06/17/25]
+I had to fiddle with the Makefile a bit to get the editor build system to work nicely, but now I want to start working on maybe implementing some rendering?
+
+[06/18/25]
+I'm really tired today but so far I fiddled with the build system a tad and gave Meshes a '_mesh_name' variable so the WorldManager can identify them before wrapping and adding them to the map.
+
+I also ended up re-making 'uintvec3' from GraphX, as well as a header file "cube mesh" resource. I updated 'Mesh' to support using uintvec3 for initializing face indices and gave it some constructors as well.
+
+[06/30/25]
+On a flight to San Francisco; thinking I might get some coding in.
+
+Working on a "Thing Spawner" for the editor debug menu and I'm running into some issues related to me trying to get vector of Thing pointers after creating a new Thing.
+
+[07/20/25]
+I wanna dick around before going to bed; it's 0046 rn lmfao. Lmfao, all I did was add 'imgui.ini' to the gitignore and move 'backends/' to 'rendering/backends', since that makes the most sense to me.
+
+[07/21/25]
+Okay, I want to work on the renderer now. Lemme just commit these old changes I forgot to commit on my laptop. Hmm, maybe not; I might not want to start work on Actors and Things before making the rendering engine, lmfao.
+
+I ended up spending all my time reworking the Makefile, but I'm very happy with it. It's so much cleaner, better represents my skills, and is much more aesthetically pleasing. It can only make the static version of the library but that's for two reasons: the first being that I don't like the idea of the entire engine not being compiled into whatever game/editor binary I create, and the second being that as much as I still dislike Microsoft, I've had a bit of a change of heart and want to make native Windows compilation easier. That means, on top of all the other stuff, configuring the Makefile to be able to build a '.so' version *and* a '.dll' version. The static library should be fine because that gets compiled into the binary anyways (I hope it's fine, at least).
+
+[07/31/25]
+I think I want to overhaul the command line system to more closely follow my command line arguments library I made, as well as be more restricted to strings. I'm thinking that getting rid of variables is a good idea; something like "+forward" can just flag a function/class to move forwards while "-forward" flags them to stop, instead of setting a variable.
+
+[08/01/25]
+I forgot about the demo system!! That's what the commands were made for! I'm gonna take a look at both of these systems and review them. I should also start integrating ImGui into my debugging process a lot more, instead of changing values manually and re-compiling.
+
+Okay, I thought that `std::print` was being weird because it wasn't correctly replacing `%s`, but I finally realized that the problem was me not reading the fucking documentation; `std::print` uses '{#}' instead of '%s'. I'm gonna try and add dependency file generation to the Makefile while I'm here, though, because that should make it so that if I change a header file, the correct source files get re-compiled.
+
+Oh god, I'm gonna have to redo the entire Makefile... thank god for `makemake`; that should make my life a little bit easier.
+
+Okay, for some reason, `makemake` is spitting garbage data out when I run it in this directory, but ONLY when I run it in this directory.
+
+[08/03/25]
+Fucking... spent all day in the Makefile; specifically, finally made the resources embed perfectly the way I want them to. Okay, more like 95% the way I want them to, but that's pretty good!
+
+TODO: Change Makefile printouts to match the ones in Levitate (specifically the 'resources' Makefile).
+
+[08/04/25]
+Aight, time to do just that.
+
+[08/05/25] (These notes were salvaged from Sublime Text)
+I'm working on the events system before therapy & work. I've decided to remove the command line bc it was accidentally recreating the event system. The idea is that keys and commands are separate, and the key handler will have a map pairing the string names of keys with the string names of their bound command. Bindings can be set, removed, and cleared by key handler functions. I think I want to be able to bind multiple commands to the same key; the drawback to this would be that clearing all bindings for a key is the only way to replace a binding instead of add to it.
+
+Okay, so here's the structure: KeyHandler - Abstracts the window library's key callback function. - Passes key data to the input manager. - That's literally it. - Must be as static as possible. InputManager - Decides what to do with inputs based on certain conditions. - i.e: populates the event queue if it's time to do so - This should be done on demand. - Every tick, processes the current event queue (or initiates another object to process it) - This flushes the current event queue - Acts as a delegator
+
+[08/06/25] (These notes were salvaged from Sublime Text)
+Okay, I'm gonna try and re-work the input handling framework around this: (https://app.milanote.com/1UJKjG1xRu4f1s/input-system).
+
+[08/07/25]
+i'm so broken... i just lost three days of work... because i wanted to make the `make clean` target slightly better...
+
+i just lost so much
+
+i had done so much
+
+i'm... i'm genuinely devastated
+
+and like, i know i can always rebuild, and thankfully it was only three days and not something crazy, but...
+
+fuck, man... i had *just* figured out the input system!!
+
+maybe this is a blessing in disguise: i can figure out a better way to do things.
+
+i also have learned my second lesson regarding Linux and deleting things.
+
+fuck...
+
+i need a couple minutes to calm down and re-motivate myself.
+
+
+Thanks to Sublime Merge, I found some of the deleted commit messages:
+-----START COMMIT MESSAGES-----
+build: Updated Makefile to match my new "standard" and cleaned up a lot of nasty shit"
+
+build: Complete overhaul of the "resources" Makefile. I'd say it's 95% perfect and that's good enough for me/
+
+build/chores: cleanup & re-ordering the targets that `all` calls, just in case
+
+fix/chore(resources): Forgot to use the new variable names for embedded resources
+
+refactor: prettied up the 'sed' function
+
+build(resources): Implemented better printouts and `clean` targets from `Levitate`
+
+docs(notes)
+
+refactor: Deleted 'command_line' files, moved 'command' files to 'src/events/', moved the `Key` struct into its own 'key.hpp' file, renamed 'input_id_conversion_maps.cpp' to 'key_id_lookup_tables.cpp'
+-----END COMMIT MESSAGES-----
+
+These should help me keep track of what I did.
+
+[08/08/25]
+Okay, I'm gonna try and redo all my fucking work, lmfao. Honestly, I'm motivated to try and redo everything in a cleaner and better way.
+
+Aight, after re-evaluating things, I've decided on a framework... kinda:
+
+  - Input starts with the windowing library
+  - Its key callback function will be controlled by the windowing backend
+  - Key input is sent to the key handler
+  - The key handler formats the inputs and sends them to the input manager
+    - This could be done with only functions instead of using a class
+  - The input manager does the most work of all the classes/functions
+    - It checks whether or not to send inputs to the event queue or the UI manager
+    - Then it actually sends inputs to the correct place
+      - If it's to the event queue, the input manager first checks whether or not the input is valid and has a binding before sending it to the queue
+    - It also processes events from the event queue once every frame
+    - Finally, it will be responsible for managing key binds
+
+And here are some of the data types:
+  - Event
+    - Container for a keybind and a timestamp
+  - KeyBind
+    - Container for a key id and a command name (e.g: '+forward')
+  - ConsoleCommand/Command
+    - Contains an unsigned short ID, and function pointer
+    - A separate, public map will pair up string names to command objects
+
+I'm gonna ignore demos for the time being; those will be integrated afterwards, as they can just be a file full of string representations of events. If I wanna be *really* cheeky, demo files could be hex data (with an option for generating an additional "human readable" demo file with strings).
+
+Finally got the compile_commands.json file built; time to actually get to work.
+
+Actually, I'm gonna quickly merge 'indev' into 'trunk' and change my workflow. When I wanna work on new changes, I'll start a new branch. I can commit broken or unfinished code there all I want, because when I'm all done and it all works, I'll merge/rebase it into/onto 'trunk', which will bring it to a working state, and I can decide what to do about commits of broken/unfinished code before I merge/rebase.
+
+Okay, time to do this shit... again. First, I'm gonna check the key handler and windowing backend and see if I really need the key handler. Yeah, actually, the key handler functions can just be input manager functions.
+
+Aight, I cleaned up the key handling process up to the input manager. Basically, I gave 'InputManager' the 'Press', 'Release', and 'Repeat' functions; I had the windowing backend send keys to 'InputManager' instead of 'KeyHandler'; I changed keys from a struct to just unsigned integers; and I replaced my old error handling shit with the new 'SafeReturn' and 'SafeStatus' methods.
+
+Oh, I also removed 'KeyHandler'.
+
+I finished up by creating the command line (although, not sure if I really need to make it a queue or if it's okay to just have it execute commands directly, which can be done with a single function), optimizing the event queue (e.g: using lists instead of vectors due to all the pushing and popping), and connected everything together. There's a weird bug where the first input isn't processed (at least, I don't think it is), and I'm temporarily hardcoding the InputManager to enable the EventQueue in its Init function, but other than that, it should be working fine!
+
+[08/10/25]
+At my parents' house, I tested the code and made some small changes and a few fixes. Mainly, I fixed a lot of off-by-one/direction errors; this ended up fixing that weird bug where the first input wasn't being processed. Basically, the variable that stores the last processed queue index was being incremented incorrectly; I was adding one less than the size of the safe queue to it every time I processed events, which made the check for if it was a valid index return false on the first input. My resoning for this, at the time, was simply trying to keep the index at the last processed index (i.e: one less than the size of the queue), but the way that I use it to test queue validity only works if it ends on the index for the next event (i.e: the size of the queue). This also makes sure that the last event processed for a frame doesn't get processed again at the start of the next frame.
+
+I also changed the print color variables; they're more verbose and less modular, but a lot simpler/easier to use.

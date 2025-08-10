@@ -1,0 +1,20 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Various niceties (inspired by: https://github.com/sindresorhus/editorconfig-sublime)
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Keep space indentation for all source-code
+[*.{cpp,hpp}]
+indent_style = space
+indent_size = 4
+
+# Because I've fucked up my Makefile with spaces more times than I'd care to admit...
+[Makefile]
+indent_style = tab

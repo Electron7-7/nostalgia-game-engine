@@ -1,3 +1,14 @@
-.cache/
+# build system
 build/
+
+# clangd + bear
+.cache/
 compile_commands.json
+
+# embedded resources
+src/embedded/
+
+# misc files
+imgui.ini
+backup_Makefile
+
