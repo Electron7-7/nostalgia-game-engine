@@ -1,6 +1,8 @@
 #include "manager.hpp"
-#include <cassert>
+#include "printing.hpp"
+
 #include <GLFW/glfw3.h>
+#include <cassert>
 #include <thread>
 
 int _Manager::frame_number = 0;
@@ -182,7 +184,6 @@ void _Manager::Start()
 
 void _Manager::Tick()
 {
-    int tick_number_local = 1;
     double last_time = 0.0;
     int number_of_managers = game_managers.size();
 
@@ -207,7 +208,7 @@ void _Manager::Tick()
 }
 
 void _Manager::Stop()
-{ stop_requested = (is_running); } // Smaller way of saying: if(is_running) { stop_requested = true; }
+{ stop_requested = (is_running); PRINT_DEBUG("{}_Manager::Stop{} has been called\n", Color::Front::DefaultBold, Color::Reset) }
 
 int _Manager::FrameNumber()
 { return frame_number; }
