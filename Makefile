@@ -117,14 +117,20 @@ SRC := src
 SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
+    $(SRC)/demo                         \
     $(SRC)/embedded                     \
-    $(SRC)/events                       \
     $(SRC)/input                        \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
+    $(SRC)/testing_app/app              \
+    $(SRC)/testing_app/system           \
+    $(SRC)/testing_app/ui               \
+    $(SRC)/thirdparty/DearImGui         \
+    $(SRC)/thirdparty/glad              \
+    $(SRC)/thirdparty/glm/detail        \
     $(SRC)/world                        \
 
 
@@ -308,7 +314,6 @@ clean:
 cleanDirty:
 	$(eval CLEAN_FILES != $(call CLEAN_DIRTY,f))
 	$(eval CLEAN_DIRS  != $(call CLEAN_DIRTY,d -empty))
-	@ printf "FILES: '$(CLEAN_FILES)'\nDIRS: '$(CLEAN_DIRS)'\n"
 	@ $(call CLEAN_PRINTOUT, $(CLEAN_FILES)$(CLEAN_DIRS))
 
 disable_colors:
