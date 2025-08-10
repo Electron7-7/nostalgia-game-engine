@@ -245,3 +245,10 @@ Okay, time to do this shit... again. First, I'm gonna check the key handler and 
 Aight, I cleaned up the key handling process up to the input manager. Basically, I gave 'InputManager' the 'Press', 'Release', and 'Repeat' functions; I had the windowing backend send keys to 'InputManager' instead of 'KeyHandler'; I changed keys from a struct to just unsigned integers; and I replaced my old error handling shit with the new 'SafeReturn' and 'SafeStatus' methods.
 
 Oh, I also removed 'KeyHandler'.
+
+I finished up by creating the command line (although, not sure if I really need to make it a queue or if it's okay to just have it execute commands directly, which can be done with a single function), optimizing the event queue (e.g: using lists instead of vectors due to all the pushing and popping), and connected everything together. There's a weird bug where the first input isn't processed (at least, I don't think it is), and I'm temporarily hardcoding the InputManager to enable the EventQueue in its Init function, but other than that, it should be working fine!
+
+[08/10/25]
+At my parents' house, I tested the code and made some small changes and a few fixes. Mainly, I fixed a lot of off-by-one/direction errors; this ended up fixing that weird bug where the first input wasn't being processed. Basically, the variable that stores the last processed queue index was being incremented incorrectly; I was adding one less than the size of the safe queue to it every time I processed events, which made the check for if it was a valid index return false on the first input. My resoning for this, at the time, was simply trying to keep the index at the last processed index (i.e: one less than the size of the queue), but the way that I use it to test queue validity only works if it ends on the index for the next event (i.e: the size of the queue). This also makes sure that the last event processed for a frame doesn't get processed again at the start of the next frame.
+
+I also changed the print color variables; they're more verbose and less modular, but a lot simpler/easier to use.
