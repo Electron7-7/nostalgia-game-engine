@@ -4,8 +4,8 @@
 #include "managers/input_manager.hpp"
 #include "common/opengl_includes.hpp"
 
-#define ASSERT_KEY(glfw_key_id) if(!key_id_map.contains(glfw_key_id)) return;
-#define CONVERT_KEY(glfw_key_id) key_id_map.at(glfw_key_id) // FIXME: give this a better name
+#define ASSERT_KEY(glfw_key_id) if(!key_ids.contains(glfw_key_id)) return;
+#define CONVERT_KEY(glfw_key_id) key_ids.at(glfw_key_id) // FIXME: give this a better name
 
 //--------------------
 // PROTOTYPE FUNCTIONS

@@ -1,13 +1,13 @@
 /*
-standard library maps for comparing input IDs from various windowing libraries to Nostalgia's custom input IDs
---------------------------------------------------------------------------------------------------------------
+standard library maps for converting input IDs from various windowing libraries to Nostalgia's custom input IDs
+---------------------------------------------------------------------------------------------------------------
 */
 
-#include "key.hpp"
-#include "rendering/backends/windowing/glfw.hpp"
-#include "common/opengl_includes.hpp" // IWYU pragma: keep // Used by GLFW_Backend::key_id_map
+#include "input/key.hpp"
+#include "glfw.hpp"
+#include "opengl_includes.hpp" // IWYU pragma: keep // Used by GLFW_Backend::key_id_map
 
-const std::map<GLFW_Backend::GLFW_KeyID, KeyID> GLFW_Backend::key_id_map =
+const std::map<GLFW_Backend::GLFW_KeyID, KeyID> GLFW_Backend::key_ids =
 {
     { GLFW_KEY_0,             Key::ZERO         },
     { GLFW_KEY_1,             Key::ONE          },

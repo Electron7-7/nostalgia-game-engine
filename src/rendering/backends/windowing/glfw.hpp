@@ -38,7 +38,7 @@ private:
     static void glfw_CursorPosCallbackFunction(GLFWwindow* Window, double XPosition, double YPosition);
 
     typedef unsigned int GLFW_KeyID;
-    static const std::map<GLFW_KeyID, KeyID> key_id_map;
+    static const std::map<GLFW_KeyID, KeyID> key_ids;
 };
 
 extern GLFW_Backend singleton_GLFW_Backend;
