@@ -13,7 +13,7 @@ LAR := llvm-ar
 # TODO: Figure out if I need a windows-specific 'ar' and what it would be
 WAR := $(LAR)
 
-FLAGS_DEBUG_COMMON    := -g -Wall -O0 -D DEBUGGING
+FLAGS_DEBUG_COMMON    := -O0 -D DEBUGGING
 FLAGS_DEBUG_LINUX     := -fsanitize=address
 FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3
@@ -21,15 +21,15 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_LIB_DYNAMIC     := -fPIC
 FLAGS_LIB_STATIC      := # Nothing yet
-FLAGS_CXX_COMMON      := -std=c++23
-FLAGS_CC_COMMON       := -std=c11
+FLAGS_CXX_COMMON      := -std=c++23 -Wall
+FLAGS_CC_COMMON       := -std=c11 -Wall
 FLAGS_WINDOWS         := -mwindows
 FLAGS_LINUX           := # Nothing yet
-GLFW_ARCHIVE          := libglfw3.a
-GLFW_LINUX            := src/lib/glfw-lib-linux
-GLFW_WINDOWS          := src/lib/glfw-lib-mingw-w64
-LDFLAGS_LINUX         := -shared -L $(GLFW_LINUX) -l glfw
-LDFLAGS_WINDOWS       := -shared --out-implib -L $(GLFW_WINDOWS) -l glfw
+ARCHIVES_LINUX        := src/lib/glfw-lib-linux/libglfw3.a
+ARCHIVES_WINDOWS      := src/lib/glfw-lib-mingw-w64/libglfw3.a
+# These 'LD_FLAGS' are for the dynamic library, hence why I can't just use the 'ARCHIVES' variables again
+LDFLAGS_LINUX         := -shared -L src/lib/glfw-lib-linux -l glfw
+LDFLAGS_WINDOWS       := -lstdc++exp -shared --out-implib -L src/lib/glfw-lib-mingw-w64 -l glfw
 
 INCLUDE := -I src -I src/thirdparty -I src/common
 
@@ -70,7 +70,7 @@ ifneq ($(OS),Windows_NT)
 	export LD_FLAGS      ?= $(LDFLAGS_LINUX)
 	export CXX_COMPILER  ?= $(LINUX_CXX)
 	export C_COMPILER    ?= $(LINUX_CC)
-	export GLFW_LIBRARY  ?= $(GLFW_LINUX)
+	export ARCHIVES      ?= $(ARCHIVES_LINUX)
 else # WINDOWS
 	export APP_NAME      ?= $(APP_BASE).exe
 	export NAME_STATIC   ?= $(NAME_STATIC_WINDOWS)
@@ -83,7 +83,7 @@ else # WINDOWS
 	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS)
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
-	export GLFW_LIBRARY  ?= $(GLFW_WINDOWS)
+	export ARCHIVES      ?= $(ARCHIVES_WINDOWS)
 endif
 
 export BUILD_VERSION ?= $(DIR_RELEASE)
@@ -95,18 +95,17 @@ export BUILD_LIBRARY  ?= $(BUILD_DIR)/$(DIR_LIBRARY)
 export BUILD_HEADERS  ?= $(BUILD_DIR)/$(DIR_HEADERS)/$(NAME_BASE)
 export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
 export BUILD_DEPENDS  ?= $(BUILD_OBJS)/$(DIR_DEPS)
-export BUILD_GLFW     ?= $(BUILD_OBJS)/thirdparty/libglfw3
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
 export APP_LD_FLAGS   ?= $(BUILD_LIBRARY)/$(NAME)
 export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
 export APP            ?= $(APP_TYPE)$(APP_NAME)
 
-export FLAGS_LIBRARY ?= $(FLAGS_LIB_STATIC)
+export LIBRARY_FLAGS ?= $(FLAGS_LIB_STATIC)
 
 export BUILDING_APP ?=
+export BUILDING_DYNAMIC_LIBRARY ?=
 
-export CLEAN_TARGET ?= 0
 export CLEAN_ARCH ?= .+
 export CLEAN_VERSION ?= .+
 
@@ -125,17 +124,12 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
-    $(SRC)/testing_app/app              \
-    $(SRC)/testing_app/system           \
-    $(SRC)/testing_app/ui               \
-    $(SRC)/thirdparty/DearImGui         \
-    $(SRC)/thirdparty/glad              \
-    $(SRC)/thirdparty/glm/detail        \
-    $(SRC)/world                        \
+    $(SRC)/world
 
 
-THIRDPARTY_SRC_DIRS :=          \
-	$(SRC)/thirdparty/DearImGui \
+THIRDPARTY_SRC_DIRS :=           \
+	$(SRC)/thirdparty/DearImGui  \
+	$(SRC)/thirdparty/glm/detail \
 	$(SRC)/thirdparty/glad
 
 APP_SRC_DIRS :=               \
@@ -144,7 +138,7 @@ APP_SRC_DIRS :=               \
     $(SRC)/testing_app/ui
 
 DIRTY_SRC_DIRS := \
-	thirdparty    \
+	thirdparty
 
 RESOURCES_DIR := $(SRC)/resources
 
@@ -166,47 +160,53 @@ export APP_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(APP_SRCS:$(SRC
 
 export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
 
+# Printout Styles
 export RESET   ?= \\x1b[0m
-export BLACK   ?= \\x1b[1;30m
-export RED     ?= \\x1b[1;31m
-export GREEN   ?= \\x1b[1;32m
-export YELLOW  ?= \\x1b[1;33m
-export BLUE    ?= \\x1b[1;34m
-export MAGENTA ?= \\x1b[1;35m
-export CYAN    ?= \\x1b[1;36m
-export WHITE   ?= \\x1b[1;37m
-export DEFAULT ?= \\x1b[1;39m
+export NORM    ?= \\x1b[22m
+export BOLD    ?= \\x1b[1m
+export DIM     ?= \\x1b[2m
+# Printout Colors
+export BLACK   ?= \\x1b[30m
+export RED     ?= \\x1b[31m
+export GREEN   ?= \\x1b[32m
+export YELLOW  ?= \\x1b[33m
+export BLUE    ?= \\x1b[34m
+export MAGENTA ?= \\x1b[35m
+export CYAN    ?= \\x1b[36m
+export WHITE   ?= \\x1b[37m
+export DEFAULT ?= \\x1b[39m
 
-.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dirs clean cleanDirty disable_colors
+.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dir clean_target clean_all clean mostlyclean disable_colors
 
-all: build_dirs headers resources static dynamic testapp_static testapp_dynamic ;@:
+all: build_dir headers resources static dynamic testapp_static testapp_dynamic ;@:
 
 printout:
-	@ printf "$(DEFAULT)::Architecture - $(BLUE)$(BUILD_ARCH)$(RESET)\n"
-	@ printf "$(DEFAULT)::Version - $(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(DEFAULT)::C Compile Command - $(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE)$(RESET)\n"
-	@ printf "$(DEFAULT)::C++ Compile Command - $(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE)$(RESET)\n"
-	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(DEFAULT)::Linker Flags - $(YELLOW)$(APP_LD_FLAGS)$(RESET)\n"; fi
+	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
+	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(APP) $(APP_LD_FLAGS)$(RESET)\n"; fi
+	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"; fi
 
-# FIXME: Sometimes it takes two builds for the app to link correctly (due to undefined errors related to GLFW)
-# Clues: the only operation that actually happens both times is linking the library/app & extracting the glfw archive
-# so I think maybe it doesn't link correctly the first time but it does the second time? Maybe the glfw objects have to
-# be added to the library last/after it's created?
+build_dir:
+	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
+
 static: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
-	$(eval FLAGS_LIBRARY = $(FLAGS_LIB_STATIC))
+	$(eval LIBRARY_FLAGS = $(FLAGS_LIB_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(CC_OBJS) $(CXX_OBJS) $(BUILD_LIBRARY)/$(NAME)
-	@ printf "$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
 dynamic: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
-	$(eval FLAGS_LIBRARY = $(FLAGS_LIB_DYNAMIC))
+	$(eval LIBRARY_FLAGS = $(FLAGS_LIB_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
+	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(CC_OBJS) $(CXX_OBJS) $(BUILD_LIBRARY)/$(NAME)
-	@ printf "$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
 libraries: static dynamic ;@:
 
@@ -217,7 +217,7 @@ testapp_static:
 	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
-	@ printf "$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
 
 testapp_dynamic:
 	$(eval APP_TYPE = $(PRETTY_STRING_DYNAMIC))
@@ -226,11 +226,12 @@ testapp_dynamic:
 	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
-	@ printf "$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
 
 testapps: testapp_static testapp_dynamic ;@:
 
 headers:
+	@ printf "$(BOLD)$(RED)[TODO][TODO][TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)/'$(RESET)\n"
 	@ $(MAKE) -s $(HEADERS_OUT)
 
 resources:
@@ -248,7 +249,7 @@ linux: ;@:
 	$(eval LD_FLAGS      = $(LDFLAGS_LINUX))
 	$(eval CXX_COMPILER  = $(LINUX_CXX))
 	$(eval C_COMPILER    = $(LINUX_CC))
-	$(eval GLFW_LIBRARY  = $(GLFW_LINUX))
+	$(eval ARCHIVES      = $(ARCHIVES_LINUX))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_LINUX))
 
@@ -264,7 +265,7 @@ windows: ;@:
 	$(eval LD_FLAGS      = $(LDFLAGS_WINDOWS))
 	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
 	$(eval C_COMPILER    = $(WINDOWS_CC))
-	$(eval GLFW_LIBRARY  = $(GLFW_WINDOWS))
+	$(eval ARCHIVES      = $(ARCHIVES_WINDOWS))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
 
@@ -280,100 +281,99 @@ debug: ;@:
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_VERSION = $(DIR_DEBUG))
 
-build_dirs:
-	@ -mkdir -p $(BUILD_DIR) $(BUILD_OBJS) $(BUILD_GLFW) $(BUILD_HEADERS) $(BUILD_LIBRARY) $(BUILD_DEPENDS)
-
 # Cleaning Functions
-CLEAN = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -delete -print 2>/dev/null
-CLEAN_OBJS = $(call CLEAN,$(1),-regex '.+\.objs_.+/.+' $(2))
+CLEAN       = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -delete -print 2>/dev/null
+CLEAN_OBJS  = $(call CLEAN,$(1),-regex '.+\.objs_.+/.+' $(2))
 CLEAN_DIRTY = $(call CLEAN_OBJS,$(1),$(DIRTY_SRC_DIRS:%=-not -path "*%*"))
-CLEAN_PRINTOUT = \
+CLEAN_PRINT = \
 $(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
 $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 
-clean_target: ;@:
+# Cleans directories based on previous targets
+# (e.g: 'make windows clean' will clean 'build/Windows/', but 'make windows debug clean' will only clean 'build/Windows/Debug/')
+.__clean_target: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)'))
 	$(eval EMPTY_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)'))
-	@ $(call CLEAN_PRINTOUT,$(EMPTY_DIRS))
+	@ $(call CLEAN_PRINT,$(EMPTY_DIRS))
 
-clean_all: ;@:
+# Cleans the entire 'build/' directory (default behaviour for 'clean')
+.__clean_all: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/.*'))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/.*'))
 	$(eval EMPTY_DIR   != find ./ -type d -not -path "*.git*" -empty -delete -print 2>/dev/null)
-	@ $(call CLEAN_PRINTOUT,$(EMPTY_DIR))
+	@ $(call CLEAN_PRINT,$(EMPTY_DIR))
 
+# What 'clean' does depends on if it's called by itself, or after other targets
 clean:
 	@ if [ "$(TARGET_CALLED)" == "1" ]; then \
-		$(MAKE) -s clean_target;           \
-	else                                   \
-		$(MAKE) -s clean_all;              \
+		$(MAKE) -s .__clean_target;          \
+	else                                     \
+		$(MAKE) -s .__clean_all;             \
 	fi
 
-# Dirty Clean: Clean all obj files+dirs that *aren't* `DIRTY_SRC_DIRS`
-cleanDirty:
+# 'mostlyclean' doesn't clean files from 'DIRTY_SRC_DIRS'
+mostlyclean:
 	$(eval CLEAN_FILES != $(call CLEAN_DIRTY,f))
 	$(eval CLEAN_DIRS  != $(call CLEAN_DIRTY,d -empty))
-	@ $(call CLEAN_PRINTOUT, $(CLEAN_FILES)$(CLEAN_DIRS))
+	@ $(call CLEAN_PRINT, $(CLEAN_FILES)$(CLEAN_DIRS))
 
 disable_colors:
-	$(eval RESET   := "")
-	$(eval BLACK   := "")
-	$(eval RED     := "")
-	$(eval GREEN   := "")
-	$(eval YELLOW  := "")
-	$(eval BLUE    := "")
-	$(eval MAGENTA := "")
-	$(eval CYAN    := "")
-	$(eval WHITE   := "")
-	$(eval DEFAULT := "")
-	@ printf "::Output colors disabled\n"
+	$(eval RESET   = "")
+	$(eval NORM    = "")
+	$(eval BOLD    = "")
+	$(eval DIM     = "")
+	$(eval BLACK   = "")
+	$(eval RED     = "")
+	$(eval GREEN   = "")
+	$(eval YELLOW  = "")
+	$(eval BLUE    = "")
+	$(eval MAGENTA = "")
+	$(eval CYAN    = "")
+	$(eval WHITE   = "")
+	$(eval DEFAULT = "")
+	@ printf "::Output styles disabled\n"
 
 # C++ Object Files
-$(BUILD_OBJS)/%.obj: $(SRC)/%.cpp | build_dirs
-	@ printf "::Compiling $(BLUE)$@$(RESET)\n"
+$(BUILD_OBJS)/%.obj: $(SRC)/%.cpp | build_dir
+	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) -c $< -o $@
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
 
 # C Object Files
-$(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dirs
-	@ printf "::Compiling $(BLUE)$@$(RESET)\n"
+$(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
+	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
-	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) -c $< -o $@
+	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
 
 # Header Files
 $(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build
-	@ printf "::Copying Header $(CYAN)$@$(RESET)\n"
+	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
 
 # Static Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS)
-	@ printf "::Building $(GREEN)$@$(RESET)\n"
-	@ $(AR) cr $@ $^
-	@ printf "$(DEFAULT)::Extracting $(CYAN)GLFW Object Files$(RESET)\n"
-	@ $(MAKE) -s $(shell $(AR) t $(GLFW_LIBRARY)/libglfw3.a | sed -re 's/(.+)/\1.print-ar-x/g')
-	@ $(AR) x --output $(BUILD_GLFW) $(GLFW_LIBRARY)/libglfw3.a
-	@ printf "$(DEFAULT)::Injecting $(CYAN)GLFW Object Files$(RESET)\n"
-	@ $(AR) q $@ $(wildcard $(BUILD_GLFW)/*.o)
+	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
+	@ -mkdir -p $(BUILD_LIBRARY)
+	@ $(AR) -rcT $@ $^ $(ARCHIVES)
 
 # Dynamic Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS)
-	@ printf "::Building $(GREEN)$@$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
+	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
+	@ -mkdir -p $(BUILD_LIBRARY)
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
 # Library Testing Applications
 $(BUILD_DIR)/$(APP): $(APP_OBJS)
-	@ printf "::Linking $(GREEN)$@$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(FLAGS_LIBRARY) $(INCLUDE) $^ -o $@ $(APP_LD_FLAGS)
+	@ printf "::Linking $(BOLD)$(GREEN)$@$(RESET)\n"
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(APP_LD_FLAGS)
 
 
-# GLFW Library Extraction Printouts
-%.print-ar-x:
-	@ printf "::Extracting $(BLUE)$(BUILD_GLFW)/$*$(RESET)\n"
-
+# Prints a unique cleanup message
 NOTHING_TO_CLEAN.clean:
 	@ printf "::Nothing left to clean\n"
 
+# Prints a cleanup message
 %.clean:
-	@ printf "::Cleaned $(RED)$*$(RESET)\n"
+	@ printf "::Cleaned $(BOLD)$(RED)$*$(RESET)\n"
