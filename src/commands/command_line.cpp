@@ -1,5 +1,6 @@
 #include "command_line.hpp"
-#include "managers/render_manager.hpp"
+#include "managers/backend_manager.hpp"
+#include "settings/settings.hpp"
 #include "safe_return.hpp"
 #include "time.hpp"
 #include "printing.hpp"
@@ -107,6 +108,7 @@ SafeStatus HardExitProgram()
 
 SafeStatus PrototypeFullscreen()
 {
-    global_RenderManager->prototype_SetFullscreen(true);
+    Settings::Window::Fullscreen = !Settings::Window::Fullscreen;
+    global_BackendManager->UpdateWindowState();
     return Status::NO_ERROR;
 }

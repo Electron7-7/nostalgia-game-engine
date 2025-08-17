@@ -86,16 +86,6 @@ public:
     std::set<GraphicsBackendID> GetCompatibleGraphicsIDs() const { return compatible_graphics_ids; }
 
 protected:
-    friend class RenderManager;
-    friend class BackendManager;
-    inline static int main_WindowPositionX = 0;
-    inline static int main_WindowPositionY = 0;
-    inline static int main_WindowWidth = 1280;
-    inline static int main_WindowHeight = 720;
-    inline static bool main_WindowIsFullscreen = false;
-    inline static bool main_WindowIsCentered = true;
-    inline static const char* main_WindowName = "Nostalgia";
-
     std::set<BackendID> compatible_graphics_ids = {};
     bool is_imgui_initialized = false;
 };

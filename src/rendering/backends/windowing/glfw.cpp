@@ -16,15 +16,19 @@ bool GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
     assert(is_initialized);
 
     if(glfwGetWindowMonitor(glfw_MainWindow))
+    bool is_fullscreened = glfwGetWindowMonitor(glfw_MainWindow);
+    if(is_fullscreened == Window::Fullscreen) { return; }
+
+    if(is_fullscreened)
     {
-        glfwSetWindowMonitor(glfw_MainWindow, nullptr, main_WindowPositionX, main_WindowPositionY, main_WindowWidth, main_WindowHeight, GLFW_DONT_CARE);
-        main_WindowIsFullscreen = false;
+        glfwSetWindowMonitor(glfw_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE);
+        Window::Fullscreen = false;
     }
 
     else
     {
-        glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, main_WindowPositionX, main_WindowPositionY, main_WindowWidth, main_WindowHeight, GLFW_DONT_CARE);
-        main_WindowIsFullscreen = true;
+        glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, 0, 0, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE);
+        Window::Fullscreen = true;
     }
 
     return main_WindowIsFullscreen;
@@ -79,7 +83,7 @@ void GLFW_Backend::ImGuiNewFrame()
 
 bool GLFW_Backend::CreateMainWindow()
 {
-    SafeReturn<size_t> new_window = CreateWindow(main_WindowName);
+    SafeReturn<size_t> new_window = CreateWindow(Window::Name);
 
     if(new_window.Status() == Status::WindowingBackendWINDOW_CREATION_FAILED)
     {
@@ -98,14 +102,14 @@ bool GLFW_Backend::CreateMainWindow()
         return false;
     }
 
-    if(!main_WindowIsFullscreen && main_WindowIsCentered)
+    if(!Window::Fullscreen)
     {
         int monitor_PositionX = 0;
         int monitor_PositionY = 0;
         glfwGetMonitorPos(glfwGetPrimaryMonitor(), &monitor_PositionX, &monitor_PositionY);
 
-        int window_position_x = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->width - main_WindowWidth) / 2) + monitor_PositionX);
-        int window_position_y = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->height - main_WindowHeight) / 2) + monitor_PositionY);
+        int window_position_x = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->width - Window::Width) / 2) + monitor_PositionX);
+        int window_position_y = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->height - Window::Height) / 2) + monitor_PositionY);
         glfwSetWindowPos(glfw_MainWindow, window_position_x, window_position_y);
     }
 
@@ -124,8 +128,18 @@ SafeReturn<size_t> GLFW_Backend::CreateWindow(const char* window_name)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWmonitor* is_fullscreen = (main_WindowIsFullscreen) ? glfwGetPrimaryMonitor() : nullptr;
-    GLFWwindow* glfw_NewWindow = glfwCreateWindow(main_WindowWidth, main_WindowHeight, window_name, is_fullscreen, nullptr);
+    int window_width = Window::Width;
+    int window_height = Window::Height;
+    GLFWmonitor* is_fullscreen = nullptr;
+
+    if(Window::Fullscreen)
+    {
+        window_width = Window::FullscreenWidth;
+        window_height = Window::FullscreenHeight;
+        is_fullscreen = glfwGetPrimaryMonitor();
+    }
+
+    GLFWwindow* glfw_NewWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
 
     if(glfw_NewWindow == nullptr)
     {
