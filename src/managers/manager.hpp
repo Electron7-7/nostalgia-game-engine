@@ -20,10 +20,6 @@ enum TheatreReturnValue_t
     FINISHED,
 };
 
-// Tick rate and interval. Done this way for convenience and so I can change the tick rate more easily at the expense of negligable compile time(?)
-#define TICK_RATE 70 // If DOOM did it at 70hz then so can you
-#define TICK_INTERVAL ( 1.0f / TICK_RATE )
-
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
 class _Manager
 {
