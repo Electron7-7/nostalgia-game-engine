@@ -20,6 +20,26 @@ public:
     static SafeReturn<float>       try_GetFloat(const char* SettingName);
     static SafeReturn<int>         try_GetInt(const char* SettingName);
 
+    struct Engine
+    {
+        static int   TickRate;
+        static float TickInterval;
+    };
+
+    struct Window
+    {
+        static int Width;
+        static int Height;
+        static int FullscreenWidth;
+        static int FullscreenHeight;
+        static int XPosition;
+        static int YPosition;
+        static bool   Fullscreen;
+        static const char* Name;
+    };
+
+    struct Graphics
+    {};
 };
 
 #endif // SETTINGS_H
