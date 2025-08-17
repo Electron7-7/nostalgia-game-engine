@@ -252,3 +252,11 @@ I finished up by creating the command line (although, not sure if I really need 
 At my parents' house, I tested the code and made some small changes and a few fixes. Mainly, I fixed a lot of off-by-one/direction errors; this ended up fixing that weird bug where the first input wasn't being processed. Basically, the variable that stores the last processed queue index was being incremented incorrectly; I was adding one less than the size of the safe queue to it every time I processed events, which made the check for if it was a valid index return false on the first input. My resoning for this, at the time, was simply trying to keep the index at the last processed index (i.e: one less than the size of the queue), but the way that I use it to test queue validity only works if it ends on the index for the next event (i.e: the size of the queue). This also makes sure that the last event processed for a frame doesn't get processed again at the start of the next frame.
 
 I also changed the print color variables; they're more verbose and less modular, but a lot simpler/easier to use.
+
+[08/15/25]
+I'm gonna first check that everything I worked on last is working and I am ready to move on from it; then, I want to start working on a UI system. I'll probably heavily integrate DearImGui, so I may want to streamline the ImGui integration within my backend system.
+
+Ooh, before the UI stuff, I want to make sure my printouts are the ones from my "ctrl" repo and tidy up anything else that's in 'common/' or is otherwise a "helper".
+
+[08/17/25]
+I created 'SettingsManager', and implemented three default engine settings (tick rate, tick interval, and app name).
