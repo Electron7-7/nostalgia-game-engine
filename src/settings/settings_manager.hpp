@@ -26,7 +26,7 @@ private:
 
     // 'unsafe_GetSetting' is only to be used when the setting is GUARANTEED to exist as it performs no safety checks (for maximum performance)
     // An example use case would be: _Manager using `unsafe_GetSetting` to get the tick interval every frame
-    friend struct _Manager;
+    friend class _Manager;
     template<typename T>
     static T unsafe_GetSetting(const std::string& SettingName);
     template<> std::string unsafe_GetSetting(const std::string& SettingName);
@@ -45,7 +45,7 @@ struct Settings
         // Setting Default Values
         static constexpr const char* sDefault_AppName  = "Nostalgia Game Engine";
         static constexpr int         sDefault_TickRate = 70;
-        static constexpr int         sDefault_TickInterval = (1.0f / sDefault_TickRate);
+        static constexpr float       sDefault_TickInterval = (1.0f / sDefault_TickRate);
     };
 };
 
