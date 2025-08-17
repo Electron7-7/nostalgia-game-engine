@@ -1,5 +1,8 @@
 #include "imgui_debugger.hpp"
+#include "managers/backend_manager.hpp"
+#include "rendering/backends/backend.hpp"
 #include "thirdparty/DearImGui/imgui.h"
+#include "settings/settings.hpp"
 
 // #include <string>
 
@@ -29,7 +32,17 @@ void imgui_Debugger::Update()
 {
     Begin("Debug Window");
 
-
+    Text("%s", "Settings");
+    Separator();
+    InputInt("X Position", &Settings::Window::XPosition);
+    InputInt("Y Position", &Settings::Window::YPosition);
+    InputInt("Width", &Settings::Window::Width);
+    InputInt("Height", &Settings::Window::Height);
+    InputInt("Fullscreen Width", &Settings::Window::FullscreenWidth);
+    InputInt("Fullscreen Height", &Settings::Window::FullscreenHeight);
+    Separator();
+    Checkbox("Fullscreen", &Settings::Window::Fullscreen);
+    if(Button("Apply Changes")) { global_BackendManager->UpdateWindowState(); }
 
     End();
 }
