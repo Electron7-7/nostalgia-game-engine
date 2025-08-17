@@ -41,7 +41,7 @@ struct Status
     inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0b000000001000, "InputManagerKEY_IS_LOCKED"              );
     inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0b000000000100, "CommandLineINVALID_COMMAND"             );
     inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0b000000000010, "KeyBindsKEY_HAS_NO_BINDS"               );
-    inline static SafeStatus SettingsManagerINVALID_SETTING_NAME    = SafeStatus( 0b000000000001, "SettingsManagerINVALID_SETTING_NAME"    );
+    inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0b000000000001, "SettingsINVALID_SETTING_NAME"           );
 };
 
 template<typename T>
