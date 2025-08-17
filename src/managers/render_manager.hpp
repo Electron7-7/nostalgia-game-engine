@@ -19,10 +19,6 @@ public:
     virtual void Update();
     virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
-    // virtual bool PleaseTickMeInAFixedUpdateLoop() { return true; }
-
-    // Prototype functions
-    bool prototype_SetFullscreen(bool EnableFullscreen);
 
     // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
     // (these should be guaranteed not to be important enough to cause a crash or other major problems)

@@ -1,6 +1,7 @@
 #include "glfw.hpp"
 #include "printing.hpp"
 #include "managers/input_manager.hpp"
+#include "settings/settings.hpp"
 #include "DearImGui/imgui_impl_glfw.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
@@ -8,14 +9,15 @@
 #define ASSERT_KEY(glfw_key_id) if(!key_ids.contains(glfw_key_id)) return;
 #define CONVERT_KEY(glfw_key_id) key_ids.at(glfw_key_id) // FIXME: give this a better name
 
+typedef Settings::Window Window;
+
 //--------------------
 // PROTOTYPE FUNCTIONS
 //--------------------
-bool GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
+void GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
 {
     assert(is_initialized);
 
-    if(glfwGetWindowMonitor(glfw_MainWindow))
     bool is_fullscreened = glfwGetWindowMonitor(glfw_MainWindow);
     if(is_fullscreened == Window::Fullscreen) { return; }
 
@@ -30,8 +32,6 @@ bool GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
         glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, 0, 0, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE);
         Window::Fullscreen = true;
     }
-
-    return main_WindowIsFullscreen;
 }
 //------------------------
 // END PROTOTYPE FUNCTIONS
@@ -115,6 +115,8 @@ bool GLFW_Backend::CreateMainWindow()
 
     glfw_LastFullscreenedMonitor = glfwGetPrimaryMonitor();
 
+    glfwSetWindowSizeCallback(glfw_MainWindow, GLFW_Backend::glfw_WindowResizeCallbackFunction);
+    glfwSetWindowPosCallback(glfw_MainWindow, GLFW_Backend::glfw_WindowPositionCallbackFunction);
     glfwSetKeyCallback(glfw_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
     glfwSetCharCallback(glfw_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
     glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
@@ -151,17 +153,53 @@ SafeReturn<size_t> GLFW_Backend::CreateWindow(const char* window_name)
     return glfw_Windows.size() - 1;
 }
 
+void GLFW_Backend::ResizeWindow(int width, int height)
+{
+    int cur_width;
+    int cur_height;
+    glfwGetWindowSize(glfw_MainWindow, &cur_width, &cur_height);
+
+    if(width == cur_width && height == cur_height)
+    { return; }
+
+    glfwSetWindowSize(glfw_MainWindow, width, height);
+}
+
+void GLFW_Backend::MoveWindow(int position_x, int position_y)
+{
+    int cur_x_pos;
+    int cur_y_pos;
+    glfwGetWindowPos(glfw_MainWindow, &cur_x_pos, &cur_y_pos);
+
+    if(position_x == cur_x_pos && position_y == cur_y_pos)
+    { return; }
+
+    glfwSetWindowPos(glfw_MainWindow, position_x, position_y);
+}
+
 void GLFW_Backend::SwapBuffers()
 { glfwSwapBuffers(glfw_MainWindow); }
 
 void GLFW_Backend::PollEvents()
 { glfwPollEvents(); }
 
+void GLFW_Backend::UpdateState()
+{
+    prototype_SetFullscreen(Window::Fullscreen);
+
+    if(Window::Fullscreen)
+    {
+        ResizeWindow(Window::FullscreenWidth, Window::FullscreenHeight);
+        return;
+    }
+
+    ResizeWindow(Window::Width, Window::Height);
+    MoveWindow(Window::XPosition, Window::YPosition);
+}
+
 // PRIVATE FUNCTIONS
 void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
-{
-    global_InputManager->prototype_CustomCharacterCallback(codepoint);
-}
+{ global_InputManager->prototype_CustomCharacterCallback(codepoint); }
 
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -189,4 +227,23 @@ void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double pos
         if (glfwRawMouseMotionSupported())
             glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     */
+}
+
+void GLFW_Backend::glfw_WindowPositionCallbackFunction(GLFWwindow* window, int position_x, int position_y)
+{
+    Window::XPosition = position_x;
+    Window::YPosition = position_y;
+}
+
+void GLFW_Backend::glfw_WindowResizeCallbackFunction(GLFWwindow* window, int width, int height)
+{
+    if(Window::Fullscreen)
+    {
+        Window::FullscreenWidth = width;
+        Window::FullscreenHeight = height;
+        return;
+    }
+
+    Window::Width = width;
+    Window::Height = height;
 }

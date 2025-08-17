@@ -21,17 +21,6 @@ bool BackendManager::is_imgui_initialized = false;
 GraphicsBackendID BackendManager::current_GraphicsBackend = BackendIDs::default_Graphics;
 WindowingBackendID BackendManager::current_WindowingBackend = BackendIDs::default_Windowing;
 
-
-//--------------------
-// PROTOTYPE FUNCTIONS
-//--------------------
-
-
-
-//------------------------
-// END PROTOTYPE FUNCTIONS
-//------------------------
-
 bool BackendManager::Init()
 {
     if(is_initialized)
@@ -126,6 +115,9 @@ bool BackendManager::InitBackend()
     is_backend_initialized = true;
     return true;
 }
+
+void BackendManager::UpdateWindowState()
+{ GetWindowingBackend()->UpdateState(); }
 
 // FIXME: I'm like 99% sure that if you were to actually try and do this, you'd crash or some other nasty outcome, but there's only one backend rn so...
 /*int BackendManager::RequestBackendChange(int backend_id)
