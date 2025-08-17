@@ -260,3 +260,9 @@ Ooh, before the UI stuff, I want to make sure my printouts are the ones from my 
 
 [08/17/25]
 I created 'SettingsManager', and implemented three default engine settings (tick rate, tick interval, and app name).
+
+I'm torn between keeping settings simple but static, or complex but dynamic. If I keep it simple and static, I can just have some structs with some static variables and those can be the settings. If I keep it complex and dynamic, I have to use the maps, names, functions, etc, but I can add/remove settings without needing to go into the library code and recompile it.
+
+Probably a mix of both, tbh.
+
+Yeah, I'm doing both.
