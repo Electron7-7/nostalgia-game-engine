@@ -29,18 +29,19 @@ private:
 
 struct Status
 {
-    inline static SafeStatus NO_ERROR                               = SafeStatus( 0b00000000000, "NO_ERROR"                               );
-    inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0b10000000000, "ERROR_GENERIC"                          );
-    inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0b01000000000, "ERROR_ALREADY_ACTIVE"                   );
-    inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0b00100000000, "ERROR_INVALID_KEY_ID"                   );
-    inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0b00010000000, "WindowingBackendWINDOW_CREATION_FAILED" );
-    inline static SafeStatus EventQueueNOT_ENABLED                  = SafeStatus( 0b00001000000, "EventQueueNOT_ENABLED"                  );
-    inline static SafeStatus EventQueueNOT_PROCESSING_EVENTS        = SafeStatus( 0b00000100000, "EventQueueNOT_PROCESSING_EVENTS"        );
-    inline static SafeStatus EventQueueEMPTY                        = SafeStatus( 0b00000010000, "EventQueueEMPTY"                        );
-    inline static SafeStatus InputManagerKEY_NOT_FOUND              = SafeStatus( 0b00000001000, "InputManagerKEY_NOT_FOUND"              );
-    inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0b00000000100, "InputManagerKEY_IS_LOCKED"              );
-    inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0b00000000010, "CommandLineINVALID_COMMAND"             );
-    inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0b00000000001, "KeyBindsKEY_HAS_NO_BINDS"               );
+    inline static SafeStatus NO_ERROR                               = SafeStatus( 0b000000000000, "NO_ERROR"                               );
+    inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0b100000000000, "ERROR_GENERIC"                          );
+    inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0b010000000000, "ERROR_ALREADY_ACTIVE"                   );
+    inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0b001000000000, "ERROR_INVALID_KEY_ID"                   );
+    inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0b000100000000, "WindowingBackendWINDOW_CREATION_FAILED" );
+    inline static SafeStatus EventQueueNOT_ENABLED                  = SafeStatus( 0b000010000000, "EventQueueNOT_ENABLED"                  );
+    inline static SafeStatus EventQueueNOT_PROCESSING_EVENTS        = SafeStatus( 0b000001000000, "EventQueueNOT_PROCESSING_EVENTS"        );
+    inline static SafeStatus EventQueueEMPTY                        = SafeStatus( 0b000000100000, "EventQueueEMPTY"                        );
+    inline static SafeStatus InputManagerKEY_NOT_FOUND              = SafeStatus( 0b000000010000, "InputManagerKEY_NOT_FOUND"              );
+    inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0b000000001000, "InputManagerKEY_IS_LOCKED"              );
+    inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0b000000000100, "CommandLineINVALID_COMMAND"             );
+    inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0b000000000010, "KeyBindsKEY_HAS_NO_BINDS"               );
+    inline static SafeStatus SettingsManagerINVALID_SETTING_NAME    = SafeStatus( 0b000000000001, "SettingsManagerINVALID_SETTING_NAME"    );
 };
 
 template<typename T>

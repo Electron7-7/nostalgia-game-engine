@@ -1,5 +1,6 @@
 #include "manager.hpp"
 #include "printing.hpp"
+#include "settings/settings_manager.hpp"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -196,7 +197,7 @@ void _Manager::Tick()
         auto now = std::chrono::steady_clock::now();
         auto duration = now - start_time;
         double current_time = std::chrono::duration<double>(duration).count();
-        current_tick_length += (current_time - last_time) / TICK_INTERVAL;
+        current_tick_length += (current_time - last_time) / SettingsManager::unsafe_GetSetting<float>(Settings::Engine::sName_TickInterval);
         last_time = current_time;
 
         while(current_tick_length >= 1.0f)
