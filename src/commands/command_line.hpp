@@ -25,6 +25,7 @@ public:
 
     static constexpr ConsoleCommand cmd_Null        = "null";
     static constexpr ConsoleCommand cmd_ExitProgram = "please don't do this unless you know what you're doing";
+    static constexpr ConsoleCommand cmd_PrototypeFullscreen = "PrototypeFullscreen";
 
 private:
     static std::map<Command, CommandFunction> _commands;
