@@ -124,6 +124,7 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
+    $(SRC)/settings                     \
     $(SRC)/world
 
 
