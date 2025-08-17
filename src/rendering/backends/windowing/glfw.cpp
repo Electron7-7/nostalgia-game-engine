@@ -23,7 +23,7 @@ bool GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
 
     else
     {
-        glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE, GLFW_DONT_CARE);
+        glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, main_WindowPositionX, main_WindowPositionY, main_WindowWidth, main_WindowHeight, GLFW_DONT_CARE);
         main_WindowIsFullscreen = true;
     }
 

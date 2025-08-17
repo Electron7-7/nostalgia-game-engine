@@ -1,14 +1,17 @@
 #include "command_line.hpp"
+#include "managers/render_manager.hpp"
 #include "safe_return.hpp"
 #include "time.hpp"
 #include "printing.hpp"
 #include "managers/manager.hpp"
 
 SafeStatus HardExitProgram();
+SafeStatus PrototypeFullscreen();
 
 std::map<Command, CommandFunction> CommandLine::_commands =
 {
     { cmd_ExitProgram, &HardExitProgram },
+    { cmd_PrototypeFullscreen, &PrototypeFullscreen },
 };
 
 std::list<Command> CommandLine::_active_queue = {};
@@ -99,5 +102,11 @@ bool CommandLine::ExtractNextCommand()
 SafeStatus HardExitProgram()
 {
     _Manager::Stop();
+    return Status::NO_ERROR;
+}
+
+SafeStatus PrototypeFullscreen()
+{
+    global_RenderManager->prototype_SetFullscreen(true);
     return Status::NO_ERROR;
 }
