@@ -75,11 +75,15 @@ public:
     virtual bool CreateMainWindow() = 0;
     virtual SafeReturn<size_t> CreateWindow(const char* WindowName) = 0;
 
+    virtual void ResizeWindow(int Width, int Height) = 0;
+    virtual void MoveWindow(int XPosition, int YPosition) = 0;
+
     virtual void SwapBuffers() = 0;
     virtual void PollEvents() = 0;
+    virtual void UpdateState() = 0;
 
     // Prototype Functions
-    virtual bool prototype_SetFullscreen(bool FullscreenOn) = 0;
+    virtual void prototype_SetFullscreen(bool FullscreenOn) = 0;
 
     // Compatibility Functions
     bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }

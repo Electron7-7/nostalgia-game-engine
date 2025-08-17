@@ -14,16 +14,6 @@
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
 RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
 
-// Prototype Functions
-bool RenderManager::prototype_SetFullscreen(bool enable_fullscreen)
-{
-    if(global_BackendManager->GetWindowingBackend()->prototype_SetFullscreen(enable_fullscreen))
-        return true;
-
-    return false;
-}
-// End Prototype Functions
-
 
 bool RenderManager::Init()
 {

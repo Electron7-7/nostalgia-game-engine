@@ -21,6 +21,7 @@ public:
     static bool InitImGui();
     static void ImGuiNewFrame();
     static void ImGuiRender();
+    static void UpdateWindowState();
     // static int RequestBackendChange(BackendID BackendID); // Note: probably not good (see source code for more detail)
 
 private:

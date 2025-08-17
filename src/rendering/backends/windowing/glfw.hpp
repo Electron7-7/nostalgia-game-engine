@@ -20,11 +20,15 @@ public:
     virtual bool CreateMainWindow();
     virtual SafeReturn<size_t> CreateWindow(const char* WindowName);
 
+    virtual void ResizeWindow(int Width, int Height);
+    virtual void MoveWindow(int XPosition, int YPosition);
+
     virtual void SwapBuffers();
     virtual void PollEvents();
+    virtual void UpdateState();
 
     // PROTOTYPE FUNCTIONS (inherited from Backend)
-    virtual bool prototype_SetFullscreen(bool FullscreenOn);
+    virtual void prototype_SetFullscreen(bool FullscreenOn);
 
 private:
     GLFWwindow* glfw_MainWindow = nullptr;
@@ -32,9 +36,11 @@ private:
     std::vector<GLFWwindow*> glfw_Windows = {};
 
     // GLFW callback functions
-    static void glfw_KeyCallbackFunction(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods);
-    static void glfw_CharacterCallbackFunction(GLFWwindow* Window, unsigned int CodePoint);
-    static void glfw_CursorPosCallbackFunction(GLFWwindow* Window, double XPosition, double YPosition);
+    static void glfw_KeyCallbackFunction(GLFWwindow*, int, int, int, int);
+    static void glfw_CharacterCallbackFunction(GLFWwindow*, unsigned int);
+    static void glfw_CursorPosCallbackFunction(GLFWwindow*, double, double);
+    static void glfw_WindowPositionCallbackFunction(GLFWwindow*, int, int);
+    static void glfw_WindowResizeCallbackFunction(GLFWwindow*, int, int);
 
     typedef unsigned int GLFW_KeyID;
     static const std::map<GLFW_KeyID, KeyID> key_ids;
