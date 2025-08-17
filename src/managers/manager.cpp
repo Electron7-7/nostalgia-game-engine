@@ -26,8 +26,10 @@ void _Manager::Remove(_Manager* old_manager)
 {
     assert(!is_running);
     for(int i = 0 ; i < game_managers.size() ; i++)
+    {
         if(game_managers.at(i) == old_manager) // Possible point of error(?): I'm guessing that since I'm comparing two pointers, there might be a possibility that two pointers can be pointing to the same object, but return 0 when compared?
-            game_managers.erase(game_managers.begin() + i); // Possible point of error: I fucked up the index and it should be "i - 1", instead
+        { game_managers.erase(game_managers.begin() + i); } // Possible point of error: I fucked up the index and it should be "i - 1", instead
+    }
 }
 
 // FIXME: This don't feel right... _Manager::Remove has all these checks and is much more delicate
@@ -36,21 +38,23 @@ void _Manager::RemoveAll()
 
 void _Manager::InvokeMethod(ManagerFunc_t function)
 {
-    for(int i = 0 ; i < game_managers.size() ; ++i) // Note: I'm assuming they use "++i" here since the "main" manager will also be in this vector, and we don't want it touching itself (ew...)
-        (game_managers.at(i)->*function)();
+    for(int i = 0 ; i < game_managers.size() ; ++i) // I found out why they use '++i'! It's because 'i++' will always create a new iterator object every time it iterates, but '++i' won't! Performance!
+    { (game_managers.at(i)->*function)(); }
 }
 
 void _Manager::InvokeMethodReverseOrder(ManagerFunc_t function)
 {
-    for(int i = game_managers.size() - 1 ; i >= 0 ; --i) // See note in _Manager::InvokeMethod
-        (game_managers.at(i)->*function)();
+    for(int i = game_managers.size() - 1 ; i >= 0 ; --i)
+    { (game_managers.at(i)->*function)(); }
 }
 
 bool _Manager::InvokeMethod(ManagerInitFunc_t function)
 {
-    for(int i = 0 ; i < game_managers.size() ; ++i) // See note in _Manager::InvokeMethod
+    for(int i = 0 ; i < game_managers.size() ; ++i)
+    {
         if(!(game_managers.at(i)->*function)())
-            return false;
+        { return false; }
+    }
     return true;
 }
 
@@ -61,9 +65,10 @@ TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t func
     {
         TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
-            return FUCKED;
+        { return FUCKED; }
+
         if(catch_return_value == MORE_WORK)
-            return_value = MORE_WORK;
+        { return_value = MORE_WORK; }
     }
     return return_value;
 }
@@ -75,9 +80,10 @@ TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFun
     {
         TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
-            return_value = FUCKED;
+        { return_value = FUCKED; }
+
         if((catch_return_value == MORE_WORK) && (return_value != FUCKED))
-            return_value = MORE_WORK;
+        { return_value = MORE_WORK; }
     }
     return return_value;
 }
@@ -87,7 +93,7 @@ bool _Manager::InitAllManagers()
     frame_number = 0;
     // Educated guess is that this will try and invoke the "Init" method on every game manager in the list (via the "InvokeMethod" function), and if it returns false that means we hit a snag
     if(!InvokeMethod(&_Manager::Init))
-        return false;
+    { return false; }
 
     is_initialized = true;
     return true;
@@ -108,7 +114,8 @@ void _Manager::UpdateTheatreStateMachine()
     if(theatre_shutdown_requested)
     {
         if(theatre_state != LOADING_LEVEL)
-            theatre_shutdown_requested = false; // Todo: make this prettier
+        { theatre_shutdown_requested = false; } // Todo: make this prettier
+
         if(theatre_state == IN_LEVEL)
         {
             theatre_state = SHUTTING_DOWN_LEVEL;
@@ -121,7 +128,7 @@ void _Manager::UpdateTheatreStateMachine()
     {
         TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
-            theatre_state = NOT_IN_LEVEL;
+        { theatre_state = NOT_IN_LEVEL; }
     }
 
     // Do we want to switch into the theatre startup state?
@@ -129,7 +136,8 @@ void _Manager::UpdateTheatreStateMachine()
     if(theatre_start_requested)
     {
         if(theatre_state != SHUTTING_DOWN_LEVEL)
-            theatre_start_requested = false; // Todo: make this prettier
+        { theatre_start_requested = false; } // Todo: make this prettier
+
         if(theatre_state == NOT_IN_LEVEL)
         {
             theatre_state = LOADING_LEVEL;
@@ -142,9 +150,10 @@ void _Manager::UpdateTheatreStateMachine()
     {
         TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
-            theatre_state = NOT_IN_LEVEL; // Todo: make this prettier
+        { theatre_state = NOT_IN_LEVEL; } // Todo: make this prettier
+
         else if(return_value == FINISHED)
-            theatre_state = IN_LEVEL;
+        { theatre_state = IN_LEVEL; }
     }
 }
 
@@ -155,14 +164,6 @@ void _Manager::Start()
     is_running = true;
     stop_requested = false;
 
-    /*
-    Nothing in this line of code is even close to being implemented, but it might be a nice addition in the future:
-    ---------------------------------------------------------------------------------------------------------------
-        // This option is useful when running the app twice on the same machine
-        // It makes the 2nd instance of the app run a lot faster
-        bool bPlayNice = ( CommandLine()->CheckParm( "-yieldcycles" ) != 0 );
-    */
-
     std::thread tick_thread(_Manager::Tick);
 
     int number_of_managers = game_managers.size();
@@ -172,8 +173,10 @@ void _Manager::Start()
         UpdateTheatreStateMachine();
 
         for(int i = 0 ; i < number_of_managers ; ++i)
+        {
             if(!game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
-                game_managers.at(i)->Update();
+            { game_managers.at(i)->Update(); }
+        }
 
         ++frame_number;
     }
@@ -199,8 +202,10 @@ void _Manager::Tick()
         while(current_tick_length >= 1.0f)
         {
             for(int i = 0 ; i < number_of_managers ; ++i)
+            {
                 if(game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
-                    game_managers.at(i)->Update();
+                { game_managers.at(i)->Update(); }
+            }
             ++tick_number;
             current_tick_length--;
         }

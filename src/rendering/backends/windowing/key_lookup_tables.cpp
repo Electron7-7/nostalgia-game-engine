@@ -4,8 +4,10 @@ standard library maps for converting input IDs from various windowing libraries 
 */
 
 #include "input/key.hpp"
+
+// Headers required for 'GLFW_Backend::key_ids'
 #include "glfw.hpp"
-#include "opengl_includes.hpp" // IWYU pragma: keep // Used by GLFW_Backend::key_id_map
+#include "GLFW/glfw3.h"
 
 const std::map<GLFW_Backend::GLFW_KeyID, KeyID> GLFW_Backend::key_ids =
 {

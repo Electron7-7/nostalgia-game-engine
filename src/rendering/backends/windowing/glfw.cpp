@@ -1,8 +1,9 @@
 #include "glfw.hpp"
 #include "printing.hpp"
-#include "DearImGui/imgui_impl_glfw.h"
 #include "managers/input_manager.hpp"
-#include "opengl_includes.hpp"
+#include "DearImGui/imgui_impl_glfw.h"
+#include "GLFW/glfw3.h"
+#include "glad/glad.h"
 
 #define ASSERT_KEY(glfw_key_id) if(!key_ids.contains(glfw_key_id)) return;
 #define CONVERT_KEY(glfw_key_id) key_ids.at(glfw_key_id) // FIXME: give this a better name

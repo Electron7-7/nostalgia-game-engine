@@ -5,6 +5,7 @@
 #include "rendering/mesh.hpp"
 #include "rendering/render_command.hpp"
 #include "things/actors/nostalgia_player.hpp"
+
 #include <memory>
 
 struct MeshWrapper

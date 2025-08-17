@@ -3,12 +3,12 @@
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
+
+#include <cmath>
+
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
-#ifdef _WIN32
-#include "fuck_windows.hpp" // :3
-#endif
 
 // Singleton Accessor
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
@@ -85,7 +85,7 @@ void RenderManager::SetProjectionMatrix(int width, int height, float fov)
     float z_far = ZFAR;
     float aspect_ratio = (height != 0.0f) ? (float)width / (float)height : 100.0f;
 
-    float half_width = tan(fov * M_PI / 360.0);
+    float half_width = tan(fov * std::numbers::pi / 360.0);
     float half_height = half_width / aspect_ratio;
 
     projection_matrix[0][0] = 1.0f / half_width;

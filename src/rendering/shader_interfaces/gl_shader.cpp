@@ -1,6 +1,6 @@
 #include "gl_shader.hpp"
-#include "opengl_includes.hpp"
 #include "printing.hpp"
+#include "glad/glad.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>

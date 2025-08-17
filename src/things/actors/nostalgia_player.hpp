@@ -1,10 +1,9 @@
 #ifndef NOSTALGIA_PLAYER_H
 #define NOSTALGIA_PLAYER_H
 
-#include "macros.hpp"
 #include "things/actor.hpp"
 
-FORWARD_DECLARE(class CameraProperty;)
+class CameraProperty; // Forward Declaration
 
 // Actor type
 class NostalgiaPlayerActor : public Actor

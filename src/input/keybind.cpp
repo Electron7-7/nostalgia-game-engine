@@ -36,11 +36,6 @@ SafeReturn<KeyBinds> GetBindings(KeyID key)
 
 bool try_AddBinding(const std::string& key_name, const char* command_name)
 {
-    for(auto& key : key_strings_map)
-        PRINT_DEBUG("key_strings_map: '{}'", key.first)
-
-    PRINT_DEBUG("key_name: '{}'", key_name)
-
     ASSERT_KEYNAME(key_name)
 
     if(!keybinds_map.contains(KEYID))

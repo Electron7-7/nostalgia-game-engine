@@ -69,9 +69,7 @@ SafeStatus InputManager::Press(KeyID key)
 {
     ASSERT_KEY(key)
 
-    SafeStatus test_status = EventQueue::try_QueueEvents(key);
-    PRINT_DEBUG("Pressed Key '{}'", key)
-    PRINT_DEBUG("EventQueue::try_QueueEvents returned '{}'", test_status.Printout())
+    EventQueue::try_QueueEvents(key);
 
     return Status::NO_ERROR;
 }
@@ -80,9 +78,7 @@ SafeStatus InputManager::Repeat(KeyID key)
 {
     ASSERT_KEY(key)
 
-    SafeStatus test_status = EventQueue::try_QueueEvents(key);
-    PRINT_DEBUG("Repeated Key '{}'", key)
-    PRINT_DEBUG("EventQueue::try_QueueEvents returned '{}'", test_status.Printout())
+    EventQueue::try_QueueEvents(key);
 
     return Status::NO_ERROR;
 }
@@ -91,9 +87,7 @@ SafeStatus InputManager::Release(KeyID key)
 {
     ASSERT_KEY(key)
 
-    SafeStatus test_status = EventQueue::try_QueueEvents(key, true);
-    PRINT_DEBUG("Released Key '{}'", key)
-    PRINT_DEBUG("EventQueue::try_QueueEvents returned '{}'", test_status.Printout())
+    EventQueue::try_QueueEvents(key, true);
 
     return Status::NO_ERROR;
 }

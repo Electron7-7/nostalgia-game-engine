@@ -18,8 +18,6 @@ public:
     bool RemoveImGuiObject(ImGui_Object* OldImGuiObject);
     void DrawUI();
 
-    // Prototype Functions
-
 private:
     std::vector<ImGui_Object*> imgui_objects;
 

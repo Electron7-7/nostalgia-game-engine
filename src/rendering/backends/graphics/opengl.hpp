@@ -4,12 +4,12 @@
 #include "rendering/backends/backend.hpp"
 #include "rendering/render_command.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
-#include "macros.hpp"
+
 #include <map>
 #include <array>
 #include <vector>
 
-FORWARD_DECLARE(struct Mesh;)
+struct Mesh; // Forward Declaration
 
 struct OpenGL_MeshData
 {

@@ -1,13 +1,13 @@
 #include "opengl.hpp"
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_impl_opengl3.h"
-#include "opengl_includes.hpp"
 #include "printing.hpp"
 #include "world/3d_common.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
 #include "managers/world_manager.hpp"
+#include "DearImGui/imgui.h"
+#include "DearImGui/imgui_impl_opengl3.h"
+#include "glad/glad.h"
 
 std::map<MeshWrapper::MeshID, OpenGL_MeshData> OpenGL_Backend::gl_mesh_data = {};
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::VAOs = {};
@@ -42,7 +42,7 @@ bool OpenGL_Backend::Init()
     if(!BuildShader(Shaders::SAFETY, glsl_VERT_SafetyShader, glsl_FRAG_SafetyShader)) return false;
     BuildShader(Shaders::BLINN_PHONG, glsl_VERT_BlinnPhong, glsl_FRAG_BlinnPhong);
 
-    // TODO: See note in 'src/engine/world/3d_common.hpp'
+    // TODO: See note in 'src/world/3d_common.hpp'
     World::Orientation::SetWorldUp(glm::vec3(0.0f, 1.0f, 0.0f));
     World::Orientation::SetWorldRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::Orientation::SetWorldFront(glm::vec3(0.0f, 0.0f, -1.0f));

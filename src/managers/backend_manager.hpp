@@ -1,14 +1,13 @@
 #ifndef BACKEND_MANAGER_H
 #define BACKEND_MANAGER_H
 
-#include "macros.hpp"
 #include <map>
 
-FORWARD_DECLARE(class GraphicsBackend;)
-FORWARD_DECLARE(class WindowingBackend;)
-// This typedef keeps the code self-documenting
+class GraphicsBackend; // Forward Declaration
+class WindowingBackend; // Forward Declaration
+
+// These typedefs are for self-documentation and readability
 typedef int BackendID;
-// These typedefs help make the code easier to understand in certain areas (so, more self-documentation)
 typedef int GraphicsBackendID;
 typedef int WindowingBackendID;
 

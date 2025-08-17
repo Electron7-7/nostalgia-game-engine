@@ -13,7 +13,7 @@ LAR := llvm-ar
 # TODO: Figure out if I need a windows-specific 'ar' and what it would be
 WAR := $(LAR)
 
-FLAGS_DEBUG_COMMON    := -O0 -D DEBUGGING
+FLAGS_DEBUG_COMMON    := -g -O0 -D DEBUGGING
 FLAGS_DEBUG_LINUX     := -fsanitize=address
 FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3
@@ -21,7 +21,7 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_LIB_DYNAMIC     := -fPIC
 FLAGS_LIB_STATIC      := # Nothing yet
-FLAGS_CXX_COMMON      := -std=c++23 -Wall
+FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE
 FLAGS_CC_COMMON       := -std=c11 -Wall
 FLAGS_WINDOWS         := -mwindows
 FLAGS_LINUX           := # Nothing yet
