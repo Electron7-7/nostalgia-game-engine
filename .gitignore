@@ -12,3 +12,5 @@ src/embedded/
 imgui.ini
 backup_Makefile
 
+# Sublime Text project/workspace files
+*.sublime-*
