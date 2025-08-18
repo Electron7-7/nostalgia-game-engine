@@ -48,14 +48,12 @@ public:
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
+    virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
     virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
     virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
-
-    // Prototype Functions
-    virtual void prototype_ClearBuffer(glm::vec4 ClearColor) = 0;
 
 protected:
     bool is_imgui_initialized = false;
@@ -77,13 +75,12 @@ public:
 
     virtual void ResizeWindow(int Width, int Height) = 0;
     virtual void MoveWindow(int XPosition, int YPosition) = 0;
+    virtual void SetFullscreen(bool FullscreenOn) = 0;
 
     virtual void SwapBuffers() = 0;
     virtual void PollEvents() = 0;
     virtual void UpdateState() = 0;
 
-    // Prototype Functions
-    virtual void prototype_SetFullscreen(bool FullscreenOn) = 0;
 
     // Compatibility Functions
     bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }

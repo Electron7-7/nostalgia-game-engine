@@ -40,14 +40,12 @@ public:
     void ImGuiNewFrame();
     void ImGuiRender();
 
+    void ClearBuffer(glm::vec4 ClearColor);
     const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
     bool BindShader(unsigned int ShaderLabel);
     bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     void RenderSingleCommand(const RenderCommand& RenderCommand);
-
-    // PROTOTYPE FUNCTIONS
-    void prototype_ClearBuffer(glm::vec4 ClearColor);
 
 private:
     static void BufferMeshData(const int MeshID, const Mesh* NewMesh, std::vector<float>* AllVertexData, std::vector<unsigned int>* AllIndices);

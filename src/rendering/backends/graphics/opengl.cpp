@@ -16,19 +16,11 @@ unsigned int OpenGL_Backend::currently_bound_shader = Shaders::SAFETY;
 unsigned int OpenGL_Backend::VBO = 0;
 unsigned int OpenGL_Backend::IBO = 0;
 
-//--------------------
-// PROTOTYPE FUNCTIONS
-//--------------------
-
-void OpenGL_Backend::prototype_ClearBuffer(glm::vec4 clear_color)
+void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 {
     glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
-
-//------------------------
-// END PROTOTYPE FUNCTIONS
-//------------------------
 
 
 bool OpenGL_Backend::Init()

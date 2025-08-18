@@ -27,8 +27,7 @@ public:
     virtual void PollEvents();
     virtual void UpdateState();
 
-    // PROTOTYPE FUNCTIONS (inherited from Backend)
-    virtual void prototype_SetFullscreen(bool FullscreenOn);
+    void SetFullscreen(bool FullscreenOn);
 
 private:
     GLFWwindow* glfw_MainWindow = nullptr;

@@ -11,32 +11,6 @@
 
 typedef Settings::Window Window;
 
-//--------------------
-// PROTOTYPE FUNCTIONS
-//--------------------
-void GLFW_Backend::prototype_SetFullscreen(bool is_fullscreen_enabled)
-{
-    assert(is_initialized);
-
-    bool is_fullscreened = glfwGetWindowMonitor(glfw_MainWindow);
-    if(is_fullscreened == Window::Fullscreen) { return; }
-
-    if(is_fullscreened)
-    {
-        glfwSetWindowMonitor(glfw_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE);
-        Window::Fullscreen = false;
-    }
-
-    else
-    {
-        glfwSetWindowMonitor(glfw_MainWindow, glfw_LastFullscreenedMonitor, 0, 0, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE);
-        Window::Fullscreen = true;
-    }
-}
-//------------------------
-// END PROTOTYPE FUNCTIONS
-//------------------------
-
 bool GLFW_Backend::Init()
 {
     if(is_initialized)
@@ -175,6 +149,26 @@ void GLFW_Backend::MoveWindow(int position_x, int position_y)
     { return; }
 
     glfwSetWindowPos(glfw_MainWindow, position_x, position_y);
+}
+
+void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
+{
+    assert(is_initialized);
+
+    bool is_fullscreened = glfwGetWindowMonitor(m_MainWindow);
+    if(is_fullscreened == Window::Fullscreen) { return; }
+
+    if(is_fullscreened)
+    {
+        glfwSetWindowMonitor(m_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE);
+        Window::Fullscreen = false;
+    }
+
+    else
+    {
+        glfwSetWindowMonitor(m_MainWindow, m_LastFullscreenedMonitor, 0, 0, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE);
+        Window::Fullscreen = true;
+    }
 }
 
 void GLFW_Backend::SwapBuffers()
