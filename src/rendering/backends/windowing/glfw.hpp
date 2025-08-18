@@ -13,21 +13,22 @@ struct GLFWmonitor; // Forward Declaration
 class GLFW_Backend : public WindowingBackend
 {
 public:
-    virtual bool Init();
-    virtual bool InitImGui();
-    virtual void Shutdown();
-    virtual void ImGuiNewFrame();
     virtual bool CreateMainWindow();
     virtual SafeReturn<size_t> CreateWindow(const char* WindowName);
+    bool Init();
+    void Shutdown();
 
-    virtual void ResizeWindow(int Width, int Height);
-    virtual void MoveWindow(int XPosition, int YPosition);
+    bool InitImGui();
+    void ImGuiNewFrame();
 
-    virtual void SwapBuffers();
-    virtual void PollEvents();
-    virtual void UpdateState();
 
+    void ResizeWindow(int Width, int Height);
+    void MoveWindow(int XPosition, int YPosition);
     void SetFullscreen(bool FullscreenOn);
+
+    void SwapBuffers();
+    void PollEvents();
+    void UpdateState();
 
 private:
     GLFWwindow* glfw_MainWindow = nullptr;
