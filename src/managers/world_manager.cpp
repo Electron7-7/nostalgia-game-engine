@@ -1,8 +1,8 @@
 #include "world_manager.hpp"
 #include "backend_manager.hpp"
+#include "printing.hpp"
 #include "rendering/backends/backend.hpp"
 #include "rendering/camera_property.hpp"
-#include "printing.hpp"
 
 #include <glm/glm.hpp>
 
@@ -22,7 +22,7 @@ WorldManager::~WorldManager()
 TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
 {
     if(!is_first_call)
-        return FINISHED;
+    { return FINISHED; }
 
     CreateThings();
     SetInitialLocalPlayerPosition();
@@ -35,7 +35,7 @@ TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
 TheatreReturnValue_t WorldManager::TheatreShutdown(bool is_first_call)
 {
     if(!is_first_call)
-        return FINISHED;
+    { return FINISHED; }
 
     DestroyThings();
 

@@ -19,7 +19,7 @@ public:
     virtual ~ShaderInterface() = default;
 
     virtual bool IsValid() const = 0;
-    virtual void Bind() = 0;
+    virtual void Bind()   = 0;
     virtual void Unbind() = 0;
     virtual void Delete() = 0;
     virtual void SetUniform(const std::string& Name, int Value) const = 0;

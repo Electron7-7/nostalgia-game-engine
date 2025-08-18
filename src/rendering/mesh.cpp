@@ -7,7 +7,7 @@ Mesh::Mesh(const std::string& init_name, const std::vector<Vertex>& init_vertice
 : _mesh_name(init_name), _face_indices(init_indices)
 {
     for(unsigned int i = 0 ; i < init_vertices.size() ; i++)
-        _vertices[i] = init_vertices.at(i);
+    { _vertices[i] = init_vertices.at(i); }
 }
 
 Mesh::Mesh(const std::string& init_name, const std::vector<Vertex>& init_vertices)
@@ -18,7 +18,7 @@ Mesh::Mesh(const std::string& init_name, const std::vector<Vertex>& init_vertice
 : Mesh(init_name, init_vertices)
 {
     for(uintvec3 face : init_faces)
-        _face_indices.insert(_face_indices.end(), {face[0], face[1], face[2]});
+    { _face_indices.insert(_face_indices.end(), {face[0], face[1], face[2]}); }
 }
 
 void Mesh::AddVertex(Vertex vertex)
@@ -33,19 +33,21 @@ void Mesh::AddFace(uintvec3 face_indices)
 void Mesh::RemoveVertex(Mesh::Index index_of_vertex_to_remove)
 {
     if(_vertices.contains(index_of_vertex_to_remove))
-        _vertices.erase(index_of_vertex_to_remove);
+    { _vertices.erase(index_of_vertex_to_remove); }
     else
-        PRINTWARNING("Mesh::RemoveVertex(Index) - No index matching the argument was found in this mesh")
+    { PRINTWARNING("Mesh::RemoveVertex(Index) - No index matching the argument was found in this mesh") }
 }
 
 void Mesh::RemoveVertex(Vertex vertex_to_remove) // Much less efficient, but more direct
 {
     for(auto& [index, vertex] : _vertices)
+    {
         if(vertex == vertex_to_remove)
         {
             _vertices.erase(index);
             return;
-        }
+       }
+    }
 
     PRINTWARNING("Mesh::RemoveVertex(Vertex) - No vertex matching the argument was found in this mesh")
 }

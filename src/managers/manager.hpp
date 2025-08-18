@@ -35,7 +35,7 @@ public:
     virtual void OnSave() = 0;
     virtual void OnRestore() = 0;
 
-    // Basically only the physics manager will use this; states whether or not this manager should be updated in the fixed update loop
+    // States whether or not this manager should be updated in the fixed update loop
     virtual bool PleaseTickMeInAFixedUpdateLoop() = 0;
 
     // Add/Remove managers
