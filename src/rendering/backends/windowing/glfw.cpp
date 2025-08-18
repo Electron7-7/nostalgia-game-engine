@@ -78,12 +78,12 @@ SafeStatus GLFW_Backend::CreateMainWindow()
         is_fullscreen = glfwGetPrimaryMonitor();
     }
 
-    glfw_MainWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
+    m_MainWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
 
-    if(glfw_MainWindow == nullptr)
+    if(m_MainWindow == nullptr)
     { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
 
-    glfwMakeContextCurrent(glfw_MainWindow);
+    glfwMakeContextCurrent(m_MainWindow);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -99,16 +99,16 @@ SafeStatus GLFW_Backend::CreateMainWindow()
 
         int window_position_x = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->width - Window::Width) / 2) + monitor_PositionX);
         int window_position_y = (((glfwGetVideoMode(glfwGetPrimaryMonitor())->height - Window::Height) / 2) + monitor_PositionY);
-        glfwSetWindowPos(glfw_MainWindow, window_position_x, window_position_y);
+        glfwSetWindowPos(m_MainWindow, window_position_x, window_position_y);
     }
 
-    glfw_LastFullscreenedMonitor = glfwGetPrimaryMonitor();
+    m_LastFullscreenedMonitor = glfwGetPrimaryMonitor();
 
-    glfwSetWindowSizeCallback(glfw_MainWindow, GLFW_Backend::glfw_WindowResizeCallbackFunction);
-    glfwSetWindowPosCallback(glfw_MainWindow, GLFW_Backend::glfw_WindowPositionCallbackFunction);
-    glfwSetKeyCallback(glfw_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
-    glfwSetCharCallback(glfw_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
-    glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
+    glfwSetWindowSizeCallback(m_MainWindow, GLFW_Backend::glfw_WindowResizeCallbackFunction);
+    glfwSetWindowPosCallback(m_MainWindow, GLFW_Backend::glfw_WindowPositionCallbackFunction);
+    glfwSetKeyCallback(m_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
+    glfwSetCharCallback(m_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
+    glfwSetCursorPosCallback(m_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
     return Status::NO_ERROR;
 }
@@ -117,24 +117,24 @@ void GLFW_Backend::ResizeWindow(int width, int height)
 {
     int cur_width;
     int cur_height;
-    glfwGetWindowSize(glfw_MainWindow, &cur_width, &cur_height);
+    glfwGetWindowSize(m_MainWindow, &cur_width, &cur_height);
 
     if(width == cur_width && height == cur_height)
     { return; }
 
-    glfwSetWindowSize(glfw_MainWindow, width, height);
+    glfwSetWindowSize(m_MainWindow, width, height);
 }
 
 void GLFW_Backend::MoveWindow(int position_x, int position_y)
 {
     int cur_x_pos;
     int cur_y_pos;
-    glfwGetWindowPos(glfw_MainWindow, &cur_x_pos, &cur_y_pos);
+    glfwGetWindowPos(m_MainWindow, &cur_x_pos, &cur_y_pos);
 
     if(position_x == cur_x_pos && position_y == cur_y_pos)
     { return; }
 
-    glfwSetWindowPos(glfw_MainWindow, position_x, position_y);
+    glfwSetWindowPos(m_MainWindow, position_x, position_y);
 }
 
 void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
@@ -158,14 +158,14 @@ void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
 }
 
 void GLFW_Backend::SwapBuffers()
-{ glfwSwapBuffers(glfw_MainWindow); }
+{ glfwSwapBuffers(m_MainWindow); }
 
 void GLFW_Backend::PollEvents()
 { glfwPollEvents(); }
 
 void GLFW_Backend::UpdateState()
 {
-    prototype_SetFullscreen(Window::Fullscreen);
+    SetFullscreen(Window::Fullscreen);
 
     if(Window::Fullscreen)
     {

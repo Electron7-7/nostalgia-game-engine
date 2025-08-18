@@ -30,8 +30,8 @@ public:
     void UpdateState();
 
 private:
-    GLFWwindow* glfw_MainWindow = nullptr;
-    GLFWmonitor* glfw_LastFullscreenedMonitor = nullptr;
+    GLFWwindow* m_MainWindow = nullptr;
+    GLFWmonitor* m_LastFullscreenedMonitor = nullptr;
 
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow*, int, int, int, int);
