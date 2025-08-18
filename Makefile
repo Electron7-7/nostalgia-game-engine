@@ -145,8 +145,8 @@ RESOURCES_DIR := $(SRC)/resources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
-CC_SRCS  := $(call get_source_files,$(SRC_DIRS),*.c)   $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)
-CXX_SRCS := $(call get_source_files,$(SRC_DIRS),*.cpp) $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp)
+CC_SRCS  ?= $(call get_source_files,$(SRC_DIRS),*.c)   $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)
+CXX_SRCS ?= $(call get_source_files,$(SRC_DIRS),*.cpp) $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp)
 
 APP_SRCS := $(call get_source_files,$(APP_SRC_DIRS),*.cpp)
 
