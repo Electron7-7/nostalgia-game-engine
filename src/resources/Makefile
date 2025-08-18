@@ -60,14 +60,12 @@ FONTS_HPP   := $(EMBED_DIR)/fonts.hpp
 GL_SHADERS_GUARD := OPENGL_SHADERS_H
 GL_SHADERS_DIR   := shaders/GLSL
 GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*)
-GL_SHADER_STEMS  := $(sort $(basename $(GL_SHADERS)))
 GL_SHADERS_CPP   := $(EMBED_DIR)/opengl_shaders.cpp
 GL_SHADERS_HPP   := $(EMBED_DIR)/opengl_shaders.hpp
 
 # GLSL Naming Function
-GLSL_HEADER_PAIR = \
-	$(call MAKE_STR_HEADER_VAR,$(1).vert,$(2),$(3)) \
-	$(call MAKE_STR_HEADER_VAR,$(1).frag,$(2),$(3)) \
+GLSL_HEADER_VAR = \
+	$(call MAKE_STR_HEADER_VAR,$(1),$(2),$(3)) \
 	$(shell printf "\n" >> $(3))
 
 # Mesh Variables
@@ -131,7 +129,7 @@ $(GL_SHADERS_CPP): $(GL_SHADERS_HPP) | build
 
 $(GL_SHADERS_HPP): | build
 	$(shell printf "#ifndef $(GL_SHADERS_GUARD)\n#define $(GL_SHADERS_GUARD)\n" > $(GL_SHADERS_HPP))
-	$(foreach shader_stem,$(GL_SHADER_STEMS),$(call GLSL_HEADER_PAIR,$(shader_stem),glsl,$@))
+	$(foreach shader_stem,$(GL_SHADERS),$(call GLSL_HEADER_VAR,$(shader_stem),glsl,$@))
 	$(shell printf "\n#endif // $(GL_SHADERS_GUARD)\n" >> $(GL_SHADERS_HPP))
 
 # Meshes
