@@ -19,8 +19,14 @@ bool GLFW_Backend::Init()
     PRINTDEBUG("GLFW_Backend::Init")
 
     glfwInit();
-    if(!CreateMainWindow())
+
+    SafeStatus window_status = CreateMainWindow();
+    if(window_status != Status::NO_ERROR)
+    {
+        PRINT_ERROR("{}", window_status.Printout())
+        glfwTerminate();
         return false;
+    }
 
     compatible_graphics_ids = { BackendIDs::OpenGL };
     is_initialized = true;
@@ -55,25 +61,34 @@ void GLFW_Backend::Shutdown()
 void GLFW_Backend::ImGuiNewFrame()
 { ImGui_ImplGlfw_NewFrame(); }
 
-bool GLFW_Backend::CreateMainWindow()
+SafeStatus GLFW_Backend::CreateMainWindow()
 {
-    SafeReturn<size_t> new_window = CreateWindow(Window::Name);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    if(new_window.Status() == Status::WindowingBackendWINDOW_CREATION_FAILED)
+    int window_width = Window::Width;
+    int window_height = Window::Height;
+    GLFWmonitor* is_fullscreen = nullptr;
+
+    if(Window::Fullscreen)
     {
-        PRINT_ERROR("{}", new_window.Status().Printout())
-        glfwTerminate();
-        return false;
+        window_width = Window::FullscreenWidth;
+        window_height = Window::FullscreenHeight;
+        is_fullscreen = glfwGetPrimaryMonitor();
     }
 
-    glfw_MainWindow = glfw_Windows.at(new_window.Data());
+    glfw_MainWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
+
+    if(glfw_MainWindow == nullptr)
+    { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
 
     glfwMakeContextCurrent(glfw_MainWindow);
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        PRINTERROR("GLFW_Backend::CreateMainWindow - Failed to initialize GLAD!")
-        return false;
+        PRINTDEBUG("Failed to initialize GLAD!")
+        return Status::WindowingBackendGRAPHICS_INIT_FAILED;
     }
 
     if(!Window::Fullscreen)
@@ -95,36 +110,7 @@ bool GLFW_Backend::CreateMainWindow()
     glfwSetCharCallback(glfw_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
     glfwSetCursorPosCallback(glfw_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
-    return true;
-}
-
-SafeReturn<size_t> GLFW_Backend::CreateWindow(const char* window_name)
-{
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    int window_width = Window::Width;
-    int window_height = Window::Height;
-    GLFWmonitor* is_fullscreen = nullptr;
-
-    if(Window::Fullscreen)
-    {
-        window_width = Window::FullscreenWidth;
-        window_height = Window::FullscreenHeight;
-        is_fullscreen = glfwGetPrimaryMonitor();
-    }
-
-    GLFWwindow* glfw_NewWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
-
-    if(glfw_NewWindow == nullptr)
-    {
-        PRINTERROR("Failed to create GLFW window!")
-        return SafeReturn(glfw_Windows.size() - 1, Status::WindowingBackendWINDOW_CREATION_FAILED);
-    }
-
-    glfw_Windows.insert(glfw_Windows.end(), glfw_NewWindow);
-    return glfw_Windows.size() - 1;
+    return Status::NO_ERROR;
 }
 
 void GLFW_Backend::ResizeWindow(int width, int height)

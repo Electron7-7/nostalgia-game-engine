@@ -34,6 +34,7 @@ struct Status
     inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0b010000000000, "ERROR_ALREADY_ACTIVE"                   );
     inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0b001000000000, "ERROR_INVALID_KEY_ID"                   );
     inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0b000100000000, "WindowingBackendWINDOW_CREATION_FAILED" );
+    inline static SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   = SafeStatus( 0b000100000000, "WindowingBackendGRAPHICS_INIT_FAILED"   );
     inline static SafeStatus EventQueueNOT_ENABLED                  = SafeStatus( 0b000010000000, "EventQueueNOT_ENABLED"                  );
     inline static SafeStatus EventQueueNOT_PROCESSING_EVENTS        = SafeStatus( 0b000001000000, "EventQueueNOT_PROCESSING_EVENTS"        );
     inline static SafeStatus EventQueueEMPTY                        = SafeStatus( 0b000000100000, "EventQueueEMPTY"                        );

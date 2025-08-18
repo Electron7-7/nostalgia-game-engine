@@ -13,14 +13,13 @@ struct GLFWmonitor; // Forward Declaration
 class GLFW_Backend : public WindowingBackend
 {
 public:
-    virtual bool CreateMainWindow();
-    virtual SafeReturn<size_t> CreateWindow(const char* WindowName);
     bool Init();
     void Shutdown();
 
     bool InitImGui();
     void ImGuiNewFrame();
 
+    SafeStatus CreateMainWindow();
 
     void ResizeWindow(int Width, int Height);
     void MoveWindow(int XPosition, int YPosition);
@@ -33,7 +32,6 @@ public:
 private:
     GLFWwindow* glfw_MainWindow = nullptr;
     GLFWmonitor* glfw_LastFullscreenedMonitor = nullptr;
-    std::vector<GLFWwindow*> glfw_Windows = {};
 
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow*, int, int, int, int);

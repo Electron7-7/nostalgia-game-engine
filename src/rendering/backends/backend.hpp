@@ -70,8 +70,7 @@ public:
     virtual void Shutdown() {}
     virtual void ImGuiNewFrame() {}
 
-    virtual bool CreateMainWindow() = 0;
-    virtual SafeReturn<size_t> CreateWindow(const char* WindowName) = 0;
+    virtual SafeStatus CreateMainWindow() = 0;
 
     virtual void ResizeWindow(int Width, int Height) = 0;
     virtual void MoveWindow(int XPosition, int YPosition) = 0;
