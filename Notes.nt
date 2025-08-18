@@ -266,3 +266,6 @@ I'm torn between keeping settings simple but static, or complex but dynamic. If 
 Probably a mix of both, tbh.
 
 Yeah, I'm doing both.
+
+[08/18/25]
+TODO: Window interactions are WILDLY different bewtween X11 and Wayland (as to be expected), and my current setup only works well on X11. I need to either create two ways of interfacing with the window for each display protocol, or I need to create an agnostic way of interfacing with both at the same time. Frankly, the two separate ways will probably be easier as it's very small stuff (so far), like how X11 can have a separate width/height for fullscreen and windowed mode and they don't interact with eachother, but Wayland seems to use the same values and overwrites them if fullscreen is manually called (e.g: pressing `Meta+S` on my keyboard).
