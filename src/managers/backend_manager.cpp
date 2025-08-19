@@ -152,33 +152,3 @@ bool BackendManager::InitBackend()
 
 void BackendManager::UpdateWindowState()
 { GetWindowingBackend()->UpdateState(); }
-
-// FIXME: I'm like 99% sure that if you were to actually try and do this, you'd crash or some other nasty outcome, but there's only one backend rn so...
-/*int BackendManager::RequestBackendChange(int backend_id)
-{
-    if(!map_GraphicsBackends.contains(backend_id) || !map_WindowingBackends.contains(backend_id))
-    {
-        PRINT_WARNING("BackendManager::RequestBackendChange - supplied backend ID invalid; returning previous backend ID")
-        return current_backend;
-    }
-
-    GetGraphicsBackend()->Shutdown();
-    GetWindowingBackend()->Shutdown();
-
-    current_backend = backend_id;
-    is_backend_initialized = false;
-
-    if(!InitBackend())
-    {
-        if(current_backend == BackendIDs::Default)
-        {
-            PRINT_ERROR("BackendManager::RequestBackendChange - default backend(s) failed to initialize!")
-            return -1; // FIXME: Probably not a good return value
-        }
-
-        PRINT_WARNING("BackendManager::RequestBackendChange - requested backend failed to initialize! Changing to default backend")
-        RequestBackendChange(BackendIDs::Default);
-    }
-
-    return current_backend;
-}*/
