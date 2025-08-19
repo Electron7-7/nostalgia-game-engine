@@ -269,3 +269,15 @@ Yeah, I'm doing both.
 
 [08/18/25]
 TODO: Window interactions are WILDLY different bewtween X11 and Wayland (as to be expected), and my current setup only works well on X11. I need to either create two ways of interfacing with the window for each display protocol, or I need to create an agnostic way of interfacing with both at the same time. Frankly, the two separate ways will probably be easier as it's very small stuff (so far), like how X11 can have a separate width/height for fullscreen and windowed mode and they don't interact with eachother, but Wayland seems to use the same values and overwrites them if fullscreen is manually called (e.g: pressing `Meta+S` on my keyboard).
+
+But today, I will continue working on the rendering engine. I want to fix it up a bit, iron out the wrinkles, and then try to get an idea of how to design the pipeline so I can make a debugger that actually interacts with the rendering engine. I'm going to forgo a decent amount of the Source engine code for my own.
+
+Here are some notes from (https://app.milanote.com/1UbfQh1ist7t1Y/nostalgia-engine):
+'The game/application is responsible for providing data to the engine (e.g: mesh data, position, rotation, etc), and the engine is responsible for filtering that data into what can eventually become rendered output. The game simply provides input and data to the engine that the engine then runs with.'
+
+This is all very complex, so I'm gonna start from the bottom and work up; basically, start at the end of the pipeline where I don't need to worry too much about future abstractions and can just think about raw data, then let that shape the abstractions. I think, at least.
+
+Note I wrote on Discord:
+'Diagram and notes containing a rough sketch of the rendering pipeline for "Nostalgia". Staring at Valve's source code will make you go fucking insane. I need to remind myself that Source is EXTREMELY too complicated for what I'm trying to do and I should STOP trying to model my engine after it so closely. Their system is beautiful (even when the leaked code is dated from 2006-2013), but it's quite like me saying "I'm gonna learn how to make a car" and then spending hours trying to reverse engineer the exact rubber they used in the timing belt in the camshaft in the engine.
+
+So, this pipeline doesn't resemble Source's pipeline very much at all, it's extremely basic, still pretty much a prototype, but I understand it better and it fits the scope of my project a lot better than trying to re-create Valve's entire fucking rendering system. Frankly, it's way better than trying to re-create the general idea of Valve's rendering system. That shit is so fucking complex and intertwined and, frankly, beautiful.'
