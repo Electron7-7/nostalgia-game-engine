@@ -50,7 +50,7 @@ bool EventQueue::LoadDemoFromFile(const std::string &demo_file_path)
     DemoParser demo_parser;
 
     if(!demo_parser.LoadDemoFromFile(demo_file_path))
-        return false;
+    { return false; }
 
     ClearQueue();
 
@@ -63,7 +63,7 @@ bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
     DemoParser demo_parser;
 
     if(!demo_parser.LoadDemoFromMemory(demo_file))
-        return false;
+    { return false; }
 
     ClearQueue();
 
@@ -74,7 +74,7 @@ bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
 bool EventQueue::EnableEventQueue()
 {
     if(can_queue_events)
-        return false;
+    { return false; }
 
     can_queue_events = true;
     return true;
@@ -83,7 +83,7 @@ bool EventQueue::EnableEventQueue()
 bool EventQueue::DisableEventQueue()
 {
     if(!can_queue_events)
-        return false;
+    { return false; }
 
     can_queue_events = false;
     return true;
@@ -92,10 +92,10 @@ bool EventQueue::DisableEventQueue()
 SafeStatus EventQueue::try_BeginProcessing()
 {
     if(is_processing_events)
-        return Status::ERROR_ALREADY_ACTIVE;
+    { return Status::ERROR_ALREADY_ACTIVE; }
 
     if(_active_queue.empty() || _last_processed_event_index >= _active_queue.size())
-        return Status::EventQueueEMPTY;
+    { return Status::EventQueueEMPTY; }
 
     WAIT_FOR(is_queueing_events, 0.3); // *stares at '_active_queue' reeeeeally hard*
 
@@ -114,7 +114,7 @@ SafeStatus EventQueue::try_BeginProcessing()
 bool EventQueue::EndProcessing()
 {
     if(!is_processing_events)
-        return false;
+    { return false; }
 
     is_processing_events = false;
     return true;
@@ -123,18 +123,18 @@ bool EventQueue::EndProcessing()
 SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
 {
     if(!can_queue_events)
-        return Status::EventQueueNOT_ENABLED;
+    { return Status::EventQueueNOT_ENABLED; }
 
     SafeReturn<KeyBinds> keybinds = GetBindings(key);
 
     if(keybinds.Status() != Status::NO_ERROR)
-        return keybinds.Status();
+    { return keybinds.Status(); }
 
     is_queueing_events = true;
 
     for(const KeyBind& keybind : keybinds.Data())
         if(keybind.OnRelease() == is_released)
-            _active_queue.push_back(Event(keybind.Command()));
+        { _active_queue.push_back(Event(keybind.Command())); }
 
     is_queueing_events = false;
 
@@ -144,12 +144,12 @@ SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
 SafeReturn<Event> EventQueue::GetNextEvent()
 {
     if(!is_processing_events)
-        return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS);
+    { return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS); }
 
     Event next_event(_safe_queue.front());
 
     if(do_demo_recording)
-        RecordEventToDemo(next_event);
+    { RecordEventToDemo(next_event); }
     // FIXME: This doesn't check the size before calling pop_front
     _safe_queue.pop_front();
 

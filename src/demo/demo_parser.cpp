@@ -23,7 +23,7 @@ bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
         while(std::getline(demo_file,line))
         {
             if(ParseLine(line))
-                at_least_one_line_was_parsed = true;
+            { at_least_one_line_was_parsed = true; }
             else
                 PRINT_WARNING("DemoParser::LoadDemoFromFile - a line failed to parse: '{}'", line)
         }
@@ -44,7 +44,7 @@ bool DemoParser::LoadDemoFromMemory(const std::string& demo_file_data)
     while(std::getline(demo_data, line))
     {
         if(ParseLine(line))
-            at_least_one_line_was_parsed = true;
+        { at_least_one_line_was_parsed = true; }
         else
             PRINT_WARNING("A line failed to parse - \"{}\"", line)
     }

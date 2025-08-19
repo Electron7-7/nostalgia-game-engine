@@ -26,7 +26,7 @@ Command CommandLine::next_command = cmd_Null;
 bool CommandLine::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
     is_initialized = true;
     return true;
@@ -35,7 +35,7 @@ bool CommandLine::Init()
 SafeStatus CommandLine::try_RunCommand(Command command)
 {
     if(!_commands.contains(command))
-        return Status::CommandLineINVALID_COMMAND;
+    { return Status::CommandLineINVALID_COMMAND; }
 
     _commands.at(command)();
     return Status::NO_ERROR;
@@ -44,7 +44,7 @@ SafeStatus CommandLine::try_RunCommand(Command command)
 void CommandLine::ProcessCommands()
 {
     if(is_processing_commands)
-        return;
+    { return; }
 
     is_processing_commands = true;
 
@@ -81,7 +81,7 @@ void CommandLine::PushFront(Command command)
 bool CommandLine::PopFront()
 {
     if(_active_queue.size() == 0)
-        return false;
+    { return false; }
     _active_queue.pop_front();
     return true;
 }

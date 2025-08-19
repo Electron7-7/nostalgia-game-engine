@@ -13,7 +13,7 @@ NostalgiaGoggles* global_Application = &singleton_NostalgiaGogglesApp;
 bool NostalgiaGoggles::Create()
 {
     if(!BaseClass::Create())
-        return false;
+    { return false; }
 
     return true;
 }
@@ -21,7 +21,7 @@ bool NostalgiaGoggles::Create()
 bool NostalgiaGoggles::PreInit()
 {
     if(!BaseClass::PreInit())
-        return false;
+    { return false; }
 
     return true;
 }
@@ -54,7 +54,7 @@ int NostalgiaGoggles::Main()
 
     // Init the managers
     if(!_Manager::InitAllManagers())
-        return 0;
+    { return 0; }
 
     // First menu to start on
     // global_MenuManager->PushMenu("Main Menu");

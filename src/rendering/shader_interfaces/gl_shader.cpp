@@ -39,7 +39,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glLinkProgram(_id);
     PRINTDEBUG("Checking for Shader Program errors")
     if(!GLShaderErrorHandler(_id, true))
-        return false;
+    { return false; }
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
@@ -54,7 +54,7 @@ bool GLShader::IsValid() const
 void GLShader::Bind()
 {
     if(is_bound)
-        return;
+    { return; }
     is_bound = true;
     glUseProgram(_id);
 }
@@ -62,7 +62,7 @@ void GLShader::Bind()
 void GLShader::Unbind()
 {
     if(!is_bound)
-        return;
+    { return; }
     is_bound = false;
 }
 
@@ -107,9 +107,9 @@ bool GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_link
     {
         std::vector<char> shader_error_message(info_log_length + 1);
         if(is_program_linking)
-            glGetProgramInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data());
+        { glGetProgramInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data()); }
         else
-            glGetShaderInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data());
+        { glGetShaderInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data()); }
 
         PRINT_ERROR("GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data())
         return false;

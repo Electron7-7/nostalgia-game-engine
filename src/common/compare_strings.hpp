@@ -12,7 +12,7 @@ constexpr bool CompareStrings(const char* Left, const char* Right)
     while(*Left != '\0' && *Right != '\0')
     {
         if(*Left != *Right)
-            return false;
+        { return false; }
 
         Left++;
         Right++;

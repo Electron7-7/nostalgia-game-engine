@@ -14,7 +14,7 @@ imgui_Debugger* global_Debugger = &singleton_Debugger;
 bool imgui_Debugger::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
     is_initialized = true;
     return true;
@@ -23,7 +23,7 @@ bool imgui_Debugger::Init()
 void imgui_Debugger::Shutdown()
 {
     if(!is_initialized)
-        return;
+    { return; }
 
     is_initialized = false;
 }

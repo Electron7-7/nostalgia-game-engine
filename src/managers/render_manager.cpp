@@ -18,7 +18,7 @@ RenderManager* global_RenderManager = &singleton_RenderManager; // When making d
 bool RenderManager::Init()
 {
     if(!global_BackendManager->Init())
-        return false;
+    { return false; }
 
     // global_BackendManager->GetWindowingBackend()->CreateWindow("Secondary Window"); // This works, but the second window has it's own unique callback functions
 

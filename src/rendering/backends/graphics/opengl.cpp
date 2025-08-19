@@ -26,7 +26,7 @@ void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 bool OpenGL_Backend::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
     glGenVertexArrays(VAOS_AMOUNT, VAOs.data());
 
@@ -61,7 +61,7 @@ bool OpenGL_Backend::InitImGui()
 bool OpenGL_Backend::InitNewTheatre()
 {
     if(is_theatre_data_initialized)
-        return true;
+    { return true; }
 
     // FIXME: Make this shit safer
 
@@ -109,7 +109,7 @@ bool OpenGL_Backend::BindShader(unsigned int shader_label)
     }
 
     if(currently_bound_shader == shader_label)
-        return true;
+    { return true; }
 
     // FIXME: Can this fail even if the shaders are compiled successfuly?
     shaders.at(currently_bound_shader).Unbind();

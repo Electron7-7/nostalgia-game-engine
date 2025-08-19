@@ -148,7 +148,8 @@ void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
     assert(is_initialized);
 
     bool is_fullscreened = glfwGetWindowMonitor(m_MainWindow);
-    if(is_fullscreened == Window::Fullscreen) { return; }
+    if(is_fullscreened == Window::Fullscreen)
+    { return; }
 
     if(is_fullscreened)
     {
