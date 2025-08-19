@@ -9,7 +9,7 @@
 BackendManager singleton_BackendManager;
 BackendManager* global_BackendManager = &singleton_BackendManager;
 
-// Backend Singletons
+// Backend Singletons FIXME: Don't define these here...
 OpenGL_Backend singleton_OpenGL_Backend;
 GLFW_Backend singleton_GLFW_Backend;
 

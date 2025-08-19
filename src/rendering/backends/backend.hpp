@@ -40,10 +40,12 @@ public:
     virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; is_theatre_data_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
+    // Virtual functions (can be unimplemented)
     virtual bool InitImGui() { return true; }
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
+    // Pure virtual functions (*must* be implemented)
     virtual bool InitNewTheatre() = 0;
     virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;

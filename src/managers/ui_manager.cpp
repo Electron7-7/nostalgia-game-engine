@@ -9,6 +9,7 @@ bool UIManager::Init()
     if(is_initialized)
     { return true; }
 
+    // Do all non-ImGui initialization here...
 
     global_BackendManager->InitImGui();
 
@@ -28,6 +29,7 @@ TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return Theat
 
 void UIManager::DrawUI()
 {
+    // Do all non-ImGui drawing here...
 
     DrawImGuiUI();
 }
@@ -44,6 +46,7 @@ void UIManager::DrawImGuiUI()
 
 void UIManager::Shutdown()
 {
+    // Do all non-ImGui shutdown stuff here...
     for(ImGui_Object* imgui_object : imgui_objects)
     { imgui_object->Shutdown(); }
 }

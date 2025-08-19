@@ -33,6 +33,7 @@ private:
     GLFWwindow* m_MainWindow = nullptr;
     GLFWmonitor* m_LastFullscreenedMonitor = nullptr;
 
+    // FIXME: Do I need to make these things static in this class?
     // GLFW callback functions
     static void glfw_KeyCallbackFunction(GLFWwindow*, int, int, int, int);
     static void glfw_CharacterCallbackFunction(GLFWwindow*, unsigned int);
