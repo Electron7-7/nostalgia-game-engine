@@ -84,7 +84,7 @@ const Mesh* WorldManager::GetMesh(MeshWrapper::MeshID mesh_uid)
 {
     if(!world_MeshStorage.contains(mesh_uid))
     {
-        PRINTERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
+        PRINT_ERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
         return nullptr;
     }
 

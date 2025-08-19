@@ -1,79 +1,33 @@
 #ifndef PRINTING_H
 #define PRINTING_H
 
-#include <string>
-#include <print> // IWYU pragma: keep // Include this header because if you're including the "printing" header, then you probably wanna print stuff, huh?
+#include <print> // IWYU pragma: keep
 
-struct Color
-{
-    constexpr static const char* Reset   = "\x1b[0m";
+// IMPORTANT - These labels do not set the text color back to normal! If you use them manually, make sure to do that!
+constexpr const char* __ERROR    = "\x1b[1;31m[ERROR]";   // Sets text color to "bold red"
+constexpr const char* __WARNING  = "\x1b[1;33m[WARNING]"; // Sets text color to "bold yellow"
+constexpr const char* __DEBUG    = "\x1b[1;36m[DEBUG]";   // Sets text color to "bold cyan"
+constexpr const char* __RESET_NL = "\x1b[0m\n";           // Reset all changes & add a newline
 
-    struct Front
-    {
-        constexpr static const char* Black   = "\x1b[30m";
-        constexpr static const char* Red     = "\x1b[31m";
-        constexpr static const char* Green   = "\x1b[32m";
-        constexpr static const char* Yellow  = "\x1b[33m";
-        constexpr static const char* Blue    = "\x1b[34m";
-        constexpr static const char* Magenta = "\x1b[35m";
-        constexpr static const char* Cyan    = "\x1b[36m";
-        constexpr static const char* White   = "\x1b[37m";
-        constexpr static const char* Default = "\x1b[39m";
+/*
+    My printout macros are inspired by these ingenious StackOverflow answers:
+        https://stackoverflow.com/a/3048361  - Original Concept
+        https://stackoverflow.com/a/8814003  - Slight Improvement w/ Explanation
+        https://stackoverflow.com/a/28074198 - Major Improvement w/ Explanation
 
-        constexpr static const char* BlackBold   = "\x1b[1;30m";
-        constexpr static const char* RedBold     = "\x1b[1;31m";
-        constexpr static const char* GreenBold   = "\x1b[1;32m";
-        constexpr static const char* YellowBold  = "\x1b[1;33m";
-        constexpr static const char* BlueBold    = "\x1b[1;34m";
-        constexpr static const char* MagentaBold = "\x1b[1;35m";
-        constexpr static const char* CyanBold    = "\x1b[1;36m";
-        constexpr static const char* WhiteBold   = "\x1b[1;37m";
-        constexpr static const char* DefaultBold = "\x1b[1;39m";
-    };
+    I give my "greatest respects" to Derek Ledbetter, David Sorkovsky, Syphorlate, Jens Gustedt, and Jason Deng.
+    Even if I didn't end up using their work, it was a great inspiration and a really good read.
+*/
 
-    struct Back
-    {
-        constexpr static const char* Black   = "\x1b[40m";
-        constexpr static const char* Red     = "\x1b[41m";
-        constexpr static const char* Green   = "\x1b[42m";
-        constexpr static const char* Yellow  = "\x1b[43m";
-        constexpr static const char* Blue    = "\x1b[44m";
-        constexpr static const char* Magenta = "\x1b[45m";
-        constexpr static const char* Cyan    = "\x1b[46m";
-        constexpr static const char* White   = "\x1b[47m";
-        constexpr static const char* Default = "\x1b[49m";
+#define __LABELLED_PRINT(LABEL, FORMAT, ...) std::print("{} " FORMAT "{}", LABEL __VA_OPT__(,) __VA_ARGS__, __RESET_NL);
 
-        constexpr static const char* BlackBold   = "\x1b[2;40m";
-        constexpr static const char* RedBold     = "\x1b[2;41m";
-        constexpr static const char* GreenBold   = "\x1b[2;42m";
-        constexpr static const char* YellowBold  = "\x1b[2;43m";
-        constexpr static const char* BlueBold    = "\x1b[2;44m";
-        constexpr static const char* MagentaBold = "\x1b[2;45m";
-        constexpr static const char* CyanBold    = "\x1b[2;46m";
-        constexpr static const char* WhiteBold   = "\x1b[2;47m";
-        constexpr static const char* DefaultBold = "\x1b[2;49m";
-    };
-};
+#define PRINT_ERROR(FORMAT, ARGS...)   __LABELLED_PRINT(__ERROR, FORMAT, ARGS)
+#define PRINT_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(__WARNING,  FORMAT, ARGS)
 
-const std::string ERROR = Color::Front::RedBold     + std::string("[ERROR]")               ;
-const std::string WARN  = Color::Front::YellowBold  + std::string("[WARNING]")             ;
-const std::string DEBUG = Color::Front::DefaultBold + std::string("[DEBUG]") + Color::Reset;
-
-// Useful macros
-#define __LABELLED_PRINT(LABEL, FORMAT, ARGS...) std::println("{}" FORMAT "{}", LABEL, ARGS, Color::Reset);
-#define __LABELLED_PRINT_NO_ARGS(LABEL, FORMAT) __LABELLED_PRINT(LABEL, FORMAT, "")
-
-#define PRINT_ERROR(FORMAT, ARGS...)  __LABELLED_PRINT(ERROR, FORMAT, ARGS)
-#define PRINTERROR(FORMAT) __LABELLED_PRINT_NO_ARGS(ERROR, FORMAT)
-#define PRINT_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(WARN,  FORMAT, ARGS)
-#define PRINTWARNING(FORMAT) __LABELLED_PRINT_NO_ARGS(WARN, FORMAT)
-
-#ifdef DEBUGGING // PRINT_DEBUG should do nothing in the Release build
-    #define PRINT_DEBUG(FORMAT, ARGS...) __LABELLED_PRINT(DEBUG, FORMAT, ARGS)
-    #define PRINTDEBUG(FORMAT) __LABELLED_PRINT_NO_ARGS(DEBUG, FORMAT)
+#ifdef DEBUGGING // PRINT_DEBUG is disabled by default; add `-D DEBUGGING` to your compile flags to enable it
+    #define PRINT_DEBUG(FORMAT, ARGS...) __LABELLED_PRINT(__DEBUG, FORMAT, ARGS)
 #else
-    #define PRINT_DEBUG(FORMAT, ARGS...) {}
-    #define PRINTDEBUG(FORMAT) {}
+    #define PRINT_DEBUG(FORMAT, ARGS...) {} // The curly braces help avoid potential syntax errors
 #endif // DEBUGGING
 
 #endif // PRINTING_H

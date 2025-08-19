@@ -46,7 +46,7 @@ void InputManager::Update()
 
     while(EventQueue::GetCurrentQueueSize() > 0)
     {
-        PRINTDEBUG("Processing Queue!")
+        PRINT_DEBUG("Processing Queue!")
 
         SafeReturn<Event> next_event = EventQueue::GetNextEvent();
 

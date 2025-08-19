@@ -65,7 +65,7 @@ GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
     if(!map_GraphicsBackends.contains(m_CurrentGraphicsID))
     {
-        PRINTWARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
+        PRINT_WARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
         m_CurrentGraphicsID = m_DefaultGraphicsID;
     }
 
@@ -76,7 +76,7 @@ WindowingBackend* BackendManager::GetWindowingBackend()
 {
     if(!map_WindowingBackends.contains(m_CurrentWindowingID))
     {
-        PRINTWARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
+        PRINT_WARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
         m_CurrentWindowingID = m_DefaultWindowingID;
     }
 
@@ -142,7 +142,7 @@ bool BackendManager::InitBackend()
     if(!GetWindowingBackend()->CompatibleWith(m_CurrentGraphicsID))
     {
         // TODO: Figure out what I wanna do if this happens (probably just load the default backends and try again)
-        PRINTERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
+        PRINT_ERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
         return false;
     }
 

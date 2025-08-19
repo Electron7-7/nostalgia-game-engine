@@ -1,5 +1,6 @@
 #include "manager.hpp"
 #include "printing.hpp"
+#include "colors.hpp"
 #include "settings/settings.hpp"
 
 #include <GLFW/glfw3.h>
@@ -214,7 +215,7 @@ void _Manager::Tick()
 }
 
 void _Manager::Stop()
-{ stop_requested = (is_running); PRINT_DEBUG("{}_Manager::Stop{} has been called\n", Color::Front::DefaultBold, Color::Reset) }
+{ stop_requested = (is_running); }
 
 int _Manager::FrameNumber()
 { return frame_number; }

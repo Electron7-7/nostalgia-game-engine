@@ -1,6 +1,7 @@
 #include "event_queue.hpp"
 #include "demo/demo_parser.hpp"
 #include "printing.hpp"
+#include "colors.hpp"
 #include "keybind.hpp"
 
 #include <climits>
@@ -36,7 +37,7 @@ void EventQueue::DebugPrintQueueLog()
         queue_printout += it->EventLog() + "\n";
     }
 
-    std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", Color::Front::BlueBold, Color::Reset, queue_printout);
+    std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", Style::Bold + Foreground::Blue, Style::Reset, queue_printout);
 }
 
 void EventQueue::LoadQueue(const std::list<Event>& event_queue)
@@ -170,7 +171,7 @@ void EventQueue::ClearQueue()
 
 void EventQueue::PanicClearQueue()
 {
-    PRINTDEBUG("EventQueue::PanicClearQueue called. Printing the queue log...\n")
+    PRINT_DEBUG("EventQueue::PanicClearQueue called. Printing the queue log...\n")
     DebugPrintQueueLog();
 
     // I'm just considerate like that an' shit
@@ -201,7 +202,7 @@ bool EventQueue::StopRecordingDemo()
     {
         if(demo_recording_number == AN_UNREASONABLE_AMOUNT_OF_DEMO_FILES)
         {
-            PRINTERROR("EventQueue::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong")
+            PRINT_ERROR("EventQueue::StopRecordingDemo - you either have an unreasonable amount of demo files, or something else went wrong")
             PRINT_DEBUG("The demo file that attempted to save:\n{}\n", demo_recording_storage)
             return false;
         }

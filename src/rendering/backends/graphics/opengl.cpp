@@ -50,7 +50,7 @@ bool OpenGL_Backend::InitImGui()
 
     if(!ImGui_ImplOpenGL3_Init())
     {
-        PRINTERROR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
+        PRINT_ERROR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
         return false;
     }
 
@@ -104,7 +104,7 @@ bool OpenGL_Backend::BindShader(unsigned int shader_label)
 {
     if(!shaders.contains(shader_label))
     {
-        PRINTWARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
+        PRINT_WARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
         return false;
     }
 
@@ -128,7 +128,7 @@ bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& v
 {
     if(shaders.contains(shader_label))
     {
-        PRINTWARNING("OpenGL_Backend::BuildShader - a shader with the supplied label already exists; returning result of ::IsValid")
+        PRINT_WARNING("OpenGL_Backend::BuildShader - a shader with the supplied label already exists; returning result of ::IsValid")
         return shaders.at(shader_label).IsValid();
     }
 
@@ -140,7 +140,7 @@ bool OpenGL_Backend::RebuildShader(unsigned int shader_label, const std::string&
 {
     if(!shaders.contains(shader_label))
     {
-        PRINTWARNING("OpenGL_Backend::RebuildShader - invalid shader label! Returning false")
+        PRINT_WARNING("OpenGL_Backend::RebuildShader - invalid shader label! Returning false")
         return false;
     }
 
@@ -167,7 +167,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
 {
     if(shaders.size() <= shader_selection)
     {
-        PRINTERROR("OpenGL_Backend::GetShader - index overflow! Returning nullptr")
+        PRINT_ERROR("OpenGL_Backend::GetShader - index overflow! Returning nullptr")
         return nullptr;
     }
 
