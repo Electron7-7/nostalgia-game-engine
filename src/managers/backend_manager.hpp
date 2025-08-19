@@ -15,6 +15,9 @@ public:
 
     static GraphicsBackend* GetGraphicsBackend();
     static WindowingBackend* GetWindowingBackend();
+    static BackendID GetGraphicsID();
+    static BackendID GetWindowingID();
+
     static bool InitImGui();
     static void ImGuiNewFrame();
     static void ImGuiRender();

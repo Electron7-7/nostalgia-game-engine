@@ -37,6 +37,8 @@ public:
     bool InitImGui();
     bool InitNewTheatre();
     void Shutdown();
+    BackendID GetID() { return BackendIDs::gOpenGL; }
+
     void ImGuiNewFrame();
     void ImGuiRender();
 

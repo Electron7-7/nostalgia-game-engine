@@ -15,6 +15,7 @@ class GLFW_Backend : public WindowingBackend
 public:
     bool Init();
     void Shutdown();
+    BackendID GetID() { return BackendIDs::wGLFW; }
 
     bool InitImGui();
     void ImGuiNewFrame();

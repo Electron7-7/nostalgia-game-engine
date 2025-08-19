@@ -64,6 +64,13 @@ WindowingBackend* BackendManager::GetWindowingBackend()
     return map_WindowingBackends.at(m_CurrentWindowingID);
 }
 
+// TODO: These two functions are more efficient than calling 'Get____Backend()->GetID()', but could it lead to issues?
+BackendID BackendManager::GetGraphicsID()
+{ return m_CurrentGraphicsID; }
+
+BackendID BackendManager::GetWindowingID()
+{ return m_CurrentWindowingID; }
+
 bool BackendManager::InitImGui()
 {
     if(is_imgui_initialized)

@@ -23,6 +23,7 @@ class _Backend
 public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
+    virtual BackendID GetID() = 0;
 
 protected:
     virtual ~_Backend() = default;
@@ -37,6 +38,8 @@ public:
     virtual ~GraphicsBackend() = default;
 
     virtual bool Init() { return true; }
+    virtual BackendID GetID() { return BackendIDs::INVALID; }
+
     virtual bool InitImGui() { return true; }
     virtual bool InitNewTheatre() { return true; }
     virtual void Shutdown() {}
@@ -61,6 +64,8 @@ public:
     // Inherited by _Backend
     virtual ~WindowingBackend() = default;
     virtual bool Init() { return true; }
+    virtual BackendID GetID() { return BackendIDs::INVALID; }
+
     virtual bool InitImGui() { return true; }
     virtual void Shutdown() {}
     virtual void ImGuiNewFrame() {}
