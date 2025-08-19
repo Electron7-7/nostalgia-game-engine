@@ -4,10 +4,10 @@
 constexpr bool CompareStrings(const char* Left, const char* Right)
 {
     if(Left == Right) // Hey, it could happen
-        return true;
+    { return true; }
 
     if(Left == nullptr || Right == nullptr) // All my homies HATE segfaults!!!!
-        return false;
+    { return false; }
 
     while(*Left != '\0' && *Right != '\0')
     {
@@ -19,7 +19,7 @@ constexpr bool CompareStrings(const char* Left, const char* Right)
     }
 
     if(*Left != '\0' || *Right != '\0') // One of them is shorter than the other!
-        return false;
+    { return false; }
 
     return true;
 }
