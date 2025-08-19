@@ -8,20 +8,15 @@
 #include <glm/glm.hpp>
 #include <set>
 
-// This typedef keeps the code self-documenting
 typedef int BackendID;
-// These typedefs help make the code easier to understand in certain areas (so, more self-documentation)
-typedef int GraphicsBackendID;
-typedef int WindowingBackendID;
 
-namespace BackendIDs
+struct BackendIDs
 {
-    constexpr GraphicsBackendID OpenGL = 0;
-    constexpr WindowingBackendID GLFW  = 0;
+    static constexpr BackendID gOpenGL = 0;
+    static constexpr BackendID wGLFW   = 0;
 
-    constexpr BackendID default_Graphics = OpenGL;
-    constexpr BackendID default_Windowing = GLFW;
-}
+    static constexpr BackendID INVALID = -1;
+};
 
 class _Backend
 {
@@ -80,13 +75,10 @@ public:
     virtual void PollEvents() = 0;
     virtual void UpdateState() = 0;
 
-
-    // Compatibility Functions
-    bool CompatibleWith(GraphicsBackendID GraphicsBackend) const { return compatible_graphics_ids.contains(GraphicsBackend); }
-    std::set<GraphicsBackendID> GetCompatibleGraphicsIDs() const { return compatible_graphics_ids; }
+    bool CompatibleWith(BackendID GraphicsBackend) const { return compatible_graphics_backends.contains(GraphicsBackend); }
 
 protected:
-    std::set<BackendID> compatible_graphics_ids = {};
+    std::set<BackendID> compatible_graphics_backends = {};
     bool is_imgui_initialized = false;
 };
 

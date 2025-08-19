@@ -18,8 +18,11 @@ std::map<BackendID, WindowingBackend*> BackendManager::map_WindowingBackends = {
 bool BackendManager::is_initialized = false;
 bool BackendManager::is_backend_initialized = false;
 bool BackendManager::is_imgui_initialized = false;
-GraphicsBackendID BackendManager::current_GraphicsBackend = BackendIDs::default_Graphics;
-WindowingBackendID BackendManager::current_WindowingBackend = BackendIDs::default_Windowing;
+
+BackendID BackendManager::m_DefaultGraphicsID  = BackendIDs::gOpenGL;
+BackendID BackendManager::m_DefaultWindowingID = BackendIDs::wGLFW;
+BackendID BackendManager::m_CurrentGraphicsID  = m_DefaultGraphicsID;
+BackendID BackendManager::m_CurrentWindowingID = m_DefaultWindowingID;
 
 bool BackendManager::Init()
 {
@@ -27,39 +30,38 @@ bool BackendManager::Init()
         return true;
 
     // Set up graphics backends map
-    map_GraphicsBackends[BackendIDs::OpenGL] = &singleton_OpenGL_Backend;
+    map_GraphicsBackends[BackendIDs::gOpenGL] = &singleton_OpenGL_Backend;
 
     // Set up windowing backends map
-    map_WindowingBackends[BackendIDs::GLFW] = &singleton_GLFW_Backend;
-
-    is_initialized = true;
+    map_WindowingBackends[BackendIDs::wGLFW] = &singleton_GLFW_Backend;
 
     if(!InitBackend())
         return false;
 
+    is_initialized = true;
     return true;
 }
 
 GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
-    if(!map_GraphicsBackends.contains(current_GraphicsBackend))
+    if(!map_GraphicsBackends.contains(m_CurrentGraphicsID))
     {
         PRINTWARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
-        current_GraphicsBackend = BackendIDs::default_Graphics;
+        m_CurrentGraphicsID = m_DefaultGraphicsID;
     }
 
-    return map_GraphicsBackends.at(current_GraphicsBackend);
+    return map_GraphicsBackends.at(m_CurrentGraphicsID);
 }
 
 WindowingBackend* BackendManager::GetWindowingBackend()
 {
-    if(!map_WindowingBackends.contains(current_WindowingBackend))
+    if(!map_WindowingBackends.contains(m_CurrentWindowingID))
     {
         PRINTWARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
-        current_WindowingBackend = BackendIDs::default_Windowing;
+        m_CurrentWindowingID = m_DefaultWindowingID;
     }
 
-    return map_WindowingBackends.at(current_WindowingBackend);
+    return map_WindowingBackends.at(m_CurrentWindowingID);
 }
 
 bool BackendManager::InitImGui()
@@ -105,7 +107,7 @@ bool BackendManager::InitBackend()
     if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
         return false;
 
-    if(!GetWindowingBackend()->CompatibleWith(current_GraphicsBackend))
+    if(!GetWindowingBackend()->CompatibleWith(m_CurrentGraphicsID))
     {
         // TODO: Figure out what I wanna do if this happens (probably just load the default backends and try again)
         PRINTERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")

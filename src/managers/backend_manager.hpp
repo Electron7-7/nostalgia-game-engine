@@ -6,10 +6,7 @@
 class GraphicsBackend; // Forward Declaration
 class WindowingBackend; // Forward Declaration
 
-// These typedefs are for self-documentation and readability
 typedef int BackendID;
-typedef int GraphicsBackendID;
-typedef int WindowingBackendID;
 
 class BackendManager
 {
@@ -31,8 +28,11 @@ private:
     static bool is_initialized;
     static bool is_backend_initialized;
     static bool is_imgui_initialized;
-    static GraphicsBackendID current_GraphicsBackend;
-    static WindowingBackendID current_WindowingBackend;
+
+    static BackendID m_CurrentGraphicsID;
+    static BackendID m_CurrentWindowingID;
+    static BackendID m_DefaultGraphicsID;
+    static BackendID m_DefaultWindowingID;
 
     static bool InitBackend();
 };
