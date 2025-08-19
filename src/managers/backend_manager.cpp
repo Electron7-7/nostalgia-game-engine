@@ -76,11 +76,17 @@ bool BackendManager::InitImGui()
     if(is_imgui_initialized)
         return true;
 
-    if(!GetWindowingBackend()->InitImGui())
-        return false;
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
 
-    if(!GetGraphicsBackend()->InitImGui())
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    if(!GetWindowingBackend()->InitImGui() || !GetGraphicsBackend()->InitImGui())
+    {
+        ImGui::DestroyContext();
         return false;
+    }
 
     is_imgui_initialized = true;
     return true;
@@ -88,23 +94,23 @@ bool BackendManager::InitImGui()
 
 void BackendManager::ImGuiNewFrame()
 {
-    if(!is_imgui_initialized && !InitImGui())
-        return;
+    if(!is_imgui_initialized)
+    { return; }
 
     GetGraphicsBackend()->ImGuiNewFrame();
     GetWindowingBackend()->ImGuiNewFrame();
+
     ImGui::NewFrame();
 }
 
 void BackendManager::ImGuiRender()
 {
-    if(!is_imgui_initialized && !InitImGui())
-        return;
+    if(!is_imgui_initialized)
+    { return; }
 
     ImGui::Render();
     GetGraphicsBackend()->ImGuiRender();
 }
-
 
 bool BackendManager::InitBackend()
 {

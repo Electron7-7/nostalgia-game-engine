@@ -17,6 +17,7 @@ public:
     ImGui_Object* AddImGuiObject(ImGui_Object* NewImGuiObject);
     bool RemoveImGuiObject(ImGui_Object* OldImGuiObject);
     void DrawUI();
+    void DrawImGuiUI();
 
 private:
     std::vector<ImGui_Object*> imgui_objects;

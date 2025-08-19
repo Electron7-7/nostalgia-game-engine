@@ -12,6 +12,7 @@ class BackendManager
 {
 public:
     static bool Init();
+    static void Shutdown();
 
     static GraphicsBackend* GetGraphicsBackend();
     static WindowingBackend* GetWindowingBackend();

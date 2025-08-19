@@ -1,5 +1,6 @@
 #include "glfw.hpp"
 #include "printing.hpp"
+#include "managers/backend_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "settings/settings.hpp"
 #include "DearImGui/imgui_impl_glfw.h"
@@ -38,10 +39,15 @@ bool GLFW_Backend::InitImGui()
     if(is_imgui_initialized)
         return true;
 
-    if(!ImGui_ImplGlfw_InitForOpenGL(glfw_MainWindow, true))
+    switch(global_BackendManager->GetGraphicsID())
     {
-        PRINTERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
-        return false;
+    case BackendIDs::gOpenGL:
+        if(!ImGui_ImplGlfw_InitForOpenGL(m_MainWindow, true))
+        {
+            PRINTERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
+            return false;
+        }
+        break;
     }
 
     is_imgui_initialized = true;

@@ -11,17 +11,11 @@ bool UIManager::Init()
     if(is_initialized)
         return true;
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
 
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
-    global_BackendManager->GetWindowingBackend()->InitImGui();
+    global_BackendManager->InitImGui();
 
     for(ImGui_Object* imgui_object : imgui_objects)
-        if(!imgui_object->Init())
-            return false;
+    { imgui_object->Init(); }
 
     is_initialized = true;
     return true;
@@ -35,6 +29,12 @@ void UIManager::Update()
 TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return TheatreReturnValue_t::FINISHED; }
 
 void UIManager::DrawUI()
+{
+
+    DrawImGuiUI();
+}
+
+void UIManager::DrawImGuiUI()
 {
     global_BackendManager->ImGuiNewFrame();
 
