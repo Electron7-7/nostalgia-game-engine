@@ -42,6 +42,25 @@ bool BackendManager::Init()
     return true;
 }
 
+void BackendManager::Shutdown()
+{
+    if(!is_initialized)
+    { return; }
+
+    if(is_imgui_initialized)
+    { ImGui::DestroyContext(); }
+
+    if(is_backend_initialized)
+    {
+        GetWindowingBackend()->Shutdown();
+        GetGraphicsBackend()->Shutdown();
+    }
+
+    is_backend_initialized = false;
+    is_imgui_initialized = false;
+    is_initialized = false;
+}
+
 GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
     if(!map_GraphicsBackends.contains(m_CurrentGraphicsID))

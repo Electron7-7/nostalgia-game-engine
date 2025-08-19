@@ -36,16 +36,15 @@ class GraphicsBackend : public _Backend
 public:
     // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
-
     virtual bool Init() { return true; }
+    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; is_theatre_data_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
     virtual bool InitImGui() { return true; }
-    virtual bool InitNewTheatre() { return true; }
-    virtual void Shutdown() {}
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
+    virtual bool InitNewTheatre() = 0;
     virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
@@ -64,10 +63,10 @@ public:
     // Inherited by _Backend
     virtual ~WindowingBackend() = default;
     virtual bool Init() { return true; }
+    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
     virtual bool InitImGui() { return true; }
-    virtual void Shutdown() {}
     virtual void ImGuiNewFrame() {}
 
     virtual SafeStatus CreateMainWindow() = 0;
