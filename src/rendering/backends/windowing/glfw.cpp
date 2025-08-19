@@ -28,7 +28,7 @@ bool GLFW_Backend::Init()
         return false;
     }
 
-    compatible_graphics_ids = { BackendIDs::OpenGL };
+    compatible_graphics_backends = { BackendIDs::gOpenGL };
     is_initialized = true;
     return true;
 }
