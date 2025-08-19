@@ -197,7 +197,7 @@ static: resources
 	$(eval LIBRARY_FLAGS = $(FLAGS_LIB_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s printout $(CC_OBJS) $(CXX_OBJS) $(BUILD_LIBRARY)/$(NAME)
+	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
 dynamic: resources
@@ -206,7 +206,7 @@ dynamic: resources
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s printout $(CC_OBJS) $(CXX_OBJS) $(BUILD_LIBRARY)/$(NAME)
+	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
 libraries: static dynamic ;@:
