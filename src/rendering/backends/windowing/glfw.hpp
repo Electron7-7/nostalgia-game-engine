@@ -4,7 +4,6 @@
 #include "input/key.hpp"
 #include "rendering/backends/backend.hpp"
 
-#include <vector>
 #include <map>
 
 struct GLFWwindow; // Forward Declaration

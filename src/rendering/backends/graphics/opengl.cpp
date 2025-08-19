@@ -46,7 +46,7 @@ bool OpenGL_Backend::Init()
 bool OpenGL_Backend::InitImGui()
 {
     if(is_imgui_initialized)
-        return true;
+    { return true; }
 
     if(!ImGui_ImplOpenGL3_Init())
     {

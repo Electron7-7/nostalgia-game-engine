@@ -1,7 +1,7 @@
 #include "glfw.hpp"
-#include "printing.hpp"
 #include "managers/backend_manager.hpp"
 #include "managers/input_manager.hpp"
+#include "printing.hpp"
 #include "settings/settings.hpp"
 #include "DearImGui/imgui_impl_glfw.h"
 #include "GLFW/glfw3.h"
@@ -15,7 +15,7 @@ typedef Settings::Window Window;
 bool GLFW_Backend::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
     PRINTDEBUG("GLFW_Backend::Init")
 
@@ -37,7 +37,7 @@ bool GLFW_Backend::Init()
 bool GLFW_Backend::InitImGui()
 {
     if(is_imgui_initialized)
-        return true;
+    { return true; }
 
     switch(global_BackendManager->GetGraphicsID())
     {

@@ -34,13 +34,14 @@ public:
     ~OpenGL_Backend() = default;
 
     bool Init();
-    bool InitImGui();
-    bool InitNewTheatre();
     void Shutdown();
     BackendID GetID() { return BackendIDs::gOpenGL; }
 
+    bool InitImGui();
     void ImGuiNewFrame();
     void ImGuiRender();
+
+    bool InitNewTheatre();
 
     void ClearBuffer(glm::vec4 ClearColor);
     const ShaderInterface* GetShader(unsigned int ShaderSelection) const;

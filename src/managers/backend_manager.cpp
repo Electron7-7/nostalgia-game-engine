@@ -27,7 +27,7 @@ BackendID BackendManager::m_CurrentWindowingID = m_DefaultWindowingID;
 bool BackendManager::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
     // Set up graphics backends map
     map_GraphicsBackends[BackendIDs::gOpenGL] = &singleton_OpenGL_Backend;
@@ -36,7 +36,7 @@ bool BackendManager::Init()
     map_WindowingBackends[BackendIDs::wGLFW] = &singleton_GLFW_Backend;
 
     if(!InitBackend())
-        return false;
+    { return false; }
 
     is_initialized = true;
     return true;
@@ -93,7 +93,7 @@ BackendID BackendManager::GetWindowingID()
 bool BackendManager::InitImGui()
 {
     if(is_imgui_initialized)
-        return true;
+    { return true; }
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -134,10 +134,10 @@ void BackendManager::ImGuiRender()
 bool BackendManager::InitBackend()
 {
     if(is_backend_initialized)
-        return true;
+    { return true; }
 
     if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
-        return false;
+    { return false; }
 
     if(!GetWindowingBackend()->CompatibleWith(m_CurrentGraphicsID))
     {

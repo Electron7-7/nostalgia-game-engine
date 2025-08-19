@@ -1,6 +1,4 @@
 #include "ui_manager.hpp"
-#include "DearImGui/imgui.h"
-#include "rendering/backends/backend.hpp"
 #include "managers/backend_manager.hpp"
 
 UIManager singleton_UIManager;
@@ -9,7 +7,7 @@ UIManager* global_UIManager = &singleton_UIManager;
 bool UIManager::Init()
 {
     if(is_initialized)
-        return true;
+    { return true; }
 
 
     global_BackendManager->InitImGui();
@@ -39,7 +37,7 @@ void UIManager::DrawImGuiUI()
     global_BackendManager->ImGuiNewFrame();
 
     for(ImGui_Object* imgui_object : imgui_objects)
-        imgui_object->Update();
+    { imgui_object->Update(); }
 
     global_BackendManager->ImGuiRender();
 }
@@ -47,7 +45,7 @@ void UIManager::DrawImGuiUI()
 void UIManager::Shutdown()
 {
     for(ImGui_Object* imgui_object : imgui_objects)
-        imgui_object->Shutdown();
+    { imgui_object->Shutdown(); }
 }
 
 ImGui_Object* UIManager::AddImGuiObject(ImGui_Object* new_object)
