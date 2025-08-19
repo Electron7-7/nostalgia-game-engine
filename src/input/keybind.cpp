@@ -9,7 +9,7 @@
 // TODO: Is this a good idea? Seems find to me...
 #define ASSERT_KEYNAME(KEY_NAME)            \
 if(!key_strings_map.contains(KEY_NAME))     \
-    return false;                           \
+{ return false; }                           \
 KeyID KEYID = key_strings_map.at(KEY_NAME);
 
 static std::map<KeyID, std::set<KeyBind>> keybinds_map = {};
