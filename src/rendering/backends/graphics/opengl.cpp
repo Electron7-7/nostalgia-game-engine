@@ -4,12 +4,12 @@
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
-#include "managers/theatre_manager.hpp"
+// #include "managers/theatre_manager.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
 
-std::map<MeshWrapper::MeshID, OpenGL_MeshData> OpenGL_Backend::gl_mesh_data = {};
+// std::map<MeshWrapper::MeshID, OpenGL_MeshData> OpenGL_Backend::gl_mesh_data = {};
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::VAOs = {};
 std::map<unsigned int, GLShader> OpenGL_Backend::shaders = {};
 unsigned int OpenGL_Backend::currently_bound_shader = Shaders::SAFETY;
@@ -76,10 +76,10 @@ bool OpenGL_Backend::InitNewTheatre()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_TheatreManager->GetAllCurrentMeshes();
+    // std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_TheatreManager->GetAllCurrentMeshes();
 
-    for(auto& [mesh_id, mesh_ptr] : all_meshes)
-        BufferMeshData(mesh_id, mesh_ptr, &all_vertex_data, &all_indices);
+    // for(auto& [mesh_id, mesh_ptr] : all_meshes)
+        // BufferMeshData(mesh_id, mesh_ptr, &all_vertex_data, &all_indices);
 
     glBufferData(GL_ARRAY_BUFFER, all_vertex_data.size() * sizeof(float), all_vertex_data.data(), GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, all_indices.size() * sizeof(unsigned int), all_indices.data(), GL_STATIC_DRAW);
@@ -194,22 +194,22 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     GetShader(context.GetShaderID())->SetUniform("projection_matrix", context.GetProjectionMatrix());
     GetShader(context.GetShaderID())->SetUniform("view_position", context.GetViewPosition());
 
-    const OpenGL_MeshData* mesh_data = &gl_mesh_data.at(context.GetMeshID());
+    // const OpenGL_MeshData* mesh_data = &gl_mesh_data.at(context.GetMeshID());
 
-    glDrawElementsBaseVertex(GL_TRIANGLES, mesh_data->IndicesCount(), GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh_data->BaseIndex()), mesh_data->BaseVertex());
+    // glDrawElementsBaseVertex(GL_TRIANGLES, mesh_data->IndicesCount(), GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * mesh_data->BaseIndex()), mesh_data->BaseVertex());
 }
 
 void OpenGL_Backend::BufferMeshData(const int mesh_id, const Mesh* mesh, std::vector<float>* all_vertex_data, std::vector<unsigned int>* all_indices)
 {
     // FIXME: Make this shit safer
 
-    gl_mesh_data[mesh_id] = OpenGL_MeshData();
-    gl_mesh_data.at(mesh_id).SetBaseVertex(all_vertex_data->size() / VAO_DEFAULT_STRIDE);
-    gl_mesh_data.at(mesh_id).SetBaseIndex(all_indices->size());
+    // gl_mesh_data[mesh_id] = OpenGL_MeshData();
+    // gl_mesh_data.at(mesh_id).SetBaseVertex(all_vertex_data->size() / VAO_DEFAULT_STRIDE);
+    // gl_mesh_data.at(mesh_id).SetBaseIndex(all_indices->size());
 
-    std::vector<float> vertex_data = mesh->GetVertexData();
-    std::vector<unsigned int> indices = mesh->GetIndices();
+    // std::vector<float> vertex_data = mesh->GetVertexData();
+    // std::vector<unsigned int> indices = mesh->GetIndices();
 
-    all_vertex_data->insert(all_vertex_data->end(), vertex_data.begin(), vertex_data.end());
-    all_indices->insert(all_indices->end(), indices.begin(), indices.end());
+    // all_vertex_data->insert(all_vertex_data->end(), vertex_data.begin(), vertex_data.end());
+    // all_indices->insert(all_indices->end(), indices.begin(), indices.end());
 }

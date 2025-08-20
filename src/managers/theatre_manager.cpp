@@ -1,5 +1,4 @@
 #include "theatre_manager.hpp"
-#include "printing.hpp"
 #include "rendering/camera_property.hpp"
 
 #include <glm/glm.hpp>
@@ -59,44 +58,6 @@ void TheatreManager::SetInitialLocalPlayerPosition()
     world_Player.GetCameraProperty()->origin.x = 512 + camera_direction.x * distance;
     world_Player.GetCameraProperty()->origin.y = 0   + camera_direction.y * distance;
     world_Player.GetCameraProperty()->origin.z = 512 + camera_direction.z * distance;
-}
-
-MeshWrapper::MeshID TheatreManager::AddMesh(const Mesh& new_mesh)
-{
-    for(auto& [mesh_id, mesh] : world_MeshStorage) // FIXME: This might be more dangerous than an iterative for-loop
-    {
-        if(!mesh.GetMesh()->GetName().compare(new_mesh.GetName()))
-        {
-            PRINT_ERROR("TheatreManager::AddMesh - A Mesh with the same name \"{}\" already exists! Returning that Mesh's UID", new_mesh.GetName())
-            return mesh_id;
-        }
-    }
-
-    int mesh_uid = world_MeshStorage.size();
-    // FIXME: This could probably do to be safer...
-    world_MeshStorage[mesh_uid] = MeshWrapper(new_mesh, mesh_uid);
-    return mesh_uid;
-}
-
-const Mesh* TheatreManager::GetMesh(MeshWrapper::MeshID mesh_uid)
-{
-    if(!world_MeshStorage.contains(mesh_uid))
-    {
-        PRINT_ERROR("TheatreManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
-        return nullptr;
-    }
-
-    return world_MeshStorage.at(mesh_uid).GetMesh();
-}
-
-std::map<MeshWrapper::MeshID, const Mesh*> TheatreManager::GetAllCurrentMeshes()
-{
-    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes;
-
-    for(auto& [mesh_uid, mesh_wrapper] : world_MeshStorage)
-        all_meshes[mesh_uid] = mesh_wrapper.GetMesh();
-
-    return all_meshes;
 }
 
 void TheatreManager::RenderWorld()

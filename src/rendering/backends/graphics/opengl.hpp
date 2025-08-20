@@ -59,7 +59,7 @@ private:
 
     typedef int MeshID;
 
-    static std::map<MeshID, OpenGL_MeshData> gl_mesh_data;
+    // static std::map<MeshID, OpenGL_MeshData> gl_mesh_data;
     static std::array<unsigned int, VAOS_AMOUNT> VAOs;
     static std::map<unsigned int, GLShader> shaders;
     static unsigned int currently_bound_shader;

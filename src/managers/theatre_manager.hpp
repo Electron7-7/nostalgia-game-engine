@@ -6,7 +6,7 @@
 #include "rendering/render_command.hpp"
 #include "things/actors/nostalgia_player.hpp"
 
-#include <memory>
+#include <list>
 
 struct MeshWrapper
 {
@@ -30,10 +30,6 @@ public:
     TheatreManager();
     ~TheatreManager();
 
-
-    MeshWrapper::MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
-    const Mesh* GetMesh(int MeshID);
-    std::map<MeshWrapper::MeshID, const Mesh*> GetAllCurrentMeshes();
     NostalgiaPlayer* GetLocalPlayer();
 
     void RenderWorld();
@@ -52,9 +48,9 @@ private:
 
     NostalgiaPlayer world_Player;
 
-    std::vector<RenderCommand> world_RenderCommandQueue = {};
-    std::vector<std::unique_ptr<Thing>> world_ThingStorage = {};
-    std::map<MeshWrapper::MeshID, MeshWrapper> world_MeshStorage = {};
+    std::vector<RenderCommand> m_RenderCommandQueue = {};
+    std::list<std::unique_ptr<Thing>> m_ThingStorage = {};
+    std::map<unsigned int, MeshWrapper> m_MeshStorage = {};
 };
 
 // Singleton accessor
