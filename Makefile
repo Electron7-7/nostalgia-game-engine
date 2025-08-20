@@ -144,8 +144,8 @@ RESOURCES_DIR := $(SRC)/resources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
-CC_SRCS  ?= $(call get_source_files,$(SRC_DIRS),*.c)   $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)
-CXX_SRCS ?= $(call get_source_files,$(SRC_DIRS),*.cpp) $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp)
+CC_SRCS  ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)   $(call get_source_files,$(SRC_DIRS),*.c)
+CXX_SRCS ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp) $(call get_source_files,$(SRC_DIRS),*.cpp)
 
 APP_SRCS := $(call get_source_files,$(APP_SRC_DIRS),*.cpp)
 
@@ -283,8 +283,7 @@ debug: ;@:
 
 # Cleaning Functions
 CLEAN       = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -delete -print 2>/dev/null
-CLEAN_OBJS  = $(call CLEAN,$(1),-regex '.+\.objs_.+/.+' $(2))
-CLEAN_DIRTY = $(call CLEAN_OBJS,$(1),$(DIRTY_SRC_DIRS:%=-not -path "*%*"))
+DIRTY       = $(foreach dir,$(1),-not -path "*$(dir)*")
 CLEAN_PRINT = \
 $(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
 $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
@@ -293,7 +292,7 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 # (e.g: 'make windows clean' will clean 'build/Windows/', but 'make windows debug clean' will only clean 'build/Windows/Debug/')
 .__clean_target: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)'))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
 	$(eval EMPTY_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)'))
 	@ $(call CLEAN_PRINT,$(EMPTY_DIRS))
 
@@ -312,11 +311,24 @@ clean:
 		$(MAKE) -s .__clean_all;             \
 	fi
 
+
 # 'mostlyclean' doesn't clean files from 'DIRTY_SRC_DIRS'
+.__mostlyclean_target:
+	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
+	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
+
+.__mostlyclean_all: ;@:
+	$(eval CLEAN_FILES != $(call CLEAN,f,$(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,$(call DIRTY,$(DIRTY_SRC_DIRS))))
+	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
+
 mostlyclean:
-	$(eval CLEAN_FILES != $(call CLEAN_DIRTY,f))
-	$(eval CLEAN_DIRS  != $(call CLEAN_DIRTY,d -empty))
-	@ $(call CLEAN_PRINT, $(CLEAN_FILES)$(CLEAN_DIRS))
+	@ if [ "$(TARGET_CALLED)" == "1" ]; then \
+		$(MAKE) -s .__mostlyclean_target;    \
+	else                                     \
+		$(MAKE) -s .__mostlyclean_all;       \
+	fi
 
 disable_colors:
 	$(eval RESET   = "")
