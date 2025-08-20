@@ -10,6 +10,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
+using namespace ManagerEnums;
+
 // Singleton Accessor
 RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
 RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
@@ -28,10 +30,10 @@ bool RenderManager::Init()
 void RenderManager::Shutdown()
 {}
 
-TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
+ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 { return FINISHED; }
 
-TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
+ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 { return FINISHED; }
 
 /*void RenderManager::UpdateLocalPlayerCamera()

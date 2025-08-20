@@ -1,6 +1,8 @@
 #include "ui_manager.hpp"
 #include "managers/backend_manager.hpp"
 
+using namespace ManagerEnums;
+
 UIManager singleton_UIManager;
 UIManager* global_UIManager = &singleton_UIManager;
 
@@ -20,12 +22,12 @@ bool UIManager::Init()
     return true;
 }
 
-TheatreReturnValue_t UIManager::TheatreInit(bool IsFirstCall) { return TheatreReturnValue_t::FINISHED; }
+ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool IsFirstCall) { return ManagerEnums::TheatreReturnValue_t::FINISHED; }
 
 void UIManager::Update()
 {}
 
-TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return TheatreReturnValue_t::FINISHED; }
+ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return ManagerEnums::TheatreReturnValue_t::FINISHED; }
 
 void UIManager::DrawUI()
 {

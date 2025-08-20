@@ -14,9 +14,9 @@ class RenderManager : public Manager
 {
 public:
     virtual bool Init();
-    virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual void Update();
-    virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
 
     // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful

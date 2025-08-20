@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+using namespace ManagerEnums;
+
 TheatreManager singleton_TheatreManager;
 TheatreManager* global_TheatreManager = &singleton_TheatreManager;
 
@@ -17,7 +19,7 @@ TheatreManager::~TheatreManager()
 {
 }
 
-TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
+ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
 {
     if(!is_first_call)
     { return FINISHED; }
@@ -28,7 +30,7 @@ TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
     return FINISHED;
 }
 
-TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first_call)
+ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first_call)
 {
     if(!is_first_call)
     { return FINISHED; }

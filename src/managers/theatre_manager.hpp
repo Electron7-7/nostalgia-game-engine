@@ -29,8 +29,6 @@ class TheatreManager : public Manager
 public:
     TheatreManager();
     ~TheatreManager();
-    TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
 
     MeshWrapper::MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
@@ -39,6 +37,8 @@ public:
     NostalgiaPlayer* GetLocalPlayer();
 
     void RenderWorld();
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
 private:
     // Various console commands created via Macro; see hl2_src/external/vpc/public/tier1/convar.h (~line 958) for more details

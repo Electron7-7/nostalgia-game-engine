@@ -7,12 +7,14 @@
 #include "input/event_queue.hpp"
 #include "printing.hpp"
 
-InputManager singleton_InputManager;
-InputManager* global_InputManager = &singleton_InputManager;
+using namespace ManagerEnums;
 
 #define ASSERT_KEY(KEY)                                                       \
 if(KEY > Key::HandledKeysLastIndex) return Status::InputManagerKEY_NOT_FOUND; \
 if(_locked_keys.contains(KEY))      return Status::InputManagerKEY_IS_LOCKED;
+
+InputManager singleton_InputManager;
+InputManager* global_InputManager = &singleton_InputManager;
 
 
 // PROTOTYPE FUNCTIONS

@@ -8,9 +8,9 @@ class UIManager : public Manager
 {
 public:
     virtual bool Init();
-    virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual void Update();
-    virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     virtual void Shutdown();
 
     ImGui_Object* AddImGuiObject(ImGui_Object* NewImGuiObject);

@@ -3,31 +3,33 @@
 #include <vector>
 #include <chrono>
 
-// Theatre State
-enum TheatreState_t
-{
-    NOT_IN_LEVEL,
-    LOADING_LEVEL,
-    IN_LEVEL,
-    SHUTTING_DOWN_LEVEL,
-};
 
-// Theatre Return Value (i.e: are we working, finished, or fucked?)
-enum TheatreReturnValue_t
+namespace ManagerEnums
 {
-    FUCKED,
-    MORE_WORK,
-    FINISHED,
-};
+    enum TheatreState_t
+    {
+        NOT_IN_LEVEL,
+        LOADING_LEVEL,
+        IN_LEVEL,
+        SHUTTING_DOWN_LEVEL,
+    };
+
+    enum TheatreReturnValue_t
+    {
+        FUCKED,
+        MORE_WORK,
+        FINISHED,
+    };
+}
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
 class _Manager
 {
 public:
     virtual bool Init() = 0;
-    virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual void Update() = 0;
-    virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
     virtual void Shutdown() = 0;
 
     // Called during game save/restore
@@ -65,14 +67,14 @@ public:
     // Helpers for loading a theatre
     static void StartNewTheatre();
     static void ShutdownTheatre();
-    static TheatreState_t GetTheatreState();
+    static ManagerEnums::TheatreState_t GetTheatreState();
 
 protected:
     static void UpdateTheatreStateMachine();
 
     virtual ~_Manager() {}
 
-    typedef TheatreReturnValue_t (_Manager::*ManagerTheatreFunction_t)(bool IsFirstCall);
+    typedef ManagerEnums::TheatreReturnValue_t (_Manager::*ManagerTheatreFunction_t)(bool IsFirstCall);
     typedef bool (_Manager::*ManagerInitFunc_t)();
     typedef void (_Manager::*ManagerFunc_t)();
 
@@ -80,19 +82,19 @@ protected:
     static void InvokeMethod(ManagerFunc_t Function);
     static void InvokeMethodReverseOrder(ManagerFunc_t Function);
     static bool InvokeMethod(ManagerInitFunc_t Function);
-    static TheatreReturnValue_t InvokeTheatreMethod(ManagerTheatreFunction_t Function, bool IsFirstCall);
-    static TheatreReturnValue_t InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
+    static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethod(ManagerTheatreFunction_t Function, bool IsFirstCall);
+    static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
 
+    static std::vector<_Manager*> game_managers;
     static bool theatre_shutdown_requested;
     static bool theatre_start_requested;
     static bool stop_requested;
-    static std::vector<_Manager*> game_managers; // Not using smart pointers, because managers are only added during the engine's initialization and are just singleton accessors, meaning they should never result in memory leaks (i.e: made with "new")
     static bool is_running;
     static bool is_initialized;
     static int frame_number;
     static int tick_number;
-    static TheatreState_t theatre_state;
     inline static std::chrono::time_point start_time = std::chrono::steady_clock::now();
+    static ManagerEnums::TheatreState_t theatre_state;
 };
 
 class Manager : public _Manager
@@ -102,9 +104,9 @@ public:
 
     // Managers are expected to implement these methods.
     virtual bool Init() { return true; }
-    virtual TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return FINISHED; }
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
     virtual void Update() {}
-    virtual TheatreReturnValue_t TheatreShutdown( bool IsFirstCall ) { return FINISHED; }
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
     virtual void Shutdown() {}
     virtual void OnSave() {}
     virtual void OnRestore() {}

@@ -5,6 +5,8 @@
 #include <cassert>
 #include <thread>
 
+using namespace ManagerEnums;
+
 int _Manager::frame_number = 0;
 int _Manager::tick_number = 0;
 bool _Manager::stop_requested = false;
@@ -12,7 +14,7 @@ bool _Manager::is_running = false;
 bool _Manager::is_initialized = false;
 bool _Manager::theatre_start_requested = false;
 bool _Manager::theatre_shutdown_requested = false;
-TheatreState_t _Manager::theatre_state = NOT_IN_LEVEL;
+ManagerEnums::TheatreState_t _Manager::theatre_state = NOT_IN_LEVEL;
 
 std::vector<_Manager*> _Manager::game_managers = {};
 
@@ -60,12 +62,12 @@ bool _Manager::InvokeMethod(ManagerInitFunc_t function)
     return true;
 }
 
-TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t function, bool is_first_call)
+ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t function, bool is_first_call)
 {
-    TheatreReturnValue_t return_value = FINISHED;
+    ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < game_managers.size() ; ++i)
     {
-        TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        ManagerEnums::TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
         { return FUCKED; }
 
@@ -75,12 +77,12 @@ TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t func
     return return_value;
 }
 
-TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t function, bool is_first_call)
+ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t function, bool is_first_call)
 {
-    TheatreReturnValue_t return_value = FINISHED;
+    ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < game_managers.size() ; ++i)
     {
-        TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        ManagerEnums::TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
         { return_value = FUCKED; }
 
@@ -128,7 +130,7 @@ void _Manager::UpdateTheatreStateMachine()
     // Perform theatre shutdown
     if(theatre_state == SHUTTING_DOWN_LEVEL)
     {
-        TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
+        ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
         { theatre_state = NOT_IN_LEVEL; }
     }
@@ -150,7 +152,7 @@ void _Manager::UpdateTheatreStateMachine()
     // Perform theatre load
     if(theatre_state == LOADING_LEVEL)
     {
-        TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
+        ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
         { theatre_state = NOT_IN_LEVEL; }
 
@@ -220,7 +222,7 @@ void _Manager::Stop()
 int _Manager::FrameNumber()
 { return frame_number; }
 
-TheatreState_t _Manager::GetTheatreState()
+ManagerEnums::TheatreState_t _Manager::GetTheatreState()
 { return theatre_state; }
 
 void _Manager::StartNewTheatre()
