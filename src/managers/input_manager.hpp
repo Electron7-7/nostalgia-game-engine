@@ -10,8 +10,8 @@
 class InputManager : public Manager
 {
 public:
-    virtual bool Init();
-    virtual void Update();
+    bool Init();
+    void Update();
 
     SafeStatus Press(KeyID Key);
     SafeStatus Repeat(KeyID Key);

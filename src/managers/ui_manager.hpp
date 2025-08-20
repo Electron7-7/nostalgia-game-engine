@@ -7,11 +7,11 @@
 class UIManager : public Manager
 {
 public:
-    virtual bool Init();
-    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    virtual void Update();
-    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
-    virtual void Shutdown();
+    bool Init();
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    void Update();
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    void Shutdown();
 
     ImGui_Object* AddImGuiObject(ImGui_Object* NewImGuiObject);
     bool RemoveImGuiObject(ImGui_Object* OldImGuiObject);
