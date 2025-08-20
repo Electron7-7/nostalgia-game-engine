@@ -1,12 +1,16 @@
 #ifndef GRAPHX_CUBE
+#define GRAPHX_CUBE
+
 #include "math/unsigned_int_vector.hpp"
 #include "rendering/mesh.hpp"
+
 #include <vector>
 #include <glm/glm.hpp>
-#include <string> // IWYU pragma: keep
-#define NOSTALGIA_CUBE std::string("NOSTALGIA_CUBE")
+#include <string>
 
-inline Mesh mesh_Cube
+constexpr std::string NOSTALGIA_CUBE("CUBE");
+
+inline Mesh mesh_GRAPHX_Cube
 (
 	NOSTALGIA_CUBE,
 	{
@@ -153,7 +157,7 @@ inline Mesh mesh_Cube
 			glm::vec3(0.0f,  0.0f,  1.0f),
 			glm::vec3(1.0f),
 			glm::vec2(1.0f, 1.0),
-		},
+		}
 	},
 	{
 		// -X Square
@@ -178,7 +182,7 @@ inline Mesh mesh_Cube
 
 		// +Z Square
 		uintvec3(20, 21, 22),
-		uintvec3(23, 21, 22),
+		uintvec3(23, 21, 22)
 	}
 );
 #endif
