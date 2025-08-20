@@ -281,3 +281,15 @@ Note I wrote on Discord:
 'Diagram and notes containing a rough sketch of the rendering pipeline for "Nostalgia". Staring at Valve's source code will make you go fucking insane. I need to remind myself that Source is EXTREMELY too complicated for what I'm trying to do and I should STOP trying to model my engine after it so closely. Their system is beautiful (even when the leaked code is dated from 2006-2013), but it's quite like me saying "I'm gonna learn how to make a car" and then spending hours trying to reverse engineer the exact rubber they used in the timing belt in the camshaft in the engine.
 
 So, this pipeline doesn't resemble Source's pipeline very much at all, it's extremely basic, still pretty much a prototype, but I understand it better and it fits the scope of my project a lot better than trying to re-create Valve's entire fucking rendering system. Frankly, it's way better than trying to re-create the general idea of Valve's rendering system. That shit is so fucking complex and intertwined and, frankly, beautiful.'
+
+[08/19/25]
+Okay, I wanna do a lot today. Let's get cracking on rendering.
+
+I need to make Theatres before I can make the rendering code. To do this, I have to decide on a syntax. While I like the plain-text syntax, I think that making the final Theatre file be a compiled C++ object will be better.
+
+Holy shit, I can just generate text files using these techniques:
+  - Plain text: (https://stackoverflow.com/a/37532722)
+  - Hex data: (https://www.geeksforgeeks.org/cpp/readwrite-class-objects-fromto-file-c)
+  - Hex data (again): (https://cplusplus.com/forum/beginner/32200)
+
+Hmm, but it also seems like a bad idea (https://cplusplus.com/forum/beginner/32200/#msg174485). Maybe I can get away with it if I read/write only numbers and strings.
