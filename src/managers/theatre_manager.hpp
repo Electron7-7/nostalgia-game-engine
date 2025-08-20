@@ -32,11 +32,11 @@ public:
     TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
-    NostalgiaPlayerActor* GetLocalPlayer();
 
     MeshWrapper::MeshID AddMesh(const Mesh& NewMesh); // Returns the integer UID assigned to the new Mesh
     const Mesh* GetMesh(int MeshID);
     std::map<MeshWrapper::MeshID, const Mesh*> GetAllCurrentMeshes();
+    NostalgiaPlayer* GetLocalPlayer();
 
     void RenderWorld();
 
@@ -50,7 +50,7 @@ private:
     // Sets the initial camera position
     void SetInitialLocalPlayerPosition();
 
-    NostalgiaPlayerActor world_Player;
+    NostalgiaPlayer world_Player;
 
     std::vector<RenderCommand> world_RenderCommandQueue = {};
     std::vector<std::unique_ptr<Thing>> world_ThingStorage = {};

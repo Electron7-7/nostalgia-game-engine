@@ -6,7 +6,7 @@
 class CameraProperty; // Forward Declaration
 
 // Actor type
-class NostalgiaPlayerActor : public Actor
+class NostalgiaPlayer : public Actor
 {
 public:
     // FIXME: Put this in a .cpp file

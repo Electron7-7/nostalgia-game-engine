@@ -44,7 +44,7 @@ void TheatreManager::CreateThings()
 void TheatreManager::DestroyThings()
 {}
 
-NostalgiaPlayerActor* TheatreManager::GetLocalPlayer()
+NostalgiaPlayer* TheatreManager::GetLocalPlayer()
 { return &world_Player; }
 
 void TheatreManager::SetInitialLocalPlayerPosition()
