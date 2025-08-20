@@ -1,5 +1,5 @@
 #include "camera_property.hpp"
-#include "world/3d_common.hpp"
+#include "theatre/3d_common.hpp"
 
 glm::vec3 CameraProperty::GetFront()
 { return rotation * World::Orientation::Front(); }

@@ -1,6 +1,6 @@
 #include "opengl.hpp"
 #include "printing.hpp"
-#include "world/3d_common.hpp"
+#include "theatre/3d_common.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
