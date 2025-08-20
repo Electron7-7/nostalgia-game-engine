@@ -1,5 +1,6 @@
 #include "manager.hpp"
 #include "settings/settings.hpp"
+#include "time.hpp"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -197,9 +198,7 @@ void _Manager::Tick()
     while(!stop_requested)
     {
         float current_tick_length = 0.0f;
-        auto now = std::chrono::steady_clock::now();
-        auto duration = now - start_time;
-        double current_time = std::chrono::duration<double>(duration).count();
+        double current_time = Time::Current(); // Because `Time::Current` can return different values if called more than once in the same function (it's very precise)
         current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
         last_time = current_time;
 

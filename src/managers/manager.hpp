@@ -1,8 +1,7 @@
 #ifndef MANAGER_H
 #define MANAGER_H
-#include <vector>
-#include <chrono>
 
+#include <vector>
 
 namespace ManagerEnums
 {
@@ -93,7 +92,6 @@ protected:
     static bool is_initialized;
     static int frame_number;
     static int tick_number;
-    inline static std::chrono::time_point start_time = std::chrono::steady_clock::now();
     static ManagerEnums::TheatreState_t theatre_state;
 };
 
