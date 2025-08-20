@@ -4,20 +4,20 @@
 
 using namespace std::chrono;
 
-const time_point constant_ProgramStartTime = steady_clock::now();
-double wait_start_time = 0.0;
+static const time_point constant_ProgramStartTime = steady_clock::now();
+static double wait_start_time = 0.0;
 
-constexpr double StartTime()
+double Time::Start()
 { return duration<double>(constant_ProgramStartTime.time_since_epoch()).count(); }
 
-double CurrentTime()
+double Time::Current()
 { return duration<double>(steady_clock::now().time_since_epoch()).count(); }
 
-double ElapsedTime()
-{ return (CurrentTime() - StartTime()); }
+double Time::Elapsed()
+{ return (Current() - Start()); }
 
 void SetWaitStart()
-{ wait_start_time = CurrentTime(); }
+{ wait_start_time = Time::Current(); }
 
 double GetWaitStart()
 { return wait_start_time; }

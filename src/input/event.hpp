@@ -10,7 +10,7 @@ struct Event
 {
 public:
     Event(): _console_command(CommandLine::cmd_Null) {}
-    Event(Command ConsoleCommand, const double& CreationTime = CurrentTime()): _creation_time(CreationTime), _console_command(ConsoleCommand) {}
+    Event(Command ConsoleCommand, const double& CreationTime = Time::Current()): _creation_time(CreationTime), _console_command(ConsoleCommand) {}
     Event(const Event& CopyFrom): _creation_time(CopyFrom._creation_time), _console_command(CopyFrom._console_command) {}
 
     double GetCreationTime() const { return _creation_time; }
@@ -28,7 +28,7 @@ public:
     constexpr bool operator!=(const Event& other) const { return !(*this == other); }
 
 private:
-    double _creation_time = CurrentTime();
+    double _creation_time = Time::Current();
     Command _console_command = CommandLine::cmd_Null;
 };
 
