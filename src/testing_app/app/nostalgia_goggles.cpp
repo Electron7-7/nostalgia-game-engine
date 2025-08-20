@@ -1,7 +1,7 @@
 #include "nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
-#include "managers/world_manager.hpp"
+#include "managers/theatre_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "testing_app/ui/imgui_debugger.hpp"
@@ -37,7 +37,7 @@ void NostalgiaGoggles::PostShutdown()
 int NostalgiaGoggles::Main()
 {
     // World database
-    _Manager::Add(global_WorldManager);
+    _Manager::Add(global_TheatreManager);
 
     // Output
     _Manager::Add(global_RenderManager);

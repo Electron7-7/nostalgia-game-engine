@@ -4,7 +4,7 @@
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
-#include "managers/world_manager.hpp"
+#include "managers/theatre_manager.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
@@ -76,7 +76,7 @@ bool OpenGL_Backend::InitNewTheatre()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_WorldManager->GetAllCurrentMeshes();
+    std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_TheatreManager->GetAllCurrentMeshes();
 
     for(auto& [mesh_id, mesh_ptr] : all_meshes)
         BufferMeshData(mesh_id, mesh_ptr, &all_vertex_data, &all_indices);

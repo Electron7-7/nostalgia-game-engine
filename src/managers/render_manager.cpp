@@ -1,5 +1,5 @@
 #include "render_manager.hpp"
-#include "world_manager.hpp"
+#include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
@@ -37,7 +37,7 @@ TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 /*void RenderManager::UpdateLocalPlayerCamera()
 {
     float delta_time = _Manager::DeltaTime();
-    R_Camera* camera = world_manager->GetLocalPlayer()->camera_property;
+    R_Camera* camera = theatre_manager->GetLocalPlayer()->camera_property;
 
     camera->origin.x = camera->origin.x + delta_time * camera->velocity.x;
     camera->origin.y = camera->origin.y + delta_time * camera->velocity.y;
@@ -59,7 +59,7 @@ void RenderManager::Update()
     }
 
     global_BackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    global_WorldManager->RenderWorld();
+    global_TheatreManager->RenderWorld();
     global_UIManager->DrawUI();
     global_BackendManager->GetWindowingBackend()->SwapBuffers();
 }

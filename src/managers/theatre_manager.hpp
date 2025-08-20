@@ -24,13 +24,13 @@ private:
     MeshID _uid = 0;
 };
 
-class WorldManager : public Manager<>
+class TheatreManager : public Manager<>
 {
 public:
-    WorldManager();
-    virtual ~WorldManager();
-    virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    virtual TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    TheatreManager();
+    ~TheatreManager();
+    TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     NostalgiaPlayerActor* GetLocalPlayer();
 
@@ -58,6 +58,6 @@ private:
 };
 
 // Singleton accessor
-extern WorldManager* global_WorldManager;
+extern TheatreManager* global_TheatreManager;
 
 #endif // THEATRE_MANAGER_H

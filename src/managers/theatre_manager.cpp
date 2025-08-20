@@ -1,25 +1,23 @@
-#include "world_manager.hpp"
-#include "backend_manager.hpp"
+#include "theatre_manager.hpp"
 #include "printing.hpp"
-#include "rendering/backends/backend.hpp"
 #include "rendering/camera_property.hpp"
 
 #include <glm/glm.hpp>
 
-WorldManager singleton_WorldManager;
-WorldManager* global_WorldManager = &singleton_WorldManager;
+TheatreManager singleton_TheatreManager;
+TheatreManager* global_TheatreManager = &singleton_TheatreManager;
 
 // Console variables for setting the forward and backward speed of the camera (hl2_src/app/legion/worldmanager.cpp:24-25)
 
-WorldManager::WorldManager()
+TheatreManager::TheatreManager()
 {
 }
 
-WorldManager::~WorldManager()
+TheatreManager::~TheatreManager()
 {
 }
 
-TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
+TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
 {
     if(!is_first_call)
     { return FINISHED; }
@@ -27,12 +25,10 @@ TheatreReturnValue_t WorldManager::TheatreInit(bool is_first_call)
     CreateThings();
     SetInitialLocalPlayerPosition();
 
-    global_BackendManager->GetGraphicsBackend()->InitNewTheatre();
-
     return FINISHED;
 }
 
-TheatreReturnValue_t WorldManager::TheatreShutdown(bool is_first_call)
+TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first_call)
 {
     if(!is_first_call)
     { return FINISHED; }
@@ -42,16 +38,16 @@ TheatreReturnValue_t WorldManager::TheatreShutdown(bool is_first_call)
     return FINISHED;
 }
 
-void WorldManager::CreateThings()
+void TheatreManager::CreateThings()
 {}
 
-void WorldManager::DestroyThings()
+void TheatreManager::DestroyThings()
 {}
 
-NostalgiaPlayerActor* WorldManager::GetLocalPlayer()
+NostalgiaPlayerActor* TheatreManager::GetLocalPlayer()
 { return &world_Player; }
 
-void WorldManager::SetInitialLocalPlayerPosition()
+void TheatreManager::SetInitialLocalPlayerPosition()
 {
     // FIXME: This is hardcoded and bad; don't do this
     float distance = 1024.0;
@@ -63,13 +59,13 @@ void WorldManager::SetInitialLocalPlayerPosition()
     world_Player.GetCameraProperty()->origin.z = 512 + camera_direction.z * distance;
 }
 
-MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
+MeshWrapper::MeshID TheatreManager::AddMesh(const Mesh& new_mesh)
 {
     for(auto& [mesh_id, mesh] : world_MeshStorage) // FIXME: This might be more dangerous than an iterative for-loop
     {
         if(!mesh.GetMesh()->GetName().compare(new_mesh.GetName()))
         {
-            PRINT_ERROR("WorldManager::AddMesh - A Mesh with the same name \"{}\" already exists! Returning that Mesh's UID", new_mesh.GetName())
+            PRINT_ERROR("TheatreManager::AddMesh - A Mesh with the same name \"{}\" already exists! Returning that Mesh's UID", new_mesh.GetName())
             return mesh_id;
         }
     }
@@ -80,18 +76,18 @@ MeshWrapper::MeshID WorldManager::AddMesh(const Mesh& new_mesh)
     return mesh_uid;
 }
 
-const Mesh* WorldManager::GetMesh(MeshWrapper::MeshID mesh_uid)
+const Mesh* TheatreManager::GetMesh(MeshWrapper::MeshID mesh_uid)
 {
     if(!world_MeshStorage.contains(mesh_uid))
     {
-        PRINT_ERROR("WorldManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
+        PRINT_ERROR("TheatreManager::GetMesh(MeshID) - invalid Mesh UID; returning nullptr")
         return nullptr;
     }
 
     return world_MeshStorage.at(mesh_uid).GetMesh();
 }
 
-std::map<MeshWrapper::MeshID, const Mesh*> WorldManager::GetAllCurrentMeshes()
+std::map<MeshWrapper::MeshID, const Mesh*> TheatreManager::GetAllCurrentMeshes()
 {
     std::map<MeshWrapper::MeshID, const Mesh*> all_meshes;
 
@@ -101,11 +97,11 @@ std::map<MeshWrapper::MeshID, const Mesh*> WorldManager::GetAllCurrentMeshes()
     return all_meshes;
 }
 
-void WorldManager::RenderWorld()
+void TheatreManager::RenderWorld()
 {
     // for(int i = 0 ; i < world_RenderCommandQueue.size() ; i++)
     // {
-        // global_BackendManager->GetGraphicsBackend()->RenderSingleCommand(world_RenderCommandQueue.at(i));
+        // global_BackendManager->GetGraphicsBackend()->Draw3D(world_RenderCommandQueue.at(i));
         // world_RenderCommandQueue.erase(world_RenderCommandQueue.begin() + i);
     // }
 }
