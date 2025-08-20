@@ -13,11 +13,11 @@
 class RenderManager : public Manager
 {
 public:
-    virtual bool Init();
-    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    virtual void Update();
-    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
-    virtual void Shutdown();
+    bool Init();
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    void Update();
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    void Shutdown();
 
     // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
     // (these should be guaranteed not to be important enough to cause a crash or other major problems)
