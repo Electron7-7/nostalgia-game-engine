@@ -34,9 +34,11 @@ void _Manager::Remove(_Manager* old_manager)
     }
 }
 
-// FIXME: This don't feel right... _Manager::Remove has all these checks and is much more delicate
 void _Manager::RemoveAll()
-{ game_managers.clear(); }
+{
+    assert(!is_running);
+    game_managers.clear();
+}
 
 void _Manager::InvokeMethod(ManagerFunc_t function)
 {
