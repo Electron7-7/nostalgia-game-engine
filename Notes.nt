@@ -293,3 +293,8 @@ Holy shit, I can just generate text files using these techniques:
   - Hex data (again): (https://cplusplus.com/forum/beginner/32200)
 
 Hmm, but it also seems like a bad idea (https://cplusplus.com/forum/beginner/32200/#msg174485). Maybe I can get away with it if I read/write only numbers and strings.
+
+[08/20/25]
+Okay, I've shelved most of my sweeping changes yesterday in order to re-focus. I think that in copying Valve's "manager" system, I've overcomplicated some things. Specifically, I didn't understand how they did level loading. Now, I think I have a better idea and while I want to continue in that general direction, I also want to slim it down a fair bit. Basically, the actual file for the level and its data isn't directly loaded but, I assume, is put into some storage object. Then, the main manager is signalled to change levels, which unloads the current level, loads the one in storage, and proceeds to run the same functions for each manager. I don't know this 100% for sure, but it seems like what's happening. I want to go in a similar direction but, again, slim it down.
+
+Okay, I need to stop looking at Source and just... do this all myself. Source is so big and interconnected that any one function or idea is actually in service of millions of others. I just need to do what I did with GraphX and face this head-on with my own ideas. Hopefully my ideas are less bug-prone and easier to build from.
