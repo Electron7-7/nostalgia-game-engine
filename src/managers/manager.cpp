@@ -1,6 +1,4 @@
 #include "manager.hpp"
-#include "printing.hpp"
-#include "colors.hpp"
 #include "settings/settings.hpp"
 
 #include <GLFW/glfw3.h>
@@ -29,8 +27,8 @@ void _Manager::Remove(_Manager* old_manager)
     assert(!is_running);
     for(int i = 0 ; i < game_managers.size() ; i++)
     {
-        if(game_managers.at(i) == old_manager) // Possible point of error(?): I'm guessing that since I'm comparing two pointers, there might be a possibility that two pointers can be pointing to the same object, but return 0 when compared?
-        { game_managers.erase(game_managers.begin() + i); } // Possible point of error: I fucked up the index and it should be "i - 1", instead
+        if(game_managers.at(i) == old_manager)
+        { game_managers.erase(game_managers.begin() + i); }
     }
 }
 
@@ -118,7 +116,7 @@ void _Manager::UpdateTheatreStateMachine()
     if(theatre_shutdown_requested)
     {
         if(theatre_state != LOADING_LEVEL)
-        { theatre_shutdown_requested = false; } // Todo: make this prettier
+        { theatre_shutdown_requested = false; }
 
         if(theatre_state == IN_LEVEL)
         {
@@ -140,7 +138,7 @@ void _Manager::UpdateTheatreStateMachine()
     if(theatre_start_requested)
     {
         if(theatre_state != SHUTTING_DOWN_LEVEL)
-        { theatre_start_requested = false; } // Todo: make this prettier
+        { theatre_start_requested = false; }
 
         if(theatre_state == NOT_IN_LEVEL)
         {
@@ -154,7 +152,7 @@ void _Manager::UpdateTheatreStateMachine()
     {
         TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
-        { theatre_state = NOT_IN_LEVEL; } // Todo: make this prettier
+        { theatre_state = NOT_IN_LEVEL; }
 
         else if(return_value == FINISHED)
         { theatre_state = IN_LEVEL; }

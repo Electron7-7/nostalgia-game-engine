@@ -1,6 +1,5 @@
 #include "imgui_debugger.hpp"
 #include "managers/backend_manager.hpp"
-#include "rendering/backends/backend.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "settings/settings.hpp"
 

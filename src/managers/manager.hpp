@@ -6,7 +6,7 @@
 // Theatre State
 enum TheatreState_t
 {
-    NOT_IN_LEVEL = 0,
+    NOT_IN_LEVEL,
     LOADING_LEVEL,
     IN_LEVEL,
     SHUTTING_DOWN_LEVEL,
@@ -15,7 +15,7 @@ enum TheatreState_t
 // Theatre Return Value (i.e: are we working, finished, or fucked?)
 enum TheatreReturnValue_t
 {
-    FUCKED = 0, // Valve chose to name this "FAILED", but I'm more crude (and therefore, clearly funnier)
+    FUCKED,
     MORE_WORK,
     FINISHED,
 };
