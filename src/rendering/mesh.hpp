@@ -3,6 +3,7 @@
 
 #include "vertex.hpp"
 #include "math/unsigned_int_vector.hpp"
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <map>
@@ -30,7 +31,7 @@ public:
     std::string GetName() const;
 
 private:
-    std::string _mesh_name = "UNDEFINED";
+    std::string _mesh_name = "UntitledMesh";
     std::map<Index, Vertex> _vertices = {};
     std::vector<Index> _face_indices = {};
 };

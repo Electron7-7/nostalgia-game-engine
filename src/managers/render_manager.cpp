@@ -61,7 +61,7 @@ void RenderManager::Update()
     }
 
     global_BackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    global_TheatreManager->RenderWorld();
+    // global_TheatreManager->RenderWorld();
     global_UIManager->DrawUI();
     global_BackendManager->GetWindowingBackend()->SwapBuffers();
 }
