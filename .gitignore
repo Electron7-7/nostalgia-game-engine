@@ -1,3 +1,9 @@
+# Sublime Text project/workspace files
+*.sublime-*
+
+# tests directory
+tests/
+
 # build system
 build/
 
@@ -10,7 +16,3 @@ src/embedded/
 
 # misc files
 imgui.ini
-backup_Makefile
-
-# Sublime Text project/workspace files
-*.sublime-*
