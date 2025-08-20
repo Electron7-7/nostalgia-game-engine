@@ -10,10 +10,9 @@
 
 #include "manager.hpp"
 
-class RenderManager : public Manager<>
+class RenderManager : public Manager
 {
 public:
-    // Inherited from _Manager
     virtual bool Init();
     virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual void Update();

@@ -24,7 +24,6 @@ enum TheatreReturnValue_t
 class _Manager
 {
 public:
-    // Managers are expected to implement these methods
     virtual bool Init() = 0;
     virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual void Update() = 0;
@@ -96,15 +95,12 @@ protected:
     inline static std::chrono::time_point start_time = std::chrono::steady_clock::now();
 };
 
-template<typename BaseClass = _Manager>
-class Manager : public BaseClass
+class Manager : public _Manager
 {
 public:
     virtual ~Manager();
 
-    // Below are two comments from the Source source code; I'm including them here because what they say seems to be good practice:
     // Managers are expected to implement these methods.
-    // NOTE: If Init or TheatreInit fail, they are expected to call
     virtual bool Init() { return true; }
     virtual TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return FINISHED; }
     virtual void Update() {}
@@ -115,10 +111,8 @@ public:
     virtual bool PleaseTickMeInAFixedUpdateLoop() { return false; }
 };
 
-// Another comment from the Source source code; including for same reasons:
-// Automatically remove the game system if it gets deleted
-template<typename BaseClass>
-inline Manager<BaseClass>::~Manager()
+// Automatically remove the game manager if it gets deleted
+inline Manager::~Manager()
 { _Manager::Remove(this); }
 
 #endif // MANAGER_H

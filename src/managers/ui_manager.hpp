@@ -4,10 +4,9 @@
 #include "manager.hpp"
 #include "ui/imgui_object.hpp"
 
-class UIManager : public Manager<>
+class UIManager : public Manager
 {
 public:
-    // Inherited from _Manager
     virtual bool Init();
     virtual TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     virtual void Update();

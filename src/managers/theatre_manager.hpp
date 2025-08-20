@@ -24,7 +24,7 @@ private:
     MeshID _uid = 0;
 };
 
-class TheatreManager : public Manager<>
+class TheatreManager : public Manager
 {
 public:
     TheatreManager();

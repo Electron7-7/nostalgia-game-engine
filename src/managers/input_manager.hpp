@@ -7,7 +7,7 @@
 
 #include <set>
 
-class InputManager : public Manager<>
+class InputManager : public Manager
 {
 public:
     virtual bool Init();
