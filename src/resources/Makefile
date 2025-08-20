@@ -110,7 +110,7 @@ $(FONTS_CPP): $(FONTS_HPP) | build
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_SOURCE_VAR,$(font_file),font,$@))
 
-$(FONTS_HPP): | build
+$(FONTS_HPP): $(FONTS) | build
 	$(shell printf "#ifndef $(FONTS_GUARD)\n#define $(FONTS_GUARD)\n" > $(FONTS_HPP))
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_HEADER_VAR,$(font_file),font,$@))
 	$(shell printf "\n\n#endif // $(FONTS_GUARD)\n" >> $(FONTS_HPP))
@@ -127,7 +127,7 @@ $(GL_SHADERS_CPP): $(GL_SHADERS_HPP) | build
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_STR_SOURCE_VAR,$(shader_file),glsl,$@))
 
-$(GL_SHADERS_HPP): | build
+$(GL_SHADERS_HPP): $(GL_SHADERS) | build
 	$(shell printf "#ifndef $(GL_SHADERS_GUARD)\n#define $(GL_SHADERS_GUARD)\n" > $(GL_SHADERS_HPP))
 	$(foreach shader_stem,$(GL_SHADERS),$(call GLSL_HEADER_VAR,$(shader_stem),glsl,$@))
 	$(shell printf "\n#endif // $(GL_SHADERS_GUARD)\n" >> $(GL_SHADERS_HPP))
@@ -138,12 +138,13 @@ meshes: $(MESHES_CPP) $(MESHES_HPP) | build
 $(MESHES_CPP): $(MESHES_HPP) | build
 	@ $(call PRINT_GENERATING,Meshes,$@,$<)
 	@ $(MAKE) -s $(GRAPHX_MESHES:%=%.print) $(OBJ_MESHES:%=%.print)
-	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
+	$(shell printf "#include \"$(notdir $<)\"\n\n" > $@)
+	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_CPP)))
 	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_SOURCE_VAR,$(obj_mesh),mesh,$@))
 
-$(MESHES_HPP): | build
-	$(shell printf "#ifndef $(MESHES_GUARD)\n#define $(MESHES_GUARD)\n\n" > $(MESHES_HPP))
-	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_HPP)))
+$(MESHES_HPP): $(GRAPHX_MESHES) $(OBJ_MESHES) | build
+	$(shell printf "#ifndef $(MESHES_GUARD)\n#define $(MESHES_GUARD)\n\n#include \"rendering/mesh.hpp\"\n\n" > $(MESHES_HPP))
+	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "extern Mesh mesh_GRAPHX_$(notdir $(graphx_mesh:%.graphxmesh=%));\n" >> $(MESHES_HPP)))
 	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_HEADER_VAR,$(obj_mesh),mesh,$@))
 	$(shell printf "\n\n#endif // $(MESHES_GUARD)" >> $(MESHES_HPP))
 

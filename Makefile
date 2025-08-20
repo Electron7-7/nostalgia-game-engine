@@ -125,8 +125,7 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/settings                     \
-    $(SRC)/world
-
+    $(SRC)/theatre
 
 THIRDPARTY_SRC_DIRS :=           \
 	$(SRC)/thirdparty/DearImGui  \
