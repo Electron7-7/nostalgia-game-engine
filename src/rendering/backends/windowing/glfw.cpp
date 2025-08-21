@@ -39,7 +39,7 @@ bool GLFW_Backend::InitImGui()
     if(is_imgui_initialized)
     { return true; }
 
-    switch(global_BackendManager->GetGraphicsID())
+    switch(g_pBackendManager->GetGraphicsID())
     {
     case BackendIDs::gOpenGL:
         if(!ImGui_ImplGlfw_InitForOpenGL(m_MainWindow, true))
@@ -186,7 +186,7 @@ void GLFW_Backend::UpdateState()
 
 // PRIVATE FUNCTIONS
 void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
-{ global_InputManager->prototype_CustomCharacterCallback(codepoint); }
+{ g_pInputManager->prototype_CustomCharacterCallback(codepoint); }
 
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -195,13 +195,13 @@ void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int sca
     switch(action)
     {
     case GLFW_RELEASE:
-        global_InputManager->Release(CONVERT_KEY(key));
+        g_pInputManager->Release(CONVERT_KEY(key));
         break;
     case GLFW_PRESS:
-        global_InputManager->Press(CONVERT_KEY(key));
+        g_pInputManager->Press(CONVERT_KEY(key));
         break;
     case GLFW_REPEAT:
-        global_InputManager->Repeat(CONVERT_KEY(key));
+        g_pInputManager->Repeat(CONVERT_KEY(key));
         break;
     }
 }

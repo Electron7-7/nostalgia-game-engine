@@ -43,6 +43,6 @@ private:
     static bool InitBackend();
 };
 
-extern BackendManager* global_BackendManager;
+extern BackendManager* g_pBackendManager;
 
 #endif // BACKEND_MANAGER_H

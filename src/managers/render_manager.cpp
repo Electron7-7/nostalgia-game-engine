@@ -12,9 +12,8 @@
 
 using namespace ManagerEnums;
 
-// Singleton Accessor
-RenderManager singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "s_" stands for "singleton_"
-RenderManager* global_RenderManager = &singleton_RenderManager; // When making documentation about naming conventions, remember that the prefix "g_" stands for "global_"
+static RenderManager s_RenderManager;
+RenderManager* g_pRenderManager = &s_RenderManager;
 
 
 bool RenderManager::Init()
@@ -54,16 +53,16 @@ void RenderManager::Update()
 {
     if(GetTheatreState() == NOT_IN_LEVEL)
     {
-        global_BackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
-        global_UIManager->DrawUI();
-        global_BackendManager->GetWindowingBackend()->SwapBuffers();
+        g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
+        g_pUIManager->DrawUI();
+        g_pBackendManager->GetWindowingBackend()->SwapBuffers();
         return;
     }
 
-    global_BackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    // global_TheatreManager->RenderWorld();
-    global_UIManager->DrawUI();
-    global_BackendManager->GetWindowingBackend()->SwapBuffers();
+    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    // g_pTheatreManager->RenderWorld();
+    g_pUIManager->DrawUI();
+    g_pBackendManager->GetWindowingBackend()->SwapBuffers();
 }
 
 // FIXME: Replace with functions for better control over view distance & near-clip distance

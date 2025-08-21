@@ -25,6 +25,6 @@ private:
     std::set<KeyID> _locked_keys = {};
 };
 
-extern InputManager* global_InputManager;
+extern InputManager* g_pInputManager;
 
 #endif // INPUT_MANAGER_H

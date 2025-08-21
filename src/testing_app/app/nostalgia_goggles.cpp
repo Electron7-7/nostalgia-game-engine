@@ -1,14 +1,16 @@
 #include "nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
-#include "managers/input_manager.hpp"
+#include "managers/resource_manager.hpp"
 #include "managers/theatre_manager.hpp"
+#include "managers/backend_manager.hpp"
 #include "managers/render_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "testing_app/ui/imgui_debugger.hpp"
 
 // Singleton accessor
-NostalgiaGoggles singleton_NostalgiaGogglesApp;
-NostalgiaGoggles* global_Application = &singleton_NostalgiaGogglesApp;
+static NostalgiaGoggles s_NostalgiaGogglesApp;
+NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
 bool NostalgiaGoggles::Create()
 {
@@ -36,33 +38,24 @@ void NostalgiaGoggles::PostShutdown()
 
 int NostalgiaGoggles::Main()
 {
-    // World database
-    _Manager::Add(global_TheatreManager);
+    _Manager::Add(g_pResourceManager);
+    _Manager::Add(g_pTheatreManager);
+    _Manager::Add(g_pBackendManager);
+    _Manager::Add(g_pRenderManager);
+    _Manager::Add(g_pInputManager);
+    _Manager::Add(g_pUIManager);
+    // _Manager::Add(g_pMenuManager);
+    // _Manager::Add(g_pPhysicsManager);
 
-    // Output
-    _Manager::Add(global_RenderManager);
+    g_pUIManager->AddImGuiObject(g_pDebugger);
 
-    // Input
-    _Manager::Add(global_InputManager);
-    // _Manager::Add(global_MenuManager);
-    _Manager::Add(global_UIManager);
-
-    global_UIManager->AddImGuiObject(global_Debugger);
-
-    // Physics
-    // _Manager::Add(global_PhysicsManager);
-
-    // Init the managers
     if(!_Manager::InitAllManagers())
     { return 0; }
 
-    // First menu to start on
-    // global_MenuManager->PushMenu("Main Menu");
+    // g_pMenuManager->PushMenu("Main Menu");
 
-    // This is the main game loop
-    _Manager::Start();
+    _Manager::Start(); // gameloop
 
-    // Shut down game systems after main loop ends
     _Manager::ShutdownAllManagers();
 
     return 0;

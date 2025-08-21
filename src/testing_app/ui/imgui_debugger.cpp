@@ -7,8 +7,8 @@
 
 using namespace ImGui;
 
-imgui_Debugger singleton_Debugger;
-imgui_Debugger* global_Debugger = &singleton_Debugger;
+static imgui_Debugger s_Debugger;
+imgui_Debugger* g_pDebugger = &s_Debugger;
 
 bool imgui_Debugger::Init()
 {
@@ -41,7 +41,7 @@ void imgui_Debugger::Update()
     InputInt("Fullscreen Height", &Settings::Window::FullscreenHeight);
     Separator();
     Checkbox("Fullscreen", &Settings::Window::Fullscreen);
-    if(Button("Apply Changes")) { global_BackendManager->UpdateWindowState(); }
+    if(Button("Apply Changes")) { g_pBackendManager->UpdateWindowState(); }
 
     End();
 }

@@ -11,6 +11,6 @@ public:
     void Update();
 };
 
-extern imgui_Debugger* global_Debugger;
+extern imgui_Debugger* g_pDebugger;
 
 #endif // IMGUI_DEBUGGER_H

@@ -4,12 +4,10 @@
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "embedded/opengl_shaders.hpp"
-// #include "managers/theatre_manager.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
 
-// std::map<MeshWrapper::MeshID, OpenGL_MeshData> OpenGL_Backend::gl_mesh_data = {};
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::VAOs = {};
 std::map<unsigned int, GLShader> OpenGL_Backend::shaders = {};
 unsigned int OpenGL_Backend::currently_bound_shader = Shaders::SAFETY;
@@ -76,7 +74,7 @@ bool OpenGL_Backend::InitNewTheatre()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-    // std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = global_TheatreManager->GetAllCurrentMeshes();
+    // std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = g_pTheatreManager->GetAllCurrentMeshes();
 
     // for(auto& [mesh_id, mesh_ptr] : all_meshes)
         // BufferMeshData(mesh_id, mesh_ptr, &all_vertex_data, &all_indices);
@@ -165,10 +163,10 @@ bool OpenGL_Backend::RebuildShader(unsigned int shader_label, const std::string&
 // FIXME: Is it a good idea to let outside code access shader interfaces directly?
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
-    if(shaders.size() <= shader_selection)
+    if(!shaders.contains(shader_selection))
     {
-        PRINT_ERROR("OpenGL_Backend::GetShader - index overflow! Returning nullptr")
-        return nullptr;
+        PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
+        shader_selection = Shaders::SAFETY;
     }
 
     return &shaders.at(shader_selection);

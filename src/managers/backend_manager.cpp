@@ -5,13 +5,7 @@
 #include "rendering/backends/windowing/glfw.hpp"
 #include "printing.hpp"
 
-// BackendManager Singleton
-BackendManager singleton_BackendManager;
-BackendManager* global_BackendManager = &singleton_BackendManager;
 
-// Backend Singletons FIXME: Don't define these here...
-OpenGL_Backend singleton_OpenGL_Backend;
-GLFW_Backend singleton_GLFW_Backend;
 
 std::map<BackendID, GraphicsBackend*> BackendManager::map_GraphicsBackends = {};
 std::map<BackendID, WindowingBackend*> BackendManager::map_WindowingBackends = {};
@@ -23,29 +17,26 @@ BackendID BackendManager::m_DefaultGraphicsID  = BackendIDs::gOpenGL;
 BackendID BackendManager::m_DefaultWindowingID = BackendIDs::wGLFW;
 BackendID BackendManager::m_CurrentGraphicsID  = m_DefaultGraphicsID;
 BackendID BackendManager::m_CurrentWindowingID = m_DefaultWindowingID;
+static BackendManager s_BackendManager;
+BackendManager* g_pBackendManager = &s_BackendManager;
+
+// FIXME: Don't define these here...
+static OpenGL_Backend s_OpenGL_Backend;
+static GLFW_Backend s_GLFW_Backend;
 
 bool BackendManager::Init()
 {
-    if(is_initialized)
-    { return true; }
-
     // Set up graphics backends map
-    map_GraphicsBackends[BackendIDs::gOpenGL] = &singleton_OpenGL_Backend;
+    map_GraphicsBackends[BackendIDs::gOpenGL] = &s_OpenGL_Backend;
 
     // Set up windowing backends map
-    map_WindowingBackends[BackendIDs::wGLFW] = &singleton_GLFW_Backend;
+    map_WindowingBackends[BackendIDs::wGLFW] = &s_GLFW_Backend;
 
-    if(!InitBackend())
-    { return false; }
-
-    is_initialized = true;
-    return true;
+    return(InitBackend());
 }
 
 void BackendManager::Shutdown()
 {
-    if(!is_initialized)
-    { return; }
 
     if(is_imgui_initialized)
     { ImGui::DestroyContext(); }
@@ -56,9 +47,7 @@ void BackendManager::Shutdown()
         GetGraphicsBackend()->Shutdown();
     }
 
-    is_backend_initialized = false;
     is_imgui_initialized = false;
-    is_initialized = false;
 }
 
 GraphicsBackend* BackendManager::GetGraphicsBackend()
@@ -133,9 +122,6 @@ void BackendManager::ImGuiRender()
 
 bool BackendManager::InitBackend()
 {
-    if(is_backend_initialized)
-    { return true; }
-
     if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
     { return false; }
 
@@ -146,7 +132,6 @@ bool BackendManager::InitBackend()
         return false;
     }
 
-    is_backend_initialized = true;
     return true;
 }
 

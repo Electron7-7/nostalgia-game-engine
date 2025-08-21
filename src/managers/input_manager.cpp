@@ -13,8 +13,8 @@ using namespace ManagerEnums;
 if(KEY > Key::HandledKeysLastIndex) return Status::InputManagerKEY_NOT_FOUND; \
 if(_locked_keys.contains(KEY))      return Status::InputManagerKEY_IS_LOCKED;
 
-InputManager singleton_InputManager;
-InputManager* global_InputManager = &singleton_InputManager;
+static InputManager s_InputManager;
+InputManager* g_pInputManager = &s_InputManager;
 
 
 // PROTOTYPE FUNCTIONS
@@ -36,13 +36,13 @@ bool InputManager::Init()
 
 void InputManager::Update()
 {
-    global_BackendManager->GetWindowingBackend()->PollEvents();
+    g_pBackendManager->GetWindowingBackend()->PollEvents();
 
     SafeStatus process_status = EventQueue::try_BeginProcessing();
 
     if(process_status != Status::NO_ERROR && process_status != Status::EventQueueEMPTY)
     {
-        PRINT_ERROR("InputManager::ProcessEvents - global_EventSystem::BeginProcessing returned '{}'!\n", process_status.Printout())
+        PRINT_ERROR("InputManager::ProcessEvents - g_pEventSystem::BeginProcessing returned '{}'!\n", process_status.Printout())
         return;
     }
 
@@ -54,7 +54,7 @@ void InputManager::Update()
 
         if(next_event.Status() != Status::NO_ERROR)
         {
-            PRINT_WARNING("InputManager::ProcessEvents - global_EventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
+            PRINT_WARNING("InputManager::ProcessEvents - g_pEventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
             continue;
         }
 

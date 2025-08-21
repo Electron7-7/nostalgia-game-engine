@@ -48,6 +48,7 @@ public:
     bool BindShader(unsigned int ShaderLabel);
     bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
+
     void RenderSingleCommand(const RenderCommand& RenderCommand);
 
 private:

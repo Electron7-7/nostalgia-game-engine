@@ -4,8 +4,8 @@
 
 using namespace ManagerEnums;
 
-TheatreManager singleton_TheatreManager;
-TheatreManager* global_TheatreManager = &singleton_TheatreManager;
+static TheatreManager s_TheatreManager;
+TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
 // Console variables for setting the forward and backward speed of the camera (hl2_src/app/legion/worldmanager.cpp:24-25)
 

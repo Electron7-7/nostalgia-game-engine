@@ -3,22 +3,18 @@
 
 using namespace ManagerEnums;
 
-UIManager singleton_UIManager;
-UIManager* global_UIManager = &singleton_UIManager;
+static UIManager s_UIManager;
+UIManager* g_pUIManager = &s_UIManager;
 
 bool UIManager::Init()
 {
-    if(is_initialized)
-    { return true; }
-
     // Do all non-ImGui initialization here...
 
-    global_BackendManager->InitImGui();
+    g_pBackendManager->InitImGui();
 
     for(ImGui_Object* imgui_object : imgui_objects)
     { imgui_object->Init(); }
 
-    is_initialized = true;
     return true;
 }
 
@@ -38,12 +34,12 @@ void UIManager::DrawUI()
 
 void UIManager::DrawImGuiUI()
 {
-    global_BackendManager->ImGuiNewFrame();
+    g_pBackendManager->ImGuiNewFrame();
 
     for(ImGui_Object* imgui_object : imgui_objects)
     { imgui_object->Update(); }
 
-    global_BackendManager->ImGuiRender();
+    g_pBackendManager->ImGuiRender();
 }
 
 void UIManager::Shutdown()

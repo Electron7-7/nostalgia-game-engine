@@ -20,10 +20,8 @@ public:
 
 private:
     std::vector<ImGui_Object*> imgui_objects;
-
-    bool is_initialized = false;
 };
 
-extern UIManager* global_UIManager;
+extern UIManager* g_pUIManager;
 
 #endif // UI_MANAGER_H

@@ -109,6 +109,6 @@ SafeStatus HardExitProgram()
 SafeStatus PrototypeFullscreen()
 {
     Settings::Window::Fullscreen = !Settings::Window::Fullscreen;
-    global_BackendManager->UpdateWindowState();
+    g_pBackendManager->UpdateWindowState();
     return Status::NO_ERROR;
 }
