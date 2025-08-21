@@ -1,7 +1,7 @@
 #ifndef BACKEND_MANAGER_H
 #define BACKEND_MANAGER_H
 
-#include <map>
+#include "managers/manager.hpp"
 
 // TODO: Implement a way to select your preferred API (e.g: Vulkan, OpenGL, etc), as I can't hot-swap the rendering API
 // unless I were to write my own windowing library that could, somehow, support that (which is a fucking insane idea)
@@ -11,36 +11,27 @@ class WindowingBackend; // Forward Declaration
 
 typedef int BackendID;
 
-class BackendManager
+class BackendManager : public Manager
 {
 public:
-    static bool Init();
-    static void Shutdown();
+    bool Init();
+    void Shutdown();
 
-    static GraphicsBackend* GetGraphicsBackend();
-    static WindowingBackend* GetWindowingBackend();
-    static BackendID GetGraphicsID();
-    static BackendID GetWindowingID();
+    bool InitImGui();
+    void ImGuiNewFrame();
+    void ImGuiRender();
 
-    static bool InitImGui();
-    static void ImGuiNewFrame();
-    static void ImGuiRender();
-    static void UpdateWindowState();
+    void UpdateWindowState();
+
+    GraphicsBackend* GetGraphicsBackend();
+    WindowingBackend* GetWindowingBackend();
+    BackendID GetGraphicsID();
+    BackendID GetWindowingID();
 
 private:
-    static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends;
-    static std::map<BackendID, WindowingBackend*> map_WindowingBackends;
+    bool InitBackend();
 
-    static bool is_initialized;
-    static bool is_backend_initialized;
-    static bool is_imgui_initialized;
-
-    static BackendID m_CurrentGraphicsID;
-    static BackendID m_CurrentWindowingID;
-    static BackendID m_DefaultGraphicsID;
-    static BackendID m_DefaultWindowingID;
-
-    static bool InitBackend();
+    bool m_IsImguiInitialized = false;
 };
 
 extern BackendManager* g_pBackendManager;

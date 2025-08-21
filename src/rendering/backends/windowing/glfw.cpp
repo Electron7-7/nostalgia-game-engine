@@ -58,10 +58,14 @@ void GLFW_Backend::Shutdown()
 {
     assert(is_initialized);
 
-    ImGui_ImplGlfw_Shutdown();
+    if(is_imgui_initialized)
+    { ImGui_ImplGlfw_Shutdown(); }
+
     glfwTerminate();
 
     is_initialized = false;
+    is_imgui_initialized = false;
+
 }
 
 void GLFW_Backend::ImGuiNewFrame()

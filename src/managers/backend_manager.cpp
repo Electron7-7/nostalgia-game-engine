@@ -5,18 +5,16 @@
 #include "rendering/backends/windowing/glfw.hpp"
 #include "printing.hpp"
 
+#include <map>
 
+static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends  = {};
+static std::map<BackendID, WindowingBackend*> map_WindowingBackends = {};
 
-std::map<BackendID, GraphicsBackend*> BackendManager::map_GraphicsBackends = {};
-std::map<BackendID, WindowingBackend*> BackendManager::map_WindowingBackends = {};
-bool BackendManager::is_initialized = false;
-bool BackendManager::is_backend_initialized = false;
-bool BackendManager::is_imgui_initialized = false;
+static BackendID m_DefaultGraphicsID  = BackendIDs::gOpenGL;
+static BackendID m_DefaultWindowingID = BackendIDs::wGLFW;
+static BackendID m_CurrentGraphicsID  = m_DefaultGraphicsID;
+static BackendID m_CurrentWindowingID = m_DefaultWindowingID;
 
-BackendID BackendManager::m_DefaultGraphicsID  = BackendIDs::gOpenGL;
-BackendID BackendManager::m_DefaultWindowingID = BackendIDs::wGLFW;
-BackendID BackendManager::m_CurrentGraphicsID  = m_DefaultGraphicsID;
-BackendID BackendManager::m_CurrentWindowingID = m_DefaultWindowingID;
 static BackendManager s_BackendManager;
 BackendManager* g_pBackendManager = &s_BackendManager;
 
@@ -37,17 +35,13 @@ bool BackendManager::Init()
 
 void BackendManager::Shutdown()
 {
+    GetWindowingBackend()->Shutdown();
+    GetGraphicsBackend()->Shutdown();
 
-    if(is_imgui_initialized)
+    if(m_IsImguiInitialized)
     { ImGui::DestroyContext(); }
 
-    if(is_backend_initialized)
-    {
-        GetWindowingBackend()->Shutdown();
-        GetGraphicsBackend()->Shutdown();
-    }
-
-    is_imgui_initialized = false;
+    m_IsImguiInitialized = false;
 }
 
 GraphicsBackend* BackendManager::GetGraphicsBackend()
@@ -81,7 +75,7 @@ BackendID BackendManager::GetWindowingID()
 
 bool BackendManager::InitImGui()
 {
-    if(is_imgui_initialized)
+    if(m_IsImguiInitialized)
     { return true; }
 
     IMGUI_CHECKVERSION();
@@ -96,13 +90,13 @@ bool BackendManager::InitImGui()
         return false;
     }
 
-    is_imgui_initialized = true;
+    m_IsImguiInitialized = true;
     return true;
 }
 
 void BackendManager::ImGuiNewFrame()
 {
-    if(!is_imgui_initialized)
+    if(!m_IsImguiInitialized)
     { return; }
 
     GetGraphicsBackend()->ImGuiNewFrame();
@@ -113,7 +107,7 @@ void BackendManager::ImGuiNewFrame()
 
 void BackendManager::ImGuiRender()
 {
-    if(!is_imgui_initialized)
+    if(!m_IsImguiInitialized)
     { return; }
 
     ImGui::Render();

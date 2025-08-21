@@ -96,7 +96,16 @@ bool OpenGL_Backend::InitNewTheatre()
 }
 
 void OpenGL_Backend::Shutdown()
-{ is_initialized = false; }
+{
+    assert(is_initialized);
+
+    if(is_imgui_initialized)
+    { ImGui_ImplOpenGL3_Shutdown(); }
+
+    is_initialized = false;
+    is_imgui_initialized = false;
+    is_theatre_data_initialized = false;
+}
 
 bool OpenGL_Backend::BindShader(unsigned int shader_label)
 {
