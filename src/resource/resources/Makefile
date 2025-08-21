@@ -11,13 +11,14 @@ export WHITE   ?= \\x1b[1;37m
 export DEFAULT ?= \\x1b[1;39m
 
 # Common Variables
-EMBED_DIR   := ../embedded
+TOP       := ../../
+EMBED_DIR := $(TOP)embedded
 
 #-----------------#
 # Print Functions #
 #-----------------#
 PRINT_GENERATING = printf "$(DEFAULT)::Generating Embedded $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
-PRINT_CLEANED    = @ printf "$(RESET)::Cleaned $(RED)$(subst ../,src/,$(1))$(RESET)\n"
+PRINT_CLEANED    = @ printf "$(RESET)::Cleaned $(RED)$(subst $(TOP),src/,$(1))$(RESET)\n"
 
 #-------------------------------#
 # C++ Variable Naming Functions #
@@ -80,7 +81,7 @@ MESHES_CPP    := $(EMBED_DIR)/meshes.cpp
 
 all:
 	@ $(MAKE) -s shaders meshes fonts
-	@ printf "$(DEFAULT)::Embedded Resources Directory - $(GREEN)$(EMBED_DIR:../%=src/%)$(RESET)\n"
+	@ printf "$(DEFAULT)::Embedded Resources Directory - $(GREEN)$(EMBED_DIR:$(TOP)%=src/%)$(RESET)\n"
 
 build:
 	@ -mkdir -p $(EMBED_DIR)
@@ -139,7 +140,7 @@ $(MESHES_CPP): $(MESHES_HPP) | build
 	@ $(call PRINT_GENERATING,Meshes,$@,$<)
 	@ $(MAKE) -s $(GRAPHX_MESHES:%=%.print) $(OBJ_MESHES:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n\n" > $@)
-	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_CPP)))
+	$(foreach graphx_mesh,$(GRAPHX_MESHES),$(shell printf "#include \"resource/resources/$(graphx_mesh)\" // IWYU pragma: keep\n" >> $(MESHES_CPP)))
 	$(foreach obj_mesh,$(OBJ_MESHES),$(call MAKE_STR_SOURCE_VAR,$(obj_mesh),mesh,$@))
 
 $(MESHES_HPP): $(GRAPHX_MESHES) $(OBJ_MESHES) | build
