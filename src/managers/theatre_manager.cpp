@@ -1,8 +1,17 @@
 #include "theatre_manager.hpp"
+#include "rendering/mesh.hpp"
+#include "rendering/render_command.hpp"
+#include "theatre/theatre_file_parser.hpp"
 
+#include <list>
 #include <glm/glm.hpp>
 
 using namespace ManagerEnums;
+
+static Theatre s_CurrentTheatre;
+static std::vector<RenderCommand> s_RenderCommandQueue = {};
+static std::list<Thing*> s_ThingStorage = {};
+static std::map<unsigned int, Mesh*> s_MeshStorage = {};
 
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;

@@ -22,14 +22,8 @@ private:
     void DestroyThings();
 
     NostalgiaPlayer m_LocalPlayer;
-    Theatre* m_CurrentTheatre = nullptr;
-
-    std::vector<RenderCommand> m_RenderCommandQueue = {};
-    std::list<Thing*> m_ThingStorage = {};
-    std::map<unsigned int, Mesh*> m_MeshStorage = {};
 };
 
-// Singleton accessor
-extern TheatreManager* global_TheatreManager;
+extern TheatreManager* g_pTheatreManager;
 
 #endif // THEATRE_MANAGER_H

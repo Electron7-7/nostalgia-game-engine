@@ -10,13 +10,13 @@
 int DedicatedMain(int argc, char* argv[])
 {
     // TODO: Implement a class that handles apps & implements a function called "Run" that will then execute "TheToyMaker::Main" at some point
-    global_Application->Create();
-    global_Application->PreInit();
+    g_pApplication->Create();
+    g_pApplication->PreInit();
 
-    int return_value = global_Application->Main();
+    int return_value = g_pApplication->Main();
 
-    global_Application->Shutdown();
-    global_Application->PostShutdown();
+    g_pApplication->Shutdown();
+    g_pApplication->PostShutdown();
 
     return return_value;
 }

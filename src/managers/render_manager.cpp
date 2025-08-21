@@ -1,10 +1,10 @@
 #include "render_manager.hpp"
-#include "theatre_manager.hpp"
+// #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
 
-#include <cmath>
+// #include <cmath>
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -18,11 +18,6 @@ RenderManager* g_pRenderManager = &s_RenderManager;
 
 bool RenderManager::Init()
 {
-    if(!global_BackendManager->Init())
-    { return false; }
-
-    // global_BackendManager->GetWindowingBackend()->CreateWindow("Secondary Window"); // This works, but the second window has it's own unique callback functions
-
     return true;
 }
 
@@ -34,20 +29,6 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call
 
 ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_call)
 { return FINISHED; }
-
-/*void RenderManager::UpdateLocalPlayerCamera()
-{
-    float delta_time = _Manager::DeltaTime();
-    R_Camera* camera = theatre_manager->GetLocalPlayer()->camera_property;
-
-    camera->origin.x = camera->origin.x + delta_time * camera->velocity.x;
-    camera->origin.y = camera->origin.y + delta_time * camera->velocity.y;
-    camera->origin.z = camera->origin.z + delta_time * camera->velocity.z;
-
-    camera->angles.x = camera->angles.x + delta_time * camera->angular_velocity.x;
-    camera->angles.y = camera->angles.y + delta_time * camera->angular_velocity.y;
-    camera->angles.z = camera->angles.z + delta_time * camera->angular_velocity.z;
-}*/
 
 void RenderManager::Update()
 {
@@ -66,34 +47,22 @@ void RenderManager::Update()
 }
 
 // FIXME: Replace with functions for better control over view distance & near-clip distance
-#define ZNEAR 0.01f
-#define ZFAR 100000.0f
+// #define ZNEAR 0.01f
+// #define ZFAR 100000.0f
 
-void RenderManager::SetProjectionMatrix(int width, int height, float fov)
-{
-    glm::mat4 projection_matrix;
-    float z_near = ZNEAR;
-    float z_far = ZFAR;
-    float aspect_ratio = (height != 0.0f) ? (float)width / (float)height : 100.0f;
+// void RenderManager::SetProjectionMatrix(int width, int height, float fov)
+// {
+//     glm::mat4 projection_matrix;
+//     float z_near = ZNEAR;
+//     float z_far = ZFAR;
+//     float aspect_ratio = (height != 0.0f) ? (float)width / (float)height : 100.0f;
 
-    float half_width = tan(fov * std::numbers::pi / 360.0);
-    float half_height = half_width / aspect_ratio;
+//     float half_width = tan(fov * std::numbers::pi / 360.0);
+//     float half_height = half_width / aspect_ratio;
 
-    projection_matrix[0][0] = 1.0f / half_width;
-    projection_matrix[1][1] = 1.0f / half_height;
-    projection_matrix[2][2] = z_far / (z_near - z_far);
-    projection_matrix[3][3] = -1.0f;
-    projection_matrix[2][3] = z_near * z_far / (z_near - z_far);
-
-    // MaterialRenderContextPointer render_context(material_system);
-    // render_context->MatrixMode(MATERIAL_PROJECTION);
-    // render_context->LoadMatrix(projection_matrix);
-}
-
-void RenderManager::SetOrthoMatrix(int width, int height)
-{
-    // MaterialRenderContextPointer render_context(material_system);
-    // render_context->MatrixMode(MATERIAL_PROJECTION);
-    // render_context->LoadIdentity();
-    // render_context->Ortho(0, 0, width, height, -1.0f, 1.0f);
-}
+//     projection_matrix[0][0] = 1.0f / half_width;
+//     projection_matrix[1][1] = 1.0f / half_height;
+//     projection_matrix[2][2] = z_far / (z_near - z_far);
+//     projection_matrix[3][3] = -1.0f;
+//     projection_matrix[2][3] = z_near * z_far / (z_near - z_far);
+// }

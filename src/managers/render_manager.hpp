@@ -18,14 +18,6 @@ public:
     void Update();
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     void Shutdown();
-
-    // "Try" functions: will attempt to do something and will return true if successful and false if unsuccessful
-    // (these should be guaranteed not to be important enough to cause a crash or other major problems)
-    // bool try_SetActiveCameraProperty(CameraProperty* NewCameraProperty);
-
-private:
-    void SetProjectionMatrix(int Width, int Height, float FOV);
-    void SetOrthoMatrix(int Width, int Height);
 };
 
 // Singleton accessor
