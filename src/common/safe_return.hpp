@@ -1,6 +1,8 @@
 #ifndef SAFE_RETURN_H
 #define SAFE_RETURN_H
 
+#include "printing.hpp"
+
 namespace
 {
     typedef unsigned int __statusId_t;
@@ -25,7 +27,19 @@ public:
 
     constexpr operator __statusId_t() const { return m_Status; }
 
+    static constexpr bool Check(const SafeStatus& Status)
+    { return(Status.Status() == NO_ERROR_STATUS); }
 
+    static constexpr bool PrintCheck(const SafeStatus& Status)
+    {
+        if(Status.Status() != NO_ERROR_STATUS)
+        {
+            PRINT_ERROR("{}", Status.Printout());
+            return false;
+        }
+
+        return true;
+    }
 
 private:
     __statusId_t m_Status = NO_ERROR_STATUS;
