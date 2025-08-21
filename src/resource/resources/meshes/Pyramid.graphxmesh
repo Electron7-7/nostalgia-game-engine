@@ -6,13 +6,9 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include <string>
-
-constexpr std::string NOSTALGIA_PYRAMID("PYRAMID");
 
 inline Mesh mesh_GRAPHX_Pyramid
 (
-	NOSTALGIA_PYRAMID,
 	{
 		{
 			glm::vec3(-1.0f, -1.0f,  1.0f),	// Position - Left    Bottom    Back     0

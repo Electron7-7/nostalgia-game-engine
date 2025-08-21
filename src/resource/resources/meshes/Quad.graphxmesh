@@ -6,13 +6,9 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include <string>
-
-constexpr std::string NOSTALGIA_QUAD("QUAD");
 
 inline Mesh mesh_GRAPHX_Quad
 (
-	NOSTALGIA_QUAD,
 	{
 		{
 			glm::vec3(-1.0f,  1.0f, 0.0f), // Position - Left    Up    0

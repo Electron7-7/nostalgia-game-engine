@@ -6,13 +6,9 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include <string>
-
-constexpr std::string NOSTALGIA_CUBE("CUBE");
 
 inline Mesh mesh_GRAPHX_Cube
 (
-	NOSTALGIA_CUBE,
 	{
 		{
 			glm::vec3(-1.0f, -1.0f, -1.0f), // Position - Left    Down    Forward    0
