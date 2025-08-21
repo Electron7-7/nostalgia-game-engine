@@ -46,6 +46,25 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     return FINISHED;
 }
 
+void TheatreManager::LoadTheatre(const Theatre& new_theatre)
+{
+    Manager::ShutdownTheatre();
+    s_CurrentTheatre = new_theatre;
+    Manager::StartNewTheatre();
+}
+
+bool TheatreManager::try_LoadTheatre(const std::string& theatre_file)
+{
+    return
+    (
+        SafeStatus::PrintCheck(g_pTheatreFileParser->try_LoadTheatreFile(theatre_file)) &&
+        SafeStatus::PrintCheck(g_pTheatreFileParser->try_ParseTheatreFile())
+    );
+}
+
+Theatre* TheatreManager::GetCurrentTheatre()
+{ return &s_CurrentTheatre; }
+
 void TheatreManager::CreateThings()
 {}
 
