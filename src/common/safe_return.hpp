@@ -1,30 +1,38 @@
 #ifndef SAFE_RETURN_H
 #define SAFE_RETURN_H
 
+namespace
+{
+    typedef unsigned int __statusId_t;
+    constexpr __statusId_t NO_ERROR_STATUS = 0;
+}
+
 struct SafeStatus
 {
 public:
-    SafeStatus(): _status(0), _printout("NO_ERROR") {}
-    SafeStatus(const SafeStatus& CopyFrom): _status(CopyFrom._status), _printout(CopyFrom._printout) {}
+    SafeStatus(): m_Status(NO_ERROR_STATUS), m_Printout("NO_ERROR") {}
+    SafeStatus(const SafeStatus& CopyFrom): m_Status(CopyFrom.m_Status), m_Printout(CopyFrom.m_Printout) {}
 
-    const unsigned short Status() const { return _status; }
-    const char* Printout() const { return _printout; }
+    const __statusId_t Status() const { return m_Status; }
+    const char* Printout() const { return m_Printout; }
 
-    constexpr bool operator==(const SafeStatus& CompareTo) const { return (_status == CompareTo._status); }
-    constexpr bool operator!=(const SafeStatus& CompareTo) const { return (_status != CompareTo._status); }
-    constexpr bool operator< (const SafeStatus& CompareTo) const { return (_status <  CompareTo._status); }
-    constexpr bool operator> (const SafeStatus& CompareTo) const { return (_status >  CompareTo._status); }
-    constexpr bool operator<=(const SafeStatus& CompareTo) const { return (_status <= CompareTo._status); }
-    constexpr bool operator>=(const SafeStatus& CompareTo) const { return (_status >= CompareTo._status); }
+    constexpr bool operator==(const SafeStatus& CompareTo) const { return (m_Status == CompareTo.m_Status); }
+    constexpr bool operator!=(const SafeStatus& CompareTo) const { return (m_Status != CompareTo.m_Status); }
+    constexpr bool operator< (const SafeStatus& CompareTo) const { return (m_Status <  CompareTo.m_Status); }
+    constexpr bool operator> (const SafeStatus& CompareTo) const { return (m_Status >  CompareTo.m_Status); }
+    constexpr bool operator<=(const SafeStatus& CompareTo) const { return (m_Status <= CompareTo.m_Status); }
+    constexpr bool operator>=(const SafeStatus& CompareTo) const { return (m_Status >= CompareTo.m_Status); }
 
-    constexpr operator unsigned short() const { return _status; }
+    constexpr operator __statusId_t() const { return m_Status; }
+
+
 
 private:
-    unsigned short _status = 0;
-    const char* _printout  = "You shouldn't be seeing this!";
+    __statusId_t m_Status = NO_ERROR_STATUS;
+    const char* m_Printout  = "NO_ERROR?";
 
     friend struct Status;
-    constexpr SafeStatus(const unsigned short Status, const char* Printout): _status(Status), _printout(Printout) {}
+    constexpr SafeStatus(const __statusId_t Status, const char* Printout): m_Status(Status), m_Printout(Printout) {}
 };
 
 struct Status
@@ -50,15 +58,15 @@ struct SafeReturn
 {
 public:
     SafeReturn(T Data, SafeStatus ReturnStatus = Status::NO_ERROR)
-    :_data(Data), _status(ReturnStatus)
+    : m_Data(Data), m_Status(ReturnStatus)
     {}
 
-    const T& Data() const { return _data; }
-    SafeStatus Status() const { return _status; }
+    const T& Data() const { return m_Data; }
+    SafeStatus Status() const { return m_Status; }
 
 private:
-    T _data;
-    SafeStatus _status = Status::NO_ERROR;
+    T m_Data;
+    SafeStatus m_Status = Status::NO_ERROR;
 };
 
 #endif // SAFE_RETURN_H
