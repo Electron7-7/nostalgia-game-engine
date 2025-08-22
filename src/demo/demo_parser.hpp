@@ -2,17 +2,18 @@
 #define DEMO_PARSER_H
 
 #include "input/event.hpp"
-#include <list>
+
+#include <vector>
 
 class DemoParser
 {
 public:
     static bool LoadDemoFromMemory(const std::string& DemoFile);
     static bool LoadDemoFromFile(const std::string& DemoFilePath);
-    static std::list<Event> GetEventQueue();
+    static std::vector<Event> GetEventQueue();
 
 private:
-    static std::list<Event> _event_queue;
+    static std::vector<Event> _event_queue;
     static bool is_demo_file_parsed;
     static bool is_demo_file_loaded;
 

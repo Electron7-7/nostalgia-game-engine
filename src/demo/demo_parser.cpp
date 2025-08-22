@@ -1,9 +1,10 @@
 #include "demo_parser.hpp"
 #include "printing.hpp"
+
 #include <filesystem> // Yes, the devil hath been invoked... I'm sorry
 #include <fstream>
 
-std::list<Event> DemoParser::_event_queue = {};
+std::vector<Event> DemoParser::_event_queue = {};
 bool DemoParser::is_demo_file_parsed = false;
 bool DemoParser::is_demo_file_loaded = false;
 
@@ -52,7 +53,7 @@ bool DemoParser::LoadDemoFromMemory(const std::string& demo_file_data)
     return at_least_one_line_was_parsed;
 }
 
-std::list<Event> DemoParser::GetEventQueue()
+std::vector<Event> DemoParser::GetEventQueue()
 { return _event_queue; }
 
 bool DemoParser::ParseLine(const std::string& line)

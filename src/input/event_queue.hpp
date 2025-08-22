@@ -5,12 +5,12 @@
 #include "event.hpp"
 #include "safe_return.hpp"
 
-#include <list>
+#include <vector>
 
 class EventQueue
 {
 public:
-    static void LoadQueue(const std::list<Event>& InitFromQueue);
+    static void LoadQueue(const std::vector<Event>& InitFromQueue);
     // TODO: idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...
     static bool LoadDemoFromFile(const std::string& DemoFilePath);
     static bool LoadDemoFromMemory(const std::string& DemoFile);
@@ -32,8 +32,8 @@ public:
     static bool StopRecordingDemo();
 
 private:
-    static std::list<Event> _active_queue;
-    static std::list<Event> _safe_queue;
+    static std::vector<Event> _active_queue;
+    static std::vector<Event> _safe_queue;
     static unsigned int _last_processed_event_index;
 
     static bool can_queue_events;

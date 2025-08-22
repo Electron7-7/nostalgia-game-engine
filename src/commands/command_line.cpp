@@ -15,8 +15,8 @@ std::map<Command, CommandFunction> CommandLine::_commands =
     { cmd_PrototypeFullscreen, &PrototypeFullscreen },
 };
 
-std::list<Command> CommandLine::_active_queue = {};
-std::list<Command> CommandLine::_process_queue = {};
+std::vector<Command> CommandLine::_active_queue = {};
+std::vector<Command> CommandLine::_process_queue = {};
 bool CommandLine::is_initialized = false;
 bool CommandLine::is_copying_queue = false;
 bool CommandLine::is_processing_commands = false;

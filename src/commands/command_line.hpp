@@ -2,7 +2,7 @@
 #define COMMAND_LINE_H
 
 #include <map>
-#include <list>
+#include <vector>
 #include <string>
 
 struct SafeStatus; // Forward-declaration
@@ -29,8 +29,8 @@ public:
 
 private:
     static std::map<Command, CommandFunction> _commands;
-    static std::list<Command> _active_queue;
-    static std::list<Command> _process_queue;
+    static std::vector<Command> _active_queue;
+    static std::vector<Command> _process_queue;
 
     static bool is_initialized;
     static bool is_copying_queue;

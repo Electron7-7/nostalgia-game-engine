@@ -10,8 +10,8 @@
 
 #define DEMO_FILENAME (demo_recording_name + std::to_string(demo_recording_number) + demo_recording_extension)
 
-std::list<Event> EventQueue::_active_queue = {};
-std::list<Event> EventQueue::_safe_queue = {};
+std::vector<Event> EventQueue::_active_queue = {};
+std::vector<Event> EventQueue::_safe_queue = {};
 unsigned int EventQueue::_last_processed_event_index = 0;
 
 bool EventQueue::can_queue_events = false;
@@ -32,7 +32,7 @@ void EventQueue::DebugPrintQueueLog()
 
     for(size_t i = 0 ; i < active_queue_size ; i++)
     {
-        std::list<Event>::iterator it = _active_queue.begin();
+        std::vector<Event>::iterator it = _active_queue.begin();
         std::advance(it, i);
         queue_printout += it->EventLog() + "\n";
     }
@@ -40,7 +40,7 @@ void EventQueue::DebugPrintQueueLog()
     std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", Style::Bold + Foreground::Blue, Style::Reset, queue_printout);
 }
 
-void EventQueue::LoadQueue(const std::list<Event>& event_queue)
+void EventQueue::LoadQueue(const std::vector<Event>& event_queue)
 {
     ClearQueue();
     _active_queue = event_queue;
@@ -102,7 +102,7 @@ SafeStatus EventQueue::try_BeginProcessing()
 
     _safe_queue.clear(); // Just to be, well, safe
 
-    std::list<Event>::iterator queue_begin = _active_queue.begin();
+    std::vector<Event>::iterator queue_begin = _active_queue.begin();
     std::advance(queue_begin, _last_processed_event_index);
 
     _safe_queue.insert(_safe_queue.cend(), queue_begin, _active_queue.end());
