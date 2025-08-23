@@ -15,15 +15,15 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
-    void LoadTheatre(const Theatre& Theatre);
     bool try_LoadTheatre(const std::string& TheatreFile);
-    Theatre* GetCurrentTheatre();
+    void LoadTheatreFromMemory(const Theatre& Theatre);
 
 private:
     void CreateThings();
     void DestroyThings();
 
     NostalgiaPlayer m_LocalPlayer;
+    Theatre m_CurrentTheatre;
 };
 
 extern TheatreManager* g_pTheatreManager;

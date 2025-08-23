@@ -1,17 +1,14 @@
 #include "theatre_manager.hpp"
-#include "rendering/mesh.hpp"
 #include "rendering/render_command.hpp"
-#include "theatre/theatre_file_parser.hpp"
+#include "theatre/theatre_interpreting.hpp"
 
 #include <vector>
 #include <glm/glm.hpp>
 
 using namespace ManagerEnums;
 
-static Theatre s_CurrentTheatre;
 static std::vector<RenderCommand> s_RenderCommandQueue = {};
 static std::vector<Thing*> s_ThingStorage = {};
-static std::map<unsigned int, Mesh*> s_MeshStorage = {};
 
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
@@ -46,24 +43,19 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     return FINISHED;
 }
 
-void TheatreManager::LoadTheatre(const Theatre& new_theatre)
-{
-    Manager::ShutdownTheatre();
-    s_CurrentTheatre = new_theatre;
-    Manager::StartNewTheatre();
-}
+void TheatreManager::LoadTheatreFromMemory(const Theatre& new_theatre)
+{ m_CurrentTheatre = new_theatre; }
 
 bool TheatreManager::try_LoadTheatre(const std::string& theatre_file)
 {
-    return
-    (
-        SafeStatus::PrintCheck(g_pTheatreFileParser->try_LoadTheatreFile(theatre_file)) &&
-        SafeStatus::PrintCheck(g_pTheatreFileParser->try_ParseTheatreFile())
-    );
-}
+    if(SafeStatus::PrintCheck(try_LoadTheatreFile(theatre_file)))
+    {
+        m_CurrentTheatre = InterpretTheatreFile();
+        return true;
+    }
 
-Theatre* TheatreManager::GetCurrentTheatre()
-{ return &s_CurrentTheatre; }
+    return false;
+}
 
 void TheatreManager::CreateThings()
 {}
