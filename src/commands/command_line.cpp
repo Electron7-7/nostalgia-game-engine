@@ -82,7 +82,7 @@ bool CommandLine::PopFront()
 {
     if(_active_queue.size() == 0)
     { return false; }
-    _active_queue.pop_front();
+    _active_queue.erase(_active_queue.cbegin());
     return true;
 }
 
@@ -95,7 +95,7 @@ bool CommandLine::ExtractNextCommand()
     }
 
     next_command = _process_queue.front();
-    _process_queue.pop_front();
+    _process_queue.erase(_process_queue.cbegin());
     return true;
 }
 

@@ -152,7 +152,7 @@ SafeReturn<Event> EventQueue::GetNextEvent()
     if(do_demo_recording)
     { RecordEventToDemo(next_event); }
     // FIXME: This doesn't check the size before calling pop_front
-    _safe_queue.pop_front();
+    _safe_queue.erase(_safe_queue.cbegin());
 
     return SafeReturn(next_event);
 }
