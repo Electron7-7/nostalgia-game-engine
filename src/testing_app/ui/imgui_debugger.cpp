@@ -1,9 +1,8 @@
 #include "imgui_debugger.hpp"
 #include "managers/backend_manager.hpp"
+#include "managers/theatre_manager.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "settings/settings.hpp"
-
-// #include <string>
 
 using namespace ImGui;
 
@@ -30,6 +29,15 @@ void imgui_Debugger::Shutdown()
 void imgui_Debugger::Update()
 {
     Begin("Debug Window");
+
+    if(Button("Load Test Theatre"))
+    {
+        if(g_pTheatreManager->try_LoadTheatre("theatres/0.HelloWorld.gt"))
+        { _Manager::StartNewTheatre(); }
+    }
+
+    if(Button("Exit Test Theatre"))
+    { _Manager::ShutdownTheatre(); }
 
     Text("%s", "Settings");
     Separator();
