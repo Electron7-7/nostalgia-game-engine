@@ -124,6 +124,7 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
+    $(SRC)/resources                    \
     $(SRC)/settings                     \
     $(SRC)/theatre
 
@@ -140,7 +141,7 @@ APP_SRC_DIRS :=               \
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-RESOURCES_DIR := $(SRC)/resource/resources
+RESOURCES_DIR := $(SRC)/resources/embedded
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
