@@ -23,10 +23,12 @@ public:
     void SetColor(glm::vec3 Color) { _color = Color; }
     void SetUV(glm::vec2 UV) { _uv = UV; }
 
+    static constexpr unsigned int Stride = 11;
+
     // FIXME: This representation of vertex attributes might be specific to OpenGL. If so, find an agnostic form of a generic "data" function, or give that responsibility to the backend.
-    constexpr std::array<float, 11> VertexData() const
+    constexpr std::array<float, Stride> VertexData() const
     {
-        return std::array<float, 11>
+        return std::array<float, Stride>
         {
             _position.x, _position.y, _position.z,
             _normal.x,   _normal.y,   _normal.z,

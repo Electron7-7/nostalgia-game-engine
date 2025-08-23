@@ -96,7 +96,7 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(Man
 bool _Manager::InitAllManagers()
 {
     frame_number = 0;
-    // Educated guess is that this will try and invoke the "Init" method on every game manager in the list (via the "InvokeMethod" function), and if it returns false that means we hit a snag
+    // Educated guess is that this will try and invoke the "Init" method on every game manager in the vector (via the "InvokeMethod" function), and if it returns false that means we hit a snag
     if(!InvokeMethod(&_Manager::Init))
     { return false; }
 
@@ -231,6 +231,4 @@ void _Manager::StartNewTheatre()
 }
 
 void _Manager::ShutdownTheatre()
-{
-    theatre_shutdown_requested = true;
-}
+{ theatre_shutdown_requested = true; }

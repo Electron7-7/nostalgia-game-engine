@@ -37,7 +37,7 @@ public:
     // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
     virtual bool Init() { return true; }
-    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; is_theatre_data_initialized = false; }
+    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
     // Virtual functions (can be unimplemented)
@@ -56,7 +56,6 @@ public:
 
 protected:
     bool is_imgui_initialized = false;
-    bool is_theatre_data_initialized = false;
 };
 
 class WindowingBackend : public _Backend

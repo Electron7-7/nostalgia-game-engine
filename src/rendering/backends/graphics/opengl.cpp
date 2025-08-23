@@ -58,9 +58,6 @@ bool OpenGL_Backend::InitImGui()
 
 bool OpenGL_Backend::InitNewTheatre()
 {
-    if(is_theatre_data_initialized)
-    { return true; }
-
     // FIXME: Make this shit safer
 
     std::vector<float> all_vertex_data = {};
@@ -91,7 +88,6 @@ bool OpenGL_Backend::InitNewTheatre()
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
 
-    is_theatre_data_initialized = true;
     return true;
 }
 
@@ -104,7 +100,6 @@ void OpenGL_Backend::Shutdown()
 
     is_initialized = false;
     is_imgui_initialized = false;
-    is_theatre_data_initialized = false;
 }
 
 bool OpenGL_Backend::BindShader(unsigned int shader_label)
