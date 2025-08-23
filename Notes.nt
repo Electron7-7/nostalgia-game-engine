@@ -302,3 +302,11 @@ Okay, I need to stop looking at Source and just... do this all myself. Source is
 I've improved the code in various places, and started to implement resource/theatre handling. I'm going to store the resources in static variables and interface with them via a 'ResourceManager'. The same thing goes for Theatres. When parsing a new Theatre, the parser will set the current Theatre in 'TheatreManager' if it's successful. Then, 'TheatreManager' will use that object to construct the various 'Things', load the right resources, and after all that, 'BackendManager' will call the functions in 'GraphicsBackend' for buffering the necessary data.
 
 I'm feeling good!
+
+[08/21/25]
+Made a realization: Theatres are just the "blueprints" for building a level. The TheatreManager is the thing that actually will store the objects, update the Things, etc. This means I can safely replace the "current Theatre" before shutting down the current Theatre, because the 'Theatre' object isn't actually storing anything.
+
+[08/22/25]
+Okay, I want to continue to work on the engine. I want to simplify Theatres and Resources and bring over some code from GraphX.
+
+Oh dear god I misinterpreted std::list vs std::vector. I need to fix this immediately.
