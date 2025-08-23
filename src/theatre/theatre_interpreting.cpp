@@ -1,4 +1,5 @@
-#include "theatre_file_parser.hpp"
+#include "theatre_interpreting.hpp"
+#include "theatre.hpp"
 
 #include <fstream>
 #include <filesystem>
@@ -7,9 +8,6 @@
 namespace fs = std::filesystem;
 
 static std::string s_TheatreFileStringData = "";
-
-static TheatreFileParser s_TheatreFileParser;
-TheatreFileParser* g_pTheatreFileParser = &s_TheatreFileParser;
 
 const std::set<std::string> c_TheatreFileExtensions =
 {
@@ -21,7 +19,7 @@ const std::set<std::string> c_TheatreFileExtensions =
     ".nt"
 };
 
-SafeStatus TheatreFileParser::try_LoadTheatreFile(const std::string& theatre_file)
+SafeStatus try_LoadTheatreFile(const std::string& theatre_file)
 {
     if(!fs::exists(fs::path(theatre_file)))
     { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
@@ -36,14 +34,15 @@ SafeStatus TheatreFileParser::try_LoadTheatreFile(const std::string& theatre_fil
     return Status::NO_ERROR;
 }
 
-SafeStatus TheatreFileParser::try_ParseTheatreFile()
+Theatre InterpretTheatreFile()
 {
+    Theatre new_theatre;
+
+    // FIXME: This is in progress; used to be a 'SafeReturn<Theatre>'
     if(s_TheatreFileStringData.empty())
-    { return Status::TheatreParserNO_THEATRE_LOADED; }
+    { return new_theatre; }
 
-    // Parse the theatre file
-    // Create the Theatre object
-    // Call `g_pTheatreManager->LoadTheatre(new_theatre_object)`
 
-    return Status::NO_ERROR;
+
+    return new_theatre;
 }
