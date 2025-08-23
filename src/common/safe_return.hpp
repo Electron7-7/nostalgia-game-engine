@@ -66,9 +66,11 @@ struct Status
     inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0xC,  "KeyBindsKEY_HAS_NO_BINDS"               );
     inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0xD,  "SettingsINVALID_SETTING_NAME"           );
     inline static SafeStatus ResourceManagerFAILED_TO_LOAD_OBJ      = SafeStatus( 0xE,  "ResourceManagerFAILED_TO_LOAD_OBJ"      );
-    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0xF,  "TheatreParserFILE_DOES_NOT_EXIST"       );
-    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x10, "TheatreParserWRONG_FILE_EXTENSION"      );
-    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x11, "TheatreParserNO_THEATRE_LOADED"         );
+    inline static SafeStatus ResourceManagerFAILED_TO_LOAD_IMAGE    = SafeStatus( 0xF,  "ResourceManagerFAILED_TO_LOAD_IMAGE"    );
+    inline static SafeStatus ResourceManagerINVALID_RESOURCE_ID     = SafeStatus( 0x10, "ResourceManagerINVALID_RESOURCE_ID"     );
+    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x11, "TheatreParserFILE_DOES_NOT_EXIST"       );
+    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x12, "TheatreParserWRONG_FILE_EXTENSION"      );
+    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x13, "TheatreParserNO_THEATRE_LOADED"         );
 };
 
 template<typename T>
