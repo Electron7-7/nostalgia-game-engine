@@ -1,14 +1,14 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "vertex.hpp"
+#include "resource.hpp"
+#include "rendering/vertex.hpp"
 #include "math/unsigned_int_vector.hpp"
 
 #include <glm/glm.hpp>
 #include <vector>
-#include <map>
 
-struct Mesh
+struct Mesh : public Resource
 {
 public:
     typedef unsigned int Index;
@@ -18,18 +18,26 @@ public:
     Mesh(const std::vector<Vertex>& Vertices, const std::vector<Index>& Indices);
     Mesh(const std::vector<Vertex>& Vertices, const std::vector<uintvec3>& Faces);
 
+    void ClearMeshData();
+
+    void AddVertices(const std::vector<Vertex>& Vertices);
+    void AddIndices(const std::vector<Index>& Indices);
+    void AddIndices(const std::vector<uintvec3>& Faces);
+
     void AddVertex(Vertex NewVertex);
     void RemoveVertex(Index IndexOfVertexToRemove);
     void RemoveVertex(Vertex VertexToRemove); // Much less efficient, but more direct
     void AddIndex(Index NewIndex);
     void AddFace(uintvec3 NewFaceIndices);
 
-    std::vector<float> GetVertexData() const;
-    std::vector<Index> GetIndices() const;
+    const std::vector<Vertex>& GetVertices() const;
+    const std::vector<Index>& GetIndices() const;
+
+    static void GetVertexData(std::vector<Vertex>* Vertices, std::vector<float>* VertexData);
 
 private:
-    std::map<Index, Vertex> m_Vertices = {};
-    std::vector<Index> m_FaceIndices = {};
+    std::vector<Vertex> m_Vertices = {};
+    std::vector<Index>  m_Indices  = {};
 };
 
 #endif // MESH_H
