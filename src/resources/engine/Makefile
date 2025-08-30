@@ -170,7 +170,7 @@ $(IMAGES_CPP): $(IMAGES_HPP) | build
 $(IMAGES_HPP): $(IMAGES) | build
 	$(shell printf "#ifndef $(IMAGES_GUARD)\n#define $(IMAGES_GUARD)\n" > $@)
 	$(foreach image,$(IMAGES),$(call MAKE_DAT_HEADER_VAR,$(image),image,$@))
-	$(shell printf "\n\n#endif // $(IMAGES_GUARD)\n" >> $@)
+	$(shell printf "\n#endif // $(IMAGES_GUARD)\n" >> $@)
 
 # Printouts
 %.print: %
