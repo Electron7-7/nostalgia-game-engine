@@ -1,0 +1,49 @@
+@HelloWorldTheatre#0
+
+// Resources are split up between "real" Resources and "loader" Resources (still workshopping the names)
+// "real" Resources are things like 'Texture' and 'Material'; they contain multiple variables and can be multi-line
+// "loader" Resources can only be single-line and represent data that a "real" resource will use (i.e: image/model files)
+Resources
+{
+    Texture LolBit_Tex
+    {
+        Image = 'src/testing_app/resources/lolbit.png'
+    }
+
+    Material LolBit_Mat
+    {
+        DiffuseTexture = <LolBit_Tex>
+    }
+
+    MeshInstance LolBitMeshInstance
+    {
+        Mesh = 'src/testing_app/resources/Cube.obj'
+        Material = <LolBit_Mat>
+    }
+
+    Material Doom_Mat
+    {
+        DiffuseTexture = [image_PNG_COMP045]
+    }
+}
+
+Things
+{
+    PrototypeActor TestActor
+    {
+        PrototypeMeshInstance = <LolBitMeshInstance>
+        GlobalPosition = (1.0)
+        IsVisible = (true)
+    }
+
+    PrototypeActor TestActor2
+    {
+        PrototypeMeshInstance : MeshInstance DoomMeshInstance
+        {
+            Mesh = 'src/testing_app/resources/Cube.obj'
+            Material = <Doom_Mat>
+        }
+        GlobalPosition = (-1, 1, -2)
+        IsVisible = (True)
+    }
+}
