@@ -1,17 +1,24 @@
+// The first bit of text (that isn't a comment or whitespace) should be the Theatre name and index
+// While it's not a requirement, it's a strong recommendation
 @HelloWorldTheatre#0
 
-// Resources are split up between "real" Resources and "loader" Resources (still workshopping the names)
-// "real" Resources are things like 'Texture' and 'Material'; they contain multiple variables and can be multi-line
-// "loader" Resources can only be single-line and represent data that a "real" resource will use (i.e: image/model files)
+// All definitions are contained in one or both "contexts". These contexts don't serve any functional purpose, and are simply a way
+// of keeping the file format clean, distinct, and separated. However, I may make contexts not a requirement in the future
 Resources
 {
+    // Definitions are done like a mixture of a C/C++ variable and struct
+    // They start with a "typename", followed by the object's name, followed by a pair of curly braces
+    // Whitespace is allowed around the curly braces for formatting purposes
+    // Inside a definition are variable definitions. These are Python-esque, being terminated by a newline
     Texture LolBit_Tex
     {
+        // This is a String, delimited by sinqle-quotes. Strings capture everything inside them, including whitespace
         Image = 'src/testing_app/resources/lolbit.png'
     }
 
     Material LolBit_Mat
     {
+        // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
         DiffuseTexture = <LolBit_Tex>
     }
 
@@ -23,6 +30,8 @@ Resources
 
     Material Doom_Mat
     {
+        // This is an Engine reference, delimited by square braces. It is the name of a special engine variable
+        // (in the future, your game/app can define its own "Engine" references which your Theatre files can use)
         DiffuseTexture = [image_PNG_COMP045]
     }
 }
@@ -32,18 +41,27 @@ Things
     PrototypeActor TestActor
     {
         PrototypeMeshInstance = <LolBitMeshInstance>
+        // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
+        // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
         GlobalPosition = (1.0)
+        // Booleans are case-insensitive
         IsVisible = (true)
     }
 
     PrototypeActor TestActor2
     {
+        // This is a sandwich. It's a way of defining an object inside another object, for convenience
+        // Internally, they are converted into a separate definition, and the variable value is replaced
+        // with a Theatre reference to that new object
+        // They begin with the variable name, followed by a colon instead of an equals sign, and then a typical
+        // object definition afterwards
+        // They are great for when you don't want to define a new object and manually reference it, like in this example:
         PrototypeMeshInstance : MeshInstance DoomMeshInstance
         {
             Mesh = 'src/testing_app/resources/Cube.obj'
             Material = <Doom_Mat>
         }
-        GlobalPosition = (-1, 1, -2)
-        IsVisible = (True)
+        GlobalPosition = (-1, 1.0, -2) // An example of all the different number types working together!
+        IsVisible = (True) // An example of boolean case-insensitivity
     }
 }
