@@ -21,8 +21,8 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_LIB_DYNAMIC     := -fPIC
 FLAGS_LIB_STATIC      := # Nothing yet
-FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE
-FLAGS_CC_COMMON       := -std=c11 -Wall
+FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
+FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows
 FLAGS_LINUX           := # Nothing yet
 ARCHIVES_LINUX        := src/lib/glfw-lib-linux/libglfw3.a
@@ -94,7 +94,7 @@ export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
 export BUILD_LIBRARY  ?= $(BUILD_DIR)/$(DIR_LIBRARY)
 export BUILD_HEADERS  ?= $(BUILD_DIR)/$(DIR_HEADERS)/$(NAME_BASE)
 export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
-export BUILD_DEPENDS  ?= $(BUILD_OBJS)/$(DIR_DEPS)
+export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
 export APP_LD_FLAGS   ?= $(BUILD_LIBRARY)/$(NAME)
@@ -109,7 +109,7 @@ export BUILDING_DYNAMIC_LIBRARY ?=
 export CLEAN_ARCH ?= .+
 export CLEAN_VERSION ?= .+
 
-VPATH := $(SRC_DIRS)
+VPATH := $(SRC_DIRS):$(DIR_ROOT)
 
 SRC := src
 
@@ -141,7 +141,7 @@ APP_SRC_DIRS :=               \
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-RESOURCES_DIR := $(SRC)/resources/embedded
+RESOURCES_DIR := $(SRC)/resources/engine
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
@@ -154,8 +154,7 @@ HEADER_FILES := $(call get_source_files,$(SRC_DIRS),*.h) $(call get_source_files
 
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
-
-export DEP_FILES ?= $(CXX_SRCS:$(SRC)/%.cpp=$(BUILD_DEPENDS)/%.d)
+export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
 export APP_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(APP_SRCS:$(SRC)/%=%)))
 
@@ -190,7 +189,7 @@ printout:
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"; fi
 
 build_dir:
-	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
+	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
 static: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
@@ -352,12 +351,14 @@ $(BUILD_OBJS)/%.obj: $(SRC)/%.cpp | build_dir
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
+	@ -mv $(@:.obj=.d) $(BUILD_DEPS)/$(notdir $(@:.obj=.d))
 
 # C Object Files
 $(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
+	@ -mv $(@:.o=.d) $(BUILD_DEPS)/$(notdir $(@:.o=.d))
 
 # Header Files
 $(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build
@@ -390,3 +391,5 @@ NOTHING_TO_CLEAN.clean:
 # Prints a cleanup message
 %.clean:
 	@ printf "::Cleaned $(BOLD)$(RED)$*$(RESET)\n"
+
+include $(wildcard $(BUILD_DEPS)/*.d)
