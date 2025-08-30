@@ -322,10 +322,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
             continue;
         }
         case enter_reference:
-            variable_type = VariableType::EngineRef;
+            variable_type = VariableType::TheatreRef;
             continue;
         case enter_engine_ref:
-            variable_type = VariableType::TheatreRef;
+            variable_type = VariableType::EngineRef;
             continue;
         case enter_numeric:
             variable_type = VariableType::Number;
