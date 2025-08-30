@@ -8,6 +8,8 @@ typedef unsigned int rid_t;
 // Pre-Embedded RIDs
 struct RID
 {
+    static constexpr rid_t None = 0;
+
     static const rid_t ErrorMesh;
     static const rid_t RamielMesh;
     static const rid_t MissingTexture;
@@ -23,7 +25,7 @@ public:
 
 private:
     friend class ResourceManager;
-    rid_t m_ID;
+    rid_t m_ID = RID::None;
     std::string m_Name = "UntitledResource";
 };
 
