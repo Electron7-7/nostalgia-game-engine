@@ -339,8 +339,8 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 variable_type == VariableType::Number &&
                 buffer.size() >= 4 && // Has to be as large as "true"
                 (
-                    ToLower(buffer).compare("false") ||
-                    ToLower(buffer).compare("true")
+                    !ToLower(buffer).compare("false") ||
+                    !ToLower(buffer).compare("true")
                 )
             )
                 { variable_type = VariableType::Bool; }
