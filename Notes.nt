@@ -310,3 +310,30 @@ Made a realization: Theatres are just the "blueprints" for building a level. The
 Okay, I want to continue to work on the engine. I want to simplify Theatres and Resources and bring over some code from GraphX.
 
 Oh dear god I misinterpreted std::list vs std::vector. I need to fix this immediately.
+
+[08/23/25]
+Okay, I'm gonna try and get Theatres loading. I think I'm gonna start working on interpreting Theatre files into Theatre objects.
+
+Although, I could also try to get a cube rendering... hmm, might do that.
+
+Actually... do I even *need* a Theatre object? Theatres are just gonna be text files that are parsed and interpreted, so storing their data in an object that just gets its data translated is a waste.
+
+Okay, so here's the new syntax:
+- Things and Resources are separated into their own contexts
+- There are two types of Resources: "real" Resources and "tag" Resources
+    - "tag" Resources are just containers for a file-path or memory data
+        - e.g: the path to an image file (Image), embedded .obj file data (Model)
+    - "real" Resources are actual 'Resource' blueprints and can use "tag" Resources
+        - i.e: a 'Texture' can use an 'Image' or a file-path/memory data
+- Resources can be single-line or multi-line
+    - "tag" Resources are always single-line
+    - Single-line "real" Resources take a single 'main' value, but everything else is left to their default values
+        - e.g: a single-line 'Mesh' would take a 'Model'/file-path/memory data and nothing else
+    - Multi-line "real" Resources look similar to Things and are where more variables are set
+- Things are always multi-line
+
+[08/26/25]
+Idea!! What if I don't parse Theatre files one word at a time and instead parse them one *definition* at a time? Like, I add each word to a vector until I hit a certain delimiter ('\n', '}', etc). Then, I check a few booleans/enums, craft the variable object, and add it to the data object!
+
+[08/29/25]
+I finished the parser. Idea for interpreter: generate IDs for each Resource and Thing, and use a map to pair their names with their IDs. This map will only be used while interpreting, for getting the ID of any Theatre Reference variables.
