@@ -27,11 +27,11 @@ void debug_PrintParsedTheatreData()
 
     for(const auto& data : temp_data)
     {
-        std::print("{} {}\n", data.GetType(), data.GetName());
+        std::print("({}) {}:\n", data.m_Type, data.m_Name);
 
         const std::set<variable_t>& variables = data.m_Variables;
         for(const auto& variable : variables)
-        { std::print("\t[{}] '{}': '{}' ('{}')\n", variable.m_Hash, variable.m_Name, variable.m_Value, StringifyEnum(variable.m_Type)); }
+        { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
 
         std::print("\n");
     }
