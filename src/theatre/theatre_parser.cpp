@@ -229,6 +229,8 @@ SafeStatus TheatreParser::try_ParseTheatre()
             inside_comment = false;
             break;
         case enter_exit_string:
+            if(inside_comment)
+                { break; }
             inside_string = !inside_string;
             if(inside_string)
                 { variable_type = VariableType::String; }
@@ -246,6 +248,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
         switch(character)
         {
+        case comment_delimiter:
+            if(iterator+1 < data_size && s_TheatreFileDataString.at(++iterator))
+                { inside_comment = true; }
+            continue;
         case name_delimiter:
             if(location == Location::TopLevel)
             {
@@ -280,8 +286,6 @@ SafeStatus TheatreParser::try_ParseTheatre()
                     defining = Defining::Context;
                     buffer.clear();
                 }
-
-                continue;
             }
             continue;
         case tab:
@@ -303,10 +307,6 @@ SafeStatus TheatreParser::try_ParseTheatre()
             default:
                 break;
             }
-            continue;
-        case comment_delimiter:
-            if(iterator+1 < data_size && s_TheatreFileDataString.at(++iterator))
-                { inside_comment = true; }
             continue;
         case assignment_delimiter:
             parsing = Parsing::VariableValue;
