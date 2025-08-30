@@ -1,5 +1,6 @@
 #include "gl_shader.hpp"
 #include "printing.hpp"
+#include "colors.hpp"
 #include "glad/glad.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -19,7 +20,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     PRINT_DEBUG("Checking for Vertex Shader errors")
     if(!GLShaderErrorHandler(vertex))
     {
-        PRINT_DEBUG("Vertex shader failed to compile! Shader code:\n'{}'", v_shader_code)
+        PRINT_ERROR("Vertex shader failed to compile!")
+        PRINT_DEBUG("Shader Code:{}\n{}", sty::Reset, v_shader_code)
         return false;
     }
 
@@ -29,7 +31,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     PRINT_DEBUG("Checking for Fragment Shader errors")
     if(!GLShaderErrorHandler(fragment))
     {
-        PRINT_DEBUG("Fragment shader failed to compile! Shader code:\n'{}'", f_shader_code)
+        PRINT_ERROR("Fragment shader failed to compile! Shader code:")
+        PRINT_DEBUG("Shader Code:{}\n{}", sty::Reset, f_shader_code)
         return false;
     }
 
@@ -39,7 +42,12 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glLinkProgram(_id);
     PRINT_DEBUG("Checking for Shader Program errors")
     if(!GLShaderErrorHandler(_id, true))
-    { return false; }
+    {
+        PRINT_ERROR("Shader Program failed to compile!")
+        PRINT_DEBUG("Vertex Shader Code:{}\n{}", sty::Reset, v_shader_code)
+        PRINT_DEBUG("Fragment Shader Code:{}\n{}", sty::Reset, f_shader_code)
+        return false;
+    }
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
