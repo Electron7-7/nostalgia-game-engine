@@ -68,9 +68,15 @@ struct Status
     inline static SafeStatus ResourceManagerFAILED_TO_LOAD_OBJ      = SafeStatus( 0xE,  "ResourceManagerFAILED_TO_LOAD_OBJ"      );
     inline static SafeStatus ResourceManagerFAILED_TO_LOAD_IMAGE    = SafeStatus( 0xF,  "ResourceManagerFAILED_TO_LOAD_IMAGE"    );
     inline static SafeStatus ResourceManagerINVALID_RESOURCE_ID     = SafeStatus( 0x10, "ResourceManagerINVALID_RESOURCE_ID"     );
-    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x11, "TheatreParserFILE_DOES_NOT_EXIST"       );
-    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x12, "TheatreParserWRONG_FILE_EXTENSION"      );
-    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x13, "TheatreParserNO_THEATRE_LOADED"         );
+    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0x11, "DataTypeINVALID_VARIABLE_NAME"          );
+    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x12, "DataTypeEMPTY_VARIABLE"                 );
+    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x13, "TheatreParserFILE_DOES_NOT_EXIST"       );
+    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x14, "TheatreParserWRONG_FILE_EXTENSION"      );
+    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x15, "TheatreParserNO_THEATRE_LOADED"         );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x16, "TheatreParserMISSING_THEATRE_NAME"      );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x17, "TheatreParserMISSING_THEATRE_INDEX"     );
+    inline static SafeStatus TheatreDataTypeINVALID_NAME            = SafeStatus( 0x18, "TheatreDataTypeINVALID_NAME"            );
+    inline static SafeStatus TheatreDataTypeINVALID_DATA_TYPENAME   = SafeStatus( 0x19, "TheatreDataTypeINVALID_DATA_TYPENAME"   );
 };
 
 template<typename T>
@@ -79,6 +85,10 @@ struct SafeReturn
 public:
     SafeReturn(T Data, SafeStatus ReturnStatus = Status::NO_ERROR)
     : m_Data(Data), m_Status(ReturnStatus)
+    {}
+
+    SafeReturn(const SafeReturn& Copy)
+    : m_Data(Copy.m_Data), m_Status(Copy.m_Status)
     {}
 
     const T& Data() const { return m_Data; }
