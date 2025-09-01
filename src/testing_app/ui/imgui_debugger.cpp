@@ -58,7 +58,8 @@ void imgui_Debugger::Update()
     InputInt("Fullscreen Height", &Settings::Window::FullscreenHeight);
     Separator();
     Checkbox("Fullscreen", &Settings::Window::Fullscreen);
-    if(Button("Apply Changes")) { g_pBackendManager->UpdateWindowState(); }
+    if(Button("Apply Changes"))
+        { g_pBackendManager->UpdateWindowState(); }
 
     End();
 }

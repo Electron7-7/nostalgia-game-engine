@@ -46,8 +46,7 @@ public:
     variable_t(const std::string& Name, const std::string& Value, const VariableType& Type);
     variable_t();
 
-    const bool operator<(const variable_t& Compare) const
-        { return m_Hash < Compare.m_Hash; }
+    const bool operator<(const variable_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
 #ifdef DEBUGGING
@@ -73,7 +72,7 @@ public:
     static constexpr short VARIABLE_ADDED = (short)false;
 
     short SetVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
-    SafeReturn<const variable_t&> try_GetVariable(const std::string& Name);
+    // SafeReturn<const variable_t&> try_GetVariable(const std::string& Name); // TODO: Commit to removing this if still unused
 
     const std::string& GetName() const;
     void SetName(const std::string& Name);
@@ -83,17 +82,7 @@ public:
 
     void clear();
 
-    // Variable Interpreting Functions
-    // template<typename T, bool is_numeric = std::is_arithmetic_v<T>>
-    // T GetNumber(const std::string& VariableName);
-    // template<> float GetNumber(const std::string& VariableName);
-    // template<> int GetNumber(const std::string& VariableName);
-    // template<> glm::vec3 GetNumber(const std::string& VariableName);
-    // template<> glm::vec2 GetNumber(const std::string& VariableName);
-    // bool GetBool(const std::string& VariableName);
-
-    const bool operator<(const data_t& Compare) const
-        { return m_Hash < Compare.m_Hash; }
+    const bool operator<(const data_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
 #ifdef DEBUGGING
@@ -102,7 +91,7 @@ private:
     friend struct TheatreData;
     data_t(const std::string& Name);
 
-    std::set<variable_t> m_Variables = {}; // The string key is the variable's name
+    std::set<variable_t> m_Variables = {};
     std::string m_Name = "Untitled";
     std::string m_Type = "Unset";
     size_t      m_Hash = g_StringHash(m_Name);
@@ -115,12 +104,12 @@ struct TheatreData
 
     const std::set<data_t>& GetThings() const;
     const std::set<data_t>& GetResources() const;
-    std::set<data_t> GetMergedData() const;
+
+#ifdef DEBUGGING
+    std::set<data_t> GetMergedData() const; // Very slow/inefficient
+#endif // DEBUGGING
 
     SafeReturn<data_t> try_GetData(const std::string& Name) const; // Used by the parser
-    SafeReturn<data_t> try_GetThingData(const std::string& ThingName) const;
-    SafeReturn<data_t> try_GetResourceData(const std::string& ResourceName) const;
-
     SafeStatus AddData(const data_t& Data);
 
     void clear();
@@ -130,9 +119,6 @@ private:
 
     std::set<data_t> m_Things;
     std::set<data_t> m_Resources;
-
-    void AddThingData(const data_t& ThingData);
-    void AddResourceData(const data_t& ResourceData);
 };
 
 #endif // THEATRE_DATA_H

@@ -40,7 +40,7 @@ static constexpr std::string ToLower(std::string string)
     return string;
 }
 
-namespace fs = std::filesystem;
+namespace fs = std::filesystem; // NOTE: Fuck you, I'm not typing allat
 
 static std::string s_TheatreFileDataString = "";
 static TheatreData s_TheatreData;
@@ -53,7 +53,7 @@ static const std::set<std::string> c_NostalgiaExtensions =
     ".nt"
 };
 
-// TODO: Add support for GraphXTheatre files (if NostalgiaTheatre files differ)
+// TODO: Add support for GraphXTheatre files
 static const std::set<std::string> c_GraphXExtensions =
 {
     ".graphxtheatre",
@@ -79,13 +79,6 @@ static const char tab                  = '\t';
 static const char space                = ' ';
 static const std::string resources     = "Resources";
 static const std::string things        = "Things";
-
-static const std::set<char> s_SandwichNameDelimiters =
-{
-    sandwich_delimiter,
-    space,
-    tab
-};
 
 enum class Location
 {
@@ -206,8 +199,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         }
 
 #ifdef DEBUGGING
-        // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column, which is really
-        // useful for debugging at very specific places in the file. Plus, it's evaluated during run-time, not compile-time!
+        // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
         if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
             { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
 #endif
@@ -215,6 +207,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         set_new_line = (character == '\n');
 
         // Temporarily bypass comment/string/context skipping on certain conditions
+        // TODO: Make this shit less bad
         switch(character)
         {
         case exit_context:

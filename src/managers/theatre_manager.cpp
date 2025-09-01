@@ -16,7 +16,7 @@ static std::vector<Thing*> s_ThingStorage = {};
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
 {
     if(!is_first_call)
-    { return FINISHED; }
+        { return FINISHED; }
 
     if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre()))
         { return FUCKED; }
@@ -29,7 +29,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first_call)
 {
     if(!is_first_call)
-    { return FINISHED; }
+        { return FINISHED; }
 
     DestroyThings();
 

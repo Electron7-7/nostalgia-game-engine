@@ -14,7 +14,6 @@ variable_t::variable_t(const std::string& name)
 : variable_t(name, "N/A", VariableType::Default)
 {}
 
-// TODO: Is this bad?
 void variable_t::clear()
 { *this = variable_t(); }
 
@@ -36,7 +35,7 @@ short data_t::SetVariable(const std::string& name, const std::string& data, cons
     return variable_exists;
 }
 
-SafeReturn<const variable_t&> data_t::try_GetVariable(const std::string& name)
+/*SafeReturn<const variable_t&> data_t::try_GetVariable(const std::string& name)
 {
     if(!m_Variables.contains(name))
     { return SafeReturn<const variable_t&>(variable_t::undefined, Status::DataTypeINVALID_VARIABLE_NAME); }
@@ -45,7 +44,7 @@ SafeReturn<const variable_t&> data_t::try_GetVariable(const std::string& name)
     { return SafeReturn<const variable_t&>(variable_t::undefined, Status::DataTypeEMPTY_VARIABLE); }
 
     return SafeReturn<const variable_t&>(*m_Variables.find(name));
-}
+}*/
 
 const std::string& data_t::GetName() const
 { return m_Name; }
@@ -82,34 +81,21 @@ const std::set<data_t>& TheatreData::GetThings() const
 const std::set<data_t>& TheatreData::GetResources() const
 { return m_Resources; }
 
+#ifdef DEBUGGING
 std::set<data_t> TheatreData::GetMergedData() const
 {
     std::set<data_t> combined_sets(m_Things.cbegin(), m_Things.cend());
     combined_sets.insert(m_Resources.cbegin(), m_Resources.cend());
     return combined_sets;
 }
+#endif // DEBUGGING
 
 SafeReturn<data_t> TheatreData::try_GetData(const std::string& name) const
-{
-    SafeReturn get_data = try_GetThingData(name);
-
-    if(get_data.Status() != Status::NO_ERROR)
-        { get_data = try_GetResourceData(name); }
-
-    return get_data;
-}
-
-SafeReturn<data_t> TheatreData::try_GetThingData(const std::string& name) const
 {
     auto is_thing = m_Things.find(name);
     if(is_thing != m_Things.cend())
         { return *is_thing; }
 
-    return SafeReturn(s_SafeDataReturn, Status::TheatreDataTypeINVALID_NAME);
-}
-
-SafeReturn<data_t> TheatreData::try_GetResourceData(const std::string& name) const
-{
     auto is_resource = m_Resources.find(name);
     if(is_resource != m_Resources.cend())
         { return *is_resource; }
@@ -124,10 +110,10 @@ SafeStatus TheatreData::AddData(const data_t& data)
     case BaseType::Unknown:
         return Status::TheatreDataTypeINVALID_NAME;
     case BaseType::Resource:
-        AddResourceData(data);
+        m_Resources.insert(data);
         break;
     case BaseType::Thing:
-        AddThingData(data);
+        m_Things.insert(data);
         break;
     }
     return Status::NO_ERROR;
@@ -138,9 +124,3 @@ void TheatreData::clear()
     m_Things.clear();
     m_Resources.clear();
 }
-
-void TheatreData::AddThingData(const data_t& data)
-{ m_Things.insert(data); }
-
-void TheatreData::AddResourceData(const data_t& data)
-{ m_Resources.insert(data); }
