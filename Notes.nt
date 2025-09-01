@@ -337,3 +337,6 @@ Idea!! What if I don't parse Theatre files one word at a time and instead parse 
 
 [08/29/25]
 I finished the parser. Idea for interpreter: generate IDs for each Resource and Thing, and use a map to pair their names with their IDs. This map will only be used while interpreting, for getting the ID of any Theatre Reference variables.
+
+[08/31/25]
+I had an idea for settings: What if each Thing/Resource had a map that paired string keys with pointers to variables (or something along those lines), and the TheatreParser could lookup those variables when interpreting the TheatreData; then, in an 'Init' function, or something similar, the Thing/Resource would use the map to update their respective variables.
