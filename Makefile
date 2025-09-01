@@ -284,7 +284,7 @@ debug: ;@:
 	$(eval CLEAN_VERSION = $(DIR_DEBUG))
 
 # Cleaning Functions
-CLEAN       = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -delete -print 2>/dev/null
+CLEAN       = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -print 2>/dev/null
 DIRTY       = $(foreach dir,$(1),-not -path "*$(dir)*")
 CLEAN_PRINT = \
 $(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
@@ -295,15 +295,17 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 .__clean_target: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
-	$(eval EMPTY_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)'))
-	@ $(call CLEAN_PRINT,$(EMPTY_DIRS))
+	$(RM) $(CLEAN_FILES)
+	$(RM) -r $(CLEAN_DIRS)
+	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
 
 # Cleans the entire 'build/' directory (default behaviour for 'clean')
 .__clean_all: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/.*'))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/.*'))
-	$(eval EMPTY_DIR   != find ./ -type d -not -path "*.git*" -empty -delete -print 2>/dev/null)
-	@ $(call CLEAN_PRINT,$(EMPTY_DIR))
+	$(RM) $(CLEAN_FILES)
+	$(RM) -r $(CLEAN_DIRS)
+	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
 
 # What 'clean' does depends on if it's called by itself, or after other targets
 clean:
@@ -318,11 +320,15 @@ clean:
 .__mostlyclean_target:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(RM) $(CLEAN_FILES)
+	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
 
 .__mostlyclean_all: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,$(call DIRTY,$(DIRTY_SRC_DIRS))))
 	$(eval CLEAN_DIRS  != $(call CLEAN,d,$(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(RM) $(CLEAN_FILES)
+	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
 
 mostlyclean:
