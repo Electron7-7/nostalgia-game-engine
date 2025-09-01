@@ -20,6 +20,7 @@ private:
 #ifdef DEBUGGING
 extern size_t g_Column;
 extern size_t g_Line;
+
 extern int g_BreakOnColumn;
 extern int g_BreakOnLine;
 #endif // DEBUGGING

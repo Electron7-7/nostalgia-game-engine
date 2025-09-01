@@ -18,8 +18,8 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     if(!is_first_call)
     { return FINISHED; }
 
-    // if(!SafeStatus::PrintCheck(TheatreParser::))
-    // { return FUCKED; }
+    if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre()))
+        { return FUCKED; }
 
     CreateThings();
 

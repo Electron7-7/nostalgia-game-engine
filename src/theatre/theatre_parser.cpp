@@ -7,22 +7,22 @@
 #include <cctype>
 #include <string>
 
+// NOTE: Yes, this is stupid. Too bad!
 #ifdef DEBUGGING
+    int g_BreakOnColumn = -1;
+    int g_BreakOnLine   = -1;
 
-int g_BreakOnColumn = -1;
-int g_BreakOnLine   = -1;
-size_t g_Column = 1;
-size_t g_Line   = 1;
-#define COLUMN g_Column
-#define LINE   g_Line
+    size_t g_Column = 1;
+    size_t g_Line   = 1;
 
+#   define COLUMN   g_Column
+#   define LINE     g_Line
 #else  // !DEBUGGING
+    size_t s_Column = 1;
+    size_t s_Line   = 1;
 
-size_t s_Column = 1;
-size_t s_Line   = 1;
-#define COLUMN s_Column
-#define LINE   s_Line
-
+#   define COLUMN   s_Column
+#   define LINE     s_Line
 #endif // DEBUGGING
 
 static const std::string s_cParserLocation = std::to_string(LINE) + ":" + std::to_string(COLUMN);
@@ -112,6 +112,30 @@ enum class Parsing
     VariableName  =  3,
     VariableValue =  4,
 };
+
+#ifdef DEBUGGING
+void debug_PrintParsedTheatreData()
+{
+    PRINT_DEBUG("Parsed Theatre Data Printout:")
+
+    SafeReturn<TheatreData> try_data = TheatreParser::try_GetTheatreData();
+    if(!SafeStatus::PrintCheck(try_data.Status()))
+    { return; }
+
+    std::set<data_t> temp_data = try_data.Data().GetMergedData();
+
+    for(const auto& data : temp_data)
+    {
+        std::print("({}) {}:\n", data.m_Type, data.m_Name);
+
+        const std::set<variable_t>& variables = data.m_Variables;
+        for(const auto& variable : variables)
+        { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
+
+        std::print("\n");
+    }
+}
+#endif // DEBUGGING
 
 SafeReturn<TheatreData> TheatreParser::try_GetTheatreData()
 {
@@ -424,6 +448,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
         buffer += character;
     }
+
+#ifdef DEBUGGING
+    debug_PrintParsedTheatreData();
+#endif // DEBUGGING
 
     return Status::NO_ERROR;
 }
