@@ -68,6 +68,7 @@ ifneq ($(OS),Windows_NT)
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS      ?= $(LDFLAGS_LINUX)
+	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME)
 	export CXX_COMPILER  ?= $(LINUX_CXX)
 	export C_COMPILER    ?= $(LINUX_CC)
 	export ARCHIVES      ?= $(ARCHIVES_LINUX)
@@ -81,6 +82,7 @@ else # WINDOWS
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
 	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS)
+	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME) -lstdc++exp
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
 	export ARCHIVES      ?= $(ARCHIVES_WINDOWS)
@@ -97,7 +99,6 @@ export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
-export APP_LD_FLAGS   ?= $(BUILD_LIBRARY)/$(NAME)
 export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
 export APP            ?= $(APP_TYPE)$(APP_NAME)
 
@@ -268,6 +269,7 @@ windows: ;@:
 	$(eval ARCHIVES      = $(ARCHIVES_WINDOWS))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
+	$(eval APP_LD_FLAGS  += -lstdc++exp)
 
 release: ;@:
 	$(eval VERSION_FLAGS = $(RELEASE_FLAGS))

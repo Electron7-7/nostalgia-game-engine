@@ -84,14 +84,13 @@ public:
     void clear();
 
     // Variable Interpreting Functions
-    template<typename T, bool is_numeric = std::is_arithmetic_v<T>>
-    T GetNumber(const std::string& VariableName);
-    template<> float GetNumber(const std::string& VariableName);
-    template<> int GetNumber(const std::string& VariableName);
-    template<> glm::vec3 GetNumber(const std::string& VariableName);
-    template<> glm::vec2 GetNumber(const std::string& VariableName);
-
-    bool GetBool(const std::string& VariableName);
+    // template<typename T, bool is_numeric = std::is_arithmetic_v<T>>
+    // T GetNumber(const std::string& VariableName);
+    // template<> float GetNumber(const std::string& VariableName);
+    // template<> int GetNumber(const std::string& VariableName);
+    // template<> glm::vec3 GetNumber(const std::string& VariableName);
+    // template<> glm::vec2 GetNumber(const std::string& VariableName);
+    // bool GetBool(const std::string& VariableName);
 
     const bool operator<(const data_t& Compare) const
         { return m_Hash < Compare.m_Hash; }
