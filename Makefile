@@ -118,7 +118,6 @@ SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/demo                         \
-    $(SRC)/engine                       \
     $(SRC)/input                        \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
@@ -126,6 +125,8 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/resources                    \
+    $(SRC)/resources/basic              \
+    $(SRC)/resources/engine             \
     $(SRC)/settings                     \
     $(SRC)/theatre
 
@@ -298,6 +299,7 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
+	@ $(MAKE) -s -C $(RESOURCES_DIR) clean
 
 # Cleans the entire 'build/' directory (default behaviour for 'clean')
 .__clean_all: ;@:
@@ -306,6 +308,7 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
+	@ $(MAKE) -s -C $(RESOURCES_DIR) clean
 
 # What 'clean' does depends on if it's called by itself, or after other targets
 clean:

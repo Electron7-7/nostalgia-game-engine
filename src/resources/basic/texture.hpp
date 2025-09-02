@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "resource.hpp"
+#include "../resource.hpp"
 
 #include <vector>
 

@@ -11,14 +11,13 @@ export WHITE   ?= \\x1b[1;37m
 export DEFAULT ?= \\x1b[1;39m
 
 # Common Variables
-TOP := ../..
-EMBED_DIR := $(TOP)/engine
+EMBED_DIR_ABSOLUTE := src/resources/engine
 
 #-----------------#
 # Print Functions #
 #-----------------#
 PRINT_GENERATING = printf "$(DEFAULT)::Generating Engine Resource: $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
-cleaned = printf "$(RESET)::Cleaned $(RED)$(subst $(TOP),src,$(1))$(RESET)\n"
+cleaned = printf "$(RESET)::Cleaned $(RED)$(EMBED_DIR_ABSOLUTE)/$(1)$(RESET)\n"
 
 #-------------------------------#
 # C++ Variable Naming Functions #
@@ -52,17 +51,17 @@ MAKE_DAT_HEADER_VAR = $(shell printf "\n$(call DECLARE_DATA_VARS,$(call FILENAME
 
 # Font Variables
 FONTS_GUARD := FONTS_H
-FONTS_DIR   := fonts
+FONTS_DIR   := src/fonts
 FONTS       := $(wildcard $(FONTS_DIR)/*)
-FONTS_CPP   := $(EMBED_DIR)/fonts.cpp
-FONTS_HPP   := $(EMBED_DIR)/fonts.hpp
+FONTS_CPP   := fonts.cpp
+FONTS_HPP   := fonts.hpp
 
 # GLSL Variables
 GL_SHADERS_GUARD := OPENGL_SHADERS_H
-GL_SHADERS_DIR   := shaders/GLSL
+GL_SHADERS_DIR   := src/shaders/GLSL
 GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*)
-GL_SHADERS_CPP   := $(EMBED_DIR)/opengl_shaders.cpp
-GL_SHADERS_HPP   := $(EMBED_DIR)/opengl_shaders.hpp
+GL_SHADERS_CPP   := opengl_shaders.cpp
+GL_SHADERS_HPP   := opengl_shaders.hpp
 
 # GLSL Naming Function
 GLSL_HEADER_VAR = \
@@ -71,58 +70,53 @@ GLSL_HEADER_VAR = \
 
 # Model Variables
 MODELS_GUARD := MODELS_H
-MODELS_DIR   := models
+MODELS_DIR   := src/models
 MODELS       := $(wildcard $(MODELS_DIR)/*.obj)
-MODELS_HPP   := $(EMBED_DIR)/models.hpp
-MODELS_CPP   := $(EMBED_DIR)/models.cpp
+MODELS_HPP   := models.hpp
+MODELS_CPP   := models.cpp
 
 # Image Variables
 IMAGES_GUARD := IMAGES_H
-IMAGES_DIR   := images
+IMAGES_DIR   := src/images
 IMAGES       := $(wildcard $(IMAGES_DIR)/*)
-IMAGES_HPP   := $(EMBED_DIR)/images.hpp
-IMAGES_CPP   := $(EMBED_DIR)/images.cpp
+IMAGES_HPP   := images.hpp
+IMAGES_CPP   := images.cpp
 
 .PHONY: all build clean shaders fonts glsl models images
 
 all: shaders models images fonts
-	@ printf "$(DEFAULT)::Engine Resources Directory - $(GREEN)$(EMBED_DIR:$(TOP)%=src%)$(RESET)\n"
+	@ printf "$(DEFAULT)::Engine Resources Directory - $(GREEN)$(EMBED_DIR_ABSOLUTE)$(RESET)\n"
 
-build:
-	@ -mkdir -p $(EMBED_DIR)
-
-clean:
-	@ -rm -rf $(EMBED_DIR)
-	@ $(call cleaned,$(EMBED_DIR))
+clean: clean_glsl clean_fonts clean_models ;@:
 
 clean_glsl:
-	@ -rm -f $(GL_SHADERS_CPP)
+	@ $(RM) $(GL_SHADERS_CPP)
 	@ $(call cleaned,$(GL_SHADERS_CPP))
-	@ -rm -f $(GL_SHADERS_HPP)
+	@ $(RM) $(GL_SHADERS_HPP)
 	@ $(call cleaned,$(GL_SHADERS_HPP))
 
 clean_fonts:
-	@ -rm -f $(FONTS_CPP)
+	@ $(RM) $(FONTS_CPP)
 	@ $(call cleaned,$(FONTS_CPP))
-	@ -rm -f $(FONTS_HPP)
+	@ $(RM) $(FONTS_HPP)
 	@ $(call cleaned,$(FONTS_HPP))
 
 clean_models:
-	@ -rm -f $(MODELS_CPP)
+	@ $(RM) $(MODELS_CPP)
 	@ $(call cleaned,$(MODELS_CPP))
-	@ -rm -f $(MODELS_HPP)
+	@ $(RM) $(MODELS_HPP)
 	@ $(call cleaned,$(MODELS_HPP))
 
 # Fonts
-fonts: $(FONTS_CPP) $(FONTS_HPP) | build
+fonts: $(FONTS_CPP) $(FONTS_HPP)
 
-$(FONTS_CPP): $(FONTS_HPP) | build
+$(FONTS_CPP): $(FONTS_HPP)
 	@ $(call PRINT_GENERATING,Fonts,$@,$<)
 	@ $(MAKE) -s $(FONTS:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_SOURCE_VAR,$(font_file),font,$@))
 
-$(FONTS_HPP): $(FONTS) | build
+$(FONTS_HPP): $(FONTS)
 	$(shell printf "#ifndef $(FONTS_GUARD)\n#define $(FONTS_GUARD)\n" > $@)
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_HEADER_VAR,$(font_file),font,$@))
 	$(shell printf "\n\n#endif // $(FONTS_GUARD)\n" >> $@)
@@ -131,47 +125,47 @@ $(FONTS_HPP): $(FONTS) | build
 shaders: glsl ;@:
 
 # GLSL
-glsl: $(GL_SHADERS_CPP) $(GL_SHADERS_HPP) | build
+glsl: $(GL_SHADERS_CPP) $(GL_SHADERS_HPP)
 
-$(GL_SHADERS_CPP): $(GL_SHADERS_HPP) | build
+$(GL_SHADERS_CPP): $(GL_SHADERS_HPP)
 	@ $(call PRINT_GENERATING,GLSL Shaders,$@,$<)
 	@ $(MAKE) -s $(GL_SHADERS:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach shader_file,$(GL_SHADERS),$(call MAKE_STR_SOURCE_VAR,$(shader_file),glsl,$@))
 
-$(GL_SHADERS_HPP): $(GL_SHADERS) | build
+$(GL_SHADERS_HPP): $(GL_SHADERS)
 	$(shell printf "#ifndef $(GL_SHADERS_GUARD)\n#define $(GL_SHADERS_GUARD)\n" > $@)
 	$(foreach shader_stem,$(GL_SHADERS),$(call GLSL_HEADER_VAR,$(shader_stem),glsl,$@))
 	$(shell printf "\n#endif // $(GL_SHADERS_GUARD)\n" >> $@)
 
 # Models
-models: $(MODELS_CPP) $(MODELS_HPP) | build
+models: $(MODELS_CPP) $(MODELS_HPP)
 
-$(MODELS_CPP): $(MODELS_HPP) | build
+$(MODELS_CPP): $(MODELS_HPP)
 	@ $(call PRINT_GENERATING,Models,$@,$<)
 	@ $(MAKE) -s $(MODELS:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach model,$(MODELS),$(call MAKE_STR_SOURCE_VAR,$(model),model,$@))
 
-$(MODELS_HPP): $(MODELS) | build
+$(MODELS_HPP): $(MODELS)
 	$(shell printf "#ifndef $(MODELS_GUARD)\n#define $(MODELS_GUARD)\n" > $@)
 	$(foreach model,$(MODELS),$(call MAKE_STR_HEADER_VAR,$(model),model,$@))
 	$(shell printf "\n\n#endif // $(MODELS_GUARD)" >> $@)
 
 # Images
-images: $(IMAGES_CPP) $(IMAGES_HPP) | build
+images: $(IMAGES_CPP) $(IMAGES_HPP)
 
-$(IMAGES_CPP): $(IMAGES_HPP) | build
+$(IMAGES_CPP): $(IMAGES_HPP)
 	@ $(call PRINT_GENERATING,Images,$@,$<)
 	@ $(MAKE) -s $(IMAGES:%=%.print)
 	$(shell printf "#include \"$(notdir $<)\"\n" > $@)
 	$(foreach image,$(IMAGES),$(call MAKE_DAT_SOURCE_VAR,$(image),image,$@))
 
-$(IMAGES_HPP): $(IMAGES) | build
+$(IMAGES_HPP): $(IMAGES)
 	$(shell printf "#ifndef $(IMAGES_GUARD)\n#define $(IMAGES_GUARD)\n" > $@)
 	$(foreach image,$(IMAGES),$(call MAKE_DAT_HEADER_VAR,$(image),image,$@))
 	$(shell printf "\n#endif // $(IMAGES_GUARD)\n" >> $@)
 
 # Printouts
 %.print: %
-	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/$<$(RESET)\n"
+	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/engine/src/$<$(RESET)\n"

@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "resource.hpp"
+#include "../resource.hpp"
 #include "rendering/vertex.hpp"
 #include "math/unsigned_int_vector.hpp"
 

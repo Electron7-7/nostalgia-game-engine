@@ -1,5 +1,5 @@
 #include "texture.hpp"
-#include "engine/images.hpp"
+#include "../engine/images.hpp"
 
 const Texture Texture::Missing({image_JPG_MISSINGTEXTURE, image_JPG_MISSINGTEXTURE_len});
 const MultiTexture MultiTexture::Missing({{image_JPG_MISSINGTEXTURE, image_JPG_MISSINGTEXTURE_len}});
