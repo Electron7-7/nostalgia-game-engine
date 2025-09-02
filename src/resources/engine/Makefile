@@ -12,12 +12,12 @@ export DEFAULT ?= \\x1b[1;39m
 
 # Common Variables
 TOP := ../..
-EMBED_DIR := $(TOP)/embedded
+EMBED_DIR := $(TOP)/engine
 
 #-----------------#
 # Print Functions #
 #-----------------#
-PRINT_GENERATING = printf "$(DEFAULT)::Generating Embedded $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
+PRINT_GENERATING = printf "$(DEFAULT)::Generating Engine Resource: $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
 cleaned = printf "$(RESET)::Cleaned $(RED)$(subst $(TOP),src,$(1))$(RESET)\n"
 
 #-------------------------------#
@@ -86,7 +86,7 @@ IMAGES_CPP   := $(EMBED_DIR)/images.cpp
 .PHONY: all build clean shaders fonts glsl models images
 
 all: shaders models images fonts
-	@ printf "$(DEFAULT)::Embedded Resources Directory - $(GREEN)$(EMBED_DIR:$(TOP)%=src%)$(RESET)\n"
+	@ printf "$(DEFAULT)::Engine Resources Directory - $(GREEN)$(EMBED_DIR:$(TOP)%=src%)$(RESET)\n"
 
 build:
 	@ -mkdir -p $(EMBED_DIR)

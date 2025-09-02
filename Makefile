@@ -118,7 +118,7 @@ SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/demo                         \
-    $(SRC)/embedded                     \
+    $(SRC)/engine                       \
     $(SRC)/input                        \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
