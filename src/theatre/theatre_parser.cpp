@@ -106,31 +106,7 @@ enum class Parsing
     VariableValue =  4,
 };
 
-#ifdef DEBUGGING
-void debug_PrintParsedTheatreData()
-{
-    PRINT_DEBUG("Parsed Theatre Data Printout:")
-
-    SafeReturn<TheatreData> try_data = TheatreParser::try_GetTheatreData();
-    if(!SafeStatus::PrintCheck(try_data.Status()))
-    { return; }
-
-    std::set<data_t> temp_data = try_data.Data().GetMergedData();
-
-    for(const auto& data : temp_data)
-    {
-        std::print("({}) {}:\n", data.m_Type, data.m_Name);
-
-        const std::set<variable_t>& variables = data.m_Variables;
-        for(const auto& variable : variables)
-        { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
-
-        std::print("\n");
-    }
-}
-#endif // DEBUGGING
-
-SafeReturn<TheatreData> TheatreParser::try_GetTheatreData()
+TheatreData& TheatreParser::GetTheatreData()
 {
     // FIXME: Make this better
     return s_TheatreData;
@@ -138,6 +114,7 @@ SafeReturn<TheatreData> TheatreParser::try_GetTheatreData()
 
 SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
 {
+    // FIXME: Replace with implementation in "filesystem/filesystem.hpp"
     if(!fs::exists(fs::path(theatre_file)))
         { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
 
@@ -443,7 +420,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
     }
 
 #ifdef DEBUGGING
-    debug_PrintParsedTheatreData();
+    s_TheatreData.debug_PrintData();
 #endif // DEBUGGING
 
     return Status::NO_ERR;

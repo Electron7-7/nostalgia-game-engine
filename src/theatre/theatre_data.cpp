@@ -75,34 +75,6 @@ void data_t::clear()
 
 data_t TheatreData::s_SafeDataReturn = data_t();
 
-const std::set<data_t>& TheatreData::GetThings() const
-{ return m_Things; }
-
-const std::set<data_t>& TheatreData::GetResources() const
-{ return m_Resources; }
-
-#ifdef DEBUGGING
-std::set<data_t> TheatreData::GetMergedData() const
-{
-    std::set<data_t> combined_sets(m_Things.cbegin(), m_Things.cend());
-    combined_sets.insert(m_Resources.cbegin(), m_Resources.cend());
-    return combined_sets;
-}
-#endif // DEBUGGING
-
-SafeReturn<data_t> TheatreData::try_GetData(const std::string& name) const
-{
-    auto is_thing = m_Things.find(name);
-    if(is_thing != m_Things.cend())
-        { return *is_thing; }
-
-    auto is_resource = m_Resources.find(name);
-    if(is_resource != m_Resources.cend())
-        { return *is_resource; }
-
-    return SafeReturn(s_SafeDataReturn, Status::TheatreDataTypeINVALID_NAME);
-}
-
 SafeStatus TheatreData::AddData(const data_t& data)
 {
     switch(GetBaseType(data.GetType()))
@@ -124,3 +96,24 @@ void TheatreData::clear()
     m_Things.clear();
     m_Resources.clear();
 }
+
+#ifdef DEBUGGING
+void TheatreData::debug_PrintData()
+{
+    PRINT_DEBUG("Parsed Theatre Data Printout:")
+
+    std::set<data_t> temp_data(m_Things.cbegin(), m_Things.cend());
+    temp_data.insert(m_Resources.cbegin(), m_Resources.cend());
+
+    for(const auto& data : temp_data)
+    {
+        std::print("({}) {}:\n", data.m_Type, data.m_Name);
+
+        const std::set<variable_t>& variables = data.m_Variables;
+        for(const auto& variable : variables)
+        { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
+
+        std::print("\n");
+    }
+}
+#endif // DEBUGGING

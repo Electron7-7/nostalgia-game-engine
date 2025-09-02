@@ -50,8 +50,8 @@ public:
 
 private:
 #ifdef DEBUGGING
-    friend void debug_PrintParsedTheatreData();
-#endif
+    friend struct TheatreData;
+#endif // DEBUGGING
     friend struct data_t;
     variable_t(const std::string& Name);
 
@@ -85,9 +85,6 @@ public:
     const bool operator<(const data_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
-#ifdef DEBUGGING
-    friend void debug_PrintParsedTheatreData();
-#endif
     friend struct TheatreData;
     data_t(const std::string& Name);
 
@@ -102,17 +99,13 @@ struct TheatreData
     std::string m_Name = "Untitled Theatre";
     long m_Index = -1; // FIXME: Make this not a magic number
 
-    const std::set<data_t>& GetThings() const;
-    const std::set<data_t>& GetResources() const;
-
-#ifdef DEBUGGING
-    std::set<data_t> GetMergedData() const; // Very slow/inefficient
-#endif // DEBUGGING
-
-    SafeReturn<data_t> try_GetData(const std::string& Name) const; // Used by the parser
     SafeStatus AddData(const data_t& Data);
 
     void clear();
+
+#ifdef DEBUGGING
+    void debug_PrintData();
+#endif // DEBUGGING
 
 private:
     static data_t s_SafeDataReturn;
