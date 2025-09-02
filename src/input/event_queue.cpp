@@ -109,7 +109,7 @@ SafeStatus EventQueue::try_BeginProcessing()
     _last_processed_event_index += _safe_queue.size(); // Note: This variable should be one index ahead, because we don't want to process the same event twice
 
     is_processing_events = true;
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 bool EventQueue::EndProcessing()
@@ -128,7 +128,7 @@ SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
 
     SafeReturn<KeyBinds> keybinds = GetBindings(key);
 
-    if(keybinds.Status() != Status::NO_ERROR)
+    if(keybinds.Status() != Status::NO_ERR)
     { return keybinds.Status(); }
 
     is_queueing_events = true;
@@ -139,7 +139,7 @@ SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
 
     is_queueing_events = false;
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 SafeReturn<Event> EventQueue::GetNextEvent()

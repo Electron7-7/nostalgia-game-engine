@@ -40,7 +40,7 @@ void InputManager::Update()
 
     SafeStatus process_status = EventQueue::try_BeginProcessing();
 
-    if(process_status != Status::NO_ERROR && process_status != Status::EventQueueEMPTY)
+    if(process_status != Status::NO_ERR && process_status != Status::EventQueueEMPTY)
     {
         PRINT_ERROR("InputManager::ProcessEvents - g_pEventSystem::BeginProcessing returned '{}'!\n", process_status.Printout())
         return;
@@ -52,7 +52,7 @@ void InputManager::Update()
 
         SafeReturn<Event> next_event = EventQueue::GetNextEvent();
 
-        if(next_event.Status() != Status::NO_ERROR)
+        if(next_event.Status() != Status::NO_ERR)
         {
             PRINT_WARNING("InputManager::ProcessEvents - g_pEventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
             continue;
@@ -60,7 +60,7 @@ void InputManager::Update()
 
         SafeStatus command_status = CommandLine::try_RunCommand(next_event.Data().GetCommand());
 
-        if(command_status != Status::NO_ERROR)
+        if(command_status != Status::NO_ERR)
             PRINT_WARNING("InputManager::ProcessEvents - CommandLine::try_RunCommand returned '{}'\n", command_status.Printout())
     }
 
@@ -74,7 +74,7 @@ SafeStatus InputManager::Press(KeyID key)
 
     EventQueue::try_QueueEvents(key);
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 SafeStatus InputManager::Repeat(KeyID key)
@@ -83,7 +83,7 @@ SafeStatus InputManager::Repeat(KeyID key)
 
     EventQueue::try_QueueEvents(key);
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 SafeStatus InputManager::Release(KeyID key)
@@ -92,5 +92,5 @@ SafeStatus InputManager::Release(KeyID key)
 
     EventQueue::try_QueueEvents(key, true);
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }

@@ -20,15 +20,15 @@ FLAGS_RELEASE_COMMON  := -O3
 FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_LIB_DYNAMIC     := -fPIC
-FLAGS_LIB_STATIC      := # Nothing yet
+FLAGS_LIB_STATIC      := -static
 FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
 FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows
+FLAGS_WINDOWS         := -mwindows -static -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 ARCHIVES_LINUX        := src/lib/glfw-lib-linux/libglfw3.a
 ARCHIVES_WINDOWS      := src/lib/glfw-lib-mingw-w64/libglfw3.a
 # These 'LD_FLAGS' are for the dynamic library, hence why I can't just use the 'ARCHIVES' variables again
-LDFLAGS_LINUX         := -shared -L src/lib/glfw-lib-linux -l glfw
+LDFLAGS_LINUX         := -mwindows -shared -L src/lib/glfw-lib-linux -l glfw
 LDFLAGS_WINDOWS       := -lstdc++exp -shared --out-implib -L src/lib/glfw-lib-mingw-w64 -l glfw
 
 INCLUDE := -I src -I src/thirdparty -I src/common
@@ -81,8 +81,8 @@ else # WINDOWS
 	export RELEASE_FLAGS ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
-	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS)
-	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME) -lstdc++exp
+	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
+	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME) -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
 	export ARCHIVES      ?= $(ARCHIVES_WINDOWS)
@@ -184,8 +184,8 @@ all: build_dir headers resources static dynamic testapp_static testapp_dynamic ;
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(CCFLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(CXXFLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
 	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(APP) $(APP_LD_FLAGS)$(RESET)\n"; fi
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"; fi
 

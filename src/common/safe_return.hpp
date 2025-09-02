@@ -6,13 +6,13 @@
 namespace
 {
     typedef unsigned int __statusId_t;
-    constexpr __statusId_t NO_ERROR_STATUS = 0;
+    constexpr __statusId_t NO_ERR_STATUS = 0;
 }
 
 struct SafeStatus
 {
 public:
-    SafeStatus(): m_Status(NO_ERROR_STATUS), m_Printout("NO_ERROR") {}
+    SafeStatus(): m_Status(NO_ERR_STATUS), m_Printout("NO_ERR") {}
     SafeStatus(const SafeStatus& CopyFrom): m_Status(CopyFrom.m_Status), m_Printout(CopyFrom.m_Printout) {}
 
     const __statusId_t Status() const { return m_Status; }
@@ -28,11 +28,11 @@ public:
     constexpr operator __statusId_t() const { return m_Status; }
 
     static constexpr bool Check(const SafeStatus& Status)
-    { return(Status.Status() == NO_ERROR_STATUS); }
+    { return(Status.Status() == NO_ERR_STATUS); }
 
     static constexpr bool PrintCheck(const SafeStatus& Status)
     {
-        if(Status.Status() != NO_ERROR_STATUS)
+        if(Status.Status() != NO_ERR_STATUS)
         {
             PRINT_ERROR("{}", Status.Printout());
             return false;
@@ -42,8 +42,8 @@ public:
     }
 
 private:
-    __statusId_t m_Status = NO_ERROR_STATUS;
-    const char* m_Printout  = "NO_ERROR?";
+    __statusId_t m_Status = NO_ERR_STATUS;
+    const char* m_Printout  = "NO_ERR?";
 
     friend struct Status;
     constexpr SafeStatus(const __statusId_t Status, const char* Printout): m_Status(Status), m_Printout(Printout) {}
@@ -51,7 +51,7 @@ private:
 
 struct Status
 {
-    inline static SafeStatus NO_ERROR;
+    inline static SafeStatus NO_ERR;
     inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0x1,  "ERROR_GENERIC"                          );
     inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0x2,  "ERROR_ALREADY_ACTIVE"                   );
     inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0x3,  "ERROR_INVALID_KEY_ID"                   );
@@ -83,7 +83,7 @@ template<typename T>
 struct SafeReturn
 {
 public:
-    SafeReturn(T Data, SafeStatus ReturnStatus = Status::NO_ERROR)
+    SafeReturn(T Data, SafeStatus ReturnStatus = Status::NO_ERR)
     : m_Data(Data), m_Status(ReturnStatus)
     {}
 
@@ -96,7 +96,7 @@ public:
 
 private:
     T m_Data;
-    SafeStatus m_Status = Status::NO_ERROR;
+    SafeStatus m_Status = Status::NO_ERR;
 };
 
 #endif // SAFE_RETURN_H

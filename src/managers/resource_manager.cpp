@@ -270,7 +270,7 @@ SafeStatus ResourceManager::m_try_CreateObjMesh(rid_t resource_id, const std::st
     }
 
     // new_mesh.fixOBJData();
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 SafeStatus ResourceManager::m_try_CreateTexture(rid_t texture_id, const std::string& file_path, const std::string& texture_name)
@@ -309,7 +309,7 @@ SafeStatus ResourceManager::m_try_CreateTexture(rid_t texture_id, const std::str
     s_TextureStorage.back().m_Name = texture_name;
 
     m_AreResourcesLocked = false;
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 void ResourceManager::m_AddTexture(rid_t resource_id, const TextureData& texture_data, const std::string& texture_name)

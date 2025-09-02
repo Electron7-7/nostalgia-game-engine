@@ -38,7 +38,7 @@ SafeStatus CommandLine::try_RunCommand(Command command)
     { return Status::CommandLineINVALID_COMMAND; }
 
     _commands.at(command)();
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 void CommandLine::ProcessCommands()
@@ -63,7 +63,7 @@ void CommandLine::ProcessCommands()
         }
 
         SafeStatus command_status = _commands.at(next_command)();
-        if(command_status.Status() != Status::NO_ERROR)
+        if(command_status.Status() != Status::NO_ERR)
             PRINT_WARNING("CommandLine::ProcessCommands - command returned with the status: '{}'", command_status.Printout())
     }
 
@@ -103,12 +103,12 @@ bool CommandLine::ExtractNextCommand()
 SafeStatus HardExitProgram()
 {
     _Manager::Stop();
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 SafeStatus PrototypeFullscreen()
 {
     Settings::Window::Fullscreen = !Settings::Window::Fullscreen;
     g_pBackendManager->UpdateWindowState();
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }

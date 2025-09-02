@@ -148,7 +148,7 @@ SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_fil
     s_TheatreFileDataString = std::string(std::istreambuf_iterator<char>(theatre_file_stream), std::istreambuf_iterator<char>());
     theatre_file_stream.close();
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
@@ -446,5 +446,5 @@ SafeStatus TheatreParser::try_ParseTheatre()
     debug_PrintParsedTheatreData();
 #endif // DEBUGGING
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }

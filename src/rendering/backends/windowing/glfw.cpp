@@ -22,7 +22,7 @@ bool GLFW_Backend::Init()
     glfwInit();
 
     SafeStatus window_status = CreateMainWindow();
-    if(window_status != Status::NO_ERROR)
+    if(window_status != Status::NO_ERR)
     {
         PRINT_ERROR("{}", window_status.Printout())
         glfwTerminate();
@@ -120,7 +120,7 @@ SafeStatus GLFW_Backend::CreateMainWindow()
     glfwSetCharCallback(m_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
     glfwSetCursorPosCallback(m_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 void GLFW_Backend::ResizeWindow(int width, int height)

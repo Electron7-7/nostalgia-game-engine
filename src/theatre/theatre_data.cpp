@@ -116,7 +116,7 @@ SafeStatus TheatreData::AddData(const data_t& data)
         m_Things.insert(data);
         break;
     }
-    return Status::NO_ERROR;
+    return Status::NO_ERR;
 }
 
 void TheatreData::clear()
