@@ -282,7 +282,7 @@ SafeStatus ResourceManager::m_try_CreateTexture(rid_t texture_id, const std::str
 
     // If the file path is absolute, use it as is
     if(file_path.starts_with('/') || !file_path.substr(1, 2).compare(":/"))
-    { file_path_checked = file_path; }
+        { file_path_checked = file_path; }
 
     // The rest of this code is thanks to: https://stackoverflow.com/a/22131201
     FILE* image_file = fopen(file_path_checked.c_str(), "r+");

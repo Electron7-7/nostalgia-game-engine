@@ -39,7 +39,7 @@ inline std::string getBinaryPath()
 inline std::string BINARY_PATH(getBinaryPath());
 inline std::string EXTERNAL_THEATRES_DIRECTORY("theatres");
 
-#else // COMPILING_WINDOWS
+#else  // COMPILING_WINDOWS
 
 #include <filesystem> // IWYU pragma: keep
 

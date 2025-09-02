@@ -139,10 +139,10 @@ SafeReturn<TheatreData> TheatreParser::try_GetTheatreData()
 SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
 {
     if(!fs::exists(fs::path(theatre_file)))
-    { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
+        { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
 
     if(!fs::path(theatre_file).has_extension() || !c_NostalgiaExtensions.contains(fs::path(theatre_file).extension().string()))
-    { return Status::TheatreParserWRONG_FILE_EXTENSION; }
+        { return Status::TheatreParserWRONG_FILE_EXTENSION; }
 
     std::ifstream theatre_file_stream(theatre_file);
     s_TheatreFileDataString = std::string(std::istreambuf_iterator<char>(theatre_file_stream), std::istreambuf_iterator<char>());
