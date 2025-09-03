@@ -11,9 +11,9 @@ struct Time
 // FIXME: Put these in a namespace/struct
 void SetWaitStart();
 double GetWaitStart();
-// When CONDITION is true, or we've waited for PATIENCE amount of time, exit the while loop
-#define WAIT_FOR(CONDITION, PATIENCE) \
+// When CONDITION is false, or we've waited for PATIENCE amount of time, exit the while loop
+#define WAIT(CONDITION, PATIENCE) \
 SetWaitStart(); \
-while(!CONDITION || (Time::Current() - GetWaitStart()) < PATIENCE) {}
+while(CONDITION && (Time::Current() - GetWaitStart()) < PATIENCE) {}
 
 #endif // TIME_H

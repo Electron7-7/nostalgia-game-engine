@@ -90,7 +90,7 @@ void ResourceManager::m_ClearAllResources()
 
 bool ResourceManager::try_RemoveResource(rid_t resource_id)
 {
-    WAIT_FOR(m_AreResourcesLocked, 10.0f)
+    WAIT(m_AreResourcesLocked, 10.0f)
 
     if(s_cDoNotRemove.contains(resource_id))
     { return false; }
@@ -106,7 +106,7 @@ bool ResourceManager::try_SlowRemoveResource(Resource* resource_pointer)
 {
     for(auto& [id, resource] : s_RIDMap)
     {
-        WAIT_FOR(m_AreResourcesLocked, 10.0f)
+        WAIT(m_AreResourcesLocked, 10.0f)
 
         if(resource != resource_pointer)
         { continue; }
