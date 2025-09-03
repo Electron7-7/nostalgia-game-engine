@@ -199,8 +199,8 @@ void _Manager::Tick()
     {
         float current_tick_length = 0.0f;
         double current_time = Time::Current(); // Because `Time::Current` can return different values if called more than once in the same function (it's very precise)
-        current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
         last_time = current_time;
+        current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
 
         while(current_tick_length >= 1.0f)
         {
