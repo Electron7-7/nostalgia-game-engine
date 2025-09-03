@@ -87,7 +87,7 @@ IMAGES_CPP   := images.cpp
 all: shaders models images fonts
 	@ printf "$(DEFAULT)::Engine Resources Directory - $(GREEN)$(EMBED_DIR_ABSOLUTE)$(RESET)\n"
 
-clean: clean_glsl clean_fonts clean_models ;@:
+clean: clean_glsl clean_fonts clean_models clean_images ;@:
 
 clean_glsl:
 	@ $(RM) $(GL_SHADERS_CPP)
@@ -106,6 +106,12 @@ clean_models:
 	@ $(call cleaned,$(MODELS_CPP))
 	@ $(RM) $(MODELS_HPP)
 	@ $(call cleaned,$(MODELS_HPP))
+
+clean_images:
+	@ $(RM) $(IMAGES_CPP)
+	@ $(call cleaned,$(IMAGES_CPP))
+	@ $(RM) $(IMAGES_HPP)
+	@ $(call cleaned,$(IMAGES_HPP))
 
 # Fonts
 fonts: $(FONTS_CPP) $(FONTS_HPP)
@@ -168,4 +174,4 @@ $(IMAGES_HPP): $(IMAGES)
 
 # Printouts
 %.print: %
-	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/engine/src/$<$(RESET)\n"
+	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/engine/$<$(RESET)\n"

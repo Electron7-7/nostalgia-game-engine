@@ -14,8 +14,8 @@ constexpr bool CompareStrings(const char* Left, const char* Right)
         if(*Left != *Right)
         { return false; }
 
-        Left++;
-        Right++;
+        ++Left;
+        ++Right;
     }
 
     if(*Left != '\0' || *Right != '\0') // One of them is shorter than the other!

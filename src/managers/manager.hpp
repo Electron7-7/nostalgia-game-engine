@@ -36,7 +36,7 @@ public:
     virtual void OnRestore() = 0;
 
     // States whether or not this manager should be updated in the fixed update loop
-    virtual bool PleaseTickMeInAFixedUpdateLoop() = 0;
+    virtual bool UpdateUsesTickLoop() = 0;
 
     // Add/Remove managers
     static void Add(_Manager* ManagerToAdd);
@@ -49,19 +49,19 @@ public:
 
     // Start/Stop running all game managers
     static void Start();
-    static void Tick();
     static void Stop();
 
-    // Return the current frame number
-    static int FrameNumber();
+    // Return the current frame or tick number
+    static long FrameNumber();
+    static long TickNumber();
 
     // In fixed update: return current/delta time
     static float FixedUpdateCurrentTime();
     static float FixedUpdateDeltaTime();
 
     // In rendering: return current/delta time
-    static float CurrentTime();
-    static float DeltaTime();
+    static double CurrentTime();
+    static double DeltaTime();
 
     // Helpers for loading a theatre
     static void StartNewTheatre();
@@ -84,15 +84,18 @@ protected:
     static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethod(ManagerTheatreFunction_t Function, bool IsFirstCall);
     static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
 
-    static std::vector<_Manager*> game_managers;
-    static bool theatre_shutdown_requested;
-    static bool theatre_start_requested;
-    static bool stop_requested;
-    static bool is_running;
-    static bool is_initialized;
-    static int frame_number;
-    static int tick_number;
+    static std::vector<_Manager*> m_sGameManagers;
+    static bool m_sTheatreShutdownRequested;
+    static bool m_sTheatreStartRequested;
+    static bool m_sStopRequested;
+    static bool m_sIsRunning;
+    static bool m_sIsInitialized;
+    static long m_sFrameNumber;
+    static long m_sTickNumber;
     static ManagerEnums::TheatreState_t theatre_state;
+
+private:
+    static void Tick();
 };
 
 class Manager : public _Manager
@@ -108,7 +111,7 @@ public:
     virtual void Shutdown() {}
     virtual void OnSave() {}
     virtual void OnRestore() {}
-    virtual bool PleaseTickMeInAFixedUpdateLoop() { return false; }
+    virtual bool UpdateUsesTickLoop() { return false; }
 };
 
 // Automatically remove the game manager if it gets deleted

@@ -8,57 +8,56 @@
 
 using namespace ManagerEnums;
 
-int _Manager::frame_number = 0;
-int _Manager::tick_number = 0;
-bool _Manager::stop_requested = false;
-bool _Manager::is_running = false;
-bool _Manager::is_initialized = false;
-bool _Manager::theatre_start_requested = false;
-bool _Manager::theatre_shutdown_requested = false;
+long _Manager::m_sFrameNumber = 0;
+long _Manager::m_sTickNumber  = 0;
+bool _Manager::m_sStopRequested = false;
+bool _Manager::m_sIsRunning     = false;
+bool _Manager::m_sIsInitialized = false;
+bool _Manager::m_sTheatreStartRequested    = false;
+bool _Manager::m_sTheatreShutdownRequested = false;
 ManagerEnums::TheatreState_t _Manager::theatre_state = NOT_IN_LEVEL;
-
-std::vector<_Manager*> _Manager::game_managers = {};
+std::vector<_Manager*> _Manager::m_sGameManagers = {};
 
 void _Manager::Add(_Manager* new_manager)
 {
-    assert(!is_running);
-    game_managers.insert(game_managers.end(), new_manager);
+    assert(!m_sIsRunning);
+    m_sGameManagers.push_back(new_manager);
 }
 
 void _Manager::Remove(_Manager* old_manager)
 {
-    assert(!is_running);
-    for(int i = 0 ; i < game_managers.size() ; i++)
+    assert(!m_sIsRunning);
+    for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        if(game_managers.at(i) == old_manager)
-        { game_managers.erase(game_managers.begin() + i); }
+        if(m_sGameManagers.at(i) == old_manager)
+            { m_sGameManagers.erase(m_sGameManagers.begin() + i); }
     }
 }
 
 void _Manager::RemoveAll()
 {
-    assert(!is_running);
-    game_managers.clear();
+    assert(!m_sIsRunning);
+    m_sGameManagers.clear();
 }
 
 void _Manager::InvokeMethod(ManagerFunc_t function)
 {
-    for(int i = 0 ; i < game_managers.size() ; ++i) // I found out why they use '++i'! It's because 'i++' will always create a new iterator object every time it iterates, but '++i' won't! Performance!
-    { (game_managers.at(i)->*function)(); }
+    for(int i = 0 ; i < m_sGameManagers.size() ; ++i) // I found out why they use '++i'! It's because 'i++' will always create a new iterator object every time it iterates, but '++i' won't! Performance!
+        { (m_sGameManagers.at(i)->*function)(); }
 }
 
 void _Manager::InvokeMethodReverseOrder(ManagerFunc_t function)
 {
-    for(int i = game_managers.size() - 1 ; i >= 0 ; --i)
-    { (game_managers.at(i)->*function)(); }
+    for(int i = m_sGameManagers.size() - 1 ; i >= 0 ; --i)
+        { (m_sGameManagers.at(i)->*function)(); }
 }
 
 bool _Manager::InvokeMethod(ManagerInitFunc_t function)
 {
-    for(int i = 0 ; i < game_managers.size() ; ++i)
+    for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        if(!(game_managers.at(i)->*function)())
-        { return false; }
+        if(!(m_sGameManagers.at(i)->*function)())
+            { return false; }
     }
     return true;
 }
@@ -66,14 +65,14 @@ bool _Manager::InvokeMethod(ManagerInitFunc_t function)
 ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreFunction_t function, bool is_first_call)
 {
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
-    for(int i = 0 ; i < game_managers.size() ; ++i)
+    for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        ManagerEnums::TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
-        { return FUCKED; }
+            { return FUCKED; }
 
         if(catch_return_value == MORE_WORK)
-        { return_value = MORE_WORK; }
+            { return_value = MORE_WORK; }
     }
     return return_value;
 }
@@ -81,45 +80,45 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreF
 ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t function, bool is_first_call)
 {
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
-    for(int i = 0 ; i < game_managers.size() ; ++i)
+    for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        ManagerEnums::TheatreReturnValue_t catch_return_value = (game_managers.at(i)->*function)(is_first_call);
+        ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
-        { return_value = FUCKED; }
+            { return_value = FUCKED; }
 
         if((catch_return_value == MORE_WORK) && (return_value != FUCKED))
-        { return_value = MORE_WORK; }
+            { return_value = MORE_WORK; }
     }
     return return_value;
 }
 
 bool _Manager::InitAllManagers()
 {
-    frame_number = 0;
+    m_sFrameNumber = 0;
     // Educated guess is that this will try and invoke the "Init" method on every game manager in the vector (via the "InvokeMethod" function), and if it returns false that means we hit a snag
     if(!InvokeMethod(&_Manager::Init))
-    { return false; }
+        { return false; }
 
-    is_initialized = true;
+    m_sIsInitialized = true;
     return true;
 }
 
 void _Manager::ShutdownAllManagers()
 {
-    if(is_initialized) // Todo: maybe make this an early return?
+    if(m_sIsInitialized) // Todo: maybe make this an early return?
     {
         InvokeMethodReverseOrder(&_Manager::Shutdown);
-        is_initialized = false;
+        m_sIsInitialized = false;
     }
 }
 
 void _Manager::UpdateTheatreStateMachine()
 {
     bool first_theatre_shutdown_frame = false; // Naming convention taken from Valve; a bit iffy on the specifics of this variable
-    if(theatre_shutdown_requested)
+    if(m_sTheatreShutdownRequested)
     {
         if(theatre_state != LOADING_LEVEL)
-        { theatre_shutdown_requested = false; }
+            { m_sTheatreShutdownRequested = false; }
 
         if(theatre_state == IN_LEVEL)
         {
@@ -133,15 +132,15 @@ void _Manager::UpdateTheatreStateMachine()
     {
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
-        { theatre_state = NOT_IN_LEVEL; }
+            { theatre_state = NOT_IN_LEVEL; }
     }
 
     // Do we want to switch into the theatre startup state?
     bool first_theatre_startup_frame = false;
-    if(theatre_start_requested)
+    if(m_sTheatreStartRequested)
     {
         if(theatre_state != SHUTTING_DOWN_LEVEL)
-        { theatre_start_requested = false; }
+            { m_sTheatreStartRequested = false; }
 
         if(theatre_state == NOT_IN_LEVEL)
         {
@@ -155,47 +154,47 @@ void _Manager::UpdateTheatreStateMachine()
     {
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
-        { theatre_state = NOT_IN_LEVEL; }
+            { theatre_state = NOT_IN_LEVEL; }
 
         else if(return_value == FINISHED)
-        { theatre_state = IN_LEVEL; }
+            { theatre_state = IN_LEVEL; }
     }
 }
 
 void _Manager::Start()
 {
-    assert(!is_running && is_initialized);
+    assert(!m_sIsRunning && m_sIsInitialized);
 
-    is_running = true;
-    stop_requested = false;
+    m_sIsRunning = true;
+    m_sStopRequested = false;
 
     std::thread tick_thread(_Manager::Tick);
 
-    int number_of_managers = game_managers.size();
+    size_t number_of_managers = m_sGameManagers.size();
 
-    while(!stop_requested)
+    while(!m_sStopRequested)
     {
         UpdateTheatreStateMachine();
 
-        for(int i = 0 ; i < number_of_managers ; ++i)
+        for(size_t i = 0 ; i < number_of_managers ; ++i)
         {
-            if(!game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
-            { game_managers.at(i)->Update(); }
+            if(!m_sGameManagers.at(i)->UpdateUsesTickLoop())
+                { m_sGameManagers.at(i)->Update(); }
         }
 
-        ++frame_number;
+        ++m_sFrameNumber;
     }
 
     tick_thread.join();
-    is_running = false;
+    m_sIsRunning = false;
 }
 
 void _Manager::Tick()
 {
     double last_time = 0.0;
-    int number_of_managers = game_managers.size();
+    size_t number_of_managers = m_sGameManagers.size();
 
-    while(!stop_requested)
+    while(!m_sStopRequested)
     {
         float current_tick_length = 0.0f;
         double current_time = Time::Current(); // Because `Time::Current` can return different values if called more than once in the same function (it's very precise)
@@ -204,31 +203,34 @@ void _Manager::Tick()
 
         while(current_tick_length >= 1.0f)
         {
-            for(int i = 0 ; i < number_of_managers ; ++i)
+            for(size_t i = 0 ; i < number_of_managers ; ++i)
             {
-                if(game_managers.at(i)->PleaseTickMeInAFixedUpdateLoop())
-                { game_managers.at(i)->Update(); }
+                if(m_sGameManagers.at(i)->UpdateUsesTickLoop())
+                    { m_sGameManagers.at(i)->Update(); }
             }
-            ++tick_number;
-            current_tick_length--;
+            --current_tick_length;
+            ++m_sTickNumber;
         }
     }
 }
 
 void _Manager::Stop()
-{ stop_requested = (is_running); }
+{ m_sStopRequested = (m_sIsRunning); }
 
-int _Manager::FrameNumber()
-{ return frame_number; }
+long _Manager::FrameNumber()
+{ return m_sFrameNumber; }
+
+long _Manager::TickNumber()
+{ return m_sTickNumber; }
 
 ManagerEnums::TheatreState_t _Manager::GetTheatreState()
 { return theatre_state; }
 
 void _Manager::StartNewTheatre()
 {
-    theatre_shutdown_requested = true;
-    theatre_start_requested = true;
+    m_sTheatreShutdownRequested = true;
+    m_sTheatreStartRequested = true;
 }
 
 void _Manager::ShutdownTheatre()
-{ theatre_shutdown_requested = true; }
+{ m_sTheatreShutdownRequested = true; }

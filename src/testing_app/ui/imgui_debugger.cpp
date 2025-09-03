@@ -13,19 +13,19 @@ imgui_Debugger* g_pDebugger = &s_Debugger;
 
 bool imgui_Debugger::Init()
 {
-    if(is_initialized)
-    { return true; }
+    if(m_IsInitialized)
+        { return true; }
 
-    is_initialized = true;
+    m_IsInitialized = true;
     return true;
 }
 
 void imgui_Debugger::Shutdown()
 {
-    if(!is_initialized)
-    { return; }
+    if(!m_IsInitialized)
+        { return; }
 
-    is_initialized = false;
+    m_IsInitialized = false;
 }
 
 void imgui_Debugger::Update()

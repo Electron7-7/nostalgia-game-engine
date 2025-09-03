@@ -28,7 +28,7 @@ public:
 protected:
     virtual ~_Backend() = default;
 
-    bool is_initialized = false;
+    bool m_IsInitialized = false;
 };
 
 class GraphicsBackend : public _Backend
@@ -37,7 +37,7 @@ public:
     // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
     virtual bool Init() { return true; }
-    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; }
+    virtual void Shutdown() { m_IsInitialized = false; is_imgui_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
     // Virtual functions (can be unimplemented)
@@ -64,7 +64,7 @@ public:
     // Inherited by _Backend
     virtual ~WindowingBackend() = default;
     virtual bool Init() { return true; }
-    virtual void Shutdown() { is_initialized = false; is_imgui_initialized = false; }
+    virtual void Shutdown() { m_IsInitialized = false; is_imgui_initialized = false; }
     virtual BackendID GetID() { return BackendIDs::INVALID; }
 
     virtual bool InitImGui() { return true; }

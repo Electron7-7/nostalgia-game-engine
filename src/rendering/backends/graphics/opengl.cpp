@@ -23,8 +23,8 @@ void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 
 bool OpenGL_Backend::Init()
 {
-    if(is_initialized)
-    { return true; }
+    if(m_IsInitialized)
+        { return true; }
 
     glGenVertexArrays(VAOS_AMOUNT, VAOs.data());
 
@@ -37,7 +37,7 @@ bool OpenGL_Backend::Init()
     World::Orientation::SetWorldRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::Orientation::SetWorldFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
-    is_initialized = true;
+    m_IsInitialized = true;
     return true;
 }
 
@@ -93,12 +93,12 @@ bool OpenGL_Backend::InitNewTheatre()
 
 void OpenGL_Backend::Shutdown()
 {
-    assert(is_initialized);
+    assert(m_IsInitialized);
 
     if(is_imgui_initialized)
     { ImGui_ImplOpenGL3_Shutdown(); }
 
-    is_initialized = false;
+    m_IsInitialized = false;
     is_imgui_initialized = false;
 }
 

@@ -15,7 +15,7 @@ inline std::string getBinaryPath()
     GetModuleFileNameA(NULL, out_path, MAX_PATH);
     std::string buffer = "";
     bool filename_removed = false;
-    for(int i = (sizeof(out_path)/sizeof(out_path[0])) ; i >= 0 ; i--)
+    for(int i = (sizeof(out_path)/sizeof(out_path[0])) ; i >= 0 ; --i)
     {
         if(out_path[i] == 0x00)
             continue;
@@ -30,7 +30,7 @@ inline std::string getBinaryPath()
 
     std::string new_buffer = "";
 
-    for(int i = buffer.length() - 1 ; i > 0 ; i--)
+    for(int i = buffer.length() - 1 ; i > 0 ; --i)
         new_buffer += buffer[i];
 
     return new_buffer + "\\";

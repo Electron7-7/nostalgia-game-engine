@@ -30,7 +30,7 @@ void EventQueue::DebugPrintQueueLog()
     size_t active_queue_size = _active_queue.size();
     std::string queue_printout = "";
 
-    for(size_t i = 0 ; i < active_queue_size ; i++)
+    for(size_t i = 0 ; i < active_queue_size ; ++i)
     {
         std::vector<Event>::iterator it = _active_queue.begin();
         std::advance(it, i);
@@ -207,7 +207,7 @@ bool EventQueue::StopRecordingDemo()
             return false;
         }
 
-        demo_recording_number++;
+        ++demo_recording_number;
     }
 
     std::ofstream demo_file(DEMO_FILENAME);

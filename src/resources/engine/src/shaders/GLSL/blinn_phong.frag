@@ -79,11 +79,11 @@ void main()
 {
 	vec3 output_color = vec3(0.0f);
 
-	for(int i = 0 ; i < directional_lights_count ; i++)
+	for(int i = 0 ; i < directional_lights_count ; ++i)
 		output_color += calculateDirectionalLight(directional_lights[i]);
-	for(int i = 0 ; i < point_lights_count ; i++)
+	for(int i = 0 ; i < point_lights_count ; ++i)
 		output_color += calculatePointLight(point_lights[i]);
-	for(int i = 0 ; i < spot_lights_count ; i++)
+	for(int i = 0 ; i < spot_lights_count ; ++i)
 		output_color += calculateSpotLight(spot_lights[i]);
 
 	// Todo: once more than one material is supported, make sure that the alpha isn't just affected by one

@@ -50,7 +50,7 @@ int NostalgiaGoggles::Main()
     g_pUIManager->AddImGuiObject(g_pDebugger);
 
     if(!_Manager::InitAllManagers())
-    { return 0; }
+        { return 1; }
 
     // g_pMenuManager->PushMenu("Main Menu");
 

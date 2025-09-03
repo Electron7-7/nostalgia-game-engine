@@ -14,8 +14,8 @@ typedef Settings::Window Window;
 
 bool GLFW_Backend::Init()
 {
-    if(is_initialized)
-    { return true; }
+    if(m_IsInitialized)
+        { return true; }
 
     PRINT_DEBUG("GLFW_Backend::Init")
 
@@ -30,7 +30,7 @@ bool GLFW_Backend::Init()
     }
 
     compatible_graphics_backends = { BackendIDs::gOpenGL };
-    is_initialized = true;
+    m_IsInitialized = true;
     return true;
 }
 
@@ -56,14 +56,14 @@ bool GLFW_Backend::InitImGui()
 
 void GLFW_Backend::Shutdown()
 {
-    assert(is_initialized);
+    assert(m_IsInitialized);
 
     if(is_imgui_initialized)
     { ImGui_ImplGlfw_Shutdown(); }
 
     glfwTerminate();
 
-    is_initialized = false;
+    m_IsInitialized = false;
     is_imgui_initialized = false;
 
 }
@@ -149,7 +149,7 @@ void GLFW_Backend::MoveWindow(int position_x, int position_y)
 
 void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
 {
-    assert(is_initialized);
+    assert(m_IsInitialized);
 
     bool is_fullscreened = glfwGetWindowMonitor(m_MainWindow);
     if(is_fullscreened == Window::Fullscreen)

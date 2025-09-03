@@ -11,7 +11,7 @@ public:
 protected:
     virtual ~ImGui_Object() {}
 
-    bool is_initialized = false;
+    bool m_IsInitialized = false;
     bool shutdown_requested = false;
 };
 

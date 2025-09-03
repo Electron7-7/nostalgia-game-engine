@@ -32,7 +32,7 @@ private:
     static std::vector<Command> _active_queue;
     static std::vector<Command> _process_queue;
 
-    static bool is_initialized;
+    static bool m_sIsInitialized;
     static bool is_copying_queue;
     static bool is_processing_commands;
     static Command next_command;

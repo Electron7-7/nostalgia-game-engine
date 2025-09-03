@@ -34,7 +34,7 @@ public:
         static int FullscreenHeight;
         static int XPosition;
         static int YPosition;
-        static bool   Fullscreen;
+        static bool Fullscreen;
         static const char* Name;
     };
 

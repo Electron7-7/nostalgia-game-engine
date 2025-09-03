@@ -17,7 +17,7 @@ std::map<Command, CommandFunction> CommandLine::_commands =
 
 std::vector<Command> CommandLine::_active_queue = {};
 std::vector<Command> CommandLine::_process_queue = {};
-bool CommandLine::is_initialized = false;
+bool CommandLine::m_sIsInitialized = false;
 bool CommandLine::is_copying_queue = false;
 bool CommandLine::is_processing_commands = false;
 Command CommandLine::next_command = cmd_Null;
@@ -25,10 +25,10 @@ Command CommandLine::next_command = cmd_Null;
 
 bool CommandLine::Init()
 {
-    if(is_initialized)
+    if(m_sIsInitialized)
     { return true; }
 
-    is_initialized = true;
+    m_sIsInitialized = true;
     return true;
 }
 

@@ -61,14 +61,14 @@ bool DemoParser::ParseLine(const std::string& line)
     std::string creation_time_buffer;
     std::string command_buffer;
 
-    for(int i = 0 ; i < line.length() ; i++)
+    for(int i = 0 ; i < line.length() ; ++i)
     {
         if(line.at(i) == '[')
         {
             while(line.at(i) != ']')
             {
                 creation_time_buffer.append(1, line.at(i));
-                i++;
+                ++i;
             }
         }
 
@@ -77,7 +77,7 @@ bool DemoParser::ParseLine(const std::string& line)
             while(line.at(i) != '>')
             {
                 command_buffer.append(1, line.at(i));
-                i++;
+                ++i;
             }
         }
     }
