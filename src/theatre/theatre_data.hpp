@@ -71,8 +71,8 @@ public:
     static constexpr short VARIABLE_SET   = (short)true;
     static constexpr short VARIABLE_ADDED = (short)false;
 
-    short SetVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
     // SafeReturn<const variable_t&> try_GetVariable(const std::string& Name); // TODO: Commit to removing this if still unused
+    short AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
 
     const std::string& GetName() const;
     void SetName(const std::string& Name);

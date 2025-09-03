@@ -25,7 +25,7 @@ data_t::data_t(const std::string& name)
 
 data_t::data_t() = default;
 
-short data_t::SetVariable(const std::string& name, const std::string& data, const VariableType& type)
+short data_t::AddVariable(const std::string& name, const std::string& data, const VariableType& type)
 {
     bool variable_exists = (m_Variables.find(name) != m_Variables.end());
     if(variable_exists)

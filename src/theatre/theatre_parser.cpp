@@ -106,7 +106,7 @@ enum class Parsing
     VariableValue =  4,
 };
 
-TheatreData& TheatreParser::GetTheatreData()
+const TheatreData& TheatreParser::GetTheatreData()
 {
     // FIXME: Make this better
     return s_TheatreData;
@@ -337,13 +337,16 @@ SafeStatus TheatreParser::try_ParseTheatre()
                     !ToLower(buffer).compare("true")
                 )
             )
-                { variable_type = VariableType::Bool; }
+            {
+                variable_type = VariableType::Bool;
+                buffer = ToLower(buffer);
+            }
             [[fallthrough]];
         case exit_reference:
         case exit_engine_ref:
             variable_value = buffer;
             buffer.clear();
-            temp_data.SetVariable(variable_name, variable_value, variable_type);
+            temp_data.AddVariable(variable_name, variable_value, variable_type);
             parsing = Parsing::VariableName;
             continue;
         case enter_context:
@@ -401,7 +404,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
                 std::string sandwich_variable_value = temp_data.GetName();
                 temp_data = temp_data_swap;
-                temp_data.SetVariable(sandwich_variable_name, sandwich_variable_value, VariableType::TheatreRef);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, VariableType::TheatreRef);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
