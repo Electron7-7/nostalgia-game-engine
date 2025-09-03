@@ -340,3 +340,45 @@ I finished the parser. Idea for interpreter: generate IDs for each Resource and 
 
 [08/31/25]
 I had an idea for settings: What if each Thing/Resource had a map that paired string keys with pointers to variables (or something along those lines), and the TheatreParser could lookup those variables when interpreting the TheatreData; then, in an 'Init' function, or something similar, the Thing/Resource would use the map to update their respective variables.
+
+[09/01/25]
+After watching most of a YouTube video on 'Pratt Parsing', I kinda wanna try and implement a version of that for the parser. I'll probably hold off on doing that until after the interpreter is finished, as the parser does its job and I don't *need* to re-write it just yet.
+
+I think I might remove 'ResourceManager' and instead make it a unique static class that isn't a Manager (basically a namespace for functions). The reason for this is that I want 'TheatreManager' to control all the Resources *and* Things, as they will all belong to the current working Theatre.
+
+[09/02/25]
+Started working on Resource creation, and I had an idea. I want to bring back 'Theatre' as an object that manages its own Things and Resources, and have 'TheatreManager' manage one or more Theatres. Theatres in Theatres can just be done in whatever editor I make, by just "unwrapping" the inner-Theatre(s) and merging them all into one, but I like the ability for the engine to have multiple separate Theatres running at one time.
+
+[09/03/25]
+The program freezes up when exiting, specifically when trying to join the 'Tick' thread. I'm assuming it has something to do with the ResourceHandler. Oh, also, at one point I got an error from something being deleted when it wasn't made with 'new' (although I think I might've fixed it).
+
+God fucking damnit... it was a single line
+:::C++
+// Broken:
+float current_tick_length = 0.0f;
+double current_time = Time::Current();
+current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
+last_time = current_time; // THIS FUCKING LINE
+
+// Fixed:
+float current_tick_length = 0.0f;
+double current_time = Time::Current();
+last_time = current_time; // GOD FUCKING DAMNIT
+current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
+:::
+
+Fucking... kill me.
+
+Okay, when loading and exiting a Theatre, there's a stutter; I need to test if this scales and, if it does, FIX IT.
+
+I've concluded that the one second lag time is not due to the parser; I stress tested and even when adding 100 extra Resources to the file, it only added, like, a microsecond or two. This one second stutter is definitely from somewhere else (I'm guessing the interpeting functions might have something to do with it; maybe the recursion?).
+
+Fixed the problem (and many others)... in `WAIT_FOR`, I erroneously used `||` instead of `&&`, so it would *always* wait for the timer...
+
+God damnit.
+
+I didn't even need to check the code; I just realized that the "stutter" seemed to be the same exact length every single time... almost like it was intentional. Hmmmmm...
+
+Fucking hell, macros can be evil.
+
+Oh, yeah, I'll definitely need to change this whole process if and when I introduce heavy multithreading... so that's gonna be fun.
