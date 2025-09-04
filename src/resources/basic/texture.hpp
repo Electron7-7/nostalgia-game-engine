@@ -1,50 +1,34 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "../resource.hpp"
+#include "resources/resource.hpp"
+#include "filesystem/binary_file_data.hpp"
+#include "safe_return.hpp"
 
-#include <vector>
-
-struct TextureData
-{
-    TextureData(unsigned char* Data, unsigned int Size);
-
-    unsigned char* GetData() const;
-    unsigned int   GetSize() const;
-
-private:
-    unsigned char* m_Data = 0;
-    unsigned int   m_Size = 0;
-};
-
-struct __texture_t : public Resource
-{
-protected:
-    friend class ResourceManager;
-    std::vector<TextureData> m_Data = {};
-};
-
-struct Texture : public __texture_t
+struct Texture : public Resource
 {
 public:
-    Texture(const TextureData& Data);
-
-    void LoadData(unsigned char* Data, unsigned int Size);
-    const TextureData& GetData() const;
+    Texture();
 
     static const Texture Missing;
+
+    void LoadTextureFile(const std::string& File);
+    void LoadTextureData(const BinaryFileData& Data);
+
+    SafeStatus try_CreateTexture();
+
+    const BinaryFileData& GetData() const;
+
+private:
+    friend struct ResourceHandler;
+    Texture(const BinaryFileData& Data);
+
+    ResourceStatus m_TextureDataStatus = ResourceStatus::NOT_PROCESSED;
+
+    BinaryFileData m_Data;
+    std::string m_File = "";
 };
 
-// TODO: Make more robust, obviously
-struct MultiTexture : public __texture_t
-{
-public:
-    MultiTexture(const std::vector<TextureData>& Data);
-
-    void LoadData(std::vector<unsigned char*> Data, std::vector<unsigned int> Sizes);
-    const std::vector<TextureData>& GetData() const;
-
-    static const MultiTexture Missing;
-};
+// TODO: MultiTexture will just be a wrapper for a vector of Textures
 
 #endif // TEXTURE_H

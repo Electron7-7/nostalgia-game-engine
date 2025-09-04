@@ -1,47 +1,38 @@
 #include "texture.hpp"
-#include "../engine/images.hpp"
+#include "resources/engine/images.hpp"
+#include "filesystem/filesystem.hpp"
 
-const Texture Texture::Missing({image_JPG_MISSINGTEXTURE, image_JPG_MISSINGTEXTURE_len});
-const MultiTexture MultiTexture::Missing({{image_JPG_MISSINGTEXTURE, image_JPG_MISSINGTEXTURE_len}});
+const Texture Texture::Missing(image_JPG_MISSINGTEXTURE);
 
-TextureData::TextureData(unsigned char* data, unsigned int size)
-: m_Data(data), m_Size(size)
+// Texture
+
+Texture::Texture() = default;
+
+Texture::Texture(const BinaryFileData& texture_data)
+: m_Data(texture_data)
 {}
 
-Texture::Texture(const TextureData& data)
-{ m_Data = {data}; }
+void Texture::LoadTextureFile(const std::string& file)
+    { m_File = file; }
 
-void Texture::LoadData(unsigned char* data, unsigned int size)
+void Texture::LoadTextureData(const BinaryFileData& data)
+    { m_Data = data; }
+
+const BinaryFileData& Texture::GetData() const
 {
-    m_Data.clear();
-    m_Data.push_back(TextureData{data, size});
-}
-
-const TextureData& Texture::GetData() const
-{
-    if(m_Data.empty())
-    { return Texture::Missing.GetData(); }
-
-    return m_Data.front();
-}
-
-MultiTexture::MultiTexture(const std::vector<TextureData>& data)
-{ m_Data = data; }
-
-void MultiTexture::LoadData(std::vector<unsigned char*> data, std::vector<unsigned int> sizes)
-{
-    m_Data.clear();
-
-    size_t number_of_textures = sizes.size();
-
-    for(size_t i = 0 ; i < number_of_textures ; ++i)
-    { m_Data.push_back(TextureData{data.at(i), sizes.at(i)}); }
-}
-
-const std::vector<TextureData>& MultiTexture::GetData() const
-{
-    if(m_Data.empty())
-    { return MultiTexture::Missing.GetData(); }
-
+    if(m_TextureDataStatus != ResourceStatus::SUCCESSFUL)
+        { return Texture::Missing.m_Data; }
     return m_Data;
+}
+
+SafeStatus Texture::try_CreateTexture()
+{
+    if(SafeStatus::PrintCheck(Filesystem::try_ReadFileToUCharArray(m_File, m_Data)))
+    {
+        m_TextureDataStatus = ResourceStatus::SUCCESSFUL;
+        return Status::NO_ERR;
+    }
+
+    m_TextureDataStatus = ResourceStatus::FAILED;
+    return Status::TextureIMAGE_FILE_FAILED_TO_LOAD;
 }
