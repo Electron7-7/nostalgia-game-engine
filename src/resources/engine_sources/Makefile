@@ -18,7 +18,7 @@ EMBED_DIR_ABSOLUTE := src/resources/engine
 # Print Functions #
 #-----------------#
 PRINT_GENERATING = printf "$(DEFAULT)::Generating Engine Resource: $(1) ($(CYAN)$(notdir $(2))$(DEFAULT), $(CYAN)$(notdir $(3))$(DEFAULT))$(RESET)\n"
-cleaned = printf "$(RESET)::Cleaned $(RED)$(EMBED_DIR_ABSOLUTE)/$(1)$(RESET)\n"
+CLEANED = if [ -e $(1) ]; then printf "$(RESET)::Cleaned $(RED)$(EMBED_DIR_ABSOLUTE)/$(1:$(EMBED_DIR)/%=%)$(RESET)\n"; fi
 
 #-------------------------------#
 # C++ Variable Naming Functions #
@@ -91,28 +91,28 @@ all: shaders models images fonts
 clean: clean_glsl clean_fonts clean_models clean_images ;@:
 
 clean_glsl:
+	@ $(call CLEANED,$(GL_SHADERS_CPP))
+	@ $(call CLEANED,$(GL_SHADERS_HPP))
 	@ $(RM) $(GL_SHADERS_CPP)
-	@ $(call cleaned,$(GL_SHADERS_CPP))
 	@ $(RM) $(GL_SHADERS_HPP)
-	@ $(call cleaned,$(GL_SHADERS_HPP))
 
 clean_fonts:
+	@ $(call CLEANED,$(FONTS_CPP))
+	@ $(call CLEANED,$(FONTS_HPP))
 	@ $(RM) $(FONTS_CPP)
-	@ $(call cleaned,$(FONTS_CPP))
 	@ $(RM) $(FONTS_HPP)
-	@ $(call cleaned,$(FONTS_HPP))
 
 clean_models:
+	@ $(call CLEANED,$(MODELS_CPP))
+	@ $(call CLEANED,$(MODELS_HPP))
 	@ $(RM) $(MODELS_CPP)
-	@ $(call cleaned,$(MODELS_CPP))
 	@ $(RM) $(MODELS_HPP)
-	@ $(call cleaned,$(MODELS_HPP))
 
 clean_images:
+	@ $(call CLEANED,$(IMAGES_CPP))
+	@ $(call CLEANED,$(IMAGES_HPP))
 	@ $(RM) $(IMAGES_CPP)
-	@ $(call cleaned,$(IMAGES_CPP))
 	@ $(RM) $(IMAGES_HPP)
-	@ $(call cleaned,$(IMAGES_HPP))
 
 # Fonts
 fonts: $(FONTS_CPP) $(FONTS_HPP)
