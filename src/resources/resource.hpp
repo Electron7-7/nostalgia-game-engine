@@ -1,32 +1,36 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include "types/typenames.hpp"
+
 #include <string>
 
 typedef unsigned int rid_t;
 
-// Pre-Embedded RIDs
-struct RID
+// TODO: Change/move
+enum class ResourceStatus
 {
-    static constexpr rid_t None = 0;
-
-    static const rid_t ErrorMesh;
-    static const rid_t RamielMesh;
-    static const rid_t MissingTexture;
-    // static const rid_t RamielTexture;
-    static const rid_t DoomTexture;
+    NOT_PROCESSED,
+    FAILED,
+    SUCCESSFUL
 };
 
 struct Resource
 {
 public:
-    rid_t GetID() const { return m_ID; }
-    const std::string& GetName() const { return m_Name; }
+    rid_t GetID() const;
+    const std::string& GetName() const;
+    size_t GetType() const; // FIXME: Probably unnecessary
+
+    static Resource Empty;
+    static constexpr rid_t NoRID = 0;
 
 private:
-    friend class ResourceManager;
-    rid_t m_ID = RID::None;
-    std::string m_Name = "UntitledResource";
+    friend struct ResourceHandler;
+
+    rid_t m_ID = Resource::NoRID;
+    std::string m_Name = "Untitled Resource";
+    size_t m_Type = Type::Resource; // FIXME: Probably unnecessary
 };
 
 #endif // RESOURCE_H
