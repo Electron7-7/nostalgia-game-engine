@@ -118,6 +118,7 @@ SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/demo                         \
+    $(SRC)/filesystem                   \
     $(SRC)/input                        \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
@@ -128,7 +129,8 @@ SRC_DIRS :=                             \
     $(SRC)/resources/basic              \
     $(SRC)/resources/engine             \
     $(SRC)/settings                     \
-    $(SRC)/theatre
+    $(SRC)/types                        \
+    $(SRC)/theatre                      \
 
 THIRDPARTY_SRC_DIRS :=           \
 	$(SRC)/thirdparty/DearImGui  \
@@ -178,7 +180,7 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers resources build linux windows release debug build_dir clean_target clean_all clean mostlyclean disable_colors
+.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers rebuild_resources resources build linux windows release debug build_dir clean_target clean_all clean mostlyclean disable_colors
 
 all: build_dir headers resources static dynamic testapp_static testapp_dynamic ;@:
 
@@ -235,6 +237,9 @@ testapps: testapp_static testapp_dynamic ;@:
 headers:
 	@ printf "$(BOLD)$(RED)[TODO][TODO][TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)/'$(RESET)\n"
 	@ $(MAKE) -s $(HEADERS_OUT)
+
+rebuild_resources:
+	@ $(MAKE) -s -C $(RESOURCES_DIR) clean all
 
 resources:
 	@ $(MAKE) -s -C $(RESOURCES_DIR)
