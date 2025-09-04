@@ -39,15 +39,15 @@ MAKE_STR_HEADER_VAR = $(shell printf "\nextern const char* $(call FILENAME,$(1),
 #--------------------------------------------#
 # Embedding Files as Data Arrays (via `xxd`) #
 #--------------------------------------------#
-XXD=HEX_LEN="$$(stat -c %s $(1))"; xxd -ps -c 16 $(1)
+XXD=xxd -ps -c 16 $(1)
 SED = sed                       \
 -re 's/([0-9a-z]{2})/0x\1, /gm' \
 -re 's/^/\t/'                   \
 -e '$$a};'                      \
--e '1i \\nunsigned int  $(1)_len = '$$HEX_LEN';\nunsigned char $(1)[] =\n{'
-DECLARE_DATA_VARS   = extern unsigned char $(1)[];\\nextern unsigned int  $(1)_len;\\n
+-e '1i \\nconst std::vector<unsigned char> $(1) =\n{'
+DECLARE_DATA_VARS   = extern const std::vector<unsigned char> $(1);\\n
 MAKE_DAT_SOURCE_VAR = $(shell $(call XXD,$(1)) | $(call SED,$(call FILENAME,$(1),$(2))) >> $(3))
-MAKE_DAT_HEADER_VAR = $(shell printf "\n$(call DECLARE_DATA_VARS,$(call FILENAME,$(1),$(2)))" >> $(3))
+MAKE_DAT_HEADER_VAR = $(shell printf "$(call DECLARE_DATA_VARS,$(call FILENAME,$(1),$(2)))" >> $(3))
 
 # Font Variables
 FONTS_GUARD := FONTS_H
@@ -124,8 +124,9 @@ $(FONTS_CPP): $(FONTS_HPP)
 
 $(FONTS_HPP): $(FONTS)
 	$(shell printf "#ifndef $(FONTS_GUARD)\n#define $(FONTS_GUARD)\n" > $@)
+	$(shell printf "\n#include <vector>\n\n" >> $@)
 	$(foreach font_file,$(FONTS),$(call MAKE_DAT_HEADER_VAR,$(font_file),font,$@))
-	$(shell printf "\n\n#endif // $(FONTS_GUARD)\n" >> $@)
+	$(shell printf "\n#endif // $(FONTS_GUARD)\n" >> $@)
 
 # Shaders (all this does is build every shader type; so far, I've only implemented GLSL)
 shaders: glsl ;@:
@@ -169,6 +170,7 @@ $(IMAGES_CPP): $(IMAGES_HPP)
 
 $(IMAGES_HPP): $(IMAGES)
 	$(shell printf "#ifndef $(IMAGES_GUARD)\n#define $(IMAGES_GUARD)\n" > $@)
+	$(shell printf "\n#include <vector>\n\n" >> $@)
 	$(foreach image,$(IMAGES),$(call MAKE_DAT_HEADER_VAR,$(image),image,$@))
 	$(shell printf "\n#endif // $(IMAGES_GUARD)\n" >> $@)
 
