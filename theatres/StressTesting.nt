@@ -1,0 +1,321 @@
+@StressTesting#1
+
+Resources
+{
+    Texture LolBit_Tex01 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex02 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex03 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex04 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex05 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex06 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex07 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex08 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex09 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex10 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex11 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex12 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex13 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex14 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex15 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex16 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex17 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex18 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex19 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex20 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex21 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex22 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex23 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex24 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex25 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex26 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex27 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex28 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex29 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex30 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex31 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex32 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex33 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex34 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex35 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex36 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex37 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex38 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex39 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex40 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex41 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex42 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex43 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex44 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex45 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex46 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex47 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex48 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex49 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex50 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex51 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex52 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex53 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex54 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex55 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex56 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex57 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex58 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex59 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex60 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex61 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex62 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex63 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex64 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex65 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex66 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex67 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex68 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex69 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex70 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex71 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex72 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex73 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex74 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex75 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex76 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex77 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex78 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex79 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex80 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex81 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex82 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex83 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex84 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex85 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex86 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex87 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex88 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex89 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex90 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex91 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex92 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex93 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex94 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex95 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex96 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex97 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex98 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex99 { Image = 'src/testing_app/resources/lolbit.png' }
+    Texture LolBit_Tex100 { Image = 'src/testing_app/resources/lolbit.png' }
+
+    Mesh LolBit_Mesh
+    {
+        File = 'src/testing_app/resources/Cube.obj'
+    }
+
+    Material LolBit_Mat
+    {
+        DiffuseTexture = <LolBit_Tex01>
+    }
+
+    MeshInstance LolBitMeshInstance
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance2
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance3
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance4
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance5
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance6
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance7
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance8
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance9
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance10
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance11
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance12
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance13
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance14
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance15
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance16
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance17
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance18
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance19
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance20
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance21
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance22
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance23
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance24
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance25
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance26
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance27
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance28
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance29
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    MeshInstance LolBitMeshInstance30
+    {
+        Mesh = <LolBit_Mesh>
+        Material = <LolBit_Mat>
+    }
+
+    Material Doom_Mat
+    {
+        DiffuseTexture = [image_PNG_COMP045]
+    }
+}
+
+Things
+{
+    PrototypeActor TestActor
+    {
+        PrototypeMeshInstance = <LolBitMeshInstance>
+        GlobalPosition = (1.0)
+        IsVisible = (true)
+    }
+
+    PrototypeActor TestActor2
+    {
+        PrototypeMeshInstance : MeshInstance DoomMeshInstance
+        {
+            Mesh = 'src/testing_app/resources/Cube.obj'
+            Material = <Doom_Mat>
+        }
+        GlobalPosition = (-1, 1.0, -2)
+        IsVisible = (True)
+    }
+}
