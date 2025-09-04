@@ -6,6 +6,7 @@ class Thing
 public:
 
 protected:
+    // tid_t ThingID = Thing::NoTID;
 };
 
 #endif // THING_H

@@ -2,7 +2,7 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include "things/actors/nostalgia_player.hpp"
+// #include "things/actors/nostalgia_player.hpp"
 
 class TheatreManager : public Manager
 {
@@ -17,7 +17,7 @@ private:
     void CreateThings();
     void DestroyThings();
 
-    NostalgiaPlayer m_LocalPlayer;
+    // NostalgiaPlayer m_LocalPlayer;
 };
 
 extern TheatreManager* g_pTheatreManager;

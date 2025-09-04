@@ -3,6 +3,7 @@
 #   include "colors.hpp"
 #   include "time.hpp"
 #endif // DEBUGGING
+#include "things/thing.hpp"
 #include "rendering/render_command.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "resources/resource_handler.hpp"
