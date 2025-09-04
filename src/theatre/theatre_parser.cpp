@@ -1,8 +1,8 @@
 #include "theatre_parser.hpp"
+#include "filesystem/filesystem.hpp"
 
 #include <set>
 #include <fstream>
-#include <filesystem>
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -39,8 +39,6 @@ static constexpr std::string ToLower(std::string string)
         [](unsigned char character){ return std::tolower(character); });
     return string;
 }
-
-namespace fs = std::filesystem; // NOTE: Fuck you, I'm not typing allat
 
 static std::string s_TheatreFileDataString = "";
 static TheatreData s_TheatreData;
@@ -114,11 +112,10 @@ const TheatreData& TheatreParser::GetTheatreData()
 
 SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
 {
-    // FIXME: Replace with implementation in "filesystem/filesystem.hpp"
-    if(!fs::exists(fs::path(theatre_file)))
+    if(!Filesystem::IsFile(theatre_file))
         { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
 
-    if(!fs::path(theatre_file).has_extension() || !c_NostalgiaExtensions.contains(fs::path(theatre_file).extension().string()))
+    if(!c_NostalgiaExtensions.contains(Filesystem::GetExtension(theatre_file)))
         { return Status::TheatreParserWRONG_FILE_EXTENSION; }
 
     std::ifstream theatre_file_stream(theatre_file);

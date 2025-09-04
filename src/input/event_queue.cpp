@@ -3,9 +3,9 @@
 #include "printing.hpp"
 #include "colors.hpp"
 #include "keybind.hpp"
+#include "filesystem/filesystem.hpp"
 
 #include <climits>
-#include <filesystem> // Yes, the devil hath been invoked... I'm sorry
 #include <fstream>
 
 #define DEMO_FILENAME (demo_recording_name + std::to_string(demo_recording_number) + demo_recording_extension)
@@ -198,7 +198,7 @@ void EventQueue::StartRecordingDemo()
 bool EventQueue::StopRecordingDemo()
 {
     do_demo_recording = false;
-    while(std::filesystem::is_regular_file(std::filesystem::path(DEMO_FILENAME)))
+    while(Filesystem::IsFile(DEMO_FILENAME))
     {
         if(demo_recording_number == AN_UNREASONABLE_AMOUNT_OF_DEMO_FILES)
         {

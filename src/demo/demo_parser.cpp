@@ -1,7 +1,8 @@
 #include "demo_parser.hpp"
 #include "printing.hpp"
+#include "filesystem/filesystem.hpp"
 
-#include <filesystem> // Yes, the devil hath been invoked... I'm sorry
+#include <sstream>
 #include <fstream>
 
 std::vector<Event> DemoParser::_event_queue = {};
@@ -10,7 +11,7 @@ bool DemoParser::is_demo_file_loaded = false;
 
 bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
 {
-    if(!std::filesystem::is_regular_file(demo_file_path))
+    if(!Filesystem::IsFile(demo_file_path))
     {
         PRINT_ERROR("DemoParser::LoadDemoFromFile - demo doesn't exist at path: '{}'", demo_file_path)
         return false;
