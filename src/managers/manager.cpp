@@ -191,17 +191,21 @@ void _Manager::Start()
 
 void _Manager::Tick()
 {
-    double last_time = 0.0;
     size_t number_of_managers = m_sGameManagers.size();
+
+    // Tickrate Setup (From GraphX)
+    double last_time = Time::Current();
+    double current_tick_length = 0.0;
+    double current_time = 0.0;
 
     while(!m_sStopRequested)
     {
-        float current_tick_length = 0.0f;
-        double current_time = Time::Current(); // Because `Time::Current` can return different values if called more than once in the same function (it's very precise)
-        last_time = current_time;
+        // Tickrate Calculation (From GraphX)
+        current_time = Time::Current();
         current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
+        last_time = current_time;
 
-        while(current_tick_length >= 1.0f)
+        while(current_tick_length >= 1.0)
         {
             for(size_t i = 0 ; i < number_of_managers ; ++i)
             {
