@@ -16,6 +16,11 @@ Resources
         Image = 'src/testing_app/resources/lolbit.png'
     }
 
+    Mesh LolBit_Mesh
+    {
+        File = 'src/testing_app/resources/Cube.obj'
+    }
+
     Material LolBit_Mat
     {
         // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
@@ -24,7 +29,7 @@ Resources
 
     MeshInstance LolBitMeshInstance
     {
-        Mesh = 'src/testing_app/resources/Cube.obj'
+        Mesh = <LolBit_Mesh>
         Material = <LolBit_Mat>
     }
 
