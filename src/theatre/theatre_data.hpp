@@ -3,10 +3,12 @@
 
 #include "safe_return.hpp"
 #include "hash.hpp"
-#include "glm/fwd.hpp"
+#include "theatre/engine_reference.hpp"
+#include "types/typenames.hpp"
 
-#include <set>
-#include <string>
+#include <any>
+#include <map>
+#include <vector>
 
 enum class VariableType
 {
@@ -19,6 +21,7 @@ enum class VariableType
     Default = String,
 };
 
+// This is for printouts
 constexpr std::string StringifyEnum(const VariableType& VariableTypeEnum)
 {
     switch(VariableTypeEnum)
@@ -46,7 +49,12 @@ public:
     variable_t(const std::string& Name, const std::string& Value, const VariableType& Type);
     variable_t();
 
-    const bool operator<(const variable_t& Compare) const { return m_Hash < Compare.m_Hash; }
+    const std::string& Name() const;
+    const std::string& Value() const;
+    const VariableType& Type() const;
+
+    const bool operator==(const std::string& Compare) const
+    { return !m_Name.compare(Compare); }
 
 private:
 #ifdef DEBUGGING
@@ -58,9 +66,8 @@ private:
     std::string  m_Name  = "Untitled";
     std::string  m_Value = "N/A";
     VariableType m_Type  = VariableType::Default;
-    size_t       m_Hash  = g_StringHash(m_Name);
 
-    void clear();
+    void clear(); // TODO: Maybe make this public?
 };
 
 struct data_t
@@ -68,36 +75,89 @@ struct data_t
 public:
     data_t();
 
+    // TODO: Remove these(?)
     static constexpr short VARIABLE_SET   = (short)true;
     static constexpr short VARIABLE_ADDED = (short)false;
 
-    // SafeReturn<const variable_t&> try_GetVariable(const std::string& Name); // TODO: Commit to removing this if still unused
     short AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
+    void  UpdateTheatreReferences(const std::map<std::string, unsigned int>& IDs);
 
     const std::string& GetName() const;
     void SetName(const std::string& Name);
 
-    const std::string& GetType() const;
-    void SetType(const std::string& TypeName);
+    size_t GetType() const;
+    const std::string& GetTypeName() const;
+    void SetType(const std::string& Type);
 
     void clear();
+
+    bool GetTheatreRef(unsigned int& AssignTo, const std::string& VariableName) const;
+    bool GetBool(bool& AssignTo, const std::string& VariableName) const;
+    bool GetString(std::string& AssignTo, const std::string& VariableName) const;
+
+    template<typename T>
+    bool GetEngineRef(T& real_variable, const std::string& variable_name) const
+    {
+        auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
+        if(variable == m_Variables.end())
+            { return false; }
+
+        SafeReturn<std::any> reference = try_GetEngineReference(variable->m_Value);
+        if(!SafeStatus::PrintCheck(reference.Status()))
+            { return false; }
+
+        T temp_variable;
+        try
+        {
+            temp_variable = std::any_cast<T>(reference.Data());
+        }
+        catch(std::bad_any_cast const& exception)
+        {
+            PRINT_ERROR("data_t::GetEngineRef - Variable '{}' is not the correct type", variable_name)
+            return false;
+        }
+
+        real_variable = temp_variable;
+        return true;
+    }
+
+    template<typename T>
+    bool GetNumber(T& real_variable, const std::string& variable_name) const
+    {
+        auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
+        if(variable == m_Variables.end())
+            { return false; }
+
+        real_variable = StringToNum<T>(variable->m_Value);
+        return true;
+    }
 
     const bool operator<(const data_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
     friend struct TheatreData;
-    data_t(const std::string& Name);
+    friend struct ResourceHandler;
+    friend class  TheatreManager;
+    data_t(const std::string& Name, const std::string& Type);
 
-    std::set<variable_t> m_Variables = {};
+    std::vector<variable_t> m_Variables = {};
     std::string m_Name = "Untitled";
-    std::string m_Type = "Unset";
-    size_t      m_Hash = g_StringHash(m_Name);
+    std::string m_TypeName = "Invalid";
+    size_t      m_Type = Type::Invalid;
+    size_t      m_Hash = ConstexprHash(m_Name + m_TypeName);
+
+    unsigned int m_AssignedID = 0;
 };
 
 struct TheatreData
 {
+    static const TheatreData Missing;
+
     std::string m_Name = "Untitled Theatre";
     long m_Index = -1; // FIXME: Make this not a magic number
+
+    const std::vector<data_t>& GetThings() const;
+    const std::vector<data_t>& GetResources() const;
 
     SafeStatus AddData(const data_t& Data);
 
@@ -108,10 +168,8 @@ struct TheatreData
 #endif // DEBUGGING
 
 private:
-    static data_t s_SafeDataReturn;
-
-    std::set<data_t> m_Things;
-    std::set<data_t> m_Resources;
+    std::vector<data_t> m_Things;
+    std::vector<data_t> m_Resources;
 };
 
 #endif // THEATRE_DATA_H

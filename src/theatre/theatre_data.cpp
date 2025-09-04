@@ -1,5 +1,8 @@
 #include "theatre_data.hpp"
-#include "theatre_parsing_lookups.hpp"
+#include "string_to_num.hpp"
+#include "types/typenames.hpp"
+
+#include <set>
 
 // Variable
 
@@ -8,43 +11,56 @@ const variable_t variable_t::undefined = variable_t();
 variable_t::variable_t() = default;
 
 variable_t::variable_t(const std::string& name, const std::string& value, const VariableType& type)
-: m_Name(name), m_Value(value), m_Type(type), m_Hash(g_StringHash(m_Name)) {}
+: m_Name(name), m_Value(value), m_Type(type) {}
 
 variable_t::variable_t(const std::string& name)
 : variable_t(name, "N/A", VariableType::Default)
 {}
+
+const std::string& variable_t::Name() const
+{ return m_Name; }
+
+const std::string& variable_t::Value() const
+{ return m_Value; }
+
+const VariableType& variable_t::Type() const
+{ return m_Type; }
 
 void variable_t::clear()
 { *this = variable_t(); }
 
 // Data
 
-data_t::data_t(const std::string& name)
-: m_Name(name), m_Hash(g_StringHash(m_Name))
+data_t::data_t(const std::string& name, const std::string& type_name)
+: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_Hash(ConstexprHash(m_Name + m_TypeName))
 {}
 
 data_t::data_t() = default;
 
 short data_t::AddVariable(const std::string& name, const std::string& data, const VariableType& type)
 {
-    bool variable_exists = (m_Variables.find(name) != m_Variables.end());
-    if(variable_exists)
-        { m_Variables.erase(name); }
+    auto variable = std::find(m_Variables.begin(), m_Variables.end(), name);
+    if(variable != m_Variables.end())
+    {
+        variable->m_Name  = name;
+        variable->m_Value = data;
+        variable->m_Type  = type;
+    }
 
-    m_Variables.emplace(name, data, type);
-    return variable_exists;
+    m_Variables.emplace_back(name, data, type);
+    return (variable != m_Variables.end());
 }
 
-/*SafeReturn<const variable_t&> data_t::try_GetVariable(const std::string& name)
+void data_t::UpdateTheatreReferences(const std::map<std::string, unsigned int>& ids)
 {
-    if(!m_Variables.contains(name))
-    { return SafeReturn<const variable_t&>(variable_t::undefined, Status::DataTypeINVALID_VARIABLE_NAME); }
-
-    if(m_Variables.find(name)->m_Value.empty())
-    { return SafeReturn<const variable_t&>(variable_t::undefined, Status::DataTypeEMPTY_VARIABLE); }
-
-    return SafeReturn<const variable_t&>(*m_Variables.find(name));
-}*/
+    for(variable_t& variable : m_Variables)
+    {
+        if(ids.contains(variable.m_Value))
+        {
+            variable.m_Value = std::to_string(ids.at(variable.m_Value));
+        }
+    }
+}
 
 const std::string& data_t::GetName() const
 { return m_Name; }
@@ -52,40 +68,80 @@ const std::string& data_t::GetName() const
 void data_t::SetName(const std::string& name)
 {
     m_Name = name;
-    m_Hash = g_StringHash(m_Name);
+    m_Hash = ConstexprHash(m_Name + m_TypeName);
 }
 
-const std::string& data_t::GetType() const
+const std::string& data_t::GetTypeName() const
+{ return m_TypeName; }
+
+size_t data_t::GetType() const
 { return m_Type; }
 
 void data_t::SetType(const std::string& type)
 {
-    m_Type = type;
-    m_Hash = g_StringHash(m_Name);
+    m_TypeName = type;
+    m_Type = ConstexprHash(m_TypeName);
+    m_Hash = ConstexprHash(m_Name + m_TypeName);
+
+    if(GetBaseType(m_Type) == BaseType::Invalid)
+        { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type, m_Name) }
 }
 
 void data_t::clear()
 {
     m_Variables.clear();
     m_Name = "Untitled";
-    m_Type = "Unset";
+    m_Type = Type::Invalid;
+    m_TypeName = "Invalid";
+}
+
+#define EARLY_RETURN_MACRO(VAR_NAME) \
+auto VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
+if(VAR_NAME == m_Variables.end()) \
+    { return false; }
+
+bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& variable_name) const
+{
+    EARLY_RETURN_MACRO(variable)
+    real_variable = StringToNum<unsigned int>(variable->m_Value);
+    return true;
+}
+
+bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const
+{
+    EARLY_RETURN_MACRO(variable)
+    real_variable = variable->m_Value.compare("true");
+    return true;
+}
+
+bool data_t::GetString(std::string& real_variable, const std::string& variable_name) const
+{
+    EARLY_RETURN_MACRO(variable)
+    real_variable = variable->m_Value;
+    return true;
 }
 
 // Theatre Data
 
-data_t TheatreData::s_SafeDataReturn = data_t();
+const TheatreData TheatreData::Missing;
+
+const std::vector<data_t>& TheatreData::GetThings() const
+{ return m_Things; }
+
+const std::vector<data_t>& TheatreData::GetResources() const
+{ return m_Resources; }
 
 SafeStatus TheatreData::AddData(const data_t& data)
 {
     switch(GetBaseType(data.GetType()))
     {
-    case BaseType::Unknown:
-        return Status::TheatreDataTypeINVALID_NAME;
+    case BaseType::Invalid:
+        return Status::TheatreDataINVALID_TYPE;
     case BaseType::Resource:
-        m_Resources.insert(data);
+        m_Resources.push_back(data);
         break;
     case BaseType::Thing:
-        m_Things.insert(data);
+        m_Things.push_back(data);
         break;
     }
     return Status::NO_ERR;
@@ -107,10 +163,10 @@ void TheatreData::debug_PrintData()
 
     for(const auto& data : temp_data)
     {
-        std::print("({}) {}:\n", data.m_Type, data.m_Name);
+        std::print("[{},{}] {}:\n", data.m_Type, data.m_Type, data.m_Name);
 
-        const std::set<variable_t>& variables = data.m_Variables;
-        for(const auto& variable : variables)
+        const std::vector<variable_t>& variables = data.m_Variables;
+        for(const variable_t& variable : variables)
         { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
 
         std::print("\n");
