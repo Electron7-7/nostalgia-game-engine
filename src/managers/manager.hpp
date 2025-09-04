@@ -28,15 +28,13 @@ public:
     virtual bool Init() = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual void Update() = 0;
+    virtual void Tick()   = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
     virtual void Shutdown() = 0;
 
     // Called during game save/restore
     virtual void OnSave() = 0;
     virtual void OnRestore() = 0;
-
-    // States whether or not this manager should be updated in the fixed update loop
-    virtual bool UpdateUsesTickLoop() = 0;
 
     // Add/Remove managers
     static void Add(_Manager* ManagerToAdd);
@@ -95,7 +93,7 @@ protected:
     static ManagerEnums::TheatreState_t theatre_state;
 
 private:
-    static void Tick();
+    static void TickLoop();
 };
 
 class Manager : public _Manager
@@ -107,15 +105,20 @@ public:
     virtual bool Init() { return true; }
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
     virtual void Update() {}
+    virtual void Tick() {}
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
     virtual void Shutdown() {}
     virtual void OnSave() {}
     virtual void OnRestore() {}
-    virtual bool UpdateUsesTickLoop() { return false; }
 };
 
 // Automatically remove the game manager if it gets deleted
 inline Manager::~Manager()
 { _Manager::Remove(this); }
+
+#ifdef DEBUGGING
+    extern bool g_PrintFrameNumbers;
+    extern bool g_PrintTickNumbers;
+#endif // DEBUGGING
 
 #endif // MANAGER_H

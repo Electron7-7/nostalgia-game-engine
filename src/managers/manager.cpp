@@ -6,6 +6,11 @@
 #include <cassert>
 #include <thread>
 
+#ifdef DEBUGGING
+    bool g_PrintFrameNumbers = false;
+    bool g_PrintTickNumbers  = false;
+#endif // DEBUGGING
+
 using namespace ManagerEnums;
 
 long _Manager::m_sFrameNumber = 0;
@@ -168,7 +173,7 @@ void _Manager::Start()
     m_sIsRunning = true;
     m_sStopRequested = false;
 
-    std::thread tick_thread(_Manager::Tick);
+    std::thread tick_thread(_Manager::TickLoop);
 
     size_t number_of_managers = m_sGameManagers.size();
 
@@ -177,10 +182,7 @@ void _Manager::Start()
         UpdateTheatreStateMachine();
 
         for(size_t i = 0 ; i < number_of_managers ; ++i)
-        {
-            if(!m_sGameManagers.at(i)->UpdateUsesTickLoop())
-                { m_sGameManagers.at(i)->Update(); }
-        }
+            { m_sGameManagers.at(i)->Update(); }
 
         ++m_sFrameNumber;
     }
@@ -189,7 +191,7 @@ void _Manager::Start()
     m_sIsRunning = false;
 }
 
-void _Manager::Tick()
+void _Manager::TickLoop()
 {
     size_t number_of_managers = m_sGameManagers.size();
 
@@ -208,10 +210,7 @@ void _Manager::Tick()
         while(current_tick_length >= 1.0)
         {
             for(size_t i = 0 ; i < number_of_managers ; ++i)
-            {
-                if(m_sGameManagers.at(i)->UpdateUsesTickLoop())
-                    { m_sGameManagers.at(i)->Update(); }
-            }
+                { m_sGameManagers.at(i)->Tick(); }
             --current_tick_length;
             ++m_sTickNumber;
         }
