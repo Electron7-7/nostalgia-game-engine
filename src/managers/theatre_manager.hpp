@@ -7,13 +7,15 @@
 class TheatreManager : public Manager
 {
 public:
+    void Update();
+    void Tick();
+
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
 private:
     void CreateThings();
     void DestroyThings();
-    bool InterpretTheatre();
 
     NostalgiaPlayer m_LocalPlayer;
 };
