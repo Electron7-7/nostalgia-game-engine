@@ -1,6 +1,5 @@
 #include "nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
-#include "managers/resource_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/backend_manager.hpp"
 #include "managers/render_manager.hpp"
@@ -38,7 +37,6 @@ void NostalgiaGoggles::PostShutdown()
 
 int NostalgiaGoggles::Main()
 {
-    _Manager::Add(g_pResourceManager);
     _Manager::Add(g_pTheatreManager);
     _Manager::Add(g_pBackendManager);
     _Manager::Add(g_pRenderManager);
