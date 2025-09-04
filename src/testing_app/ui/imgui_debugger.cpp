@@ -7,6 +7,8 @@
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 
+#include <format>
+
 using namespace ImGui;
 
 bool   g_TrackingStart = false;
@@ -46,39 +48,56 @@ void imgui_Debugger::Update()
     static double theatre_unload_stop_time  = 0.0;
     static double theatre_unload_time_spent = 0.0;
 
+    static bool   update_stopwatch_visual = false;
     static double tracking_total_time = 0.0;
-    static bool   tracking_enabled = true;
+    static bool   auto_stopwatch_enabled = true;
 
     static std::vector<std::pair<std::string, double>> theatre_load_times = {};
     static std::vector<std::pair<std::string, double>> theatre_unload_times = {};
-    static std::vector<std::tuple<double, double, double>> tracking_times = {};
+    static std::vector<std::tuple<double, double, double>> stopwatch_logs = {};
 
-    Begin("Time Tracking Variables");
-    if(Button("Manual Start"))
+    Begin("Stopwatch Variables");
+    if(Button("Start Stopwatch"))
         { g_TrackingStart = true; }
-    if(Button("Manual Stop"))
+    if(Button("Stop Stopwatch"))
         { g_TrackingStop = true; }
-    if(Button("Clear Tracking Logs"))
-        { tracking_times.clear(); }
-    if(Button("Toggle Tracking"))
-        { tracking_enabled = !tracking_enabled; }
-    Text("Tracking Start Time: %f", g_TrackingStartTime);
-    Text("Tracking Stop Time: %f", g_TrackingStopTime);
-    Text("Tracking Total Time: %f", tracking_total_time);
+    if(Button("Clear Stopwatch Logs"))
+        { stopwatch_logs.clear(); }
+    std::string stopwatch_toggle_label = std::format("Toggle Automatic Stopwatch (Currently {})", (auto_stopwatch_enabled) ? "On" : "Off");
+    const char* stopwatch_toggle_label_cstr = stopwatch_toggle_label.c_str();
+    if(Button(stopwatch_toggle_label_cstr))
+        { auto_stopwatch_enabled = !auto_stopwatch_enabled; }
+    if(IsItemHovered())
+        { SetTooltip("%s", "This enables/disables the program's ability to start/stop the Stopwatch"); }
+
+    if(update_stopwatch_visual)
+        { Text("Current Stopwatch: %f", Time::Current() - g_TrackingStartTime); }
+    else
+        { Text("Current Stopwatch: Stopped"); }
+
+    Text("Stopwatch Logs:");
+    for(const auto& [start, stop, total] : stopwatch_logs)
+    {
+        Separator();
+        Text("Time: %f", total);
+        Text("Started @ %f, Stopped @ %f", start, stop);
+    }
     End();
 
     if(g_TrackingStart)
     {
         g_TrackingStart = false;
+        update_stopwatch_visual = true;
         g_TrackingStartTime = Time::Current();
     }
 
     if(g_TrackingStop)
     {
         g_TrackingStop = false;
+        update_stopwatch_visual = false;
         g_TrackingStopTime = Time::Current();
         tracking_total_time = g_TrackingStopTime - g_TrackingStartTime;
-        tracking_times.push_back({g_TrackingStartTime, g_TrackingStopTime, tracking_total_time});
+        stopwatch_logs.push_back({g_TrackingStartTime, g_TrackingStopTime, tracking_total_time});
     }
 
     Begin("Debug Window");
