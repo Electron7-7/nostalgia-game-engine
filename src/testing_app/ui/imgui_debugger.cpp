@@ -137,7 +137,7 @@ void imgui_Debugger::Update()
         }
     }
 
-    if(Button("Exit Test Theatre"))
+    if(Button("Exit Theatre"))
     {
         if(_Manager::GetTheatreState() == ManagerEnums::TheatreState_t::IN_LEVEL)
         {
