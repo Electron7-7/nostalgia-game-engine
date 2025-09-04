@@ -37,7 +37,7 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
 #endif // COMPILING_WINDOWS
 
 bool Filesystem::PathExists(const std::string& path)
-    { return(!fs::exists(fs::path(path))); }
+    { return(fs::exists(fs::path(path))); }
 
 bool Filesystem::IsFile(const std::string& path) // FIXME: 'is_regular_file' could fail on some files
     { return(PathExists(path) && fs::is_regular_file(fs::path(path))); }
