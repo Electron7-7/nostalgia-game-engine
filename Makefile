@@ -143,7 +143,7 @@ APP_SRC_DIRS :=               \
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-RESOURCES_DIR := $(SRC)/resources/engine
+RESOURCES_DIR := $(SRC)/resources/engine_sources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 

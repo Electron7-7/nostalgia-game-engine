@@ -12,8 +12,7 @@ build/
 compile_commands.json
 
 # embedded resources
-src/resources/engine/*.cpp
-src/resources/engine/*.hpp
+src/resources/engine/
 
 # misc files
 imgui.ini

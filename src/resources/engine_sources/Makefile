@@ -11,6 +11,7 @@ export WHITE   ?= \\x1b[1;37m
 export DEFAULT ?= \\x1b[1;39m
 
 # Common Variables
+EMBED_DIR := ../engine
 EMBED_DIR_ABSOLUTE := src/resources/engine
 
 #-----------------#
@@ -51,17 +52,17 @@ MAKE_DAT_HEADER_VAR = $(shell printf "$(call DECLARE_DATA_VARS,$(call FILENAME,$
 
 # Font Variables
 FONTS_GUARD := FONTS_H
-FONTS_DIR   := src/fonts
+FONTS_DIR   := fonts
 FONTS       := $(wildcard $(FONTS_DIR)/*)
-FONTS_CPP   := fonts.cpp
-FONTS_HPP   := fonts.hpp
+FONTS_CPP   := $(EMBED_DIR)/fonts.cpp
+FONTS_HPP   := $(EMBED_DIR)/fonts.hpp
 
 # GLSL Variables
 GL_SHADERS_GUARD := OPENGL_SHADERS_H
-GL_SHADERS_DIR   := src/shaders/GLSL
+GL_SHADERS_DIR   := shaders/GLSL
 GL_SHADERS       := $(wildcard $(GL_SHADERS_DIR)/*)
-GL_SHADERS_CPP   := opengl_shaders.cpp
-GL_SHADERS_HPP   := opengl_shaders.hpp
+GL_SHADERS_CPP   := $(EMBED_DIR)/opengl_shaders.cpp
+GL_SHADERS_HPP   := $(EMBED_DIR)/opengl_shaders.hpp
 
 # GLSL Naming Function
 GLSL_HEADER_VAR = \
@@ -70,17 +71,17 @@ GLSL_HEADER_VAR = \
 
 # Model Variables
 MODELS_GUARD := MODELS_H
-MODELS_DIR   := src/models
+MODELS_DIR   := models
 MODELS       := $(wildcard $(MODELS_DIR)/*.obj)
-MODELS_HPP   := models.hpp
-MODELS_CPP   := models.cpp
+MODELS_HPP   := $(EMBED_DIR)/models.hpp
+MODELS_CPP   := $(EMBED_DIR)/models.cpp
 
 # Image Variables
 IMAGES_GUARD := IMAGES_H
-IMAGES_DIR   := src/images
+IMAGES_DIR   := images
 IMAGES       := $(wildcard $(IMAGES_DIR)/*)
-IMAGES_HPP   := images.hpp
-IMAGES_CPP   := images.cpp
+IMAGES_HPP   := $(EMBED_DIR)/images.hpp
+IMAGES_CPP   := $(EMBED_DIR)/images.cpp
 
 .PHONY: all build clean shaders fonts glsl models images
 
@@ -176,4 +177,4 @@ $(IMAGES_HPP): $(IMAGES)
 
 # Printouts
 %.print: %
-	@ printf "$(RESET)::Embedding: $(YELLOW)src/resources/engine/$<$(RESET)\n"
+	@ printf "$(RESET)::Embedding: $(YELLOW)$(EMBED_DIR_ABSOLUTE)$<$(RESET)\n"
