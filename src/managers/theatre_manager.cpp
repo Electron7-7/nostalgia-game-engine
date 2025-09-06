@@ -2,6 +2,7 @@
 #ifdef DEBUGGING
 #   include "colors.hpp"
 #   include "time.hpp"
+#   include "testing_app/ui/imgui_debugger.hpp"
 #endif // DEBUGGING
 #include "things/thing.hpp"
 #include "rendering/render_command.hpp"
@@ -40,11 +41,19 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     if(!is_first_call)
         { return FINISHED; }
 
+#ifdef DEBUGGING
+    g_pDebugger->StartTheatreTiming(true);
+#endif // DEBUGGING
+
     if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre()))
         { return FUCKED; }
 
     ResourceHandler::CreateResources();
     // CreateThings();
+
+#ifdef DEBUGGING
+    g_pDebugger->StopTheatreTiming(true);
+#endif // DEBUGGING
 
     return FINISHED;
 }
@@ -54,8 +63,16 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     if(!is_first_call)
         { return FINISHED; }
 
+#ifdef DEBUGGING
+    g_pDebugger->StartTheatreTiming(false);
+#endif // DEBUGGING
+
     ResourceHandler::DestroyResources();
     // DestroyThings();
+
+#ifdef DEBUGGING
+    g_pDebugger->StopTheatreTiming(false);
+#endif // DEBUGGING
 
     return FINISHED;
 }
