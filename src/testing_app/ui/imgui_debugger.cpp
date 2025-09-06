@@ -349,9 +349,17 @@ static void s_TheatreDebuggingWindow()
         Separator();
         Text("Theatre File: %s", log.m_TheatreFilePath.c_str());
         if(log.m_LoadTime.IsFinished())
-            { Text("Load Time: %fs", log.m_LoadTime.GetDuration()); }
+        {
+            Text("Load Time: %fs", log.m_LoadTime.GetDuration());
+            if(IsItemHovered())
+                { SetTooltip("Started @ %s\nStopped @ %s", log.m_LoadTime.GetStartTime().c_str(), log.m_LoadTime.GetStopTime().c_str()); }
+        }
         if(log.m_UnloadTime.IsFinished())
-            { Text("Unload Time: %fs", log.m_UnloadTime.GetDuration()); }
+        {
+            Text("Unload Time: %fs", log.m_UnloadTime.GetDuration());
+            if(IsItemHovered())
+                { SetTooltip("Started @ %s\nStopped @ %s", log.m_UnloadTime.GetStartTime().c_str(), log.m_UnloadTime.GetStopTime().c_str()); }
+        }
     }
     EndChild();
 }
@@ -384,22 +392,30 @@ void imgui_Debugger::Update()
                 s_GeneralDebuggingWindow();
                 EndTabItem();
             }
+            if(s_PopOutStopwatches)
+            {
+                SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
+                if(Begin("Stopwatches"))
+                {
+                    float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                    s_AutomaticStopwatchWindow(width);
+                    SameLine();
+                    s_ManualStopwatchWindow(width);
+                }
+                End();
+            }
             if(BeginTabItem("Stopwatches"))
             {
                 const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
                 if(Button(pop_out_label))
                     { s_PopOutStopwatches = !s_PopOutStopwatches; }
-                if(s_PopOutStopwatches)
+                if(!s_PopOutStopwatches)
                 {
-                    SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
-                    Begin("Stopwatches");
+                    float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                    s_AutomaticStopwatchWindow(width);
+                    SameLine();
+                    s_ManualStopwatchWindow(width);
                 }
-                float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                s_AutomaticStopwatchWindow(width);
-                SameLine();
-                s_ManualStopwatchWindow(width);
-                if(s_PopOutStopwatches)
-                    { End(); }
                 EndTabItem();
             }
             if(BeginTabItem("Theatres"))
