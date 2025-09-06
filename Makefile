@@ -112,8 +112,9 @@ export LIBRARY_FLAGS ?= $(FLAGS_STATIC)
 
 export BUILDING_APP ?=
 export BUILDING_DYNAMIC_LIBRARY ?=
+export BUILDING_STATIC_LIBRARY  ?=
 
-export CLEAN_ARCH ?= .+
+export CLEAN_ARCH    ?= .+
 export CLEAN_VERSION ?= .+
 
 VPATH := $(SRC_DIRS):$(DIR_ROOT)
@@ -133,10 +134,12 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/resources                    \
     $(SRC)/resources/basic              \
+    $(SRC)/resources/complex            \
     $(SRC)/resources/engine             \
     $(SRC)/settings                     \
     $(SRC)/types                        \
     $(SRC)/theatre                      \
+    $(SRC)/things/actors
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
@@ -189,17 +192,27 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all printout static dynamic libraries testapp_static testapp_dynamic testapps headers rebuild_resources resources build linux windows release debug build_dir clean_target clean_all clean mostlyclean disable_colors
+.PHONY: all run printout build_dir static dynamic libraries testapp_static testapp_dynamic testapps headers rebuild_resources resources linux windows release debug clean_target clean_all clean mostlyclean disable_colors
 
-all: build_dir headers resources static dynamic testapp_static testapp_dynamic ;@:
+all: headers resources static dynamic testapp_static testapp_dynamic ;@:
+
+run: ;@:
+	@ $(BUILD_DIR)/$(APP)
 
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(CCFLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(CXXFLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
 	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(APP) $(APP_LD_FLAGS)$(RESET)\n"; fi
-	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"; fi
+	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
+		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
+	; fi
+
+	@ if [ -n "$(BUILDING_STATIC_LIBRARY)" ]; then \
+		printf "$(BOLD)$(DEFAULT)::Archives Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) -r -o $(NORM)<archive object file>$(BOLD) -Xlinker --whole-archive $(NORM)<archive>$(RESET)\n"; \
+		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object files> <archive object files>$(RESET)\n" \
+	; fi
 
 build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
@@ -209,7 +222,9 @@ static: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
+	$(eval BUILDING_STATIC_LIBRARY = 1)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
+	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
@@ -229,6 +244,8 @@ testapp_static:
 	$(eval APP_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
+	$(eval BUILDING_STATIC_LIBRARY =)
+	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
@@ -238,6 +255,8 @@ testapp_dynamic:
 	$(eval APP_TYPE = $(PRETTY_STRING_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
+	$(eval BUILDING_STATIC_LIBRARY =)
+	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
 	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
@@ -337,7 +356,6 @@ clean:
 		$(MAKE) -s .__clean_all;             \
 	fi
 
-
 # 'mostlyclean' doesn't clean files from 'DIRTY_SRC_DIRS'
 .__mostlyclean_target:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
@@ -391,7 +409,7 @@ $(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
 	@ -mv $(@:.o=.d) $(BUILD_DEPS)/$(notdir $(@:.o=.d))
 
 # Header Files
-$(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build
+$(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build_dir
 	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
@@ -411,7 +429,7 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS)
 # Dynamic Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
-	@ -mkdir -p $(BUILD_LIBRARY)
+	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
 # Library Testing Applications
