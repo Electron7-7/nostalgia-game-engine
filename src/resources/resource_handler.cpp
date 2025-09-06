@@ -19,6 +19,7 @@ static std::random_device s_RandomDevice;
 
 void ResourceHandler::CreateResources()
 {
+    static constexpr const char* type_warning = "{} ResourceHandler::CreateResources - '{}' has an {} and cannot be interpreted{}";
     std::vector<data_t> data = TheatreParser::GetTheatreData().GetResources();
     std::map<std::string, rid_t> l_NameIDMap = {};
 
@@ -39,8 +40,12 @@ void ResourceHandler::CreateResources()
             s_Textures[id]  = Texture();
             s_Resources[id] = &s_Textures.at(id);
             break;
+        case Type::Invalid:
+            // PRINT_WARNING
+            std::print(type_warning, __WARNING, resource_data.GetName(), "invalid type", __RESET_NL);
         default:
-            PRINT_WARNING("ResourceHandler::CreateResources - Attempted to process a 'data_t' object with an invalid/unhandled type: '{}'. The object '{}' will not be used", resource_data.GetTypeName(), resource_data.GetName())
+            // PRINT_WARNING
+            std::print(type_warning, __WARNING, resource_data.GetName(), "unknown type (" + resource_data.GetTypeName() + ")", __RESET_NL);
             id = Resource::NoRID;
             break;
         }
