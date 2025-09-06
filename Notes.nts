@@ -385,5 +385,47 @@ Oh, yeah, I'll definitely need to change this whole process if and when I introd
 
 Finally got everything committed!
 
+[09/05/25]
+I've gotten compilation of the static libraries (freetype + friends) *and* cross-compilation of the static libraries figured out (I hope). Here are some notes:
 
-Hello
+cross compiling windows brotli static library
+Use the CMake application to load a toolchain file for mingw-w64, configure, and generate makefiles
+Then, inside the output directory, run:
+cmake --build . --config Release --target install
+
+
+compiling linux brotli static library
+mkdir out && cd out
+cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./installed -DBUILD_SHARED_LIBS=OFF ..
+cmake --build . --config Release --target install
+
+
+cross compiling windows bzip2 static library
+Use the CMake application to load a toolchain file for mingw-w64, configure, and generate makefiles
+Then, inside the output directory, run:
+cmake --build .
+compiling the linux bzip2 static library is almost exactly the same as cross-compiling it
+compiling the linux & windows static libraries for zlib & libpng are just as simple and easy as bzip2
+
+And here's what to put in the mingw-w64 CMake toolchain file:
+# toolchain-mingw64.cmake
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+
+# specify the cross compiler
+set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(CMAKE_RC_COMPILER x86_64-w64-mingw32-windres)
+
+# where is the target environment
+set(CMAKE_FIND_ROOT_PATH /usr/x86_64-w64-mingw32)
+
+# search for programs in the build host directories
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+# for libraries and headers in the target directories
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
+Hell yeah! Time to test this shit!
+
+Aight, it *should* work; wine shit, again. Time to push this shit.
