@@ -19,11 +19,11 @@ FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3
 FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
-FLAGS_LIB_DYNAMIC     := -fPIC
-FLAGS_LIB_STATIC      := -static
+FLAGS_DYNAMIC         := -shared -fPIC
+FLAGS_STATIC          := -static
 FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
 FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -static -D COMPILING_WINDOWS
+FLAGS_WINDOWS         := -mwindows -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 
 # Archives & Libraries
@@ -71,8 +71,8 @@ ifneq ($(OS),Windows_NT)
 	export RELEASE_FLAGS ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
-	export LD_FLAGS      ?= $(LDFLAGS_LINUX)
-	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME)
+	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_LINUX)
+	export APP_LD_FLAGS  ?= -lNostalgia
 	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_LINUX)
 	export CXX_COMPILER  ?= $(LINUX_CXX)
 	export C_COMPILER    ?= $(LINUX_CC)
@@ -86,8 +86,8 @@ else # WINDOWS
 	export RELEASE_FLAGS ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
-	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
-	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME) -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld
+	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
+	export APP_LD_FLAGS  ?= -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp -l:libNostalgia.dll
 	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
@@ -215,7 +215,7 @@ static: resources
 
 dynamic: resources
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
-	$(eval LIBRARY_FLAGS = $(FLAGS_LIB_DYNAMIC))
+	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
@@ -225,6 +225,7 @@ dynamic: resources
 libraries: static dynamic ;@:
 
 testapp_static:
+	$(eval LD_FLAGS =)
 	$(eval APP_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
@@ -263,7 +264,8 @@ linux: ;@:
 	$(eval RELEASE_FLAGS = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
-	$(eval LD_FLAGS      = $(LDFLAGS_LINUX))
+	$(eval LD_FLAGS      = $(DYNAMIC_LDFLAGS_LINUX))
+	$(eval APP_LD_FLAGS  = -L /home/thelegend27/git/nostalgia-game-engine/build/Linux/Release/lib -l$(NAME_BASE))
 	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER  = $(LINUX_CXX))
 	$(eval C_COMPILER    = $(LINUX_CC))
@@ -280,14 +282,14 @@ windows: ;@:
 	$(eval RELEASE_FLAGS = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
-	$(eval LD_FLAGS      = $(LDFLAGS_WINDOWS))
+	$(eval LD_FLAGS      = $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld)
+	$(eval APP_LD_FLAGS  = -L /home/thelegend27/git/nostalgia-game-engine/build/Linux/Release/lib -l$(NAME_BASE) -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp)
 	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
 	$(eval C_COMPILER    = $(WINDOWS_CC))
 	$(eval ARCHIVER      = $(WINDOWS_AR))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
-	$(eval APP_LD_FLAGS  += -lstdc++exp)
 
 release: ;@:
 	$(eval VERSION_FLAGS = $(RELEASE_FLAGS))
