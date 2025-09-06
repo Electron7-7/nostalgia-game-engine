@@ -9,9 +9,9 @@ else
 	WINDOWS_CC  := gcc
 endif
 
-LAR := llvm-ar
+LINUX_AR := llvm-ar
 # TODO: Figure out if I need a windows-specific 'ar' and what it would be
-WAR := $(LAR)
+WINDOWS_AR := $(LAR)
 
 FLAGS_DEBUG_COMMON    := -g -O0 -D DEBUGGING
 FLAGS_DEBUG_LINUX     := -fsanitize=address
@@ -25,13 +25,17 @@ FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
 FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -static -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
-ARCHIVES_LINUX        := src/lib/glfw-lib-linux/libglfw3.a
-ARCHIVES_WINDOWS      := src/lib/glfw-lib-mingw-w64/libglfw3.a
-# These 'LD_FLAGS' are for the dynamic library, hence why I can't just use the 'ARCHIVES' variables again
-LDFLAGS_LINUX         := -mwindows -shared -L src/lib/glfw-lib-linux -l glfw
-LDFLAGS_WINDOWS       := -lstdc++exp -shared --out-implib -L src/lib/glfw-lib-mingw-w64 -l glfw
 
-INCLUDE := -I src -I src/thirdparty -I src/common
+# Archives & Libraries
+ARCHIVES_DIR_LINUX       := src/lib/linux/static
+ARCHIVES_DIR_WINDOWS     := src/lib/windows/static
+DYNAMIC_LIBS_DIR_LINUX   := src/lib/linux/dynamic
+DYNAMIC_LIBS_DIR_WINDOWS := src/lib/windows/dynamic
+DYNAMIC_LIBRARIES        := -lglfw -lbrotlicommon -lbrotlidec -lbrotlienc -lbz2 -lz -lpng -lfreetype
+DYNAMIC_LDFLAGS_LINUX    := -shared -L $(DYNAMIC_LIBS_DIR_LINUX) $(DYNAMIC_LIBRARIES)
+DYNAMIC_LDFLAGS_WINDOWS  := -lstdc++exp -shared --out-implib -L $(DYNAMIC_LIBS_DIR_WINDOWS) $(DYNAMIC_LIBRARIES)
+
+INCLUDE := -I src -I src/thirdparty -I src/common -I src/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux
@@ -69,9 +73,10 @@ ifneq ($(OS),Windows_NT)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS      ?= $(LDFLAGS_LINUX)
 	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME)
+	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_LINUX)
 	export CXX_COMPILER  ?= $(LINUX_CXX)
 	export C_COMPILER    ?= $(LINUX_CC)
-	export ARCHIVES      ?= $(ARCHIVES_LINUX)
+	export ARCHIVER      ?= $(LINUX_AR)
 else # WINDOWS
 	export APP_NAME      ?= $(APP_BASE).exe
 	export NAME_STATIC   ?= $(NAME_STATIC_WINDOWS)
@@ -83,9 +88,10 @@ else # WINDOWS
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
 	export LD_FLAGS      ?= $(LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
 	export APP_LD_FLAGS  ?= $(BUILD_LIBRARY)/$(NAME) -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld
+	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
-	export ARCHIVES      ?= $(ARCHIVES_WINDOWS)
+	export ARCHIVER      ?= $(WINDOWS_AR)
 endif
 
 export BUILD_VERSION ?= $(DIR_RELEASE)
@@ -102,7 +108,7 @@ export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
 export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
 export APP            ?= $(APP_TYPE)$(APP_NAME)
 
-export LIBRARY_FLAGS ?= $(FLAGS_LIB_STATIC)
+export LIBRARY_FLAGS ?= $(FLAGS_STATIC)
 
 export BUILDING_APP ?=
 export BUILDING_DYNAMIC_LIBRARY ?=
@@ -132,9 +138,10 @@ SRC_DIRS :=                             \
     $(SRC)/types                        \
     $(SRC)/theatre                      \
 
-THIRDPARTY_SRC_DIRS :=           \
-	$(SRC)/thirdparty/DearImGui  \
-	$(SRC)/thirdparty/glm/detail \
+THIRDPARTY_SRC_DIRS :=                        \
+	$(SRC)/thirdparty/DearImGui               \
+	$(SRC)/thirdparty/DearImGui/misc/freetype \
+	$(SRC)/thirdparty/glm/detail              \
 	$(SRC)/thirdparty/glad
 
 APP_SRC_DIRS :=               \
@@ -160,6 +167,8 @@ export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
 export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
+export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/*.a)
+export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(subst .a,.o,$(ARCHIVES:$(ARCHIVES_DIR)/%=%)))
 export APP_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(APP_SRCS:$(SRC)/%=%)))
 
 export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
@@ -196,8 +205,9 @@ build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
 static: resources
+	$(eval LD_FLAGS =)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
-	$(eval LIBRARY_FLAGS = $(FLAGS_LIB_STATIC))
+	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
@@ -254,9 +264,10 @@ linux: ;@:
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS      = $(LDFLAGS_LINUX))
+	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER  = $(LINUX_CXX))
 	$(eval C_COMPILER    = $(LINUX_CC))
-	$(eval ARCHIVES      = $(ARCHIVES_LINUX))
+	$(eval ARCHIVER      = $(LINUX_AR))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_LINUX))
 
@@ -270,9 +281,10 @@ windows: ;@:
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
 	$(eval LD_FLAGS      = $(LDFLAGS_WINDOWS))
+	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
 	$(eval C_COMPILER    = $(WINDOWS_CC))
-	$(eval ARCHIVES      = $(ARCHIVES_WINDOWS))
+	$(eval ARCHIVER      = $(WINDOWS_AR))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
 	$(eval APP_LD_FLAGS  += -lstdc++exp)
@@ -382,11 +394,17 @@ $(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
 
+# Archive Object Files
+$(BUILD_ARCHIVES)/%.o: $(ARCHIVES_DIR)/%.a | build_dir
+	@ printf "::Compiling $(BOLD)$(BLUE)$@$(NORM)$(GREEN) (Static Library)$(RESET)\n"
+	@ -mkdir -p $(dir $@)
+	@ $(CXX_COMPILER) -r -o $@ -Xlinker --whole-archive $^
+
 # Static Library
-$(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS)
+$(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS) $(AR_OBJS)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
-	@ -mkdir -p $(BUILD_LIBRARY)
-	@ $(AR) -rcT $@ $^ $(ARCHIVES)
+	@ -mkdir -p $(dir $@)
+	@ $(ARCHIVER) rcs $@ $^
 
 # Dynamic Library
 $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS)
