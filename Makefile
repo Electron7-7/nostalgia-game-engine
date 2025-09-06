@@ -1,17 +1,16 @@
 LINUX_CXX := clang++
 LINUX_CC  := clang
+LINUX_AR  := llvm-ar
 
 ifneq ($(OS),Windows_NT)
 	WINDOWS_CXX := x86_64-w64-mingw32-g++
 	WINDOWS_CC  := x86_64-w64-mingw32-gcc
+	WINDOWS_AR  := x86_64-w64-mingw32-ar
 else
 	WINDOWS_CXX := g++
 	WINDOWS_CC  := gcc
+	WINDOWS_AR  := ar
 endif
-
-LINUX_AR := llvm-ar
-# TODO: Figure out if I need a windows-specific 'ar' and what it would be
-WINDOWS_AR := $(LAR)
 
 FLAGS_DEBUG_COMMON    := -g -O0 -D DEBUGGING
 FLAGS_DEBUG_LINUX     := -fsanitize=address
@@ -23,17 +22,19 @@ FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
 FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
 FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -D COMPILING_WINDOWS
+FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 
+# These are only used when linking dynamically
+APP_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
+APP_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
+
 # Archives & Libraries
-ARCHIVES_DIR_LINUX       := src/lib/linux/static
-ARCHIVES_DIR_WINDOWS     := src/lib/windows/static
-DYNAMIC_LIBS_DIR_LINUX   := src/lib/linux/dynamic
-DYNAMIC_LIBS_DIR_WINDOWS := src/lib/windows/dynamic
-DYNAMIC_LIBRARIES        := -lglfw -lbrotlicommon -lbrotlidec -lbrotlienc -lbz2 -lz -lpng -lfreetype
-DYNAMIC_LDFLAGS_LINUX    := -shared -L $(DYNAMIC_LIBS_DIR_LINUX) $(DYNAMIC_LIBRARIES)
-DYNAMIC_LDFLAGS_WINDOWS  := -lstdc++exp -shared --out-implib -L $(DYNAMIC_LIBS_DIR_WINDOWS) $(DYNAMIC_LIBRARIES)
+ARCHIVES_DIR_LINUX       := src/static_libraries/linux
+ARCHIVES_DIR_WINDOWS     := src/static_libraries/windows
+DYNAMIC_LIBRARIES        := -lglfw -lfreetype
+DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
+DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
 
 INCLUDE := -I src -I src/thirdparty -I src/common -I src/thirdparty/FreeType
 
@@ -46,6 +47,7 @@ DIR_LIBRARY   := lib
 DIR_HEADERS   := include
 DIR_OBJS_BASE := .objs
 DIR_DEPS      := .deps
+DIR_ARCHIVES  := .archives
 
 PRETTY_STRING_STATIC  := Static
 PRETTY_STRING_DYNAMIC := Dynamic
@@ -56,7 +58,8 @@ STRING_LIB := lib
 NAME_BASE            := Nostalgia
 NAME_STATIC_LINUX    := .a
 NAME_DYNAMIC_LINUX   := .so
-NAME_STATIC_WINDOWS  := .lib
+# NAME_STATIC_WINDOWS  := .lib
+NAME_STATIC_WINDOWS  := .a
 NAME_DYNAMIC_WINDOWS := .dll
 
 APP_BASE := LibraryTestingApp
@@ -72,7 +75,7 @@ ifneq ($(OS),Windows_NT)
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_LINUX)
-	export APP_LD_FLAGS  ?= -lNostalgia
+	export APP_LD_FLAGS  ?= $(APP_LD_FLAGS_LINUX)
 	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_LINUX)
 	export CXX_COMPILER  ?= $(LINUX_CXX)
 	export C_COMPILER    ?= $(LINUX_CC)
@@ -87,7 +90,7 @@ else # WINDOWS
 	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
 	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
-	export APP_LD_FLAGS  ?= -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp -l:libNostalgia.dll
+	export APP_LD_FLAGS  ?= $(APP_LD_FLAGS_WINDOWS)
 	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER  ?= $(WINDOWS_CXX)
 	export C_COMPILER    ?= $(WINDOWS_CC)
@@ -102,6 +105,7 @@ export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
 export BUILD_LIBRARY  ?= $(BUILD_DIR)/$(DIR_LIBRARY)
 export BUILD_HEADERS  ?= $(BUILD_DIR)/$(DIR_HEADERS)/$(NAME_BASE)
 export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
+export BUILD_ARCHIVES ?= $(BUILD_OBJS)/$(DIR_ARCHIVES)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
 export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
@@ -243,6 +247,7 @@ testapp_static:
 	$(eval LD_FLAGS =)
 	$(eval APP_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
+	$(eval APP_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
@@ -284,7 +289,7 @@ linux: ;@:
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS      = $(DYNAMIC_LDFLAGS_LINUX))
-	$(eval APP_LD_FLAGS  = -L /home/thelegend27/git/nostalgia-game-engine/build/Linux/Release/lib -l$(NAME_BASE))
+	$(eval APP_LD_FLAGS  = $(APP_LD_FLAGS_LINUX))
 	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER  = $(LINUX_CXX))
 	$(eval C_COMPILER    = $(LINUX_CC))
@@ -301,8 +306,8 @@ windows: ;@:
 	$(eval RELEASE_FLAGS = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
 	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
-	$(eval LD_FLAGS      = $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld)
-	$(eval APP_LD_FLAGS  = -L /home/thelegend27/git/nostalgia-game-engine/build/Linux/Release/lib -l$(NAME_BASE) -lstdc++exp -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp)
+	$(eval LD_FLAGS      = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
+	$(eval APP_LD_FLAGS  = $(APP_LD_FLAGS_WINDOWS))
 	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
 	$(eval C_COMPILER    = $(WINDOWS_CC))
