@@ -16,6 +16,11 @@ Resources
         Image = 'src/testing_app/resources/lolbit.png'
     }
 
+    Mesh Doom_Mesh
+    {
+        File = 'src/testing_app/resources/Cube.obj'
+    }
+
     Mesh LolBit_Mesh
     {
         File = 'src/testing_app/resources/Cube.obj'
@@ -45,7 +50,7 @@ Things
 {
     PrototypeActor TestActor
     {
-        PrototypeMeshInstance = <LolBitMeshInstance>
+        MeshInstance = <LolBitMeshInstance>
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
         // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
         GlobalPosition = (1.0)
@@ -61,9 +66,9 @@ Things
         // They begin with the variable name, followed by a colon instead of an equals sign, and then a typical
         // object definition afterwards
         // They are great for when you don't want to define a new object and manually reference it, like in this example:
-        PrototypeMeshInstance : MeshInstance DoomMeshInstance
+        MeshInstance : MeshInstance DoomMeshInstance
         {
-            Mesh = 'src/testing_app/resources/Cube.obj'
+            Mesh = <Doom_Mesh>
             Material = <Doom_Mat>
         }
         GlobalPosition = (-1, 1.0, -2) // An example of all the different number types working together!
