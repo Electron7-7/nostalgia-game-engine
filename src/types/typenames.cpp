@@ -7,12 +7,15 @@ static const std::set<size_t> s_ResourceTypes =
 {
     Type::Mesh,
     Type::Texture,
+    Type::Material,
+    Type::MeshInstance,
 };
 
 static const std::set<size_t> s_ThingTypes =
 {
     Type::Actor,
     Type::NostalgiaPlayer,
+    Type::PrototypeActor,
     Type::Thinker,
 };
 
