@@ -18,19 +18,25 @@ enum class ResourceStatus
 struct Resource
 {
 public:
+    virtual ~Resource() = default;
+
     rid_t GetID() const;
+    size_t GetType() const;
     const std::string& GetName() const;
-    size_t GetType() const; // FIXME: Probably unnecessary
 
     static Resource Empty;
     static constexpr rid_t NoRID = 0;
 
 private:
-    friend struct ResourceHandler;
+    friend class TheatreManager;
 
     rid_t m_ID = Resource::NoRID;
+    size_t m_Type = Type::Resource;
     std::string m_Name = "Untitled Resource";
-    size_t m_Type = Type::Resource; // FIXME: Probably unnecessary
 };
+
+template<typename T>
+concept IsResource = requires
+{ std::derived_from<T, Resource> == true; };
 
 #endif // RESOURCE_H
