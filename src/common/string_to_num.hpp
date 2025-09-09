@@ -2,58 +2,22 @@
 #define STRING_TO_NUM_H
 
 #include <string>
-#include "printing.hpp"
-
 #include <vector>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
-#define INTERPRET_NUMBER_MACRO(STD_FUNCTION)                                    \
-T try_out = 0;                                                                  \
-try                                                                             \
-    { try_out = std::STD_FUNCTION(string); }                                    \
-catch(std::invalid_argument const& exception)                                   \
-    { PRINT_WARNING("A variable tried to interpret '{}' as a number", string) } \
-return try_out;
-
-template<typename T>
-concept SignedNumber = std::is_integral_v<std::decay_t<T>> && std::is_signed_v<T>;
-
-template<typename T>
-concept UnsignedNumber = std::is_unsigned_v<std::decay_t<T>>;
-
-template<typename T>
-concept RealNumber = std::is_floating_point_v<std::decay_t<T>>;
-
-template<SignedNumber T>
-T InterpretNumber(const std::string& string)
-{
-    INTERPRET_NUMBER_MACRO(stol)
-}
-
-template<UnsignedNumber T>
-T InterpretNumber(const std::string& string)
-{
-    INTERPRET_NUMBER_MACRO(stoul)
-}
-
-template<RealNumber T>
-T InterpretNumber(const std::string& string)
-{
-    INTERPRET_NUMBER_MACRO(stod)
-}
-
-template<typename T>
-T StringToNum(const std::string& string)
-{
-    return InterpretNumber<T>(string);
-}
+#define INTERPRET_NUMBER_MACRO(STD_FUNCTION, VARIABLE, STRING)              \
+T new_value = 0;                                                            \
+try                                                                         \
+    { new_value = std::STD_FUNCTION(STRING); }                              \
+catch(std::invalid_argument const& exception)                               \
+    { return false; }                                                       \
+VARIABLE = new_value;                                                       \
+return true;
 
 // Fuck you, I'm tired...
 #define INTERPRET_GLM_MACRO(GLM, SIZE)                              \
-GLM StringToNum(const std::string& string)                          \
-{                                                                   \
     GLM output = GLM();                                             \
     std::vector<float> numbers = {};                                \
     std::string buffer = "";                                        \
@@ -65,7 +29,10 @@ GLM StringToNum(const std::string& string)                          \
         {                                                           \
         case ',':                                                   \
             if(++index < (SIZE - 1))                                \
-                { output[index] = InterpretNumber<float>(buffer); } \
+            {                                                       \
+                if(!InterpretNumber<float>(output[index], buffer))  \
+                    { return false; }                               \
+            }                                                       \
             buffer.clear();                                         \
             [[fallthrough]];                                        \
         case ' ':                                                   \
@@ -75,18 +42,47 @@ GLM StringToNum(const std::string& string)                          \
             continue;                                               \
         }                                                           \
     }                                                               \
-    output[SIZE - 1] = InterpretNumber<float>(buffer);              \
-    return output;                                                  \
-}
+    if(!InterpretNumber<float>(output[SIZE - 1], buffer))           \
+        { return false; }                                           \
+    variable = output;                                              \
+    return true;
+
+template<typename T>
+concept SignedNumber = std::is_integral_v<std::decay_t<T>> && std::is_signed_v<T>;
+
+template<typename T>
+concept UnsignedNumber = std::is_unsigned_v<std::decay_t<T>>;
+
+template<typename T>
+concept RealNumber = std::is_floating_point_v<std::decay_t<T>>;
+
+template<SignedNumber T>
+bool InterpretNumber(T& number, const std::string& string)
+{ INTERPRET_NUMBER_MACRO(stol, number, string) }
+
+template<UnsignedNumber T>
+bool InterpretNumber(T& number, const std::string& string)
+{ INTERPRET_NUMBER_MACRO(stoul, number, string) }
+
+template<RealNumber T>
+bool InterpretNumber(T& number, const std::string& string)
+{ INTERPRET_NUMBER_MACRO(stod, number, string) }
+
+template<typename T>
+bool StringToNum(T& variable, const std::string& string)
+{ return InterpretNumber<T>(variable, string); }
 
 template<>
-INTERPRET_GLM_MACRO(glm::vec2, 2)
+inline bool StringToNum(glm::vec2& variable, const std::string& string)
+{ INTERPRET_GLM_MACRO(glm::vec2, 2) }
 
 template<>
-INTERPRET_GLM_MACRO(glm::vec3, 3)
+inline bool StringToNum(glm::vec3& variable, const std::string& string)
+{ INTERPRET_GLM_MACRO(glm::vec3, 3) }
 
 template<>
-INTERPRET_GLM_MACRO(glm::quat, 4)
+inline bool StringToNum(glm::quat& variable, const std::string& string)
+{ INTERPRET_GLM_MACRO(glm::quat, 4) }
 
 
 #endif // STRING_TO_NUM_H
