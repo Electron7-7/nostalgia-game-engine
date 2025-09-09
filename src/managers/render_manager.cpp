@@ -3,7 +3,6 @@
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
-#include "debug.hpp"
 
 // #include <cmath>
 
@@ -41,12 +40,10 @@ void RenderManager::Update()
         return;
     }
 
-    DEBUG(StopwatchLog& render_update_stopwatch = g_pDebugger->StartStopwatch("RenderManager::Update - In level");)
     g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     // g_pTheatreManager->RenderWorld();
     g_pUIManager->DrawUI();
     g_pBackendManager->GetWindowingBackend()->SwapBuffers();
-    DEBUG(g_pDebugger->StopStopwatch(render_update_stopwatch);)
 }
 
 // FIXME: Replace with functions for better control over view distance & near-clip distance
