@@ -332,6 +332,10 @@ void TheatreManager::SetVariables(size_t type, rid_t id, const data_t& data)
         {
             SetVariables(Type::Actor, id, data);
 
+            NostalgiaPlayer* thing = std::dynamic_pointer_cast<NostalgiaPlayer>(s_Things.at(id)).get();
+
+            thing->GetCamera()->m_Origin   = thing->m_Origin;
+            thing->GetCamera()->m_Rotation = thing->m_Rotation;
             break;
         }
     case Type::PrototypeActor:
