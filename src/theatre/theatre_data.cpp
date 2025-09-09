@@ -2,8 +2,6 @@
 #include "string_to_num.hpp"
 #include "types/typenames.hpp"
 
-#include <set>
-
 // Variable
 
 const variable_t variable_t::undefined = variable_t();
@@ -14,7 +12,7 @@ variable_t::variable_t(const std::string& name, const std::string& value, const 
 : m_Name(name), m_Value(value), m_Type(type) {}
 
 variable_t::variable_t(const std::string& name)
-: variable_t(name, "N/A", VariableType::Default)
+: variable_t(name, "", VariableType::Default)
 {}
 
 const std::string& variable_t::Name() const
@@ -55,10 +53,10 @@ void data_t::UpdateTheatreReferences(const std::map<std::string, unsigned int>& 
 {
     for(variable_t& variable : m_Variables)
     {
+        if(variable.m_Type != VariableType::TheatreRef)
+            { continue; }
         if(ids.contains(variable.m_Value))
-        {
-            variable.m_Value = std::to_string(ids.at(variable.m_Value));
-        }
+            { variable.m_Value = std::to_string(ids.at(variable.m_Value)); }
     }
 }
 
@@ -97,26 +95,36 @@ void data_t::clear()
 
 #define EARLY_RETURN_MACRO(VAR_NAME) \
 auto VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
-if(VAR_NAME == m_Variables.end()) \
+if(VAR_NAME == m_Variables.end() || variable->m_Value.empty()) \
     { return false; }
 
 bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& variable_name) const
 {
     EARLY_RETURN_MACRO(variable)
-    real_variable = StringToNum<unsigned int>(variable->m_Value);
-    return true;
+    return StringToNum<unsigned int>(real_variable, variable->m_Value);
 }
 
 bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const
 {
     EARLY_RETURN_MACRO(variable)
-    real_variable = variable->m_Value.compare("true");
-    return true;
+    if(!variable->m_Value.compare("true"))
+    {
+        real_variable = true;
+        return true;
+    }
+    else if(!variable->m_Value.compare("false"))
+    {
+        real_variable = false;
+        return true;
+    }
+    return false;
 }
 
 bool data_t::GetString(std::string& real_variable, const std::string& variable_name) const
 {
     EARLY_RETURN_MACRO(variable)
+    if(variable->m_Value.empty())
+        { return false; }
     real_variable = variable->m_Value;
     return true;
 }
@@ -125,45 +133,39 @@ bool data_t::GetString(std::string& real_variable, const std::string& variable_n
 
 const TheatreData TheatreData::Missing;
 
-const std::vector<data_t>& TheatreData::GetThings() const
-{ return m_Things; }
-
-const std::vector<data_t>& TheatreData::GetResources() const
-{ return m_Resources; }
+const std::vector<data_t>& TheatreData::GetData() const
+{ return m_Data; }
 
 SafeStatus TheatreData::AddData(const data_t& data)
 {
-    switch(GetBaseType(data.GetType()))
-    {
-    case BaseType::Invalid:
-        return Status::TheatreDataINVALID_TYPE;
-    case BaseType::Resource:
-        m_Resources.push_back(data);
-        break;
-    case BaseType::Thing:
-        m_Things.push_back(data);
-        break;
-    }
+    // switch(GetBaseType(data.GetType()))
+    // {
+    // case BaseType::Invalid:
+    //     return Status::TheatreDataINVALID_TYPE;
+    // case BaseType::Resource:
+    //     m_Resources.push_back(data);
+    //     break;
+    // case BaseType::Thing:
+    //     m_Things.push_back(data);
+    //     break;
+    // }
+    if(GetBaseType(data.GetType()) == BaseType::Invalid)
+        { return Status::TheatreDataINVALID_TYPE; }
+    m_Data.push_back(data);
     return Status::NO_ERR;
 }
 
 void TheatreData::clear()
-{
-    m_Things.clear();
-    m_Resources.clear();
-}
+{ m_Data.clear(); }
 
 #ifdef DEBUGGING
 void TheatreData::debug_PrintData()
 {
     PRINT_DEBUG("Parsed Theatre Data Printout:")
 
-    std::set<data_t> temp_data(m_Things.cbegin(), m_Things.cend());
-    temp_data.insert(m_Resources.cbegin(), m_Resources.cend());
-
-    for(const auto& data : temp_data)
+    for(const auto& data : m_Data)
     {
-        std::print("[{},{}] {}:\n", data.m_Type, data.m_Type, data.m_Name);
+        std::print("({}) {}:\n", StringifyType(data.m_Type), data.m_Name);
 
         const std::vector<variable_t>& variables = data.m_Variables;
         for(const variable_t& variable : variables)

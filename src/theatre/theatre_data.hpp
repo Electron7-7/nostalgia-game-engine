@@ -5,6 +5,7 @@
 #include "hash.hpp"
 #include "theatre/engine_reference.hpp"
 #include "types/typenames.hpp"
+#include "string_to_num.hpp"
 
 #include <any>
 #include <map>
@@ -64,7 +65,7 @@ private:
     variable_t(const std::string& Name);
 
     std::string  m_Name  = "Untitled";
-    std::string  m_Value = "N/A";
+    std::string  m_Value = "";
     VariableType m_Type  = VariableType::Default;
 
     void clear(); // TODO: Maybe make this public?
@@ -99,7 +100,7 @@ public:
     bool GetEngineRef(T& real_variable, const std::string& variable_name) const
     {
         auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
-        if(variable == m_Variables.end())
+        if(variable == m_Variables.end() || variable->m_Value.empty())
             { return false; }
 
         SafeReturn<std::any> reference = try_GetEngineReference(variable->m_Value);
@@ -128,7 +129,7 @@ public:
         if(variable == m_Variables.end())
             { return false; }
 
-        real_variable = StringToNum<T>(variable->m_Value);
+        StringToNum<T>(real_variable, variable->m_Value);
         return true;
     }
 
@@ -156,8 +157,7 @@ struct TheatreData
     std::string m_Name = "Untitled Theatre";
     long m_Index = -1; // FIXME: Make this not a magic number
 
-    const std::vector<data_t>& GetThings() const;
-    const std::vector<data_t>& GetResources() const;
+    const std::vector<data_t>& GetData() const;
 
     SafeStatus AddData(const data_t& Data);
 
@@ -168,8 +168,7 @@ struct TheatreData
 #endif // DEBUGGING
 
 private:
-    std::vector<data_t> m_Things;
-    std::vector<data_t> m_Resources;
+    std::vector<data_t> m_Data;
 };
 
 #endif // THEATRE_DATA_H
