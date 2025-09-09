@@ -143,6 +143,7 @@ SRC_DIRS :=                             \
     $(SRC)/settings                     \
     $(SRC)/types                        \
     $(SRC)/theatre                      \
+    $(SRC)/things                       \
     $(SRC)/things/actors
 
 THIRDPARTY_SRC_DIRS :=                        \
