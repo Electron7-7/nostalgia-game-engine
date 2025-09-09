@@ -66,21 +66,20 @@ struct Status
     inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0xC,  "CommandLineINVALID_COMMAND"             );
     inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0xD,  "KeyBindsKEY_HAS_NO_BINDS"               );
     inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0xE,  "SettingsINVALID_SETTING_NAME"           );
-    inline static SafeStatus ResourceHandlerINVALID_RESOURCE_ID     = SafeStatus( 0xF,  "ResourceHandlerINVALID_RESOURCE_ID"     );
-    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0x10, "DataTypeINVALID_VARIABLE_NAME"          );
-    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x11, "DataTypeEMPTY_VARIABLE"                 );
-    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x12, "TheatreParserFILE_DOES_NOT_EXIST"       );
-    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x13, "TheatreParserWRONG_FILE_EXTENSION"      );
-    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x14, "TheatreParserNO_THEATRE_LOADED"         );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x15, "TheatreParserMISSING_THEATRE_NAME"      );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x16, "TheatreParserMISSING_THEATRE_INDEX"     );
-    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x17, "TheatreDataINVALID_TYPE"                );
-    inline static SafeStatus MeshUNKNOWN_FILETYPE                   = SafeStatus( 0x18, "MeshUNKNOWN_FILETYPE"                   );
-    inline static SafeStatus MeshFAILED_TO_LOAD_OBJ                 = SafeStatus( 0x19, "MeshFAILED_TO_LOAD_OBJ"                 );
-    inline static SafeStatus FilesystemINVALID_PATH                 = SafeStatus( 0x20, "FilesystemINVALID_PATH"                 );
-    inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x21, "FilesystemFILE_READ_ERROR"              );
-    inline static SafeStatus TextureIMAGE_FILE_FAILED_TO_LOAD       = SafeStatus( 0x22, "TextureIMAGE_FILE_FAILED_TO_LOAD"       );
-    inline static SafeStatus EngineReferenceINVALID_REFERENCE       = SafeStatus( 0x23, "EngineReferenceINVALID_REFERENCE"       );
+    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0xF,  "DataTypeINVALID_VARIABLE_NAME"          );
+    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x10, "DataTypeEMPTY_VARIABLE"                 );
+    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x11, "TheatreParserFILE_DOES_NOT_EXIST"       );
+    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x12, "TheatreParserWRONG_FILE_EXTENSION"      );
+    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x13, "TheatreParserNO_THEATRE_LOADED"         );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x14, "TheatreParserMISSING_THEATRE_NAME"      );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x15, "TheatreParserMISSING_THEATRE_INDEX"     );
+    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x16, "TheatreDataINVALID_TYPE"                );
+    inline static SafeStatus MeshUNKNOWN_FILETYPE                   = SafeStatus( 0x17, "MeshUNKNOWN_FILETYPE"                   );
+    inline static SafeStatus MeshFAILED_TO_LOAD_OBJ                 = SafeStatus( 0x18, "MeshFAILED_TO_LOAD_OBJ"                 );
+    inline static SafeStatus FilesystemINVALID_PATH                 = SafeStatus( 0x19, "FilesystemINVALID_PATH"                 );
+    inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x20, "FilesystemFILE_READ_ERROR"              );
+    inline static SafeStatus TextureIMAGE_FILE_FAILED_TO_LOAD       = SafeStatus( 0x21, "TextureIMAGE_FILE_FAILED_TO_LOAD"       );
+    inline static SafeStatus EngineReferenceINVALID_REFERENCE       = SafeStatus( 0x22, "EngineReferenceINVALID_REFERENCE"       );
 };
 
 template<typename T>
