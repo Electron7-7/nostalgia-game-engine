@@ -5,7 +5,9 @@
 
 class Thinker : public Thing
 {
-
+public:
+    virtual bool Initialize() { return true; }
+    virtual void Destroy() {}
 };
 
 #endif // THINKER_H

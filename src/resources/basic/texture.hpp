@@ -20,7 +20,7 @@ public:
     const BinaryFileData& GetData() const;
 
 private:
-    friend struct ResourceHandler;
+    friend class TheatreManager;
     Texture(const BinaryFileData& Data);
 
     ResourceStatus m_TextureDataStatus = ResourceStatus::NOT_PROCESSED;

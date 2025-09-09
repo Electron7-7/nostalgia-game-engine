@@ -38,7 +38,7 @@ public:
     static void GetVertexData(std::vector<Vertex>* Vertices, std::vector<float>* VertexData);
 
 private:
-    friend struct ResourceHandler;
+    friend class TheatreManager;
     Mesh(const std::string& EngineModelData, ModelType FileType);
 
     ResourceStatus m_MeshDataStatus = ResourceStatus::NOT_PROCESSED;
