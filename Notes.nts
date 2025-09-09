@@ -429,3 +429,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 Hell yeah! Time to test this shit!
 
 Aight, it *should* work; wine shit, again. Time to push this shit.
+
+[09/08/25]
+Okay, I'm gonna try to merge 'ResourceHandler' into 'TheatreManager' and try to implement 'Thing' interpreting into the current functions.
+
+!!!IMPORTANT!!!
+Render commands will have mesh/texture IDs, and the backend will do something unique with them. In OpenGL's case, it'll store vertex/index offset values in a struct that's mapped to its mesh's ID (same thing for textures, except it's the texture's OpenGL ID that gets mapped to the texture's ID).
