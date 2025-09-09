@@ -1,31 +1,46 @@
 #include "imgui_debugger.hpp"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "resources/complex/mesh_instance.hpp"
+#include "things/actors/prototype_actor.hpp"
+
+using namespace ImGui;
+
+static imgui_Debugger s_Debugger;
+imgui_Debugger* g_pDebugger = &s_Debugger;
+
+#ifndef DEBUGGING
+void imgui_Debugger::Update()
+{
+    static bool show_demo_window = false;
+    if(show_demo_window)
+        { ShowDemoWindow(&show_demo_window); }
+
+    if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
+    {
+        if(BeginMenuBar())
+        {
+            if(BeginMenu("ImGui"))
+            {
+                if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
+                    { show_demo_window = true; }
+                EndMenu();
+            }
+            EndMenuBar();
+            Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
+        }
+    }
+    End();
+}
+#else  // DEBUGGING
 #include "time.hpp"
 #include "managers/backend_manager.hpp"
 #include "theatre/theatre_parser.hpp"
+#include "managers/theatre_manager.hpp"
 #include "settings/settings.hpp"
-#include "thirdparty/DearImGui/imgui.h"
-#include "thirdparty/DearImGui/imgui_stdlib.h"
 
 #include <set>
 #include <random>
-
-// #define MAN_STOPWATCH_INIT_POS_SIZE                   \
-// SetNextWindowPos ({20,60},   ImGuiCond_FirstUseEver); \
-// SetNextWindowSize({380,299}, ImGuiCond_FirstUseEver);
-
-// #define AUTO_STOPWATCH_INIT_POS_SIZE                  \
-// SetNextWindowPos ({410,60},  ImGuiCond_FirstUseEver); \
-// SetNextWindowSize({470,610}, ImGuiCond_FirstUseEver);
-
-// #define GEN_DEBUG_INIT_POS_SIZE                       \
-// SetNextWindowPos ({20,372},  ImGuiCond_FirstUseEver); \
-// SetNextWindowSize({380,299}, ImGuiCond_FirstUseEver);
-
-// #define THEATRE_DEBUG_INIT_POS_SIZE                   \
-// SetNextWindowPos ({890,60},  ImGuiCond_FirstUseEver); \
-// SetNextWindowSize({370,610}, ImGuiCond_FirstUseEver);
-
-using namespace ImGui;
 
 static std::random_device s_RandomDevice;
 
@@ -39,15 +54,11 @@ static std::vector<StopwatchLog> s_ManualStopwatchLogs = {};
 static std::vector<StopwatchLog> s_StopwatchLogs = {};
 static std::set<int>             s_StopwatchLogIds = {};
 
-static imgui_Debugger s_Debugger;
-imgui_Debugger* g_pDebugger = &s_Debugger;
-
-#ifdef DEBUGGING
-    static void s_AutomaticStopwatchWindow(float);
-    static void s_ManualStopwatchWindow(float);
-    static void s_GeneralDebuggingWindow();
-    static void s_TheatreDebuggingWindow();
-#endif // DEBUGGING
+static void s_AutomaticStopwatchWindow(float);
+static void s_ManualStopwatchWindow(float);
+static void s_GeneralDebuggingWindow();
+static void s_TheatreDebuggingWindow();
+static void s_InspectTheatreWindow(bool* is_active);
 
 void s_HandleAutomaticStopwatchToggle()
 {
@@ -178,6 +189,8 @@ void imgui_Debugger::StartTheatreTiming(bool loading)
     }
     else
     {
+        if(s_TheatreLogs.empty())
+            { return; }
         TheatreLog& log = s_TheatreLogs.back();
         log.m_UnloadTime.Start();
         if(log.m_LoadTime.IsRunning())
@@ -187,6 +200,8 @@ void imgui_Debugger::StartTheatreTiming(bool loading)
 
 void imgui_Debugger::StopTheatreTiming(bool loading)
 {
+    if(s_TheatreLogs.empty())
+        { return; }
     TheatreLog& log = s_TheatreLogs.back();
     if(loading)
         { log.m_LoadTime.Stop(); }
@@ -194,7 +209,6 @@ void imgui_Debugger::StopTheatreTiming(bool loading)
         { log.m_UnloadTime.Stop(); }
 }
 
-#ifdef DEBUGGING
 static void s_PrintStopwatchLog(const StopwatchLog& stopwatch, size_t i)
 {
     if(!stopwatch.IsFinished())
@@ -293,12 +307,10 @@ static void s_ManualStopwatchWindow(float width)
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
-#   ifdef DEBUGGING
-        if(Button("Toggle Frame Number Printouts"))
-            { g_PrintFrameNumbers = !g_PrintFrameNumbers; }
-        if(Button("Toggle Tick Number Printouts"))
-            { g_PrintTickNumbers = !g_PrintTickNumbers; }
-#   endif // DEBUGGING
+    if(Button("Toggle Frame Number Printouts"))
+        { g_PrintFrameNumbers = !g_PrintFrameNumbers; }
+    if(Button("Toggle Tick Number Printouts"))
+        { g_PrintTickNumbers = !g_PrintTickNumbers; }
 
     Text("%s", "Settings");
     Separator();
@@ -320,25 +332,48 @@ static void s_GeneralDebuggingWindow()
 static void s_TheatreDebuggingWindow()
 {
     BeginChild("Theatre Debugging");
-#   ifdef DEBUGGING
-        Text("Theatre File Parser Breakpoint:");
-        PushItemWidth(82.0f);
-        InputInt("Line", &g_BreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-        InputInt("Column", &g_BreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-        PushItemWidth(0.0f);
-        Separator();
-#   endif // DEBUGGING
+    Text("Theatre File Parser Breakpoint:");
+    PushItemWidth(82.0f);
+    InputInt("Line", &g_BreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    InputInt("Column", &g_BreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    PushItemWidth(0.0f);
+    Separator();
 
     InputText("Theatre File", &s_TheatreFilePath);
 
+    if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+        { BeginDisabled(); }
     if(Button("Load Theatre"))
     {
         s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
         if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
             { _Manager::StartNewTheatre(); }
     }
+    if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+        { EndDisabled(); }
+
+    if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+        { BeginDisabled(); }
     if(Button("Exit Theatre"))
         { _Manager::ShutdownTheatre(); }
+    if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+        { EndDisabled(); }
+
+    static bool s_TheatreInspectorActive = false;
+    bool not_in_level = (_Manager::GetTheatreState() == ManagerEnums::NOT_IN_LEVEL);
+
+    if(not_in_level)
+    {
+        BeginDisabled();
+        s_TheatreInspectorActive = false;
+    }
+    if(Button("Inspect Theatre"))
+        { s_TheatreInspectorActive = !s_TheatreInspectorActive; }
+
+    if(s_TheatreInspectorActive)
+        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
+    if(not_in_level)
+        { EndDisabled(); }
 
     if(Button("Clear Logs"))
         { s_TheatreLogs.clear(); }
@@ -362,6 +397,69 @@ static void s_TheatreDebuggingWindow()
         }
     }
     EndChild();
+}
+
+void s_InspectTheatreWindow(bool* is_active)
+{
+    if(Begin("Theatre Inspector", is_active))
+    {
+        if(BeginTabBar("TheatreInspectorTabs"))
+        {
+            if(BeginTabItem("Resources"))
+            {
+                const std::map<id_t, std::shared_ptr<Resource>>& resources = TheatreManager::debug_GetResources();
+                for(const auto& [id, resource] : resources)
+                {
+                    Button(resource->GetName().c_str(), {0.0f, 20.0f});
+                    if(IsItemHovered())
+                    {
+                        BeginTooltip();
+                            switch(resource->GetType())
+                            {
+                            case Type::MeshInstance:
+                                Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(resource)->GetMesh());
+                                Text("Material: %u", dynamic_pointer_cast<MeshInstance>(resource)->GetMaterial());
+                                break;
+                            default:
+                                break;
+                            }
+                            Text("Name: %s", resource->GetName().c_str());
+                            Text("ID: %u", resource->GetID());
+                            Text("TypeName: %s", StringifyType(resource->GetType()));
+                        EndTooltip();
+                    }
+                }
+                EndTabItem();
+            }
+            if(BeginTabItem("Things"))
+            {
+                const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::debug_GetThings();
+                for(const auto& [id, thing] : things)
+                {
+                    Button(thing->GetName().c_str(), {0.0f, 20.0f});
+                    if(IsItemHovered())
+                    {
+                        BeginTooltip();
+                            switch(thing->GetType())
+                            {
+                            case Type::PrototypeActor:
+                                Text("MeshInstance: %u", dynamic_pointer_cast<PrototypeActor>(thing)->GetMeshInstance());
+                                break;
+                            default:
+                                break;
+                            }
+                            Text("Name: %s", thing->GetName().c_str());
+                            Text("ID: %u", thing->GetID());
+                            Text("TypeName: %s", StringifyType(thing->GetType()));
+                        EndTooltip();
+                    }
+                }
+                EndTabItem();
+            }
+        }
+        EndTabBar();
+    }
+    End();
 }
 
 void imgui_Debugger::Update()
@@ -428,27 +526,4 @@ void imgui_Debugger::Update()
     }
     End();
 }
-#else  // !DEBUGGING
-void imgui_Debugger::Update()
-{
-    static bool show_demo_window = false;
-    if(show_demo_window)
-        { ShowDemoWindow(&show_demo_window); }
-
-    if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
-    {
-        if(BeginMenuBar())
-        {
-            if(BeginMenu("ImGui"))
-            {
-                if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                    { show_demo_window = true; }
-                EndMenu();
-            }
-            EndMenuBar();
-            Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
-        }
-    }
-    End();
-}
-#endif // DEBUGGING
+#endif // !DEBUGGING
