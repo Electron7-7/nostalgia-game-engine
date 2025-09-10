@@ -139,7 +139,7 @@ SRC_DIRS :=                             \
     $(SRC)/resources                    \
     $(SRC)/resources/basic              \
     $(SRC)/resources/complex            \
-    $(SRC)/resources/engine             \
+    $(SRC)/resources/data               \
     $(SRC)/settings                     \
     $(SRC)/types                        \
     $(SRC)/theatre                      \
@@ -160,7 +160,7 @@ APP_SRC_DIRS :=               \
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-RESOURCES_DIR := $(SRC)/resources/engine_sources
+RESOURCES_DIR := $(SRC)/resources/data_sources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 

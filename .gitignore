@@ -12,7 +12,7 @@ build/
 compile_commands.json
 
 # embedded resources
-src/resources/engine/
+src/resources/data/
 
 # misc files
 imgui.ini
