@@ -85,8 +85,11 @@ IMAGES_CPP   := $(EMBED_DIR)/images.cpp
 
 .PHONY: all build clean shaders fonts glsl models images
 
-all: shaders models images fonts
+all: build shaders models images fonts
 	@ printf "$(DEFAULT)::Engine Resource Data Directory - $(GREEN)$(EMBED_DIR_ABSOLUTE)$(RESET)\n"
+
+build: ;@:
+	@ -mkdir -p $(EMBED_DIR)
 
 clean: clean_glsl clean_fonts clean_models clean_images ;@:
 
