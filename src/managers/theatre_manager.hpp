@@ -19,8 +19,53 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
-    template<IsResource T> static std::shared_ptr<T> GetResource(rid_t id);
-    template<IsThing T>    static std::shared_ptr<T> GetThing(tid_t id);
+    // FIXME: Refactor this to be more efficient
+    template<IsResource T>
+    static std::shared_ptr<T> GetResource(id_t id)
+    {
+        WAIT(s_AreResourcesLocked, 10.0f);
+        s_AreResourcesLocked = true;
+
+        if(!s_Resources.contains(id))
+        {
+            PRINT_WARNING("TheatreManager::GetResource - Bad ID: '{}'", id);
+            return std::make_shared<T>();
+        }
+
+        auto try_Downcast = std::dynamic_pointer_cast<T>(s_Resources.at(id));
+        if(!try_Downcast)
+        {
+            PRINT_WARNING("'Resource' downcast attempted with a non-'Resource' class")
+            return std::make_shared<T>();
+        }
+
+        s_AreResourcesLocked = false;
+        return try_Downcast;
+    }
+
+    // FIXME: Refactor this to be more efficient
+    template<IsThing T>
+    static std::shared_ptr<T> GetThing(id_t id)
+    {
+        WAIT(s_AreThingsLocked, 10.0f);
+        s_AreThingsLocked = true;
+
+        if(!s_Things.contains(id))
+        {
+            PRINT_WARNING("TheatreManager::GetThing - Bad ID: '{}'", id);
+            return std::make_shared<T>();
+        }
+
+        auto try_Downcast = std::dynamic_pointer_cast<T>(s_Things.at(id));
+        if(!try_Downcast)
+        {
+            PRINT_WARNING("'Thing' downcast attempted with a non-'Thing' class")
+            return std::make_shared<T>();
+        }
+
+        s_AreThingsLocked = false;
+        return try_Downcast;
+    }
 
     static NostalgiaPlayer* GetLocalPlayer();
 

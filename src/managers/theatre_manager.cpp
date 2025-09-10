@@ -41,19 +41,6 @@ bool TheatreManager::s_AreThingsLocked    = false;
 std::map<id_t, std::shared_ptr<Thing>>    TheatreManager::s_Things    = {};
 std::map<id_t, std::shared_ptr<Resource>> TheatreManager::s_Resources = {};
 
-template std::shared_ptr<Resource>     TheatreManager::GetResource(rid_t);
-template std::shared_ptr<Mesh>         TheatreManager::GetResource(rid_t);
-template std::shared_ptr<Texture>      TheatreManager::GetResource(rid_t);
-template std::shared_ptr<MeshInstance> TheatreManager::GetResource(rid_t);
-template std::shared_ptr<Material>     TheatreManager::GetResource(rid_t);
-
-template std::shared_ptr<Thing>           TheatreManager::GetThing(rid_t);
-template std::shared_ptr<Thinker>         TheatreManager::GetThing(rid_t);
-template std::shared_ptr<Actor>           TheatreManager::GetThing(rid_t);
-template std::shared_ptr<Camera3D>        TheatreManager::GetThing(rid_t);
-template std::shared_ptr<NostalgiaPlayer> TheatreManager::GetThing(rid_t);
-template std::shared_ptr<PrototypeActor>  TheatreManager::GetThing(rid_t);
-
 void TheatreManager::Update()
 {
 #ifdef DEBUGGING
@@ -401,53 +388,6 @@ void TheatreManager::SetVariables(size_t type, rid_t id, const data_t& data)
     }
 }
 
-// FIXME: Refactor this to be more efficient
-template<IsResource T>
-std::shared_ptr<T> TheatreManager::GetResource(rid_t id)
-{
-    WAIT(s_AreResourcesLocked, 10.0f);
-    s_AreResourcesLocked = true;
-
-    if(!s_Resources.contains(id))
-    {
-        PRINT_WARNING("TheatreManager::GetResource - Bad ID: '{}'", id);
-        return std::make_shared<T>();
-    }
-
-    auto try_Downcast = std::dynamic_pointer_cast<T>(s_Resources.at(id));
-    if(!try_Downcast)
-    {
-        PRINT_WARNING("'Resource' downcast attempted with a non-'Resource' class")
-        return std::make_shared<T>();
-    }
-
-    s_AreResourcesLocked = false;
-    return try_Downcast;
-}
-
-// FIXME: Refactor this to be more efficient
-template<IsThing T>
-std::shared_ptr<T> TheatreManager::GetThing(tid_t id)
-{
-    WAIT(s_AreThingsLocked, 10.0f);
-    s_AreThingsLocked = true;
-
-    if(!s_Things.contains(id))
-    {
-        PRINT_WARNING("TheatreManager::GetThing - Bad ID: '{}'", id);
-        return std::make_shared<T>();
-    }
-
-    auto try_Downcast = std::dynamic_pointer_cast<T>(s_Things.at(id));
-    if(!try_Downcast)
-    {
-        PRINT_WARNING("'Thing' downcast attempted with a non-'Thing' class")
-        return std::make_shared<T>();
-    }
-
-    s_AreThingsLocked = false;
-    return try_Downcast;
-}
 
 #ifdef DEBUGGING
     const std::map<id_t, std::shared_ptr<Thing>>& TheatreManager::debug_GetThings()
