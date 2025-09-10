@@ -58,9 +58,7 @@ public:
     { return !m_Name.compare(Compare); }
 
 private:
-#ifdef DEBUGGING
     friend struct TheatreData;
-#endif // DEBUGGING
     friend struct data_t;
     variable_t(const std::string& Name);
 
@@ -109,11 +107,7 @@ public:
     const bool operator<(const data_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
-#ifdef DEBUGGING
     friend struct TheatreData;
-#endif // DEBUGGING
-    data_t(const std::string& Name, const std::string& Type);
-
     std::vector<variable_t> m_Variables = {};
     std::string m_Name = "Untitled";
     std::string m_TypeName = "Invalid";
