@@ -24,10 +24,8 @@ static std::vector<RenderCommand> s_RenderCommandQueue = {};
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
-// bool TheatreManager::s_AreResourcesLocked = false;
 bool TheatreManager::s_AreThingsLocked    = false;
 std::map<id_t, std::shared_ptr<Thing>>    TheatreManager::s_Things    = {};
-// std::map<id_t, std::shared_ptr<Resource>> TheatreManager::s_Resources = {};
 
 void TheatreManager::Update()
 {
@@ -90,7 +88,6 @@ void TheatreManager::CreateObjects()
 
     WAIT(s_AreThingsLocked, 1.0f)
     s_AreThingsLocked = true;
-    // s_AreResourcesLocked = true;
 
     for(data_t& data : theatre_data)
     {
@@ -103,7 +100,6 @@ void TheatreManager::CreateObjects()
         thing->SetupVariables(data);
     }
 
-    // s_AreResourcesLocked = false;
     s_AreThingsLocked = false;
 }
 
@@ -111,27 +107,11 @@ void TheatreManager::DestroyObjects()
 {
     WAIT((s_AreThingsLocked), 1.0f)
     s_AreThingsLocked = true;
-    // s_AreResourcesLocked = true;
 
     s_Things.clear();
-    // s_Resources.clear();
 
-    // s_AreResourcesLocked = false;
     s_AreThingsLocked = false;
 }
-
-/*bool TheatreManager::try_DestroyResource(id_t resource_id)
-{
-    WAIT(s_AreResourcesLocked, 10.0f)
-
-    s_AreResourcesLocked = true;
-
-    if(!s_Resources.contains(resource_id))
-        { return false; }
-
-    s_AreResourcesLocked = false;
-    return true;
-}*/
 
 bool TheatreManager::try_DestroyThing(id_t thing_id)
 {
@@ -151,7 +131,4 @@ bool TheatreManager::try_DestroyThing(id_t thing_id)
 #ifdef DEBUGGING
     const std::map<id_t, std::shared_ptr<Thing>>& TheatreManager::debug_GetThings()
     { return s_Things; }
-
-    // const std::map<id_t, std::shared_ptr<Resource>>& TheatreManager::debug_GetResources()
-    // { return s_Resources; }
 #endif // DEBUGGING
