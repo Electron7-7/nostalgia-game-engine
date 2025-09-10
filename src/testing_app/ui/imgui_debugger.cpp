@@ -33,6 +33,10 @@ void imgui_Debugger::Update()
     if(show_demo_window)
         { ShowDemoWindow(&show_demo_window); }
 
+    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
+        { show_demo_window = !show_demo_window; }
+
+    SetNextWindowSize({875,128}, ImGuiCond_Once);
     if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
@@ -438,9 +442,12 @@ void imgui_Debugger::Update()
     if(show_demo_window)
         { ShowDemoWindow(&show_demo_window); }
 
+    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
+        { show_demo_window = !show_demo_window; }
+
     static bool s_PopOutStopwatches = false;
 
-    SetNextWindowSize({840,480}, ImGuiCond_FirstUseEver);
+    SetNextWindowSize({840,480}, ImGuiCond_Once);
     if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
