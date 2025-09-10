@@ -3,9 +3,8 @@
 #include "to_lower.hpp"
 #include "filesystem/filesystem.hpp"
 
-#include <set>
-#include <fstream>
 #include <string>
+#include <set>
 
 // NOTE: Yes, this is stupid. Too bad!
 #ifdef DEBUGGING
@@ -117,15 +116,9 @@ SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_fil
 {
     if(!Filesystem::IsFile(theatre_file))
         { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
-
     if(!c_NostalgiaExtensions.contains(Filesystem::GetExtension(theatre_file)))
         { return Status::TheatreParserWRONG_FILE_EXTENSION; }
-
-    std::ifstream theatre_file_stream(theatre_file);
-    s_TheatreFileDataString = std::string(std::istreambuf_iterator<char>(theatre_file_stream), std::istreambuf_iterator<char>());
-    theatre_file_stream.close();
-
-    return Status::NO_ERR;
+    return Filesystem::try_ReadFileToString(theatre_file, s_TheatreFileDataString);
 }
 
 void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
