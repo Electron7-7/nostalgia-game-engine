@@ -30,8 +30,8 @@ void variable_t::clear()
 
 // Data
 
-data_t::data_t(const std::string& name, const std::string& type_name)
-: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_Hash(ConstexprHash(m_Name + m_TypeName))
+data_t::data_t(const std::string& name, const std::string& type_name, id_t id)
+: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_Hash(ConstexprHash(m_Name + m_TypeName)), m_AssignedID(id)
 {}
 
 data_t::data_t() = default;

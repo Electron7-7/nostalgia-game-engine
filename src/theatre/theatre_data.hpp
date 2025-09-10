@@ -73,6 +73,7 @@ struct data_t
 {
 public:
     data_t();
+    data_t(const std::string& Name, const std::string& Type, id_t ID = NoID);
 
     void AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
 
