@@ -1,7 +1,7 @@
 #include "imgui_debugger.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
-#include "resources/complex/mesh_instance.hpp"
+#include "things/resources/complex/mesh_instance.hpp"
 #include "things/actors/prototype_actor.hpp"
 
 using namespace ImGui;
@@ -403,61 +403,31 @@ void s_InspectTheatreWindow(bool* is_active)
 {
     if(Begin("Theatre Inspector", is_active))
     {
-        if(BeginTabBar("TheatreInspectorTabs"))
+        const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::debug_GetThings();
+        for(const auto& [id, thing] : things)
         {
-            if(BeginTabItem("Resources"))
+            Button(thing->GetName().c_str(), {0.0f, 20.0f});
+            if(IsItemHovered())
             {
-                const std::map<id_t, std::shared_ptr<Resource>>& resources = TheatreManager::debug_GetResources();
-                for(const auto& [id, resource] : resources)
-                {
-                    Button(resource->GetName().c_str(), {0.0f, 20.0f});
-                    if(IsItemHovered())
+                BeginTooltip();
+                    switch(thing->GetType())
                     {
-                        BeginTooltip();
-                            switch(resource->GetType())
-                            {
-                            case Type::MeshInstance:
-                                Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(resource)->GetMesh());
-                                Text("Material: %u", dynamic_pointer_cast<MeshInstance>(resource)->GetMaterial());
-                                break;
-                            default:
-                                break;
-                            }
-                            Text("Name: %s", resource->GetName().c_str());
-                            Text("ID: %u", resource->GetID());
-                            Text("TypeName: %s", StringifyType(resource->GetType()));
-                        EndTooltip();
+                    case Type::PrototypeActor:
+                        Text("MeshInstance: %u", dynamic_pointer_cast<PrototypeActor>(thing)->GetMeshInstance());
+                        break;
+                    case Type::MeshInstance:
+                        Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMesh());
+                        Text("Material: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMaterial());
+                        break;
+                    default:
+                        break;
                     }
-                }
-                EndTabItem();
-            }
-            if(BeginTabItem("Things"))
-            {
-                const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::debug_GetThings();
-                for(const auto& [id, thing] : things)
-                {
-                    Button(thing->GetName().c_str(), {0.0f, 20.0f});
-                    if(IsItemHovered())
-                    {
-                        BeginTooltip();
-                            switch(thing->GetType())
-                            {
-                            case Type::PrototypeActor:
-                                Text("MeshInstance: %u", dynamic_pointer_cast<PrototypeActor>(thing)->GetMeshInstance());
-                                break;
-                            default:
-                                break;
-                            }
-                            Text("Name: %s", thing->GetName().c_str());
-                            Text("ID: %u", thing->GetID());
-                            Text("TypeName: %s", StringifyType(thing->GetType()));
-                        EndTooltip();
-                    }
-                }
-                EndTabItem();
+                    Text("Name: %s", thing->GetName().c_str());
+                    Text("ID: %u", thing->GetID());
+                    Text("TypeName: %s", StringifyType(thing->GetType()));
+                EndTooltip();
             }
         }
-        EndTabBar();
     }
     End();
 }

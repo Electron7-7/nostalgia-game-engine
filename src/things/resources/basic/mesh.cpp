@@ -1,5 +1,5 @@
 #include "mesh.hpp"
-#include "resources/data/models.hpp"
+#include "../data/models.hpp"
 #include "filesystem/filesystem.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT

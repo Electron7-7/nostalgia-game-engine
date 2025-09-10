@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "resources/resource.hpp"
+#include "../resource.hpp"
 #include "filesystem/binary_file_data.hpp"
 #include "safe_return.hpp"
 

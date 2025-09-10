@@ -1,9 +1,9 @@
 #include "resource_data.hpp"
+#include "printing.hpp"
 #include "data/fonts.hpp"
 #include "data/images.hpp"
 #include "data/models.hpp"
 #include "data/opengl_shaders.hpp"
-#include "printing.hpp"
 
 #include <map>
 

@@ -1,5 +1,5 @@
 #include "texture.hpp"
-#include "resources/data/images.hpp"
+#include "../data/images.hpp"
 #include "filesystem/filesystem.hpp"
 
 const Texture Texture::Missing(image_JPG_MISSINGTEXTURE);

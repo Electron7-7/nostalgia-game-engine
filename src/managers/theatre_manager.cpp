@@ -4,7 +4,6 @@
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/things.hpp"
-#include "resources/resources.hpp"
 #include "types/typenames.hpp"
 #ifdef DEBUGGING
 #   include "colors.hpp"
@@ -24,10 +23,10 @@ static std::vector<RenderCommand> s_RenderCommandQueue = {};
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
-bool TheatreManager::s_AreResourcesLocked = false;
+// bool TheatreManager::s_AreResourcesLocked = false;
 bool TheatreManager::s_AreThingsLocked    = false;
 std::map<id_t, std::shared_ptr<Thing>>    TheatreManager::s_Things    = {};
-std::map<id_t, std::shared_ptr<Resource>> TheatreManager::s_Resources = {};
+// std::map<id_t, std::shared_ptr<Resource>> TheatreManager::s_Resources = {};
 
 void TheatreManager::Update()
 {
@@ -90,69 +89,37 @@ void TheatreManager::CreateObjects()
 
     WAIT(s_AreThingsLocked, 1.0f)
     s_AreThingsLocked = true;
-    s_AreResourcesLocked = true;
+    // s_AreResourcesLocked = true;
 
     for(data_t& data : theatre_data)
     {
-        switch(GetBaseType(data.GetType()))
-        {
-        case Type::Resource:
-            s_Resources[data.GetID()] = g_MakeResource(data.GetType())();
-            s_Resources.at(data.GetID())->m_ID   = data.GetID();
-            s_Resources.at(data.GetID())->m_Type = data.GetType();
-            s_Resources.at(data.GetID())->m_Name = data.GetName();
-            break;
-        case Type::Thing:
-            s_Things[data.GetID()] = g_MakeThing(data.GetType())();
-            s_Things.at(data.GetID())->m_ID   = data.GetID();
-            s_Things.at(data.GetID())->m_Type = data.GetType();
-            s_Things.at(data.GetID())->m_Name = data.GetName();
-            if(data.GetType() == Type::NostalgiaPlayer)
-                { s_LocalPlayer = s_Things.at(data.GetID()); }
-            break;
-        case Type::Invalid:
-            [[fallthrough]];
-        default:
-            PRINT_WARNING("TheatreManager::CreateObjects - '{}' is an invalid/unknown type ({}) and cannot be interpreted", data.GetName(), data.GetTypeName());
-            continue;
-        }
+        auto& thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();
+        thing->m_ID   = data.GetID();
+        thing->m_Type = data.GetType();
+        thing->m_Name = data.GetName();
+        if(data.GetType() == Type::NostalgiaPlayer)
+            { s_LocalPlayer = thing; }
+        thing->SetupVariables(data);
     }
 
-    // FIXME: Consolidate/combine these two loops (probably by making 'Thing' and 'Resource' derive the same base class)
-
-    for(data_t& data : theatre_data)
-    {
-        switch(GetBaseType(data.GetType()))
-        {
-        case Type::Resource:
-            s_Resources.at(data.GetID())->SetupVariables(data);
-            continue;
-        case Type::Thing:
-            s_Things.at(data.GetID())->SetupVariables(data);
-            continue;
-        default:
-            continue;
-        }
-    }
-
-    s_AreResourcesLocked = false;
+    // s_AreResourcesLocked = false;
     s_AreThingsLocked = false;
 }
 
 void TheatreManager::DestroyObjects()
 {
-    WAIT((s_AreThingsLocked || s_AreResourcesLocked), 1.0f)
+    WAIT((s_AreThingsLocked), 1.0f)
     s_AreThingsLocked = true;
-    s_AreResourcesLocked = true;
+    // s_AreResourcesLocked = true;
 
     s_Things.clear();
-    s_Resources.clear();
+    // s_Resources.clear();
 
-    s_AreResourcesLocked = false;
+    // s_AreResourcesLocked = false;
     s_AreThingsLocked = false;
 }
 
-bool TheatreManager::try_DestroyResource(id_t resource_id)
+/*bool TheatreManager::try_DestroyResource(id_t resource_id)
 {
     WAIT(s_AreResourcesLocked, 10.0f)
 
@@ -163,7 +130,7 @@ bool TheatreManager::try_DestroyResource(id_t resource_id)
 
     s_AreResourcesLocked = false;
     return true;
-}
+}*/
 
 bool TheatreManager::try_DestroyThing(id_t thing_id)
 {
@@ -171,7 +138,7 @@ bool TheatreManager::try_DestroyThing(id_t thing_id)
 
     s_AreThingsLocked = true;
 
-    if(!s_Resources.contains(thing_id))
+    if(!s_Things.contains(thing_id))
         { return false; }
 
     s_Things.erase(thing_id);
@@ -184,6 +151,6 @@ bool TheatreManager::try_DestroyThing(id_t thing_id)
     const std::map<id_t, std::shared_ptr<Thing>>& TheatreManager::debug_GetThings()
     { return s_Things; }
 
-    const std::map<id_t, std::shared_ptr<Resource>>& TheatreManager::debug_GetResources()
-    { return s_Resources; }
+    // const std::map<id_t, std::shared_ptr<Resource>>& TheatreManager::debug_GetResources()
+    // { return s_Resources; }
 #endif // DEBUGGING

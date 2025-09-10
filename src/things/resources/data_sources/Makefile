@@ -12,7 +12,7 @@ export DEFAULT ?= \\x1b[1;39m
 
 # Common Variables
 EMBED_DIR := ../data
-EMBED_DIR_ABSOLUTE := src/resources/data
+EMBED_DIR_ABSOLUTE := src/things/resources/data
 
 #-----------------#
 # Print Functions #

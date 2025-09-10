@@ -3,7 +3,7 @@
 #include "theatre/3d_common.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
-#include "resources/data/opengl_shaders.hpp"
+#include "things/resources/data/opengl_shaders.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"

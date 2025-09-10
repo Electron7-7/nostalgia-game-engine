@@ -141,10 +141,10 @@ SRC_DIRS :=                             \
     $(SRC)/theatre                      \
     $(SRC)/things                       \
     $(SRC)/things/actors                \
-    $(SRC)/resources                    \
-    $(SRC)/resources/basic              \
-    $(SRC)/resources/complex            \
-    $(SRC)/resources/data               \
+    $(SRC)/things/resources             \
+    $(SRC)/things/resources/basic       \
+    $(SRC)/things/resources/complex     \
+    $(SRC)/things/resources/data        \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
@@ -160,7 +160,7 @@ APP_SRC_DIRS :=               \
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-RESOURCES_DIR := $(SRC)/resources/data_sources
+RESOURCES_DIR := $(SRC)/things/resources/data_sources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 

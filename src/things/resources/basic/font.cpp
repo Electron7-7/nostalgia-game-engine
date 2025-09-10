@@ -1,5 +1,5 @@
 #include "font.hpp"
-#include "resources/data/fonts.hpp"
+#include "../data/fonts.hpp"
 #include "filesystem/filesystem.hpp"
 
 Font Font::Missing(font_TTF_Verdana);
