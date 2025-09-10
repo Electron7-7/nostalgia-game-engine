@@ -1,10 +1,9 @@
 #include "theatre_parser.hpp"
+#include "to_lower.hpp"
 #include "filesystem/filesystem.hpp"
 
 #include <set>
 #include <fstream>
-#include <algorithm>
-#include <cctype>
 #include <string>
 
 // NOTE: Yes, this is stupid. Too bad!
@@ -33,15 +32,6 @@ static const std::string s_cSyntaxWarningPrefix = " NostalgiaTheatre Syntax Warn
 #define SYNTAX_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(__WARNING + s_cSyntaxWarningPrefix, FORMAT, ARGS)
 
 static bool s_PlayerInstantiated = false;
-static constexpr std::string ToLower(std::string string)
-{
-    std::transform(string.begin(), string.end(), string.begin(),
-        [](unsigned char character){ return std::tolower(character); });
-    return string;
-}
-
-static std::random_device s_RandomDevice;
-static std::set<size_t> s_ExistingIDs = {};
 static std::map<std::string, std::string> s_NameIDMap = {};
 static std::string s_TheatreFileDataString = "";
 static TheatreData s_TheatreData;
