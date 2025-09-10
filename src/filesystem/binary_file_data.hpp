@@ -1,7 +1,10 @@
 #ifndef BINARY_FILE_DATA_H
 #define BINARY_FILE_DATA_H
 
+#include <string>
 #include <vector>
+
+typedef std::string StringFileData;
 
 struct BinaryFileData
 {

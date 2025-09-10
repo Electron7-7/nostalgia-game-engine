@@ -1,6 +1,7 @@
 #include "theatre_data.hpp"
 #include "string_to_num.hpp"
 #include "types/typenames.hpp"
+#include "resources/resource_data.hpp"
 
 // Variable
 
@@ -102,6 +103,28 @@ bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& varia
 {
     EARLY_RETURN_MACRO(variable)
     return StringToNum<unsigned int>(real_variable, variable->m_Value);
+}
+
+bool data_t::GetEngineRef(BinaryFileData& real_variable, const std::string& variable_name) const
+{
+    EARLY_RETURN_MACRO(variable)
+    SafeReturn<const BinaryFileData&> reference = ResourceData::try_GetBinaryData(variable->m_Value);
+    if(!SafeStatus::PrintCheck(reference.Status()))
+        { return false; }
+
+    real_variable = reference.Data();
+    return true;
+}
+
+bool data_t::GetEngineRef(StringFileData& real_variable, const std::string& variable_name) const
+{
+    EARLY_RETURN_MACRO(variable)
+    SafeReturn<const StringFileData&> reference = ResourceData::try_GetStringData(variable->m_Value);
+    if(!SafeStatus::PrintCheck(reference.Status()))
+        { return false; }
+
+    real_variable = reference.Data();
+    return true;
 }
 
 bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const

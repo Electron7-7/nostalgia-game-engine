@@ -2,8 +2,8 @@
 #define THEATRE_DATA_H
 
 #include "safe_return.hpp"
+#include "things/id.hpp"
 #include "hash.hpp"
-#include "theatre/engine_reference.hpp"
 #include "types/typenames.hpp"
 #include "string_to_num.hpp"
 
@@ -93,34 +93,16 @@ public:
     void clear();
 
     bool GetTheatreRef(unsigned int& AssignTo, const std::string& VariableName) const;
+    bool GetEngineRef(BinaryFileData& AssignTo, const std::string& VariableName) const;
+    bool GetEngineRef(StringFileData& AssignTo, const std::string& VariableName) const;
     bool GetBool(bool& AssignTo, const std::string& VariableName) const;
     bool GetString(std::string& AssignTo, const std::string& VariableName) const;
 
     template<typename T>
-    bool GetEngineRef(T& real_variable, const std::string& variable_name) const
     {
         auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
         if(variable == m_Variables.end() || variable->m_Value.empty())
             { return false; }
-
-        SafeReturn<std::any> reference = try_GetEngineReference(variable->m_Value);
-        if(!SafeStatus::PrintCheck(reference.Status()))
-            { return false; }
-
-        T temp_variable;
-        try
-        {
-            temp_variable = std::any_cast<T>(reference.Data());
-        }
-        catch(std::bad_any_cast const& exception)
-        {
-            PRINT_ERROR("data_t::GetEngineRef - Variable '{}' is not the correct type", variable_name)
-            return false;
-        }
-
-        real_variable = temp_variable;
-        return true;
-    }
 
     template<typename T>
     bool GetNumber(T& real_variable, const std::string& variable_name) const
@@ -146,8 +128,7 @@ private:
     std::string m_TypeName = "Invalid";
     size_t      m_Type = Type::Invalid;
     size_t      m_Hash = ConstexprHash(m_Name + m_TypeName);
-
-    unsigned int m_AssignedID = 0;
+    id_t        m_AssignedID = NoID;
 };
 
 struct TheatreData
