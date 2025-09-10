@@ -32,7 +32,7 @@ static const std::string s_cSyntaxWarningPrefix = " NostalgiaTheatre Syntax Warn
 #define SYNTAX_ERROR(FORMAT, ARGS...)   __LABELLED_PRINT(__ERROR   + s_cSyntaxErrorPrefix,   FORMAT, ARGS)
 #define SYNTAX_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(__WARNING + s_cSyntaxWarningPrefix, FORMAT, ARGS)
 
-// https://stackoverflow.com/a/313990
+static bool s_PlayerInstantiated = false;
 static constexpr std::string ToLower(std::string string)
 {
     std::transform(string.begin(), string.end(), string.begin(),
@@ -434,6 +434,9 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
         buffer += character;
     }
+
+    if(!s_PlayerInstantiated)
+        { s_TheatreData.AddData({"Default Player", TypeName::NostalgiaPlayer, ID::GetNewID()}); }
 
     s_TheatreData.UpdateTheatreReferences(s_NameIDMap);
 
