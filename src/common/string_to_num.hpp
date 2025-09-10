@@ -7,6 +7,14 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
+// FIXME: I hate doing this
+inline unsigned long std_stoul(const std::string& string)
+{ return std::stoul(string); }
+inline long std_stol(const std::string& string)
+{ return std::stol(string); }
+inline double std_stod(const std::string& string)
+{ return std::stod(string); }
+
 template<typename T>
 concept UnsignedNumber = requires
 { std::is_unsigned_v<std::decay_t<T>>; };
@@ -31,11 +39,11 @@ concept GLMContainer = requires
 };
 
 template<typename T, typename N>
-bool InterpretNumber(N (*conversion_function)(const std::string&, std::size_t*), T& variable, const std::string& string)
+bool InterpretNumber(N (*conversion_function)(const std::string&), T& variable, const std::string& string)
 {
     T new_value = 0;
     try
-    { new_value = conversion_function(string, nullptr); }
+    { new_value = conversion_function(string); }
     catch(std::invalid_argument const& exception)
     { return false; }
     variable = new_value;
@@ -46,11 +54,11 @@ template<typename T>
 bool StringToNum(T& number, const std::string& string)
 {
     if constexpr(std::is_signed_v<T> && std::is_integral_v<T>)
-        { return InterpretNumber<T, long>(&std::stol, number, string); }
+        { return InterpretNumber<T, long>(&std_stol, number, string); }
     else if constexpr(std::is_unsigned_v<T> && std::is_integral_v<T>)
-        { return InterpretNumber<T, unsigned long>(&std::stoul, number, string); }
+        { return InterpretNumber<T, unsigned long>(&std_stoul, number, string); }
     else if constexpr(std::is_floating_point_v<T>)
-        { return InterpretNumber<T, double>(&std::stod, number, string); }
+        { return InterpretNumber<T, double>(&std_stod, number, string); }
     return false;
 }
 
