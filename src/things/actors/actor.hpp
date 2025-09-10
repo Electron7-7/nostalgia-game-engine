@@ -1,7 +1,7 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
-#include "thing.hpp"
+#include "../thing.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -10,13 +10,14 @@
 class Actor : public Thing
 {
 public:
+    virtual void SetupVariables(const data_t&);
+    virtual bool Initialize() { return true; }
+    virtual void Destroy() {}
+
     virtual void SetOrigin(const glm::vec3& Origin);
     virtual void SetRotation(const glm::quat& Rotation);
     virtual const glm::vec3& Origin() const;
     virtual const glm::quat& Rotation() const;
-
-    virtual bool Initialize() { return true; }
-    virtual void Destroy() {}
 
 private:
     friend class TheatreManager;

@@ -1,21 +1,20 @@
 #ifndef PROTOTYPE_ACTOR_H
 #define PROTOTYPE_ACTOR_H
 
-#include "../actor.hpp"
-
-#include "resources/resource.hpp"
+#include "actor.hpp"
 
 class PrototypeActor : public Actor
 {
 public:
-    tid_t GetMeshInstance() const;
+
+    id_t GetMeshInstance() const;
     bool HasMeshInstance() const;
 
-    void SetMeshInstance(rid_t MeshInstanceID);
+    void SetMeshInstance(id_t MeshInstanceID);
 
 protected:
     friend class TheatreManager;
-    rid_t m_MeshInstanceID = Resource::NoRID;
+    id_t m_MeshInstanceID = NoID;
 };
 
 #endif // PROTOTYPE_ACTOR_H

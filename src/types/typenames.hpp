@@ -15,7 +15,6 @@ namespace TypeName
     constexpr const char* Actor           = "Actor";
     constexpr const char* PrototypeActor  = "PrototypeActor";
     constexpr const char* NostalgiaPlayer = "NostalgiaPlayer";
-    constexpr const char* Thinker         = "Thinker";
 }
 
 namespace Type
@@ -30,7 +29,6 @@ namespace Type
     constexpr size_t Actor           = ConstexprHash(TypeName::Actor);
     constexpr size_t PrototypeActor  = ConstexprHash(TypeName::PrototypeActor);
     constexpr size_t NostalgiaPlayer = ConstexprHash(TypeName::NostalgiaPlayer);
-    constexpr size_t Thinker         = ConstexprHash(TypeName::Thinker);
 }
 
 enum class BaseType
@@ -68,8 +66,6 @@ inline const char* const& StringifyType(size_t Type)
         return TypeName::PrototypeActor;
     case Type::NostalgiaPlayer:
         return TypeName::NostalgiaPlayer;
-    case Type::Thinker:
-        return TypeName::Thinker;
     default:
         return TypeName::Invalid;
     }

@@ -1,7 +1,7 @@
 #ifndef NOSTALGIA_PLAYER_H
 #define NOSTALGIA_PLAYER_H
 
-#include "../actor.hpp"
+#include "actor.hpp"
 #include "camera_3d.hpp"
 
 // Actor type
@@ -16,7 +16,7 @@ public:
     static NostalgiaPlayer Empty;
 
 private:
-    tid_t m_CameraID;
+    id_t m_CameraID = NoID;
 };
 
 #endif // NOSTALGIA_PLAYER_H

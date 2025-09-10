@@ -1,7 +1,7 @@
 #ifndef CAMERA_3D_H
 #define CAMERA_3D_H
 
-#include "../actor.hpp"
+#include "actor.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

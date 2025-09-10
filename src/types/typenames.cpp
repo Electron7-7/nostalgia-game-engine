@@ -16,7 +16,6 @@ static const std::set<size_t> s_ThingTypes =
     Type::Actor,
     Type::NostalgiaPlayer,
     Type::PrototypeActor,
-    Type::Thinker,
 };
 
 const BaseType GetBaseType(const std::string& name)
