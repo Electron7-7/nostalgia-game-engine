@@ -1,13 +1,13 @@
 #ifndef THEATRE_DATA_H
 #define THEATRE_DATA_H
 
-#include "safe_return.hpp"
 #include "things/id.hpp"
 #include "hash.hpp"
-#include "types/typenames.hpp"
+#include "safe_return.hpp"
 #include "string_to_num.hpp"
+#include "types/typenames.hpp"
+#include "filesystem/binary_file_data.hpp"
 
-#include <any>
 #include <map>
 #include <vector>
 
@@ -76,11 +76,8 @@ struct data_t
 public:
     data_t();
 
-    // TODO: Remove these(?)
-    static constexpr short VARIABLE_SET   = (short)true;
-    static constexpr short VARIABLE_ADDED = (short)false;
+    void AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
 
-    short AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
     id_t GetID() const;
     void SetID(id_t ID);
 
@@ -100,19 +97,12 @@ public:
     bool GetString(std::string& AssignTo, const std::string& VariableName) const;
 
     template<typename T>
+    bool GetNumber(T& AssignTo, const std::string& VariableName) const
     {
-        auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
+        const auto& variable = std::find(m_Variables.begin(), m_Variables.end(), VariableName);
         if(variable == m_Variables.end() || variable->m_Value.empty())
             { return false; }
-
-    template<typename T>
-    bool GetNumber(T& real_variable, const std::string& variable_name) const
-    {
-        auto variable = std::find(m_Variables.begin(), m_Variables.end(), variable_name);
-        if(variable == m_Variables.end())
-            { return false; }
-
-        StringToNum<T>(real_variable, variable->m_Value);
+        StringToNum<T>(AssignTo, variable->m_Value);
         return true;
     }
 

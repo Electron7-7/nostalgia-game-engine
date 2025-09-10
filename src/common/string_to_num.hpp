@@ -1,20 +1,12 @@
 #ifndef STRING_TO_NUM_H
 #define STRING_TO_NUM_H
 
+#include <stdexcept>
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
-
-#define INTERPRET_NUMBER_MACRO(STD_FUNCTION, VARIABLE, STRING)              \
-T new_value = 0;                                                            \
-try                                                                         \
-    { new_value = std::STD_FUNCTION(STRING); }                              \
-catch(std::invalid_argument const& exception)                               \
-    { return false; }                                                       \
-VARIABLE = new_value;                                                       \
-return true;
 
 // Fuck you, I'm tired...
 #define INTERPRET_GLM_MACRO(GLM, SIZE)                              \
@@ -30,7 +22,7 @@ return true;
         case ',':                                                   \
             if(++index < (SIZE - 1))                                \
             {                                                       \
-                if(!InterpretNumber<float>(output[index], buffer))  \
+                if(!StringToNum<float>(output[index], buffer))      \
                     { return false; }                               \
             }                                                       \
             buffer.clear();                                         \
@@ -42,35 +34,36 @@ return true;
             continue;                                               \
         }                                                           \
     }                                                               \
-    if(!InterpretNumber<float>(output[SIZE - 1], buffer))           \
+    if(!StringToNum<float>(output[SIZE - 1], buffer))               \
         { return false; }                                           \
     variable = output;                                              \
     return true;
 
-template<typename T>
-concept SignedNumber = std::is_integral_v<std::decay_t<T>> && std::is_signed_v<T>;
+#define INTERPRET_NUMBER_MACRO(STD_FUNCTION, VARIABLE, STRING) \
+T new_value = 0;                                               \
+try                                                            \
+    { new_value = std::STD_FUNCTION(STRING); }                 \
+catch(std::invalid_argument const& exception)                  \
+    { return false; }                                          \
+VARIABLE = new_value;                                          \
+return true;
 
 template<typename T>
-concept UnsignedNumber = std::is_unsigned_v<std::decay_t<T>>;
+concept UnsignedNumber = requires { std::is_unsigned_v<std::decay_t<T>>; };
 
 template<typename T>
-concept RealNumber = std::is_floating_point_v<std::decay_t<T>>;
-
-template<SignedNumber T>
-bool InterpretNumber(T& number, const std::string& string)
-{ INTERPRET_NUMBER_MACRO(stol, number, string) }
-
-template<UnsignedNumber T>
-bool InterpretNumber(T& number, const std::string& string)
-{ INTERPRET_NUMBER_MACRO(stoul, number, string) }
-
-template<RealNumber T>
-bool InterpretNumber(T& number, const std::string& string)
-{ INTERPRET_NUMBER_MACRO(stod, number, string) }
+concept RealNumber = requires { std::is_floating_point_v<std::decay_t<T>>; };
 
 template<typename T>
-bool StringToNum(T& variable, const std::string& string)
-{ return InterpretNumber<T>(variable, string); }
+inline bool StringToNum(T& number, const std::string& string)
+{
+    if constexpr(UnsignedNumber<T>)
+        { INTERPRET_NUMBER_MACRO(stoul, number, string) }
+    else if constexpr(RealNumber<T>)
+        { INTERPRET_NUMBER_MACRO(stod, number, string) }
+    else
+        { INTERPRET_NUMBER_MACRO(stol, number, string) }
+}
 
 template<>
 inline bool StringToNum(glm::vec2& variable, const std::string& string)
@@ -83,6 +76,5 @@ inline bool StringToNum(glm::vec3& variable, const std::string& string)
 template<>
 inline bool StringToNum(glm::quat& variable, const std::string& string)
 { INTERPRET_GLM_MACRO(glm::quat, 4) }
-
 
 #endif // STRING_TO_NUM_H

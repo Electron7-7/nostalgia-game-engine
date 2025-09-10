@@ -36,7 +36,7 @@ data_t::data_t(const std::string& name, const std::string& type_name)
 
 data_t::data_t() = default;
 
-short data_t::AddVariable(const std::string& name, const std::string& data, const VariableType& type)
+void data_t::AddVariable(const std::string& name, const std::string& data, const VariableType& type)
 {
     auto variable = std::find(m_Variables.begin(), m_Variables.end(), name);
     if(variable != m_Variables.end())
@@ -45,9 +45,7 @@ short data_t::AddVariable(const std::string& name, const std::string& data, cons
         variable->m_Value = data;
         variable->m_Type  = type;
     }
-
     m_Variables.emplace_back(name, data, type);
-    return (variable != m_Variables.end());
 }
 
 id_t data_t::GetID() const
@@ -77,7 +75,7 @@ void data_t::SetType(const std::string& type)
     m_Type = ConstexprHash(m_TypeName);
     m_Hash = ConstexprHash(m_Name + m_TypeName);
 
-    if(GetBaseType(m_Type) == BaseType::Invalid)
+    if(GetBaseType(m_Type) == Type::Invalid)
         { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type, m_Name) }
 }
 
@@ -90,7 +88,7 @@ void data_t::clear()
 }
 
 #define EARLY_RETURN_MACRO(VAR_NAME) \
-auto VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
+const auto& VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
 if(VAR_NAME == m_Variables.end() || variable->m_Value.empty()) \
     { return false; }
 
@@ -170,7 +168,7 @@ void TheatreData::UpdateTheatreReferences(const std::map<std::string, std::strin
 
 SafeStatus TheatreData::AddData(const data_t& data)
 {
-    if(GetBaseType(data.GetType()) == BaseType::Invalid)
+    if(GetBaseType(data.GetType()) == Type::Invalid)
         { return Status::TheatreDataINVALID_TYPE; }
     m_Data.push_back(data);
     return Status::NO_ERR;
