@@ -9,6 +9,23 @@ using namespace ImGui;
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
 
+bool imgui_Debugger::Init()
+{
+    if(m_IsInitialized)
+        { return true; }
+
+    m_IsInitialized = true;
+    return true;
+}
+
+void imgui_Debugger::Shutdown()
+{
+    if(!m_IsInitialized)
+        { return; }
+
+    m_IsInitialized = false;
+}
+
 #ifndef DEBUGGING
 void imgui_Debugger::Update()
 {
@@ -128,23 +145,6 @@ bool StopwatchLog::IsRunning() const
 
 bool StopwatchLog::IsFinished() const
 { return m_IsFinished; }
-
-bool imgui_Debugger::Init()
-{
-    if(m_IsInitialized)
-        { return true; }
-
-    m_IsInitialized = true;
-    return true;
-}
-
-void imgui_Debugger::Shutdown()
-{
-    if(!m_IsInitialized)
-        { return; }
-
-    m_IsInitialized = false;
-}
 
 StopwatchLog& imgui_Debugger::StartStopwatch(const std::string& message)
 {

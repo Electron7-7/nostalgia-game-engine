@@ -14,7 +14,7 @@ public:
     bool Init();
     void Shutdown();
     void Update();
-
+#ifdef DEBUGGING
     StopwatchLog& StartStopwatch(const std::string& Message = "No Message");
     bool StopStopwatch(StopwatchLog& Stopwatch);
 
@@ -24,8 +24,10 @@ public:
 private:
     StopwatchLog& m_StartStopwatch(const std::string& Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);
+#endif // DEBUGGING
 };
 
+#ifdef DEBUGGING
 struct StopwatchLog
 {
 public:
@@ -82,6 +84,7 @@ public:
     StopwatchLog m_LoadTime;
     StopwatchLog m_UnloadTime;
 };
+#endif // DEBUGGING
 
 extern imgui_Debugger* g_pDebugger;
 
