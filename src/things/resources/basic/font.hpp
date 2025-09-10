@@ -5,7 +5,7 @@
 #include "safe_return.hpp"
 #include "filesystem/binary_file_data.hpp"
 
-struct Font : public Resource
+class Font : public Resource
 {
 public:
     static Font Missing;

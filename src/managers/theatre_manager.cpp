@@ -24,8 +24,8 @@ static std::vector<RenderCommand> s_RenderCommandQueue = {};
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
-bool TheatreManager::s_AreThingsLocked    = false;
-std::map<id_t, std::shared_ptr<Thing>>    TheatreManager::s_Things    = {};
+bool TheatreManager::s_AreThingsLocked = false;
+std::map<id_t, std::shared_ptr<Thing>> TheatreManager::s_Things = {};
 
 void TheatreManager::Update()
 {

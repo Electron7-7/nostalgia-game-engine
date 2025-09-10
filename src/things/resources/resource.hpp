@@ -12,7 +12,7 @@ enum class ResourceStatus
     SUCCESSFUL
 };
 
-struct Resource : public Thing
+class Resource : public Thing
 {
 public:
     virtual void SetupVariables(const data_t&) {};

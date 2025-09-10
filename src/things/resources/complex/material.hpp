@@ -3,7 +3,7 @@
 
 #include "../resource.hpp"
 
-struct Material : public Resource
+class Material : public Resource
 {
 public:
     virtual void SetupVariables(const data_t&);

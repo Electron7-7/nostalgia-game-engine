@@ -43,19 +43,15 @@ public:
 
     static NostalgiaPlayer* GetLocalPlayer();
 
-    // static bool try_DestroyResource(id_t ResourceID);
     static bool try_DestroyThing(id_t ThingID);
 
 #ifdef DEBUGGING
     static const std::map<id_t, std::shared_ptr<Thing>>& debug_GetThings();
-    // static const std::map<id_t, std::shared_ptr<Resource>>& debug_GetResources();
 #endif // DEBUGGING
 
 private:
-    // static bool s_AreResourcesLocked;
     static bool s_AreThingsLocked;
-    static std::map<id_t, std::shared_ptr<Thing>>    s_Things;
-    // static std::map<id_t, std::shared_ptr<Resource>> s_Resources;
+    static std::map<id_t, std::shared_ptr<Thing>> s_Things;
 
     static void CreateObjects();
     static void DestroyObjects();

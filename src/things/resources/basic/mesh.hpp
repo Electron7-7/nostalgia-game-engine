@@ -15,7 +15,7 @@ enum class ModelType
     OBJ
 };
 
-struct Mesh : public Resource
+class Mesh : public Resource
 {
 public:
     typedef unsigned int Index;

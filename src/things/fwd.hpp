@@ -15,10 +15,10 @@ class NostalgiaPlayer;
 class PrototypeActor;
 
 // Resources
-struct Resource;
-struct Mesh;
-struct Texture;
-struct MeshInstance;
-struct Material;
+class Resource;
+class Mesh;
+class Texture;
+class MeshInstance;
+class Material;
 
 #endif // THINGS_FWD_H

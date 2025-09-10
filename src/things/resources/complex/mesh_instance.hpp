@@ -3,7 +3,7 @@
 
 #include "../resource.hpp"
 
-struct MeshInstance : public Resource
+class MeshInstance : public Resource
 {
 public:
     virtual void SetupVariables(const data_t&);

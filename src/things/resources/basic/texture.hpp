@@ -5,7 +5,7 @@
 #include "filesystem/binary_file_data.hpp"
 #include "safe_return.hpp"
 
-struct Texture : public Resource
+class Texture : public Resource
 {
 public:
     static const Texture Missing;
