@@ -1,12 +1,10 @@
 #include "resource.hpp"
 
-Resource Resource::Empty;
-
-rid_t Resource::GetID() const
+id_t _resource::GetID() const
 { return m_ID; }
 
-const std::string& Resource::GetName() const
+const std::string& _resource::GetName() const
 { return m_Name; }
 
-size_t Resource::GetType() const
+size_t _resource::GetType() const
 { return m_Type; }

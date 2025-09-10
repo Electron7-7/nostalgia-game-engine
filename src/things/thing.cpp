@@ -1,10 +1,10 @@
 #include "thing.hpp"
 
-tid_t Thing::GetID() const
+id_t _thing::GetID() const
 { return m_ID; }
 
-const std::string& Thing::GetName() const
+const std::string& _thing::GetName() const
 { return m_Name; }
 
-size_t Thing::GetType() const
+size_t _thing::GetType() const
 { return m_Type; }

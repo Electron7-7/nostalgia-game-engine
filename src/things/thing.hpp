@@ -1,29 +1,39 @@
 #ifndef THING_H
 #define THING_H
 
-typedef unsigned int tid_t;
-
+#include "id.hpp"
+#include "theatre/theatre_data.hpp"
 #include "types/typenames.hpp"
 
 #include <string>
 
-class Thing
+class _thing
 {
 public:
-    virtual ~Thing() = default;
+    virtual ~_thing() = default;
 
-    tid_t GetID() const;
+    virtual void SetupVariables(const data_t&) = 0;
+    virtual bool Initialize() = 0;
+    virtual void Destroy() = 0;
+
+    id_t GetID() const;
     size_t GetType() const;
     const std::string& GetName() const;
-
-    static constexpr tid_t NoRID = 0;
 
 private:
     friend class TheatreManager;
 
-    tid_t m_ID = Thing::NoRID;
+    id_t m_ID = NoID;
     size_t m_Type = Type::Thing;
     std::string m_Name = "Untitled Thing";
+};
+
+class Thing : public _thing
+{
+public:
+    virtual void SetupVariables(const data_t&) {}
+    virtual bool Initialize() { return true; }
+    virtual void Destroy() {}
 };
 
 template<typename T>

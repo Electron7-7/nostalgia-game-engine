@@ -1,11 +1,8 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include "types/typenames.hpp"
-
-#include <string>
-
-typedef unsigned int rid_t;
+#include "things/id.hpp"
+#include "theatre/theatre_data.hpp"
 
 // TODO: Change/move
 enum class ResourceStatus
@@ -15,24 +12,32 @@ enum class ResourceStatus
     SUCCESSFUL
 };
 
-struct Resource
+struct _resource
 {
 public:
-    virtual ~Resource() = default;
+    virtual ~_resource() = default;
 
-    rid_t GetID() const;
-    size_t GetType() const;
+    virtual void SetupVariables(const data_t&) = 0;
+    virtual bool Initialize() = 0;
+    virtual void Destroy() = 0;
+
+    id_t GetID() const;
     const std::string& GetName() const;
-
-    static Resource Empty;
-    static constexpr rid_t NoRID = 0;
+    size_t GetType() const;
 
 private:
     friend class TheatreManager;
-
-    rid_t m_ID = Resource::NoRID;
-    size_t m_Type = Type::Resource;
+    id_t m_ID = NoID;
     std::string m_Name = "Untitled Resource";
+    size_t m_Type = Type::Resource;
+};
+
+struct Resource : public _resource
+{
+public:
+    virtual void SetupVariables(const data_t&) {};
+    virtual bool Initialize() { return true; }
+    virtual void Destroy() {}
 };
 
 template<typename T>
