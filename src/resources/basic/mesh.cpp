@@ -1,5 +1,5 @@
 #include "mesh.hpp"
-#include "resources/engine/models.hpp"
+#include "resources/data/models.hpp"
 #include "filesystem/filesystem.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
@@ -18,21 +18,21 @@ Mesh Mesh::Ramiel = Mesh(model_OBJ_Ramiel, ModelType::OBJ);
 Mesh::Mesh() = default;
 
 Mesh::Mesh(const std::string& model_data, ModelType model_type)
-: m_FileType(model_type), m_MeshFile(""), m_MeshFileData(model_data)
+: m_FileType(model_type), m_FileName(""), m_FileData(model_data)
 {}
 
 void Mesh::LoadModelFile(const std::string& file_path, ModelType file_type)
 {
     m_FileType = file_type;
-    m_MeshFile = file_path;
-    m_MeshFileData.clear();
+    m_FileName = file_path;
+    m_FileData.clear();
 }
 
 void Mesh::LoadModelData(const std::string& file_data, ModelType file_type)
 {
     m_FileType = file_type;
-    m_MeshFileData = file_data;
-    m_MeshFile.clear();
+    m_FileData = file_data;
+    m_FileName.clear();
 }
 
 void Mesh::clear()
@@ -69,16 +69,16 @@ SafeStatus Mesh::CreateMeshData()
     if(m_MeshDataStatus != ResourceStatus::NOT_PROCESSED)
         { return Status::NO_ERR; }
 
-    if(m_MeshFileData.empty())
+    if(m_FileData.empty())
     {
-        SafeStatus read_status = Filesystem::try_ReadFileToString(m_MeshFile, m_MeshFileData);
+        SafeStatus read_status = Filesystem::try_ReadFileToString(m_FileName, m_FileData);
         if(read_status != Status::NO_ERR)
             { return read_status; }
     }
 
     if(m_FileType == ModelType::Unknown)
     {
-        std::string file_extension = Filesystem::GetExtension(m_MeshFile);
+        std::string file_extension = Filesystem::GetExtension(m_FileName);
         if(s_FileTypesByExtension.contains(file_extension))
             { m_FileType = s_FileTypesByExtension.at(file_extension); }
     }
@@ -131,7 +131,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(m_MeshFileData, "", reader_config))
+    if(!reader.ParseFromString(m_FileData, "", reader_config))
     {
         if(!reader.Error().empty())
         {

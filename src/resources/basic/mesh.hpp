@@ -44,8 +44,8 @@ private:
     ResourceStatus m_MeshDataStatus = ResourceStatus::NOT_PROCESSED;
 
     ModelType m_FileType = ModelType::Unknown;
-    std::string m_MeshFile = "";
-    std::string m_MeshFileData = "";
+    std::string m_FileName = "";
+    std::string m_FileData = "";
 
     std::vector<Vertex> m_Vertices = {};
     std::vector<Index>  m_Indices  = {};

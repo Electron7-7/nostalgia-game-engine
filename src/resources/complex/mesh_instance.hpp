@@ -6,17 +6,18 @@
 struct MeshInstance : public Resource
 {
 public:
-    void AssignMesh(rid_t MeshID);
-    rid_t GetMesh() const;
-    void AssignMaterial(rid_t MaterialID);
-    rid_t GetMaterial() const;
+
+    void AssignMesh(id_t MeshID);
+    id_t GetMesh() const;
+    void AssignMaterial(id_t MaterialID);
+    id_t GetMaterial() const;
 
     bool HasMaterial() const;
 
 private:
     friend class TheatreManager;
-    rid_t m_MeshID     = Resource::NoRID;
-    rid_t m_MaterialID = Resource::NoRID;
+    id_t m_MeshID     = NoID;
+    id_t m_MaterialID = NoID;
 };
 
 #endif // MESH_INSTANCE_H

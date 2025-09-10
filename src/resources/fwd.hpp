@@ -1,7 +1,7 @@
 #ifndef RESOURCES_FWD_H
 #define RESOURCES_FWD_H
 
-typedef unsigned int rid_t;
+#include "things/id.hpp" // IWYU pragma: keep
 
 // Forward Declarations
 struct Resource;

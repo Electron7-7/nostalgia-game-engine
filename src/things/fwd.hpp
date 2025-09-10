@@ -1,7 +1,7 @@
 #ifndef THINGS_FWD_H
 #define THINGS_FWD_H
 
-typedef unsigned int tid_t;
+#include "id.hpp" // IWYU pragma: keep
 
 // Forward Declarations
 class Thing;

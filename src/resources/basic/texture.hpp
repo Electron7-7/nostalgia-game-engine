@@ -8,9 +8,11 @@
 struct Texture : public Resource
 {
 public:
-    Texture();
-
     static const Texture Missing;
+
+
+    Texture();
+    Texture(const BinaryFileData& Data);
 
     void LoadTextureFile(const std::string& File);
     void LoadTextureData(const BinaryFileData& Data);
@@ -21,8 +23,6 @@ public:
 
 private:
     friend class TheatreManager;
-    Texture(const BinaryFileData& Data);
-
     ResourceStatus m_TextureDataStatus = ResourceStatus::NOT_PROCESSED;
 
     BinaryFileData m_Data;

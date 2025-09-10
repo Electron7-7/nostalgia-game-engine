@@ -6,15 +6,16 @@
 struct Material : public Resource
 {
 public:
-    rid_t GetDiffuseTexture() const;
-    void SetDiffuseTexture(rid_t TextureID);
-    rid_t GetSpecularTexture() const;
-    void SetSpecularTexture(rid_t TextureID);
+
+    id_t GetDiffuseTexture() const;
+    void SetDiffuseTexture(id_t TextureID);
+    id_t GetSpecularTexture() const;
+    void SetSpecularTexture(id_t TextureID);
 
 private:
     friend class TheatreManager;
-    rid_t m_DiffuseTextureID  = Resource::NoRID;
-    rid_t m_SpecularTextureID = Resource::NoRID;
+    id_t m_DiffuseTextureID  = NoID;
+    id_t m_SpecularTextureID = NoID;
 };
 
 #endif // MATERIAL_H
