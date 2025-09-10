@@ -1,4 +1,5 @@
 #include "theatre_parser.hpp"
+#include "debug.hpp"
 #include "to_lower.hpp"
 #include "filesystem/filesystem.hpp"
 
@@ -178,11 +179,12 @@ SafeStatus TheatreParser::try_ParseTheatre()
             set_new_line = false;
         }
 
-#ifdef DEBUGGING
-        // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
-        if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
-            { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
-#endif
+        DEBUG
+        (
+            // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
+            if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
+                { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
+        )
 
         set_new_line = (character == '\n');
 
