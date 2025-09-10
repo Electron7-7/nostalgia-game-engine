@@ -4,6 +4,7 @@
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/things.hpp"
+#include "things/actors/nostalgia_player.hpp"
 #include "types/typenames.hpp"
 #ifdef DEBUGGING
 #   include "colors.hpp"
@@ -16,7 +17,7 @@
 
 using namespace ManagerEnums;
 
-static std::shared_ptr<Thing> s_LocalPlayer = g_MakeThing(Type::NostalgiaPlayer)();
+static std::shared_ptr<Thing> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
 
 static std::vector<RenderCommand> s_RenderCommandQueue = {};
 
