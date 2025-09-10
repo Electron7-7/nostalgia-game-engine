@@ -136,15 +136,15 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
-    $(SRC)/resources                    \
-    $(SRC)/resources/basic              \
-    $(SRC)/resources/complex            \
-    $(SRC)/resources/data               \
     $(SRC)/settings                     \
     $(SRC)/types                        \
     $(SRC)/theatre                      \
     $(SRC)/things                       \
-    $(SRC)/things/actors
+    $(SRC)/things/actors                \
+    $(SRC)/resources                    \
+    $(SRC)/resources/basic              \
+    $(SRC)/resources/complex            \
+    $(SRC)/resources/data               \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
