@@ -29,8 +29,6 @@ using namespace ManagerEnums;
 static constexpr const char* s_TypeWarning  = "{} TheatreManager::CreateObjects - '{}' has an {} and cannot be interpreted{}";
 
 static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
-
-static std::random_device s_RandomDevice;
 static std::vector<RenderCommand> s_RenderCommandQueue = {};
 
 static TheatreManager s_TheatreManager;
@@ -99,7 +97,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 void TheatreManager::CreateObjects()
 {
     std::vector<data_t> theatre_data = TheatreParser::GetTheatreData().GetData();
-    std::map<std::string, tid_t> l_NameIDMap = {};
 
     WAIT(s_AreThingsLocked, 1.0f)
     s_AreThingsLocked = true;

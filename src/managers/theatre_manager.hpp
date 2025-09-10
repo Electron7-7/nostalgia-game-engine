@@ -2,10 +2,10 @@
 #define THEATRE_MANAGER_H
 
 #include "manager.hpp"
-#include "theatre/theatre_data.hpp"
+#include "time.hpp"
 #include "resources/resource.hpp"
-#include "things/thing.hpp"
 #include "resources/fwd.hpp"
+#include "things/thing.hpp"
 #include "things/fwd.hpp"
 
 #include <memory>
@@ -69,8 +69,8 @@ public:
 
     static NostalgiaPlayer* GetLocalPlayer();
 
-    static bool try_DestroyResource(rid_t ResourceID);
-    static bool try_DestroyThing(tid_t ThingID);
+    static bool try_DestroyResource(id_t ResourceID);
+    static bool try_DestroyThing(id_t ThingID);
 
 #ifdef DEBUGGING
     static const std::map<id_t, std::shared_ptr<Thing>>& debug_GetThings();
@@ -85,8 +85,6 @@ private:
 
     static void CreateObjects();
     static void DestroyObjects();
-
-    static id_t GetNewID();
     static void SetVariables(size_t, id_t, const data_t&);
 };
 

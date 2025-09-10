@@ -2,6 +2,7 @@
 #include "filesystem/filesystem.hpp"
 
 #include <set>
+#include <random>
 #include <fstream>
 #include <algorithm>
 #include <cctype>
@@ -40,6 +41,9 @@ static constexpr std::string ToLower(std::string string)
     return string;
 }
 
+static std::random_device s_RandomDevice;
+static std::set<size_t> s_ExistingIDs = {};
+static std::map<std::string, std::string> s_NameIDMap = {};
 static std::string s_TheatreFileDataString = "";
 static TheatreData s_TheatreData;
 
@@ -130,6 +134,8 @@ void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
 
 SafeStatus TheatreParser::try_ParseTheatre()
 {
+    s_NameIDMap.clear();
+    s_ExistingIDs.clear();
     s_TheatreData.clear();
 
     COLUMN = 1;
@@ -397,7 +403,9 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 location = Location::Object;
                 parsing  = Parsing::VariableName;
 
+                temp_data.SetID(GetNewID());
                 s_TheatreData.AddData(temp_data);
+                s_NameIDMap[temp_data.GetName()] = std::to_string(temp_data.GetID());
 
                 std::string sandwich_variable_value = temp_data.GetName();
                 temp_data = temp_data_swap;
@@ -408,20 +416,35 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 continue;
             }
 
+            temp_data.SetID(GetNewID());
             s_TheatreData.AddData(temp_data);
+            s_NameIDMap[temp_data.GetName()] = std::to_string(temp_data.GetID());
             temp_data.clear();
             variable_name.clear();
             variable_value.clear();
-
             continue;
         }
 
         buffer += character;
     }
 
+    s_TheatreData.UpdateTheatreReferences(s_NameIDMap);
+
 #ifdef DEBUGGING
     s_TheatreData.debug_PrintData();
 #endif // DEBUGGING
-
     return Status::NO_ERR;
+}
+
+id_t TheatreParser::GetNewID()
+{
+    std::mt19937 engine(s_RandomDevice());
+    std::uniform_int_distribution<id_t> distribution(1);
+
+    id_t return_value = distribution(engine);
+    while(s_ExistingIDs.contains(return_value))
+        { return_value = distribution(engine); }
+
+    s_ExistingIDs.insert(return_value);
+    return return_value;
 }

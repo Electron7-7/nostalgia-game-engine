@@ -18,17 +18,14 @@ static const std::set<size_t> s_ThingTypes =
     Type::PrototypeActor,
 };
 
-const BaseType GetBaseType(const std::string& name)
+const size_t GetBaseType(const std::string& name)
 { return GetBaseType(ConstexprHash(name)); }
 
-const BaseType GetBaseType(size_t hash)
+const size_t GetBaseType(size_t hash)
 {
-    if(hash == Type::Invalid)
-        { return BaseType::Invalid; }
-    else if(s_ResourceTypes.contains(hash))
-        { return BaseType::Resource; }
+    if(s_ResourceTypes.contains(hash))
+        { return Type::Resource; }
     else if(s_ThingTypes.contains(hash))
-        { return BaseType::Thing; }
-
-    return BaseType::Invalid;
+        { return Type::Thing; }
+    return Type::Invalid;
 }

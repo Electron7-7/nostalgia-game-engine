@@ -31,15 +31,8 @@ namespace Type
     constexpr size_t NostalgiaPlayer = ConstexprHash(TypeName::NostalgiaPlayer);
 }
 
-enum class BaseType
-{
-    Resource,
-    Thing,
-    Invalid
-};
-
-const BaseType GetBaseType(const std::string& TypeName);
-const BaseType GetBaseType(size_t Type);
+const size_t GetBaseType(const std::string& TypeName);
+const size_t GetBaseType(size_t Type);
 
 #ifdef DEBUGGING
 inline const char* const& StringifyType(size_t Type)

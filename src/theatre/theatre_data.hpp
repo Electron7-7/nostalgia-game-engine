@@ -81,7 +81,8 @@ public:
     static constexpr short VARIABLE_ADDED = (short)false;
 
     short AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
-    void  UpdateTheatreReferences(const std::map<std::string, unsigned int>& IDs);
+    id_t GetID() const;
+    void SetID(id_t ID);
 
     const std::string& GetName() const;
     void SetName(const std::string& Name);
@@ -118,9 +119,9 @@ public:
     const bool operator<(const data_t& Compare) const { return m_Hash < Compare.m_Hash; }
 
 private:
+#ifdef DEBUGGING
     friend struct TheatreData;
-    friend struct ResourceHandler;
-    friend class  TheatreManager;
+#endif // DEBUGGING
     data_t(const std::string& Name, const std::string& Type);
 
     std::vector<variable_t> m_Variables = {};
@@ -139,6 +140,7 @@ struct TheatreData
     long m_Index = -1; // FIXME: Make this not a magic number
 
     const std::vector<data_t>& GetData() const;
+    void UpdateTheatreReferences(const std::map<std::string, std::string>& NameIDMap);
 
     SafeStatus AddData(const data_t& Data);
 

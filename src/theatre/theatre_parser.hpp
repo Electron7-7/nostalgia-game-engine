@@ -12,6 +12,9 @@ public:
 
     static SafeStatus try_LoadTheatreFromFile(const std::string& FilePath);
     static void LoadTheatreFromMemory(const std::string& FileData);
+
+private:
+    static unsigned int GetNewID();
 };
 
 #ifdef DEBUGGING

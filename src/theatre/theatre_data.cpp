@@ -50,16 +50,11 @@ short data_t::AddVariable(const std::string& name, const std::string& data, cons
     return (variable != m_Variables.end());
 }
 
-void data_t::UpdateTheatreReferences(const std::map<std::string, unsigned int>& ids)
-{
-    for(variable_t& variable : m_Variables)
-    {
-        if(variable.m_Type != VariableType::TheatreRef)
-            { continue; }
-        if(ids.contains(variable.m_Value))
-            { variable.m_Value = std::to_string(ids.at(variable.m_Value)); }
-    }
-}
+id_t data_t::GetID() const
+{ return m_AssignedID; }
+
+void data_t::SetID(id_t id)
+{ m_AssignedID = id; }
 
 const std::string& data_t::GetName() const
 { return m_Name; }
@@ -159,19 +154,22 @@ const TheatreData TheatreData::Missing;
 const std::vector<data_t>& TheatreData::GetData() const
 { return m_Data; }
 
+void TheatreData::UpdateTheatreReferences(const std::map<std::string, std::string>& ids)
+{
+    for(data_t& data : m_Data)
+    {
+        for(variable_t& variable : data.m_Variables)
+        {
+            if(variable.m_Type != VariableType::TheatreRef)
+                { continue; }
+            if(ids.contains(variable.m_Value))
+                { variable.m_Value = ids.at(variable.m_Value); }
+        }
+    }
+}
+
 SafeStatus TheatreData::AddData(const data_t& data)
 {
-    // switch(GetBaseType(data.GetType()))
-    // {
-    // case BaseType::Invalid:
-    //     return Status::TheatreDataINVALID_TYPE;
-    // case BaseType::Resource:
-    //     m_Resources.push_back(data);
-    //     break;
-    // case BaseType::Thing:
-    //     m_Things.push_back(data);
-    //     break;
-    // }
     if(GetBaseType(data.GetType()) == BaseType::Invalid)
         { return Status::TheatreDataINVALID_TYPE; }
     m_Data.push_back(data);
