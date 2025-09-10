@@ -36,12 +36,12 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
         return false;
     }
 
-    _id = glCreateProgram();
-    glAttachShader(_id, vertex);
-    glAttachShader(_id, fragment);
-    glLinkProgram(_id);
+    m_ID = glCreateProgram();
+    glAttachShader(m_ID, vertex);
+    glAttachShader(m_ID, fragment);
+    glLinkProgram(m_ID);
     PRINT_DEBUG("Checking for Shader Program errors")
-    if(!GLShaderErrorHandler(_id, true))
+    if(!GLShaderErrorHandler(m_ID, true))
     {
         PRINT_ERROR("Shader Program failed to compile!")
         PRINT_DEBUG("Vertex Shader Code:{}\n{}", sty::Reset, v_shader_code)
@@ -52,47 +52,47 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 
-    is_compiled = true;
+    m_IsCompiled = true;
     return true;
 }
 
 bool GLShader::IsValid() const
-{ return is_compiled; }
+{ return m_IsCompiled; }
 
 void GLShader::Bind()
 {
-    if(is_bound)
+    if(m_IsBound)
     { return; }
-    is_bound = true;
-    glUseProgram(_id);
+    m_IsBound = true;
+    glUseProgram(m_ID);
 }
 
 void GLShader::Unbind()
 {
-    if(!is_bound)
+    if(!m_IsBound)
     { return; }
-    is_bound = false;
+    m_IsBound = false;
 }
 
 void GLShader::Delete()
-{ glDeleteShader(_id); }
+{ glDeleteShader(m_ID); }
 
 void GLShader::SetUniform(const std::string& name, int value) const
-{ glProgramUniform1i(_id, glGetUniformLocation(_id, name.c_str()), value); }
+{ glProgramUniform1i(m_ID, glGetUniformLocation(m_ID, name.c_str()), value); }
 
 void GLShader::SetUniform(const std::string& name, float value) const
-{ glProgramUniform1f(_id, glGetUniformLocation(_id, name.c_str()), value); }
+{ glProgramUniform1f(m_ID, glGetUniformLocation(m_ID, name.c_str()), value); }
 
 void GLShader::SetUniform(const std::string& name, glm::vec2 value) const
-{ glProgramUniform2fv(_id, glGetUniformLocation(_id, name.c_str()), 1, glm::value_ptr(value)); }
+{ glProgramUniform2fv(m_ID, glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(const std::string& name, glm::vec3 value) const
-{ glProgramUniform3fv(_id, glGetUniformLocation(_id, name.c_str()), 1, glm::value_ptr(value)); }
+{ glProgramUniform3fv(m_ID, glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(const std::string& name, glm::mat4 value) const
-{ glProgramUniformMatrix4fv(_id, glGetUniformLocation(_id, name.c_str()), 1, GL_FALSE, glm::value_ptr(value)); }
+{ glProgramUniformMatrix4fv(m_ID, glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value)); }
 
-bool GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_linking) const
+bool GLShader::GLShaderErrorHandler(unsigned int shaderm_ID, bool is_program_linking) const
 {
     // FIXME: This is from GraphX and iirc there's some finnicky business with the if statements
 
@@ -103,21 +103,21 @@ bool GLShader::GLShaderErrorHandler(unsigned int shader_id, bool is_program_link
     if(is_program_linking)
     {
         shader_error_type = "Program Linking";
-        glGetProgramiv(shader_id, GL_LINK_STATUS, &v_result);
-        glGetProgramiv(shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+        glGetProgramiv(shaderm_ID, GL_LINK_STATUS, &v_result);
+        glGetProgramiv(shaderm_ID, GL_INFO_LOG_LENGTH, &info_log_length);
     }
     else
     {
-        glGetShaderiv(shader_id, GL_COMPILE_STATUS, &v_result);
-        glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
+        glGetShaderiv(shaderm_ID, GL_COMPILE_STATUS, &v_result);
+        glGetShaderiv(shaderm_ID, GL_INFO_LOG_LENGTH, &info_log_length);
     }
     if(info_log_length > 0)
     {
         std::vector<char> shader_error_message(info_log_length + 1);
         if(is_program_linking)
-        { glGetProgramInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data()); }
+        { glGetProgramInfoLog(shaderm_ID, info_log_length, nullptr, shader_error_message.data()); }
         else
-        { glGetShaderInfoLog(shader_id, info_log_length, nullptr, shader_error_message.data()); }
+        { glGetShaderInfoLog(shaderm_ID, info_log_length, nullptr, shader_error_message.data()); }
 
         PRINT_ERROR("GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data())
         return false;

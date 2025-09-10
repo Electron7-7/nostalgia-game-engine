@@ -3,16 +3,17 @@
 #include "theatre/3d_common.hpp"
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
-#include "resources/engine/opengl_shaders.hpp"
+#include "resources/data/opengl_shaders.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
 
-std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::VAOs = {};
-std::map<unsigned int, GLShader> OpenGL_Backend::shaders = {};
-unsigned int OpenGL_Backend::currently_bound_shader = Shaders::SAFETY;
-unsigned int OpenGL_Backend::VBO = 0;
-unsigned int OpenGL_Backend::IBO = 0;
+std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::m_VAOs = {};
+std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
+
+unsigned int OpenGL_Backend::m_CurrentlyBoundShader = Shaders::Safety;
+unsigned int OpenGL_Backend::m_VBO = 0;
+unsigned int OpenGL_Backend::m_IBO = 0;
 
 void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 {
@@ -20,17 +21,17 @@ void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-
 bool OpenGL_Backend::Init()
 {
     if(m_IsInitialized)
         { return true; }
 
-    glGenVertexArrays(VAOS_AMOUNT, VAOs.data());
+    glGenVertexArrays(VAOS_AMOUNT, m_VAOs.data());
 
     // The safety shader must ALWAYS compile; the rest can fail without causing crashes
-    if(!BuildShader(Shaders::SAFETY, glsl_VERT_SafetyShader, glsl_FRAG_SafetyShader)) return false;
-    BuildShader(Shaders::BLINN_PHONG, glsl_VERT_BlinnPhong, glsl_FRAG_BlinnPhong);
+    if(!BuildShader(Shaders::Safety, glsl_VERT_SafetyShader, glsl_FRAG_SafetyShader))
+        { return false; }
+    BuildShader(Shaders::BlinnPhong, glsl_VERT_BlinnPhong, glsl_FRAG_BlinnPhong);
 
     // TODO: See note in 'src/world/3d_common.hpp'
     World::Orientation::SetWorldUp(glm::vec3(0.0f, 1.0f, 0.0f));
@@ -63,13 +64,13 @@ bool OpenGL_Backend::InitNewTheatre()
     std::vector<float> all_vertex_data = {};
     std::vector<unsigned int> all_indices = {};
 
-    glBindVertexArray(VAOs.at(VAO_DEFAULT));
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &IBO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
+    glDeleteBuffers(1, &m_VBO);
+    glDeleteBuffers(1, &m_IBO);
+    glGenBuffers(1, &m_VBO);
+    glGenBuffers(1, &m_IBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 
     // std::map<MeshWrapper::MeshID, const Mesh*> all_meshes = g_pTheatreManager->GetAllCurrentMeshes();
 
@@ -104,19 +105,19 @@ void OpenGL_Backend::Shutdown()
 
 bool OpenGL_Backend::BindShader(unsigned int shader_label)
 {
-    if(!shaders.contains(shader_label))
+    if(!m_Shaders.contains(shader_label))
     {
         PRINT_WARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
         return false;
     }
 
-    if(currently_bound_shader == shader_label)
+    if(m_CurrentlyBoundShader == shader_label)
     { return true; }
 
     // FIXME: Can this fail even if the shaders are compiled successfuly?
-    shaders.at(currently_bound_shader).Unbind();
-    shaders.at(shader_label).Bind();
-    currently_bound_shader = shader_label;
+    m_Shaders.at(m_CurrentlyBoundShader).Unbind();
+    m_Shaders.at(shader_label).Bind();
+    m_CurrentlyBoundShader = shader_label;
     return true;
 }
 
@@ -128,37 +129,37 @@ void OpenGL_Backend::ImGuiRender()
 
 bool OpenGL_Backend::BuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
-    if(shaders.contains(shader_label))
+    if(m_Shaders.contains(shader_label))
     {
         PRINT_WARNING("OpenGL_Backend::BuildShader - a shader with the supplied label already exists; returning result of ::IsValid")
-        return shaders.at(shader_label).IsValid();
+        return m_Shaders.at(shader_label).IsValid();
     }
 
-    shaders[shader_label] = GLShader();
-    return shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
+    m_Shaders[shader_label] = GLShader();
+    return m_Shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
 }
 
 bool OpenGL_Backend::RebuildShader(unsigned int shader_label, const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
-    if(!shaders.contains(shader_label))
+    if(!m_Shaders.contains(shader_label))
     {
         PRINT_WARNING("OpenGL_Backend::RebuildShader - invalid shader label! Returning false")
         return false;
     }
 
-    if(shader_label == currently_bound_shader)
+    if(shader_label == m_CurrentlyBoundShader)
     {
-        shaders.at(shader_label).Unbind();
-        shaders.at(Shaders::SAFETY).Bind();
+        m_Shaders.at(shader_label).Unbind();
+        m_Shaders.at(Shaders::Safety).Bind();
     }
 
-    shaders.at(shader_label).Delete();
-    bool was_successful = shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
+    m_Shaders.at(shader_label).Delete();
+    bool was_successful = m_Shaders.at(shader_label).CompileShader(vertex_shader_code, fragment_shader_code);
 
-    if(shader_label == currently_bound_shader && was_successful)
+    if(shader_label == m_CurrentlyBoundShader && was_successful)
     {
-        shaders.at(Shaders::SAFETY).Unbind();
-        shaders.at(shader_label).Bind();
+        m_Shaders.at(Shaders::Safety).Unbind();
+        m_Shaders.at(shader_label).Bind();
     }
 
     return was_successful;
@@ -167,20 +168,20 @@ bool OpenGL_Backend::RebuildShader(unsigned int shader_label, const std::string&
 // FIXME: Is it a good idea to let outside code access shader interfaces directly?
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
-    if(!shaders.contains(shader_selection))
+    if(!m_Shaders.contains(shader_selection))
     {
         PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
-        shader_selection = Shaders::SAFETY;
+        shader_selection = Shaders::Safety;
     }
 
-    return &shaders.at(shader_selection);
+    return &m_Shaders.at(shader_selection);
 }
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
     RenderContext context = rendercmd.GetRenderContext();
 
-    glBindVertexArray(VAOs.at(VAO_DEFAULT));
+    glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
 
     GetShader(context.GetShaderID())->SetUniform("point_lights_count", context.GetPointLightsCount());
     GetShader(context.GetShaderID())->SetUniform("spot_lights_count", context.GetSpotLightsCount());

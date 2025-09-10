@@ -11,7 +11,7 @@
 
 struct Mesh; // Forward Declaration
 
-struct OpenGL_MeshData
+/*struct OpenGL_MeshData
 {
 public:
     void SetIndicesCount(const unsigned int IndicesCount) { _indices_count = IndicesCount; }
@@ -26,7 +26,7 @@ private:
     unsigned int _indices_count = 0;
     unsigned int _base_vertex   = 0;
     unsigned int _base_index    = 0;
-};
+};*/
 
 class OpenGL_Backend : public GraphicsBackend
 {
@@ -61,11 +61,11 @@ private:
     typedef int MeshID;
 
     // static std::map<MeshID, OpenGL_MeshData> gl_mesh_data;
-    static std::array<unsigned int, VAOS_AMOUNT> VAOs;
-    static std::map<unsigned int, GLShader> shaders;
-    static unsigned int currently_bound_shader;
-    static unsigned int VBO;
-    static unsigned int IBO;
+    static std::array<unsigned int, VAOS_AMOUNT> m_VAOs;
+    static std::map<unsigned int, GLShader> m_Shaders;
+    static unsigned int m_CurrentlyBoundShader;
+    static unsigned int m_VBO;
+    static unsigned int m_IBO;
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;

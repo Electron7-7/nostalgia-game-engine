@@ -6,11 +6,11 @@
 
 namespace Shaders
 {
-    constexpr unsigned int SAFETY      = 0; // Used when deleting a shader that is currently bound
-    constexpr unsigned int BLINN_PHONG = 1;
-    constexpr unsigned int SKYBOX      = 2;
-    constexpr unsigned int FULLBRIGHT  = 3;
-    constexpr unsigned int FONTS       = 4;
+    constexpr unsigned int Safety     = 0; // Used when deleting a shader that is currently bound
+    constexpr unsigned int BlinnPhong = 1;
+    constexpr unsigned int Skybox     = 2;
+    constexpr unsigned int Fullbright = 3;
+    constexpr unsigned int Fonts      = 4;
 }
 
 class ShaderInterface
@@ -29,9 +29,9 @@ public:
     virtual void SetUniform(const std::string& Name, glm::mat4 Value) const = 0;
 
 protected:
-    unsigned int _id = 0;
-    bool is_compiled = false;
-    bool is_bound = false;
+    unsigned int m_ID = 0;
+    bool m_IsCompiled = false;
+    bool m_IsBound    = false;
 };
 
 #endif // SHADER_INTERFACE_H
