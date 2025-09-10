@@ -2,7 +2,6 @@
 #include "filesystem/filesystem.hpp"
 
 #include <set>
-#include <random>
 #include <fstream>
 #include <algorithm>
 #include <cctype>
@@ -108,6 +107,15 @@ enum class Parsing
     VariableValue =  4,
 };
 
+static void s_AddParsedDataHelper(data_t& data)
+{
+    data.SetID(ID::GetNewID());
+    s_TheatreData.AddData(data);
+    s_NameIDMap[data.GetName()] = std::to_string(data.GetID());
+    if(data.GetType() == Type::NostalgiaPlayer)
+        { s_PlayerInstantiated = true; }
+}
+
 const TheatreData& TheatreParser::GetTheatreData()
 {
     // FIXME: Make this better
@@ -134,8 +142,10 @@ void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
 
 SafeStatus TheatreParser::try_ParseTheatre()
 {
+    // TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)
+    ID::ClearIDs();
+
     s_NameIDMap.clear();
-    s_ExistingIDs.clear();
     s_TheatreData.clear();
 
     COLUMN = 1;
@@ -403,9 +413,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 location = Location::Object;
                 parsing  = Parsing::VariableName;
 
-                temp_data.SetID(GetNewID());
-                s_TheatreData.AddData(temp_data);
-                s_NameIDMap[temp_data.GetName()] = std::to_string(temp_data.GetID());
+                s_AddParsedDataHelper(temp_data);
 
                 std::string sandwich_variable_value = temp_data.GetName();
                 temp_data = temp_data_swap;
@@ -416,9 +424,8 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 continue;
             }
 
-            temp_data.SetID(GetNewID());
-            s_TheatreData.AddData(temp_data);
-            s_NameIDMap[temp_data.GetName()] = std::to_string(temp_data.GetID());
+            s_AddParsedDataHelper(temp_data);
+
             temp_data.clear();
             variable_name.clear();
             variable_value.clear();
@@ -434,17 +441,4 @@ SafeStatus TheatreParser::try_ParseTheatre()
     s_TheatreData.debug_PrintData();
 #endif // DEBUGGING
     return Status::NO_ERR;
-}
-
-id_t TheatreParser::GetNewID()
-{
-    std::mt19937 engine(s_RandomDevice());
-    std::uniform_int_distribution<id_t> distribution(1);
-
-    id_t return_value = distribution(engine);
-    while(s_ExistingIDs.contains(return_value))
-        { return_value = distribution(engine); }
-
-    s_ExistingIDs.insert(return_value);
-    return return_value;
 }
