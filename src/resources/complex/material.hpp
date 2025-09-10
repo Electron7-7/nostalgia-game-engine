@@ -6,6 +6,7 @@
 struct Material : public Resource
 {
 public:
+    virtual void SetupVariables(const data_t&);
 
     id_t GetDiffuseTexture() const;
     void SetDiffuseTexture(id_t TextureID);

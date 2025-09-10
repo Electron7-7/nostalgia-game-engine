@@ -1,6 +1,19 @@
 #include "nostalgia_player.hpp"
 #include "managers/theatre_manager.hpp"
 
+void NostalgiaPlayer::SetupVariables(const data_t& data)
+{
+    Actor::SetupVariables(data);
+}
+
+bool NostalgiaPlayer::Initialize()
+{
+    GetCamera()->SetOrigin(Origin());
+    GetCamera()->SetRotation(Rotation());
+    // return Actor::Initialize(); // Is this required or would it break shit?
+    return true;
+}
+
 Camera3D* NostalgiaPlayer::GetCamera()
 { return TheatreManager::GetThing<Camera3D>(m_CameraID).get(); }
 

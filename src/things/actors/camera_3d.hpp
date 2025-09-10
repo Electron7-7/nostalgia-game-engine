@@ -10,6 +10,8 @@
 class Camera3D : public Actor
 {
 public:
+    virtual void SetupVariables(const data_t&);
+
     glm::vec3 GetFront();
     glm::vec3 GetRight();
     glm::vec3 GetUp();

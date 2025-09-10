@@ -1,5 +1,12 @@
 #include "material.hpp"
 
+void Material::SetupVariables(const data_t& data)
+{
+    // Resource::SetupVariables(data); // This currently doesn't do anything
+
+    data.GetTheatreRef(m_DiffuseTextureID, "DiffuseTexture");
+    data.GetTheatreRef(m_SpecularTextureID, "SpecularTexture");
+}
 
 id_t Material::GetDiffuseTexture() const
 { return m_DiffuseTextureID; }

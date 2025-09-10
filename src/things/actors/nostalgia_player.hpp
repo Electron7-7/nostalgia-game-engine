@@ -8,6 +8,9 @@
 class NostalgiaPlayer : public Actor
 {
 public:
+    virtual void SetupVariables(const data_t&);
+    bool Initialize();
+
     void SetOrigin(const glm::vec3&);
     void SetRotation(const glm::quat&);
 

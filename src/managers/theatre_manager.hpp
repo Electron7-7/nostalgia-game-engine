@@ -85,7 +85,6 @@ private:
 
     static void CreateObjects();
     static void DestroyObjects();
-    static void SetVariables(size_t, id_t, const data_t&);
 };
 
 extern TheatreManager* g_pTheatreManager;

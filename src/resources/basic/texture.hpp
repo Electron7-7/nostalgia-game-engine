@@ -10,6 +10,7 @@ struct Texture : public Resource
 public:
     static const Texture Missing;
 
+    virtual void UpdateVariables(const data_t&);
 
     Texture();
     Texture(const BinaryFileData& Data);

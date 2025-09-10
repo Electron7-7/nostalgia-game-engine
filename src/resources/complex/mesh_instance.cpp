@@ -1,5 +1,12 @@
 #include "mesh_instance.hpp"
 
+void MeshInstance::SetupVariables(const data_t& data)
+{
+    // Resource::SetupVariables(data); // This currently doesn't do anything
+
+    data.GetTheatreRef(m_MeshID, "Mesh");
+    data.GetTheatreRef(m_MaterialID, "Material");
+}
 
 void MeshInstance::AssignMesh(id_t mesh_id)
 { m_MeshID = mesh_id; }

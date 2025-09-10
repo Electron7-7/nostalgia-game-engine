@@ -6,6 +6,7 @@
 class PrototypeActor : public Actor
 {
 public:
+    virtual void SetupVariables(const data_t&);
 
     id_t GetMeshInstance() const;
     bool HasMeshInstance() const;

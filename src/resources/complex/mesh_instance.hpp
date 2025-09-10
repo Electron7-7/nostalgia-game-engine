@@ -6,6 +6,7 @@
 struct MeshInstance : public Resource
 {
 public:
+    virtual void SetupVariables(const data_t&);
 
     void AssignMesh(id_t MeshID);
     id_t GetMesh() const;

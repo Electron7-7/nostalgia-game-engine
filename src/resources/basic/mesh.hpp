@@ -23,6 +23,8 @@ public:
     static Mesh Error;
     static Mesh Ramiel;
 
+    virtual void UpdateVariables(const data_t&);
+
     Mesh();
 
     void LoadModelFile(const std::string& FilePath, ModelType FileType = ModelType::Unknown);

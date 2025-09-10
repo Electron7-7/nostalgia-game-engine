@@ -8,6 +8,7 @@ namespace TypeName
     constexpr const char* Invalid         = "Invalid";
     constexpr const char* Resource        = "Resource";
     constexpr const char* Mesh            = "Mesh";
+    constexpr const char* Font            = "Font";
     constexpr const char* Texture         = "Texture";
     constexpr const char* Material        = "Material";
     constexpr const char* MeshInstance    = "MeshInstance";
@@ -15,6 +16,7 @@ namespace TypeName
     constexpr const char* Actor           = "Actor";
     constexpr const char* PrototypeActor  = "PrototypeActor";
     constexpr const char* NostalgiaPlayer = "NostalgiaPlayer";
+    constexpr const char* Camera3D        = "Camera3D";
 }
 
 namespace Type
@@ -22,6 +24,7 @@ namespace Type
     constexpr size_t Invalid         = ConstexprHash(TypeName::Invalid);
     constexpr size_t Resource        = ConstexprHash(TypeName::Resource);
     constexpr size_t Mesh            = ConstexprHash(TypeName::Mesh);
+    constexpr size_t Font            = ConstexprHash(TypeName::Font);
     constexpr size_t Texture         = ConstexprHash(TypeName::Texture);
     constexpr size_t Material        = ConstexprHash(TypeName::Material);
     constexpr size_t MeshInstance    = ConstexprHash(TypeName::MeshInstance);
@@ -29,6 +32,7 @@ namespace Type
     constexpr size_t Actor           = ConstexprHash(TypeName::Actor);
     constexpr size_t PrototypeActor  = ConstexprHash(TypeName::PrototypeActor);
     constexpr size_t NostalgiaPlayer = ConstexprHash(TypeName::NostalgiaPlayer);
+    constexpr size_t Camera3D        = ConstexprHash(TypeName::Camera3D);
 }
 
 const size_t GetBaseType(const std::string& TypeName);

@@ -15,6 +15,14 @@ static std::map<std::string, ModelType> s_FileTypesByExtension
 Mesh Mesh::Error  = Mesh(model_OBJ_Error, ModelType::OBJ);
 Mesh Mesh::Ramiel = Mesh(model_OBJ_Ramiel, ModelType::OBJ);
 
+void Mesh::UpdateVariables(const data_t& data)
+{
+    // Resource::UpdateVariables(data); // This currently doesn't do anything
+
+    data.GetString(m_FileName, "File");
+    data.GetEngineRef(m_FileData, "Data");
+}
+
 Mesh::Mesh() = default;
 
 Mesh::Mesh(const std::string& model_data, ModelType model_type)

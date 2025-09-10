@@ -1,5 +1,13 @@
 #include "actor.hpp"
 
+void Actor::SetupVariables(const data_t& data)
+{
+    // Thing::SetupVariables(data); // Currently, this doesn't do anything
+
+    data.GetNumber(m_Origin,   "Origin");
+    data.GetNumber(m_Rotation, "Rotation");
+}
+
 void Actor::SetOrigin(const glm::vec3& origin)
 { m_Origin = origin; }
 

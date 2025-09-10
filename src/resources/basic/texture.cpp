@@ -4,6 +4,13 @@
 
 const Texture Texture::Missing(image_JPG_MISSINGTEXTURE);
 
+void Texture::UpdateVariables(const data_t& data)
+{
+    // Resource::UpdateVariables(data); // This currently doesn't do anything
+
+    data.GetString(m_File, "File");
+    data.GetEngineRef(m_Data, "Data");
+}
 
 Texture::Texture() = default;
 
