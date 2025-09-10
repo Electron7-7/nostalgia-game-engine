@@ -435,3 +435,8 @@ Okay, I'm gonna try to merge 'ResourceHandler' into 'TheatreManager' and try to 
 
 !!!IMPORTANT!!!
 Render commands will have mesh/texture IDs, and the backend will do something unique with them. In OpenGL's case, it'll store vertex/index offset values in a struct that's mapped to its mesh's ID (same thing for textures, except it's the texture's OpenGL ID that gets mapped to the texture's ID).
+
+[09/09/25]
+I'm completely changing engine resources. They are now "ResourceData" and are embedded data that is referenced instead of an external file by certain Resources.
+
+TODO: Merge 'Font' and 'Texture' into a common 'BinaryFile Resource' type and make 'Font' and 'Texture' inherit from that with the only changes being unique 'Missing' static members.
