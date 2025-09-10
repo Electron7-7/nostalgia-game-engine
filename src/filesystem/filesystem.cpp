@@ -57,7 +57,6 @@ void Filesystem::MakePathAbsolute(const std::string& path, std::string& output)
 {
     if(!PathExists(path) || IsDirectory(path))
         { return; }
-
     output = fs::absolute(fs::path(path)).generic_string();
 }
 
