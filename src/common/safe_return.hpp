@@ -80,6 +80,7 @@ struct Status
     inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x20, "FilesystemFILE_READ_ERROR"              );
     inline static SafeStatus TextureIMAGE_FILE_FAILED_TO_LOAD       = SafeStatus( 0x21, "TextureIMAGE_FILE_FAILED_TO_LOAD"       );
     inline static SafeStatus EngineReferenceINVALID_REFERENCE       = SafeStatus( 0x22, "EngineReferenceINVALID_REFERENCE"       );
+    inline static SafeStatus FontFONT_FILE_FAILED_TO_LOAD           = SafeStatus( 0x23, "FontFONT_FILE_FAILED_TO_LOAD"           );
 };
 
 template<typename T>
