@@ -3,78 +3,100 @@
 
 #include <stdexcept>
 #include <string>
-#include <vector>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
-// Fuck you, I'm tired...
-#define INTERPRET_GLM_MACRO(GLM, SIZE)                              \
-    GLM output = GLM();                                             \
-    std::vector<float> numbers = {};                                \
-    std::string buffer = "";                                        \
-    numbers.reserve(SIZE);                                          \
-    size_t index = 0;                                               \
-    for(const char& character : string)                             \
-    {                                                               \
-        switch(character)                                           \
-        {                                                           \
-        case ',':                                                   \
-            if(++index < (SIZE - 1))                                \
-            {                                                       \
-                if(!StringToNum<float>(output[index], buffer))      \
-                    { return false; }                               \
-            }                                                       \
-            buffer.clear();                                         \
-            [[fallthrough]];                                        \
-        case ' ':                                                   \
-            continue;                                               \
-        default:                                                    \
-            buffer += character;                                    \
-            continue;                                               \
-        }                                                           \
-    }                                                               \
-    if(!StringToNum<float>(output[SIZE - 1], buffer))               \
-        { return false; }                                           \
-    variable = output;                                              \
-    return true;
-
-#define INTERPRET_NUMBER_MACRO(STD_FUNCTION, VARIABLE, STRING) \
-T new_value = 0;                                               \
-try                                                            \
-    { new_value = std::STD_FUNCTION(STRING); }                 \
-catch(std::invalid_argument const& exception)                  \
-    { return false; }                                          \
-VARIABLE = new_value;                                          \
-return true;
+template<typename T>
+concept UnsignedNumber = requires
+{ std::is_unsigned_v<std::decay_t<T>>; };
 
 template<typename T>
-concept UnsignedNumber = requires { std::is_unsigned_v<std::decay_t<T>>; };
+concept SignedNumber = requires
+{ std::is_signed_v<std::decay_t<T>>; };
 
 template<typename T>
-concept RealNumber = requires { std::is_floating_point_v<std::decay_t<T>>; };
+concept RealNumber = requires
+{ std::is_floating_point_v<std::decay_t<T>>; };
 
+// TODO: Expand to all glm containers (if necessary)
 template<typename T>
-inline bool StringToNum(T& number, const std::string& string)
+concept GLMContainer = requires
 {
-    if constexpr(UnsignedNumber<T>)
-        { INTERPRET_NUMBER_MACRO(stoul, number, string) }
-    else if constexpr(RealNumber<T>)
-        { INTERPRET_NUMBER_MACRO(stod, number, string) }
-    else
-        { INTERPRET_NUMBER_MACRO(stol, number, string) }
+    (
+        std::is_same_v<std::decay_t<glm::vec2>, std::decay_t<T>> ||
+        std::is_same_v<std::decay_t<glm::vec3>, std::decay_t<T>> ||
+        std::is_same_v<std::decay_t<glm::quat>, std::decay_t<T>>
+    ) == true;
+};
+
+template<typename T, typename N>
+bool InterpretNumber(N (*conversion_function)(const std::string&, std::size_t*), T& variable, const std::string& string)
+{
+    T new_value = 0;
+    try
+    { new_value = conversion_function(string, nullptr); }
+    catch(std::invalid_argument const& exception)
+    { return false; }
+    variable = new_value;
+    return true;
+}
+
+template<typename T>
+bool StringToNum(T& number, const std::string& string)
+{
+    if constexpr(std::is_signed_v<T> && std::is_integral_v<T>)
+        { return InterpretNumber<T, long>(&std::stol, number, string); }
+    else if constexpr(std::is_unsigned_v<T> && std::is_integral_v<T>)
+        { return InterpretNumber<T, unsigned long>(&std::stoul, number, string); }
+    else if constexpr(std::is_floating_point_v<T>)
+        { return InterpretNumber<T, double>(&std::stod, number, string); }
+    return false;
+}
+
+template<GLMContainer T, unsigned int size>
+bool InterpretGLM(T& variable, const std::string& string)
+{
+    T output = T();
+    std::string buffer = "";
+    size_t index = 0;
+    for(const char& character : string)
+    {
+        switch(character)
+        {
+        case ',':
+            if(index < (size - 1))
+            {
+                float temp_num = output[index];
+                if(!StringToNum(temp_num, buffer))
+                    { return false; }
+                output[index++] = temp_num;
+            }
+            buffer.clear();
+            [[fallthrough]];
+        case ' ':
+            continue;
+        default:
+            buffer += character;
+            continue;
+        }
+    }
+    if(!StringToNum(output[size - 1], buffer))
+        { return false; }
+    variable = output;
+    return true;
 }
 
 template<>
 inline bool StringToNum(glm::vec2& variable, const std::string& string)
-{ INTERPRET_GLM_MACRO(glm::vec2, 2) }
+{ return InterpretGLM<glm::vec2, 2>(variable, string); }
 
 template<>
 inline bool StringToNum(glm::vec3& variable, const std::string& string)
-{ INTERPRET_GLM_MACRO(glm::vec3, 3) }
+{ return InterpretGLM<glm::vec3, 3>(variable, string); }
 
 template<>
 inline bool StringToNum(glm::quat& variable, const std::string& string)
-{ INTERPRET_GLM_MACRO(glm::quat, 4) }
+{ return InterpretGLM<glm::quat, 4>(variable, string); }
 
 #endif // STRING_TO_NUM_H
