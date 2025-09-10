@@ -7,26 +7,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
-// FIXME: I hate doing this
-inline unsigned long std_stoul(const std::string& string)
-{ return std::stoul(string); }
-inline long std_stol(const std::string& string)
-{ return std::stol(string); }
-inline double std_stod(const std::string& string)
-{ return std::stod(string); }
-
-template<typename T>
-concept UnsignedNumber = requires
-{ std::is_unsigned_v<std::decay_t<T>>; };
-
-template<typename T>
-concept SignedNumber = requires
-{ std::is_signed_v<std::decay_t<T>>; };
-
-template<typename T>
-concept RealNumber = requires
-{ std::is_floating_point_v<std::decay_t<T>>; };
-
 // TODO: Expand to all glm containers (if necessary)
 template<typename T>
 concept GLMContainer = requires
@@ -38,12 +18,24 @@ concept GLMContainer = requires
     ) == true;
 };
 
-template<typename T, typename N>
-bool InterpretNumber(N (*conversion_function)(const std::string&), T& variable, const std::string& string)
+template<typename T>
+bool InterpretIntegralNumber(T& variable, const std::string& string)
 {
     T new_value = 0;
     try
-    { new_value = conversion_function(string); }
+    { new_value = std::stoll(string); }
+    catch(std::invalid_argument const& exception)
+    { return false; }
+    variable = new_value;
+    return true;
+}
+
+template<typename T>
+bool InterpretRealNumber(T& variable, const std::string& string)
+{
+    T new_value = 0;
+    try
+    { new_value = std::stold(string); }
     catch(std::invalid_argument const& exception)
     { return false; }
     variable = new_value;
@@ -53,12 +45,10 @@ bool InterpretNumber(N (*conversion_function)(const std::string&), T& variable, 
 template<typename T>
 bool StringToNum(T& number, const std::string& string)
 {
-    if constexpr(std::is_signed_v<T> && std::is_integral_v<T>)
-        { return InterpretNumber<T, long>(&std_stol, number, string); }
-    else if constexpr(std::is_unsigned_v<T> && std::is_integral_v<T>)
-        { return InterpretNumber<T, unsigned long>(&std_stoul, number, string); }
-    else if constexpr(std::is_floating_point_v<T>)
-        { return InterpretNumber<T, double>(&std_stod, number, string); }
+    if constexpr(std::is_integral_v<T>)
+        { return InterpretIntegralNumber(number, string); }
+    else if constexpr(!std::is_integral_v<T>)
+        { return InterpretRealNumber(number, string); }
     return false;
 }
 
@@ -89,8 +79,10 @@ bool InterpretGLM(T& variable, const std::string& string)
             continue;
         }
     }
-    if(!StringToNum(output[size - 1], buffer))
+    float temp_num = output[size - 1];
+    if(!StringToNum(temp_num, buffer))
         { return false; }
+    output[size - 1] = temp_num;
     variable = output;
     return true;
 }
