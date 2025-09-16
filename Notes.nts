@@ -440,3 +440,11 @@ Render commands will have mesh/texture IDs, and the backend will do something un
 I'm completely changing engine resources. They are now "ResourceData" and are embedded data that is referenced instead of an external file by certain Resources.
 
 TODO: Merge 'Font' and 'Texture' into a common 'BinaryFile Resource' type and make 'Font' and 'Texture' inherit from that with the only changes being unique 'Missing' static members.
+
+I've made Things and Resources derive from the same base class; I now have a much easier time processing them.
+
+[09/10/25]
+I have an idea for ids. The default 'ID::None', which is '0', cannot be assigned via the random generator. This was an accidental brilliant maneuver because I can use that to my advantage with things like mesh buffering; for example, I can make sure that the 'Error' mesh's data is always buffered with an id of '0'.
+
+[09/11/25]
+I can get of the Theatre file "contexts".
