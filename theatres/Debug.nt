@@ -1,0 +1,19 @@
+@Debug#1
+
+Resources
+{
+    Mesh CubeMesh
+    {
+        File = 'src/testing_app/resources/Cube.obj'
+    }
+}
+
+Things
+{
+    PrototypeActor CubeTester
+    {
+        Mesh = <CubeMesh>
+        Origin = (0, -0.05, 2)
+        Rotation = (-0.1, 0, 0.1)
+    }
+}

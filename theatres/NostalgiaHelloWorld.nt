@@ -13,7 +13,7 @@ Resources
     Texture LolBit_Tex
     {
         // This is a String, delimited by sinqle-quotes. Strings capture everything inside them, including whitespace
-        Image = 'src/testing_app/resources/lolbit.png'
+        File = 'src/testing_app/resources/lolbit.png'
     }
 
     Mesh Doom_Mesh
@@ -21,9 +21,9 @@ Resources
         File = 'src/testing_app/resources/Cube.obj'
     }
 
-    Mesh LolBit_Mesh
+    Mesh Ramiel_Mesh
     {
-        File = 'src/testing_app/resources/Cube.obj'
+        Data = [RamielModel]
     }
 
     Material LolBit_Mat
@@ -34,15 +34,20 @@ Resources
 
     MeshInstance LolBitMeshInstance
     {
-        Mesh = <LolBit_Mesh>
+        Mesh = <Ramiel_Mesh>
         Material = <LolBit_Mat>
+    }
+
+    Texture Doom_Texture
+    {
+        Data = [DoomTexture]
     }
 
     Material Doom_Mat
     {
         // This is an Engine reference, delimited by square braces. It is the name of a special engine variable
         // (in the future, your game/app can define its own "Engine" references which your Theatre files can use)
-        DiffuseTexture = [image_PNG_COMP045]
+        DiffuseTexture = <Doom_Texture>
     }
 }
 
@@ -53,7 +58,7 @@ Things
         MeshInstance = <LolBitMeshInstance>
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
         // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
-        GlobalPosition = (1.0)
+        Origin = (-3, 1.0, -2) // An example of all the different number types working together!
         // Booleans are case-insensitive
         IsVisible = (true)
     }
@@ -71,7 +76,8 @@ Things
             Mesh = <Doom_Mesh>
             Material = <Doom_Mat>
         }
-        GlobalPosition = (-1, 1.0, -2) // An example of all the different number types working together!
+        Origin = (3, 0, -3)
+        Rotation = (-0.1, 0, 0.1)
         IsVisible = (True) // An example of boolean case-insensitivity
     }
 }
