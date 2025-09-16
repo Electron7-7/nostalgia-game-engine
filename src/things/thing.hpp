@@ -2,10 +2,11 @@
 #define THING_H
 
 #include "id.hpp"
-#include "theatre/theatre_data.hpp"
 #include "types/typenames.hpp"
 
 #include <string>
+
+struct data_t; // Forward Declaration
 
 class _thing
 {
@@ -22,8 +23,7 @@ public:
 
 private:
     friend class TheatreManager;
-
-    id_t m_ID = NoID;
+    id_t m_ID = ID::None;
     size_t m_Type = Type::Thing;
     std::string m_Name = "Untitled Thing";
 };
