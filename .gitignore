@@ -11,8 +11,5 @@ build/
 .cache/
 compile_commands.json
 
-# embedded resources
-src/**/resources/data/
-
 # misc files
 imgui.ini
