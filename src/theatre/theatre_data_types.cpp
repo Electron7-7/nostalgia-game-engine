@@ -1,6 +1,7 @@
 #include "theatre_data.hpp"
-#include "string_to_num.hpp"
-#include "types/typenames.hpp"
+#include "debug.hpp"
+#include "data_t.hpp"
+#include "variable_t.hpp"
 #include "things/resources/resource_data.hpp"
 
 // Variable
@@ -31,7 +32,7 @@ void variable_t::clear()
 // Data
 
 data_t::data_t(const std::string& name, const std::string& type_name, id_t id)
-: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_Hash(ConstexprHash(m_Name + m_TypeName)), m_AssignedID(id)
+: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_AssignedID(id)
 {}
 
 data_t::data_t() = default;
@@ -60,7 +61,6 @@ const std::string& data_t::GetName() const
 void data_t::SetName(const std::string& name)
 {
     m_Name = name;
-    m_Hash = ConstexprHash(m_Name + m_TypeName);
 }
 
 const std::string& data_t::GetTypeName() const
@@ -73,11 +73,18 @@ void data_t::SetType(const std::string& type)
 {
     m_TypeName = type;
     m_Type = ConstexprHash(m_TypeName);
-    m_Hash = ConstexprHash(m_Name + m_TypeName);
+    m_Priority = g_GetPriority(m_Type);
+    PRINT_DEBUG("({}) {} #{}", m_Name, m_TypeName, m_Priority)
 
-    if(GetBaseType(m_Type) == Type::Invalid)
+    if(!g_IsValidType(m_Type))
         { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type, m_Name) }
 }
+
+int data_t::GetPriority() const
+{ return m_Priority; }
+
+void data_t::SetPriority(int priority)
+{ m_Priority = priority; }
 
 void data_t::clear()
 {
@@ -98,26 +105,10 @@ bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& varia
     return StringToNum<unsigned int>(real_variable, variable->m_Value);
 }
 
-bool data_t::GetEngineRef(BinaryFileData& real_variable, const std::string& variable_name) const
+bool data_t::GetFileData(std::shared_ptr<const FileData> real_variable, const std::string& variable_name) const
 {
     EARLY_RETURN_MACRO(variable)
-    SafeReturn<const BinaryFileData&> reference = ResourceData::try_GetBinaryData(variable->m_Value);
-    if(!SafeStatus::PrintCheck(reference.Status()))
-        { return false; }
-
-    real_variable = reference.Data();
-    return true;
-}
-
-bool data_t::GetEngineRef(StringFileData& real_variable, const std::string& variable_name) const
-{
-    EARLY_RETURN_MACRO(variable)
-    SafeReturn<const StringFileData&> reference = ResourceData::try_GetStringData(variable->m_Value);
-    if(!SafeStatus::PrintCheck(reference.Status()))
-        { return false; }
-
-    real_variable = reference.Data();
-    return true;
+    return(ResourceData::GetData(real_variable, variable->m_Value));
 }
 
 bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const
@@ -165,10 +156,67 @@ void TheatreData::UpdateTheatreReferences(const std::map<std::string, std::strin
         }
     }
 }
+// QuickSort functions heavily plagiarized from: https://www.w3schools.com/dsa/dsa_algo_quicksort.php
+static int s_DataPartition(std::vector<data_t>& array, int low, int high)
+{
+    int pivot = array.at(high).GetPriority();
+    int i = (low - 1);
+
+    for(int j = low; j < high; ++j)
+    {
+        if(array.at(j).GetPriority() <= pivot)
+        {
+            ++i;
+            data_t temp = array.at(i);
+            array.at(i) = array.at(j);
+            array.at(j) = temp;
+        }
+    }
+
+    data_t temp = array.at(i + 1);
+    array.at(i + 1) = array.at(high);
+    array.at(high) = temp;
+    return (i + 1);
+}
+
+static void s_DataQuickSort(std::vector<data_t>& array, int low, int high)
+{
+    if(low < high)
+    {
+        int pivot_index = s_DataPartition(array, low, high);
+        s_DataQuickSort(array, low, pivot_index - 1);
+        s_DataQuickSort(array, pivot_index + 1, high);
+    }
+}
+
+void TheatreData::OrderByPriority()
+{
+    DEBUG(
+        std::print("Unsorted:\n");
+        for(size_t i = 0 ; i < m_Data.size() ; ++i)
+        {
+            std::print("{}", m_Data.at(i).GetPriority());
+            if(i+1 < m_Data.size())
+                { std::print(", "); }
+        }
+        std::print("\n");
+    )
+    s_DataQuickSort(m_Data, 0, m_Data.size() - 1);
+    DEBUG(
+        std::print("Data Priority Sorting Check:\n");
+        for(size_t i = 0 ; i < m_Data.size() ; ++i)
+        {
+            std::print("{}", m_Data.at(i).GetPriority());
+            if(i+1 < m_Data.size())
+                { std::print(", "); }
+        }
+        std::print("\n");
+    )
+}
 
 SafeStatus TheatreData::AddData(const data_t& data)
 {
-    if(GetBaseType(data.GetType()) == Type::Invalid)
+    if(!g_IsValidType(data.GetType()))
         { return Status::TheatreDataINVALID_TYPE; }
     m_Data.push_back(data);
     return Status::NO_ERR;
