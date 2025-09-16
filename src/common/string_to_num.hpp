@@ -7,6 +7,27 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 
+#define SHITTY_FUCKING_MACRO(STD, VARIABLE)   \
+T new_value = 0;                              \
+try                                           \
+{                                             \
+    new_value = STD(string);                  \
+}                                             \
+catch(std::invalid_argument const& exception) \
+{                                             \
+    return false;                             \
+}                                             \
+VARIABLE = new_value;                         \
+return true;
+
+template<typename T>
+bool StringToNum(T& number, const std::string& string)
+{
+    if constexpr(!std::is_integral_v<T>)
+        { SHITTY_FUCKING_MACRO(std::stold, number) }
+    SHITTY_FUCKING_MACRO(std::stoll, number)
+}
+
 // TODO: Expand to all glm containers (if necessary)
 template<typename T>
 concept GLMContainer = requires
@@ -17,40 +38,6 @@ concept GLMContainer = requires
         std::is_same_v<std::decay_t<glm::quat>, std::decay_t<T>>
     ) == true;
 };
-
-template<typename T>
-bool InterpretIntegralNumber(T& variable, const std::string& string)
-{
-    T new_value = 0;
-    try
-    { new_value = std::stoll(string); }
-    catch(std::invalid_argument const& exception)
-    { return false; }
-    variable = new_value;
-    return true;
-}
-
-template<typename T>
-bool InterpretRealNumber(T& variable, const std::string& string)
-{
-    T new_value = 0;
-    try
-    { new_value = std::stold(string); }
-    catch(std::invalid_argument const& exception)
-    { return false; }
-    variable = new_value;
-    return true;
-}
-
-template<typename T>
-bool StringToNum(T& number, const std::string& string)
-{
-    if constexpr(std::is_integral_v<T>)
-        { return InterpretIntegralNumber(number, string); }
-    else if constexpr(!std::is_integral_v<T>)
-        { return InterpretRealNumber(number, string); }
-    return false;
-}
 
 template<GLMContainer T, unsigned int size>
 bool InterpretGLM(T& variable, const std::string& string)
