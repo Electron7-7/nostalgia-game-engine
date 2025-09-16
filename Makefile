@@ -20,7 +20,7 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++23 -Wall -D GLFW_INCLUDE_NONE -MMD -MP
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/things/resources/data -Wno-c23-extensions
 FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
@@ -144,7 +144,7 @@ SRC_DIRS :=                             \
     $(SRC)/things/resources             \
     $(SRC)/things/resources/basic       \
     $(SRC)/things/resources/complex     \
-    $(SRC)/things/resources/data        \
+    $(SRC)/world                        \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
@@ -159,8 +159,6 @@ APP_SRC_DIRS :=               \
 
 DIRTY_SRC_DIRS := \
 	thirdparty
-
-RESOURCES_DIR := $(SRC)/things/resources/data_sources
 
 get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
@@ -197,9 +195,9 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all run printout build_dir static dynamic libraries testapp_static testapp_dynamic testapps headers rebuild_resources resources linux windows release debug clean_target clean_all clean mostlyclean disable_colors
+.PHONY: all run printout build_dir static dynamic libraries testapp_static testapp_dynamic testapps headers linux windows release debug clean_target clean_all clean mostlyclean disable_colors
 
-all: headers resources static dynamic testapp_static testapp_dynamic ;@:
+all: headers static dynamic testapp_static testapp_dynamic ;@:
 
 run: ;@:
 	@ $(BUILD_DIR)/$(APP)
@@ -222,7 +220,7 @@ printout:
 build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
-static: resources
+static:
 	$(eval LD_FLAGS =)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
@@ -233,7 +231,7 @@ static: resources
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
-dynamic: resources
+dynamic:
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
@@ -273,12 +271,6 @@ testapps: testapp_static testapp_dynamic ;@:
 headers:
 	@ printf "$(BOLD)$(RED)[TODO][TODO][TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)/'$(RESET)\n"
 	@ $(MAKE) -s $(HEADERS_OUT)
-
-rebuild_resources:
-	@ $(MAKE) -s -C $(RESOURCES_DIR) clean all
-
-resources:
-	@ $(MAKE) -s -C $(RESOURCES_DIR)
 
 linux: ;@:
 	$(eval APP_NAME      = $(APP_BASE))
@@ -343,7 +335,6 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-	@ $(MAKE) -s -C $(RESOURCES_DIR) clean
 
 # Cleans the entire 'build/' directory (default behaviour for 'clean')
 .__clean_all: ;@:
@@ -352,7 +343,6 @@ $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-	@ $(MAKE) -s -C $(RESOURCES_DIR) clean
 
 # What 'clean' does depends on if it's called by itself, or after other targets
 clean:
