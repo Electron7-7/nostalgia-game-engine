@@ -1,31 +1,31 @@
 #include "typenames.hpp"
 #include "hash.hpp"
 
-#include <set>
+#include <map>
 
-static const std::set<size_t> s_ResourceTypes =
+static const std::map<size_t, int> s_TypePriorityMap =
 {
-    Type::Mesh,
-    Type::Texture,
-    Type::Material,
-    Type::MeshInstance,
+    { Type::Mesh,            -2 },
+    { Type::Font,            -2 },
+    { Type::Texture,         -2 },
+    { Type::Material,        -1 },
+    { Type::MeshInstance,    -1 },
+    { Type::PrototypeActor,   0 },
+    { Type::NostalgiaPlayer,  0 },
+    { Type::Actor,            0 },
+    { Type::Resource,         0 },
+    { Type::Thing,            0 },
 };
 
-static const std::set<size_t> s_ThingTypes =
+const int g_GetPriority(size_t type)
 {
-    Type::Actor,
-    Type::NostalgiaPlayer,
-    Type::PrototypeActor,
-};
-
-const size_t GetBaseType(const std::string& name)
-{ return GetBaseType(ConstexprHash(name)); }
-
-const size_t GetBaseType(size_t hash)
-{
-    if(s_ResourceTypes.contains(hash))
-        { return Type::Resource; }
-    else if(s_ThingTypes.contains(hash))
-        { return Type::Thing; }
-    return Type::Invalid;
+    if(!s_TypePriorityMap.contains(type))
+        { return 9999; }
+    return s_TypePriorityMap.at(type);
 }
+
+const bool g_IsValidType(const std::string& name)
+{ return s_TypePriorityMap.contains(ConstexprHash(name)); }
+
+const bool g_IsValidType(size_t hash)
+{ return s_TypePriorityMap.contains(hash); }

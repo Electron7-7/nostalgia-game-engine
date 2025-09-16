@@ -12,8 +12,13 @@ namespace
 struct SafeStatus
 {
 public:
-    SafeStatus(): m_Status(NO_ERR_STATUS), m_Printout("NO_ERR") {}
-    SafeStatus(const SafeStatus& CopyFrom): m_Status(CopyFrom.m_Status), m_Printout(CopyFrom.m_Printout) {}
+    SafeStatus()
+    : m_Status(NO_ERR_STATUS), m_Printout("NO_ERR")
+    {}
+
+    SafeStatus(const SafeStatus& CopyFrom)
+    : m_Status(CopyFrom.m_Status), m_Printout(CopyFrom.m_Printout)
+    {}
 
     const __statusId_t Status() const { return m_Status; }
     const char* Printout() const { return m_Printout; }
@@ -27,17 +32,15 @@ public:
 
     constexpr operator __statusId_t() const { return m_Status; }
 
-    static constexpr bool Check(const SafeStatus& Status)
-    { return(Status.Status() == NO_ERR_STATUS); }
+    static constexpr bool Check(const SafeStatus& Status) { return(Status.Status() == NO_ERR_STATUS); }
 
-    static constexpr bool PrintCheck(const SafeStatus& Status)
+    static constexpr bool PrintCheck(const SafeStatus& Status, const char* Prefix = "SafeStatus::PrintCheck")
     {
         if(Status.Status() != NO_ERR_STATUS)
         {
-            PRINT_ERROR("{}", Status.Printout());
+            PRINT_ERROR("{} - {}", Prefix, Status.Printout());
             return false;
         }
-
         return true;
     }
 
@@ -46,7 +49,9 @@ private:
     const char* m_Printout  = "NO_ERR?";
 
     friend struct Status;
-    constexpr SafeStatus(const __statusId_t Status, const char* Printout): m_Status(Status), m_Printout(Printout) {}
+    constexpr SafeStatus(const __statusId_t Status, const char* Printout)
+    : m_Status(Status), m_Printout(Printout)
+    {}
 };
 
 struct Status
@@ -74,13 +79,13 @@ struct Status
     inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x14, "TheatreParserMISSING_THEATRE_NAME"      );
     inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x15, "TheatreParserMISSING_THEATRE_INDEX"     );
     inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x16, "TheatreDataINVALID_TYPE"                );
-    inline static SafeStatus MeshUNKNOWN_FILETYPE                   = SafeStatus( 0x17, "MeshUNKNOWN_FILETYPE"                   );
-    inline static SafeStatus MeshFAILED_TO_LOAD_OBJ                 = SafeStatus( 0x18, "MeshFAILED_TO_LOAD_OBJ"                 );
-    inline static SafeStatus FilesystemINVALID_PATH                 = SafeStatus( 0x19, "FilesystemINVALID_PATH"                 );
-    inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x20, "FilesystemFILE_READ_ERROR"              );
-    inline static SafeStatus TextureIMAGE_FILE_FAILED_TO_LOAD       = SafeStatus( 0x21, "TextureIMAGE_FILE_FAILED_TO_LOAD"       );
-    inline static SafeStatus EngineReferenceINVALID_REFERENCE       = SafeStatus( 0x22, "EngineReferenceINVALID_REFERENCE"       );
-    inline static SafeStatus FontFONT_FILE_FAILED_TO_LOAD           = SafeStatus( 0x23, "FontFONT_FILE_FAILED_TO_LOAD"           );
+    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x17, "ResourceUNKNOWN_FILETYPE"               );
+    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x18, "FileDataNO_DATA_OR_FILE"                );
+    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x19, "FileDataFAILED_TO_PROCESS_FILE"         );
+    inline static SafeStatus FilesystemINVALID_PATH                 = SafeStatus( 0x20, "FilesystemINVALID_PATH"                 );
+    inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x21, "FilesystemFILE_READ_ERROR"              );
+    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x22, "ResourceBAD_FILE_DATA"                  );
+    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x23, "FileDataDATA_IS_LOCKED"                 );
 };
 
 template<typename T>
