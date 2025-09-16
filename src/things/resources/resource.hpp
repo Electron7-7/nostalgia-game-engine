@@ -2,7 +2,9 @@
 #define RESOURCE_H
 
 #include "../thing.hpp"
-#include "theatre/theatre_data.hpp"
+#include "filesystem/file_data.hpp"
+
+#include <memory>
 
 // TODO: Change/move
 enum class ResourceStatus
@@ -15,9 +17,17 @@ enum class ResourceStatus
 class Resource : public Thing
 {
 public:
-    virtual void SetupVariables(const data_t&) {};
+    Resource();
+    Resource(const FileData* Data);
+
+    virtual SafeStatus CreateResource() { return Status::NO_ERR; };
+    virtual void SetupVariables(const data_t&);
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}
+    virtual const std::shared_ptr<const FileData> Data() const { return m_FileData; }
+
+private:
+    std::shared_ptr<const FileData> m_FileData = std::make_shared<FileData>();
 };
 
 #endif // RESOURCE_H

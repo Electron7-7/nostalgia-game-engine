@@ -1,114 +1,79 @@
 #include "mesh.hpp"
-#include "../data/models.hpp"
-#include "filesystem/filesystem.hpp"
+#include "../resource_data.hpp"
+#include "theatre/data_t.hpp"
+#include "managers/backend_manager.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "TinyOBJLoader/tiny_obj_loader.h"
 
-#include <map>
+#include <numeric>
 
-static std::map<std::string, ModelType> s_FileTypesByExtension
+Mesh Mesh::Error(&Models::Error);
+
+void Mesh::SetupVariables(const data_t& data)
 {
-    { ".obj", ModelType::OBJ }
-};
-
-Mesh Mesh::Error  = Mesh(model_OBJ_Error, ModelType::OBJ);
-Mesh Mesh::Ramiel = Mesh(model_OBJ_Ramiel, ModelType::OBJ);
-
-void Mesh::UpdateVariables(const data_t& data)
-{
-    // Resource::UpdateVariables(data); // This currently doesn't do anything
-
-    data.GetString(m_FileName, "File");
-    data.GetEngineRef(m_FileData, "Data");
-}
-
-Mesh::Mesh() = default;
-
-Mesh::Mesh(const std::string& model_data, ModelType model_type)
-: m_FileType(model_type), m_FileName(""), m_FileData(model_data)
-{}
-
-void Mesh::LoadModelFile(const std::string& file_path, ModelType file_type)
-{
-    m_FileType = file_type;
-    m_FileName = file_path;
-    m_FileData.clear();
-}
-
-void Mesh::LoadModelData(const std::string& file_data, ModelType file_type)
-{
-    m_FileType = file_type;
-    m_FileData = file_data;
-    m_FileName.clear();
+    Resource::SetupVariables(data);
+    CreateResource(); // TODO: Should I move this into 'Resource::SetupVariables'? Will it call correctly?
+    g_pBackendManager->GetGraphicsBackend()->BufferMesh(this);
 }
 
 void Mesh::clear()
 {
     m_Vertices.clear();
     m_Indices.clear();
+    m_MeshStatus = ResourceStatus::NOT_PROCESSED;
 }
 
 const std::vector<Vertex>& Mesh::GetVertices() const
 {
-    if(m_MeshDataStatus == ResourceStatus::FAILED)
+    if(m_MeshStatus == ResourceStatus::FAILED)
         { return Mesh::Error.m_Vertices; }
     return m_Vertices;
 }
 
 const std::vector<Mesh::Index>& Mesh::GetIndices() const
 {
-    if(m_MeshDataStatus == ResourceStatus::FAILED)
+    if(m_MeshStatus == ResourceStatus::FAILED)
         { return Mesh::Error.m_Indices; }
     return m_Indices;
 }
 
-void Mesh::GetVertexData(std::vector<Vertex>* vertices, std::vector<float>* output_vertex_data)
+std::vector<float> Mesh::GetVertexData()
 {
-    for(Vertex& vertex : *vertices)
+    std::vector<float> output = {};
+    for(const Vertex& vertex : m_Vertices)
     {
         std::array<float, Vertex::Stride> vertex_data = vertex.VertexData();
-        output_vertex_data->insert(output_vertex_data->end(), vertex_data.begin(), vertex_data.end());
+        output.insert(output.end(), vertex_data.begin(), vertex_data.end());
     }
+    return output;
 }
 
-SafeStatus Mesh::CreateMeshData()
+SafeStatus Mesh::CreateResource()
 {
-    if(m_MeshDataStatus != ResourceStatus::NOT_PROCESSED)
+    if(Data()->Status() == DataStatus::SUCCESSFUL)
         { return Status::NO_ERR; }
-
-    if(m_FileData.empty())
-    {
-        SafeStatus read_status = Filesystem::try_ReadFileToString(m_FileName, m_FileData);
-        if(read_status != Status::NO_ERR)
-            { return read_status; }
-    }
-
-    if(m_FileType == ModelType::Unknown)
-    {
-        std::string file_extension = Filesystem::GetExtension(m_FileName);
-        if(s_FileTypesByExtension.contains(file_extension))
-            { m_FileType = s_FileTypesByExtension.at(file_extension); }
-    }
+    else if(Data()->Status() == DataStatus::FAILED)
+        { return Status::ResourceBAD_FILE_DATA; }
 
     SafeStatus status = Status::NO_ERR;
 
-    switch(m_FileType)
+    switch(Data()->Type())
     {
-    case ModelType::OBJ:
+    case FileType::model_OBJ:
         status = try_CreateOBJMesh();
+        break;
+    case FileType::Unknown:
     default:
-        status = Status::MeshUNKNOWN_FILETYPE;
+        status = Status::ResourceUNKNOWN_FILETYPE;
+        break;
     }
-
-    m_MeshDataStatus = ResourceStatus::SUCCESSFUL;
 
     if(status != Status::NO_ERR)
     {
-        m_MeshDataStatus = ResourceStatus::FAILED;
+        m_MeshStatus = ResourceStatus::FAILED;
         clear();
     }
-
     return status;
 }
 
@@ -128,7 +93,7 @@ void Mesh::AddVertex(Vertex vertex)
 { m_Vertices.push_back(vertex); }
 
 void Mesh::AddIndex(Index index)
-{ m_Indices.insert(m_Indices.end(), index); }
+{ m_Indices.push_back(index); }
 
 void Mesh::AddFace(uintvec3 face_indices)
 { m_Indices.insert(m_Indices.end(), {face_indices[0], face_indices[1], face_indices[2]}); }
@@ -139,12 +104,13 @@ SafeStatus Mesh::try_CreateOBJMesh()
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(m_FileData, "", reader_config))
+    if(!reader.ParseFromString(Data()->String(), "", reader_config))
     {
         if(!reader.Error().empty())
         {
-            PRINT_ERROR("TinyObjReader Error: '{}'", reader.Error())
-            return Status::MeshFAILED_TO_LOAD_OBJ;
+            PRINT_ERROR("Mesh::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error())
+            m_MeshStatus = ResourceStatus::FAILED;
+            return Status::ResourceBAD_FILE_DATA;
         }
     }
 
@@ -189,11 +155,8 @@ SafeStatus Mesh::try_CreateOBJMesh()
 
                     temp_vertex.SetNormal(glm::vec3((float)nx, (float)ny, (float)nz));
                 }
-
                 else
-                {
-                    temp_vertex.SetNormal(glm::vec3(0.0f));
-                }
+                    { temp_vertex.SetNormal(glm::vec3(0.0f)); }
 
                 // Check if `texcoord_index` is zero or positive. negative = no texcoord data
                 if (idx.texcoord_index >= 0)
@@ -203,11 +166,8 @@ SafeStatus Mesh::try_CreateOBJMesh()
 
                     temp_vertex.SetUV(glm::vec2((float)tx, (float)ty));
                 }
-
                 else
-                {
-                    temp_vertex.SetUV(glm::vec2(0.0f));
-                }
+                    { temp_vertex.SetUV(glm::vec2(0.0f)); }
 
                 if (idx.texcoord_index >= 0)
                 {
@@ -217,18 +177,17 @@ SafeStatus Mesh::try_CreateOBJMesh()
 
                     temp_vertex.SetColor(glm::vec3((float)red, (float)green, (float)blue));
                 }
-
                 else
-                {
-                    temp_vertex.SetColor(glm::vec3(1.0f));
-                }
+                    { temp_vertex.SetColor(glm::vec3(1.0f)); }
 
                 AddVertex(temp_vertex);
             }
-
             index_offset += fv;
         }
     }
 
+    // Fix OBJ Indicies (if this is OpenGL-specific, move this to the graphics backend)
+    m_Indices.resize(m_Vertices.size());
+    std::iota(m_Indices.begin(), m_Indices.end(), 0);
     return Status::NO_ERR;
 }

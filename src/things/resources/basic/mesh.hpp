@@ -9,45 +9,25 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-enum class ModelType
-{
-    Unknown,
-    OBJ
-};
-
 class Mesh : public Resource
 {
 public:
     typedef unsigned int Index;
 
     static Mesh Error;
-    static Mesh Ramiel;
 
-    virtual void UpdateVariables(const data_t&);
-
-    Mesh();
-
-    void LoadModelFile(const std::string& FilePath, ModelType FileType = ModelType::Unknown);
-    void LoadModelData(const std::string& FileData, ModelType FileType);
-
-    SafeStatus CreateMeshData();
+    using Resource::Resource;
+    virtual void SetupVariables(const data_t&);
+    virtual SafeStatus CreateResource();
 
     void clear();
 
     const std::vector<Vertex>& GetVertices() const;
     const std::vector<Index>& GetIndices() const;
-
-    static void GetVertexData(std::vector<Vertex>* Vertices, std::vector<float>* VertexData);
+    std::vector<float> GetVertexData();
 
 private:
-    friend class TheatreManager;
-    Mesh(const std::string& EngineModelData, ModelType FileType);
-
-    ResourceStatus m_MeshDataStatus = ResourceStatus::NOT_PROCESSED;
-
-    ModelType m_FileType = ModelType::Unknown;
-    std::string m_FileName = "";
-    std::string m_FileData = "";
+    ResourceStatus m_MeshStatus = ResourceStatus::NOT_PROCESSED;
 
     std::vector<Vertex> m_Vertices = {};
     std::vector<Index>  m_Indices  = {};
