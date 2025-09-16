@@ -1,11 +1,17 @@
 #include "material.hpp"
+#include "theatre/data_t.hpp"
 
 void Material::SetupVariables(const data_t& data)
 {
-    // Resource::SetupVariables(data); // This currently doesn't do anything
+    Resource::SetupVariables(data);
 
     data.GetTheatreRef(m_DiffuseTextureID, "DiffuseTexture");
     data.GetTheatreRef(m_SpecularTextureID, "SpecularTexture");
+    data.GetNumber(m_Color, "Color");
+    data.GetNumber(m_Alpha, "Alpha");
+    data.GetNumber(m_SpecularSharpness, "SpecularSharpness");
+    if(!data.GetNumber(m_SpecularStrength, "SpecularStrength") && m_SpecularTextureID != ID::None)
+        { m_SpecularStrength = 1.0f; } // TODO: Pick a better default value (potentially)
 }
 
 id_t Material::GetDiffuseTexture() const

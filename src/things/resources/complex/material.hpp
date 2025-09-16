@@ -3,6 +3,8 @@
 
 #include "../resource.hpp"
 
+#include <glm/glm.hpp>
+
 class Material : public Resource
 {
 public:
@@ -10,13 +12,18 @@ public:
 
     id_t GetDiffuseTexture() const;
     void SetDiffuseTexture(id_t TextureID);
+
     id_t GetSpecularTexture() const;
     void SetSpecularTexture(id_t TextureID);
 
+    glm::vec3 m_Color = glm::vec3(1.0f);
+    float     m_Alpha = 1.0f;
+    int       m_SpecularSharpness = 16;
+    float     m_SpecularStrength = 0.0f;
+
 private:
-    friend class TheatreManager;
-    id_t m_DiffuseTextureID  = NoID;
-    id_t m_SpecularTextureID = NoID;
+    id_t m_DiffuseTextureID  = ID::None;
+    id_t m_SpecularTextureID = ID::None;
 };
 
 #endif // MATERIAL_H

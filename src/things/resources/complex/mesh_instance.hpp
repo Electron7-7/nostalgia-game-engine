@@ -9,16 +9,14 @@ public:
     virtual void SetupVariables(const data_t&);
 
     void AssignMesh(id_t MeshID);
-    id_t GetMesh() const;
-    void AssignMaterial(id_t MaterialID);
-    id_t GetMaterial() const;
+    id_t GetMeshID() const;
 
-    bool HasMaterial() const;
+    void AssignMaterial(id_t MaterialID);
+    id_t GetMaterialID() const;
 
 private:
-    friend class TheatreManager;
-    id_t m_MeshID     = NoID;
-    id_t m_MaterialID = NoID;
+    id_t m_MeshID     = ID::None;
+    id_t m_MaterialID = ID::None;
 };
 
 #endif // MESH_INSTANCE_H
