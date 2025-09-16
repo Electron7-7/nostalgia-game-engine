@@ -1,10 +1,8 @@
 #include "render_manager.hpp"
-// #include "theatre_manager.hpp"
+#include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
-
-// #include <cmath>
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -40,8 +38,8 @@ void RenderManager::Update()
         return;
     }
 
-    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    // g_pTheatreManager->RenderWorld();
+    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+    g_pTheatreManager->RenderWorld();
     g_pUIManager->DrawUI();
     g_pBackendManager->GetWindowingBackend()->SwapBuffers();
 }

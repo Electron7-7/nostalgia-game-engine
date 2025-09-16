@@ -9,24 +9,17 @@
 #include <array>
 #include <vector>
 
-struct Mesh; // Forward Declaration
+typedef unsigned int OpenGL_TextureID;
 
-/*struct OpenGL_MeshData
+struct OpenGL_MeshData
 {
-public:
-    void SetIndicesCount(const unsigned int IndicesCount) { _indices_count = IndicesCount; }
-    void SetBaseVertex(const unsigned int BaseVertex)     { _base_vertex = BaseVertex;     }
-    void SetBaseIndex(const unsigned int BaseIndex)       { _base_index = BaseIndex;       }
+    std::vector<float>        vertex_data = {};
+    std::vector<unsigned int> indices     = {};
 
-    unsigned int IndicesCount() const { return _indices_count; }
-    unsigned int BaseVertex() const   { return _base_vertex;   }
-    unsigned int BaseIndex() const    { return _base_index;    }
-
-private:
-    unsigned int _indices_count = 0;
-    unsigned int _base_vertex   = 0;
-    unsigned int _base_index    = 0;
-};*/
+    unsigned int indices_count = 0;
+    unsigned int base_vertex   = 0;
+    unsigned int base_index    = 0;
+};
 
 class OpenGL_Backend : public GraphicsBackend
 {
@@ -41,31 +34,31 @@ public:
     void ImGuiNewFrame();
     void ImGuiRender();
 
-    bool InitNewTheatre();
-
+    void CreateRenderingData();
+    void DestroyRenderingData();
+    void BufferMesh(Mesh*);
+    void BufferTexture(Texture*);
     void ClearBuffer(glm::vec4 ClearColor);
     const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
     bool BindShader(unsigned int ShaderLabel);
-    bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
-    bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
+    bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode);
 
     void RenderSingleCommand(const RenderCommand& RenderCommand);
 
 private:
-    static void BufferMeshData(const int MeshID, const Mesh* NewMesh, std::vector<float>* AllVertexData, std::vector<unsigned int>* AllIndices);
+#   define VAOS_AMOUNT 1
+#   define VAO_DEFAULT 0
+#   define VAO_DEFAULT_STRIDE 11
 
-    #define VAOS_AMOUNT 1
-    #define VAO_DEFAULT 0
-    #define VAO_DEFAULT_STRIDE 11
-
-    typedef int MeshID;
-
-    // static std::map<MeshID, OpenGL_MeshData> gl_mesh_data;
     static std::array<unsigned int, VAOS_AMOUNT> m_VAOs;
     static std::map<unsigned int, GLShader> m_Shaders;
+
+    static std::map<id_t, OpenGL_MeshData> m_MeshData;
+    static std::map<id_t, OpenGL_TextureID> m_TextureIDs;
+
     static unsigned int m_CurrentlyBoundShader;
-    static unsigned int m_VBO;
-    static unsigned int m_IBO;
+
+    static unsigned int GetTextureID(id_t);
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;

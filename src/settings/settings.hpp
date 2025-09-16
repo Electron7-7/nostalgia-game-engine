@@ -38,6 +38,13 @@ public:
         static const char* Name;
     };
 
+    struct Player
+    {
+        static float FOV; // TODO: Replace with horizontal & vertical FOVs?
+        static float ViewCutoffNear;
+        static float ViewCutoffFar;
+    };
+
     struct Graphics
     {};
 };

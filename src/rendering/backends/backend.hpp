@@ -1,9 +1,10 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
-#include "rendering/render_command.hpp"
-#include "rendering/shader_interfaces/shader_interface.hpp"
+#include "../render_command.hpp"
+#include "../shader_interfaces/shader_interface.hpp"
 #include "safe_return.hpp"
+#include "things/fwd.hpp"
 
 #include <glm/glm.hpp>
 #include <set>
@@ -46,12 +47,14 @@ public:
     virtual void ImGuiRender() {}
 
     // Pure virtual functions (*must* be implemented)
-    virtual bool InitNewTheatre() = 0;
+    virtual void DestroyRenderingData() = 0;
+    virtual void CreateRenderingData() = 0;
+    virtual void BufferMesh(Mesh*) = 0;
+    virtual void BufferTexture(Texture*) = 0;
     virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
-    virtual bool BuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
-    virtual bool RebuildShader(unsigned int ShaderLabel, const std::string& VertexShaderCode, const std::string& FragmentShaderCode) = 0;
+    virtual bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
 
 protected:

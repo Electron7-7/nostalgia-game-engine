@@ -1,10 +1,15 @@
 #include "theatre_manager.hpp"
+#include "managers/backend_manager.hpp"
+#include "rendering/backends/backend.hpp"
 #include "safe_return.hpp"
 #include "theatre/theatre_data.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
+#include "things/actors/actor.hpp"
+#include "things/resources/basic/texture.hpp"
 #include "things/things.hpp"
 #include "things/actors/nostalgia_player.hpp"
+#include "things/resources/basic/mesh.hpp"
 #include "types/typenames.hpp"
 #ifdef DEBUGGING
 #   include "colors.hpp"
@@ -17,14 +22,13 @@
 
 using namespace ManagerEnums;
 
-static std::shared_ptr<Thing> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
-
+static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
 static std::vector<RenderCommand> s_RenderCommandQueue = {};
+static bool s_ReadyToRender = false;
 
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
-bool TheatreManager::s_AreThingsLocked = false;
 std::map<id_t, std::shared_ptr<Thing>> TheatreManager::s_Things = {};
 
 void TheatreManager::Update()
@@ -55,7 +59,12 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre()))
         { return FUCKED; }
 
+    s_ReadyToRender = false;
+
     CreateObjects();
+    g_pBackendManager->GetGraphicsBackend()->CreateRenderingData();
+
+    s_ReadyToRender = true;
 
 #ifdef DEBUGGING
     g_pDebugger->StopTheatreTiming(true);
@@ -73,7 +82,9 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     g_pDebugger->StartTheatreTiming(false);
 #endif // DEBUGGING
 
+    s_ReadyToRender = false;
     DestroyObjects();
+    g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
 #ifdef DEBUGGING
     g_pDebugger->StopTheatreTiming(false);
@@ -82,53 +93,88 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     return FINISHED;
 }
 
+void TheatreManager::RenderWorld()
+{
+    if(!s_ReadyToRender)
+        { return; }
+    for(auto& [id, thing] : s_Things)
+    {
+        std::shared_ptr<Actor> actor = dynamic_pointer_cast<Actor>(thing);
+        if(actor)
+            { PushValidRenderCommand(actor->GetRenderCommand()); }
+    }
+    for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)
+    {
+        g_pBackendManager->GetGraphicsBackend()->RenderSingleCommand(*rendercmd);
+        rendercmd = s_RenderCommandQueue.erase(rendercmd);
+    }
+}
+
+bool TheatreManager::try_DestroyThing(id_t thing_id)
+{
+    if(!s_Things.contains(thing_id))
+        { return false; }
+    s_Things.erase(thing_id);
+    return true;
+}
+
+std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
+{ return s_LocalPlayer; }
+
+std::shared_ptr<Thing>& TheatreManager::GetThing(id_t id)
+{
+    if(!s_Things.contains(id))
+        { return s_Things.begin()->second; }
+    return s_Things.at(id);
+}
+
+const std::shared_ptr<Thing>& TheatreManager::cGetThing(id_t id)
+{
+    if(!s_Things.contains(id))
+        { return s_Things.cbegin()->second; }
+    return s_Things.at(id);
+}
+
 void TheatreManager::CreateObjects()
 {
-    std::vector<data_t> theatre_data = TheatreParser::GetTheatreData().GetData();
+    s_ReadyToRender = false;
 
-    WAIT(s_AreThingsLocked, 1.0f)
-    s_AreThingsLocked = true;
+    const std::vector<data_t>& theatre_data = TheatreParser::GetTheatreData().GetData();
+    g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
-    for(data_t& data : theatre_data)
+    // FIXME: FIND A BETTER PLACE TO DO Error/Missing SHIT
+    Mesh::Error.m_Name = "Error Mesh";
+    Mesh::Error.m_Type = Type::Mesh;
+    Texture::Missing.m_Name = "Missing Texture";
+    Texture::Missing.m_Type = Type::Texture;
+    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
+    g_pBackendManager->GetGraphicsBackend()->BufferMesh(&Mesh::Error);
+
+    for(const data_t& data : theatre_data)
     {
         auto& thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();
         thing->m_ID   = data.GetID();
         thing->m_Type = data.GetType();
         thing->m_Name = data.GetName();
-        if(data.GetType() == Type::NostalgiaPlayer)
-            { s_LocalPlayer = thing; }
         thing->SetupVariables(data);
+
+        if(data.GetType() == Type::NostalgiaPlayer)
+        {
+            const auto& try_CastPlayer = static_pointer_cast<NostalgiaPlayer>(thing);
+            if(try_CastPlayer)
+                { s_LocalPlayer = try_CastPlayer; }
+        }
     }
 
-    s_AreThingsLocked = false;
+    s_ReadyToRender = true;
 }
 
 void TheatreManager::DestroyObjects()
+{ s_Things.clear(); }
+
+void TheatreManager::PushValidRenderCommand(const RenderCommand& render_cmd)
 {
-    WAIT((s_AreThingsLocked), 1.0f)
-    s_AreThingsLocked = true;
-
-    s_Things.clear();
-
-    s_AreThingsLocked = false;
+    if(!render_cmd.IsSafe())
+        { return; }
+    s_RenderCommandQueue.push_back(render_cmd);
 }
-
-bool TheatreManager::try_DestroyThing(id_t thing_id)
-{
-    WAIT(s_AreThingsLocked, 10.0f)
-
-    s_AreThingsLocked = true;
-
-    if(!s_Things.contains(thing_id))
-        { return false; }
-
-    s_Things.erase(thing_id);
-
-    s_AreThingsLocked = false;
-    return true;
-}
-
-#ifdef DEBUGGING
-    const std::map<id_t, std::shared_ptr<Thing>>& TheatreManager::debug_GetThings()
-    { return s_Things; }
-#endif // DEBUGGING
