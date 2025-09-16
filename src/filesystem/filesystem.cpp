@@ -76,7 +76,7 @@ SafeStatus Filesystem::try_ReadFileToString(const std::string& path, std::string
     return Status::NO_ERR;
 }
 
-SafeStatus Filesystem::try_ReadFileToUCharArray(const std::string& path, BinaryFileData& output)
+SafeStatus Filesystem::try_GetFileSize(const std::string& path, size_t& output)
 {
     std::string file_path = "";
     MakePathAbsolute(path, file_path);
@@ -87,19 +87,8 @@ SafeStatus Filesystem::try_ReadFileToUCharArray(const std::string& path, BinaryF
     if(image_file == nullptr)
         { return Status::FilesystemFILE_READ_ERROR; }
 
-    unsigned char* data = new unsigned char;
-    unsigned int size = 0;
-
     fseek(image_file, 0, SEEK_END);
-    size = ftell(image_file); // This could overflow... too bad!
+    output = ftell(image_file); // This could overflow... too bad!
     fclose(image_file);
-
-    image_file = fopen(file_path.c_str(), "r+"); // FIXME: Figure out if I need to close and re-open the file
-    fread(data, sizeof(unsigned char), size, image_file);
-    fclose(image_file);
-
-    output = BinaryFileData(data, size);
-    delete data;
-
     return Status::NO_ERR;
 }

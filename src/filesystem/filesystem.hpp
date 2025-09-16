@@ -2,7 +2,6 @@
 #define FILESYSTEM_H
 
 #include "safe_return.hpp"
-#include "binary_file_data.hpp"
 
 struct Filesystem
 {
@@ -14,7 +13,7 @@ struct Filesystem
 
     static void MakePathAbsolute(const std::string& Filepath, std::string& Output);
     static SafeStatus try_ReadFileToString(const std::string& Filepath, std::string& Output);
-    static SafeStatus try_ReadFileToUCharArray(const std::string& Filepath, BinaryFileData& Output);
+    static SafeStatus try_GetFileSize(const std::string& Filepath, size_t& Output);
 };
 
 #endif // FILESYSTEM_H
