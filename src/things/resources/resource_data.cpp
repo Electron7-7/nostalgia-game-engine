@@ -1,75 +1,49 @@
 #include "resource_data.hpp"
 #include "printing.hpp"
-#include "data/fonts.hpp"
-#include "data/images.hpp"
-#include "data/models.hpp"
-#include "data/opengl_shaders.hpp"
 
 #include <map>
 
-static const BinaryFileData s_EmptyBinaryData;
-static const StringFileData s_EmptyStringData;
-
-static std::map<std::string, BinaryFileData> s_BinaryResourceData =
+static std::map<std::string, std::shared_ptr<const FileData>> s_ResourceData =
 {
-    { "VerdanaFont",          font_TTF_Verdana          },
-    { "AudiowideRegularFont", font_TTF_AudiowideRegular },
-    { "DejaVuSansMonoFont",   font_TTF_DejaVuSansMono   },
-    { "MissingTexture",       image_JPG_MISSINGTEXTURE  },
-    { "DoomTexture",          image_PNG_COMP045         },
+    { "VerdanaFont",          std::shared_ptr<const FileData>(&Fonts::Verdana)           },
+    { "AudiowideRegularFont", std::shared_ptr<const FileData>(&Fonts::Audiowide_Regular) },
+    { "DejaVuSansMonoFont",   std::shared_ptr<const FileData>(&Fonts::DejaVuSansMono)    },
+    { "MissingTexture",       std::shared_ptr<const FileData>(&Images::Missing)          },
+    { "DoomTexture",          std::shared_ptr<const FileData>(&Images::COMP04_5)         },
+    { "ErrorModel",           std::shared_ptr<const FileData>(&Models::Error)            },
+    { "RamielModel",          std::shared_ptr<const FileData>(&Models::Ramiel)           },
 };
 
-static std::map<std::string, StringFileData> s_StringResourceData =
-{
-    { "ErrorModel",  model_OBJ_Error  },
-    { "RamielModel", model_OBJ_Ramiel },
-    { "BlinnPhongFragShader", glsl_FRAG_BlinnPhong },
-    { "BlinnPhongVertShader", glsl_VERT_BlinnPhong },
-};
+bool ResourceData::Exists(const std::string& name)
+{ return s_ResourceData.contains(name); }
 
-bool Exists(const std::string& name)
+bool ResourceData::try_AddData(const std::string& name, std::shared_ptr<const FileData> data)
 {
-    return
-    (
-        s_BinaryResourceData.contains(name) ||
-        s_StringResourceData.contains(name)
-    );
-}
-
-bool ResourceData::try_Add(const std::string& name, const BinaryFileData& data)
-{
-    if(s_BinaryResourceData.contains(name))
+    if(Exists(name))
     {
-        PRINT_ERROR("ResourceData::try_Add - BinaryFileData, '{}', already exists!", name)
+        PRINT_ERROR("ResourceData::try_AddData - '{}' already exists; please choose a different name", name)
         return false;
     }
-
-    s_BinaryResourceData[name] = data;
+    else if(!data)
+    {
+        PRINT_ERROR("ResourceData::try_AddData - FileData '{}' is nullptr!", name)
+        return false;
+    }
+    s_ResourceData[name] = data;
     return true;
 }
 
-bool ResourceData::try_Add(const std::string& name, const StringFileData& data)
+bool ResourceData::GetData(std::shared_ptr<const FileData> output, const std::string& name)
 {
-    if(s_StringResourceData.contains(name))
-    {
-        PRINT_ERROR("ResourceData::try_Add - StringFileData, '{}', already exists!", name)
-        return false;
-    }
-
-    s_StringResourceData[name] = data;
-    return true;
+    bool status = Exists(name);
+    if(status)
+        { output = s_ResourceData.at(name); }
+    return status;
 }
 
-SafeReturn<const BinaryFileData&> ResourceData::try_GetBinaryData(const std::string& name)
+std::shared_ptr<const FileData> ResourceData::GetData(const std::string& name)
 {
-    if(!s_BinaryResourceData.contains(name))
-        { return SafeReturn<const BinaryFileData&>(s_EmptyBinaryData, Status::EngineReferenceINVALID_REFERENCE); }
-    return s_BinaryResourceData.at(name);
-}
-
-SafeReturn<const StringFileData&> ResourceData::try_GetStringData(const std::string& name)
-{
-    if(!s_StringResourceData.contains(name))
-        { return SafeReturn<const StringFileData&>(s_EmptyStringData, Status::EngineReferenceINVALID_REFERENCE); }
-    return s_StringResourceData.at(name);
+    if(!Exists(name))
+        { return s_ResourceData.at(name); }
+    return std::make_shared<FileData>();
 }
