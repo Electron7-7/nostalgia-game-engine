@@ -97,15 +97,6 @@ enum class Parsing
     VariableValue =  4,
 };
 
-static void s_AddParsedDataHelper(data_t& data)
-{
-    data.SetID(ID::GetNewID());
-    s_TheatreData.AddData(data);
-    s_NameIDMap[data.GetName()] = std::to_string(data.GetID());
-    if(data.GetType() == Type::NostalgiaPlayer)
-        { s_PlayerInstantiated = true; }
-}
-
 const TheatreData& TheatreParser::GetTheatreData()
 {
     // FIXME: Make this better
@@ -123,6 +114,15 @@ SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_fil
 
 void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
 { s_TheatreFileDataString = theatre_data; }
+
+static void s_AddParsedDataHelper(data_t& data)
+{
+    data.SetID(ID::GetNewID());
+    s_TheatreData.AddData(data);
+    s_NameIDMap[data.GetName()] = std::to_string(data.GetID());
+    if(data.GetType() == Type::NostalgiaPlayer)
+        { s_PlayerInstantiated = true; }
+}
 
 SafeStatus TheatreParser::try_ParseTheatre()
 {
@@ -424,6 +424,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         { s_TheatreData.AddData({"Default Player", TypeName::NostalgiaPlayer, ID::GetNewID()}); }
 
     s_TheatreData.UpdateTheatreReferences(s_NameIDMap);
+    s_TheatreData.OrderByPriority();
 
 #ifdef DEBUGGING
     s_TheatreData.debug_PrintData();
