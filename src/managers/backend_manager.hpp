@@ -2,12 +2,10 @@
 #define BACKEND_MANAGER_H
 
 #include "managers/manager.hpp"
+#include "rendering/backends/backend.hpp"
 
 // TODO: Implement a way to select your preferred API (e.g: Vulkan, OpenGL, etc), as I can't hot-swap the rendering API
 // unless I were to write my own windowing library that could, somehow, support that (which is a fucking insane idea)
-
-class GraphicsBackend; // Forward Declaration
-class WindowingBackend; // Forward Declaration
 
 typedef int BackendID;
 
