@@ -21,6 +21,7 @@ public:
     void StartTheatreTiming(bool IsTheatreLoading);
     void StopTheatreTiming(bool IsTheatreLoading);
 
+    static void s_InspectTheatreWindow(bool* is_active);
 private:
     StopwatchLog& m_StartStopwatch(const std::string& Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);

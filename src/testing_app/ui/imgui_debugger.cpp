@@ -1,10 +1,19 @@
 #include "imgui_debugger.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
-#include "things/resources/complex/mesh_instance.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/actors/prototype_actor.hpp"
+#include "theatre/theatre_parser.hpp"
+#include "managers/manager.hpp"
+
+#include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/quaternion.hpp>
 
 using namespace ImGui;
+
+static std::string s_TheatreFilePath = "theatres/NostalgiaHelloWorld.nt";
+static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
 
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
@@ -36,7 +45,7 @@ void imgui_Debugger::Update()
     if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
 
-    SetNextWindowSize({875,128}, ImGuiCond_Once);
+    SetNextWindowSize({875,180}, ImGuiCond_Once);
     if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
@@ -49,6 +58,25 @@ void imgui_Debugger::Update()
             }
             EndMenuBar();
             Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
+
+            InputText("Theatre File", &s_TheatreFilePath);
+            if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                { BeginDisabled(); }
+            if(Button("Load Theatre"))
+            {
+                s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
+                if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
+                    { _Manager::StartNewTheatre(); }
+            }
+            if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                { EndDisabled(); }
+
+            if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                { BeginDisabled(); }
+            if(Button("Exit Theatre"))
+                { _Manager::ShutdownTheatre(); }
+            if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                { EndDisabled(); }
         }
     }
     End();
@@ -56,17 +84,17 @@ void imgui_Debugger::Update()
 #else  // DEBUGGING
 #include "time.hpp"
 #include "managers/backend_manager.hpp"
-#include "theatre/theatre_parser.hpp"
-#include "managers/theatre_manager.hpp"
+#include "things/thing.hpp"
+#include "types/typenames.hpp"
+#include "things/resources/complex/mesh_instance.hpp"
+#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "settings/settings.hpp"
 
 #include <set>
+#include <memory>
 #include <random>
 
 static std::random_device s_RandomDevice;
-
-static std::string s_TheatreFilePath = "theatres/NostalgiaHelloWorld.nt";
-static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
 
 static bool s_AutoStopwatchEnabled = true;
 
@@ -79,7 +107,7 @@ static void s_AutomaticStopwatchWindow(float);
 static void s_ManualStopwatchWindow(float);
 static void s_GeneralDebuggingWindow();
 static void s_TheatreDebuggingWindow();
-static void s_InspectTheatreWindow(bool* is_active);
+static void s_TerribleRenderDebugWindow();
 
 void s_HandleAutomaticStopwatchToggle()
 {
@@ -316,7 +344,7 @@ static void s_GeneralDebuggingWindow()
     if(Button("Toggle Tick Number Printouts"))
         { g_PrintTickNumbers = !g_PrintTickNumbers; }
 
-    Text("%s", "Settings");
+    Text("%s", "Window Settings");
     Separator();
 
     InputInt("X Position", &Settings::Window::XPosition);
@@ -330,6 +358,15 @@ static void s_GeneralDebuggingWindow()
     Checkbox("Fullscreen", &Settings::Window::Fullscreen);
     if(Button("Apply Changes"))
         { g_pBackendManager->UpdateWindowState(); }
+
+    NewLine();
+
+    Text("%s", "Player Settings");
+    Separator();
+
+    SliderFloat("Vertical FOV", &Settings::Player::FOV, -180.0f, 180.0f);
+    SliderFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.0f, 100.0f);
+    SliderFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 0.0f, 100000.0f);
     EndChild();
 }
 
@@ -375,7 +412,7 @@ static void s_TheatreDebuggingWindow()
         { s_TheatreInspectorActive = !s_TheatreInspectorActive; }
 
     if(s_TheatreInspectorActive)
-        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
+        { imgui_Debugger::s_InspectTheatreWindow(&s_TheatreInspectorActive); }
     if(not_in_level)
         { EndDisabled(); }
 
@@ -403,11 +440,11 @@ static void s_TheatreDebuggingWindow()
     EndChild();
 }
 
-void s_InspectTheatreWindow(bool* is_active)
+void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
     if(Begin("Theatre Inspector", is_active))
     {
-        const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::debug_GetThings();
+        const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::s_Things;
         for(const auto& [id, thing] : things)
         {
             Button(thing->GetName().c_str(), {0.0f, 20.0f});
@@ -420,8 +457,8 @@ void s_InspectTheatreWindow(bool* is_active)
                         Text("MeshInstance: %u", dynamic_pointer_cast<PrototypeActor>(thing)->GetMeshInstance());
                         break;
                     case Type::MeshInstance:
-                        Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMesh());
-                        Text("Material: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMaterial());
+                        Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMeshID());
+                        Text("Material: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMaterialID());
                         break;
                     default:
                         break;
@@ -432,6 +469,32 @@ void s_InspectTheatreWindow(bool* is_active)
                 EndTooltip();
             }
         }
+    }
+    End();
+}
+
+void s_TerribleRenderDebugWindow()
+{
+    if(Begin("TerribleRenderingDebugger"))
+    {
+        Text("Player movement placeholder (very shitty):");
+        static float position[3];
+        InputFloat("Player Position X", &position[0], 0.05f, 1.0f);
+        InputFloat("Player Position Y", &position[1], 0.05f, 1.0f);
+        InputFloat("Player Position Z", &position[2], 0.05f, 1.0f);
+        TheatreManager::GetLocalPlayer()->SetOrigin(glm::vec3(position[0], position[1], position[2]));
+
+        Text("Player rotation placeholder (very shitty):");
+        static float view_rotation[3];
+        for(float& deg : view_rotation)
+        {
+            if(deg >= 360.0f || deg <= -360.0f)
+                { deg = 0; }
+        }
+        InputFloat("Player Rotation X", &view_rotation[0], 1.0f, 5.0f);
+        InputFloat("Player Rotation Y", &view_rotation[1], 1.0f, 5.0f);
+        InputFloat("Player Rotation Z", &view_rotation[2], 1.0f, 5.0f);
+        TheatreManager::GetLocalPlayer()->SetRotation(glm::quat(glm::radians(glm::vec3(view_rotation[0], view_rotation[1], view_rotation[2]))));
     }
     End();
 }
@@ -502,5 +565,7 @@ void imgui_Debugger::Update()
         EndTabBar();
     }
     End();
+    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+        { s_TerribleRenderDebugWindow(); }
 }
 #endif // !DEBUGGING
