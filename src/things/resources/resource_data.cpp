@@ -1,12 +1,13 @@
 #include "resource_data.hpp"
-#include "printing.hpp"
 #include "filesystem/file_data.hpp"
 
+#include <cassert>
 #include <map>
 
 constinit const FileData Models::Error(FileType::model_OBJ, Raw::Error, std::size(Raw::Error));
 constinit const FileData Models::Ramiel(FileType::model_OBJ, Raw::Ramiel, std::size(Raw::Ramiel));
 
+constinit const FileData Images::LolBit(FileType::image_PNG, Raw::LolBit, std::size(Raw::LolBit));
 constinit const FileData Images::COMP04_5(FileType::image_PNG, Raw::COMP04_5, std::size(Raw::COMP04_5));
 constinit const FileData Images::Missing(FileType::image_JPG, Raw::Missing, std::size(Raw::Missing));
 
@@ -21,6 +22,7 @@ static std::map<std::string, std::shared_ptr<const FileData>> s_ResourceData =
     { "DejaVuSansMonoFont",   std::shared_ptr<const FileData>(&Fonts::DejaVuSansMono)    },
     { "MissingTexture",       std::shared_ptr<const FileData>(&Images::Missing)          },
     { "DoomTexture",          std::shared_ptr<const FileData>(&Images::COMP04_5)         },
+    { "LolBitTexture",        std::shared_ptr<const FileData>(&Images::LolBit)           },
     { "ErrorModel",           std::shared_ptr<const FileData>(&Models::Error)            },
     { "RamielModel",          std::shared_ptr<const FileData>(&Models::Ramiel)           },
 };
