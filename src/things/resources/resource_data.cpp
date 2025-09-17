@@ -28,20 +28,13 @@ static std::map<std::string, std::shared_ptr<const FileData>> s_ResourceData =
 bool ResourceData::Exists(const std::string& name)
 { return s_ResourceData.contains(name); }
 
-bool ResourceData::try_AddData(const std::string& name, std::shared_ptr<const FileData> data)
+void ResourceData::AddData(const std::string& name, const FileData* data)
 {
-    if(Exists(name))
-    {
-        PRINT_ERROR("ResourceData::try_AddData - '{}' already exists; please choose a different name", name)
-        return false;
-    }
-    else if(!data)
-    {
-        PRINT_ERROR("ResourceData::try_AddData - FileData '{}' is nullptr!", name)
-        return false;
-    }
-    s_ResourceData[name] = data;
-    return true;
+    assert(data && "FileData cannot be nullptr");
+    assert(!Exists(name) && "FileData with that name already exists; please choose a different name");
+
+    s_ResourceData[name] = std::shared_ptr<const FileData>(data);
+    return;
 }
 
 bool ResourceData::GetData(std::shared_ptr<const FileData>& output, const std::string& name)
