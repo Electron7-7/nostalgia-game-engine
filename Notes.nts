@@ -457,3 +457,10 @@ I think the problem with images not loading/crashing is that 'FileData' isn't co
 Nah, I think I'll just do a quick check in 'opengl.cpp' and use the missing texture if that check fails. Maybe later I'll have Resource do that.
 
 The fucking... the 'GetData' function needs to take a `shared_ptr` reference, not just a `shared_ptr`.
+
+[09/17/25]
+I found the problem with the weird 'free()' fault, here: (https://stackoverflow.com/a/65482334). It's about `unique_ptr` but it applies to `shared_ptr` as well.
+
+I don't want to store copies of embedded resource data, so I'm creating a small storage struct in 'resource_data.cpp' that stores the `unsigned char` pointer, size of the array, and file type. 'Resource' now holds a 'FileData' object instead of a pointer and 'ResourceData::GetData' mutates that variable by reference, using the storage structs.
+
+I made a mistake by making 'Resource::m_FileData' private instead of protected. I thought that would avoid the weird issue caused by running 'Resource::SetupVariables' from a derived class but it actually *caused* that issue (whereas, making it protected solved the issue).
