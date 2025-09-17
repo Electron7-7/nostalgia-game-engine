@@ -27,7 +27,7 @@ void Mesh::clear()
 
 const std::vector<Vertex>& Mesh::GetVertices() const
 {
-    if(m_MeshStatus == ResourceStatus::FAILED)
+    if(m_MeshStatus != ResourceStatus::SUCCESSFUL && Data()->Status() != DataStatus::SUCCESSFUL)
         { return Mesh::Error.m_Vertices; }
     return m_Vertices;
 }
@@ -52,12 +52,13 @@ std::vector<float> Mesh::GetVertexData()
 
 SafeStatus Mesh::CreateResource()
 {
-    if(Data()->Status() == DataStatus::SUCCESSFUL)
-        { return Status::NO_ERR; }
-    else if(Data()->Status() == DataStatus::FAILED)
+    auto test = Data();
+    auto test2 = Resource::Data();
+    if(Data()->Status() == DataStatus::FAILED)
         { return Status::ResourceBAD_FILE_DATA; }
 
     SafeStatus status = Status::NO_ERR;
+    m_MeshStatus = ResourceStatus::SUCCESSFUL;
 
     switch(Data()->Type())
     {

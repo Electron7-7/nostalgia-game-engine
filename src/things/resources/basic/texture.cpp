@@ -13,4 +13,11 @@ void Texture::SetupVariables(const data_t& data)
 }
 
 SafeStatus Texture::CreateResource()
-{ return Status::ERROR_GENERIC; }
+{
+    if(Data()->Status() != DataStatus::SUCCESSFUL)
+    {
+        SetData(ResourceData::GetData("MissingTexture"));
+        return Status::ResourceBAD_FILE_DATA;
+    }
+    return Status::NO_ERR;
+}
