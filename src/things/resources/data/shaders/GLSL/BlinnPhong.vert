@@ -2,8 +2,8 @@
 #version 460 core
 layout (location = 0) in vec3 _vertex_position;
 layout (location = 1) in vec3 _vertex_normal;
-layout (location = 2) in vec2 _vertex_uv;
-layout (location = 3) in vec3 _vertex_color;
+layout (location = 2) in vec3 _vertex_color;
+layout (location = 3) in vec2 _vertex_uv;
 
 out vec3 fragment_position;
 out vec3 vertex_normal;
