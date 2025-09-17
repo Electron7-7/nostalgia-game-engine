@@ -2,13 +2,13 @@
 #include "filesystem/file_data.hpp"
 #include "theatre/data_t.hpp"
 
-Resource::Resource() = default;
+Resource::Resource():
+m_FileData(std::make_shared<FileData>())
+{}
 
 Resource::Resource(const FileData* data)
 : m_FileData(std::shared_ptr<const FileData>(data))
-{
-    CreateResource();
-}
+{}
 
 void Resource::SetupVariables(const data_t& data)
 {

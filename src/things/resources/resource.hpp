@@ -26,10 +26,12 @@ public:
     virtual void SetupVariables(const data_t&);
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}
-    virtual const std::shared_ptr<const FileData> Data() const { return m_FileData; }
+
+    const std::shared_ptr<const FileData> Data() const { return m_FileData; }
+    void SetData(std::shared_ptr<const FileData> NewData) { m_FileData = NewData; }
 
 private:
-    std::shared_ptr<const FileData> m_FileData = std::make_shared<FileData>();
+    std::shared_ptr<const FileData> m_FileData = nullptr;
 };
 
 #endif // RESOURCE_H
