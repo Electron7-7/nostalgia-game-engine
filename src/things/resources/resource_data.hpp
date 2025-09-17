@@ -1,9 +1,9 @@
 #ifndef RESOURCE_DATA_H
 #define RESOURCE_DATA_H
 
-#include "filesystem/file_data.hpp"
-
 #include <memory>
+
+struct FileData; // Forward Declaration
 
 struct ResourceData
 {
@@ -20,21 +20,21 @@ namespace Fonts
     {
         constexpr unsigned char Audiowide_Regular[] =
         {
-            #embed <fonts/Audiowide-Regular.ttf>
+            #embed "fonts/Audiowide-Regular.ttf"
         };
         constexpr unsigned char DejaVuSansMono[] =
         {
-            #embed <fonts/DejaVuSansMono.ttf>
+            #embed "fonts/DejaVuSansMono.ttf"
         };
         constexpr unsigned char Verdana[] =
         {
-            #embed <fonts/Verdana.ttf>
+            #embed "fonts/Verdana.ttf"
         };
     }
 
-    constexpr FileData Audiowide_Regular(FileType::font_TTF, Raw::Audiowide_Regular);
-    constexpr FileData DejaVuSansMono(FileType::font_TTF, Raw::DejaVuSansMono);
-    constexpr FileData Verdana(FileType::font_TTF, Raw::Verdana);
+    extern constinit const FileData Audiowide_Regular;
+    extern constinit const FileData DejaVuSansMono;
+    extern constinit const FileData Verdana;
 }
 
 namespace Images
@@ -43,16 +43,21 @@ namespace Images
     {
         constexpr unsigned char COMP04_5[] =
         {
-            #embed <images/COMP04_5.png>
+            #embed "images/COMP04_5.png"
         };
         constexpr unsigned char Missing[] =
         {
-            #embed <images/Missing.jpg>
+            #embed "images/Missing.jpg"
+        };
+        constexpr unsigned char LolBit[] =
+        {
+            #embed "images/lolbit.png"
         };
     }
 
-    constexpr FileData COMP04_5(FileType::image_PNG, Raw::COMP04_5);
-    constexpr FileData Missing(FileType::image_JPG, Raw::Missing);
+    extern constinit const FileData COMP04_5;
+    extern constinit const FileData Missing;
+    extern constinit const FileData LolBit;
 }
 
 namespace Models
@@ -61,41 +66,41 @@ namespace Models
     {
         constexpr unsigned char Error[] =
         {
-            #embed <models/Error.obj>
+            #embed "models/Error.obj"
         };
         constexpr unsigned char Ramiel[] =
         {
-            #embed <models/Ramiel.obj>
+            #embed "models/Ramiel.obj"
         };
     }
 
-    constexpr FileData Error(FileType::model_OBJ, Raw::Error);
-    constexpr FileData Ramiel(FileType::model_OBJ, Raw::Ramiel);
+    extern constinit const FileData Error;
+    extern constinit const FileData Ramiel;
 }
 
 namespace GLSL
 {
     constexpr char BlinnPhong_Frag[] =
     {
-        #embed <shaders/GLSL/BlinnPhong.frag> \
+        #embed "shaders/GLSL/BlinnPhong.frag" \
             suffix(,)
             0
     };
     constexpr char BlinnPhong_Vert[] =
     {
-        #embed <shaders/GLSL/BlinnPhong.vert> \
+        #embed "shaders/GLSL/BlinnPhong.vert" \
             suffix(,)
             0
     };
     constexpr char SafetyShader_Frag[] =
     {
-        #embed <shaders/GLSL/SafetyShader.frag> \
+        #embed "shaders/GLSL/SafetyShader.frag" \
             suffix(,)
             0
     };
     constexpr char SafetyShader_Vert[] =
     {
-        #embed <shaders/GLSL/SafetyShader.vert> \
+        #embed "shaders/GLSL/SafetyShader.vert" \
             suffix(,)
             0
     };

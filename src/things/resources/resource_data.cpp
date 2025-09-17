@@ -1,7 +1,18 @@
 #include "resource_data.hpp"
 #include "printing.hpp"
+#include "filesystem/file_data.hpp"
 
 #include <map>
+
+constinit const FileData Models::Error(FileType::model_OBJ, Raw::Error, std::size(Raw::Error));
+constinit const FileData Models::Ramiel(FileType::model_OBJ, Raw::Ramiel, std::size(Raw::Ramiel));
+
+constinit const FileData Images::COMP04_5(FileType::image_PNG, Raw::COMP04_5, std::size(Raw::COMP04_5));
+constinit const FileData Images::Missing(FileType::image_JPG, Raw::Missing, std::size(Raw::Missing));
+
+constinit const FileData Fonts::Audiowide_Regular(FileType::font_TTF, Raw::Audiowide_Regular, std::size(Raw::Audiowide_Regular));
+constinit const FileData Fonts::DejaVuSansMono(FileType::font_TTF, Raw::DejaVuSansMono, std::size(Raw::DejaVuSansMono));
+constinit const FileData Fonts::Verdana(FileType::font_TTF, Raw::Verdana, std::size(Raw::Verdana));
 
 static std::map<std::string, std::shared_ptr<const FileData>> s_ResourceData =
 {
