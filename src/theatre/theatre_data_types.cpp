@@ -75,8 +75,6 @@ void data_t::SetType(const std::string& type)
     m_TypeName = type;
     m_Type = ConstexprHash(m_TypeName);
     m_Priority = g_GetPriority(m_Type);
-    PRINT_DEBUG("({}) {} #{}", m_Name, m_TypeName, m_Priority)
-
     if(!g_IsValidType(m_Type))
         { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type, m_Name) }
 }
@@ -191,29 +189,7 @@ static void s_DataQuickSort(std::vector<data_t>& array, int low, int high)
 }
 
 void TheatreData::OrderByPriority()
-{
-    DEBUG(
-        std::print("Unsorted:\n");
-        for(size_t i = 0 ; i < m_Data.size() ; ++i)
-        {
-            std::print("{}", m_Data.at(i).GetPriority());
-            if(i+1 < m_Data.size())
-                { std::print(", "); }
-        }
-        std::print("\n");
-    )
-    s_DataQuickSort(m_Data, 0, m_Data.size() - 1);
-    DEBUG(
-        std::print("Data Priority Sorting Check:\n");
-        for(size_t i = 0 ; i < m_Data.size() ; ++i)
-        {
-            std::print("{}", m_Data.at(i).GetPriority());
-            if(i+1 < m_Data.size())
-                { std::print(", "); }
-        }
-        std::print("\n");
-    )
-}
+{ s_DataQuickSort(m_Data, 0, m_Data.size() - 1); }
 
 SafeStatus TheatreData::AddData(const data_t& data)
 {
@@ -233,11 +209,11 @@ void TheatreData::debug_PrintData()
 
     for(const auto& data : m_Data)
     {
-        std::print("({}) {}:\n", StringifyType(data.m_Type), data.m_Name);
+        std::print("({}) {} [{}]:\n", StringifyType(data.m_Type), data.m_Name, data.m_AssignedID);
 
         const std::vector<variable_t>& variables = data.m_Variables;
         for(const variable_t& variable : variables)
-        { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
+            { std::print("\t({}) {} = {}\n", StringifyEnum(variable.m_Type), variable.m_Name, variable.m_Value); }
 
         std::print("\n");
     }
