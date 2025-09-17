@@ -2,18 +2,33 @@
 
 Resources
 {
-    Mesh CubeMesh
+    Mesh TestMesh
     {
-        File = 'src/testing_app/resources/Cube.obj'
+        // File = 'src/testing_app/resources/Cube.obj'
+        Data = [ErrorModel]
+    }
+
+    Texture TestTex
+    {
+        Data = [MissingTexture]
+    }
+
+    Material TestMat
+    {
+        DiffuseTexture = <TestTex>
     }
 }
 
 Things
 {
-    PrototypeActor CubeTester
+    PrototypeActor Tester
     {
-        Mesh = <CubeMesh>
-        Origin = (0, -0.05, 2)
+        MeshInstance : MeshInstance TestMeshInstance
+        {
+            Mesh = <TestMesh>
+            Material = <TestMat>
+        }
+        Origin = (0, -0.05, -2)
         Rotation = (-0.1, 0, 0.1)
     }
 }

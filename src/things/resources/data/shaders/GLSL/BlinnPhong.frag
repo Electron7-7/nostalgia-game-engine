@@ -77,17 +77,16 @@ mat3x3 calculateLuminosity(Light light, vec3 light_direction);
 
 void main()
 {
-	FragColor = vec4(texture(current_material.texture_diffuse, vertex_uv).rgb * vec3(1.0f), 1.0f);
+	FragColor = vec4(texture(current_material.texture_diffuse, vertex_uv).rgb, 1.0f);
 	return;
-
 	vec3 output_color = vec3(0.0f);
 
 	for(int i = 0 ; i < directional_lights_count ; ++i)
-		output_color += calculateDirectionalLight(directional_lights[i]);
+		{ output_color += calculateDirectionalLight(directional_lights[i]); }
 	for(int i = 0 ; i < point_lights_count ; ++i)
-		output_color += calculatePointLight(point_lights[i]);
+		{ output_color += calculatePointLight(point_lights[i]); }
 	for(int i = 0 ; i < spot_lights_count ; ++i)
-		output_color += calculateSpotLight(spot_lights[i]);
+		{ output_color += calculateSpotLight(spot_lights[i]); }
 
 	// Todo: once more than one material is supported, make sure that the alpha isn't just affected by one
 	if(current_material.alpha < 0.5f)

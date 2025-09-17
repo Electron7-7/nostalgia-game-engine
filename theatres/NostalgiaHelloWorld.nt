@@ -13,7 +13,8 @@ Resources
     Texture LolBit_Tex
     {
         // This is a String, delimited by sinqle-quotes. Strings capture everything inside them, including whitespace
-        File = 'src/testing_app/resources/lolbit.png'
+        // File = 'src/testing_app/resources/lolbit.png'
+        Data = [LolBitTexture];
     }
 
     Mesh Doom_Mesh
