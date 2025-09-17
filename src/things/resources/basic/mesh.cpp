@@ -9,7 +9,7 @@
 
 #include <numeric>
 
-Mesh Mesh::Error(&Models::Error);
+Mesh Mesh::Error({Models::Error, std::size(Models::Error), FileType::model_OBJ});
 
 void Mesh::SetupVariables(const data_t& data)
 {
@@ -27,7 +27,7 @@ void Mesh::clear()
 
 const std::vector<Vertex>& Mesh::GetVertices() const
 {
-    if(m_MeshStatus != ResourceStatus::SUCCESSFUL && Data()->Status() != DataStatus::SUCCESSFUL)
+    if(m_MeshStatus != ResourceStatus::SUCCESSFUL && m_FileData.Status() != DataStatus::SUCCESSFUL)
         { return Mesh::Error.m_Vertices; }
     return m_Vertices;
 }
@@ -52,15 +52,13 @@ std::vector<float> Mesh::GetVertexData()
 
 SafeStatus Mesh::CreateResource()
 {
-    auto test = Data();
-    auto test2 = Resource::Data();
-    if(Data()->Status() == DataStatus::FAILED)
+    if(m_FileData.Status() == DataStatus::FAILED)
         { return Status::ResourceBAD_FILE_DATA; }
 
     SafeStatus status = Status::NO_ERR;
     m_MeshStatus = ResourceStatus::SUCCESSFUL;
 
-    switch(Data()->Type())
+    switch(m_FileData.Type())
     {
     case FileType::model_OBJ:
         status = try_CreateOBJMesh();
@@ -106,7 +104,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(Data()->String(), "", reader_config))
+    if(!reader.ParseFromString(m_FileData.String(), "", reader_config))
     {
         if(!reader.Error().empty())
         {

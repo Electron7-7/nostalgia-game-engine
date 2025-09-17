@@ -1,7 +1,7 @@
 #ifndef RESOURCE_DATA_H
 #define RESOURCE_DATA_H
 
-#include <memory>
+#include <string>
 
 struct FileData; // Forward Declaration
 
@@ -9,73 +9,74 @@ struct ResourceData
 {
 public:
     static bool Exists(const std::string& Name);
-    static void AddData(const std::string& Name, const FileData* Data);
-    static bool GetData(std::shared_ptr<const FileData>& Output, const std::string& Name);
-    static std::shared_ptr<const FileData> GetData(const std::string& Name);
+    static void AddData(const std::string& Name, const FileData& Data);
+    static bool GetData(FileData& Output, const std::string& Name);
 };
 
 namespace Fonts
 {
-    namespace Raw
+    constexpr unsigned char Audiowide_Regular[] =
     {
-        constexpr unsigned char Audiowide_Regular[] =
-        {
-            #embed "fonts/Audiowide-Regular.ttf"
-        };
-        constexpr unsigned char DejaVuSansMono[] =
-        {
-            #embed "fonts/DejaVuSansMono.ttf"
-        };
-        constexpr unsigned char Verdana[] =
-        {
-            #embed "fonts/Verdana.ttf"
-        };
+        #embed "fonts/Audiowide-Regular.ttf"
+    };
+    constexpr unsigned char DejaVuSansMono[] =
+    {
+        #embed "fonts/DejaVuSansMono.ttf"
+    };
+    constexpr unsigned char Verdana[] =
+    {
+        #embed "fonts/Verdana.ttf"
+    };
+
+    namespace Name
+    {
+        constexpr const char* AudiowideRegular = "AudiowideRegular";
+        constexpr const char* Verdana = "Verdana";
+        constexpr const char* DejaVuSansMono = "DejaVuSansMono";
     }
 
-    extern constinit const FileData Audiowide_Regular;
-    extern constinit const FileData DejaVuSansMono;
-    extern constinit const FileData Verdana;
 }
 
 namespace Images
 {
-    namespace Raw
+    constexpr unsigned char COMP04_5[] =
     {
-        constexpr unsigned char COMP04_5[] =
-        {
-            #embed "images/COMP04_5.png"
-        };
-        constexpr unsigned char Missing[] =
-        {
-            #embed "images/Missing.jpg"
-        };
-        constexpr unsigned char LolBit[] =
-        {
-            #embed "images/lolbit.png"
-        };
+        #embed "images/COMP04_5.png"
+    };
+    constexpr unsigned char Missing[] =
+    {
+        #embed "images/Missing.jpg"
+    };
+    constexpr unsigned char LolBit[] =
+    {
+        #embed "images/lolbit.png"
+    };
+
+    namespace Name
+    {
+        constexpr const char* Missing = "Missing";
+        constexpr const char* COMP04_5 = "Doom";
+        constexpr const char* LolBit = "LolBit";
     }
 
-    extern constinit const FileData COMP04_5;
-    extern constinit const FileData Missing;
-    extern constinit const FileData LolBit;
 }
 
 namespace Models
 {
-    namespace Raw
+    constexpr unsigned char Error[] =
     {
-        constexpr unsigned char Error[] =
-        {
-            #embed "models/Error.obj"
-        };
-        constexpr unsigned char Ramiel[] =
-        {
-            #embed "models/Ramiel.obj"
-        };
-    }
+        #embed "models/Error.obj"
+    };
+    constexpr unsigned char Ramiel[] =
+    {
+        #embed "models/Ramiel.obj"
+    };
 
-    extern constinit const FileData Error;
-    extern constinit const FileData Ramiel;
+    namespace Name
+    {
+        constexpr const char* Error = "Error";
+        constexpr const char* Ramiel = "Ramiel";
+    }
 }
 
 namespace GLSL

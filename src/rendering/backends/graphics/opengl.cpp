@@ -87,7 +87,7 @@ void OpenGL_Backend::BufferMesh(Mesh* mesh)
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
     unsigned int id = 0;
-    stbi_set_flip_vertically_on_load(texture->Data()->HasPath()); // FIXME: Idk if this is accurate
+    stbi_set_flip_vertically_on_load(texture->Data().HasPath()); // FIXME: Idk if this is accurate
 
     // glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureIDs.at(texture->GetID()));
     // glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -104,7 +104,7 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     int l_Width, l_Height, l_Channels;
-    unsigned char* l_Data = stbi_load_from_memory(texture->Data()->data(), texture->Data()->size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
+    unsigned char* l_Data = stbi_load_from_memory(texture->Data().Data(), texture->Data().Size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
 
     if(!l_Data)
     {

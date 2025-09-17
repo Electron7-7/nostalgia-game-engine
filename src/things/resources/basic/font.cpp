@@ -1,7 +1,7 @@
 #include "font.hpp"
 #include "../resource_data.hpp"
 
-Font Font::Default(&Fonts::Audiowide_Regular);
+Font Font::Default({Fonts::Verdana, std::size(Fonts::Verdana), FileType::font_TTF});
 
 void Font::SetupVariables(const data_t& data)
 {

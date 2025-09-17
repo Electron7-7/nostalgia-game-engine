@@ -3,7 +3,7 @@
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
 
-Texture Texture::Missing(&Images::Missing);
+Texture Texture::Missing({Images::Missing, std::size(Images::Missing), FileType::image_JPG});
 
 void Texture::SetupVariables(const data_t& data)
 {
@@ -14,9 +14,9 @@ void Texture::SetupVariables(const data_t& data)
 
 SafeStatus Texture::CreateResource()
 {
-    if(Data()->Status() != DataStatus::SUCCESSFUL)
+    if(m_FileData.Status() != DataStatus::SUCCESSFUL)
     {
-        SetData(ResourceData::GetData("MissingTexture"));
+        ResourceData::GetData(m_FileData, Images::Name::Missing);
         return Status::ResourceBAD_FILE_DATA;
     }
     return Status::NO_ERR;

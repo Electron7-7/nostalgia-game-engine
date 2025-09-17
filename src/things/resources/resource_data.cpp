@@ -4,52 +4,51 @@
 #include <cassert>
 #include <map>
 
-constinit const FileData Models::Error(FileType::model_OBJ, Raw::Error, std::size(Raw::Error));
-constinit const FileData Models::Ramiel(FileType::model_OBJ, Raw::Ramiel, std::size(Raw::Ramiel));
-
-constinit const FileData Images::LolBit(FileType::image_PNG, Raw::LolBit, std::size(Raw::LolBit));
-constinit const FileData Images::COMP04_5(FileType::image_PNG, Raw::COMP04_5, std::size(Raw::COMP04_5));
-constinit const FileData Images::Missing(FileType::image_JPG, Raw::Missing, std::size(Raw::Missing));
-
-constinit const FileData Fonts::Audiowide_Regular(FileType::font_TTF, Raw::Audiowide_Regular, std::size(Raw::Audiowide_Regular));
-constinit const FileData Fonts::DejaVuSansMono(FileType::font_TTF, Raw::DejaVuSansMono, std::size(Raw::DejaVuSansMono));
-constinit const FileData Fonts::Verdana(FileType::font_TTF, Raw::Verdana, std::size(Raw::Verdana));
-
-static std::map<std::string, std::shared_ptr<const FileData>> s_ResourceData =
+struct Data_Type_Storage
 {
-    { "VerdanaFont",          std::shared_ptr<const FileData>(&Fonts::Verdana)           },
-    { "AudiowideRegularFont", std::shared_ptr<const FileData>(&Fonts::Audiowide_Regular) },
-    { "DejaVuSansMonoFont",   std::shared_ptr<const FileData>(&Fonts::DejaVuSansMono)    },
-    { "MissingTexture",       std::shared_ptr<const FileData>(&Images::Missing)          },
-    { "DoomTexture",          std::shared_ptr<const FileData>(&Images::COMP04_5)         },
-    { "LolBitTexture",        std::shared_ptr<const FileData>(&Images::LolBit)           },
-    { "ErrorModel",           std::shared_ptr<const FileData>(&Models::Error)            },
-    { "RamielModel",          std::shared_ptr<const FileData>(&Models::Ramiel)           },
+    const unsigned char* m_Data = nullptr;
+    int m_Size = 0;
+    FileType m_Type = FileType::Unknown;
+};
+
+static std::map<std::string, Data_Type_Storage> s_ResourceData =
+{
+    { Fonts::Name::AudiowideRegular, {Fonts::Audiowide_Regular, std::size(Fonts::Audiowide_Regular), FileType::font_TTF}  },
+    { Fonts::Name::Verdana,          {Fonts::Verdana,           std::size(Fonts::Verdana),           FileType::font_TTF}  },
+    { Fonts::Name::DejaVuSansMono,   {Fonts::DejaVuSansMono,    std::size(Fonts::DejaVuSansMono),    FileType::font_TTF}  },
+    { Images::Name::Missing,         {Images::Missing,          std::size(Images::Missing),          FileType::image_JPG} },
+    { Images::Name::COMP04_5,        {Images::COMP04_5,         std::size(Images::COMP04_5),         FileType::image_PNG} },
+    { Images::Name::LolBit,          {Images::LolBit,           std::size(Images::LolBit),           FileType::image_PNG} },
+    { Models::Name::Error,           {Models::Error,            std::size(Models::Error),            FileType::model_OBJ} },
+    { Models::Name::Ramiel,          {Models::Ramiel,           std::size(Models::Ramiel),           FileType::model_OBJ} },
 };
 
 bool ResourceData::Exists(const std::string& name)
 { return s_ResourceData.contains(name); }
 
-void ResourceData::AddData(const std::string& name, const FileData* data)
+void ResourceData::AddData(const std::string& name, const FileData& data)
 {
-    assert(data && "FileData cannot be nullptr");
     assert(!Exists(name) && "FileData with that name already exists; please choose a different name");
-
-    s_ResourceData[name] = std::shared_ptr<const FileData>(data);
+    s_ResourceData[name] =
+    {
+        data.Data(),
+        data.Size(),
+        data.Type()
+    };
     return;
 }
 
-bool ResourceData::GetData(std::shared_ptr<const FileData>& output, const std::string& name)
+bool ResourceData::GetData(FileData& output, const std::string& name)
 {
     bool status = Exists(name);
     if(status)
-        { output = s_ResourceData.at(name); }
+    {
+        output.LoadData
+        (
+            s_ResourceData.at(name).m_Data,
+            s_ResourceData.at(name).m_Size,
+            s_ResourceData.at(name).m_Type
+        );
+    }
     return status;
-}
-
-std::shared_ptr<const FileData> ResourceData::GetData(const std::string& name)
-{
-    if(!Exists(name))
-        { return s_ResourceData.at(name); }
-    return std::make_shared<FileData>();
 }

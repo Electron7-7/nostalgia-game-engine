@@ -37,7 +37,7 @@ public:
     void clear();
 
     bool GetTheatreRef(unsigned int& AssignTo, const std::string& VariableName) const;
-    bool GetFileData(std::shared_ptr<const FileData>& AssignTo, const std::string& VariableName) const;
+    bool GetFileData(FileData& AssignTo, const std::string& VariableName) const;
     bool GetBool(bool& AssignTo, const std::string& VariableName) const;
     bool GetString(std::string& AssignTo, const std::string& VariableName) const;
 
