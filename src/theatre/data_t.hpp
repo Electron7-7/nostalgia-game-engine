@@ -5,12 +5,13 @@
 #include "string_to_num.hpp"
 #include "things/id.hpp"
 #include "types/typenames.hpp"
-#include "filesystem/file_data.hpp"
 
 #include <memory>
 #include <vector>
 #include <algorithm>
 #include <string>
+
+struct FileData; // Forward Declaration
 
 struct data_t
 {

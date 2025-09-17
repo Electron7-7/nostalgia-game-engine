@@ -1,6 +1,7 @@
 #include "opengl.hpp"
 #include "printing.hpp"
 #include "world/world.hpp"
+#include "filesystem/file_data.hpp" // IWYU pragma: keep
 #include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "things/resources/resource_data.hpp"

@@ -1,6 +1,7 @@
 #include "mesh.hpp"
 #include "../resource_data.hpp"
 #include "theatre/data_t.hpp"
+#include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT

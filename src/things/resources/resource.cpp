@@ -1,4 +1,5 @@
 #include "resource.hpp"
+#include "filesystem/file_data.hpp"
 #include "theatre/data_t.hpp"
 
 Resource::Resource() = default;

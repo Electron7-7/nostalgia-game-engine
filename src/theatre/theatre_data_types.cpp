@@ -2,6 +2,7 @@
 #include "debug.hpp"
 #include "data_t.hpp"
 #include "variable_t.hpp"
+#include "filesystem/file_data.hpp"
 #include "things/resources/resource_data.hpp"
 
 // Variable

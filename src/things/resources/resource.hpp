@@ -2,7 +2,9 @@
 #define RESOURCE_H
 
 #include "../thing.hpp"
-#include "filesystem/file_data.hpp"
+#include "safe_return.hpp"
+
+struct FileData; // Forward Declaration
 
 #include <memory>
 

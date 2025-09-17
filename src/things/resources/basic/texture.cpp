@@ -1,5 +1,6 @@
 #include "texture.hpp"
 #include "../resource_data.hpp"
+#include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
 
 Texture Texture::Missing(&Images::Missing);
