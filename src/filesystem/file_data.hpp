@@ -31,18 +31,12 @@ struct FileData
 public:
     static FileType s_DetectFileType(const std::string& FilePath);
 
-    constexpr FileData() = default;
-    constexpr FileData(FileType type, auto& data)
-    : m_Data(data), m_Size(sizeof data), m_Type(type), m_Status(DataStatus::SUCCESSFUL), m_ReleaseData(false)
-    {}
+    FileData();
+    FileData(const std::string& Path, FileType Type = FileType::Unknown);
 
-    FileData(const std::string& path, FileType type = FileType::Unknown)
-    : m_Path(path), m_Data(nullptr), m_Size(0), m_Type(type), m_Status(DataStatus::UNLOADED), m_ReleaseData(false)
-    { LoadFile(path, type); }
-    FileData(const FileData& copy)
-    : m_Path(copy.m_Path), m_Data(copy.m_Data), m_Type(copy.m_Type), m_Status(copy.m_Status), m_ReleaseData(copy.m_ReleaseData)
+    constexpr FileData(FileType type, const unsigned char (&data)[], long size)
+    : m_Data(data), m_Size(size), m_Type(type), m_Status(DataStatus::SUCCESSFUL), m_ReleaseData(false)
     {}
-
     constexpr ~FileData()
     {
         if(m_ReleaseData)
@@ -57,7 +51,7 @@ public:
     const std::string& Path() const;
 
     std::vector<unsigned char> Vector() const; // Slow
-    std::string String() const;
+    std::string String() const; // Slow?
 
     const unsigned char* data() const;
     long size() const;

@@ -23,6 +23,12 @@ FileType FileData::s_DetectFileType(const std::string& path)
     return s_FileTypesByExtension.at(extension);
 }
 
+FileData::FileData() = default;
+
+FileData::FileData(const std::string& path, FileType type)
+: m_Path(path), m_Data(nullptr), m_Size(0), m_Type(type), m_Status(DataStatus::UNLOADED), m_ReleaseData(false)
+{ LoadFile(path, type); }
+
 SafeStatus FileData::LoadFile(const std::string& path, FileType type)
 {
     if(type == FileType::Unknown)
@@ -38,6 +44,7 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
 
     if(!image_file)
     {
+        PRINT_WARNING("FileData::LoadFile - Failed to load file '{}'", path)
         m_Status = DataStatus::FAILED;
         return Status::FileDataFAILED_TO_PROCESS_FILE;
     }
