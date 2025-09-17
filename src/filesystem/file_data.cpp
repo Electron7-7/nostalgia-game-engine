@@ -25,6 +25,10 @@ FileType FileData::s_DetectFileType(const std::string& path)
 
 FileData::FileData() = default;
 
+FileData::FileData(const unsigned char* data, int size, FileType type)
+: m_Data(data), m_Size(size), m_Type(type), m_Status(DataStatus::SUCCESSFUL), m_ReleaseData(false)
+{}
+
 FileData::FileData(const std::string& path, FileType type)
 : m_Path(path), m_Data(nullptr), m_Size(0), m_Type(type), m_Status(DataStatus::UNLOADED), m_ReleaseData(false)
 { LoadFile(path, type); }
@@ -50,20 +54,20 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     }
 
     fseek(image_file, 0, SEEK_END);
-    m_Size = ftell(image_file);
+    int size = ftell(image_file);
     fclose(image_file);
 
     image_file = fopen(file_path.c_str(), "r+");
-    unsigned char* data = new unsigned char[m_Size];
+    unsigned char* data = new unsigned char[size];
 
-    fread(data, sizeof(unsigned char), m_Size, image_file);
+    fread(data, sizeof(unsigned char), size, image_file);
     fclose(image_file);
 
     m_Data = data;
+    m_Size = size;
     m_Type = type;
     m_Path = path;
     m_ReleaseData = true;
-
     m_Status = DataStatus::SUCCESSFUL;
     return Status::NO_ERR;
 }
@@ -74,23 +78,20 @@ DataStatus FileData::Status() const
 FileType FileData::Type() const
 { return m_Type; }
 
-bool FileData::HasPath() const
-{ return !m_Path.empty(); }
-
 const std::string& FileData::Path() const
 { return m_Path; }
 
-std::vector<unsigned char> FileData::Vector() const
-{ return std::vector<unsigned char>(m_Data, m_Data + m_Size); }
+bool FileData::HasPath() const
+{ return !m_Path.empty(); }
 
 std::string FileData::String() const
 { return std::string(m_Data, m_Data + m_Size); }
 
-const unsigned char* FileData::data() const
+const unsigned char* FileData::Data() const
 { return m_Data; }
 
-long FileData::size() const
+int FileData::Size() const
 { return m_Size; }
 
-bool FileData::empty() const
+bool FileData::Empty() const
 { return (m_Data != nullptr); }

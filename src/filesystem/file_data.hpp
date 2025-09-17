@@ -4,7 +4,6 @@
 #include "safe_return.hpp"
 
 #include <string>
-#include <vector>
 
 enum class FileType
 {
@@ -31,38 +30,34 @@ struct FileData
 public:
     static FileType s_DetectFileType(const std::string& FilePath);
 
-    FileData();
     FileData(const std::string& Path, FileType Type = FileType::Unknown);
 
-    constexpr FileData(FileType type, const unsigned char (&data)[], long size)
-    : m_Data(data), m_Size(size), m_Type(type), m_Status(DataStatus::SUCCESSFUL), m_ReleaseData(false)
-    {}
     constexpr ~FileData()
     {
         if(m_ReleaseData)
             { delete [] m_Data; }
     }
+    FileData();
+    FileData(const unsigned char* Data, int Size, FileType Type);
+    ~FileData();
 
+    const unsigned char* Data() const;
+    int Size() const;
+    bool Empty() const;
     DataStatus Status() const;
-
     FileType Type() const;
-
-    bool HasPath() const;
     const std::string& Path() const;
+    bool HasPath() const;
 
-    std::vector<unsigned char> Vector() const; // Slow
-    std::string String() const; // Slow?
 
-    const unsigned char* data() const;
-    long size() const;
-    bool empty() const;
-
-    std::string m_Path = "";
-private:
     SafeStatus LoadFile(const std::string& Path, FileType Type = FileType::Unknown);
 
+    std::string String() const;
+
+private:
+    std::string m_Path = "";
     const unsigned char* m_Data = nullptr;
-    long m_Size = 0;
+    int m_Size = 0;
     FileType m_Type = FileType::Unknown;
     DataStatus m_Status = DataStatus::EMPTY;
     bool m_ReleaseData = false;
