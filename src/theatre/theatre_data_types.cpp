@@ -106,7 +106,7 @@ bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& varia
     return StringToNum<unsigned int>(real_variable, variable->m_Value);
 }
 
-bool data_t::GetFileData(std::shared_ptr<const FileData> real_variable, const std::string& variable_name) const
+bool data_t::GetFileData(std::shared_ptr<const FileData>& real_variable, const std::string& variable_name) const
 {
     EARLY_RETURN_MACRO(variable)
     return(ResourceData::GetData(real_variable, variable->m_Value));
