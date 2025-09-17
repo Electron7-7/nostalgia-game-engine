@@ -106,23 +106,6 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     int l_Width, l_Height, l_Channels;
     unsigned char* l_Data = stbi_load_from_memory(texture->Data()->data(), texture->Data()->size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
 
-#   ifdef DEBUGGING // Debugging Textures
-        if(l_Data)
-        {
-            switch(texture->Data()->Type())
-            {
-            case FileType::image_JPG:
-                stbi_write_jpg(("STB_" + texture->GetName() + ".jpg").c_str(), l_Width, l_Height, l_Channels, l_Data, 90);
-                break;
-            case FileType::image_PNG:
-                stbi_write_png(("STB_" + texture->GetName() + ".png").c_str(), l_Width, l_Height, l_Channels, l_Data, l_Width * l_Channels);
-                break;
-            default:
-                break;
-            }
-        }
-#   endif // DEBUGGING
-
     if(!l_Data)
     {
         PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}'!", texture->GetName())
