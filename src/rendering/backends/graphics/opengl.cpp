@@ -86,11 +86,17 @@ void OpenGL_Backend::BufferMesh(Mesh* mesh)
 
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
-    OpenGL_TextureID& id = m_TextureIDs[texture->GetID()];
+    unsigned int id = 0;
+    stbi_set_flip_vertically_on_load(texture->Data()->HasPath()); // FIXME: Idk if this is accurate
 
-    stbi_set_flip_vertically_on_load(true); // Obviously, automate this to flip relevant textures (when Y-Axis 0.0 is not on the bottom of the image)
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &id);
+    // glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureIDs.at(texture->GetID()));
+    // glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    // glTextureParameteri(id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    // glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
+    // glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    // glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
@@ -98,20 +104,40 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     int l_Width, l_Height, l_Channels;
-
     unsigned char* l_Data = stbi_load_from_memory(texture->Data()->data(), texture->Data()->size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
+
+#   ifdef DEBUGGING // Debugging Textures
+        if(l_Data)
+        {
+            switch(texture->Data()->Type())
+            {
+            case FileType::image_JPG:
+                stbi_write_jpg(("STB_" + texture->GetName() + ".jpg").c_str(), l_Width, l_Height, l_Channels, l_Data, 90);
+                break;
+            case FileType::image_PNG:
+                stbi_write_png(("STB_" + texture->GetName() + ".png").c_str(), l_Width, l_Height, l_Channels, l_Data, l_Width * l_Channels);
+                break;
+            default:
+                break;
+            }
+        }
+#   endif // DEBUGGING
 
     if(!l_Data)
     {
         PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}'!", texture->GetName())
-        glDeleteTextures(1, &id);
-        stbi_image_free(l_Data);
+        // glDeleteTextures(1, &m_TextureIDs.at(texture->GetID()));
         m_TextureIDs.erase(texture->GetID());
         return;
     }
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, l_Width, l_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB, l_Width, l_Height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, l_Width, l_Height , 0, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
     glGenerateMipmap(GL_TEXTURE_2D);
+    m_TextureIDs[texture->GetID()] = id;
+    // glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
+    // glTextureSubImage2D(id, 0, 0, 0, l_Width, l_Height, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
+    // glGenerateTextureMipmap(id);
     stbi_image_free(l_Data);
 }
 
