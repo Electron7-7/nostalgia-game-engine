@@ -32,11 +32,6 @@ public:
 
     FileData(const std::string& Path, FileType Type = FileType::Unknown);
 
-    constexpr ~FileData()
-    {
-        if(m_ReleaseData)
-            { delete [] m_Data; }
-    }
     FileData();
     FileData(const unsigned char* Data, int Size, FileType Type);
     ~FileData();
@@ -49,8 +44,10 @@ public:
     const std::string& Path() const;
     bool HasPath() const;
 
+    void Clear();
 
     SafeStatus LoadFile(const std::string& Path, FileType Type = FileType::Unknown);
+    void LoadData(const unsigned char* Data, int Size, FileType Type);
 
     std::string String() const;
 

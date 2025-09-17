@@ -33,12 +33,14 @@ FileData::FileData(const std::string& path, FileType type)
 : m_Path(path), m_Data(nullptr), m_Size(0), m_Type(type), m_Status(DataStatus::UNLOADED), m_ReleaseData(false)
 { LoadFile(path, type); }
 
+FileData::~FileData()
+{ Clear(); }
+
 SafeStatus FileData::LoadFile(const std::string& path, FileType type)
 {
+    PRINT_DEBUG("FileData::LoadFile({}, type {} (probably unknown))", path, (int)type)
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }
-    if(m_ReleaseData)
-        { delete [] m_Data; }
 
     std::string file_path = "";
     Filesystem::MakePathAbsolute(path, file_path);
@@ -63,6 +65,7 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     fread(data, sizeof(unsigned char), size, image_file);
     fclose(image_file);
 
+    Clear();
     m_Data = data;
     m_Size = size;
     m_Type = type;
@@ -70,6 +73,15 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     m_ReleaseData = true;
     m_Status = DataStatus::SUCCESSFUL;
     return Status::NO_ERR;
+}
+
+void FileData::LoadData(const unsigned char* data, int size, FileType type)
+{
+    Clear();
+    m_Status = DataStatus::SUCCESSFUL;
+    m_Data = data;
+    m_Size = size;
+    m_Type = type;
 }
 
 DataStatus FileData::Status() const
@@ -83,6 +95,18 @@ const std::string& FileData::Path() const
 
 bool FileData::HasPath() const
 { return !m_Path.empty(); }
+
+void FileData::Clear()
+{
+    if(m_ReleaseData)
+        { delete [] m_Data; }
+    m_Data = nullptr;
+    m_Size = 0;
+    m_Path = "";
+    m_Type = FileType::Unknown;
+    m_Status = DataStatus::UNLOADED;
+    m_ReleaseData = false;
+}
 
 std::string FileData::String() const
 { return std::string(m_Data, m_Data + m_Size); }
