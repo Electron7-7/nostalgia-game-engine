@@ -21,7 +21,7 @@ FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
 FLAGS_CXX_COMMON      := -std=c++26 -Wall -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/things/resources/data -Wno-c23-extensions
-FLAGS_CC_COMMON       := -std=c11 -Wall -MMD -MP
+FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 
@@ -355,14 +355,14 @@ clean:
 # 'mostlyclean' doesn't clean files from 'DIRTY_SRC_DIRS'
 .__mostlyclean_target:
 	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
 
 .__mostlyclean_all: ;@:
 	$(eval CLEAN_FILES != $(call CLEAN,f,$(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,$(call DIRTY,$(DIRTY_SRC_DIRS))))
+	$(eval CLEAN_DIRS  != $(call CLEAN,d,-empty $(call DIRTY,$(DIRTY_SRC_DIRS))))
 	$(RM) $(CLEAN_FILES)
 	$(RM) -r $(CLEAN_DIRS)
 	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
