@@ -10,7 +10,7 @@ struct ResourceData
 public:
     static bool Exists(const std::string& Name);
     static bool try_AddData(const std::string& Name, std::shared_ptr<const FileData> Data);
-    static bool GetData(std::shared_ptr<const FileData> Output, const std::string& Name);
+    static bool GetData(std::shared_ptr<const FileData>& Output, const std::string& Name);
     static std::shared_ptr<const FileData> GetData(const std::string& Name);
 };
 

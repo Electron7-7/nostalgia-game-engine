@@ -44,7 +44,7 @@ bool ResourceData::try_AddData(const std::string& name, std::shared_ptr<const Fi
     return true;
 }
 
-bool ResourceData::GetData(std::shared_ptr<const FileData> output, const std::string& name)
+bool ResourceData::GetData(std::shared_ptr<const FileData>& output, const std::string& name)
 {
     bool status = Exists(name);
     if(status)
