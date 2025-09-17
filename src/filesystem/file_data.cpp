@@ -37,7 +37,10 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     FILE* image_file = fopen(file_path.c_str(), "r+");
 
     if(!image_file)
-        { return Status::FileDataFAILED_TO_PROCESS_FILE; }
+    {
+        m_Status = DataStatus::FAILED;
+        return Status::FileDataFAILED_TO_PROCESS_FILE;
+    }
 
     fseek(image_file, 0, SEEK_END);
     m_Size = ftell(image_file);
@@ -54,6 +57,7 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     m_Path = path;
     m_ReleaseData = true;
 
+    m_Status = DataStatus::SUCCESSFUL;
     return Status::NO_ERR;
 }
 
