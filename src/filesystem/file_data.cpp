@@ -38,7 +38,6 @@ FileData::~FileData()
 
 SafeStatus FileData::LoadFile(const std::string& path, FileType type)
 {
-    PRINT_DEBUG("FileData::LoadFile({}, type {} (probably unknown))", path, (int)type)
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }
 

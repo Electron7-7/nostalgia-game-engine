@@ -186,7 +186,5 @@ SafeStatus Mesh::try_CreateOBJMesh()
     // Fix OBJ Indicies (if this is OpenGL-specific, move this to the graphics backend)
     m_Indices.resize(m_Vertices.size());
     std::iota(m_Indices.begin(), m_Indices.end(), 0);
-
-    PRINT_DEBUG("Mesh::try_CreateOBJMesh successfully created mesh data for '{}'", GetName())
     return Status::NO_ERR;
 }

@@ -1,4 +1,5 @@
 #include "opengl.hpp"
+#include "debug.hpp"
 #include "printing.hpp"
 #include "world/world.hpp"
 #include "settings/settings.hpp" // IWYU pragma: keep
@@ -13,7 +14,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
-int g_ShaderDebugOuptut = Shader_ALL;
+DEBUG(int g_ShaderDebugOuptut = Shader_ALL;)
 
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::m_VAOs = {};
 std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
@@ -244,7 +245,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
-    GetShader(context.GetShaderID())->SetUniform("debug_output", g_ShaderDebugOuptut);
+    DEBUG(GetShader(context.GetShaderID())->SetUniform("debug_output", g_ShaderDebugOuptut);)
 
     GetShader(context.GetShaderID())->SetUniform("point_lights_count", context.GetPointLightsCount());
     GetShader(context.GetShaderID())->SetUniform("spot_lights_count", context.GetSpotLightsCount());
