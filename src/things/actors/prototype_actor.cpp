@@ -20,8 +20,9 @@ RenderCommand PrototypeActor::GetRenderCommand()
     auto material = g_GetThing<Material>(mesh_instance->GetMaterialID());
 
     glm::mat4 model_matrix(1.0f);
-    model_matrix = glm::translate(glm::mat4(1.0f), Origin());
-    model_matrix *= glm::toMat4(Rotation());
+    model_matrix  = glm::translate(glm::mat4(1.0f), Origin());
+    model_matrix *= glm::toMat4(Quaternion());
+    model_matrix *= glm::scale(Scale());
 
     render_context.SetShaderID(Shaders::BlinnPhong);
     render_context.SetModelMatrix(model_matrix);
