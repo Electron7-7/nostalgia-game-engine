@@ -47,6 +47,8 @@ bool OpenGL_Backend::Init()
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
+    glEnable(GL_DEPTH_TEST);
+
     m_IsInitialized = true;
     return true;
 }
