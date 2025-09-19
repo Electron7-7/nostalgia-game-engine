@@ -6,15 +6,18 @@
 #include "rendering/shader_interfaces/gl_shader.hpp"
 
 #include <map>
-#include <array>
 #include <vector>
 
 typedef unsigned int OpenGL_TextureID;
 
 struct OpenGL_MeshData
 {
-    std::vector<float>        vertex_data = {};
-    std::vector<unsigned int> indices     = {};
+    OpenGL_MeshData(const std::vector<float>& data = {}, const std::vector<unsigned int>& indices_vec = {})
+    : vertex_data(data), indices(indices_vec), indices_count(indices_vec.size()), base_vertex(0), base_index(0)
+    {}
+
+    std::vector<float> vertex_data = {};
+    std::vector<unsigned int> indices = {};
 
     unsigned int indices_count = 0;
     unsigned int base_vertex   = 0;

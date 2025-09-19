@@ -75,16 +75,7 @@ void OpenGL_Backend::ImGuiRender()
 { ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
 void OpenGL_Backend::BufferMesh(Mesh* mesh)
-{
-    m_MeshData[mesh->GetID()] = OpenGL_MeshData
-    {
-        mesh->GetVertexData(),
-        mesh->GetIndices(),
-        (unsigned int)mesh->GetIndices().size(),
-        0,
-        0
-    };
-}
+{ m_MeshData[mesh->GetID()] = OpenGL_MeshData{mesh->GetVertexData(), mesh->GetIndices()}; }
 
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
@@ -144,7 +135,6 @@ void OpenGL_Backend::CreateRenderingData()
     {
         data.base_vertex   = (l_AllVertexData.size() / VAO_DEFAULT_STRIDE);
         data.base_index    = l_AllIndices.size();
-        data.indices_count = data.indices.size();
 
         l_AllVertexData.insert(l_AllVertexData.end(), data.vertex_data.begin(), data.vertex_data.end());
         l_AllIndices.insert(l_AllIndices.end(), data.indices.begin(), data.indices.end());
