@@ -75,9 +75,29 @@ vec3 calculateDirectionalLight(Light light);
 float calculateAttenuation(float range, float constant, float distance);
 mat3x3 calculateLuminosity(Light light, vec3 light_direction);
 
+uniform int debug_output;
+#define ALL 0
+#define COLOR 1
+#define NORMAL 2
+#define UV 3
+
 void main()
 {
-	FragColor = vec4(texture(current_material.texture_diffuse, vertex_uv).rgb, 1.0f);
+	switch(debug_output)
+	{
+	case COLOR:
+		FragColor = vec4(vertex_color, 1.0f);
+		break;
+	case NORMAL:
+		FragColor = vec4(vertex_normal, 1.0f);
+		break;
+	case UV:
+		FragColor = vec4(vertex_uv, 0.0f, 1.0f);
+		break;
+	case ALL:
+	default:
+		FragColor = texture(current_material.texture_diffuse, vertex_uv);
+	}
 	return;
 	vec3 output_color = vec3(0.0f);
 

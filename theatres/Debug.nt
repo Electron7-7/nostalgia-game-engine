@@ -4,7 +4,6 @@ Resources
 {
     Mesh TestMesh
     {
-        // File = 'src/testing_app/resources/Cube.obj'
         Data = [ErrorModel]
     }
 
@@ -28,7 +27,7 @@ Things
             Mesh = <TestMesh>
             Material = <TestMat>
         }
-        Origin = (0, -0.05, -2)
+        Origin = (0, -0.05, -4)
         Rotation = (-0.1, 0, 0.1)
     }
 }

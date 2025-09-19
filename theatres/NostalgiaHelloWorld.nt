@@ -17,9 +17,9 @@ Resources
         Data = [LolBitTexture];
     }
 
-    Mesh Doom_Mesh
+    Mesh Cube_Mesh
     {
-        File = 'src/testing_app/resources/Cube.obj'
+        File = 'src/testing_app/resources/Cube2.obj'
     }
 
     Mesh Ramiel_Mesh
@@ -33,7 +33,7 @@ Resources
         DiffuseTexture = <LolBit_Tex>
     }
 
-    MeshInstance LolBitMeshInstance
+    MeshInstance RamielMeshInstance
     {
         Mesh = <Ramiel_Mesh>
         Material = <LolBit_Mat>
@@ -44,7 +44,7 @@ Resources
         Data = [DoomTexture]
     }
 
-    Material Doom_Mat
+    Material Cube_Mat
     {
         // This is an Engine reference, delimited by square braces. It is the name of a special engine variable
         // (in the future, your game/app can define its own "Engine" references which your Theatre files can use)
@@ -56,7 +56,7 @@ Things
 {
     PrototypeActor TestActor
     {
-        MeshInstance = <LolBitMeshInstance>
+        MeshInstance = <RamielMeshInstance>
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
         // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
         Origin = (-3, 1.0, -2) // An example of all the different number types working together!
@@ -72,10 +72,10 @@ Things
         // They begin with the variable name, followed by a colon instead of an equals sign, and then a typical
         // object definition afterwards
         // They are great for when you don't want to define a new object and manually reference it, like in this example:
-        MeshInstance : MeshInstance DoomMeshInstance
+        MeshInstance : MeshInstance CubeMeshInstance
         {
-            Mesh = <Doom_Mesh>
-            Material = <Doom_Mat>
+            Mesh = <Cube_Mesh>
+            Material = <Cube_Mat>
         }
         Origin = (3, 0, -3)
         Rotation = (-0.1, 0, 0.1)
