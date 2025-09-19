@@ -27,6 +27,7 @@ public:
     virtual void SetUniform(const std::string& Name, glm::vec2 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::vec3 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::vec4 Value) const = 0;
+    virtual void SetUniform(const std::string& Name, glm::mat3 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::mat4 Value) const = 0;
 
 protected:
