@@ -6,6 +6,7 @@
 #include "theatre/theatre_parser.hpp"
 #include "managers/manager.hpp"
 
+#include <numbers>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -45,8 +46,12 @@ void imgui_Debugger::Update()
     if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
 
+    static bool show_main_window = true;
+    if(IsKeyPressed(ImGuiKey_Tab))
+        { show_main_window = !show_main_window; }
+
     SetNextWindowSize({875,180}, ImGuiCond_Once);
-    if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
+    if(show_main_window && Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
         {
@@ -79,16 +84,19 @@ void imgui_Debugger::Update()
                 { EndDisabled(); }
         }
     }
-    End();
+    if(show_main_window)
+        { End(); }
 }
 #else  // DEBUGGING
 #include "time.hpp"
 #include "managers/backend_manager.hpp"
-#include "things/thing.hpp"
+#include "rendering/backends/graphics/opengl.hpp"
+#include "things/things.hpp"
 #include "types/typenames.hpp"
-#include "things/resources/complex/mesh_instance.hpp"
+#include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "settings/settings.hpp"
+#include "world/position_3d.hpp" // IWYU pragma: keep
 
 #include <set>
 #include <memory>
@@ -96,6 +104,7 @@ void imgui_Debugger::Update()
 
 static std::random_device s_RandomDevice;
 
+static bool s_TheatreInspectorActive = false;
 static bool s_AutoStopwatchEnabled = true;
 
 static std::vector<TheatreLog>   s_TheatreLogs = {};
@@ -344,6 +353,27 @@ static void s_GeneralDebuggingWindow()
     if(Button("Toggle Tick Number Printouts"))
         { g_PrintTickNumbers = !g_PrintTickNumbers; }
 
+    static const char* s_SelectableNames[4] =
+    {
+        "All (Default Behaviour)",
+        "Vertex Colors",
+        "Vertex Normals",
+        "Vertex UVs"
+    };
+    static int s_Selected = Shader_ALL;
+
+    Text("Shader Debug Output");
+    Separator();
+    for(int i = 0 ; i < 4 ; ++i)
+    {
+        bool l_Selected = (s_Selected == i);
+        if(Checkbox(s_SelectableNames[i], &l_Selected))
+            { s_Selected = i; }
+        SameLine();
+    }
+    g_ShaderDebugOuptut = s_Selected;
+    NewLine();
+
     Text("%s", "Window Settings");
     Separator();
 
@@ -400,7 +430,6 @@ static void s_TheatreDebuggingWindow()
     if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         { EndDisabled(); }
 
-    static bool s_TheatreInspectorActive = false;
     bool not_in_level = (_Manager::GetTheatreState() == ManagerEnums::NOT_IN_LEVEL);
 
     if(not_in_level)
@@ -410,9 +439,6 @@ static void s_TheatreDebuggingWindow()
     }
     if(Button("Inspect Theatre"))
         { s_TheatreInspectorActive = !s_TheatreInspectorActive; }
-
-    if(s_TheatreInspectorActive)
-        { imgui_Debugger::s_InspectTheatreWindow(&s_TheatreInspectorActive); }
     if(not_in_level)
         { EndDisabled(); }
 
@@ -442,59 +468,86 @@ static void s_TheatreDebuggingWindow()
 
 void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
+    static std::shared_ptr<Thing> s_Thing = nullptr;
     if(Begin("Theatre Inspector", is_active))
     {
         const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::s_Things;
         for(const auto& [id, thing] : things)
         {
-            Button(thing->GetName().c_str(), {0.0f, 20.0f});
-            if(IsItemHovered())
-            {
-                BeginTooltip();
-                    switch(thing->GetType())
-                    {
-                    case Type::PrototypeActor:
-                        Text("MeshInstance: %u", dynamic_pointer_cast<PrototypeActor>(thing)->GetMeshInstance());
-                        break;
-                    case Type::MeshInstance:
-                        Text("Mesh: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMeshID());
-                        Text("Material: %u", dynamic_pointer_cast<MeshInstance>(thing)->GetMaterialID());
-                        break;
-                    default:
-                        break;
-                    }
-                    Text("Name: %s", thing->GetName().c_str());
-                    Text("ID: %u", thing->GetID());
-                    Text("TypeName: %s", StringifyType(thing->GetType()));
-                EndTooltip();
-            }
+            if(Button(thing->GetName().c_str(), {0.0f, 20.0f}))
+                { s_Thing = thing; }
         }
+        auto actor = dynamic_pointer_cast<Actor>(s_Thing);
+        if(actor && (_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL))
+        {
+            BeginChild("Edit Thing");
+            Separator();
+            if(TreeNode("Immutable Properties"))
+            {
+                Text("Name: %s", actor->GetName().c_str());
+                Text("ID: %u", actor->GetID());
+                Text("Type: %s", StringifyType(actor->GetType()));
+                if(s_Thing->GetType() == Type::PrototypeActor)
+                {
+                    auto proto_actor = dynamic_pointer_cast<PrototypeActor>(s_Thing);
+                    Text("MeshInstance: %u", proto_actor->GetMeshInstance());
+                    Text("\t\tMesh: %u", g_GetThing<MeshInstance>(proto_actor->GetMeshInstance())->GetMeshID());
+                    Text("\t\tMaterial: %u", g_GetThing<MeshInstance>(proto_actor->GetMeshInstance())->GetMaterialID());
+                }
+                TreePop();
+            }
+
+            auto Origin = actor->Origin();
+            auto Euler  = actor->Rotation(true);
+            auto Scale  = actor->Scale();
+
+            Text("Mutable Properties");
+            Separator();
+
+            Text("Origin:  ");
+            SameLine();
+            SetNextItemWidth(GetWindowWidth() - 80);
+            if(DragGLMv3("##origin", &Origin, 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround))
+                { actor->SetOrigin(Origin); }
+
+            Text("Rotation:");
+            SameLine();
+            SetNextItemWidth(GetWindowWidth() - 80);
+            if(DragGLMv3("##rotation", &Euler, 0.1f, -180.0f, 180.0f, "%.2f", ImGuiSliderFlags_WrapAround))
+                { actor->SetRotation(Euler, true); }
+
+            Text("Scale:   ");
+            SameLine();
+            SetNextItemWidth(GetWindowWidth() - 80);
+            if(SliderGLMv3("##scale", &Scale, 0.0f, 100.0f, "%.2f"))
+                { actor->SetScale(Scale); }
+            EndChild();
+        }
+        else
+            { s_Thing = nullptr; }
     }
     End();
 }
 
 void s_TerribleRenderDebugWindow()
 {
-    if(Begin("TerribleRenderingDebugger"))
-    {
-        Text("Player movement placeholder (very shitty):");
-        static float position[3];
-        InputFloat("Player Position X", &position[0], 0.05f, 1.0f);
-        InputFloat("Player Position Y", &position[1], 0.05f, 1.0f);
-        InputFloat("Player Position Z", &position[2], 0.05f, 1.0f);
-        TheatreManager::GetLocalPlayer()->SetOrigin(glm::vec3(position[0], position[1], position[2]));
+    auto Origin   = TheatreManager::GetLocalPlayer()->Origin();
+    auto Rotation = TheatreManager::GetLocalPlayer()->Rotation(true);
 
-        Text("Player rotation placeholder (very shitty):");
-        static float view_rotation[3];
-        for(float& deg : view_rotation)
-        {
-            if(deg >= 360.0f || deg <= -360.0f)
-                { deg = 0; }
-        }
-        InputFloat("Player Rotation X", &view_rotation[0], 1.0f, 5.0f);
-        InputFloat("Player Rotation Y", &view_rotation[1], 1.0f, 5.0f);
-        InputFloat("Player Rotation Z", &view_rotation[2], 1.0f, 5.0f);
-        TheatreManager::GetLocalPlayer()->SetRotation(glm::quat(glm::radians(glm::vec3(view_rotation[0], view_rotation[1], view_rotation[2]))));
+    SetNextWindowSize({930, 100}, ImGuiCond_Once);
+    if(Begin("Player movement placeholder (very shitty)"))
+    {
+        Text("Origin:  ");
+        SameLine();
+        SetNextItemWidth(GetWindowWidth() - 95);
+        if(DragGLMv3("##player_pos", &Origin, 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround))
+            { TheatreManager::GetLocalPlayer()->SetOrigin(Origin); }
+
+        Text("Rotation:");
+        SameLine();
+        SetNextItemWidth(GetWindowWidth() - 95);
+        if(DragGLMv3("##player_rot", &Rotation, 0.1f, -180.0f, 180.0f, "%.2f", ImGuiSliderFlags_WrapAround))
+            { TheatreManager::GetLocalPlayer()->SetRotation(Rotation, true); }
     }
     End();
 }
@@ -505,13 +558,20 @@ void imgui_Debugger::Update()
     if(show_demo_window)
         { ShowDemoWindow(&show_demo_window); }
 
+    if(s_TheatreInspectorActive)
+        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
+
     if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
 
     static bool s_PopOutStopwatches = false;
 
+    static bool show_main_window = true;
+    if(IsKeyPressed(ImGuiKey_Tab))
+        { show_main_window = !show_main_window; }
+
     SetNextWindowSize({840,480}, ImGuiCond_Once);
-    if(Begin("Debugging", nullptr, ImGuiWindowFlags_MenuBar))
+    if(show_main_window && Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
         {
@@ -564,7 +624,8 @@ void imgui_Debugger::Update()
         }
         EndTabBar();
     }
-    End();
+    if(show_main_window)
+        { End(); }
     if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         { s_TerribleRenderDebugWindow(); }
 }
