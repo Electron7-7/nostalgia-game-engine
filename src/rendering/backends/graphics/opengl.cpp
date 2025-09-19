@@ -13,6 +13,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
+int g_ShaderDebugOuptut = Shader_ALL;
+
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::m_VAOs = {};
 std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
 std::map<id_t, OpenGL_MeshData>       OpenGL_Backend::m_MeshData = {};
@@ -237,9 +239,12 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     BindShader(context.GetShaderID());
 
     glEnable(GL_BLEND);
+    glEnable(GL_FRAMEBUFFER_SRGB);
 
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
+
+    GetShader(context.GetShaderID())->SetUniform("debug_output", g_ShaderDebugOuptut);
 
     GetShader(context.GetShaderID())->SetUniform("point_lights_count", context.GetPointLightsCount());
     GetShader(context.GetShaderID())->SetUniform("spot_lights_count", context.GetSpotLightsCount());
@@ -262,4 +267,6 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     const OpenGL_MeshData& data = m_MeshData.at(rendercmd.GetMeshID());
 
     glDrawElementsBaseVertex(GL_TRIANGLES, data.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data.base_index), data.base_vertex);
+
+    glDisable(GL_FRAMEBUFFER_SRGB);
 }
