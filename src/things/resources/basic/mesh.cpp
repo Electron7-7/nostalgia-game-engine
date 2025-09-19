@@ -43,10 +43,7 @@ std::vector<float> Mesh::GetVertexData()
 {
     std::vector<float> output = {};
     for(const Vertex& vertex : m_Vertices)
-    {
-        std::array<float, Vertex::Stride> vertex_data = vertex.VertexData();
-        output.insert(output.end(), vertex_data.begin(), vertex_data.end());
-    }
+        { vertex.GetVertexData(output); }
     return output;
 }
 

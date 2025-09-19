@@ -38,6 +38,24 @@ public:
         };
     }
 
+    constexpr void GetVertexData(std::vector<float>& Output) const
+    {
+        Output.push_back(_position.x);
+        Output.push_back(_position.y);
+        Output.push_back(_position.z);
+
+        Output.push_back(_color.x);
+        Output.push_back(_color.y);
+        Output.push_back(_color.z);
+
+        Output.push_back(_normal.x);
+        Output.push_back(_normal.y);
+        Output.push_back(_normal.z);
+
+        Output.push_back(_uv.x);
+        Output.push_back(_uv.y);
+    }
+
     const bool operator==(Vertex other) const { return (this->VertexData() == other.VertexData()); }
     const bool operator!=(Vertex other) const { return !(*this == other); }
 
