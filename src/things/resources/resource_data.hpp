@@ -30,9 +30,9 @@ namespace Fonts
 
     namespace Name
     {
-        constexpr const char* AudiowideRegular = "AudiowideRegular";
-        constexpr const char* Verdana = "Verdana";
-        constexpr const char* DejaVuSansMono = "DejaVuSansMono";
+        constexpr const char* AudiowideRegular = "AudiowideRegularFont";
+        constexpr const char* Verdana = "VerdanaFont";
+        constexpr const char* DejaVuSansMono = "DejaVuSansMonoFont";
     }
 
 }
@@ -54,9 +54,9 @@ namespace Images
 
     namespace Name
     {
-        constexpr const char* Missing = "Missing";
-        constexpr const char* COMP04_5 = "Doom";
-        constexpr const char* LolBit = "LolBit";
+        constexpr const char* Missing = "MissingTexture";
+        constexpr const char* COMP04_5 = "DoomTexture";
+        constexpr const char* LolBit = "LolBitTexture";
     }
 
 }
@@ -74,8 +74,8 @@ namespace Models
 
     namespace Name
     {
-        constexpr const char* Error = "Error";
-        constexpr const char* Ramiel = "Ramiel";
+        constexpr const char* Error = "ErrorModel";
+        constexpr const char* Ramiel = "RamielModel";
     }
 }
 

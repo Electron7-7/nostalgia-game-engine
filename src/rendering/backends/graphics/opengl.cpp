@@ -1,8 +1,7 @@
 #include "opengl.hpp"
 #include "printing.hpp"
 #include "world/world.hpp"
-#include "filesystem/file_data.hpp" // IWYU pragma: keep
-#include "rendering/shader_interfaces/shader_interface.hpp"
+#include "settings/settings.hpp" // IWYU pragma: keep
 #include "rendering/shader_interfaces/gl_shader.hpp"
 #include "things/resources/resource_data.hpp"
 #include "things/resources/basic/mesh.hpp"
@@ -47,6 +46,7 @@ bool OpenGL_Backend::Init()
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
+    // glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEPTH_TEST);
 
     m_IsInitialized = true;
@@ -156,10 +156,10 @@ void OpenGL_Backend::CreateRenderingData()
     glBufferData(GL_ARRAY_BUFFER, l_AllVertexData.size() * sizeof(float), l_AllVertexData.data(), GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, l_AllIndices.size() * sizeof(unsigned int), l_AllIndices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(0));
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(8 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(0));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(9 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -177,7 +177,7 @@ void OpenGL_Backend::Shutdown()
     assert(m_IsInitialized);
 
     if(is_imgui_initialized)
-    { ImGui_ImplOpenGL3_Shutdown(); }
+        { ImGui_ImplOpenGL3_Shutdown(); }
 
     m_IsInitialized = false;
     is_imgui_initialized = false;
@@ -256,9 +256,9 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     GetShader(context.GetShaderID())->SetUniform("directional_lights_count", context.GetDirectionalLightsCount());
 
     GetShader(context.GetShaderID())->SetUniform("model_matrix", context.GetModelMatrix());
-    GetShader(context.GetShaderID())->SetUniform("view_matrix", rendercmd.ViewMatrix());
-    GetShader(context.GetShaderID())->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
     GetShader(context.GetShaderID())->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(context.GetModelMatrix()))));
+    GetShader(context.GetShaderID())->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
+    GetShader(context.GetShaderID())->SetUniform("view_matrix", rendercmd.ViewMatrix());
     GetShader(context.GetShaderID())->SetUniform("view_position", rendercmd.ViewPosition());
 
     GetShader(context.GetShaderID())->SetUniform("current_material.texture_diffuse",  0);

@@ -2,7 +2,7 @@
 #version 460 core
 #define MAX_NUMBER_OF_DIRECTIONAL_LIGHTS 2
 #define MAX_NUMBER_OF_SPOT_LIGHTS        48
-#define MAX_NUMBER_OF_POINT_LIGHTS       50
+#define MAX_NUMBER_OF_POINT_LIGHTS       48
 
 out vec4 FragColor;
 

@@ -125,18 +125,18 @@ SafeStatus Mesh::try_CreateOBJMesh()
 
     Vertex temp_vertex;
 
-    // Loop over shapes
-    // Shapes are full meshes in the OBJ (there can be multiple)
-    for (size_t s = 0; s < shapes.size(); ++s)
+    // This looping code is from https://github.com/tinyobjloader/tinyobjloader
+    // Loop over shapes (Shapes are full meshes in the OBJ (there can be multiple))
+    for(size_t s = 0; s < shapes.size(); ++s)
     {
         // Loop over faces(polygon)
         size_t index_offset = 0;
-        for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); ++f)
+        for(size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); ++f)
         {
             size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
 
             // Loop over vertices in the face.
-            for (size_t v = 0; v < fv; ++v)
+            for(size_t v = 0; v < fv; ++v)
             {
                 // access to vertex
                 tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
@@ -147,7 +147,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
                 temp_vertex.SetPosition(glm::vec3((float)vx, (float)vy, (float)vz));
 
                 // Check if `normal_index` is zero or positive. negative = no normal data
-                if (idx.normal_index >= 0)
+                if(idx.normal_index >= 0)
                 {
                     tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
                     tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
@@ -159,7 +159,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
                     { temp_vertex.SetNormal(glm::vec3(0.0f)); }
 
                 // Check if `texcoord_index` is zero or positive. negative = no texcoord data
-                if (idx.texcoord_index >= 0)
+                if(idx.texcoord_index >= 0)
                 {
                     tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
                     tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
@@ -169,7 +169,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
                 else
                     { temp_vertex.SetUV(glm::vec2(0.0f)); }
 
-                if (idx.texcoord_index >= 0)
+                if(idx.texcoord_index >= 0)
                 {
                     tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
                     tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
@@ -189,5 +189,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
     // Fix OBJ Indicies (if this is OpenGL-specific, move this to the graphics backend)
     m_Indices.resize(m_Vertices.size());
     std::iota(m_Indices.begin(), m_Indices.end(), 0);
+
+    PRINT_DEBUG("Mesh::try_CreateOBJMesh successfully created mesh data for '{}'", GetName())
     return Status::NO_ERR;
 }
