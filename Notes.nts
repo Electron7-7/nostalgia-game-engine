@@ -483,3 +483,5 @@ I'm so fucking stupid...
 I forgot to enable the depth buffer for OpenGL, so everything *was* rendering inside out and everything was 100% correct, fine, and okay.
 
 Kill me.
+
+Okay, I've made lots of improvements to the debug windows, changed up some stuff with transform data, and I think I'm just about ready to start working on the next big thing!!
