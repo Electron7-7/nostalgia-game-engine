@@ -464,3 +464,22 @@ I found the problem with the weird 'free()' fault, here: (https://stackoverflow.
 I don't want to store copies of embedded resource data, so I'm creating a small storage struct in 'resource_data.cpp' that stores the `unsigned char` pointer, size of the array, and file type. 'Resource' now holds a 'FileData' object instead of a pointer and 'ResourceData::GetData' mutates that variable by reference, using the storage structs.
 
 I made a mistake by making 'Resource::m_FileData' private instead of protected. I thought that would avoid the weird issue caused by running 'Resource::SetupVariables' from a derived class but it actually *caused* that issue (whereas, making it protected solved the issue).
+
+Okay, now it's time to try and solve these rendering and file issues.
+
+I don't know what the fuck is wrong with the rendering.
+
+[09/18/25]
+I really need to figure out what's wrong with rendering. The mesh data doesn't seem to be wrong, at least according to Nsight; is it the offset? The shaders? The matrices? The model?
+
+I THINK I FOUND THE PROBLEM!! I THINK IT'S THE NORMALS!!
+
+Nope...
+
+Nope...
+
+I'm so fucking stupid...
+
+I forgot to enable the depth buffer for OpenGL, so everything *was* rendering inside out and everything was 100% correct, fine, and okay.
+
+Kill me.
