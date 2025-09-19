@@ -1,9 +1,9 @@
 #ifndef RESOURCE_DATA_H
 #define RESOURCE_DATA_H
 
-#include <string>
+#include "filesystem/fwd.hpp"
 
-struct FileData; // Forward Declaration
+#include <string>
 
 struct ResourceData
 {
