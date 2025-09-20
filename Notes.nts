@@ -496,3 +496,5 @@ Ohhhh, here's a note from (https://math.stackexchange.com/a/2975462): basically,
 I think I want to make a way to draw directly to the screen for debugging purposes. Like a "DrawLine" function.
 
 Welp, I didn't do that, but I did finally fix the Quaternion & Euler Angle problem. I also did lots of house-keeping and started slimming down the RenderCommand system.
+
+Oh, yeah, lemme add *why* the Quats and angles were fighting: basically, when GLM converts between the two, it does so in a way that will cause problems when the yaw is greater than 90 degrees in either direction. To fix this, I keep both a Quat and a vector of angles and when I set one, it sets the other.
