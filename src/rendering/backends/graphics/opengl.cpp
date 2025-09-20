@@ -3,11 +3,14 @@
 #include "printing.hpp"
 #include "world/world.hpp"
 #include "settings/settings.hpp" // IWYU pragma: keep
-#include "rendering/shader_interfaces/gl_shader.hpp"
+#include "things/things.hpp"
+#include "../../shader_interfaces/gl_shader.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/resources/resource_data.hpp"
 #include "things/resources/basic/mesh.hpp"
 #include "things/resources/basic/texture.hpp"
 #include "things/resources/complex/material.hpp" // IWYU pragma: keep
+#include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
@@ -233,11 +236,11 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
-    const RenderContext& context = rendercmd.GetRenderContext();
-    auto material = rendercmd.GetMaterial();
+    auto mesh_instance = g_GetThing<MeshInstance>(rendercmd.m_MeshInstanceID);
+    auto material      = g_GetThing<Material>(mesh_instance->GetMaterialID());
 
     glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
-    BindShader(context.GetShaderID());
+    BindShader(rendercmd.m_ShaderID);
 
     glEnable(GL_BLEND);
     glEnable(GL_FRAMEBUFFER_SRGB);
@@ -245,27 +248,27 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
-    DEBUG(GetShader(context.GetShaderID())->SetUniform("debug_output", g_ShaderDebugOuptut);)
+    DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
 
-    GetShader(context.GetShaderID())->SetUniform("point_lights_count", context.GetPointLightsCount());
-    GetShader(context.GetShaderID())->SetUniform("spot_lights_count", context.GetSpotLightsCount());
-    GetShader(context.GetShaderID())->SetUniform("directional_lights_count", context.GetDirectionalLightsCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("point_lights_count", TheatreManager::PointLightsCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("spot_lights_count", TheatreManager::SpotLightsCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("directional_lights_count", TheatreManager::DirectionalLightsCount());
 
-    GetShader(context.GetShaderID())->SetUniform("model_matrix", context.GetModelMatrix());
-    GetShader(context.GetShaderID())->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(context.GetModelMatrix()))));
-    GetShader(context.GetShaderID())->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
-    GetShader(context.GetShaderID())->SetUniform("view_matrix", rendercmd.ViewMatrix());
-    GetShader(context.GetShaderID())->SetUniform("view_position", rendercmd.ViewPosition());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("model_matrix", rendercmd.m_ModelMatrix);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.m_ModelMatrix))));
+    GetShader(rendercmd.m_ShaderID)->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("view_matrix", rendercmd.ViewMatrix());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("view_position", rendercmd.ViewPosition());
 
-    GetShader(context.GetShaderID())->SetUniform("current_material.texture_diffuse",  0);
-    GetShader(context.GetShaderID())->SetUniform("current_material.texture_specular", 1);
-    GetShader(context.GetShaderID())->SetUniform("current_material.diffuse_color", material->m_Color);
-    GetShader(context.GetShaderID())->SetUniform("current_material.alpha", material->m_Alpha);
-    GetShader(context.GetShaderID())->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
-    GetShader(context.GetShaderID())->SetUniform("current_material.specular_strength", material->m_SpecularStrength);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_diffuse",  0);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_specular", 1);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.diffuse_color", material->m_Color);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.alpha", material->m_Alpha);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_strength", material->m_SpecularStrength);
 
     // FIXME: Make this safer
-    const OpenGL_MeshData& data = m_MeshData.at(rendercmd.GetMeshID());
+    const OpenGL_MeshData& data = m_MeshData.at(mesh_instance->GetMeshID());
 
     glDrawElementsBaseVertex(GL_TRIANGLES, data.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data.base_index), data.base_vertex);
 

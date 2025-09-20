@@ -29,6 +29,9 @@ static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
 std::map<id_t, std::shared_ptr<Thing>> TheatreManager::s_Things = {};
+int TheatreManager::s_PointLightsCount       = 0;
+int TheatreManager::s_SpotLightsCount        = 0;
+int TheatreManager::s_DirectionalLightsCount = 0;
 
 void TheatreManager::Update()
 {
@@ -100,7 +103,7 @@ void TheatreManager::RenderWorld()
     {
         std::shared_ptr<Actor> actor = dynamic_pointer_cast<Actor>(thing);
         if(actor)
-            { PushValidRenderCommand(actor->GetRenderCommand()); }
+            { s_RenderCommandQueue.emplace_back(actor, Shaders::BlinnPhong); }
     }
     for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)
     {
@@ -133,6 +136,15 @@ const std::shared_ptr<Thing>& TheatreManager::cGetThing(id_t id)
         { return s_Things.cbegin()->second; }
     return s_Things.at(id);
 }
+
+int TheatreManager::PointLightsCount()
+{ return s_PointLightsCount; }
+
+int TheatreManager::SpotLightsCount()
+{ return s_SpotLightsCount; }
+
+int TheatreManager::DirectionalLightsCount()
+{ return s_DirectionalLightsCount; }
 
 void TheatreManager::CreateObjects()
 {
@@ -170,10 +182,3 @@ void TheatreManager::CreateObjects()
 
 void TheatreManager::DestroyObjects()
 { s_Things.clear(); }
-
-void TheatreManager::PushValidRenderCommand(const RenderCommand& render_cmd)
-{
-    if(!render_cmd.IsSafe())
-        { return; }
-    s_RenderCommandQueue.push_back(render_cmd);
-}
