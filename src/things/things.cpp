@@ -1,6 +1,6 @@
 #include "things.hpp"
-#include "managers/theatre_manager.hpp"
 #include "printing.hpp"
+#include "thing.hpp"
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
@@ -9,6 +9,7 @@
 #include "resources/basic/texture.hpp"
 #include "resources/complex/material.hpp"
 #include "resources/complex/mesh_instance.hpp"
+#include "managers/theatre_manager.hpp"
 
 #include <map>
 
@@ -16,7 +17,7 @@ template<IsThing T>
 std::shared_ptr<Thing> l_MakeThing()
 { return std::make_shared<T>(); }
 
-inline const std::map<size_t, std::shared_ptr<Thing>(*)()>
+const std::map<size_t, std::shared_ptr<Thing>(*)()>
 s_ThingConstructors =
 {
     { Type::Thing,           &l_MakeThing<Thing>           },
@@ -31,6 +32,33 @@ s_ThingConstructors =
     { Type::MeshInstance,    &l_MakeThing<MeshInstance>    },
 };
 
+static const std::map<size_t, int>
+s_TypePriorityMap =
+{
+    { Type::Mesh,            -2 },
+    { Type::Font,            -2 },
+    { Type::Texture,         -2 },
+    { Type::Material,        -1 },
+    { Type::MeshInstance,    -1 },
+    { Type::NostalgiaPlayer,  0 },
+    { Type::Actor,            0 },
+    { Type::Resource,         0 },
+    { Type::Thing,            0 },
+};
+
+const int g_GetPriority(size_t type)
+{
+    if(!s_TypePriorityMap.contains(type))
+        { return 9999; }
+    return s_TypePriorityMap.at(type);
+}
+
+const bool g_IsValidType(const std::string& name)
+{ return s_TypePriorityMap.contains(ConstexprHash(name)); }
+
+const bool g_IsValidType(size_t hash)
+{ return s_TypePriorityMap.contains(hash); }
+
 std::shared_ptr<Thing>(*g_MakeThing(size_t type))()
 {
     if(!s_ThingConstructors.contains(type))
@@ -44,9 +72,10 @@ std::shared_ptr<Thing>(*g_MakeThing(size_t type))()
 template<typename T>
 std::shared_ptr<T> g_GetThing(id_t id)
 {
-    if(!dynamic_pointer_cast<T>(TheatreManager::GetThing(id)))
+    auto thing = dynamic_pointer_cast<T>(TheatreManager::GetThing(id));
+    if(!thing)
         { return std::make_shared<T>(); }
-    return dynamic_pointer_cast<T>(TheatreManager::GetThing(id));
+    return thing;
 }
 
 template std::shared_ptr<Thing> g_GetThing<Thing>(id_t ID);

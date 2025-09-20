@@ -2,7 +2,7 @@
 #define THING_H
 
 #include "id.hpp"
-#include "types/typenames.hpp"
+#include "things.hpp"
 
 #include <string>
 
@@ -21,7 +21,7 @@ public:
     size_t GetType() const;
     const std::string& GetName() const;
 
-private:
+protected:
     friend class TheatreManager;
     id_t m_ID = ID::None;
     size_t m_Type = Type::Thing;

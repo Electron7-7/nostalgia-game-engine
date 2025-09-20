@@ -4,10 +4,9 @@
 #include "variable_t.hpp"
 #include "string_to_num.hpp"
 #include "things/id.hpp"
-#include "types/typenames.hpp"
+#include "things/things.hpp"
 #include "filesystem/fwd.hpp"
 
-#include <memory>
 #include <vector>
 #include <algorithm>
 #include <string>

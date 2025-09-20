@@ -10,7 +10,6 @@
 #include "things/things.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/resources/basic/mesh.hpp"
-#include "types/typenames.hpp"
 #ifdef DEBUGGING
 #   include "colors.hpp"
 #   include "time.hpp"
