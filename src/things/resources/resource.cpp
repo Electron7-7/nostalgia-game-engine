@@ -8,7 +8,7 @@ Resource::Resource()
 
 Resource::Resource(const FileData& data)
 : m_FileData(data)
-{}
+{ CreateResource(); }
 
 void Resource::SetupVariables(const data_t& data)
 {

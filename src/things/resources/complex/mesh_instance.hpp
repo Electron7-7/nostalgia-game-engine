@@ -8,10 +8,7 @@ class MeshInstance : public Resource
 public:
     virtual void SetupVariables(const data_t&);
 
-    void AssignMesh(id_t MeshID);
     id_t GetMeshID() const;
-
-    void AssignMaterial(id_t MaterialID);
     id_t GetMaterialID() const;
 
 private:
