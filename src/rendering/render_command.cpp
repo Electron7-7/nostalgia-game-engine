@@ -2,26 +2,20 @@
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
-#include "things/resources/complex/material.hpp"
 
-#include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-RenderCommand::RenderCommand()
-: m_IsSafe(false), m_RenderContext(RenderContext())
-{}
+RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, id_t shader)
+: m_ShaderID(shader), m_MeshInstanceID(actor->GetMeshInstanceID())
+{
+    // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->cScale());
+    glm::mat4 rotMat   = glm::mat4_cast(actor->Quaternion());
+    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), actor->cOrigin());
+    m_ModelMatrix = transMat * rotMat * scaleMat;
+}
 
-RenderCommand::RenderCommand(RenderContext context, id_t mesh_id, std::shared_ptr<Material> mat)
-: m_IsSafe(true), m_RenderContext(context), m_MeshID(mesh_id), m_Material(mat)
-{}
-
-const bool& RenderCommand::IsSafe() const
-{ return m_IsSafe; }
-
-const RenderContext& RenderCommand::GetRenderContext() const
-{ return m_RenderContext; }
-
-const glm::vec3& RenderCommand::ViewPosition() const
+glm::vec3 RenderCommand::ViewPosition() const
 { return TheatreManager::GetLocalPlayer()->ViewPosition(); }
 
 glm::mat4 RenderCommand::ViewMatrix() const
@@ -40,9 +34,3 @@ glm::mat4 RenderCommand::ProjectionMatrix() const
         Settings::Player::ViewCutoffFar
     );
 }
-
-id_t RenderCommand::GetMeshID() const
-{ return m_MeshID; }
-
-std::shared_ptr<Material> RenderCommand::GetMaterial() const
-{ return m_Material; }
