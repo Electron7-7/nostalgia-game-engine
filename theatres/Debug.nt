@@ -7,20 +7,15 @@ Resources
         Data = [ErrorModel]
     }
 
-    Texture TestTex
-    {
-        Data = [MissingTexture]
-    }
-
     Material TestMat
     {
-        DiffuseTexture = <TestTex>
+        NoTexture = (true)
     }
 }
 
 Things
 {
-    PrototypeActor Tester
+    Actor Tester
     {
         MeshInstance : MeshInstance TestMeshInstance
         {

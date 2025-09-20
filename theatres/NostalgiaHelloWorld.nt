@@ -19,7 +19,7 @@ Resources
 
     Mesh Cube_Mesh
     {
-        File = 'src/testing_app/resources/Cube2.obj'
+        File = 'src/testing_app/resources/Cube.obj'
     }
 
     Mesh Ramiel_Mesh
@@ -27,7 +27,7 @@ Resources
         Data = [RamielModel]
     }
 
-    Material LolBit_Mat
+    Material Ramiel_Mat
     {
         // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
         DiffuseTexture = <LolBit_Tex>
@@ -36,7 +36,7 @@ Resources
     MeshInstance RamielMeshInstance
     {
         Mesh = <Ramiel_Mesh>
-        Material = <LolBit_Mat>
+        Material = <Ramiel_Mat>
     }
 
     Texture Doom_Texture
@@ -54,7 +54,7 @@ Resources
 
 Things
 {
-    PrototypeActor TestActor
+    Actor TestActor
     {
         MeshInstance = <RamielMeshInstance>
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
@@ -64,7 +64,7 @@ Things
         IsVisible = (true)
     }
 
-    PrototypeActor TestActor2
+    Actor TestActor2
     {
         // This is a sandwich. It's a way of defining an object inside another object, for convenience
         // Internally, they are converted into a separate definition, and the variable value is replaced
