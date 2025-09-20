@@ -73,41 +73,43 @@ void imgui_Debugger::Update()
         { show_main_window = !show_main_window; }
 
     SetNextWindowSize({875,180}, ImGuiCond_Once);
-    if(show_main_window && Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
-    {
-        if(BeginMenuBar())
-        {
-            if(BeginMenu("ImGui"))
-            {
-                if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                    { show_demo_window = true; }
-                EndMenu();
-            }
-            EndMenuBar();
-            Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
-
-            InputText("Theatre File", &s_TheatreFilePath);
-            if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                { BeginDisabled(); }
-            if(Button("Load Theatre"))
-            {
-                s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-                if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
-                    { _Manager::StartNewTheatre(); }
-            }
-            if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                { EndDisabled(); }
-
-            if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                { BeginDisabled(); }
-            if(Button("Exit Theatre"))
-                { _Manager::ShutdownTheatre(); }
-            if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                { EndDisabled(); }
-        }
-    }
     if(show_main_window)
-        { End(); }
+    {
+        if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
+        {
+            if(BeginMenuBar())
+            {
+                if(BeginMenu("ImGui"))
+                {
+                    if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
+                        { show_demo_window = true; }
+                    EndMenu();
+                }
+                EndMenuBar();
+                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
+
+                InputText("Theatre File", &s_TheatreFilePath);
+                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                    { BeginDisabled(); }
+                if(Button("Load Theatre"))
+                {
+                    s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
+                    if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
+                        { _Manager::StartNewTheatre(); }
+                }
+                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                    { EndDisabled(); }
+
+                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                    { BeginDisabled(); }
+                if(Button("Exit Theatre"))
+                    { _Manager::ShutdownTheatre(); }
+                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                    { EndDisabled(); }
+            }
+        }
+        End();
+    }
     if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         { s_TerribleRenderDebugWindow(); }
 }
@@ -563,61 +565,63 @@ void imgui_Debugger::Update()
         { show_main_window = !show_main_window; }
 
     SetNextWindowSize({840,480}, ImGuiCond_Once);
-    if(show_main_window && Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
-    {
-        if(BeginMenuBar())
-        {
-            if(BeginMenu("ImGui"))
-            {
-                if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                    { show_demo_window = true; }
-                EndMenu();
-            }
-            EndMenuBar();
-        }
-        if(BeginTabBar("Debug Tools"))
-        {
-            if(BeginTabItem("General"))
-            {
-                s_GeneralDebuggingWindow();
-                EndTabItem();
-            }
-            if(s_PopOutStopwatches)
-            {
-                SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
-                if(Begin("Stopwatches"))
-                {
-                    float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                    s_AutomaticStopwatchWindow(width);
-                    SameLine();
-                    s_ManualStopwatchWindow(width);
-                }
-                End();
-            }
-            if(BeginTabItem("Stopwatches"))
-            {
-                const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
-                if(Button(pop_out_label))
-                    { s_PopOutStopwatches = !s_PopOutStopwatches; }
-                if(!s_PopOutStopwatches)
-                {
-                    float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                    s_AutomaticStopwatchWindow(width);
-                    SameLine();
-                    s_ManualStopwatchWindow(width);
-                }
-                EndTabItem();
-            }
-            if(BeginTabItem("Theatres"))
-            {
-                s_TheatreDebuggingWindow();
-                EndTabItem();
-            }
-        }
-        EndTabBar();
-    }
     if(show_main_window)
-        { End(); }
+    {
+        if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
+        {
+            if(BeginMenuBar())
+            {
+                if(BeginMenu("ImGui"))
+                {
+                    if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
+                        { show_demo_window = true; }
+                    EndMenu();
+                }
+                EndMenuBar();
+            }
+            if(BeginTabBar("Debug Tools"))
+            {
+                if(BeginTabItem("General"))
+                {
+                    s_GeneralDebuggingWindow();
+                    EndTabItem();
+                }
+                if(s_PopOutStopwatches)
+                {
+                    SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
+                    if(Begin("Stopwatches"))
+                    {
+                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                        s_AutomaticStopwatchWindow(width);
+                        SameLine();
+                        s_ManualStopwatchWindow(width);
+                    }
+                    End();
+                }
+                if(BeginTabItem("Stopwatches"))
+                {
+                    const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
+                    if(Button(pop_out_label))
+                        { s_PopOutStopwatches = !s_PopOutStopwatches; }
+                    if(!s_PopOutStopwatches)
+                    {
+                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                        s_AutomaticStopwatchWindow(width);
+                        SameLine();
+                        s_ManualStopwatchWindow(width);
+                    }
+                    EndTabItem();
+                }
+                if(BeginTabItem("Theatres"))
+                {
+                    s_TheatreDebuggingWindow();
+                    EndTabItem();
+                }
+            }
+            EndTabBar();
+        }
+        End();
+    }
     if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         { s_TerribleRenderDebugWindow(); }
 }
