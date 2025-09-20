@@ -2827,13 +2827,13 @@ bool ImGui::DragGLMv3(const char* label, glm::vec3* v, float v_speed, float v_mi
 
 bool ImGui::DragGLMquat(const char* label, glm::quat* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-    float l_Scalars[4] = {v->x, v->y, v->z, v->w};
+    float l_Scalars[4] = {v->w, v->x, v->y, v->z};
     if(DragScalarN(label, ImGuiDataType_Float, l_Scalars, 4, v_speed, &v_min, &v_max, format, flags))
     {
-        v->x = l_Scalars[0];
-        v->y = l_Scalars[1];
-        v->z = l_Scalars[2];
-        v->w = l_Scalars[3];
+        v->w = l_Scalars[0];
+        v->x = l_Scalars[1];
+        v->y = l_Scalars[2];
+        v->z = l_Scalars[3];
         return true;
     }
     return false;
@@ -3458,13 +3458,13 @@ bool ImGui::SliderGLMv3(const char *label, glm::vec3* v, float v_min, float v_ma
 
 bool ImGui::SliderGLMquat(const char *label, glm::quat* v, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
-    float l_Scalars[4] = {v->x, v->y, v->z, v->w};
+    float l_Scalars[4] = {v->w, v->x, v->y, v->z};
     if(SliderScalarN(label, ImGuiDataType_Float, l_Scalars, 4, &v_min, &v_max, format, flags))
     {
-        v->x = l_Scalars[0];
-        v->y = l_Scalars[1];
-        v->z = l_Scalars[2];
-        v->w = l_Scalars[3];
+        v->w = l_Scalars[0];
+        v->x = l_Scalars[1];
+        v->y = l_Scalars[2];
+        v->z = l_Scalars[3];
         return true;
     }
     return false;
