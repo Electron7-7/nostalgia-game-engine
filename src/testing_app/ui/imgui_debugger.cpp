@@ -2,6 +2,7 @@
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "managers/theatre_manager.hpp"
+#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "theatre/theatre_parser.hpp"
 #include "managers/manager.hpp"
 
@@ -32,6 +33,29 @@ void imgui_Debugger::Shutdown()
         { return; }
 
     m_IsInitialized = false;
+}
+
+static void s_TerribleRenderDebugWindow()
+{
+    SetNextWindowSize({930, 100}, ImGuiCond_Once);
+    if(Begin("Player movement placeholder (very shitty)"))
+    {
+        auto player = TheatreManager::GetLocalPlayer();
+
+        Text("Origin:  ");
+        SameLine();
+        SetNextItemWidth(GetWindowWidth() - 95);
+        DragGLMv3("##player_pos", &player->Origin(), 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround);
+
+        glm::vec3 Euler = player->Euler(true);
+
+        Text("Rotation:");
+        SameLine();
+        SetNextItemWidth(GetWindowWidth() - 95);
+        if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+            { player->Euler(Euler, true); }
+    }
+    End();
 }
 
 #ifndef DEBUGGING
@@ -84,6 +108,8 @@ void imgui_Debugger::Update()
     }
     if(show_main_window)
         { End(); }
+    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+        { s_TerribleRenderDebugWindow(); }
 }
 #else  // DEBUGGING
 #include "time.hpp"
@@ -91,7 +117,6 @@ void imgui_Debugger::Update()
 #include "rendering/backends/graphics/opengl.hpp"
 #include "things/things.hpp"
 #include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
-#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "settings/settings.hpp"
 #include "world/transform_3d.hpp" // IWYU pragma: keep
 
@@ -114,7 +139,6 @@ static void s_AutomaticStopwatchWindow(float);
 static void s_ManualStopwatchWindow(float);
 static void s_GeneralDebuggingWindow();
 static void s_TheatreDebuggingWindow();
-static void s_TerribleRenderDebugWindow();
 
 void s_HandleAutomaticStopwatchToggle()
 {
@@ -516,29 +540,6 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
         }
         else
             { s_Thing = nullptr; }
-    }
-    End();
-}
-
-void s_TerribleRenderDebugWindow()
-{
-    SetNextWindowSize({930, 100}, ImGuiCond_Once);
-    if(Begin("Player movement placeholder (very shitty)"))
-    {
-        auto player = TheatreManager::GetLocalPlayer();
-
-        Text("Origin:  ");
-        SameLine();
-        SetNextItemWidth(GetWindowWidth() - 95);
-        DragGLMv3("##player_pos", &player->Origin(), 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround);
-
-        glm::vec3 Euler = player->Euler(true);
-
-        Text("Rotation:  ");
-        SameLine();
-        SetNextItemWidth(GetWindowWidth() - 80);
-        if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-            { player->Euler(Euler, true); }
     }
     End();
 }
