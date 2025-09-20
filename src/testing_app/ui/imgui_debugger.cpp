@@ -5,7 +5,6 @@
 #include "theatre/theatre_parser.hpp"
 #include "managers/manager.hpp"
 
-#include <numbers>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -91,13 +90,13 @@ void imgui_Debugger::Update()
 #include "managers/backend_manager.hpp"
 #include "rendering/backends/graphics/opengl.hpp"
 #include "things/things.hpp"
-#include "types/typenames.hpp"
 #include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "settings/settings.hpp"
-#include "world/position_3d.hpp" // IWYU pragma: keep
+#include "world/transform_3d.hpp" // IWYU pragma: keep
 
 #include <set>
+#include <format>
 #include <memory>
 #include <random>
 
@@ -483,43 +482,36 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             Separator();
             if(TreeNode("Immutable Properties"))
             {
-                Text("Name: %s", actor->GetName().c_str());
-                Text("ID: %u", actor->GetID());
-                Text("Type: %s", StringifyType(actor->GetType()));
-                if(s_Thing->GetType() == Type::PrototypeActor)
-                {
-                    auto proto_actor = dynamic_pointer_cast<PrototypeActor>(s_Thing);
-                    Text("MeshInstance: %u", proto_actor->GetMeshInstance());
-                    Text("\t\tMesh: %u", g_GetThing<MeshInstance>(proto_actor->GetMeshInstance())->GetMeshID());
-                    Text("\t\tMaterial: %u", g_GetThing<MeshInstance>(proto_actor->GetMeshInstance())->GetMaterialID());
-                }
+                Text("ID: [%u]", actor->GetID());
+                Text("Type: (%s)", StringifyType(actor->GetType()));
+                Text("Name: '%s'", actor->GetName().c_str());
+                auto mesh_instance = g_GetThing<MeshInstance>(actor->GetMeshInstanceID());
+                Text("[%u] (MeshInstance) '%s'", actor->GetMeshInstanceID(), mesh_instance->GetName().c_str());
+                Text("\t\t[%u] (Mesh) '%s'", mesh_instance->GetMeshID(), TheatreManager::GetThing(mesh_instance->GetMeshID())->GetName().c_str());
+                Text("\t\t[%u] (Material) '%s'", mesh_instance->GetMaterialID(), TheatreManager::GetThing(mesh_instance->GetMaterialID())->GetName().c_str());
                 TreePop();
             }
-
-            auto Origin = actor->Origin();
-            auto Euler  = actor->Rotation(true);
-            auto Scale  = actor->Scale();
 
             Text("Mutable Properties");
             Separator();
 
-            Text("Origin:  ");
+            Text("Origin:    ");
             SameLine();
             SetNextItemWidth(GetWindowWidth() - 80);
-            if(DragGLMv3("##origin", &Origin, 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround))
-                { actor->SetOrigin(Origin); }
+            DragGLMv3("##origin", &actor->Origin(), 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround);
 
-            Text("Rotation:");
-            SameLine();
-            SetNextItemWidth(GetWindowWidth() - 80);
-            if(DragGLMv3("##rotation", &Euler, 0.1f, -180.0f, 180.0f, "%.2f", ImGuiSliderFlags_WrapAround))
-                { actor->SetRotation(Euler, true); }
+            glm::vec3 Euler = actor->Euler(true);
 
-            Text("Scale:   ");
+            Text("Rotation:  ");
             SameLine();
             SetNextItemWidth(GetWindowWidth() - 80);
-            if(SliderGLMv3("##scale", &Scale, 0.0f, 100.0f, "%.2f"))
-                { actor->SetScale(Scale); }
+            if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                { actor->Euler(Euler, true); }
+
+            Text("Scale:     ");
+            SameLine();
+            SetNextItemWidth(GetWindowWidth() - 80);
+            SliderGLMv3("##scale", &actor->Scale(), 0.0f, 100.0f, "%.2f");
             EndChild();
         }
         else
@@ -530,23 +522,23 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
 
 void s_TerribleRenderDebugWindow()
 {
-    auto Origin   = TheatreManager::GetLocalPlayer()->Origin();
-    auto Rotation = TheatreManager::GetLocalPlayer()->Rotation(true);
-
     SetNextWindowSize({930, 100}, ImGuiCond_Once);
     if(Begin("Player movement placeholder (very shitty)"))
     {
+        auto player = TheatreManager::GetLocalPlayer();
+
         Text("Origin:  ");
         SameLine();
         SetNextItemWidth(GetWindowWidth() - 95);
-        if(DragGLMv3("##player_pos", &Origin, 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround))
-            { TheatreManager::GetLocalPlayer()->SetOrigin(Origin); }
+        DragGLMv3("##player_pos", &player->Origin(), 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround);
 
-        Text("Rotation:");
+        glm::vec3 Euler = player->Euler(true);
+
+        Text("Rotation:  ");
         SameLine();
-        SetNextItemWidth(GetWindowWidth() - 95);
-        if(DragGLMv3("##player_rot", &Rotation, 0.1f, -180.0f, 180.0f, "%.2f", ImGuiSliderFlags_WrapAround))
-            { TheatreManager::GetLocalPlayer()->SetRotation(Rotation, true); }
+        SetNextItemWidth(GetWindowWidth() - 80);
+        if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+            { player->Euler(Euler, true); }
     }
     End();
 }
