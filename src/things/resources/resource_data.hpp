@@ -51,12 +51,17 @@ namespace Images
     {
         #embed "images/lolbit.png"
     };
+    constexpr unsigned char Empty[] =
+    {
+        #embed "images/Empty.png"
+    };
 
     namespace Name
     {
         constexpr const char* Missing = "MissingTexture";
         constexpr const char* COMP04_5 = "DoomTexture";
         constexpr const char* LolBit = "LolBitTexture";
+        constexpr const char* Empty = "EmptyTexture";
     }
 
 }

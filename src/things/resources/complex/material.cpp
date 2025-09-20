@@ -12,6 +12,9 @@ void Material::SetupVariables(const data_t& data)
     data.GetNumber(m_SpecularSharpness, "SpecularSharpness");
     if(!data.GetNumber(m_SpecularStrength, "SpecularStrength") && m_SpecularTextureID != ID::None)
         { m_SpecularStrength = 1.0f; } // TODO: Pick a better default value (potentially)
+    data.GetBool(m_DontUseTexture, "UseVertexColors");
+    data.GetBool(m_DontUseTexture, "OnlyUseVertexColors");
+    data.GetBool(m_DontUseTexture, "NoTexture");
 }
 
 id_t Material::GetDiffuseTexture() const

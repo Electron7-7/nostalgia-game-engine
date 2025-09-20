@@ -20,6 +20,7 @@ public:
     float     m_Alpha = 1.0f;
     int       m_SpecularSharpness = 16;
     float     m_SpecularStrength = 0.0f;
+    bool      m_DontUseTexture = false;
 
 private:
     id_t m_DiffuseTextureID  = ID::None;

@@ -9,7 +9,7 @@ static std::set<size_t> s_ExistingIDs = {};
 id_t ID::GetNewID()
 {
     std::mt19937 engine(s_RandomDevice());
-    std::uniform_int_distribution<id_t> distribution(1);
+    std::uniform_int_distribution<id_t> distribution(2);
 
     id_t return_value = distribution(engine);
     while(s_ExistingIDs.contains(return_value))

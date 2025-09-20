@@ -86,7 +86,7 @@ void OpenGL_Backend::BufferMesh(Mesh* mesh)
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
     unsigned int id = 0;
-    stbi_set_flip_vertically_on_load(texture->Data().HasPath()); // FIXME: Idk if this is accurate
+    // stbi_set_flip_vertically_on_load(true); // FIXME: Idk if this is accurate
 
     // glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureIDs.at(texture->GetID()));
     // glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -243,10 +243,18 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     BindShader(rendercmd.m_ShaderID);
 
     glEnable(GL_BLEND);
-    glEnable(GL_FRAMEBUFFER_SRGB);
 
-    glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
-    glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
+    if(!material->m_DontUseTexture)
+    {
+        glEnable(GL_FRAMEBUFFER_SRGB);
+        glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
+        glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
+    }
+    else
+    {
+        glBindTextureUnit(0, GetTextureID(1));
+        glBindTextureUnit(1, GetTextureID(1));
+    }
 
     DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
 

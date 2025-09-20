@@ -158,23 +158,31 @@ void TheatreManager::CreateObjects()
     Mesh::Error.m_Type = Type::Mesh;
     Texture::Missing.m_Name = "Missing Texture";
     Texture::Missing.m_Type = Type::Texture;
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
+    Texture::Empty.m_Name = "Empty Texture";
+    Texture::Missing.m_Type = Type::Texture;
+    Texture::Missing.m_ID = 1;
+
     g_pBackendManager->GetGraphicsBackend()->BufferMesh(&Mesh::Error);
+    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Empty);
+    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
 
     for(const data_t& data : theatre_data)
     {
+        if(data.GetType() == Type::NostalgiaPlayer)
+        {
+            #pragma message("TODO: Make this better")
+            s_LocalPlayer->m_Type = Type::NostalgiaPlayer;
+            s_LocalPlayer->m_ID   = data.GetID();
+            s_LocalPlayer->m_Name = data.GetName();
+            s_LocalPlayer->SetupVariables(data);
+            continue;
+        }
+
         auto& thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();
         thing->m_ID   = data.GetID();
         thing->m_Type = data.GetType();
         thing->m_Name = data.GetName();
         thing->SetupVariables(data);
-
-        if(data.GetType() == Type::NostalgiaPlayer)
-        {
-            const auto& try_CastPlayer = static_pointer_cast<NostalgiaPlayer>(thing);
-            if(try_CastPlayer)
-                { s_LocalPlayer = try_CastPlayer; }
-        }
     }
 
     s_ReadyToRender = true;
