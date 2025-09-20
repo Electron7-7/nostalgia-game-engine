@@ -485,3 +485,14 @@ I forgot to enable the depth buffer for OpenGL, so everything *was* rendering in
 Kill me.
 
 Okay, I've made lots of improvements to the debug windows, changed up some stuff with transform data, and I think I'm just about ready to start working on the next big thing!!
+
+[09/19/25]
+What now?
+
+I'm thinking of figuring out how I want to connect input handling to Things. First, some housekeeping.
+
+Ohhhh, here's a note from (https://math.stackexchange.com/a/2975462): basically, I think that when I convert a quat into euler angles and want to convert euler angles back into a quat, I need to do it step by step? Maybe that'll alleviate the problem I've been running into. It could also just be gimble lock causing an issue?
+
+I think I want to make a way to draw directly to the screen for debugging purposes. Like a "DrawLine" function.
+
+Welp, I didn't do that, but I did finally fix the Quaternion & Euler Angle problem. I also did lots of house-keeping and started slimming down the RenderCommand system.
