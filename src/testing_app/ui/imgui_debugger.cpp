@@ -2,7 +2,6 @@
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "managers/theatre_manager.hpp"
-#include "things/actors/prototype_actor.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "managers/manager.hpp"
 

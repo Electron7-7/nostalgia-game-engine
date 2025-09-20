@@ -4,7 +4,6 @@
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
-#include "actors/prototype_actor.hpp"
 #include "resources/basic/mesh.hpp"
 #include "resources/basic/font.hpp"
 #include "resources/basic/texture.hpp"
@@ -24,7 +23,6 @@ s_ThingConstructors =
     { Type::Thinker,         &l_MakeThing<Thinker>         },
     { Type::Actor,           &l_MakeThing<Actor>           },
     { Type::NostalgiaPlayer, &l_MakeThing<NostalgiaPlayer> },
-    { Type::PrototypeActor,  &l_MakeThing<PrototypeActor>  },
     { Type::Resource,        &l_MakeThing<Resource>        },
     { Type::Mesh,            &l_MakeThing<Mesh>            },
     { Type::Font,            &l_MakeThing<Font>            },
@@ -55,7 +53,6 @@ template std::shared_ptr<Thing> g_GetThing<Thing>(id_t ID);
 template std::shared_ptr<Thinker> g_GetThing<Thinker>(id_t ID);
 template std::shared_ptr<Actor> g_GetThing<Actor>(id_t ID);
 template std::shared_ptr<NostalgiaPlayer> g_GetThing<NostalgiaPlayer>(id_t ID);
-template std::shared_ptr<PrototypeActor> g_GetThing<PrototypeActor>(id_t ID);
 template std::shared_ptr<Resource> g_GetThing<Resource>(id_t ID);
 template std::shared_ptr<Mesh> g_GetThing<Mesh>(id_t ID);
 template std::shared_ptr<Texture> g_GetThing<Texture>(id_t ID);

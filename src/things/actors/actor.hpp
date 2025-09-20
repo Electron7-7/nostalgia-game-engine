@@ -3,10 +3,9 @@
 
 #include "../thing.hpp"
 #include "rendering/render_command.hpp"
-#include "types/setup_variables.hpp"
-#include "world/position_3d.hpp"
+#include "world/transform_3d.hpp"
 
-class Actor : public Thing, public Position3D, public DoSetupVariables
+class Actor : public Thing, public Transform3D
 {
 public:
     virtual void SetupVariables(const data_t&);
@@ -16,6 +15,12 @@ public:
     virtual RenderCommand GetRenderCommand() { return RenderCommand(); }
     virtual void Update() {}
     virtual void Tick() {}
+
+    id_t GetMeshInstanceID() const;
+    void SetMeshInstanceID(id_t MeshInstanceID);
+
+protected:
+    id_t m_MeshInstanceID = ID::None;
 };
 
 #endif // ACTOR_H

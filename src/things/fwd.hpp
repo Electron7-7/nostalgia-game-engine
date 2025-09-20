@@ -12,7 +12,6 @@ class Thinker;
 //Actors
 class Actor;
 class NostalgiaPlayer;
-class PrototypeActor;
 
 // Resources
 class Resource;

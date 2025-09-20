@@ -1,4 +1,5 @@
 #include "nostalgia_player.hpp"
+#include "theatre/data_t.hpp"
 
 void NostalgiaPlayer::SetupVariables(const data_t& data)
 {
