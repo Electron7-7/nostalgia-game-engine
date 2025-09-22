@@ -14,8 +14,11 @@
 struct data_t
 {
 public:
+    static const data_t PlayerDefaults;
+
     data_t();
     data_t(const std::string& Name, const std::string& Type, id_t ID = ID::None);
+    data_t(const std::string& Name, size_t Type, id_t ID, const std::vector<variable_t>& Variables);
 
     void AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
 
@@ -26,7 +29,6 @@ public:
     void SetName(const std::string& Name);
 
     size_t GetType() const;
-    const std::string& GetTypeName() const;
     void SetType(const std::string& Type);
 
     int GetPriority() const;
@@ -45,6 +47,8 @@ public:
         const auto& variable = std::find(m_Variables.begin(), m_Variables.end(), VariableName);
         if(variable == m_Variables.end() || variable->m_Value.empty())
             { return false; }
+        else if(variable->m_Type != VariableType::Number)
+            { return false; }
         StringToNum<T>(AssignTo, variable->m_Value);
         return true;
     }
@@ -53,7 +57,6 @@ private:
     friend struct TheatreData;
     std::vector<variable_t> m_Variables = {};
     std::string m_Name = "Untitled";
-    std::string m_TypeName = "Invalid";
     size_t      m_Type = Type::Invalid;
     id_t        m_AssignedID = ID::None;
     int         m_Priority = 0;

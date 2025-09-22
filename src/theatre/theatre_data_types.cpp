@@ -1,6 +1,7 @@
 #include "theatre_data.hpp"
 #include "data_t.hpp"
 #include "variable_t.hpp"
+#include "debug.hpp"
 #include "filesystem/file_data.hpp"
 #include "things/resources/resource_data.hpp"
 
@@ -30,12 +31,32 @@ void variable_t::clear()
 { *this = variable_t(); }
 
 // Data
-
-data_t::data_t(const std::string& name, const std::string& type_name, id_t id)
-: m_Name(name), m_TypeName(type_name), m_Type(ConstexprHash(type_name)), m_AssignedID(id)
-{}
+const data_t data_t::PlayerDefaults(
+    "Default Player",
+    Type::NostalgiaPlayer,
+    ID::None,
+    {
+        variable_t{"Rotation", "0, 0, 0", VariableType::Number},
+        variable_t{"Origin", "0, 0, 0", VariableType::Number},
+    });
 
 data_t::data_t() = default;
+
+data_t::data_t(const std::string& name, const std::string& type_name, id_t id)
+: m_Name(name), m_Type(ConstexprHash(type_name)), m_AssignedID(id)
+{
+    if(!g_IsValidType(m_Type))
+        { PRINT_ERROR("data_t::data_t({}, {}, {}, std::vector<variable_t>) - Type #{} is an invalid type!", name, type_name, id, m_Type) }
+}
+
+data_t::data_t(const std::string& name, size_t type, id_t id, const std::vector<variable_t>& variables)
+: m_Variables(variables), m_Name(name), m_Type(type), m_AssignedID(id)
+{
+    if(m_Type == Type::NostalgiaPlayer) // data_t::PlayerDefaults triggers the error message bc of when it's constructed
+        { return; }
+    if(!g_IsValidType(m_Type))
+        { PRINT_ERROR("data_t::data_t({}, {}, {}, std::vector<variable_t>) - Type #{} is an invalid type!", name, type, id, m_Type) }
+}
 
 void data_t::AddVariable(const std::string& name, const std::string& data, const VariableType& type)
 {
@@ -59,23 +80,17 @@ const std::string& data_t::GetName() const
 { return m_Name; }
 
 void data_t::SetName(const std::string& name)
-{
-    m_Name = name;
-}
-
-const std::string& data_t::GetTypeName() const
-{ return m_TypeName; }
+{ m_Name = name; }
 
 size_t data_t::GetType() const
 { return m_Type; }
 
-void data_t::SetType(const std::string& type)
+void data_t::SetType(const std::string& type_name)
 {
-    m_TypeName = type;
-    m_Type = ConstexprHash(m_TypeName);
+    m_Type = ConstexprHash(type_name);
     m_Priority = g_GetPriority(m_Type);
     if(!g_IsValidType(m_Type))
-        { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type, m_Name) }
+        { PRINT_WARNING("data_t::SetType - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", type_name, m_Name) }
 }
 
 int data_t::GetPriority() const
@@ -89,29 +104,31 @@ void data_t::clear()
     m_Variables.clear();
     m_Name = "Untitled";
     m_Type = Type::Invalid;
-    m_TypeName = "Invalid";
 }
 
-#define EARLY_RETURN_MACRO(VAR_NAME) \
+#define ASSERT_VARIABLE(VAR_NAME, VAR_TYPE) \
 const auto& VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
 if(VAR_NAME == m_Variables.end() || variable->m_Value.empty()) \
+    { return false; } \
+else if(VAR_NAME->m_Type != VAR_TYPE) \
     { return false; }
 
 bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& variable_name) const
 {
-    EARLY_RETURN_MACRO(variable)
+    ASSERT_VARIABLE(variable, VariableType::TheatreRef)
     return StringToNum<unsigned int>(real_variable, variable->m_Value);
 }
 
 bool data_t::GetFileData(FileData& real_variable, const std::string& variable_name) const
 {
-    EARLY_RETURN_MACRO(variable)
+    ASSERT_VARIABLE(variable, VariableType::EngineRef)
+    #pragma message("This will crash if variable->m_Value is not a number")
     return(ResourceData::GetData(real_variable, variable->m_Value));
 }
 
 bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const
 {
-    EARLY_RETURN_MACRO(variable)
+    ASSERT_VARIABLE(variable, VariableType::Bool)
     if(!variable->m_Value.compare("true"))
     {
         real_variable = true;
@@ -127,7 +144,7 @@ bool data_t::GetBool(bool& real_variable, const std::string& variable_name) cons
 
 bool data_t::GetString(std::string& real_variable, const std::string& variable_name) const
 {
-    EARLY_RETURN_MACRO(variable)
+    ASSERT_VARIABLE(variable, VariableType::String)
     if(variable->m_Value.empty())
         { return false; }
     real_variable = variable->m_Value;
