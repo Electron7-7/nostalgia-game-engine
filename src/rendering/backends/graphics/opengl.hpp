@@ -59,7 +59,8 @@ private:
     static std::map<id_t, OpenGL_MeshData> m_MeshData;
     static std::map<id_t, OpenGL_TextureID> m_TextureIDs;
 
-    static unsigned int GetTextureID(id_t);
+    unsigned int GetTextureID(id_t);
+    OpenGL_MeshData* GetMeshData(id_t);
 };
 
 extern OpenGL_Backend singleton_OpenGL_Backend;

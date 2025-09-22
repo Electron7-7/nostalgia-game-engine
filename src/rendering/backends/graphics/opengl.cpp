@@ -82,7 +82,10 @@ void OpenGL_Backend::ImGuiRender()
 { ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
 void OpenGL_Backend::BufferMesh(Mesh* mesh)
-{ m_MeshData[mesh->GetID()] = OpenGL_MeshData{mesh->GetVertexData(), mesh->GetIndices()}; }
+{
+    if(mesh->Status() == ResourceStatus::SUCCESSFUL)
+        { m_MeshData[mesh->GetID()] = OpenGL_MeshData{mesh->GetVertexData(), mesh->GetIndices()}; }
+}
 
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
@@ -204,13 +207,6 @@ bool OpenGL_Backend::DeleteShader(unsigned int shader)
     return true;
 }
 
-unsigned int OpenGL_Backend::GetTextureID(id_t id)
-{
-    if(!m_TextureIDs.contains(id))
-        { return m_TextureIDs.at(0); }
-    return m_TextureIDs.at(id);
-}
-
 #pragma message("(FIXME) Is it a good idea to let outside code access shader interfaces directly?")
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
@@ -219,7 +215,6 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
         PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
         shader_selection = Shaders::BlinnPhong;
     }
-
     return &m_Shaders.at(shader_selection);
 }
 
@@ -297,10 +292,23 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_environment.ambient_light_contribution", 0.05f);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_environment.ambient_light_color", glm::vec3(1.0f));
 
-    #pragma message("(FIXME) Make this safer")
-    const OpenGL_MeshData& data = m_MeshData.at(mesh_instance->GetMeshID());
+    OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
 
-    glDrawElementsBaseVertex(GL_TRIANGLES, data.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data.base_index), data.base_vertex);
+    glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data->base_index), data->base_vertex);
 
     glDisable(GL_FRAMEBUFFER_SRGB);
+}
+
+unsigned int OpenGL_Backend::GetTextureID(id_t id)
+{
+    if(!m_TextureIDs.contains(id))
+        { return m_TextureIDs.at(Images::ID::Missing); }
+    return m_TextureIDs.at(id);
+}
+
+OpenGL_MeshData* OpenGL_Backend::GetMeshData(id_t id)
+{
+    if(!m_MeshData.contains(id))
+        { return &m_MeshData.at(Models::ID::Error); }
+    return &m_MeshData.at(id);
 }
