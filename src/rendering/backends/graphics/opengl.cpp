@@ -7,6 +7,7 @@
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
 #include "things/resources/shaders.hpp" // IWYU pragma: keep
+#include "things/resources/resource_data.hpp"
 #include "things/resources/basic/mesh.hpp"
 #include "things/resources/basic/texture.hpp"
 #include "things/resources/complex/material.hpp" // IWYU pragma: keep
@@ -242,7 +243,7 @@ void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
     GetShader(shader)->SetUniform(l_Light + "attenuation",       light->m_Attenuation);
     GetShader(shader)->SetUniform(l_Light + "range",             light->m_Range);
     GetShader(shader)->SetUniform(l_Light + "position",          light->cOrigin());
-    GetShader(shader)->SetUniform(l_Light + "direction",         light->Euler());
+    GetShader(shader)->SetUniform(l_Light + "direction",         light->Front());
     GetShader(shader)->SetUniform(l_Light + "spot_cutoff",       light->m_SpotAngle);
     GetShader(shader)->SetUniform(l_Light + "spot_cutoff_fade",  light->m_SpotAngleFade);
 }
