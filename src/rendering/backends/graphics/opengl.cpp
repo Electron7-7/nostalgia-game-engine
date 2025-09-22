@@ -101,7 +101,8 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
 
     if(!l_Data)
     {
-        PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}'!", texture->GetName())
+        PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}' (ID#{})", texture->GetName(), texture->GetID())
+        glDeleteTextures(1, &id);
         return;
     }
 
@@ -282,10 +283,6 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.alpha", material->m_Alpha);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_strength", material->m_SpecularStrength);
-
-    #pragma message("Environments aren't yet implemented")
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_environment.ambient_light_contribution", 0.05f);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_environment.ambient_light_color", glm::vec3(1.0f));
 
     OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
 
