@@ -3,9 +3,8 @@
 
 #include "manager.hpp"
 #include "debug.hpp"
-#include "things/thing.hpp"
 #include "things/fwd.hpp"
-#include "testing_app/ui/imgui_debugger.hpp"
+#include "theatre/fwd.hpp"
 
 #include <memory>
 #include <map>
@@ -22,18 +21,21 @@ public:
 
     void RenderWorld();
 
-    static bool try_DestroyThing(id_t ThingID);
     static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
 
     static std::shared_ptr<Thing>& GetThing(id_t ID);
     static const std::shared_ptr<Thing>& cGetThing(id_t ID);
 
+    static id_t CreateThing(const data_t& ThingData);
+    static bool DestroyThing(id_t ID);
+
 private:
     DEBUG(friend class imgui_Debugger;)
     static std::map<id_t, std::shared_ptr<Thing>> s_Things;
 
-    static void CreateObjects();
-    static void DestroyObjects();
+    static void CreateThings();
+    static void DestroyThings();
+    static bool s_DestroyThing(id_t);
 };
 
 extern TheatreManager* g_pTheatreManager;

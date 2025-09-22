@@ -1,12 +1,13 @@
 #include "theatre_manager.hpp"
+#include "colors.hpp"
 #include "managers/backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
-#include "safe_return.hpp"
 #include "theatre/theatre_data.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/actors/actor.hpp"
 #include "things/resources/basic/texture.hpp"
+#include "things/resources/resource_data.hpp"
 #include "things/things.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/resources/basic/mesh.hpp"
@@ -61,7 +62,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 
     s_ReadyToRender = false;
 
-    CreateObjects();
+    CreateThings();
     g_pBackendManager->GetGraphicsBackend()->CreateRenderingData();
 
     s_ReadyToRender = true;
@@ -83,7 +84,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 #endif // DEBUGGING
 
     s_ReadyToRender = false;
-    DestroyObjects();
+    DestroyThings();
     g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
 #ifdef DEBUGGING
@@ -120,14 +121,6 @@ void TheatreManager::RenderWorld()
     }
 }
 
-bool TheatreManager::try_DestroyThing(id_t thing_id)
-{
-    if(!s_Things.contains(thing_id))
-        { return false; }
-    s_Things.erase(thing_id);
-    return true;
-}
-
 std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
 { return s_LocalPlayer; }
 
@@ -145,7 +138,51 @@ const std::shared_ptr<Thing>& TheatreManager::cGetThing(id_t id)
     return s_Things.at(id);
 }
 
-void TheatreManager::CreateObjects()
+id_t TheatreManager::CreateThing(const data_t& cData)
+{
+    std::shared_ptr<Thing> thing;
+    data_t data = cData;
+
+    if(s_Things.contains(data.GetID()))
+    {
+        PRINT_WARNING("TheatreManager::CreateThing - A Thing with ID#{} already exists; a new ID will be generated and a duplicate Thing will be made", data.GetID())
+        if(!ID::AddID(data.GetID()))
+            { std::print("{}[NOTE] ID#{} wasn't in the 's_ExistingIDs' set, which is what caused the previous warning (it has just been added to avoid future issues){}", sty::Bold + fg::Cyan, data.GetID(), sty::Reset); }
+        data.SetID(ID::GetNewID());
+    }
+
+    if(data.GetType() == Type::NostalgiaPlayer)
+    {
+        thing = static_pointer_cast<Thing>(s_LocalPlayer);
+        thing->SetupVariables(data_t::PlayerDefaults);
+    }
+    else
+        { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();; }
+
+    thing->SetupVariables(data);
+    return thing->m_ID;
+}
+
+bool TheatreManager::DestroyThing(id_t id)
+{
+    if(!s_Things.contains(id))
+    {
+        PRINT_WARNING("TheatreManager::DestroyThing - No Thing with ID#{} exists", id)
+        return false;
+    }
+    else if(id == s_LocalPlayer->m_ID)
+    {
+        PRINT_WARNING("TheatreManager::DestroyThing - Cannot destroy the NostalgiaPlayer Thing! (ID#{})", s_LocalPlayer->m_ID)
+        PRINT_DEBUG("Player ID: {}, Thing ID: {}", s_LocalPlayer->m_ID, id)
+        return false;
+    }
+
+    if(!ID::Contains(id))
+        { PRINT_WARNING("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 's_Things'! The Thing will still be destroyed, but this is highly unusual behaviour!", id) }
+    return s_DestroyThing(id);
+}
+
+void TheatreManager::CreateThings()
 {
     s_ReadyToRender = false;
 
@@ -165,22 +202,20 @@ void TheatreManager::CreateObjects()
     g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Empty);
     g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
 
-    std::shared_ptr<Thing> thing;
-
     for(const data_t& data : theatre_data)
-    {
-        if(data.GetType() == Type::NostalgiaPlayer)
-            { thing = static_pointer_cast<Thing>(s_LocalPlayer); }
-        else
-            { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())(); }
-        thing->m_ID   = data.GetID();
-        thing->m_Type = data.GetType();
-        thing->m_Name = data.GetName();
-        thing->SetupVariables(data);
-    }
+        { CreateThing(data); }
 
     s_ReadyToRender = true;
 }
 
-void TheatreManager::DestroyObjects()
+void TheatreManager::DestroyThings()
 { s_Things.clear(); }
+
+bool TheatreManager::s_DestroyThing(id_t id)
+{
+    if(!s_Things.contains(id))
+        { return false; }
+    s_Things.at(id)->Destroy();
+    s_Things.erase(id);
+    return ID::RemoveID(id);
+}
