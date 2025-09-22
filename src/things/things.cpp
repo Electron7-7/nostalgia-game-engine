@@ -48,9 +48,9 @@ s_TypePriorityMap =
     { Type::SpotLight,        0 },
     { Type::DirectionalLight, 0 },
     { Type::NostalgiaPlayer,  0 },
-    { Type::Actor,            0 },
-    { Type::Resource,         0 },
-    { Type::Thing,            0 },
+    { Type::Actor,            1 },
+    { Type::Resource,         1 },
+    { Type::Thing,            1 },
 };
 
 const int g_GetPriority(size_t type)
@@ -61,10 +61,10 @@ const int g_GetPriority(size_t type)
 }
 
 const bool g_IsValidType(const std::string& name)
-{ return s_TypePriorityMap.contains(ConstexprHash(name)); }
+{ return s_ThingConstructors.contains(ConstexprHash(name)); }
 
 const bool g_IsValidType(size_t hash)
-{ return s_TypePriorityMap.contains(hash); }
+{ return s_ThingConstructors.contains(hash); }
 
 std::shared_ptr<Thing>(*g_MakeThing(size_t type))()
 {
@@ -88,6 +88,9 @@ std::shared_ptr<T> g_GetThing(id_t id)
 template std::shared_ptr<Thing> g_GetThing<Thing>(id_t ID);
 template std::shared_ptr<Thinker> g_GetThing<Thinker>(id_t ID);
 template std::shared_ptr<Actor> g_GetThing<Actor>(id_t ID);
+template std::shared_ptr<PointLight> g_GetThing<PointLight>(id_t ID);
+template std::shared_ptr<SpotLight> g_GetThing<SpotLight>(id_t ID);
+template std::shared_ptr<DirectionalLight> g_GetThing<DirectionalLight>(id_t ID);
 template std::shared_ptr<NostalgiaPlayer> g_GetThing<NostalgiaPlayer>(id_t ID);
 template std::shared_ptr<Resource> g_GetThing<Resource>(id_t ID);
 template std::shared_ptr<Mesh> g_GetThing<Mesh>(id_t ID);
