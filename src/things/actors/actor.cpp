@@ -7,12 +7,14 @@ void Actor::SetupVariables(const data_t& data)
 
     data.GetNumber(m_Origin, "Origin");
     data.GetNumber(m_Scale, "Scale");
+    if(data.GetNumber(m_Euler, "RotationDegrees"))
+        { m_Quaternion = glm::quat(glm::radians(m_Euler)); }
     if(data.GetNumber(m_Euler, "Rotation"))
-        { Quaternion() = glm::quat(m_Euler); }
-    else if(data.GetNumber(m_Euler, "RotationDegrees"))
-        { Quaternion() = glm::quat(glm::radians(m_Euler)); }
-    data.GetNumber(m_Quaternion, "Quaternion");
+        { m_Quaternion = glm::quat(m_Euler); }
+    if(data.GetNumber(m_Quaternion, "Quaternion"))
+        { m_Euler = glm::eulerAngles(m_Quaternion); }
     data.GetTheatreRef(m_MeshInstanceID, "MeshInstance");
+    data.GetBool(m_Visible, "Visible");
 }
 
 id_t Actor::GetMeshInstanceID() const
@@ -20,3 +22,6 @@ id_t Actor::GetMeshInstanceID() const
 
 void Actor::SetMeshInstanceID(id_t mesh_instance_id)
 { m_MeshInstanceID = mesh_instance_id; }
+
+bool Actor::Visible() const
+{ return m_Visible; }
