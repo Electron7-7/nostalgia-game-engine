@@ -84,31 +84,4 @@ namespace Models
     }
 }
 
-namespace GLSL
-{
-    constexpr char BlinnPhong_Frag[] =
-    {
-        #embed "shaders/GLSL/BlinnPhong.frag" \
-            suffix(,)
-            0
-    };
-    constexpr char BlinnPhong_Vert[] =
-    {
-        #embed "shaders/GLSL/BlinnPhong.vert" \
-            suffix(,)
-            0
-    };
-    constexpr char SafetyShader_Frag[] =
-    {
-        #embed "shaders/GLSL/SafetyShader.frag" \
-            suffix(,)
-            0
-    };
-    constexpr char SafetyShader_Vert[] =
-    {
-        #embed "shaders/GLSL/SafetyShader.vert" \
-            suffix(,)
-            0
-    };
-}
 #endif // RESOURCE_DATA_H

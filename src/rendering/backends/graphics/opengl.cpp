@@ -6,7 +6,7 @@
 #include "things/things.hpp"
 #include "../../shader_interfaces/gl_shader.hpp"
 #include "managers/theatre_manager.hpp"
-#include "things/resources/resource_data.hpp"
+#include "things/resources/shaders.hpp" // IWYU pragma: keep
 #include "things/resources/basic/mesh.hpp"
 #include "things/resources/basic/texture.hpp"
 #include "things/resources/complex/material.hpp" // IWYU pragma: keep
