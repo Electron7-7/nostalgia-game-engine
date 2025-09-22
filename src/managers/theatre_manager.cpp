@@ -189,18 +189,35 @@ void TheatreManager::CreateThings()
     const std::vector<data_t>& theatre_data = TheatreParser::GetTheatreData().GetData();
     g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
-    #pragma message("(FIXME) FIND A BETTER PLACE TO DO Error/Missing SHIT")
-    Mesh::Error.m_Name = "Error Mesh";
-    Mesh::Error.m_Type = Type::Mesh;
-    Texture::Missing.m_Name = "Missing Texture";
-    Texture::Missing.m_Type = Type::Texture;
-    Texture::Empty.m_Name = "Empty Texture";
-    Texture::Empty.m_Type = Type::Texture;
-    Texture::Empty.m_ID = 1;
-
-    g_pBackendManager->GetGraphicsBackend()->BufferMesh(&Mesh::Error);
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Empty);
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
+    // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD SETUP
+    #pragma message("(FIXME) FIND A BETTER PLACE TO SETUP AND BUFFER THESE RESOURCES")
+    Mesh* error = new Mesh({Models::Error, std::size(Models::Error), FileType::model_OBJ});
+    Mesh* cube  = new Mesh({Models::Cube, std::size(Models::Cube), FileType::model_OBJ});
+    Texture* missing = new Texture({Images::Missing, std::size(Images::Missing), FileType::image_JPG});
+    Texture* light   = new Texture({Images::LightDebugging, std::size(Images::LightDebugging), FileType::image_JPG});
+    error->m_Type = Type::Mesh;
+    error->m_Name = Models::Name::Error;
+    error->m_ID   = Models::ID::Error;
+    error->CreateResource();
+    cube->m_Type = Type::Mesh;
+    cube->m_Name = Models::Name::Cube;
+    cube->m_ID   = Models::ID::Cube;
+    cube->CreateResource();
+    missing->m_Type = Type::Texture;
+    missing->m_Name = Images::Name::Missing;
+    missing->m_ID   = Images::ID::Missing;
+    light->m_Type = Type::Texture;
+    light->m_Name = Images::Name::LightDebugging;
+    light->m_ID   = Images::ID::LightDebugging;
+    g_pBackendManager->GetGraphicsBackend()->BufferMesh(error);
+    g_pBackendManager->GetGraphicsBackend()->BufferMesh(cube);
+    g_pBackendManager->GetGraphicsBackend()->BufferTexture(missing);
+    g_pBackendManager->GetGraphicsBackend()->BufferTexture(light);
+    delete error;
+    delete cube;
+    delete missing;
+    delete light;
+    // (end of) TERRIBLE, HORRIBLE, NO GOOD, VERY BAD SETUP
 
     for(const data_t& data : theatre_data)
         { CreateThing(data); }
