@@ -158,8 +158,8 @@ void TheatreManager::CreateObjects()
     Texture::Missing.m_Name = "Missing Texture";
     Texture::Missing.m_Type = Type::Texture;
     Texture::Empty.m_Name = "Empty Texture";
-    Texture::Missing.m_Type = Type::Texture;
-    Texture::Missing.m_ID = 1;
+    Texture::Empty.m_Type = Type::Texture;
+    Texture::Empty.m_ID = 1;
 
     g_pBackendManager->GetGraphicsBackend()->BufferMesh(&Mesh::Error);
     g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Empty);
