@@ -153,7 +153,7 @@ void TheatreManager::CreateObjects()
     const std::vector<data_t>& theatre_data = TheatreParser::GetTheatreData().GetData();
     g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
-    // FIXME: FIND A BETTER PLACE TO DO Error/Missing SHIT
+    #pragma message("(FIXME) FIND A BETTER PLACE TO DO Error/Missing SHIT")
     Mesh::Error.m_Name = "Error Mesh";
     Mesh::Error.m_Type = Type::Mesh;
     Texture::Missing.m_Name = "Missing Texture";

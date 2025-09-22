@@ -6,8 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 
-// FIXME: Replace with GLShader code from Levitate
-
+#pragma message("(FIXME) Replace with GLShader code from Levitate")
 bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
     const char *v_shader_code = vertex_shader_code.c_str();
@@ -100,7 +99,7 @@ void GLShader::SetUniform(const std::string& name, glm::mat4 value) const
 
 bool GLShader::GLShaderErrorHandler(unsigned int shaderm_ID, bool is_program_linking) const
 {
-    // FIXME: This is from GraphX and iirc there's some finnicky business with the if statements
+    #pragma message("(FIXME) This is from GraphX and iirc there's some finnicky business with the if statements")
 
     // https://stackoverflow.com/a/63420289
     int v_result = GL_FALSE;

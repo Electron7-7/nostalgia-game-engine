@@ -106,7 +106,7 @@ SafeStatus EventQueue::try_BeginProcessing()
     std::advance(queue_begin, _last_processed_event_index);
 
     _safe_queue.insert(_safe_queue.cend(), queue_begin, _active_queue.end());
-    _last_processed_event_index += _safe_queue.size(); // Note: This variable should be one index ahead, because we don't want to process the same event twice
+    _last_processed_event_index += _safe_queue.size(); // This variable is 1 index ahead, because we don't want to process the same event twice
 
     is_processing_events = true;
     return Status::NO_ERR;
@@ -151,7 +151,7 @@ SafeReturn<Event> EventQueue::GetNextEvent()
 
     if(do_demo_recording)
     { RecordEventToDemo(next_event); }
-    // FIXME: This doesn't check the size before calling pop_front
+    #pragma message("(FIXME) This doesn't check the size before calling pop_front")
     _safe_queue.erase(_safe_queue.cbegin());
 
     return SafeReturn(next_event);

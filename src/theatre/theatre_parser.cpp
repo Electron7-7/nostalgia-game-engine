@@ -6,7 +6,7 @@
 #include <string>
 #include <set>
 
-// NOTE: Yes, this is stupid. Too bad!
+// Yes, this is stupid. Too bad!"
 #ifdef DEBUGGING
     int g_BreakOnColumn = -1;
     int g_BreakOnLine   = -1;
@@ -44,7 +44,7 @@ static const std::set<std::string> c_NostalgiaExtensions =
     ".nt"
 };
 
-// TODO: Add support for GraphXTheatre files
+#pragma message("(TODO) Add support for GraphXTheatre files")
 static const std::set<std::string> c_GraphXExtensions =
 {
     ".graphxtheatre",
@@ -99,7 +99,7 @@ enum class Parsing
 
 const TheatreData& TheatreParser::GetTheatreData()
 {
-    // FIXME: Make this better
+    #pragma message("(FIXME) Make this better")
     return s_TheatreData;
 }
 
@@ -126,7 +126,7 @@ static void s_AddParsedDataHelper(data_t& data)
 
 SafeStatus TheatreParser::try_ParseTheatre()
 {
-    // TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)
+    #pragma message("(TODO) If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
     ID::ClearIDs();
 
     s_NameIDMap.clear();
@@ -182,7 +182,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         set_new_line = (character == '\n');
 
         // Temporarily bypass comment/string/context skipping on certain conditions
-        // TODO: Make this shit less bad
+        #pragma message("(TODO) Make this shit less bad")
         switch(character)
         {
         case exit_context:

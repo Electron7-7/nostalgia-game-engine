@@ -1,12 +1,11 @@
 #include "keybind.hpp"
 
 #include "key.hpp"
-#include "printing.hpp"
 
 #include <map>
 #include <set>
 
-// TODO: Is this a good idea? Seems find to me...
+#pragma message("(TODO) Is this a good idea? Seems find to me...")
 #define ASSERT_KEYNAME(KEY_NAME)            \
 if(!key_strings_map.contains(KEY_NAME))     \
 { return false; }                           \

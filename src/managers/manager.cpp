@@ -110,7 +110,8 @@ bool _Manager::InitAllManagers()
 
 void _Manager::ShutdownAllManagers()
 {
-    if(m_sIsInitialized) // Todo: maybe make this an early return?
+    #pragma message("(Todo) maybe make this an early return?")
+    if(m_sIsInitialized)
     {
         InvokeMethodReverseOrder(&_Manager::Shutdown);
         m_sIsInitialized = false;

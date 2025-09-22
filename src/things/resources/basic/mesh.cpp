@@ -14,7 +14,8 @@ Mesh Mesh::Error({Models::Error, std::size(Models::Error), FileType::model_OBJ})
 void Mesh::SetupVariables(const data_t& data)
 {
     Resource::SetupVariables(data);
-    CreateResource(); // TODO: Should I move this into 'Resource::SetupVariables'? Will it call correctly?
+    #pragma message("(TODO) Should I move this into 'Resource::SetupVariables'? Will it call correctly?")
+    CreateResource();
     g_pBackendManager->GetGraphicsBackend()->BufferMesh(this);
 }
 

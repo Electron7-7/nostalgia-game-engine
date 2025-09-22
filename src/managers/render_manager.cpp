@@ -44,7 +44,7 @@ void RenderManager::Update()
     g_pBackendManager->GetWindowingBackend()->SwapBuffers();
 }
 
-// FIXME: Replace with functions for better control over view distance & near-clip distance
+// #pragma message("(FIXME) Replace with functions for better control over view distance & near-clip distance")
 // #define ZNEAR 0.01f
 // #define ZFAR 100000.0f
 

@@ -40,7 +40,8 @@ public:
 
     struct Player
     {
-        static float FOV; // TODO: Replace with horizontal & vertical FOVs?
+        #pragma message("(TODO) Replace with horizontal & vertical FOVs?")
+        static float FOV;
         static float ViewCutoffNear;
         static float ViewCutoffFar;
     };

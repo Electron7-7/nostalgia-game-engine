@@ -58,7 +58,8 @@ private:
     std::string  m_Value = "";
     VariableType m_Type  = VariableType::Default;
 
-    void clear(); // TODO: Maybe make this public?
+    #pragma message("(TODO) Maybe make this public?")
+    void clear();
 };
 
 #endif // VARIABLE_T_H

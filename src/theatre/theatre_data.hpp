@@ -11,7 +11,8 @@ struct TheatreData
     static const TheatreData Missing;
 
     std::string m_Name = "Untitled Theatre";
-    long m_Index = -1; // FIXME: Make this not a magic number
+    #pragma message("(FIXME) Make this not a magic number")
+    long m_Index = -1;
 
     const std::vector<data_t>& GetData() const;
     void UpdateTheatreReferences(const std::map<std::string, std::string>& NameIDMap);

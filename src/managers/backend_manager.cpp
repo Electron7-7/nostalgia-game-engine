@@ -18,7 +18,7 @@ static BackendID m_CurrentWindowingID = m_DefaultWindowingID;
 static BackendManager s_BackendManager;
 BackendManager* g_pBackendManager = &s_BackendManager;
 
-// FIXME: Don't define these here...
+#pragma message("(FIXME) Don't define these here...")
 static OpenGL_Backend s_OpenGL_Backend;
 static GLFW_Backend s_GLFW_Backend;
 
@@ -66,7 +66,7 @@ WindowingBackend* BackendManager::GetWindowingBackend()
     return map_WindowingBackends.at(m_CurrentWindowingID);
 }
 
-// TODO: These two functions are more efficient than calling 'Get____Backend()->GetID()', but could it lead to issues?
+#pragma message("(TODO) These two functions are more efficient than calling 'Get____Backend()->GetID()', but could it lead to issues?")
 BackendID BackendManager::GetGraphicsID()
 { return m_CurrentGraphicsID; }
 
@@ -121,7 +121,7 @@ bool BackendManager::InitBackend()
 
     if(!GetWindowingBackend()->CompatibleWith(m_CurrentGraphicsID))
     {
-        // TODO: Figure out what I wanna do if this happens (probably just load the default backends and try again)
+        #pragma message("(TODO) Figure out what I wanna do if this happens (probably just load the default backends and try again)")
         PRINT_ERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
         return false;
     }

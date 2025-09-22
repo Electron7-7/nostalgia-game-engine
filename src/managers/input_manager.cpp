@@ -30,7 +30,8 @@ bool InputManager::Init()
     // m_ButtonUpToEngine.ClearAll();
     try_AddBinding("Escape", CommandLine::cmd_ExitProgram);
     try_AddBinding("F", CommandLine::cmd_PrototypeFullscreen);
-    EventQueue::EnableEventQueue(); // FIXME: This should be done by the game/app, but for testing purposes I'm doing it here
+    #pragma message("(FIXME) This should be done by the game/app, but for testing purposes I'm doing it here")
+    EventQueue::EnableEventQueue();
     return true;
 }
 

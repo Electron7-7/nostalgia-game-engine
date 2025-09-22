@@ -28,7 +28,7 @@ bool StringToNum(T& number, const std::string& string)
     SHITTY_FUCKING_MACRO(std::stoll, number)
 }
 
-// TODO: Expand to all glm containers (if necessary)
+#pragma message("(TODO) Expand to all glm containers (if necessary)")
 template<typename T>
 concept GLMContainer = requires
 {

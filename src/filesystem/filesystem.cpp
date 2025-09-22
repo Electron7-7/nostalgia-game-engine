@@ -8,7 +8,7 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
 #ifdef COMPILING_WINDOWS
 #   include <windows.h>
 #   include <libloaderapi.h>
-    // FIXME: Improve this (it's from GraphX)
+    #pragma message("(FIXME) Improve this (it's from GraphX)")
     std::string Filesystem::GetBinaryPath()
     {
         char out_path[MAX_PATH] = {0};
@@ -39,7 +39,8 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
 bool Filesystem::PathExists(const std::string& path)
     { return(fs::exists(fs::path(path))); }
 
-bool Filesystem::IsFile(const std::string& path) // FIXME: 'is_regular_file' could fail on some files
+#pragma message("(FIXME) 'is_regular_file' could fail on some files")
+bool Filesystem::IsFile(const std::string& path)
     { return(PathExists(path) && fs::is_regular_file(fs::path(path))); }
 
 bool Filesystem::IsDirectory(const std::string& path)

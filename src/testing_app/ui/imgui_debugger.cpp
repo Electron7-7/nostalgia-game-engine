@@ -227,7 +227,7 @@ bool imgui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 
 StopwatchLog& imgui_Debugger::m_StartStopwatch(const std::string& message)
 {
-    // TODO: Make this thread safe
+    #pragma message("(TODO) Make this thread safe")
     StopwatchLog& stopwatch = s_StopwatchLogs.emplace_back();
     stopwatch.Start(message);
     return stopwatch;

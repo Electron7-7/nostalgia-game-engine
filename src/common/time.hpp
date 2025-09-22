@@ -13,7 +13,7 @@ struct Time
     static std::string CurrentSystem();
 };
 
-// FIXME: Put these in a namespace/struct
+#pragma message("(FIXME) Put these in a namespace/struct")
 void SetWaitStart();
 double GetWaitStart();
 // When CONDITION is false, or we've waited for PATIENCE amount of time, exit the while loop

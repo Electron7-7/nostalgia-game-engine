@@ -53,7 +53,8 @@ bool OpenGL_Backend::Init()
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
-    // glEnable(GL_DEBUG_OUTPUT);
+    #pragma message("Implement OpenGL Debug Output")
+    glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEPTH_TEST);
 
     m_IsInitialized = true;
@@ -165,7 +166,7 @@ void OpenGL_Backend::CreateRenderingData()
 
 void OpenGL_Backend::DestroyRenderingData()
 {
-    // FIXME: There's more to do here than just this
+    #pragma message("(FIXME) There's more to do here than just this")
     m_MeshData.clear();
 }
 
@@ -222,7 +223,7 @@ unsigned int OpenGL_Backend::GetTextureID(id_t id)
     return m_TextureIDs.at(id);
 }
 
-// FIXME: Is it a good idea to let outside code access shader interfaces directly?
+#pragma message("(FIXME) Is it a good idea to let outside code access shader interfaces directly?")
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
     if(!m_Shaders.contains(shader_selection))
@@ -275,7 +276,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_strength", material->m_SpecularStrength);
 
-    // FIXME: Make this safer
+    #pragma message("(FIXME) Make this safer")
     const OpenGL_MeshData& data = m_MeshData.at(mesh_instance->GetMeshID());
 
     glDrawElementsBaseVertex(GL_TRIANGLES, data.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data.base_index), data.base_vertex);

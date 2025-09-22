@@ -14,6 +14,6 @@ public:
     virtual SafeStatus CreateResource();
 };
 
-// TODO: MultiTexture will just be a wrapper for a vector of Textures
+#pragma message("(TODO) MultiTexture will just be a wrapper for a vector of Textures")
 
 #endif // TEXTURE_H

@@ -90,7 +90,7 @@ bool DemoParser::ParseLine(const std::string& line)
     }
     catch(std::invalid_argument const& exception)
     {
-        // TODO: Add printouts for this exception.
+        #pragma message("(TODO) Add printouts for this exception.")
         creation_time = 0.0;
     }
 

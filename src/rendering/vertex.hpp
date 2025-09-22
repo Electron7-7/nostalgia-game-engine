@@ -26,7 +26,7 @@ public:
 
     static constexpr unsigned int Stride = 11;
 
-    // FIXME: This representation of vertex attributes might be specific to OpenGL. If so, find an agnostic form of a generic "data" function, or give that responsibility to the backend.
+    #pragma message("(FIXME) This representation of vertex attributes might be specific to OpenGL. If so, find an agnostic form of a generic 'data' function, or give that responsibility to the backend.")
     constexpr std::array<float, Stride> VertexData() const
     {
         return
