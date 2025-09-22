@@ -1,5 +1,4 @@
 #include "theatre_data.hpp"
-#include "debug.hpp"
 #include "data_t.hpp"
 #include "variable_t.hpp"
 #include "filesystem/file_data.hpp"

@@ -6,6 +6,7 @@
 #include "things/thing.hpp"
 #include "things/fwd.hpp"
 #include "rendering/render_command.hpp"
+#include "testing_app/ui/imgui_debugger.hpp"
 
 #include <memory>
 #include <map>

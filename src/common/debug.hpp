@@ -2,10 +2,11 @@
 #define DEBUG_H
 
 #ifdef DEBUGGING
-#   include "testing_app/ui/imgui_debugger.hpp" // IWYU pragma: keep
 #   define DEBUG(CODE) CODE
+#   define NOTDEBUG(CODE)
 #else  // !DEBUGGING
 #   define DEBUG(CODE)
+#   define NOTDEBUG(CODE) CODE
 #endif // DEBUGGING
 
 #endif // DEBUG_H
