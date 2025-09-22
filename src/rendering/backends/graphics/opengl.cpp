@@ -42,6 +42,9 @@ bool OpenGL_Backend::Init()
     if(m_IsInitialized)
         { return true; }
 
+    PRINT_DEBUG("OpenGL_Backend::Init")
+    PRINT_DEBUG("OpenGL Version: {}", (char*)glGetString(GL_VERSION))
+
     glGenVertexArrays(VAOS_AMOUNT, m_VAOs.data());
 
 #   ifndef CLANGD_KEEPS_CRASHING_HERE
@@ -192,7 +195,6 @@ bool OpenGL_Backend::BindShader(unsigned int shader_label)
     if(m_CurrentlyBoundShader == shader_label)
         { return true; }
 
-    // FIXME: Can this fail even if the shaders are compiled successfuly?
     m_Shaders.at(m_CurrentlyBoundShader).Unbind();
     m_Shaders.at(shader_label).Bind();
     m_CurrentlyBoundShader = shader_label;

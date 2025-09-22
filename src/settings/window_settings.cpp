@@ -1,5 +1,6 @@
 #include "settings.hpp"
 
+#pragma message("FIXME: These are incompatible with Wayland")
 int Settings::Window::Width = 1280;
 int Settings::Window::Height = 720;
 int Settings::Window::FullscreenWidth = 1920;
