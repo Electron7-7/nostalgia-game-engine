@@ -1,11 +1,10 @@
 #include "opengl.hpp"
 #include "debug.hpp"
 #include "printing.hpp"
+#include "../../render_command.hpp"
 #include "world/world.hpp"
 #include "settings/settings.hpp" // IWYU pragma: keep
 #include "things/things.hpp"
-#include "../../shader_interfaces/gl_shader.hpp"
-#include "managers/theatre_manager.hpp"
 #include "things/resources/shaders.hpp" // IWYU pragma: keep
 #include "things/resources/basic/mesh.hpp"
 #include "things/resources/basic/texture.hpp"
@@ -24,12 +23,8 @@ std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
 std::map<id_t, OpenGL_MeshData>       OpenGL_Backend::m_MeshData = {};
 std::map<id_t, OpenGL_TextureID>      OpenGL_Backend::m_TextureIDs = {};
 
-unsigned int OpenGL_Backend::m_CurrentlyBoundShader = Shaders::Safety;
-
 static unsigned int s_VBO = 0;
 static unsigned int s_IBO = 0;
-
-static std::set<id_t> s_InUseIDs = {};
 
 void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 {
@@ -184,38 +179,36 @@ void OpenGL_Backend::Shutdown()
     is_imgui_initialized = false;
 }
 
-bool OpenGL_Backend::BindShader(unsigned int shader_label)
+bool OpenGL_Backend::BuildShader(unsigned int shader, const char* vertex_shader_code, const char* fragment_shader_code)
 {
-    if(!m_Shaders.contains(shader_label))
+    if(m_Shaders.contains(shader))
+        { glDeleteShader(m_Shaders.at(shader).ID()); }
+    m_Shaders[shader] = GLShader();
+    std::string vertex_shader(vertex_shader_code);
+    std::string fragment_shader(fragment_shader_code);
+    return m_Shaders.at(shader).CompileShader(vertex_shader, fragment_shader);
+}
+
+bool OpenGL_Backend::BindShader(unsigned int shader)
+{
+    if(!m_Shaders.contains(shader))
     {
         PRINT_WARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
         return false;
     }
-
-    if(m_CurrentlyBoundShader == shader_label)
-        { return true; }
-
-    m_Shaders.at(m_CurrentlyBoundShader).Unbind();
-    m_Shaders.at(shader_label).Bind();
-    m_CurrentlyBoundShader = shader_label;
+    glUseProgram(m_Shaders.at(shader).ID());
+    s_CurrentlyBoundShader = shader;
     return true;
 }
 
-bool OpenGL_Backend::BuildShader(unsigned int shader_label, const char* vertex_shader_code, const char* fragment_shader_code)
+bool OpenGL_Backend::DeleteShader(unsigned int shader)
 {
-    if(m_Shaders.contains(shader_label))
-    {
-        if(shader_label == m_CurrentlyBoundShader)
-        {
-            m_Shaders.at(shader_label).Unbind();
-        }
-        m_Shaders.at(shader_label).Delete();
-    }
-
-    m_Shaders[shader_label] = GLShader();
-    std::string vertex_shader(vertex_shader_code);
-    std::string fragment_shader(fragment_shader_code);
-    return m_Shaders.at(shader_label).CompileShader(vertex_shader, fragment_shader);
+    if(!m_Shaders.contains(shader) || shader == Shaders::BlinnPhong)
+        { return false; }
+    BindShader(Shaders::BlinnPhong);
+    glDeleteShader(m_Shaders.at(shader).ID());
+    m_Shaders.erase(shader);
+    return true;
 }
 
 unsigned int OpenGL_Backend::GetTextureID(id_t id)

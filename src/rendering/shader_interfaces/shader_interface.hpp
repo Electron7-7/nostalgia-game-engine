@@ -18,9 +18,7 @@ public:
     virtual ~ShaderInterface() = default;
 
     virtual bool IsValid() const = 0;
-    virtual void Bind()   = 0;
-    virtual void Unbind() = 0;
-    virtual void Delete() = 0;
+
     virtual void SetUniform(const std::string& Name, int Value) const = 0;
     virtual void SetUniform(const std::string& Name, float Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::vec2 Value) const = 0;
@@ -28,6 +26,8 @@ public:
     virtual void SetUniform(const std::string& Name, glm::vec4 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::mat3 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::mat4 Value) const = 0;
+
+    unsigned int ID() { return m_ID; }
 
 protected:
     unsigned int m_ID = 0;

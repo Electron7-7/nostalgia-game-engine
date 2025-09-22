@@ -1,9 +1,8 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include "rendering/backends/backend.hpp"
-#include "rendering/render_command.hpp"
-#include "rendering/shader_interfaces/gl_shader.hpp"
+#include "../../backends/backend.hpp"
+#include "../../shader_interfaces/gl_shader.hpp"
 
 #include <map>
 #include <vector>
@@ -41,12 +40,12 @@ public:
     void DestroyRenderingData();
     void BufferMesh(Mesh*);
     void BufferTexture(Texture*);
-    void ClearBuffer(glm::vec4 ClearColor);
-    const ShaderInterface* GetShader(unsigned int ShaderSelection) const;
-    bool BindShader(unsigned int ShaderLabel);
-    bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode);
-
-    void RenderSingleCommand(const RenderCommand& RenderCommand);
+    void ClearBuffer(glm::vec4);
+    const ShaderInterface* GetShader(unsigned int) const;
+    bool BuildShader(unsigned int, const char*, const char*);
+    bool BindShader(unsigned int);
+    bool DeleteShader(unsigned int);
+    void RenderSingleCommand(const RenderCommand&);
 
 private:
 #   define VAOS_AMOUNT 1
@@ -58,8 +57,6 @@ private:
 
     static std::map<id_t, OpenGL_MeshData> m_MeshData;
     static std::map<id_t, OpenGL_TextureID> m_TextureIDs;
-
-    static unsigned int m_CurrentlyBoundShader;
 
     static unsigned int GetTextureID(id_t);
 };

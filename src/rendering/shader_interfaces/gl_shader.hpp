@@ -10,9 +10,6 @@ public:
 
     bool CompileShader(const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
     bool IsValid() const final;
-    void Bind() final;
-    void Unbind() final;
-    void Delete() final;
 
     void SetUniform(const std::string& Name, int Value) const final;
     void SetUniform(const std::string& Name, float Value) const final;

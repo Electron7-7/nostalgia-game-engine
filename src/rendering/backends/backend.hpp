@@ -1,7 +1,7 @@
 #ifndef BACKENDS_H
 #define BACKENDS_H
 
-#include "../render_command.hpp"
+#include "../fwd.hpp"
 #include "../shader_interfaces/shader_interface.hpp"
 #include "safe_return.hpp"
 #include "things/fwd.hpp"
@@ -55,10 +55,13 @@ public:
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
     virtual bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
+    virtual bool DeleteShader(unsigned int ShaderSelection) = 0;
+    virtual void BufferLight(light_t* Light, unsigned int ShaderLabel) = 0;
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
 
 protected:
     bool is_imgui_initialized = false;
+    inline static unsigned int s_CurrentlyBoundShader = Shaders::BlinnPhong;
 };
 
 class WindowingBackend : public _Backend

@@ -58,24 +58,6 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
 bool GLShader::IsValid() const
 { return m_IsCompiled; }
 
-void GLShader::Bind()
-{
-    if(m_IsBound)
-    { return; }
-    m_IsBound = true;
-    glUseProgram(m_ID);
-}
-
-void GLShader::Unbind()
-{
-    if(!m_IsBound)
-    { return; }
-    m_IsBound = false;
-}
-
-void GLShader::Delete()
-{ glDeleteShader(m_ID); }
-
 void GLShader::SetUniform(const std::string& name, int value) const
 { glProgramUniform1i(m_ID, glGetUniformLocation(m_ID, name.c_str()), value); }
 
