@@ -44,9 +44,10 @@ bool OpenGL_Backend::Init()
 
     glGenVertexArrays(VAOS_AMOUNT, m_VAOs.data());
 
-    if(!BuildShader(Shaders::Safety, GLSL::SafetyShader_Vert, GLSL::SafetyShader_Frag))
-        { return false; } // The safety shader must ALWAYS compile
-    BuildShader(Shaders::BlinnPhong, GLSL::BlinnPhong_Vert, GLSL::BlinnPhong_Frag);
+#   ifndef CLANGD_KEEPS_CRASHING_HERE
+        BuildShader(Shaders::BlinnPhong, GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
+        BuildShader(Shaders::Fullbright, GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
+#   endif
 
     World::SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
@@ -204,7 +205,6 @@ bool OpenGL_Backend::BuildShader(unsigned int shader_label, const char* vertex_s
         if(shader_label == m_CurrentlyBoundShader)
         {
             m_Shaders.at(shader_label).Unbind();
-            m_Shaders.at(Shaders::Safety).Bind();
         }
         m_Shaders.at(shader_label).Delete();
     }
@@ -228,7 +228,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
     if(!m_Shaders.contains(shader_selection))
     {
         PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
-        shader_selection = Shaders::Safety;
+        shader_selection = Shaders::BlinnPhong;
     }
 
     return &m_Shaders.at(shader_selection);

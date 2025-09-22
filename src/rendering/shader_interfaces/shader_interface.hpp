@@ -6,11 +6,10 @@
 
 namespace Shaders
 {
-    constexpr unsigned int Safety     = 0; // Used when deleting a shader that is currently bound
-    constexpr unsigned int BlinnPhong = 1;
+    constexpr unsigned int BlinnPhong = 0;
+    constexpr unsigned int Fullbright = 1;
     constexpr unsigned int Skybox     = 2;
-    constexpr unsigned int Fullbright = 3;
-    constexpr unsigned int Fonts      = 4;
+    constexpr unsigned int Fonts      = 3;
 }
 
 class ShaderInterface

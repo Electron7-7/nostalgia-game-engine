@@ -1,6 +1,6 @@
 // Blinn Phong Fragment Shader
 #version 460 core
-#define MAX_NUMBER_OF_DIRECTIONAL_LIGHTS 2
+#define MAX_NUMBER_OF_DIRECTIONAL_LIGHTS 4
 #define MAX_NUMBER_OF_SPOT_LIGHTS        48
 #define MAX_NUMBER_OF_POINT_LIGHTS       48
 
@@ -13,7 +13,7 @@ in vec3 vertex_color;
 
 struct Material
 {
-	// Todo: combine color and alpha into a vec4
+	#pragma message("(Todo) combine color and alpha into a vec4")
 	vec3 diffuse_color;
 	float alpha;
 	sampler2D texture_diffuse;
@@ -62,10 +62,6 @@ uniform int directional_lights_count; // Honestly, should only be 1, but you do 
 uniform int point_lights_count;
 uniform int spot_lights_count;
 
-uniform int enable_ambient;
-uniform int enable_diffuse;
-uniform int enable_specular;
-
 uniform vec3 view_position;
 uniform vec4 debug_highlight;
 
@@ -87,18 +83,17 @@ void main()
 	{
 	case COLOR:
 		FragColor = vec4(vertex_color, 1.0f);
-		break;
+		return;
 	case NORMAL:
 		FragColor = vec4(vertex_normal, 1.0f);
-		break;
+		return;
 	case UV:
 		FragColor = vec4(vertex_uv, 0.0f, 1.0f);
-		break;
+		return;
 	case ALL:
 	default:
-		FragColor = texture(current_material.texture_diffuse, vertex_uv);
+		break;
 	}
-	return;
 	vec3 output_color = vec3(0.0f);
 
 	for(int i = 0 ; i < directional_lights_count ; ++i)
@@ -108,9 +103,9 @@ void main()
 	for(int i = 0 ; i < spot_lights_count ; ++i)
 		{ output_color += calculateSpotLight(spot_lights[i]); }
 
-	// Todo: once more than one material is supported, make sure that the alpha isn't just affected by one
+	// TODO: once more than one material is supported, make sure that the alpha isn't just affected by one
 	if(current_material.alpha < 0.5f)
-		discard; // THIS IS A HACK FIX AND WILL BE REPLACED ONCE I HAVE PROPER TRANSPARENCY WORKING!!!!
+		{ discard; } // THIS IS A HACK FIX AND WILL BE REPLACED ONCE I HAVE PROPER TRANSPARENCY WORKING!!!!
 	FragColor = vec4(output_color, 1.0f) + debug_highlight;
 }
 
@@ -163,7 +158,7 @@ mat3x3 calculateLuminosity(Light light, vec3 light_direction)
 	vec3 this_diffuse = light.energy * light.color * texture(current_material.texture_diffuse, vertex_uv).rgb * current_material.diffuse_color * vertex_color * diffuse;
 	vec3 this_specular = light.specular_strength * light.color * texture(current_material.texture_specular, vertex_uv).rgb * current_material.specular_strength * specular;
 
-	return mat3x3(this_ambient * enable_ambient, this_diffuse * enable_diffuse, this_specular * enable_specular);
+	return mat3x3(this_ambient, this_diffuse, this_specular);
 }
 
 float calculateAttenuation(float range, float constant, float distance)
