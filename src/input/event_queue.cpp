@@ -1,9 +1,9 @@
 #include "event_queue.hpp"
-#include "demo/demo_parser.hpp"
-#include "printing.hpp"
+#include "debug.hpp"
 #include "colors.hpp"
 #include "keybind.hpp"
 #include "filesystem/filesystem.hpp"
+#include "demo/demo_parser.hpp"
 
 #include <climits>
 #include <fstream>

@@ -24,10 +24,4 @@ constexpr const char* __RESET_NL = "\x1b[0m\n";           // Reset all changes &
 #define PRINT_ERROR(FORMAT, ARGS...)   __LABELLED_PRINT(__ERROR, FORMAT, ARGS)
 #define PRINT_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(__WARNING,  FORMAT, ARGS)
 
-#ifdef DEBUGGING // PRINT_DEBUG is disabled by default; add `-D DEBUGGING` to your compile flags to enable it
-    #define PRINT_DEBUG(FORMAT, ARGS...) __LABELLED_PRINT(__DEBUG, FORMAT, ARGS)
-#else
-    #define PRINT_DEBUG(FORMAT, ARGS...) {} // The curly braces help avoid potential syntax errors
-#endif // DEBUGGING
-
 #endif // PRINTING_H

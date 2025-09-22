@@ -1,11 +1,11 @@
 #include "input_manager.hpp"
+#include "debug.hpp"
 #include "backend_manager.hpp"
-#include "rendering/backends/backend.hpp"
 #include "input/keybind.hpp"
-#include "commands/command_line.hpp"
 #include "input/event.hpp"
 #include "input/event_queue.hpp"
-#include "printing.hpp"
+#include "commands/command_line.hpp"
+#include "rendering/backends/backend.hpp"
 
 using namespace ManagerEnums;
 

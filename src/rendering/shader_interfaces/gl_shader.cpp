@@ -1,5 +1,5 @@
 #include "gl_shader.hpp"
-#include "printing.hpp"
+#include "debug.hpp"
 #include "colors.hpp"
 #include "glad/glad.h"
 
