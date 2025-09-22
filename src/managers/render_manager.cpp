@@ -38,7 +38,7 @@ void RenderManager::Update()
         return;
     }
 
-    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
     g_pTheatreManager->RenderWorld();
     g_pUIManager->DrawUI();
     g_pBackendManager->GetWindowingBackend()->SwapBuffers();
