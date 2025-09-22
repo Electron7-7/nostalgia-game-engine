@@ -1,6 +1,9 @@
 #include "light.hpp"
 #include "debug.hpp"
+#include "../resources/resource_data.hpp"
+#include "managers/theatre_manager.hpp"
 #include "theatre/data_t.hpp"
+#include "theatre/variable_t.hpp"
 
 int light_t::s_PointCount       = 0;
 int light_t::s_SpotCount        = 0;
@@ -15,11 +18,9 @@ void light_t::ClearCounts()
 
 void light_t::SetupVariables(const data_t& data)
 {
-    Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
-    Scale() = glm::vec3(0.15f);
+    Scale() = glm::vec3(0.1f);
 
     Actor::SetupVariables(data);
-    // NOTDEBUG(m_Visible = false;)
 
     data.GetNumber(m_Color, "Color");
     data.GetNumber(m_Energy, "Energy");
@@ -32,6 +33,28 @@ void light_t::SetupVariables(const data_t& data)
     data.GetBool(m_Enabled, "Enabled");
     if(data.GetBool(m_Enabled, "Disabled"))
         { m_Enabled = !m_Enabled; }
+
+    NOTDEBUG(m_Visible = false;)
+    DEBUG(if(m_MeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
+        id_t mat_id = TheatreManager::CreateThing(data_t{
+            m_Name + "'s Debug Material",
+            Type::Material,
+            ID::GetNewID(),
+            {
+                variable_t{"DiffuseTexture", std::to_string(Images::ID::LightDebugging), VariableType::TheatreRef},
+                variable_t{"FullBright", "true", VariableType::Bool},
+            }
+        });
+        m_MeshInstanceID = TheatreManager::CreateThing(data_t{
+            m_Name + "'s Debug MeshInstance",
+            Type::MeshInstance,
+            ID::GetNewID(),
+            {
+                variable_t{"Mesh", std::to_string(Models::ID::Cube), VariableType::TheatreRef},
+                variable_t{"Material", std::to_string(mat_id), VariableType::TheatreRef}
+            }
+        });
+    })
 }
 
 bool light_t::Enabled() const
@@ -78,6 +101,13 @@ bool SpotLight::IncrementIndex()
 
 int DirectionalLight::GetCount()
 { return light_t::s_DirectionalCount;}
+
+void DirectionalLight::SetupVariables(const data_t& data)
+{
+    Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
+    m_Visible = false;
+    light_t::SetupVariables(data);
+}
 
 LightType DirectionalLight::Type() const
 { return LightType::DIRECTIONAL; }

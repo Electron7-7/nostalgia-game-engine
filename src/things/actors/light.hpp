@@ -66,6 +66,7 @@ class DirectionalLight : public light_t
 {
 public:
     static int GetCount();
+    void SetupVariables(const data_t&);
     LightType Type() const final;
     bool IncrementIndex() final;
 };
