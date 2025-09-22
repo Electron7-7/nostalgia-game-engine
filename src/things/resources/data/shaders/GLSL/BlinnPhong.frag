@@ -23,6 +23,8 @@ struct Material
 	int specular_sharpness;
 	sampler2D texture_specular;
 
+	int use_textures;
+
 	// These will eventually replace the specular variables, as they'll each affect the specular highlights in different ways
 	// sampler2D texture_metallic;
 	// float metallic_strength;
@@ -70,6 +72,8 @@ vec3 calculateSpotLight(Light light);
 vec3 calculateDirectionalLight(Light light);
 float calculateAttenuation(float range, float constant, float distance);
 mat3x3 calculateLuminosity(Light light, vec3 light_direction);
+vec3 diffuse_texture;
+vec3 specular_texture;
 
 uniform int debug_output;
 #define ALL 0
@@ -94,6 +98,11 @@ void main()
 	default:
 		break;
 	}
+
+	vec3 use_texture_vec3 = vec3(1.0f - current_material.use_textures);
+	diffuse_texture  = vec3(texture(current_material.texture_diffuse,  vertex_uv).rgb * current_material.use_textures) + use_texture_vec3;
+	specular_texture = vec3(texture(current_material.texture_specular, vertex_uv).rgb * current_material.use_textures) + use_texture_vec3;
+
 	vec3 output_color = vec3(0.0f);
 
 	for(int i = 0 ; i < directional_lights_count ; ++i)
@@ -154,9 +163,9 @@ mat3x3 calculateLuminosity(Light light, vec3 light_direction)
 
 	specular = diffuse != 0 ? specular : 0.0f;
 
-	vec3 this_ambient = light.ambient_strength * light.color * texture(current_material.texture_diffuse, vertex_uv).rgb * current_material.diffuse_color * vertex_color;
-	vec3 this_diffuse = light.energy * light.color * texture(current_material.texture_diffuse, vertex_uv).rgb * current_material.diffuse_color * vertex_color * diffuse;
-	vec3 this_specular = light.specular_strength * light.color * texture(current_material.texture_specular, vertex_uv).rgb * current_material.specular_strength * specular;
+	vec3 this_ambient  = light.ambient_strength * light.color * diffuse_texture * current_material.diffuse_color * vertex_color;
+	vec3 this_diffuse  = light.energy * light.color * diffuse_texture * current_material.diffuse_color * vertex_color * diffuse;
+	vec3 this_specular = light.specular_strength * light.color * specular_texture * current_material.specular_strength * specular;
 
 	return mat3x3(this_ambient, this_diffuse, this_specular);
 }

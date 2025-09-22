@@ -255,19 +255,12 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
     BindShader(rendercmd.m_ShaderID);
 
+    if(!material->m_DontUseTexture)
+        { glEnable(GL_FRAMEBUFFER_SRGB); }
     glEnable(GL_BLEND);
 
-    if(!material->m_DontUseTexture)
-    {
-        glEnable(GL_FRAMEBUFFER_SRGB);
-        glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
-        glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
-    }
-    else
-    {
-        glBindTextureUnit(0, GetTextureID(1));
-        glBindTextureUnit(1, GetTextureID(1));
-    }
+    glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
+    glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
     DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
 
@@ -283,6 +276,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_diffuse",  0);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_specular", 1);
+    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.use_textures", !material->m_DontUseTexture);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.diffuse_color", material->m_Color);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.alpha", material->m_Alpha);
     GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
