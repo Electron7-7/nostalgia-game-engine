@@ -12,6 +12,8 @@ Resource::Resource(const FileData& data)
 
 void Resource::SetupVariables(const data_t& data)
 {
+    Thing::SetupVariables(data);
+
     std::string path = "";
     if(data.GetString(path, "File"))
         { m_FileData.LoadFile(path); }

@@ -31,7 +31,7 @@ protected:
 class Thing : public _thing
 {
 public:
-    virtual void SetupVariables(const data_t&) {}
+    virtual void SetupVariables(const data_t&);
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}
 };
