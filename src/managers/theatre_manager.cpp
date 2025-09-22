@@ -154,19 +154,14 @@ void TheatreManager::CreateObjects()
     g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Empty);
     g_pBackendManager->GetGraphicsBackend()->BufferTexture(&Texture::Missing);
 
+    std::shared_ptr<Thing> thing;
+
     for(const data_t& data : theatre_data)
     {
         if(data.GetType() == Type::NostalgiaPlayer)
-        {
-            #pragma message("TODO: Make this better")
-            s_LocalPlayer->m_Type = Type::NostalgiaPlayer;
-            s_LocalPlayer->m_ID   = data.GetID();
-            s_LocalPlayer->m_Name = data.GetName();
-            s_LocalPlayer->SetupVariables(data);
-            continue;
-        }
-
-        auto& thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();
+            { thing = static_pointer_cast<Thing>(s_LocalPlayer); }
+        else
+            { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())(); }
         thing->m_ID   = data.GetID();
         thing->m_Type = data.GetType();
         thing->m_Name = data.GetName();
