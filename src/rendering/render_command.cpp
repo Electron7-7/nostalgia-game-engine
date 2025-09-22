@@ -1,6 +1,7 @@
 #include "render_command.hpp"
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"
+#include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 
 #include <glm/ext/matrix_clip_space.hpp>

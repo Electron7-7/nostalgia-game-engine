@@ -46,6 +46,7 @@ public:
     bool BindShader(unsigned int);
     bool DeleteShader(unsigned int);
     void RenderSingleCommand(const RenderCommand&);
+    void BufferLight(light_t*, unsigned int);
 
 private:
 #   define VAOS_AMOUNT 1

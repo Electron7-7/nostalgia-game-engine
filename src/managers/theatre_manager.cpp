@@ -10,6 +10,7 @@
 #include "things/things.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/resources/basic/mesh.hpp"
+#include "things/actors/light.hpp"
 #ifdef DEBUGGING
 #   include "colors.hpp"
 #   include "time.hpp"
@@ -96,11 +97,21 @@ void TheatreManager::RenderWorld()
 {
     if(!s_ReadyToRender)
         { return; }
+
+    light_t::ClearCounts();
+
     for(auto& [id, thing] : s_Things)
     {
-        std::shared_ptr<Actor> actor = dynamic_pointer_cast<Actor>(thing);
-        if(actor)
-            { s_RenderCommandQueue.emplace_back(actor, Shaders::BlinnPhong); }
+        auto actor = dynamic_pointer_cast<Actor>(thing);
+        auto light = dynamic_pointer_cast<light_t>(thing);
+        unsigned int shader = Shaders::BlinnPhong;
+        if(light && light->Enabled() && light->IncrementIndex())
+        {
+            g_pBackendManager->GetGraphicsBackend()->BufferLight(light.get(), shader);
+            shader = Shaders::Fullbright;
+        }
+        if(actor && actor->Visible())
+            { s_RenderCommandQueue.emplace_back(actor, shader); }
     }
     for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)
     {

@@ -5,6 +5,7 @@
 #include "world/world.hpp"
 #include "settings/settings.hpp" // IWYU pragma: keep
 #include "things/things.hpp"
+#include "things/actors/light.hpp"
 #include "things/resources/shaders.hpp" // IWYU pragma: keep
 #include "things/resources/basic/mesh.hpp"
 #include "things/resources/basic/texture.hpp"
@@ -228,6 +229,35 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
     }
 
     return &m_Shaders.at(shader_selection);
+}
+
+void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
+{
+    #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
+    std::string l_Light = std::format("_lights[{}].", light->Index());
+    switch(light->Type())
+    {
+    case LightType::POINT:
+        l_Light = "point" + l_Light;
+        break;
+    case LightType::SPOT:
+        l_Light = "spot" + l_Light;
+        break;
+    case LightType::DIRECTIONAL:
+        l_Light = "directional" + l_Light;
+        break;
+    }
+
+    GetShader(shader)->SetUniform(l_Light + "color",             light->m_Color);
+    GetShader(shader)->SetUniform(l_Light + "energy",            light->m_Energy);
+    GetShader(shader)->SetUniform(l_Light + "specular_strength", light->m_SpecularStrength);
+    GetShader(shader)->SetUniform(l_Light + "ambient_strength",  light->m_AmbientStrength);
+    GetShader(shader)->SetUniform(l_Light + "attenuation",       light->m_Attenuation);
+    GetShader(shader)->SetUniform(l_Light + "range",             light->m_Range);
+    GetShader(shader)->SetUniform(l_Light + "position",          light->cOrigin());
+    GetShader(shader)->SetUniform(l_Light + "direction",         light->Euler());
+    GetShader(shader)->SetUniform(l_Light + "spot_cutoff",       light->m_SpotAngle);
+    GetShader(shader)->SetUniform(l_Light + "spot_cutoff_fade",  light->m_SpotAngleFade);
 }
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
