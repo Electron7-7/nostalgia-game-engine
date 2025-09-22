@@ -498,3 +498,19 @@ I think I want to make a way to draw directly to the screen for debugging purpos
 Welp, I didn't do that, but I did finally fix the Quaternion & Euler Angle problem. I also did lots of house-keeping and started slimming down the RenderCommand system.
 
 Oh, yeah, lemme add *why* the Quats and angles were fighting: basically, when GLM converts between the two, it does so in a way that will cause problems when the yaw is greater than 90 degrees in either direction. To fix this, I keep both a Quat and a vector of angles and when I set one, it sets the other.
+
+[09/21/25]
+Todo: Removing 'LightRenderCommand' and instead passing a 'light_t' pointer to the light rendering function. Also need a way of counting the current point/spot/directional light without doing the loop in the OpenGL_Backend function.
+
+I implemented light Things and full Blinn Phong shading.
+
+[09/22/25]
+I've been committing code and started fiddling with having lights setup their debug MeshInstance on their own, and it's thrown a few wrinkles at me that I'll want to further take care of after I finish committing this code.
+
+Uhoh, it looks like the name and id aren't being correctly assigned or, more likely, passing `this` causes issues when trying to call `mesh->GetID()` in the buffer function.
+
+Oh, wait... they aren't being assigned at all? Oh, wait, are all the base versions of 'SetupVariables' being called?
+
+Nope, 'Resource' didn't call 'Thing::SetupVariables'; simple mistake. All fixed.
+
+Okay, I've just come to the conclusion that 'Resource' should be dedicated to "basic resources", i.e: meshes, textures, etc. They should be used to supply both data for buffering and an ID for referencing to the graphics backend. Once the backend is finished, that data is no longer needed, as is the 'Resource' object itself, so it shouldn't be added to the Theatre (unless I keep it small enough that the benefit of being able to see its data outweighs the downside of keeping the object in memory). "Complex Resources" should *not* derive from 'Resource' and should use only IDs to reference Resource data. I should re-design the 'EngineRef' variable to be applicable to IDs as well as resource data; basically, if an EngineRef is being applied to a 'FileData' variable, load it as usual, but if it's being applied to an ID variable, get the pre-defined ID for that Resource.
