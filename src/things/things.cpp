@@ -4,6 +4,7 @@
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
+#include "actors/light.hpp"
 #include "resources/basic/mesh.hpp"
 #include "resources/basic/font.hpp"
 #include "resources/basic/texture.hpp"
@@ -20,16 +21,19 @@ std::shared_ptr<Thing> l_MakeThing()
 const std::map<size_t, std::shared_ptr<Thing>(*)()>
 s_ThingConstructors =
 {
-    { Type::Thing,           &l_MakeThing<Thing>           },
-    { Type::Thinker,         &l_MakeThing<Thinker>         },
-    { Type::Actor,           &l_MakeThing<Actor>           },
-    { Type::NostalgiaPlayer, &l_MakeThing<NostalgiaPlayer> },
-    { Type::Resource,        &l_MakeThing<Resource>        },
-    { Type::Mesh,            &l_MakeThing<Mesh>            },
-    { Type::Font,            &l_MakeThing<Font>            },
-    { Type::Material,        &l_MakeThing<Material>        },
-    { Type::Texture,         &l_MakeThing<Texture>         },
-    { Type::MeshInstance,    &l_MakeThing<MeshInstance>    },
+    { Type::Thing,            &l_MakeThing<Thing>            },
+    { Type::Thinker,          &l_MakeThing<Thinker>          },
+    { Type::Actor,            &l_MakeThing<Actor>            },
+    { Type::NostalgiaPlayer,  &l_MakeThing<NostalgiaPlayer>  },
+    { Type::PointLight,       &l_MakeThing<PointLight>       },
+    { Type::SpotLight,        &l_MakeThing<SpotLight>        },
+    { Type::DirectionalLight, &l_MakeThing<DirectionalLight> },
+    { Type::Resource,         &l_MakeThing<Resource>         },
+    { Type::Mesh,             &l_MakeThing<Mesh>             },
+    { Type::Font,             &l_MakeThing<Font>             },
+    { Type::Material,         &l_MakeThing<Material>         },
+    { Type::Texture,          &l_MakeThing<Texture>          },
+    { Type::MeshInstance,     &l_MakeThing<MeshInstance>     },
 };
 
 static const std::map<size_t, int>
@@ -40,6 +44,9 @@ s_TypePriorityMap =
     { Type::Texture,         -2 },
     { Type::Material,        -1 },
     { Type::MeshInstance,    -1 },
+    { Type::PointLight,       0 },
+    { Type::SpotLight,        0 },
+    { Type::DirectionalLight, 0 },
     { Type::NostalgiaPlayer,  0 },
     { Type::Actor,            0 },
     { Type::Resource,         0 },

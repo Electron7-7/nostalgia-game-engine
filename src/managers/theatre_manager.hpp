@@ -29,16 +29,9 @@ public:
     static std::shared_ptr<Thing>& GetThing(id_t ID);
     static const std::shared_ptr<Thing>& cGetThing(id_t ID);
 
-    static int PointLightsCount();
-    static int SpotLightsCount();
-    static int DirectionalLightsCount();
-
 private:
     DEBUG(friend class imgui_Debugger;)
     static std::map<id_t, std::shared_ptr<Thing>> s_Things;
-    static int s_PointLightsCount;
-    static int s_SpotLightsCount;
-    static int s_DirectionalLightsCount;
 
     static void CreateObjects();
     static void DestroyObjects();

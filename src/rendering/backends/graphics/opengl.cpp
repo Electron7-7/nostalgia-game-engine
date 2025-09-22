@@ -261,9 +261,9 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 
     DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
 
-    GetShader(rendercmd.m_ShaderID)->SetUniform("point_lights_count", TheatreManager::PointLightsCount());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("spot_lights_count", TheatreManager::SpotLightsCount());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("directional_lights_count", TheatreManager::DirectionalLightsCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("point_lights_count", PointLight::GetCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("spot_lights_count", SpotLight::GetCount());
+    GetShader(rendercmd.m_ShaderID)->SetUniform("directional_lights_count", DirectionalLight::GetCount());
 
     GetShader(rendercmd.m_ShaderID)->SetUniform("model_matrix", rendercmd.m_ModelMatrix);
     GetShader(rendercmd.m_ShaderID)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.m_ModelMatrix))));

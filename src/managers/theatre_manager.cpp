@@ -29,9 +29,6 @@ static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
 std::map<id_t, std::shared_ptr<Thing>> TheatreManager::s_Things = {};
-int TheatreManager::s_PointLightsCount       = 0;
-int TheatreManager::s_SpotLightsCount        = 0;
-int TheatreManager::s_DirectionalLightsCount = 0;
 
 void TheatreManager::Update()
 {
@@ -136,15 +133,6 @@ const std::shared_ptr<Thing>& TheatreManager::cGetThing(id_t id)
         { return s_Things.cbegin()->second; }
     return s_Things.at(id);
 }
-
-int TheatreManager::PointLightsCount()
-{ return s_PointLightsCount; }
-
-int TheatreManager::SpotLightsCount()
-{ return s_SpotLightsCount; }
-
-int TheatreManager::DirectionalLightsCount()
-{ return s_DirectionalLightsCount; }
 
 void TheatreManager::CreateObjects()
 {
