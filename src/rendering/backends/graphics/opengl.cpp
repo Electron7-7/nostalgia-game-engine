@@ -86,22 +86,11 @@ void OpenGL_Backend::BufferMesh(Mesh* mesh)
 
 void OpenGL_Backend::BufferTexture(Texture* texture)
 {
-    unsigned int id = 0;
-    // stbi_set_flip_vertically_on_load(true); // FIXME: Idk if this is accurate
+    #pragma message("TODO: Only flip images that need to be flipped")
+    stbi_set_flip_vertically_on_load(true);
 
-    // glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureIDs.at(texture->GetID()));
-    // glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    // glTextureParameteri(id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    // glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
-    // glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    // glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glGenTextures(1, &id);
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, 16);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    unsigned int id = 0;
+    glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     int l_Width, l_Height, l_Channels;
     unsigned char* l_Data = stbi_load_from_memory(texture->Data().Data(), texture->Data().Size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
@@ -109,18 +98,21 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     if(!l_Data)
     {
         PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}'!", texture->GetName())
-        // glDeleteTextures(1, &m_TextureIDs.at(texture->GetID()));
-        m_TextureIDs.erase(texture->GetID());
         return;
     }
 
+    #pragma message("FIXME: I don't know how to properly use 'glTextureSubImage2D' yet")
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
     glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB, l_Width, l_Height);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, l_Width, l_Height , 0, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateTextureMipmap(id);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_TextureIDs[texture->GetID()] = id;
-    // glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
-    // glTextureSubImage2D(id, 0, 0, 0, l_Width, l_Height, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
-    // glGenerateTextureMipmap(id);
     stbi_image_free(l_Data);
 }
 
