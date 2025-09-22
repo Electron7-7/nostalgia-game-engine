@@ -7,8 +7,6 @@
 class Font : public Resource
 {
 public:
-    static Font Default;
-
     using Resource::Resource;
     virtual void SetupVariables(const data_t&);
     virtual SafeStatus CreateResource();

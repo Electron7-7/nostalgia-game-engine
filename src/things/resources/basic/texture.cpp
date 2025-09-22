@@ -1,10 +1,6 @@
 #include "texture.hpp"
-#include "../resource_data.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
-
-Texture Texture::Missing({Images::Missing, std::size(Images::Missing), FileType::image_JPG});
-Texture Texture::Empty({Images::Empty, std::size(Images::Empty), FileType::image_PNG});
 
 void Texture::SetupVariables(const data_t& data)
 {

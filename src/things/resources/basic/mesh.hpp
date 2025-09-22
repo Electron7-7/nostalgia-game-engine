@@ -2,9 +2,9 @@
 #define MESH_H
 
 #include "../resource.hpp"
+#include "safe_return.hpp"
 #include "rendering/vertex.hpp"
 #include "math/unsigned_int_vector.hpp"
-#include "safe_return.hpp"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -13,8 +13,6 @@ class Mesh : public Resource
 {
 public:
     typedef unsigned int Index;
-
-    static Mesh Error;
 
     using Resource::Resource;
     virtual void SetupVariables(const data_t&);
@@ -27,8 +25,6 @@ public:
     std::vector<float> GetVertexData();
 
 private:
-    ResourceStatus m_MeshStatus = ResourceStatus::NOT_PROCESSED;
-
     std::vector<Vertex> m_Vertices = {};
     std::vector<Index>  m_Indices  = {};
 

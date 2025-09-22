@@ -31,10 +31,16 @@ namespace Fonts
     namespace Name
     {
         constexpr const char* AudiowideRegular = "AudiowideRegularFont";
-        constexpr const char* Verdana = "VerdanaFont";
-        constexpr const char* DejaVuSansMono = "DejaVuSansMonoFont";
+        constexpr const char* Verdana          = "VerdanaFont";
+        constexpr const char* DejaVuSansMono   = "DejaVuSansMonoFont";
     }
 
+    namespace ID
+    {
+        constexpr id_t Verdana          = 0;
+        constexpr id_t DejaVuSansMono   = 1;
+        constexpr id_t AudiowideRegular = 2;
+    }
 }
 
 namespace Images
@@ -51,17 +57,25 @@ namespace Images
     {
         #embed "images/lolbit.png"
     };
-    constexpr unsigned char Empty[] =
+    constexpr unsigned char LightDebugging[] =
     {
-        #embed "images/Empty.png"
+        #embed "images/LIGHT_DEBUGGING.jpg"
     };
 
     namespace Name
     {
-        constexpr const char* Missing = "MissingTexture";
-        constexpr const char* COMP04_5 = "DoomTexture";
-        constexpr const char* LolBit = "LolBitTexture";
-        constexpr const char* Empty = "EmptyTexture";
+        constexpr const char* Missing        = "MissingTexture";
+        constexpr const char* COMP04_5       = "DoomTexture";
+        constexpr const char* LolBit         = "LolBitTexture";
+        constexpr const char* LightDebugging = "LightTexture";
+    }
+
+    namespace ID
+    {
+        constexpr id_t Missing        = 0;
+        constexpr id_t LightDebugging = 1;
+        constexpr id_t COMP04_5       = 2;
+        constexpr id_t LolBit         = 3;
     }
 
 }
@@ -76,11 +90,23 @@ namespace Models
     {
         #embed "models/Ramiel.obj"
     };
+    constexpr unsigned char Cube[] =
+    {
+        #embed "models/Cube.obj"
+    };
 
     namespace Name
     {
-        constexpr const char* Error = "ErrorModel";
+        constexpr const char* Error  = "ErrorModel";
         constexpr const char* Ramiel = "RamielModel";
+        constexpr const char* Cube   = "DefaultCube";
+    }
+
+    namespace ID
+    {
+        constexpr id_t Error  = 0;
+        constexpr id_t Cube   = 1;
+        constexpr id_t Ramiel = 2;
     }
 }
 

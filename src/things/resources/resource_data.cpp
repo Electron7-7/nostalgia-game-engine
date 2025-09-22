@@ -17,11 +17,12 @@ static std::map<std::string, Data_Type_Storage> s_ResourceData =
     { Fonts::Name::Verdana,          {Fonts::Verdana,           std::size(Fonts::Verdana),           FileType::font_TTF}  },
     { Fonts::Name::DejaVuSansMono,   {Fonts::DejaVuSansMono,    std::size(Fonts::DejaVuSansMono),    FileType::font_TTF}  },
     { Images::Name::Missing,         {Images::Missing,          std::size(Images::Missing),          FileType::image_JPG} },
-    { Images::Name::Empty,           {Images::Empty,            std::size(Images::Empty),            FileType::image_PNG} },
+    { Images::Name::LightDebugging,  {Images::LightDebugging,   std::size(Images::LightDebugging),   FileType::image_JPG} },
     { Images::Name::COMP04_5,        {Images::COMP04_5,         std::size(Images::COMP04_5),         FileType::image_PNG} },
     { Images::Name::LolBit,          {Images::LolBit,           std::size(Images::LolBit),           FileType::image_PNG} },
     { Models::Name::Error,           {Models::Error,            std::size(Models::Error),            FileType::model_OBJ} },
     { Models::Name::Ramiel,          {Models::Ramiel,           std::size(Models::Ramiel),           FileType::model_OBJ} },
+    { Models::Name::Cube,            {Models::Cube,             std::size(Models::Cube),             FileType::model_OBJ} },
 };
 
 bool ResourceData::Exists(const std::string& name)

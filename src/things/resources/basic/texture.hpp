@@ -6,9 +6,6 @@
 class Texture : public Resource
 {
 public:
-    static Texture Missing;
-    static Texture Empty;
-
     using Resource::Resource;
     virtual void SetupVariables(const data_t&);
     virtual SafeStatus CreateResource();

@@ -1,5 +1,4 @@
 #include "mesh.hpp"
-#include "../resource_data.hpp"
 #include "printing.hpp"
 #include "theatre/data_t.hpp"
 #include "filesystem/file_data.hpp"
@@ -9,8 +8,6 @@
 #include "TinyOBJLoader/tiny_obj_loader.h"
 
 #include <numeric>
-
-Mesh Mesh::Error({Models::Error, std::size(Models::Error), FileType::model_OBJ});
 
 void Mesh::SetupVariables(const data_t& data)
 {
