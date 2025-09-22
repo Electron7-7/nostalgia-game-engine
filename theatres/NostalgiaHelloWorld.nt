@@ -10,33 +10,17 @@ Resources
     // They start with a "typename", followed by the object's name, followed by a pair of curly braces
     // Whitespace is allowed around the curly braces for formatting purposes
     // Inside a definition are variable definitions. These are Python-esque, being terminated by a newline
-    Texture LolBit_Tex
-    {
-        // This is a String, delimited by sinqle-quotes. Strings capture everything inside them, including whitespace
-        // File = 'src/testing_app/resources/lolbit.png'
-        Data = [LolBitTexture];
-    }
-
     Mesh Cube_Mesh
     {
+        // This is a String, delimited by sinqle-quotes. Strings capture everything inside them, including whitespace
         File = 'src/testing_app/resources/Cube.obj'
     }
 
     Mesh Ramiel_Mesh
     {
+        // This is an Engine reference, delimited by square braces. It is the name of a special engine variable
+        // (in the future, your game/app can define its own "Engine" references which your Theatre files can use)
         Data = [RamielModel]
-    }
-
-    Material Ramiel_Mat
-    {
-        // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
-        DiffuseTexture = <LolBit_Tex>
-    }
-
-    MeshInstance RamielMeshInstance
-    {
-        Mesh = <Ramiel_Mesh>
-        Material = <Ramiel_Mat>
     }
 
     Texture Doom_Texture
@@ -46,9 +30,20 @@ Resources
 
     Material Cube_Mat
     {
-        // This is an Engine reference, delimited by square braces. It is the name of a special engine variable
-        // (in the future, your game/app can define its own "Engine" references which your Theatre files can use)
+        // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
         DiffuseTexture = <Doom_Texture>
+    }
+
+    Material Ramiel_Mat
+    {
+        // This is a boolean Numeric variable; see lines 55-56 for more information
+        NoTexture = (True)
+    }
+
+    MeshInstance RamielMeshInstance
+    {
+        Mesh = <Ramiel_Mesh>
+        Material = <Ramiel_Mat>
     }
 }
 
@@ -60,8 +55,7 @@ Things
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
         // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
         Origin = (-3, 1.0, -2) // An example of all the different number types working together!
-        // Booleans are case-insensitive
-        IsVisible = (true)
+        IsVisible = (True) // Booleans are not case-sensitive (example on line 76)
     }
 
     Actor TestActor2
@@ -79,6 +73,24 @@ Things
         }
         Origin = (3, 0, -3)
         Rotation = (-0.1, 0, 0.1)
-        IsVisible = (True) // An example of boolean case-insensitivity
+        IsVisible = (trUe) // An example of boolean case-insensitivity
+    }
+
+    PointLight Light
+    {
+        Origin = (0, 1, -1.5)
+        Color  = (0.82, 0.75, 1.0)
+        Visible = (false) // I'll introduce a default debug Light mesh in an upcoming commit
+    }
+
+    DirectionalLight Sun
+    {
+        RotationDegrees = (-70, 25, 0)
+        Visible = (false)
+    }
+
+    NostalgiaPlayer Player
+    {
+        Origin = (0, 1, 3)
     }
 }
