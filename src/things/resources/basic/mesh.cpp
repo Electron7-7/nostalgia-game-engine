@@ -1,5 +1,6 @@
 #include "mesh.hpp"
 #include "../resource_data.hpp"
+#include "printing.hpp"
 #include "theatre/data_t.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
@@ -23,22 +24,14 @@ void Mesh::clear()
 {
     m_Vertices.clear();
     m_Indices.clear();
-    m_MeshStatus = ResourceStatus::NOT_PROCESSED;
+    m_Status = ResourceStatus::NOT_PROCESSED;
 }
 
 const std::vector<Vertex>& Mesh::GetVertices() const
-{
-    if(m_MeshStatus != ResourceStatus::SUCCESSFUL && m_FileData.Status() != DataStatus::SUCCESSFUL)
-        { return Mesh::Error.m_Vertices; }
-    return m_Vertices;
-}
+{ return m_Vertices; }
 
 const std::vector<Mesh::Index>& Mesh::GetIndices() const
-{
-    if(m_MeshStatus == ResourceStatus::FAILED)
-        { return Mesh::Error.m_Indices; }
-    return m_Indices;
-}
+{ return m_Indices; }
 
 std::vector<float> Mesh::GetVertexData()
 {
@@ -54,7 +47,7 @@ SafeStatus Mesh::CreateResource()
         { return Status::ResourceBAD_FILE_DATA; }
 
     SafeStatus status = Status::NO_ERR;
-    m_MeshStatus = ResourceStatus::SUCCESSFUL;
+    m_Status = ResourceStatus::SUCCESSFUL;
 
     switch(m_FileData.Type())
     {
@@ -69,7 +62,8 @@ SafeStatus Mesh::CreateResource()
 
     if(status != Status::NO_ERR)
     {
-        m_MeshStatus = ResourceStatus::FAILED;
+        PRINT_WARNING("Mesh::CreateResource - Failed to create mesh data for '{}' [ID#{}]", m_Name, m_ID)
+        m_Status = ResourceStatus::FAILED;
         clear();
     }
     return status;
@@ -107,7 +101,7 @@ SafeStatus Mesh::try_CreateOBJMesh()
         if(!reader.Error().empty())
         {
             PRINT_ERROR("Mesh::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error())
-            m_MeshStatus = ResourceStatus::FAILED;
+            m_Status = ResourceStatus::FAILED;
             return Status::ResourceBAD_FILE_DATA;
         }
     }

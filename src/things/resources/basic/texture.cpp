@@ -17,8 +17,10 @@ SafeStatus Texture::CreateResource()
 {
     if(m_FileData.Status() != DataStatus::SUCCESSFUL)
     {
-        ResourceData::GetData(m_FileData, Images::Name::Missing);
+        // ResourceData::GetData(m_FileData, Images::Name::Missing);
+        m_Status = ResourceStatus::FAILED;
         return Status::ResourceBAD_FILE_DATA;
     }
+    m_Status = ResourceStatus::SUCCESSFUL;
     return Status::NO_ERR;
 }

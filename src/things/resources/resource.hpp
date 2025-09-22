@@ -24,9 +24,11 @@ public:
     virtual bool Initialize() { return true; }
     virtual void Destroy() {};
     virtual FileData& Data() { return m_FileData; }
+    virtual ResourceStatus Status() { return m_Status; }
 
 protected:
     FileData m_FileData;
+    ResourceStatus m_Status = ResourceStatus::NOT_PROCESSED;
 };
 
 #endif // RESOURCE_H
