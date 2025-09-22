@@ -13,7 +13,7 @@ in vec3 vertex_color;
 
 struct Material
 {
-	#pragma message("(Todo) combine color and alpha into a vec4")
+	// TODO: combine color and alpha into a vec4
 	vec3 diffuse_color;
 	float alpha;
 	sampler2D texture_diffuse;
@@ -67,11 +67,6 @@ uniform int spot_lights_count;
 uniform vec3 view_position;
 uniform vec4 debug_highlight;
 
-vec3 calculatePointLight(Light light);
-vec3 calculateSpotLight(Light light);
-vec3 calculateDirectionalLight(Light light);
-float calculateAttenuation(float range, float constant, float distance);
-mat3x3 calculateLuminosity(Light light, vec3 light_direction);
 vec3 diffuse_texture;
 vec3 specular_texture;
 
@@ -80,6 +75,12 @@ uniform int debug_output;
 #define COLOR 1
 #define NORMAL 2
 #define UV 3
+
+vec3 calculatePointLight(Light light);
+vec3 calculateSpotLight(Light light);
+vec3 calculateDirectionalLight(Light light);
+float calculateAttenuation(float range, float constant, float distance);
+mat3x3 calculateLuminosity(Light light, vec3 light_direction);
 
 void main()
 {

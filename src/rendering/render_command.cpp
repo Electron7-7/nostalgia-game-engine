@@ -3,12 +3,24 @@
 #include "managers/theatre_manager.hpp"
 #include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
+#include "things/actors/light.hpp"
+#include "things/resources/complex/mesh_instance.hpp"
+#include "things/resources/complex/material.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 
 RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, id_t shader)
 : m_ShaderID(shader), m_MeshInstanceID(actor->GetMeshInstanceID())
 {
+    if(dynamic_pointer_cast<light_t>(actor))
+    {
+        g_GetThing<Material>(
+            g_GetThing<MeshInstance>(
+                actor->GetMeshInstanceID()
+                )->GetMaterialID()
+            )->m_Color = dynamic_pointer_cast<light_t>(actor)->m_Color;
+    }
+
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->cScale());
     glm::mat4 rotMat   = glm::mat4_cast(actor->Quaternion());
