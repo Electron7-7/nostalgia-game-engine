@@ -119,7 +119,7 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(id, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
-    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     m_TextureIDs[texture->GetID()] = id;
     stbi_image_free(l_Data);
