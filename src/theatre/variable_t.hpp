@@ -46,6 +46,8 @@ public:
     const std::string& Value() const;
     const VariableType& Type() const;
 
+    void clear();
+
     const bool operator==(const std::string& Compare) const
     { return !m_Name.compare(Compare); }
 
@@ -57,9 +59,6 @@ private:
     std::string  m_Name  = "Untitled";
     std::string  m_Value = "";
     VariableType m_Type  = VariableType::Default;
-
-    #pragma message("(TODO) Maybe make this public?")
-    void clear();
 };
 
 #endif // VARIABLE_T_H
