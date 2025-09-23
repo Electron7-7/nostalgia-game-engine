@@ -157,7 +157,7 @@ id_t TheatreManager::CreateThing(const data_t& cData)
         thing->SetupVariables(data_t::PlayerDefaults);
     }
     else
-        { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())();; }
+        { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())(); }
 
     thing->SetupVariables(data);
     return thing->m_ID;

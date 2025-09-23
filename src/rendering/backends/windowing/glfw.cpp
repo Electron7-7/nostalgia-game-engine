@@ -131,7 +131,7 @@ void GLFW_Backend::ResizeWindow(int width, int height)
     glfwGetWindowSize(m_MainWindow, &cur_width, &cur_height);
 
     if(width == cur_width && height == cur_height)
-    { return; }
+        { return; }
 
     glfwSetWindowSize(m_MainWindow, width, height);
 }
