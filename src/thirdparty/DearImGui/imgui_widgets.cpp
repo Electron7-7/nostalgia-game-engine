@@ -3814,6 +3814,31 @@ void ImGui::SetNextItemRefVal(ImGuiDataType data_type, void* p_data)
     memcpy(&g.NextItemData.RefVal, p_data, DataTypeGetInfo(data_type)->Size);
 }
 
+bool ImGui::InputGLMv2(const char* label, glm::vec2* v, float step, float step_fast, const char* format, ImGuiInputTextFlags flags)
+{
+    float l_Scalars[2] = {v->x, v->y};
+    if(InputScalarN(label, ImGuiDataType_Float, (void*)l_Scalars, 2, (void*)(step > 0.0f ? &step : NULL), (void*)(step_fast > 0.0f ? &step_fast : NULL), format, flags))
+    {
+        v->x = l_Scalars[0];
+        v->y = l_Scalars[1];
+        return true;
+    }
+    return false;
+}
+
+bool ImGui::InputGLMv3(const char* label, glm::vec3* v, float step, float step_fast, const char* format, ImGuiInputTextFlags flags)
+{
+    float l_Scalars[3] = {v->x, v->y, v->z};
+    if(InputScalarN(label, ImGuiDataType_Float, (void*)l_Scalars, 3, (void*)(step > 0.0f ? &step : NULL), (void*)(step_fast > 0.0f ? &step_fast : NULL), format, flags))
+    {
+        v->x = l_Scalars[0];
+        v->y = l_Scalars[1];
+        v->z = l_Scalars[2];
+        return true;
+    }
+    return false;
+}
+
 // Note: p_data, p_step, p_step_fast are _pointers_ to a memory address holding the data. For an Input widget, p_step and p_step_fast are optional.
 // Read code of e.g. InputFloat(), InputInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
 bool ImGui::InputScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_step, const void* p_step_fast, const char* format, ImGuiInputTextFlags flags)
@@ -5616,6 +5641,33 @@ void ImGui::DebugNodeInputTextState(ImGuiInputTextState* state)
 // - ColorEditOptionsPopup() [Internal]
 // - ColorPickerOptionsPopup() [Internal]
 //-------------------------------------------------------------------------
+
+bool ImGui::ColorEditGLMv3(const char* label, glm::vec3* col, ImGuiColorEditFlags flags)
+{
+    float l_Scalars[3] = { col->r, col->g, col->b };
+    if(ColorEdit4(label, l_Scalars, flags | ImGuiColorEditFlags_NoAlpha))
+    {
+        col->r = l_Scalars[0];
+        col->g = l_Scalars[1];
+        col->b = l_Scalars[2];
+        return true;
+    }
+    return false;
+}
+
+bool ImGui::ColorEditGLMv4(const char* label, glm::vec4* col, ImGuiColorEditFlags flags)
+{
+    float l_Scalars[4] = { col->r, col->g, col->b, col->a };
+    if(ColorEdit4(label, l_Scalars, flags))
+    {
+        col->r = l_Scalars[0];
+        col->g = l_Scalars[1];
+        col->b = l_Scalars[2];
+        col->a = l_Scalars[3];
+        return true;
+    }
+    return false;
+}
 
 bool ImGui::ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flags)
 {
