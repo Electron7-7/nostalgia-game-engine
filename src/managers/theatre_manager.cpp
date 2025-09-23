@@ -106,7 +106,7 @@ void TheatreManager::RenderWorld()
         auto actor = dynamic_pointer_cast<Actor>(thing);
         auto light = dynamic_pointer_cast<light_t>(thing);
         unsigned int shader = Shaders::BlinnPhong;
-        if(light && light->Enabled() && light->IncrementIndex())
+        if(light && light->m_Enabled && light->IncrementIndex())
         {
             g_pBackendManager->GetGraphicsBackend()->BufferLight(light.get(), shader);
             shader = Shaders::Fullbright;

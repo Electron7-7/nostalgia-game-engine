@@ -57,9 +57,6 @@ void light_t::SetupVariables(const data_t& data)
     })
 }
 
-bool light_t::Enabled() const
-{ return m_Enabled; }
-
 int light_t::Index() const
 { return m_Index; }
 

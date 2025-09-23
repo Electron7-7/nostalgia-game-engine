@@ -21,7 +21,6 @@ public:
     virtual void SetupVariables(const data_t&);
 
     int Index() const;
-    bool Enabled() const;
 
     glm::vec3 m_Color        = glm::vec3(1.0f);
     float m_Energy           = 0.8f;
@@ -31,9 +30,9 @@ public:
     float m_Range            = 100.0f;
     float m_SpotAngle        = 17.5f;
     float m_SpotAngleFade    = 5.0f;
+    bool  m_Enabled          = true;
 
 protected:
-    bool m_Enabled = true;
     int m_Index = 0;
 
     static int s_PointCount;
