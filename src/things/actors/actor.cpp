@@ -15,6 +15,8 @@ void Actor::SetupVariables(const data_t& data)
         { m_Euler = glm::eulerAngles(m_Quaternion); }
     data.GetTheatreRef(m_MeshInstanceID, "MeshInstance");
     data.GetBool(m_Visible, "Visible");
+    data.GetBool(m_Wireframe, "MakeWireframe");
+    data.GetBool(m_Wireframe, "Wireframe");
 }
 
 id_t Actor::GetMeshInstanceID() const

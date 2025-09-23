@@ -264,6 +264,8 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 
     if(!material->m_DontUseTexture)
         { glEnable(GL_FRAMEBUFFER_SRGB); }
+    if(rendercmd.m_Wireframe || Settings::Graphics::GlobalWireframe)
+        { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
     glEnable(GL_BLEND);
 
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
@@ -294,6 +296,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data->base_index), data->base_vertex);
 
     glDisable(GL_FRAMEBUFFER_SRGB);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 unsigned int OpenGL_Backend::GetTextureID(id_t id)

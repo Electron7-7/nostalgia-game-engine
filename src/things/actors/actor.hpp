@@ -18,6 +18,7 @@ public:
     void SetMeshInstanceID(id_t MeshInstanceID);
 
     bool Visible() const;
+    bool m_Wireframe = false;
 
 protected:
     id_t m_MeshInstanceID = ID::None;

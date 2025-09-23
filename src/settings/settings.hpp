@@ -47,7 +47,9 @@ public:
     };
 
     struct Graphics
-    {};
+    {
+        static bool GlobalWireframe;
+    };
 };
 
 #endif // SETTINGS_H
