@@ -514,3 +514,7 @@ Oh, wait... they aren't being assigned at all? Oh, wait, are all the base versio
 Nope, 'Resource' didn't call 'Thing::SetupVariables'; simple mistake. All fixed.
 
 Okay, I've just come to the conclusion that 'Resource' should be dedicated to "basic resources", i.e: meshes, textures, etc. They should be used to supply both data for buffering and an ID for referencing to the graphics backend. Once the backend is finished, that data is no longer needed, as is the 'Resource' object itself, so it shouldn't be added to the Theatre (unless I keep it small enough that the benefit of being able to see its data outweighs the downside of keeping the object in memory). "Complex Resources" should *not* derive from 'Resource' and should use only IDs to reference Resource data. I should re-design the 'EngineRef' variable to be applicable to IDs as well as resource data; basically, if an EngineRef is being applied to a 'FileData' variable, load it as usual, but if it's being applied to an ID variable, get the pre-defined ID for that Resource.
+
+Todo: Make basic Resources not be added to the Theatre, since we only need their ID and for them to be buffered. Once they're buffered, they can be dropped.
+
+After finishing my cleanup, I majorly overhauled the Theatre Interface window of the debugger. You can now interface with many more variables, even ones that are unique to specific sub classes!
