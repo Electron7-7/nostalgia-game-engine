@@ -1,5 +1,6 @@
 # Sublime Text project/workspace files
-*.sublime-*
+*.sublime-project
+*.sublime-workspace
 
 # tests directory
 tests/
