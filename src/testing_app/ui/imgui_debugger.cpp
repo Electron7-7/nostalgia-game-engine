@@ -119,6 +119,7 @@ void imgui_Debugger::Update()
 #include "rendering/backends/graphics/opengl.hpp"
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
+#include "things/resources/resource_data.hpp"
 #include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
 #include "things/resources/complex/material.hpp" // IWYU pragma: keep
 #include "things/resources/basic/texture.hpp"
@@ -497,6 +498,28 @@ static void s_TheatreDebuggingWindow()
     EndChild();
 }
 
+static bool s_GetImageName(std::string& out, id_t id)
+{
+    switch(id)
+    {
+    case Images::ID::Missing:
+        out = Images::Name::Missing;
+        break;
+    case Images::ID::COMP04_5:
+        out = Images::Name::COMP04_5;
+        break;
+    case Images::ID::LolBit:
+        out = Images::Name::LolBit;
+        break;
+    case Images::ID::LightDebugging:
+        out = Images::Name::LightDebugging;
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
 void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
     static std::shared_ptr<Thing> s_Thing = nullptr;
@@ -504,69 +527,107 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
     {
         static float width_scaler = 1.0f;
         static int s_MaxPerRow = 3;
-        InputInt("Max Buttons Per Row", &s_MaxPerRow);
-        BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
-        const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::s_Things;
-        int i = 0;
-        for(const auto& [id, thing] : things)
+        static bool s_Highlight = false;
+        if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            #pragma message("Replace this with `std::dynamic_pointer_cast<Resource>(thing)` once I make 'ComplexResource' separate from 'Resource'")
-            if(std::dynamic_pointer_cast<Mesh>(thing) || std::dynamic_pointer_cast<Texture>(thing) || std::dynamic_pointer_cast<Font>(thing))
-                { continue; }
-            float hover_alpha = 0.0f;
-            bool push_color = false;
-            if(std::dynamic_pointer_cast<light_t>(thing))
-                { PushStyleColor(ImGuiCol_Button, IM_COL32(100, 103, 48, 255)); push_color = true; }
-            else if(std::dynamic_pointer_cast<Actor>(thing))
-                { PushStyleColor(ImGuiCol_Button, IM_COL32(103, 48, 101, 255)); push_color = true; }
-            if(Button(thing->GetName().c_str(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+            PushItemFlag(ImGuiItemFlags_NoNavDefaultFocus, true);
+            InputInt("Max Buttons Per Row", &s_MaxPerRow, 1, 5);
+            PopItemFlag();
+            BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
+            const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::s_Things;
+            int i = 0;
+            for(const auto& [id, thing] : things)
             {
-                s_Thing = thing;
-                hover_alpha = 1.0f;
+                #pragma message("Replace this with `std::dynamic_pointer_cast<Resource>(thing)` once I make 'ComplexResource' separate from 'Resource'")
+                if(std::dynamic_pointer_cast<Mesh>(thing) || std::dynamic_pointer_cast<Texture>(thing) || std::dynamic_pointer_cast<Font>(thing) || std::dynamic_pointer_cast<MeshInstance>(thing))
+                    { continue; }
+                s_Highlight = false;
+                bool push_color = false;
+                if(std::dynamic_pointer_cast<light_t>(thing))
+                    { PushStyleColor(ImGuiCol_Button, IM_COL32(100, 103, 48, 255)); push_color = true; }
+                else if(std::dynamic_pointer_cast<Actor>(thing))
+                    { PushStyleColor(ImGuiCol_Button, IM_COL32(103, 48, 101, 255)); push_color = true; }
+                if(Button(thing->GetName().c_str(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                {
+                    s_Thing = thing;
+                    s_Highlight = true;
+                }
+                if(push_color)
+                    { PopStyleColor(); }
+                if(IsItemHovered())
+                    { s_Highlight = true; }
+                if(std::dynamic_pointer_cast<Actor>(thing))
+                {
+                    g_GetThing<Material>(
+                        g_GetThing<MeshInstance>(
+                            std::dynamic_pointer_cast<Actor>(
+                                thing)->GetMeshInstanceID()
+                            )->GetMaterialID()
+                        )->m_DebugHighlight.a = s_Highlight;
+                }
+                if(++i < s_MaxPerRow)
+                    { SameLine(); }
+                else
+                    { i = 0; }
             }
-            if(push_color)
-                { PopStyleColor(); }
-            if(IsItemHovered())
-                { hover_alpha = 1.0f; }
-            if(std::dynamic_pointer_cast<Actor>(thing))
-            {
-                g_GetThing<Material>(
-                    g_GetThing<MeshInstance>(
-                        std::dynamic_pointer_cast<Actor>(
-                            thing)->GetMeshInstanceID()
-                        )->GetMaterialID()
-                    )->m_DebugHighlight.a = hover_alpha;
-            }
-            if(++i < s_MaxPerRow)
-                { SameLine(); }
-            else
-                { i = 0; }
+            EndChild();
         }
-        EndChild();
         auto actor = std::dynamic_pointer_cast<Actor>(s_Thing);
         auto light = std::dynamic_pointer_cast<light_t>(s_Thing);
-        auto mesh_instance = std::dynamic_pointer_cast<MeshInstance>(s_Thing);
         auto material = std::dynamic_pointer_cast<Material>(s_Thing);
 
         if(s_Thing && _Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         {
             BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
-            Text("Immutable Properties");
-            Separator();
-            Text("ID: [%u]", s_Thing->GetID());
-            Text("Type: (%s)", StringifyType(s_Thing->GetType()));
-            Text("Name: '%s'", s_Thing->GetName().c_str());
-            if(actor)
-                { Text("MeshInstance: '%s' [%u]", g_GetThing<MeshInstance>(actor->GetMeshInstanceID())->GetName().c_str(), actor->GetMeshInstanceID()); }
-            if(mesh_instance)
+            if(TreeNodeEx("Immutable Properties", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                Text("Mesh: '%s' [%u]", TheatreManager::GetThing(mesh_instance->GetMeshID())->GetName().c_str(), mesh_instance->GetMeshID());
-                Text("Material: '%s' [%u]", TheatreManager::GetThing(mesh_instance->GetMaterialID())->GetName().c_str(), mesh_instance->GetMaterialID());
+                Text("Name: '%s'", s_Thing->GetName().c_str());
+                Text("Type: (%s)", StringifyType(s_Thing->GetType()));
+                Text("ID: [%u]", s_Thing->GetID());
+                if(actor)
+                {
+                    Text("Quaternion: (%f, %f, %f, %f)", actor->Quaternion().w, actor->Quaternion().x, actor->Quaternion().y, actor->Quaternion().z);
+                    if(IsItemHovered())
+                        { SetTooltip("%s", "(w, x, y, z)"); }
+                }
+                TreePop();
             }
-            if(material)
+            if(TreeNode("Member Info"))
             {
-                Text("DiffuseTexture: '%s' [%u]", TheatreManager::GetThing(material->GetDiffuseTexture())->GetName().c_str(), material->GetDiffuseTexture());
-                Text("SpecularTexture: '%s' [%u]", TheatreManager::GetThing(material->GetSpecularTexture())->GetName().c_str(), material->GetSpecularTexture());
+                if(actor)
+                {
+                    auto mInst = g_GetThing<MeshInstance>(actor->GetMeshInstanceID());
+                    auto mat = g_GetThing<Material>(mInst->GetMaterialID());
+                    PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0,0,0,0));
+                    PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0,0,0,0));
+                    static ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_Leaf;
+                    if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->GetName().c_str(), actor->GetMeshInstanceID()))
+                    {
+                        if(TreeNodeEx("Material", tree_flags, "Material - '%s' [%u]", TheatreManager::GetThing(mInst->GetMaterialID())->GetName().c_str(), mInst->GetMaterialID()))
+                        {
+                            std::string diffuse_name  = TheatreManager::GetThing(mat->GetDiffuseTexture())->GetName();
+                            std::string specular_name = TheatreManager::GetThing(mat->GetSpecularTexture())->GetName();
+                            s_GetImageName(diffuse_name, mat->GetDiffuseTexture());
+                            s_GetImageName(specular_name, mat->GetSpecularTexture());
+                            TreeNodeEx("DiffuseTexture",  tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), mat->GetDiffuseTexture());
+                            TreeNodeEx("SpecularTexture", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "SpecularTexture - '%s' [%u]", specular_name.c_str(), mat->GetSpecularTexture());
+                            TreePop();
+                        }
+                        TreePop();
+                    }
+                    PopStyleColor();
+                    PopStyleColor();
+                }
+                if(material)
+                {
+                    std::string diffuse_name  = TheatreManager::GetThing(material->GetDiffuseTexture())->GetName();
+                    std::string specular_name = TheatreManager::GetThing(material->GetSpecularTexture())->GetName();
+                    s_GetImageName(diffuse_name, material->GetDiffuseTexture());
+                    s_GetImageName(specular_name, material->GetSpecularTexture());
+                    Text("DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), material->GetDiffuseTexture());
+                    Text("SpecularTexture - '%s' [%u]", specular_name.c_str(), material->GetSpecularTexture());
+                }
+                TreePop();
             }
             EndChild();
 
@@ -578,7 +639,6 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 Separator();
 
                 std::string string = "";
-
                 if(material)
                 {
                     Checkbox("Don't Use Textures", &material->m_DontUseTexture);
