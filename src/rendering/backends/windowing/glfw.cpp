@@ -229,13 +229,13 @@ void GLFW_Backend::glfw_WindowPositionCallbackFunction(GLFWwindow* window, int p
 
 void GLFW_Backend::glfw_WindowResizeCallbackFunction(GLFWwindow* window, int width, int height)
 {
+    glViewport(0, 0, width, height);
     if(Window::Fullscreen)
     {
         Window::FullscreenWidth = width;
         Window::FullscreenHeight = height;
         return;
     }
-
-    Window::Width = width;
+    Window::Width  = width;
     Window::Height = height;
 }
