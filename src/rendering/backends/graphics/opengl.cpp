@@ -28,6 +28,8 @@ std::map<id_t, OpenGL_TextureID>      OpenGL_Backend::m_TextureIDs = {};
 static unsigned int s_VBO = 0;
 static unsigned int s_IBO = 0;
 
+DEBUG(static void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);)
+
 void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 {
     glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
@@ -53,8 +55,11 @@ bool OpenGL_Backend::Init()
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
-    #pragma message("Implement OpenGL Debug Output")
-    glEnable(GL_DEBUG_OUTPUT);
+    DEBUG(
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(OpenGL_DebugMessageCallback, nullptr);
+        glEnable(GL_DEBUG_OUTPUT);
+    )
     glEnable(GL_DEPTH_TEST);
 
     m_IsInitialized = true;
@@ -304,3 +309,88 @@ OpenGL_MeshData* OpenGL_Backend::GetMeshData(id_t id)
         { return &m_MeshData.at(Models::ID::Error); }
     return &m_MeshData.at(id);
 }
+
+//----------------------------------------------------------------------------------
+// OpenGL Debug Message Callback Function
+// https://gist.github.com/liam-middlebrook/c52b069e4be2d87a6d2f (with minor tweaks)
+//----------------------------------------------------------------------------------
+DEBUG(
+static void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* data)
+{
+    std::string _source;
+    std::string _type;
+    std::string _severity;
+
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API:
+        _source = "API";
+        break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        _source = "WINDOW SYSTEM";
+        break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        _source = "SHADER COMPILER";
+        break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        _source = "THIRD PARTY";
+        break;
+    case GL_DEBUG_SOURCE_APPLICATION:
+        _source = "APPLICATION";
+        break;
+    case GL_DEBUG_SOURCE_OTHER:
+        _source = "UNKNOWN";
+        break;
+    default:
+        _source = "UNKNOWN";
+        break;
+    }
+
+    switch (type)
+    {
+    case GL_DEBUG_TYPE_ERROR:
+        _type = "ERROR";
+        break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        _type = "DEPRECATED BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        _type = "UDEFINED BEHAVIOR";
+        break;
+    case GL_DEBUG_TYPE_PORTABILITY:
+        _type = "PORTABILITY";
+        break;
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        _type = "PERFORMANCE";
+        break;
+    case GL_DEBUG_TYPE_OTHER:
+        _type = "OTHER";
+        break;
+    case GL_DEBUG_TYPE_MARKER:
+        _type = "MARKER";
+        break;
+    default:
+        _type = "UNKNOWN";
+        break;
+    }
+
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        _severity = "HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        _severity = "MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        _severity = "LOW";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        _severity = "NOTIFICATION";
+        break;
+    default:
+        _severity = "UNKNOWN";
+        break;
+    }
+    PRINT_DEBUG("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);
+})
