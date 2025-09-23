@@ -32,10 +32,10 @@ void Transform3D::Euler(const glm::vec3& euler, bool degrees)
 }
 
 glm::vec3 Transform3D::Front() const
-{ return (m_Quaternion * World::Front()); }
+{ return (Quaternion() * World::Front()); }
 
 glm::vec3 Transform3D::Right() const
-{ return (m_Quaternion * World::Right()); }
+{ return (Quaternion() * World::Right()); }
 
 glm::vec3 Transform3D::Up() const
-{ return (m_Quaternion * World::Up()); }
+{ return (Quaternion() * World::Up()); }
