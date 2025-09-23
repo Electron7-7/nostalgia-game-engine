@@ -111,10 +111,9 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
         return;
     }
 
+    // glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
     #pragma message("FIXME: I don't know how to properly use 'glTextureSubImage2D' yet")
     glBindTexture(GL_TEXTURE_2D, id);
-    glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB, l_Width, l_Height);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, l_Width, l_Height , 0, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
     glGenerateTextureMipmap(id);
     glTextureParameteri(id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
