@@ -28,13 +28,13 @@ bool StringToNum(T& number, const std::string& string)
     SHITTY_FUCKING_MACRO(std::stoll, number)
 }
 
-#pragma message("(TODO) Expand to all glm containers (if necessary)")
 template<typename T>
 concept GLMContainer = requires
 {
     (
         std::is_same_v<std::decay_t<glm::vec2>, std::decay_t<T>> ||
         std::is_same_v<std::decay_t<glm::vec3>, std::decay_t<T>> ||
+        std::is_same_v<std::decay_t<glm::vec4>, std::decay_t<T>> ||
         std::is_same_v<std::decay_t<glm::quat>, std::decay_t<T>>
     ) == true;
 };
@@ -81,6 +81,10 @@ inline bool StringToNum(glm::vec2& variable, const std::string& string)
 template<>
 inline bool StringToNum(glm::vec3& variable, const std::string& string)
 { return InterpretGLM<glm::vec3, 3>(variable, string); }
+
+template<>
+inline bool StringToNum(glm::vec4& variable, const std::string& string)
+{ return InterpretGLM<glm::vec4, 4>(variable, string); }
 
 template<>
 inline bool StringToNum(glm::quat& variable, const std::string& string)
