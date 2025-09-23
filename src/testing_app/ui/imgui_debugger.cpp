@@ -52,7 +52,7 @@ static void s_TerribleRenderDebugWindow()
         Text("Rotation:");
         SameLine();
         SetNextItemWidth(GetWindowWidth() - 95);
-        if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+        if(DragGLMv3("##rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
             { player->Euler(Euler, true); }
     }
     End();
@@ -686,7 +686,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    if(DragGLMv3("##rotation", &Euler, 0.1f, -179.995f, 179.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                    if(DragGLMv3("##rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
                         { actor->Euler(Euler, true); }
 
                     string = "Scale:";
