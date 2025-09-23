@@ -111,7 +111,7 @@ void TheatreManager::RenderWorld()
             g_pBackendManager->GetGraphicsBackend()->BufferLight(light.get(), shader);
             shader = Shaders::Fullbright;
         }
-        if(actor && actor->Visible())
+        if(actor && actor->m_Visible)
             { s_RenderCommandQueue.emplace_back(actor, shader); }
     }
     for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)

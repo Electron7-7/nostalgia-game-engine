@@ -17,12 +17,11 @@ public:
     id_t GetMeshInstanceID() const;
     void SetMeshInstanceID(id_t MeshInstanceID);
 
-    bool Visible() const;
+    bool m_Visible = true;
     bool m_Wireframe = false;
 
 protected:
     id_t m_MeshInstanceID = ID::None;
-    bool m_Visible = true;
 };
 
 #endif // ACTOR_H

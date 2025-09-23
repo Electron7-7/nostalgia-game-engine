@@ -24,6 +24,3 @@ id_t Actor::GetMeshInstanceID() const
 
 void Actor::SetMeshInstanceID(id_t mesh_instance_id)
 { m_MeshInstanceID = mesh_instance_id; }
-
-bool Actor::Visible() const
-{ return m_Visible; }
