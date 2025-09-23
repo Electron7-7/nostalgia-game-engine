@@ -86,7 +86,7 @@ Things
     {
         Visible = (true)
         Origin = (1.6, 0.1, -2.1)
-        Color = (0.2, 1.0, 0.5)
+        Color = (1, 0.8, 0.2)
     }
 
     DirectionalLight Sun
