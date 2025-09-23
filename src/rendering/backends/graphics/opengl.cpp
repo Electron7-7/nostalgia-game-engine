@@ -272,6 +272,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
     DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
+    GetShader(rendercmd.m_ShaderID)->SetUniform("debug_highlight", material->m_DebugHighlight * material->m_DebugHighlight.a);
 
     GetShader(rendercmd.m_ShaderID)->SetUniform("point_lights_count", PointLight::GetCount());
     GetShader(rendercmd.m_ShaderID)->SetUniform("spot_lights_count", SpotLight::GetCount());
