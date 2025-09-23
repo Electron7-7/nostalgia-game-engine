@@ -23,7 +23,7 @@ Resources
         File = 'src/things/resources/data/models/Cube.obj'
     }
 
-    Material Cube_Mat
+    Material CubeMaterial
     {
         // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
         DiffuseTexture = <Doom_Texture>
@@ -34,7 +34,7 @@ Resources
         Data = [RamielModel]
     }
 
-    Material Ramiel_Mat
+    Material RamielMaterial
     {
         // This is a boolean Numeric variable; see lines 65-66 for more information
         NoTexture = (True)
@@ -43,13 +43,13 @@ Resources
     MeshInstance CubeMeshInstance
     {
         Mesh = <Cube_Mesh>
-        Material = <Cube_Mat>
+        Material = <CubeMaterial>
     }
 }
 
 Things
 {
-    Actor TestActor
+    Actor Ramiel
     {
         // This is a sandwich. It's a way of defining an object inside another object, for convenience
         // Internally, they are converted into a separate definition, and the variable value is replaced
@@ -60,7 +60,7 @@ Things
         MeshInstance : MeshInstance RamielMeshInstance
         {
             Mesh = <Ramiel_Mesh>
-            Material = <Ramiel_Mat>
+            Material = <RamielMaterial>
         }
         // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
         // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
@@ -69,7 +69,7 @@ Things
         Visible = (true)
     }
 
-    Actor TestActor2
+    Actor DoomCube
     {
         MeshInstance = <CubeMeshInstance>
         Origin = (3, 0, -3)
