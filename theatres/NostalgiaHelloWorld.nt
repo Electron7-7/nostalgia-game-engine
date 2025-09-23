@@ -23,7 +23,7 @@ Resources
         File = 'src/things/resources/data/models/Cube.obj'
     }
 
-    Material CubeMaterial
+    Material DoomMaterial
     {
         // This is a Theatre reference, delimited by angled braces. It is the name of another object defined in this Theatre file
         DiffuseTexture = <Doom_Texture>
@@ -36,14 +36,39 @@ Resources
 
     Material RamielMaterial
     {
-        // This is a boolean Numeric variable; see lines 65-66 for more information
+        // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
+        // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
         NoTexture = (True)
+        SpecularStrength = (2.6)
     }
 
-    MeshInstance CubeMeshInstance
+    MeshInstance DoomCubeMeshInstance
     {
         Mesh = <Cube_Mesh>
-        Material = <CubeMaterial>
+        Material = <DoomMaterial>
+    }
+
+    Texture LolBit_Texture
+    {
+        Data = [LolBitTexture]
+    }
+
+    Material LolBitMaterial
+    {
+        DiffuseTexture = <LolBit_Texture>
+    }
+
+    MeshInstance LolBitCubeMeshInstance
+    {
+        Mesh = <Cube_Mesh>
+        Material = <LolBitMaterial>
+    }
+
+    Material RedMaterial
+    {
+        NoTexture = (true)
+        Color = (1, 0.2, 0.1)
+        SpecularStrength = (0.6)
     }
 }
 
@@ -62,19 +87,37 @@ Things
             Mesh = <Ramiel_Mesh>
             Material = <RamielMaterial>
         }
-        // These are Numeric variables, delimited by parentheses. They can be one or more numbers, or a boolean (true/false)
-        // Numbers can be whole, decimal, positive, and negative; multiple numbers must be separated by commas
-        Origin = (-3, 1.0, -2) // An example of all the different number types working together!
-        // Booleans are case-insensitive
-        Visible = (true)
+        Scale = (120, 120, 120)
+        Origin = (-30, 18.152, -215) // An example of all the different number types working together!
+        Visible = (trUe) // Booleans are case-insensitive
     }
 
     Actor DoomCube
     {
-        MeshInstance = <CubeMeshInstance>
+        MeshInstance = <DoomCubeMeshInstance>
         Origin = (3, 0, -3)
         RotationDegrees = (-10, -55, 5)
-        Visible = (trUe) // An example of boolean case-insensitivity
+        Visible = (true)
+    }
+
+    Actor LolBitCube
+    {
+        MeshInstance = <LolBitCubeMeshInstance>
+        Origin = (-0.25, 2, -3.5)
+        RotationDegrees = (25, 0, 1)
+    }
+
+    Actor RedCube
+    {
+        MeshInstance : MeshInstance RedCubeMeshInstance
+        {
+            Mesh = <Cube_Mesh>
+            Material = <RedMaterial>
+        }
+        Origin = (1.35, 1, -4.45)
+        RotationDegrees = (-0.3, -64.6, -17.4)
+        Scale = (0.48, 0.58, 0.27)
+        Visible = (true)
     }
 
     NostalgiaPlayer Player
@@ -89,9 +132,16 @@ Things
         Color = (1, 0.8, 0.2)
     }
 
+    SpotLight TestLight2
+    {
+        Visible = (true)
+        Origin = (1.6, 0.1, -2.1)
+        Color = (1, 0.8, 0.2)
+    }
+
     DirectionalLight TheSun
     {
-        RotationDegrees = (-70, 100, -25)
+        RotationDegrees = (180, 100, -25)
         Energy = (0.6)
         Visible = (false)
     }
