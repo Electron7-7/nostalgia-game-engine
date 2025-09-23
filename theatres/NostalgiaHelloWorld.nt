@@ -82,14 +82,14 @@ Things
         Origin = (0, 0.3, 4)
     }
 
-    PointLight Light
+    PointLight TestLight
     {
         Visible = (true)
         Origin = (1.6, 0.1, -2.1)
         Color = (1, 0.8, 0.2)
     }
 
-    DirectionalLight Sun
+    DirectionalLight TheSun
     {
         RotationDegrees = (-70, 100, -25)
         Energy = (0.6)
