@@ -8,7 +8,6 @@
 #include "glad/glad.h"
 
 #define ASSERT_KEY(glfw_key_id) if(!key_ids.contains(glfw_key_id)) return;
-#pragma message("(FIXME) give this a better name")
 #define CONVERT_KEY(glfw_key_id) key_ids.at(glfw_key_id)
 
 typedef Settings::Window Window;

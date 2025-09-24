@@ -100,7 +100,6 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(Man
 bool _Manager::InitAllManagers()
 {
     m_sFrameNumber = 0;
-    // Educated guess is that this will try and invoke the "Init" method on every game manager in the vector (via the "InvokeMethod" function), and if it returns false that means we hit a snag
     if(!InvokeMethod(&_Manager::Init))
         { return false; }
 

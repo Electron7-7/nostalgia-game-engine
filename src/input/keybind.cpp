@@ -5,7 +5,6 @@
 #include <map>
 #include <set>
 
-#pragma message("(TODO) Is this a good idea? Seems find to me...")
 #define ASSERT_KEYNAME(KEY_NAME)            \
 if(!key_strings_map.contains(KEY_NAME))     \
 { return false; }                           \

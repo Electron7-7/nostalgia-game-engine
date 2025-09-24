@@ -98,10 +98,7 @@ enum class Parsing
 };
 
 const TheatreData& TheatreParser::GetTheatreData()
-{
-    #pragma message("(FIXME) Make this better")
-    return s_TheatreData;
-}
+{ return s_TheatreData; }
 
 SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
 {
@@ -126,7 +123,7 @@ static void s_AddParsedDataHelper(data_t& data)
 
 SafeStatus TheatreParser::try_ParseTheatre()
 {
-    #pragma message("(TODO) If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
+    #pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
     ID::ClearIDs();
 
     s_NameIDMap.clear();
@@ -182,7 +179,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         set_new_line = (character == '\n');
 
         // Temporarily bypass comment/string/context skipping on certain conditions
-        #pragma message("(TODO) Make this shit less bad")
+        #pragma message("TODO: Make this shit less bad")
         switch(character)
         {
         case exit_context:

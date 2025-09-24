@@ -166,7 +166,6 @@ void OpenGL_Backend::CreateRenderingData()
 
 void OpenGL_Backend::DestroyRenderingData()
 {
-    #pragma message("(FIXME) There's more to do here than just this")
     m_TextureIDs.clear();
     m_MeshData.clear();
 }
@@ -214,7 +213,6 @@ bool OpenGL_Backend::DeleteShader(unsigned int shader)
     return true;
 }
 
-#pragma message("(FIXME) Is it a good idea to let outside code access shader interfaces directly?")
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
     if(!m_Shaders.contains(shader_selection))

@@ -11,7 +11,6 @@ struct TheatreData
     static const TheatreData Missing;
 
     std::string m_Name = "Untitled Theatre";
-    #pragma message("(FIXME) Make this not a magic number")
     long m_Index = -1;
 
     const std::vector<data_t>& GetData() const;

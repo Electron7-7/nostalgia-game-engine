@@ -9,7 +9,6 @@ struct World
     static const glm::vec3& Right();
     static const glm::vec3& Front();
 
-    #pragma message("(NOTE) Being able to change the global orientation vectors might not be a good idea, because it could fuck up code that relies on them being a certain value...")
     static void SetUp(const glm::vec3& NewUp);
     static void SetRight(const glm::vec3& NewRight);
     static void SetFront(const glm::vec3& NewFront);

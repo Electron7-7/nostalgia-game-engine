@@ -11,7 +11,6 @@ class EventQueue
 {
 public:
     static void LoadQueue(const std::vector<Event>& InitFromQueue);
-    #pragma message("(TODO) idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...")
     static bool LoadDemoFromFile(const std::string& DemoFilePath);
     static bool LoadDemoFromMemory(const std::string& DemoFile);
 

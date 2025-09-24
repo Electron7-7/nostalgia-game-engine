@@ -5,7 +5,6 @@
 #include "safe_return.hpp"
 #include "filesystem/file_data.hpp"
 
-#pragma message("(TODO) Change/move")
 enum class ResourceStatus
 {
     NOT_PROCESSED,

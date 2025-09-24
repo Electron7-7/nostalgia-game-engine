@@ -122,7 +122,6 @@ bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& varia
 bool data_t::GetFileData(FileData& real_variable, const std::string& variable_name) const
 {
     ASSERT_VARIABLE(variable, VariableType::EngineRef)
-    #pragma message("This will crash if variable->m_Value is not a number")
     return(ResourceData::GetData(real_variable, variable->m_Value));
 }
 

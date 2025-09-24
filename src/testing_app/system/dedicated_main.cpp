@@ -9,7 +9,6 @@
 
 int DedicatedMain(int argc, char** argv)
 {
-    #pragma message("(TODO) Implement a class that handles apps & implements a function called 'Run' that will then execute TheToyMaker::Main at some point")
     g_pApplication->Create();
     g_pApplication->PreInit();
 
