@@ -145,14 +145,15 @@ SafeReturn<Event> EventQueue::GetNextEvent()
 {
     if(!is_processing_events)
     { return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS); }
+    if(_safe_queue.empty())
+        { return SafeReturn(Event(), Status::EventQueueEMPTY); }
 
     Event next_event(_safe_queue.front());
 
     if(do_demo_recording)
     { RecordEventToDemo(next_event); }
-    #pragma message("(FIXME) This doesn't check the size before calling pop_front")
-    _safe_queue.erase(_safe_queue.cbegin());
 
+    _safe_queue.erase(_safe_queue.cbegin());
     return SafeReturn(next_event);
 }
 
