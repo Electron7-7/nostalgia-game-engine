@@ -2,7 +2,6 @@
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "safe_return.hpp"
-#include "time.hpp"
 #include "printing.hpp"
 #include "managers/manager.hpp"
 
