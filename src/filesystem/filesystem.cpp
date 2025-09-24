@@ -3,7 +3,6 @@
 #include <filesystem>
 #include <fstream>
 
-namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 
 #ifdef COMPILING_WINDOWS
@@ -34,37 +33,37 @@ using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit err
     }
 #else  // !COMPILING_WINDOWS
     std::string Filesystem::GetBinaryPath()
-    { return std::filesystem::read_symlink(std::filesystem::path("/proc/self/exe")).remove_filename().string(); }
+    { return read_symlink(path("/proc/self/exe")).remove_filename().string(); }
 #endif // COMPILING_WINDOWS
 
-bool Filesystem::PathExists(const std::string& path)
-    { return(fs::exists(fs::path(path))); }
+bool Filesystem::PathExists(const std::string& _path)
+{ return(exists(path(_path))); }
 
 bool Filesystem::IsFile(const std::string& _path)
 { return(PathExists(_path) && (is_regular_file(path(_path)) || is_block_file(path(_path)) || is_character_file(path(_path)))); }
 
-bool Filesystem::IsDirectory(const std::string& path)
-    { return(PathExists(path) && fs::is_directory(fs::path(path))); }
+bool Filesystem::IsDirectory(const std::string& _path)
+{ return(PathExists(_path) && is_directory(path(_path))); }
 
 std::string Filesystem::GetExtension(const std::string& name)
 {
-    fs::path file_name(name);
+    path file_name(name);
     if(!file_name.has_extension())
         { return ""; }
     return file_name.extension().string();
 }
 
-void Filesystem::MakePathAbsolute(const std::string& path, std::string& output)
+void Filesystem::MakePathAbsolute(const std::string& _path, std::string& output)
 {
-    if(!PathExists(path) || IsDirectory(path))
+    if(!PathExists(_path) || IsDirectory(_path))
         { return; }
-    output = fs::absolute(fs::path(path)).generic_string();
+    output = absolute(path(_path)).generic_string();
 }
 
-SafeStatus Filesystem::try_ReadFileToString(const std::string& path, std::string& output)
+SafeStatus Filesystem::try_ReadFileToString(const std::string& _path, std::string& output)
 {
     std::string file_path = "";
-    MakePathAbsolute(path, file_path);
+    MakePathAbsolute(_path, file_path);
 
     std::ifstream file_stream(file_path);
 
@@ -77,10 +76,10 @@ SafeStatus Filesystem::try_ReadFileToString(const std::string& path, std::string
     return Status::NO_ERR;
 }
 
-SafeStatus Filesystem::try_GetFileSize(const std::string& path, size_t& output)
+SafeStatus Filesystem::try_GetFileSize(const std::string& _path, size_t& output)
 {
     std::string file_path = "";
-    MakePathAbsolute(path, file_path);
+    MakePathAbsolute(_path, file_path);
 
     // The rest of this code is thanks to: https://stackoverflow.com/a/22131201
     FILE* image_file = fopen(file_path.c_str(), "r+");
