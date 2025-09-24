@@ -167,6 +167,7 @@ void OpenGL_Backend::CreateRenderingData()
 void OpenGL_Backend::DestroyRenderingData()
 {
     #pragma message("(FIXME) There's more to do here than just this")
+    m_TextureIDs.clear();
     m_MeshData.clear();
 }
 
