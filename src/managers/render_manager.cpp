@@ -2,7 +2,6 @@
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
-#include "rendering/backends/backend.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -32,16 +31,16 @@ void RenderManager::Update()
 {
     if(GetTheatreState() == NOT_IN_LEVEL)
     {
-        g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
+        g_pBackendManager->Graphics()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
         g_pUIManager->DrawUI();
-        g_pBackendManager->GetWindowingBackend()->SwapBuffers();
+        g_pBackendManager->Windowing()->SwapBuffers();
         return;
     }
 
-    g_pBackendManager->GetGraphicsBackend()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
+    g_pBackendManager->Graphics()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
     g_pTheatreManager->RenderWorld();
     g_pUIManager->DrawUI();
-    g_pBackendManager->GetWindowingBackend()->SwapBuffers();
+    g_pBackendManager->Windowing()->SwapBuffers();
 }
 
 // #pragma message("(FIXME) Replace with functions for better control over view distance & near-clip distance")

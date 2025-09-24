@@ -2,9 +2,10 @@
 #define BACKEND_MANAGER_H
 
 #include "managers/manager.hpp"
-#include "rendering/backends/backend.hpp"
+#include "rendering/backends/graphics.hpp"
+#include "rendering/backends/windowing.hpp"
 
-typedef int BackendID;
+#include <memory>
 
 class BackendManager : public Manager
 {
@@ -16,16 +17,10 @@ public:
     void ImGuiNewFrame();
     void ImGuiRender();
 
-    void UpdateWindowState();
-
-    GraphicsBackend* GetGraphicsBackend();
-    WindowingBackend* GetWindowingBackend();
-    BackendID GetGraphicsID();
-    BackendID GetWindowingID();
+    std::shared_ptr<GraphicsBackend>  Graphics();
+    std::shared_ptr<WindowingBackend> Windowing();
 
 private:
-    bool InitBackend();
-
     bool m_IsImguiInitialized = false;
 };
 

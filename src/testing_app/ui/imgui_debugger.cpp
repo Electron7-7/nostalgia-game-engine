@@ -406,7 +406,7 @@ static void s_GeneralDebuggingWindow()
     if(CollapsingHeader("Window Settings"))
     {
         if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
-            { g_pBackendManager->UpdateWindowState(); }
+            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
         int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
         int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
         if(Settings::Window::Fullscreen)
@@ -418,10 +418,10 @@ static void s_GeneralDebuggingWindow()
         }
         InputInt2("Position", l_Pos);
         if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->GetWindowingBackend()->MoveWindow(l_Pos[0], l_Pos[1]); }
+            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
         InputInt2("Size", l_Size);
         if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->GetWindowingBackend()->ResizeWindow(l_Size[0], l_Size[1]); }
+            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
         NewLine();
     }
     if(CollapsingHeader("Player Settings"))

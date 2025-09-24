@@ -24,6 +24,8 @@ public:
     {
         static int   TickRate;
         static float TickInterval;
+        static int   GraphicsBackend;
+        static int   WindowingBackend;
     };
 
     struct Window

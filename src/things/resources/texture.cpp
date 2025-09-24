@@ -1,13 +1,12 @@
 #include "texture.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
-#include "rendering/backends/graphics.hpp"
 
 void Texture::SetupVariables(const data_t& data)
 {
     Resource::SetupVariables(data);
     CreateResource();
-    g_pBackendManager->Graphics()->BufferTexture(&m_FileData, m_ID);
+    g_pBackendManager->Graphics()->BufferTexture(this);
 }
 
 SafeStatus Texture::CreateResource()

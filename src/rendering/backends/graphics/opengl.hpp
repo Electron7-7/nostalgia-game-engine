@@ -1,8 +1,8 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include "../../backends/backend.hpp"
-#include "../../shader_interfaces/gl_shader.hpp"
+#include "../graphics.hpp"
+#include "rendering/shader_interfaces/gl_shader.hpp"
 
 #include <map>
 #include <vector>
@@ -30,7 +30,7 @@ public:
 
     bool Init();
     void Shutdown();
-    BackendID GetID() { return BackendIDs::gOpenGL; }
+    BackendID GetID() { return gBackendIDs::gOpenGL; }
 
     bool InitImGui();
     void ImGuiNewFrame();

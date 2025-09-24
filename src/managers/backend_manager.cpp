@@ -1,42 +1,58 @@
 #include "backend_manager.hpp"
+#include "settings/settings.hpp"
 #include "DearImGui/imgui.h"
-#include "rendering/backends/backend.hpp"
+#include "printing.hpp"
+// Include all backends here
 #include "rendering/backends/graphics/opengl.hpp"
 #include "rendering/backends/windowing/glfw.hpp"
-#include "printing.hpp"
-
-#include <map>
-
-static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends  = {};
-static std::map<BackendID, WindowingBackend*> map_WindowingBackends = {};
-
-static BackendID s_DefaultGraphicsID  = BackendIDs::gOpenGL;
-static BackendID s_DefaultWindowingID = BackendIDs::wGLFW;
-static BackendID s_CurrentGraphicsID  = s_DefaultGraphicsID;
-static BackendID s_CurrentWindowingID = s_DefaultWindowingID;
 
 static BackendManager s_BackendManager;
 BackendManager* g_pBackendManager = &s_BackendManager;
 
-static OpenGL_Backend s_OpenGL_Backend;
-static GLFW_Backend   s_GLFW_Backend;
+static std::shared_ptr<GraphicsBackend>  s_Graphics  = nullptr;
+static std::shared_ptr<WindowingBackend> s_Windowing = nullptr;
 
-#pragma message("FIXME: 'BackendManager' needs a complete overhaul")
+static void CreateGraphicsBackend()
+{
+    switch(Settings::Engine::GraphicsBackend)
+    {
+    case gBackendIDs::gOpenGL:
+    default:
+        s_Graphics = std::make_shared<OpenGL_Backend>();
+        break;
+    }
+}
+
+static void CreateWindowingBackend()
+{
+    switch(Settings::Engine::WindowingBackend)
+    {
+    case gBackendIDs::wGLFW:
+    default:
+        s_Windowing = std::make_shared<GLFW_Backend>();
+        break;
+    }
+}
+
 bool BackendManager::Init()
 {
-    // Set up graphics backends map
-    map_GraphicsBackends[BackendIDs::gOpenGL] = &s_OpenGL_Backend;
+    CreateGraphicsBackend();
+    CreateWindowingBackend();
 
-    // Set up windowing backends map
-    map_WindowingBackends[BackendIDs::wGLFW] = &s_GLFW_Backend;
-
-    return(InitBackend());
+    if(!s_Windowing->Init() || !s_Graphics->Init())
+        { return false; }
+    if(!s_Windowing->CompatibleWith(s_Graphics->GetID()))
+    {
+        PRINT_ERROR("BackendManager::Init - The selected graphics & windowing backends are not compatible with each-other! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
+        return false;
+    }
+    return true;
 }
 
 void BackendManager::Shutdown()
 {
-    GetWindowingBackend()->Shutdown();
-    GetGraphicsBackend()->Shutdown();
+    s_Windowing->Shutdown();
+    s_Graphics->Shutdown();
 
     if(m_IsImguiInitialized)
         { ImGui::DestroyContext(); }
@@ -44,33 +60,11 @@ void BackendManager::Shutdown()
     m_IsImguiInitialized = false;
 }
 
-GraphicsBackend* BackendManager::GetGraphicsBackend()
-{
-    if(!map_GraphicsBackends.contains(s_CurrentGraphicsID))
-    {
-        PRINT_WARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
-        s_CurrentGraphicsID = s_DefaultGraphicsID;
-    }
+std::shared_ptr<GraphicsBackend> BackendManager::Graphics()
+{ return s_Graphics; }
 
-    return map_GraphicsBackends.at(s_CurrentGraphicsID);
-}
-
-WindowingBackend* BackendManager::GetWindowingBackend()
-{
-    if(!map_WindowingBackends.contains(s_CurrentWindowingID))
-    {
-        PRINT_WARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
-        s_CurrentWindowingID = s_DefaultWindowingID;
-    }
-
-    return map_WindowingBackends.at(s_CurrentWindowingID);
-}
-
-BackendID BackendManager::GetGraphicsID()
-{ return s_CurrentGraphicsID; }
-
-BackendID BackendManager::GetWindowingID()
-{ return s_CurrentWindowingID; }
+std::shared_ptr<WindowingBackend> BackendManager::Windowing()
+{ return s_Windowing; }
 
 bool BackendManager::InitImGui()
 {
@@ -83,7 +77,7 @@ bool BackendManager::InitImGui()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    if(!GetWindowingBackend()->InitImGui() || !GetGraphicsBackend()->InitImGui())
+    if(!s_Windowing->InitImGui() || !s_Graphics->InitImGui())
     {
         ImGui::DestroyContext();
         return false;
@@ -98,9 +92,8 @@ void BackendManager::ImGuiNewFrame()
     if(!m_IsImguiInitialized)
         { return; }
 
-    GetGraphicsBackend()->ImGuiNewFrame();
-    GetWindowingBackend()->ImGuiNewFrame();
-
+    s_Graphics->ImGuiNewFrame();
+    s_Windowing->ImGuiNewFrame();
     ImGui::NewFrame();
 }
 
@@ -110,21 +103,5 @@ void BackendManager::ImGuiRender()
         { return; }
 
     ImGui::Render();
-    GetGraphicsBackend()->ImGuiRender();
+    s_Graphics->ImGuiRender();
 }
-
-bool BackendManager::InitBackend()
-{
-    if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
-        { return false; }
-
-    if(!GetWindowingBackend()->CompatibleWith(s_CurrentGraphicsID))
-    {
-        PRINT_ERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
-        return false;
-    }
-    return true;
-}
-
-void BackendManager::UpdateWindowState()
-{ GetWindowingBackend()->UpdateState(); }

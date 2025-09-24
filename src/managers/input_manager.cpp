@@ -4,7 +4,6 @@
 #include "input/event.hpp"
 #include "input/event_queue.hpp"
 #include "commands/command_line.hpp"
-#include "rendering/backends/backend.hpp"
 
 using namespace ManagerEnums;
 
@@ -30,7 +29,7 @@ bool InputManager::Init()
 
 void InputManager::Update()
 {
-    g_pBackendManager->GetWindowingBackend()->PollEvents();
+    g_pBackendManager->Windowing()->PollEvents();
 
     SafeStatus process_status = EventQueue::try_BeginProcessing();
 

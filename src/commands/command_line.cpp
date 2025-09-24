@@ -100,7 +100,8 @@ SafeStatus HardExitProgram()
 
 SafeStatus PrototypeFullscreen()
 {
+    #pragma message("Add an override for 'SetFullscreen' that toggles the fullscreen state")
     Settings::Window::Fullscreen = !Settings::Window::Fullscreen;
-    g_pBackendManager->UpdateWindowState();
+    g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen);
     return Status::NO_ERR;
 }

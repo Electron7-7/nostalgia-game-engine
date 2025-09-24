@@ -29,19 +29,19 @@ bool GLFW_Backend::Init()
         return false;
     }
 
-    compatible_graphics_backends = { BackendIDs::gOpenGL };
+    compatible_graphics_backends = { gBackendIDs::gOpenGL };
     m_IsInitialized = true;
     return true;
 }
 
 bool GLFW_Backend::InitImGui()
 {
-    if(is_imgui_initialized)
+    if(m_IsImGuiInitialized)
         { return true; }
 
-    switch(g_pBackendManager->GetGraphicsID())
+    switch(g_pBackendManager->Graphics()->GetID())
     {
-    case BackendIDs::gOpenGL:
+    case gBackendIDs::gOpenGL:
         if(!ImGui_ImplGlfw_InitForOpenGL(m_MainWindow, true))
         {
             PRINT_ERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
@@ -50,7 +50,7 @@ bool GLFW_Backend::InitImGui()
         break;
     }
 
-    is_imgui_initialized = true;
+    m_IsImGuiInitialized = true;
     return true;
 }
 
@@ -58,13 +58,13 @@ void GLFW_Backend::Shutdown()
 {
     assert(m_IsInitialized);
 
-    if(is_imgui_initialized)
+    if(m_IsImGuiInitialized)
         { ImGui_ImplGlfw_Shutdown(); }
 
     glfwTerminate();
 
     m_IsInitialized = false;
-    is_imgui_initialized = false;
+    m_IsImGuiInitialized = false;
 }
 
 void GLFW_Backend::ImGuiNewFrame()

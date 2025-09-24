@@ -1,8 +1,8 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
+#include "../windowing.hpp"
 #include "input/key.hpp"
-#include "rendering/backends/backend.hpp"
 
 #include <map>
 
@@ -14,7 +14,7 @@ class GLFW_Backend : public WindowingBackend
 public:
     bool Init();
     void Shutdown();
-    BackendID GetID() { return BackendIDs::wGLFW; }
+    BackendID GetID() { return gBackendIDs::wGLFW; }
 
     bool InitImGui();
     void ImGuiNewFrame();

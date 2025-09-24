@@ -1,8 +1,8 @@
 #include "theatre_manager.hpp"
-#include "rendering/backends/backend.hpp"
 #include "theatre/theatre_data.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "managers/backend_manager.hpp"
+#include "rendering/backends/graphics.hpp"
 #include "rendering/render_command.hpp"
 #include "things/things.hpp"
 #include "things/actors/actor.hpp"
@@ -59,7 +59,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     s_ReadyToRender = false;
 
     CreateThings();
-    g_pBackendManager->GetGraphicsBackend()->CreateRenderingData();
+    g_pBackendManager->Graphics()->CreateRenderingData();
 
     s_ReadyToRender = true;
 
@@ -81,7 +81,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 
     s_ReadyToRender = false;
     DestroyThings();
-    g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
+    g_pBackendManager->Graphics()->DestroyRenderingData();
 
 #ifdef DEBUGGING
     g_pDebugger->StopTheatreTiming(false);
@@ -104,7 +104,7 @@ void TheatreManager::RenderWorld()
         unsigned int shader = Shaders::BlinnPhong;
         if(light && light->m_Enabled && light->IncrementIndex())
         {
-            g_pBackendManager->GetGraphicsBackend()->BufferLight(light.get(), shader);
+            g_pBackendManager->Graphics()->BufferLight(light.get(), shader);
             shader = Shaders::Fullbright;
         }
         if(actor && actor->m_Visible)
@@ -112,7 +112,7 @@ void TheatreManager::RenderWorld()
     }
     for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)
     {
-        g_pBackendManager->GetGraphicsBackend()->RenderSingleCommand(*rendercmd);
+        g_pBackendManager->Graphics()->RenderSingleCommand(*rendercmd);
         rendercmd = s_RenderCommandQueue.erase(rendercmd);
     }
 }

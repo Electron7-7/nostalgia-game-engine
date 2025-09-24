@@ -70,7 +70,7 @@ bool OpenGL_Backend::Init()
 
 bool OpenGL_Backend::InitImGui()
 {
-    if(is_imgui_initialized)
+    if(m_IsImGuiInitialized)
         { return true; }
 
     if(!ImGui_ImplOpenGL3_Init())
@@ -79,7 +79,7 @@ bool OpenGL_Backend::InitImGui()
         return false;
     }
 
-    is_imgui_initialized = true;
+    m_IsImGuiInitialized = true;
     return true;
 }
 
@@ -185,11 +185,11 @@ void OpenGL_Backend::Shutdown()
 {
     assert(m_IsInitialized);
 
-    if(is_imgui_initialized)
+    if(m_IsImGuiInitialized)
         { ImGui_ImplOpenGL3_Shutdown(); }
 
     m_IsInitialized = false;
-    is_imgui_initialized = false;
+    m_IsImGuiInitialized = false;
 }
 
 bool OpenGL_Backend::BuildShader(unsigned int shader, const char* vertex_shader_code, const char* fragment_shader_code)
