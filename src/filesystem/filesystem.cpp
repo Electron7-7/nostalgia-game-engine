@@ -4,6 +4,7 @@
 #include <fstream>
 
 namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
+using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 
 #ifdef COMPILING_WINDOWS
 #   include <windows.h>
@@ -39,9 +40,8 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
 bool Filesystem::PathExists(const std::string& path)
     { return(fs::exists(fs::path(path))); }
 
-#pragma message("(FIXME) 'is_regular_file' could fail on some files")
-bool Filesystem::IsFile(const std::string& path)
-    { return(PathExists(path) && fs::is_regular_file(fs::path(path))); }
+bool Filesystem::IsFile(const std::string& _path)
+{ return(PathExists(_path) && (is_regular_file(path(_path)) || is_block_file(path(_path)) || is_character_file(path(_path)))); }
 
 bool Filesystem::IsDirectory(const std::string& path)
     { return(PathExists(path) && fs::is_directory(fs::path(path))); }
