@@ -378,57 +378,57 @@ static void s_ManualStopwatchWindow(float width)
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
-    if(Button("Toggle Frame Number Printouts"))
-        { g_PrintFrameNumbers = !g_PrintFrameNumbers; }
-    if(Button("Toggle Tick Number Printouts"))
-        { g_PrintTickNumbers = !g_PrintTickNumbers; }
+    Checkbox("Print Frame#", &g_PrintFrameNumbers);
+    Checkbox("Print Tick#", &g_PrintTickNumbers);
 
-    static const char* s_SelectableNames[4] =
+    if(CollapsingHeader("Render Settings"))
     {
-        "Render Normal (default)",
-        "Render Vertex Colors",
-        "Render Vertex Normals",
-        "Render Vertex UVs"
-    };
-    static int s_Selected = Shader_ALL;
-
-    Text("Shader Properties");
-    Separator();
-    Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-
-    for(int i = 0 ; i < 4 ; ++i)
-    {
-        bool l_Selected = (s_Selected == i);
-        if(Checkbox(s_SelectableNames[i], &l_Selected))
-            { s_Selected = i; }
-        SameLine();
+        Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
+        Text("Shader Output");
+        Separator();
+        static int s_Selected = Shader_ALL;
+        static const char* s_SelectableNames[4] =
+        {
+            "Default",
+            "Vertex Colors",
+            "Vertex Normals",
+            "Vertex UVs"
+        };
+        for(int i = 0 ; i < 4 ; ++i)
+        {
+            bool l_Selected = (s_Selected == i);
+            if(Checkbox(s_SelectableNames[i], &l_Selected))
+                { s_Selected = i; }
+        }
+        g_ShaderDebugOuptut = s_Selected;
     }
-    g_ShaderDebugOuptut = s_Selected;
-    NewLine();
-
-    Text("%s", "Window Settings");
-    Separator();
-
-    InputInt("X Position", &Settings::Window::XPosition);
-    InputInt("Y Position", &Settings::Window::YPosition);
-    InputInt("Width", &Settings::Window::Width);
-    InputInt("Height", &Settings::Window::Height);
-    InputInt("Fullscreen Width", &Settings::Window::FullscreenWidth);
-    InputInt("Fullscreen Height", &Settings::Window::FullscreenHeight);
-
-    Separator();
-    Checkbox("Fullscreen", &Settings::Window::Fullscreen);
-    if(Button("Apply Changes"))
-        { g_pBackendManager->UpdateWindowState(); }
-
-    NewLine();
-
-    Text("%s", "Player Settings");
-    Separator();
-
-    SliderFloat("Vertical FOV", &Settings::Player::FOV, -180.0f, 180.0f);
-    SliderFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.0f, 100.0f);
-    SliderFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 0.0f, 100000.0f);
+    if(CollapsingHeader("Window Settings"))
+    {
+        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
+            { g_pBackendManager->UpdateWindowState(); }
+        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
+        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
+        if(Settings::Window::Fullscreen)
+        {
+            l_Pos[0] = Settings::Window::FullscreenXPosition;
+            l_Pos[1] = Settings::Window::FullscreenYPosition;
+            l_Size[0] = Settings::Window::FullscreenWidth;
+            l_Size[1] = Settings::Window::FullscreenHeight;
+        }
+        InputInt2("Position", l_Pos);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->GetWindowingBackend()->MoveWindow(l_Pos[0], l_Pos[1]); }
+        InputInt2("Size", l_Size);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->GetWindowingBackend()->ResizeWindow(l_Size[0], l_Size[1]); }
+        NewLine();
+    }
+    if(CollapsingHeader("Player Settings"))
+    {
+        SliderFloat("Vertical FOV", &Settings::Player::FOV, 0.0f, 180.0f);
+        DragFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.001f, 0.001f, 100000.0f);
+        DragFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 1.0f, 0.001f, 100000.0f);
+    }
     EndChild();
 }
 
