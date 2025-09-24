@@ -40,9 +40,14 @@ glm::mat4 RenderCommand::ViewMatrix() const
 
 glm::mat4 RenderCommand::ProjectionMatrix() const
 {
+    float aspect_ratio =
+    (Settings::Window::Fullscreen)
+        ? Settings::Window::FullscreenWidth / static_cast<float>(Settings::Window::FullscreenHeight)
+        : Settings::Window::Width / static_cast<float>(Settings::Window::Height);
+
     return glm::perspective(
         glm::radians(Settings::Player::FOV),
-        Settings::Window::Width / static_cast<float>(Settings::Window::Height),
+        aspect_ratio,
         Settings::Player::ViewCutoffNear,
         Settings::Player::ViewCutoffFar
     );
