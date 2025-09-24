@@ -1,7 +1,6 @@
 #include "input_manager.hpp"
 #include "debug.hpp"
 #include "backend_manager.hpp"
-#include "input/keybind.hpp"
 #include "input/event.hpp"
 #include "input/event_queue.hpp"
 #include "commands/command_line.hpp"
@@ -26,12 +25,6 @@ void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) con
 
 bool InputManager::Init()
 {
-    // m_KeyBindings.SetBinding( "`", "toggleconsole" );
-    // m_ButtonUpToEngine.ClearAll();
-    try_AddBinding("Escape", CommandLine::cmd_ExitProgram);
-    try_AddBinding("F", CommandLine::cmd_PrototypeFullscreen);
-    #pragma message("(FIXME) This should be done by the game/app, but for testing purposes I'm doing it here")
-    EventQueue::EnableEventQueue();
     return true;
 }
 

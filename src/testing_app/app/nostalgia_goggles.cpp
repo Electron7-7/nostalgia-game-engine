@@ -1,10 +1,13 @@
 #include "nostalgia_goggles.hpp"
+#include "input/keybind.hpp"
+#include "input/event_queue.hpp"
 #include "managers/manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/backend_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/ui_manager.hpp"
+#include "commands/command_line.hpp"
 #include "testing_app/ui/imgui_debugger.hpp"
 
 // Singleton accessor
@@ -52,9 +55,11 @@ int NostalgiaGoggles::Main()
 
     // g_pMenuManager->PushMenu("Main Menu");
 
+    try_AddBinding("Escape", CommandLine::cmd_ExitProgram);
+    try_AddBinding("F", CommandLine::cmd_PrototypeFullscreen);
+    EventQueue::EnableEventQueue();
+
     _Manager::Start(); // gameloop
-
     _Manager::ShutdownAllManagers();
-
     return 0;
 }
