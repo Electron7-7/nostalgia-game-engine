@@ -110,12 +110,10 @@ bool _Manager::InitAllManagers()
 
 void _Manager::ShutdownAllManagers()
 {
-    #pragma message("(Todo) maybe make this an early return?")
-    if(m_sIsInitialized)
-    {
-        InvokeMethodReverseOrder(&_Manager::Shutdown);
-        m_sIsInitialized = false;
-    }
+    if(!m_sIsInitialized)
+        { return; }
+    InvokeMethodReverseOrder(&_Manager::Shutdown);
+    m_sIsInitialized = false;
 }
 
 void _Manager::UpdateTheatreStateMachine()
