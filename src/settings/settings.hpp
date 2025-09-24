@@ -30,17 +30,18 @@ public:
     {
         static int Width;
         static int Height;
-        static int FullscreenWidth;
-        static int FullscreenHeight;
         static int XPosition;
         static int YPosition;
+        static int FullscreenWidth;
+        static int FullscreenHeight;
+        static int FullscreenXPosition;
+        static int FullscreenYPosition;
         static bool Fullscreen;
         static const char* Name;
     };
 
     struct Player
     {
-        #pragma message("(TODO) Replace with horizontal & vertical FOVs?")
         static float FOV;
         static float ViewCutoffNear;
         static float ViewCutoffFar;
