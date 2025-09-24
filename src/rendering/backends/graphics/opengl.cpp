@@ -6,12 +6,14 @@
 #include "settings/settings.hpp" // IWYU pragma: keep
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
-#include "things/resources/shaders.hpp" // IWYU pragma: keep
-#include "things/resources/resource_data.hpp"
-#include "things/resources/basic/mesh.hpp"
-#include "things/resources/basic/texture.hpp"
-#include "things/resources/complex/material.hpp" // IWYU pragma: keep
-#include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
+#include "embedded/shaders.hpp" // IWYU pragma: keep
+#include "embedded/images.hpp"
+#include "embedded/models.hpp"
+#include "things/resources/mesh.hpp"
+#include "things/resources/texture.hpp"
+#include "things/devices/material.hpp" // IWYU pragma: keep
+#include "things/devices/mesh_instance.hpp" // IWYU pragma: keep
+#include "theatre/data_t.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
@@ -129,6 +131,15 @@ void OpenGL_Backend::CreateRenderingData()
 {
     std::vector<float> l_AllVertexData = {};
     std::vector<unsigned int> l_AllIndices = {};
+    // Buffer important embedded Resources
+    Mesh error({Model::Error, std::size(Model::Error), FileType::model_OBJ});
+    error.SetupVariables({Model::Name::Error, TypeName::Mesh, Model::ID::Error});
+    Mesh cube({Model::Cube, std::size(Model::Cube), FileType::model_OBJ});
+    cube.SetupVariables({Model::Name::Cube, TypeName::Mesh, Model::ID::Cube});
+    Texture missing({Image::Missing, std::size(Image::Missing), FileType::image_JPG});
+    missing.SetupVariables({Image::Name::Missing, TypeName::Texture, Image::ID::Missing});
+    Texture light({Image::LightDebugging, std::size(Image::LightDebugging), FileType::image_JPG});
+    light.SetupVariables({Image::Name::LightDebugging, TypeName::Texture, Image::ID::LightDebugging});
 
     glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
 
@@ -301,14 +312,14 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 unsigned int OpenGL_Backend::GetTextureID(id_t id)
 {
     if(!m_TextureIDs.contains(id))
-        { return m_TextureIDs.at(Images::ID::Missing); }
+        { return m_TextureIDs.at(Image::ID::Missing); }
     return m_TextureIDs.at(id);
 }
 
 OpenGL_MeshData* OpenGL_Backend::GetMeshData(id_t id)
 {
     if(!m_MeshData.contains(id))
-        { return &m_MeshData.at(Models::ID::Error); }
+        { return &m_MeshData.at(Model::ID::Error); }
     return &m_MeshData.at(id);
 }
 

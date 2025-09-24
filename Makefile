@@ -20,7 +20,7 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/things/resources/data -Wno-c23-extensions
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
@@ -129,10 +129,12 @@ SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/demo                         \
+    $(SRC)/embedded                     \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
+    $(SRC)/rendering/backends           \
     $(SRC)/rendering/backends/graphics  \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
@@ -142,8 +144,7 @@ SRC_DIRS :=                             \
     $(SRC)/things                       \
     $(SRC)/things/actors                \
     $(SRC)/things/resources             \
-    $(SRC)/things/resources/basic       \
-    $(SRC)/things/resources/complex     \
+    $(SRC)/things/devices               \
     $(SRC)/world                        \
 
 THIRDPARTY_SRC_DIRS :=                        \

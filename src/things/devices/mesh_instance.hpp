@@ -1,7 +1,7 @@
 #ifndef MESH_INSTANCE_H
 #define MESH_INSTANCE_H
 
-#include "../resource.hpp"
+#include "../resources/resource.hpp"
 
 class MeshInstance : public Resource
 {

@@ -19,7 +19,6 @@ Things
     {
         MeshInstance : MeshInstance TestMeshInstance
         {
-            Mesh = <TestMesh>
             Material = <TestMat>
         }
         Origin = (0, -0.05, -4)

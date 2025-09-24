@@ -119,12 +119,13 @@ void imgui_Debugger::Update()
 #include "rendering/backends/graphics/opengl.hpp"
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
-#include "things/resources/resource_data.hpp"
-#include "things/resources/complex/mesh_instance.hpp" // IWYU pragma: keep
-#include "things/resources/complex/material.hpp" // IWYU pragma: keep
-#include "things/resources/basic/texture.hpp"
-#include "things/resources/basic/mesh.hpp"
-#include "things/resources/basic/font.hpp"
+#include "embedded/images.hpp"
+#include "embedded/models.hpp"
+#include "things/devices/mesh_instance.hpp" // IWYU pragma: keep
+#include "things/devices/material.hpp" // IWYU pragma: keep
+#include "things/resources/texture.hpp"
+#include "things/resources/mesh.hpp"
+#include "things/resources/font.hpp"
 #include "settings/settings.hpp"
 #include "world/transform_3d.hpp" // IWYU pragma: keep
 
@@ -502,17 +503,36 @@ static bool s_GetImageName(std::string& out, id_t id)
 {
     switch(id)
     {
-    case Images::ID::Missing:
-        out = Images::Name::Missing;
+    case Image::ID::Missing:
+        out = Image::Name::Missing;
         break;
-    case Images::ID::COMP04_5:
-        out = Images::Name::COMP04_5;
+    case Image::ID::COMP04_5:
+        out = Image::Name::COMP04_5;
         break;
-    case Images::ID::LolBit:
-        out = Images::Name::LolBit;
+    case Image::ID::LolBit:
+        out = Image::Name::LolBit;
         break;
-    case Images::ID::LightDebugging:
-        out = Images::Name::LightDebugging;
+    case Image::ID::LightDebugging:
+        out = Image::Name::LightDebugging;
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
+static bool s_GetModelName(std::string& out, id_t id)
+{
+    switch(id)
+    {
+    case Model::ID::Error:
+        out = Model::Name::Error;
+        break;
+    case Model::ID::Ramiel:
+        out = Model::Name::Ramiel;
+        break;
+    case Model::ID::Cube:
+        out = Model::Name::Cube;
         break;
     default:
         return false;
@@ -603,6 +623,9 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     static ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_Leaf;
                     if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->GetName().c_str(), actor->GetMeshInstanceID()))
                     {
+                        std::string mesh_name = g_GetThing<Mesh>(mInst->GetMeshID())->GetName();
+                        s_GetModelName(mesh_name, mInst->GetMeshID());
+                        TreeNodeEx("Mesh", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "Mesh - '%s' [%u]", mesh_name.c_str(), mInst->GetMeshID());
                         if(TreeNodeEx("Material", tree_flags, "Material - '%s' [%u]", TheatreManager::GetThing(mInst->GetMaterialID())->GetName().c_str(), mInst->GetMaterialID()))
                         {
                             std::string diffuse_name  = TheatreManager::GetThing(mat->GetDiffuseTexture())->GetName();

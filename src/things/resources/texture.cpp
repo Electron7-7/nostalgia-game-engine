@@ -1,19 +1,19 @@
 #include "texture.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
+#include "rendering/backends/graphics.hpp"
 
 void Texture::SetupVariables(const data_t& data)
 {
     Resource::SetupVariables(data);
     CreateResource();
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(this);
+    g_pBackendManager->Graphics()->BufferTexture(&m_FileData, m_ID);
 }
 
 SafeStatus Texture::CreateResource()
 {
     if(m_FileData.Status() != DataStatus::SUCCESSFUL)
     {
-        // ResourceData::GetData(m_FileData, Images::Name::Missing);
         m_Status = ResourceStatus::FAILED;
         return Status::ResourceBAD_FILE_DATA;
     }

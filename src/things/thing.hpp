@@ -22,7 +22,6 @@ public:
     const std::string& GetName() const;
 
 protected:
-    friend class TheatreManager;
     id_t m_ID = ID::None;
     size_t m_Type = Type::Thing;
     std::string m_Name = "Untitled Thing";

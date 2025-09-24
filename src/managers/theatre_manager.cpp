@@ -1,19 +1,15 @@
 #include "theatre_manager.hpp"
-#include "colors.hpp"
-#include "managers/backend_manager.hpp"
 #include "rendering/backends/backend.hpp"
 #include "theatre/theatre_data.hpp"
 #include "theatre/theatre_parser.hpp"
+#include "managers/backend_manager.hpp"
 #include "rendering/render_command.hpp"
-#include "things/actors/actor.hpp"
-#include "things/resources/basic/texture.hpp"
-#include "things/resources/resource_data.hpp"
 #include "things/things.hpp"
+#include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp"
-#include "things/resources/basic/mesh.hpp"
 #include "things/actors/light.hpp"
+#include "colors.hpp"
 #ifdef DEBUGGING
-#   include "colors.hpp"
 #   include "time.hpp"
 #   include "testing_app/ui/imgui_debugger.hpp"
 #endif // DEBUGGING
@@ -160,7 +156,7 @@ id_t TheatreManager::CreateThing(const data_t& cData)
         { thing = s_Things[data.GetID()] = g_MakeThing(data.GetType())(); }
 
     thing->SetupVariables(data);
-    return thing->m_ID;
+    return thing->GetID();
 }
 
 bool TheatreManager::DestroyThing(id_t id)
@@ -170,10 +166,10 @@ bool TheatreManager::DestroyThing(id_t id)
         PRINT_WARNING("TheatreManager::DestroyThing - No Thing with ID#{} exists", id)
         return false;
     }
-    else if(id == s_LocalPlayer->m_ID)
+    else if(id == s_LocalPlayer->GetID())
     {
-        PRINT_WARNING("TheatreManager::DestroyThing - Cannot destroy the NostalgiaPlayer Thing! (ID#{})", s_LocalPlayer->m_ID)
-        PRINT_DEBUG("Player ID: {}, Thing ID: {}", s_LocalPlayer->m_ID, id)
+        PRINT_WARNING("TheatreManager::DestroyThing - Cannot destroy the NostalgiaPlayer Thing! (ID#{})", s_LocalPlayer->GetID())
+        PRINT_DEBUG("Player ID: {}, Thing ID: {}", s_LocalPlayer->GetID(), id)
         return false;
     }
 
@@ -187,37 +183,7 @@ void TheatreManager::CreateThings()
     s_ReadyToRender = false;
 
     const std::vector<data_t>& theatre_data = TheatreParser::GetTheatreData().GetData();
-    g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
-
-    // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD SETUP
-    #pragma message("FIND A BETTER PLACE TO SETUP AND BUFFER THESE RESOURCES")
-    Mesh* error = new Mesh({Models::Error, std::size(Models::Error), FileType::model_OBJ});
-    Mesh* cube  = new Mesh({Models::Cube, std::size(Models::Cube), FileType::model_OBJ});
-    Texture* missing = new Texture({Images::Missing, std::size(Images::Missing), FileType::image_JPG});
-    Texture* light   = new Texture({Images::LightDebugging, std::size(Images::LightDebugging), FileType::image_JPG});
-    error->m_Type = Type::Mesh;
-    error->m_Name = Models::Name::Error;
-    error->m_ID   = Models::ID::Error;
-    error->CreateResource();
-    cube->m_Type = Type::Mesh;
-    cube->m_Name = Models::Name::Cube;
-    cube->m_ID   = Models::ID::Cube;
-    cube->CreateResource();
-    missing->m_Type = Type::Texture;
-    missing->m_Name = Images::Name::Missing;
-    missing->m_ID   = Images::ID::Missing;
-    light->m_Type = Type::Texture;
-    light->m_Name = Images::Name::LightDebugging;
-    light->m_ID   = Images::ID::LightDebugging;
-    g_pBackendManager->GetGraphicsBackend()->BufferMesh(error);
-    g_pBackendManager->GetGraphicsBackend()->BufferMesh(cube);
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(missing);
-    g_pBackendManager->GetGraphicsBackend()->BufferTexture(light);
-    delete error;
-    delete cube;
-    delete missing;
-    delete light;
-    // (end of) TERRIBLE, HORRIBLE, NO GOOD, VERY BAD SETUP
+    g_pBackendManager->Graphics()->DestroyRenderingData();
 
     for(const data_t& data : theatre_data)
         { CreateThing(data); }

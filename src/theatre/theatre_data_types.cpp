@@ -3,7 +3,7 @@
 #include "variable_t.hpp"
 #include "debug.hpp"
 #include "filesystem/file_data.hpp"
-#include "things/resources/resource_data.hpp"
+#include "embedded/resource_data.hpp"
 
 // Variable
 

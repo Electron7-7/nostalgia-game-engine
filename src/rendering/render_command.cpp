@@ -4,8 +4,8 @@
 #include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "things/actors/light.hpp"
-#include "things/resources/complex/mesh_instance.hpp"
-#include "things/resources/complex/material.hpp"
+#include "things/devices//mesh_instance.hpp"
+#include "things/devices//material.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 

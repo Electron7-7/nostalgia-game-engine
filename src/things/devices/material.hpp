@@ -1,7 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "../resource.hpp"
+#include "../resources/resource.hpp"
 
 #include <glm/glm.hpp>
 

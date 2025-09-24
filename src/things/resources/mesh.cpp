@@ -3,17 +3,17 @@
 #include "theatre/data_t.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
-#define TINYOBJLOADER_IMPLEMENTATION
-#define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "TinyOBJLoader/tiny_obj_loader.h"
+// #define TINYOBJLOADER_IMPLEMENTATION
+// #define TINYOBJLOADER_USE_MAPBOX_EARCUT
+// #include "TinyOBJLoader/tiny_obj_loader.h"
 
-#include <numeric>
+// #include <numeric>
 
 void Mesh::SetupVariables(const data_t& data)
 {
     Resource::SetupVariables(data);
     CreateResource();
-    g_pBackendManager->GetGraphicsBackend()->BufferMesh(this);
+    g_pBackendManager->Graphics()->BufferMesh(&m_FileData, m_ID);
 }
 
 void Mesh::clear()
@@ -89,7 +89,7 @@ void Mesh::AddFace(uintvec3 face_indices)
 // Taken from GraphX
 SafeStatus Mesh::try_CreateOBJMesh()
 {
-    tinyobj::ObjReaderConfig reader_config;
+    /*tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
     if(!reader.ParseFromString(m_FileData.String(), "", reader_config))
@@ -176,6 +176,6 @@ SafeStatus Mesh::try_CreateOBJMesh()
 
     // Fix OBJ Indicies (if this is OpenGL-specific, move this to the graphics backend)
     m_Indices.resize(m_Vertices.size());
-    std::iota(m_Indices.begin(), m_Indices.end(), 0);
+    std::iota(m_Indices.begin(), m_Indices.end(), 0);*/
     return Status::NO_ERR;
 }

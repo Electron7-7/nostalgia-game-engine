@@ -5,11 +5,11 @@
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
 #include "actors/light.hpp"
-#include "resources/basic/mesh.hpp"
-#include "resources/basic/font.hpp"
-#include "resources/basic/texture.hpp"
-#include "resources/complex/material.hpp"
-#include "resources/complex/mesh_instance.hpp"
+#include "resources/mesh.hpp"
+#include "resources/font.hpp"
+#include "resources/texture.hpp"
+#include "devices/material.hpp"
+#include "devices/mesh_instance.hpp"
 #include "managers/theatre_manager.hpp"
 
 #include <map>
