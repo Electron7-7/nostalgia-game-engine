@@ -45,6 +45,4 @@ private:
     static const std::map<GLFW_KeyID, KeyID> key_ids;
 };
 
-extern GLFW_Backend singleton_GLFW_Backend;
-
 #endif // GLFW_BACKEND_H

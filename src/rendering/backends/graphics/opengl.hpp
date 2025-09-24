@@ -63,8 +63,6 @@ private:
     OpenGL_MeshData* GetMeshData(id_t);
 };
 
-extern OpenGL_Backend singleton_OpenGL_Backend;
-
 #ifdef DEBUGGING
     constexpr int Shader_ALL = 0;
     constexpr int Shader_COLOR = 1;
