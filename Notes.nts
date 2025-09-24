@@ -518,3 +518,6 @@ Okay, I've just come to the conclusion that 'Resource' should be dedicated to "b
 Todo: Make basic Resources not be added to the Theatre, since we only need their ID and for them to be buffered. Once they're buffered, they can be dropped.
 
 After finishing my cleanup, I majorly overhauled the Theatre Interface window of the debugger. You can now interface with many more variables, even ones that are unique to specific sub classes!
+
+[09/23/25]
+Today was a chores/cleanup day; I fixed the issue with the SpotLight (I wasn't calculating the cutoff radius, lmao), and went through all the #pragma warnings. Most of them were comments I could delete or small issues I could easily fix; a few I turned back into comments, and I added some new #pragma warnings. I want to keep them in source files, not headers; this way they won't be *as* annoying as they were, but still annoying enough to get my attention. I also updated the debugger a bit and fiddled with the window sizing variables/functions. I wanna overhaul the backend manager, create 'ComplexResource', and then move on to setting up player movement input handling.
