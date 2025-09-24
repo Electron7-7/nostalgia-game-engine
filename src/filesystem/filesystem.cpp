@@ -8,7 +8,7 @@ using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit err
 #ifdef COMPILING_WINDOWS
 #   include <windows.h>
 #   include <libloaderapi.h>
-    #pragma message("(FIXME) Improve this (it's from GraphX)")
+#   pragma message("FIXME: Improve this (it's from GraphX)")
     std::string Filesystem::GetBinaryPath()
     {
         char out_path[MAX_PATH] = {0};

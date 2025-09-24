@@ -21,6 +21,7 @@ BackendManager* g_pBackendManager = &s_BackendManager;
 static OpenGL_Backend s_OpenGL_Backend;
 static GLFW_Backend s_GLFW_Backend;
 
+#pragma message("FIXME: 'BackendManager' needs a complete overhaul")
 bool BackendManager::Init()
 {
     // Set up graphics backends map

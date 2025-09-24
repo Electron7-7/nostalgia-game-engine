@@ -190,7 +190,7 @@ void TheatreManager::CreateThings()
     g_pBackendManager->GetGraphicsBackend()->DestroyRenderingData();
 
     // TERRIBLE, HORRIBLE, NO GOOD, VERY BAD SETUP
-    #pragma message("(FIXME) FIND A BETTER PLACE TO SETUP AND BUFFER THESE RESOURCES")
+    #pragma message("FIND A BETTER PLACE TO SETUP AND BUFFER THESE RESOURCES")
     Mesh* error = new Mesh({Models::Error, std::size(Models::Error), FileType::model_OBJ});
     Mesh* cube  = new Mesh({Models::Cube, std::size(Models::Cube), FileType::model_OBJ});
     Texture* missing = new Texture({Images::Missing, std::size(Images::Missing), FileType::image_JPG});

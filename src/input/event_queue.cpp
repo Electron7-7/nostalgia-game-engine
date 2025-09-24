@@ -46,6 +46,7 @@ void EventQueue::LoadQueue(const std::vector<Event>& event_queue)
     _active_queue = event_queue;
 }
 
+#pragma message("idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...")
 bool EventQueue::LoadDemoFromFile(const std::string &demo_file_path)
 {
     DemoParser demo_parser;
