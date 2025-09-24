@@ -44,7 +44,7 @@ static const std::set<std::string> c_NostalgiaExtensions =
     ".nt"
 };
 
-#pragma message("(TODO) Add support for GraphXTheatre files")
+// TODO: Add support for GraphXTheatre files?
 static const std::set<std::string> c_GraphXExtensions =
 {
     ".graphxtheatre",

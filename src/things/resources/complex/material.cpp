@@ -10,7 +10,7 @@ void Material::SetupVariables(const data_t& data)
     data.GetNumber(m_Color, "Color");
     data.GetNumber(m_Alpha, "Alpha");
     data.GetNumber(m_SpecularSharpness, "SpecularSharpness");
-    #pragma message("(TODO) Pick a better default value (potentially)")
+    // TODO: Pick a better default value?
     if(!data.GetNumber(m_SpecularStrength, "SpecularStrength") && m_SpecularTextureID != ID::None)
         { m_SpecularStrength = 1.0f; }
     data.GetBool(m_DontUseTexture, "UseVertexColors");
