@@ -73,7 +73,6 @@ void CommandLine::ProcessCommands()
 
 void CommandLine::PushFront(Command command)
 {
-    WAIT(is_copying_queue, 1.0)
 
     _active_queue.emplace(_active_queue.cbegin(), command);
 }

@@ -13,12 +13,4 @@ struct Time
     static std::string CurrentSystem();
 };
 
-#pragma message("(FIXME) Put these in a namespace/struct")
-void SetWaitStart();
-double GetWaitStart();
-// When CONDITION is false, or we've waited for PATIENCE amount of time, exit the while loop
-#define WAIT(CONDITION, PATIENCE) \
-SetWaitStart(); \
-while(CONDITION && (Time::Current() - GetWaitStart()) < PATIENCE) {}
-
 #endif // TIME_H

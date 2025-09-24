@@ -98,8 +98,6 @@ SafeStatus EventQueue::try_BeginProcessing()
     if(_active_queue.empty() || _last_processed_event_index >= _active_queue.size())
     { return Status::EventQueueEMPTY; }
 
-    WAIT(is_queueing_events, 0.3); // *stares at '_active_queue' reeeeeally hard*
-
     _safe_queue.clear(); // Just to be, well, safe
 
     std::vector<Event>::iterator queue_begin = _active_queue.begin();
@@ -162,10 +160,7 @@ unsigned int EventQueue::GetCurrentQueueSize()
 
 void EventQueue::ClearQueue()
 {
-    WAIT(is_queueing_events, 1.0) // _active_queue has one second before we flip the fuck out and kill it with hammers
     _active_queue.clear();
-
-    WAIT(is_processing_events, 5.0) // _safe_queue gets five whole seconds because it's earned more love
     _safe_queue.clear();
 }
 
