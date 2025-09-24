@@ -48,12 +48,11 @@ int NostalgiaGoggles::Main()
     // _Manager::Add(g_pMenuManager);
     // _Manager::Add(g_pPhysicsManager);
 
-    g_pUIManager->AddImGuiObject(g_pDebugger);
-
     if(!_Manager::InitAllManagers())
         { return 1; }
 
     // g_pMenuManager->PushMenu("Main Menu");
+    g_pUIManager->AddImGuiObject(g_pDebugger);
 
     try_AddBinding("Escape", CommandLine::cmd_ExitProgram);
     try_AddBinding("F", CommandLine::cmd_PrototypeFullscreen);
