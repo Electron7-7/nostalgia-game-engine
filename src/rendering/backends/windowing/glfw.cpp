@@ -133,6 +133,12 @@ void GLFW_Backend::ResizeWindow(int width, int height)
         { return; }
 
     glfwSetWindowSize(m_MainWindow, width, height);
+    glfwGetWindowSize(m_MainWindow, &cur_width, &cur_height);
+    if(Window::Fullscreen)
+    {
+        Window::FullscreenWidth = cur_width;
+        Window::FullscreenHeight = cur_height;
+    }
 }
 
 void GLFW_Backend::MoveWindow(int position_x, int position_y)
@@ -151,21 +157,15 @@ void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
 {
     assert(m_IsInitialized);
 
-    bool is_fullscreened = glfwGetWindowMonitor(m_MainWindow);
-    if(is_fullscreened == Window::Fullscreen)
-    { return; }
+    Window::Fullscreen = is_fullscreen_enabled;
 
-    if(is_fullscreened)
-    {
-        glfwSetWindowMonitor(m_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE);
-        Window::Fullscreen = false;
-    }
+    if(static_cast<bool>(glfwGetWindowMonitor(m_MainWindow)) == Window::Fullscreen)
+        { return; }
 
+    if(Window::Fullscreen)
+        { glfwSetWindowMonitor(m_MainWindow, m_LastFullscreenedMonitor, Window::FullscreenXPosition, Window::FullscreenYPosition, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE); }
     else
-    {
-        glfwSetWindowMonitor(m_MainWindow, m_LastFullscreenedMonitor, 0, 0, Window::FullscreenWidth, Window::FullscreenHeight, GLFW_DONT_CARE);
-        Window::Fullscreen = true;
-    }
+        { glfwSetWindowMonitor(m_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE); }
 }
 
 void GLFW_Backend::SwapBuffers()
@@ -177,15 +177,21 @@ void GLFW_Backend::PollEvents()
 void GLFW_Backend::UpdateState()
 {
     SetFullscreen(Window::Fullscreen);
+    int new_width = Window::Width;
+    int new_height = Window::Height;
+    int new_xpos = Window::XPosition;
+    int new_ypos = Window::YPosition;
 
     if(Window::Fullscreen)
     {
-        ResizeWindow(Window::FullscreenWidth, Window::FullscreenHeight);
-        return;
+        new_width  = Window::FullscreenWidth;
+        new_height = Window::FullscreenHeight;
+        new_xpos = Window::FullscreenXPosition;
+        new_ypos = Window::FullscreenYPosition;
     }
 
-    ResizeWindow(Window::Width, Window::Height);
-    MoveWindow(Window::XPosition, Window::YPosition);
+    ResizeWindow(new_width, new_height);
+    MoveWindow(new_xpos, new_ypos);
 }
 
 // PRIVATE FUNCTIONS
@@ -222,8 +228,11 @@ void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double pos
 
 void GLFW_Backend::glfw_WindowPositionCallbackFunction(GLFWwindow* window, int position_x, int position_y)
 {
-    Window::XPosition = position_x;
-    Window::YPosition = position_y;
+    if(!Window::Fullscreen)
+    {
+        Window::XPosition = position_x;
+        Window::YPosition = position_y;
+    }
 }
 
 void GLFW_Backend::glfw_WindowResizeCallbackFunction(GLFWwindow* window, int width, int height)
