@@ -18,7 +18,7 @@ using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit err
         for(int i = (sizeof(out_path)/sizeof(out_path[0])) ; i >= 0 ; --i)
         {
             if(out_path[i] == 0x00)
-                continue;
+                { continue; }
             if(((out_path[i] == '\\' && !(out_path[i+1] == ' ')) || out_path[i] == '/') && !filename_removed)
             {
                 buffer = "";

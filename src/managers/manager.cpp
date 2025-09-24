@@ -102,7 +102,6 @@ bool _Manager::InitAllManagers()
     m_sFrameNumber = 0;
     if(!InvokeMethod(&_Manager::Init))
         { return false; }
-
     m_sIsInitialized = true;
     return true;
 }
@@ -178,10 +177,8 @@ void _Manager::Start()
     while(!m_sStopRequested)
     {
         UpdateTheatreStateMachine();
-
         for(size_t i = 0 ; i < number_of_managers ; ++i)
             { m_sGameManagers.at(i)->Update(); }
-
         ++m_sFrameNumber;
     }
 
@@ -204,7 +201,6 @@ void _Manager::TickLoop()
         current_time = Time::Current();
         current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
         last_time = current_time;
-
         while(current_tick_length >= 1.0)
         {
             for(size_t i = 0 ; i < number_of_managers ; ++i)

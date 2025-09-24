@@ -25,8 +25,7 @@ Command CommandLine::next_command = cmd_Null;
 bool CommandLine::Init()
 {
     if(m_sIsInitialized)
-    { return true; }
-
+        { return true; }
     m_sIsInitialized = true;
     return true;
 }
@@ -34,8 +33,7 @@ bool CommandLine::Init()
 SafeStatus CommandLine::try_RunCommand(Command command)
 {
     if(!_commands.contains(command))
-    { return Status::CommandLineINVALID_COMMAND; }
-
+        { return Status::CommandLineINVALID_COMMAND; }
     _commands.at(command)();
     return Status::NO_ERR;
 }
@@ -43,10 +41,9 @@ SafeStatus CommandLine::try_RunCommand(Command command)
 void CommandLine::ProcessCommands()
 {
     if(is_processing_commands)
-    { return; }
+        { return; }
 
     is_processing_commands = true;
-
     is_copying_queue = true;
 
     _process_queue = _active_queue;
@@ -63,7 +60,7 @@ void CommandLine::ProcessCommands()
 
         SafeStatus command_status = _commands.at(next_command)();
         if(command_status.Status() != Status::NO_ERR)
-            PRINT_WARNING("CommandLine::ProcessCommands - command returned with the status: '{}'", command_status.Printout())
+            { PRINT_WARNING("CommandLine::ProcessCommands - command returned with the status: '{}'", command_status.Printout()) }
     }
 
     is_processing_commands = false;
@@ -71,15 +68,12 @@ void CommandLine::ProcessCommands()
 }
 
 void CommandLine::PushFront(Command command)
-{
-
-    _active_queue.emplace(_active_queue.cbegin(), command);
-}
+{ _active_queue.emplace(_active_queue.cbegin(), command); }
 
 bool CommandLine::PopFront()
 {
     if(_active_queue.size() == 0)
-    { return false; }
+        { return false; }
     _active_queue.erase(_active_queue.cbegin());
     return true;
 }

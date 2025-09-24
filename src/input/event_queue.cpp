@@ -52,7 +52,7 @@ bool EventQueue::LoadDemoFromFile(const std::string &demo_file_path)
     DemoParser demo_parser;
 
     if(!demo_parser.LoadDemoFromFile(demo_file_path))
-    { return false; }
+        { return false; }
 
     ClearQueue();
 
@@ -65,7 +65,7 @@ bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
     DemoParser demo_parser;
 
     if(!demo_parser.LoadDemoFromMemory(demo_file))
-    { return false; }
+        { return false; }
 
     ClearQueue();
 
@@ -76,7 +76,7 @@ bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
 bool EventQueue::EnableEventQueue()
 {
     if(can_queue_events)
-    { return false; }
+        { return false; }
 
     can_queue_events = true;
     return true;
@@ -85,7 +85,7 @@ bool EventQueue::EnableEventQueue()
 bool EventQueue::DisableEventQueue()
 {
     if(!can_queue_events)
-    { return false; }
+        { return false; }
 
     can_queue_events = false;
     return true;
@@ -114,7 +114,7 @@ SafeStatus EventQueue::try_BeginProcessing()
 bool EventQueue::EndProcessing()
 {
     if(!is_processing_events)
-    { return false; }
+        { return false; }
 
     is_processing_events = false;
     return true;
@@ -137,21 +137,20 @@ SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
         { _active_queue.push_back(Event(keybind.Command())); }
 
     is_queueing_events = false;
-
     return Status::NO_ERR;
 }
 
 SafeReturn<Event> EventQueue::GetNextEvent()
 {
     if(!is_processing_events)
-    { return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS); }
+        { return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS); }
     if(_safe_queue.empty())
         { return SafeReturn(Event(), Status::EventQueueEMPTY); }
 
     Event next_event(_safe_queue.front());
 
     if(do_demo_recording)
-    { RecordEventToDemo(next_event); }
+        { RecordEventToDemo(next_event); }
 
     _safe_queue.erase(_safe_queue.cbegin());
     return SafeReturn(next_event);
@@ -171,20 +170,17 @@ void EventQueue::PanicClearQueue()
     PRINT_DEBUG("EventQueue::PanicClearQueue called. Printing the queue log...\n")
     DebugPrintQueueLog();
 
-    // I'm just considerate like that an' shit
     bool reactivate_event_queue = is_queueing_events;
     bool reactivate_event_processing = is_processing_events;
 
-    // Aight, geddafuckouddahea
     DisableEventQueue();
     EndProcessing();
 
     _active_queue.clear();
     _safe_queue.clear();
 
-    // Aight, geddafuckbackovaheaifyouwasdoinshi
-    if(reactivate_event_queue)      EnableEventQueue();
-    if(reactivate_event_processing) try_BeginProcessing();
+    if(reactivate_event_queue)      { EnableEventQueue();    }
+    if(reactivate_event_processing) { try_BeginProcessing(); }
 }
 
 void EventQueue::StartRecordingDemo()
@@ -203,14 +199,12 @@ bool EventQueue::StopRecordingDemo()
             PRINT_DEBUG("The demo file that attempted to save:\n{}\n", demo_recording_storage)
             return false;
         }
-
         ++demo_recording_number;
     }
 
     std::ofstream demo_file(DEMO_FILENAME);
     demo_file << demo_recording_storage;
     demo_file.close();
-
     return true;
 }
 

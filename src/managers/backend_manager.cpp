@@ -10,16 +10,16 @@
 static std::map<BackendID, GraphicsBackend*>  map_GraphicsBackends  = {};
 static std::map<BackendID, WindowingBackend*> map_WindowingBackends = {};
 
-static BackendID m_DefaultGraphicsID  = BackendIDs::gOpenGL;
-static BackendID m_DefaultWindowingID = BackendIDs::wGLFW;
-static BackendID m_CurrentGraphicsID  = m_DefaultGraphicsID;
-static BackendID m_CurrentWindowingID = m_DefaultWindowingID;
+static BackendID s_DefaultGraphicsID  = BackendIDs::gOpenGL;
+static BackendID s_DefaultWindowingID = BackendIDs::wGLFW;
+static BackendID s_CurrentGraphicsID  = s_DefaultGraphicsID;
+static BackendID s_CurrentWindowingID = s_DefaultWindowingID;
 
 static BackendManager s_BackendManager;
 BackendManager* g_pBackendManager = &s_BackendManager;
 
 static OpenGL_Backend s_OpenGL_Backend;
-static GLFW_Backend s_GLFW_Backend;
+static GLFW_Backend   s_GLFW_Backend;
 
 #pragma message("FIXME: 'BackendManager' needs a complete overhaul")
 bool BackendManager::Init()
@@ -39,43 +39,43 @@ void BackendManager::Shutdown()
     GetGraphicsBackend()->Shutdown();
 
     if(m_IsImguiInitialized)
-    { ImGui::DestroyContext(); }
+        { ImGui::DestroyContext(); }
 
     m_IsImguiInitialized = false;
 }
 
 GraphicsBackend* BackendManager::GetGraphicsBackend()
 {
-    if(!map_GraphicsBackends.contains(m_CurrentGraphicsID))
+    if(!map_GraphicsBackends.contains(s_CurrentGraphicsID))
     {
         PRINT_WARNING("BackendManager::Graphics - current graphics backend ID is invalid; setting it to the default graphics backend ID")
-        m_CurrentGraphicsID = m_DefaultGraphicsID;
+        s_CurrentGraphicsID = s_DefaultGraphicsID;
     }
 
-    return map_GraphicsBackends.at(m_CurrentGraphicsID);
+    return map_GraphicsBackends.at(s_CurrentGraphicsID);
 }
 
 WindowingBackend* BackendManager::GetWindowingBackend()
 {
-    if(!map_WindowingBackends.contains(m_CurrentWindowingID))
+    if(!map_WindowingBackends.contains(s_CurrentWindowingID))
     {
         PRINT_WARNING("BackendManager::Windowing - current windowing backend ID is invalid; setting it to the default windowing backend ID")
-        m_CurrentWindowingID = m_DefaultWindowingID;
+        s_CurrentWindowingID = s_DefaultWindowingID;
     }
 
-    return map_WindowingBackends.at(m_CurrentWindowingID);
+    return map_WindowingBackends.at(s_CurrentWindowingID);
 }
 
 BackendID BackendManager::GetGraphicsID()
-{ return m_CurrentGraphicsID; }
+{ return s_CurrentGraphicsID; }
 
 BackendID BackendManager::GetWindowingID()
-{ return m_CurrentWindowingID; }
+{ return s_CurrentWindowingID; }
 
 bool BackendManager::InitImGui()
 {
     if(m_IsImguiInitialized)
-    { return true; }
+        { return true; }
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -96,7 +96,7 @@ bool BackendManager::InitImGui()
 void BackendManager::ImGuiNewFrame()
 {
     if(!m_IsImguiInitialized)
-    { return; }
+        { return; }
 
     GetGraphicsBackend()->ImGuiNewFrame();
     GetWindowingBackend()->ImGuiNewFrame();
@@ -107,7 +107,7 @@ void BackendManager::ImGuiNewFrame()
 void BackendManager::ImGuiRender()
 {
     if(!m_IsImguiInitialized)
-    { return; }
+        { return; }
 
     ImGui::Render();
     GetGraphicsBackend()->ImGuiRender();
@@ -116,14 +116,13 @@ void BackendManager::ImGuiRender()
 bool BackendManager::InitBackend()
 {
     if(!GetWindowingBackend()->Init() || !GetGraphicsBackend()->Init())
-    { return false; }
+        { return false; }
 
-    if(!GetWindowingBackend()->CompatibleWith(m_CurrentGraphicsID))
+    if(!GetWindowingBackend()->CompatibleWith(s_CurrentGraphicsID))
     {
         PRINT_ERROR("BackendManager::InitBackend - current graphics backend & windowing backend are not compatible with eachother! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
         return false;
     }
-
     return true;
 }
 

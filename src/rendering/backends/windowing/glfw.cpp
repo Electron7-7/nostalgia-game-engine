@@ -37,7 +37,7 @@ bool GLFW_Backend::Init()
 bool GLFW_Backend::InitImGui()
 {
     if(is_imgui_initialized)
-    { return true; }
+        { return true; }
 
     switch(g_pBackendManager->GetGraphicsID())
     {
@@ -59,13 +59,12 @@ void GLFW_Backend::Shutdown()
     assert(m_IsInitialized);
 
     if(is_imgui_initialized)
-    { ImGui_ImplGlfw_Shutdown(); }
+        { ImGui_ImplGlfw_Shutdown(); }
 
     glfwTerminate();
 
     m_IsInitialized = false;
     is_imgui_initialized = false;
-
 }
 
 void GLFW_Backend::ImGuiNewFrame()
@@ -91,7 +90,7 @@ SafeStatus GLFW_Backend::CreateMainWindow()
     m_MainWindow = glfwCreateWindow(window_width, window_height, Window::Name, is_fullscreen, nullptr);
 
     if(m_MainWindow == nullptr)
-    { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
+        { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
 
     glfwMakeContextCurrent(m_MainWindow);
 
@@ -128,10 +127,8 @@ void GLFW_Backend::ResizeWindow(int width, int height)
     int cur_width;
     int cur_height;
     glfwGetWindowSize(m_MainWindow, &cur_width, &cur_height);
-
     if(width == cur_width && height == cur_height)
         { return; }
-
     glfwSetWindowSize(m_MainWindow, width, height);
     glfwGetWindowSize(m_MainWindow, &cur_width, &cur_height);
     if(Window::Fullscreen)
@@ -148,7 +145,7 @@ void GLFW_Backend::MoveWindow(int position_x, int position_y)
     glfwGetWindowPos(m_MainWindow, &cur_x_pos, &cur_y_pos);
 
     if(position_x == cur_x_pos && position_y == cur_y_pos)
-    { return; }
+        { return; }
 
     glfwSetWindowPos(m_MainWindow, position_x, position_y);
 }
@@ -201,7 +198,6 @@ void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned i
 void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     ASSERT_KEY(key);
-
     switch(action)
     {
     case GLFW_RELEASE:
@@ -244,6 +240,6 @@ void GLFW_Backend::glfw_WindowResizeCallbackFunction(GLFWwindow* window, int wid
         Window::FullscreenHeight = height;
         return;
     }
-    Window::Width  = width;
+    Window::Width = width;
     Window::Height = height;
 }
