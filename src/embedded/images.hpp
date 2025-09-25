@@ -1,7 +1,6 @@
 #ifndef IMAGES_H
 #define IMAGES_H
 
-#include "things/id.hpp"
 
 namespace Image
 {
@@ -30,13 +29,6 @@ namespace Image
         constexpr const char* LightDebugging = "LightTexture";
     }
 
-    namespace ID
-    {
-        constexpr id_t Missing        = 0;
-        constexpr id_t LightDebugging = 1;
-        constexpr id_t COMP04_5       = 2;
-        constexpr id_t LolBit         = 3;
-    }
 }
 
 #endif // IMAGES_H

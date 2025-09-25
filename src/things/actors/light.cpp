@@ -1,7 +1,5 @@
 #include "light.hpp"
 #include "debug.hpp"
-#include "embedded/models.hpp"
-#include "embedded/images.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/data_t.hpp"
 #include "theatre/variable_t.hpp"
@@ -36,13 +34,13 @@ void light_t::SetupVariables(const data_t& data)
         { m_Enabled = !m_Enabled; }
 
     NOTDEBUG(m_Visible = false;)
-    DEBUG(if(m_MeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
+    DEBUG(if(m_MeshInstanceID == IDs::None) { // the debug mesh/material shouldn't override a manually specificed one
         id_t mat_id = TheatreManager::CreateThing(data_t{
             m_Name + "'s Debug Material",
             Type::Material,
             ID::GetNewID(),
             {
-                variable_t{"DiffuseTexture", std::to_string(Image::ID::LightDebugging), VariableType::TheatreRef},
+                variable_t{"DiffuseTexture", std::to_string(IDs::iLightDebug), VariableType::TheatreRef},
                 variable_t{"FullBright", "true", VariableType::Bool},
             }
         });
@@ -51,8 +49,8 @@ void light_t::SetupVariables(const data_t& data)
             Type::MeshInstance,
             ID::GetNewID(),
             {
-                variable_t{"Mesh", std::to_string(Model::ID::Cube), VariableType::TheatreRef},
                 variable_t{"Material", std::to_string(mat_id), VariableType::TheatreRef}
+                variable_t{"Mesh", std::to_string(IDs::mCube), VariableType::TheatreRef},
             }
         });
     })

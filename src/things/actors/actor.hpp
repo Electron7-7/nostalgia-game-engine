@@ -21,7 +21,7 @@ public:
     bool m_Wireframe = false;
 
 protected:
-    id_t m_MeshInstanceID = ID::None;
+    id_t m_MeshInstanceID = IDs::None;
 };
 
 #endif // ACTOR_H

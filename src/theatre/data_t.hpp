@@ -58,7 +58,7 @@ private:
     std::vector<variable_t> m_Variables = {};
     std::string m_Name = "Untitled";
     size_t      m_Type = Type::Invalid;
-    id_t        m_AssignedID = ID::None;
+    id_t        m_ID = IDs::None;
     int         m_Priority = 0;
 };
 

@@ -22,7 +22,7 @@ public:
     const std::string& GetName() const;
 
 protected:
-    id_t m_ID = ID::None;
+    id_t m_ID = IDs::None;
     size_t m_Type = Type::Thing;
     std::string m_Name = "Untitled Thing";
 };

@@ -312,14 +312,14 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 unsigned int OpenGL_Backend::GetTextureID(id_t id)
 {
     if(!m_TextureIDs.contains(id))
-        { return m_TextureIDs.at(Image::ID::Missing); }
+        { return m_TextureIDs.at(IDs::iMissing); }
     return m_TextureIDs.at(id);
 }
 
 OpenGL_MeshData* OpenGL_Backend::GetMeshData(id_t id)
 {
     if(!m_MeshData.contains(id))
-        { return &m_MeshData.at(Model::ID::Error); }
+        { return &m_MeshData.at(IDs::mError); }
     return &m_MeshData.at(id);
 }
 

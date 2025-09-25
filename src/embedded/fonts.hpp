@@ -3,7 +3,6 @@
 
 namespace Font
 {
-    #include "things/id.hpp"
 
     constexpr unsigned char Audiowide[] =
     {
@@ -25,12 +24,6 @@ namespace Font
         constexpr const char* DejaVuSansMono = "DejaVuSansMono";
     }
 
-    namespace ID
-    {
-        constexpr id_t Verdana        = 0;
-        constexpr id_t DejaVuSansMono = 1;
-        constexpr id_t Audiowide      = 2;
-    }
 }
 
 #endif // FONTS_H

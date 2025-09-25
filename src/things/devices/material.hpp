@@ -24,8 +24,8 @@ public:
     glm::vec4 m_DebugHighlight = glm::vec4(0.9f, 0.2f, 1.0f, 0.0f);
 
 private:
-    id_t m_DiffuseTextureID  = ID::None;
-    id_t m_SpecularTextureID = ID::None;
+    id_t m_DiffuseTextureID  = IDs::None;
+    id_t m_SpecularTextureID = IDs::None;
 };
 
 #endif // MATERIAL_H

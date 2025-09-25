@@ -12,8 +12,8 @@ public:
     id_t GetMaterialID() const;
 
 private:
-    id_t m_MeshID     = ID::None;
-    id_t m_MaterialID = ID::None;
+    id_t m_MeshID     = IDs::None;
+    id_t m_MaterialID = IDs::None;
 };
 
 #endif // MESH_INSTANCE_H

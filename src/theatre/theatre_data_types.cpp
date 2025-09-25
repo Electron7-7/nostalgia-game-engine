@@ -34,7 +34,7 @@ void variable_t::clear()
 const data_t data_t::PlayerDefaults(
     "Default Player",
     Type::NostalgiaPlayer,
-    ID::None,
+    IDs::Player,
     {
         variable_t{"Rotation", "0, 0, 0", VariableType::Number},
         variable_t{"Origin", "0, 0, 0", VariableType::Number},
@@ -43,14 +43,14 @@ const data_t data_t::PlayerDefaults(
 data_t::data_t() = default;
 
 data_t::data_t(const std::string& name, const std::string& type_name, id_t id)
-: m_Name(name), m_Type(ConstexprHash(type_name)), m_AssignedID(id)
+: m_Name(name), m_Type(ConstexprHash(type_name)), m_ID(id)
 {
     if(!g_IsValidType(m_Type))
         { PRINT_ERROR("data_t::data_t({}, {}, {}, std::vector<variable_t>) - Type #{} is an invalid type!", name, type_name, id, m_Type) }
 }
 
 data_t::data_t(const std::string& name, size_t type, id_t id, const std::vector<variable_t>& variables)
-: m_Variables(variables), m_Name(name), m_Type(type), m_AssignedID(id)
+: m_Variables(variables), m_Name(name), m_Type(type), m_ID(id)
 {
     if(m_Type == Type::NostalgiaPlayer) // data_t::PlayerDefaults triggers the error message bc of when it's constructed
         { return; }
@@ -71,10 +71,10 @@ void data_t::AddVariable(const std::string& name, const std::string& data, const
 }
 
 id_t data_t::GetID() const
-{ return m_AssignedID; }
+{ return m_ID; }
 
 void data_t::SetID(id_t id)
-{ m_AssignedID = id; }
+{ m_ID = id; }
 
 const std::string& data_t::GetName() const
 { return m_Name; }
@@ -224,7 +224,7 @@ void TheatreData::debug_PrintData()
 
     for(const auto& data : m_Data)
     {
-        std::print("({}) {} [{}]:\n", StringifyType(data.m_Type), data.m_Name, data.m_AssignedID);
+        std::print("({}) {} [{}]:\n", StringifyType(data.m_Type), data.m_Name, data.m_ID);
 
         const std::vector<variable_t>& variables = data.m_Variables;
         for(const variable_t& variable : variables)

@@ -17,7 +17,7 @@ public:
     glm::mat4 ProjectionMatrix() const;
 
     id_t m_ShaderID = Shaders::BlinnPhong;
-    id_t m_MeshInstanceID = ID::None;
+    id_t m_MeshInstanceID = IDs::None;
     glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
     bool m_Wireframe = false;
 };

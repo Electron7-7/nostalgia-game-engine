@@ -118,7 +118,7 @@ static void s_AddParsedDataHelper(data_t& data)
     s_TheatreData.AddData(data);
     s_NameIDMap[data.GetName()] = std::to_string(data.GetID());
     if(data.GetType() == Type::NostalgiaPlayer)
-        { s_PlayerInstantiated = true; }
+        { s_PlayerInstantiated = true; data.SetID(IDs::Player); }
 }
 
 SafeStatus TheatreParser::try_ParseTheatre()
