@@ -64,38 +64,13 @@ static const char name_delimiter       = '@';
 static const char index_delimiter      = '#';
 static const char assignment_delimiter = '=';
 static const char sandwich_delimiter   = ':';
+static const char singleline_delimiter = ';';
 static const char comment_delimiter    = '/';
 static const char newline              = '\n';
 static const char tab                  = '\t';
 static const char space                = ' ';
 static const std::string resources     = "Resources";
 static const std::string things        = "Things";
-
-enum class Location
-{
-    TopLevel = 0,
-    Context  = 1,
-    Object   = 2,
-    Sandwich = 3,
-};
-
-enum class Defining
-{
-    Name     = -2,
-    Index    = -1,
-    Context  = 0,
-    Object   = 1,
-    Variable = 2,
-};
-
-enum class Parsing
-{
-    Nothing       =  0,
-    ObjectType    =  1,
-    ObjectName    =  2,
-    VariableName  =  3,
-    VariableValue =  4,
-};
 
 const TheatreData& TheatreParser::GetTheatreData()
 { return s_TheatreData; }
@@ -121,6 +96,39 @@ static void s_AddParsedDataHelper(data_t& data)
         { s_PlayerInstantiated = true; data.SetID(IDs::Player); }
 }
 
+enum class Context
+{
+    None,
+    Things,
+    Resources
+};
+
+enum class Location
+{
+    TopLevel,
+    Context,
+    Object,
+    Sandwich
+};
+
+enum class Defining
+{
+    Name,
+    Index,
+    Context,
+    Object,
+    Variable
+};
+
+enum class Parsing
+{
+    Nothing,
+    ObjectType,
+    ObjectName,
+    VariableName,
+    VariableValue
+};
+
 SafeStatus TheatreParser::try_ParseTheatre()
 {
     #pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
@@ -140,6 +148,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
     Location location = Location::TopLevel;
     Defining defining = Defining::Name;
     Parsing  parsing  = Parsing::Nothing;
+    Context  context  = Context::None;
 
     bool inside_comment   = false;
     bool inside_string    = false;
@@ -169,12 +178,11 @@ SafeStatus TheatreParser::try_ParseTheatre()
             set_new_line = false;
         }
 
-        DEBUG
-        (
-            // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
-            if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
-                { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
-        )
+#   ifdef DEBUGGING
+        // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
+        if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
+            { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
+#   endif // DEBUGGING
 
         set_new_line = (character == '\n');
 
@@ -182,7 +190,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         #pragma message("TODO: Make this shit less bad")
         switch(character)
         {
-        case exit_context:
+        /*case exit_context:
         {
             if(!invalid_context)
                 { break; }
@@ -191,7 +199,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
             bool exit_while = false;
             bool check_word = false;
             std::string temp_buffer = "";
-            while(!exit_while && temp_it < data_size)
+            while(!exit_while && temp_it < (data_size - 1))
             {
                 char temp_character = s_TheatreFileDataString.at(++temp_it);
                 switch(temp_character)
@@ -213,7 +221,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 break;
             }
             continue;
-        }
+        }*/
         case newline:
             inside_comment = false;
             break;
@@ -258,25 +266,6 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 continue;
             }
             break;
-        case newline:
-            inside_comment  = false;
-            if(location == Location::TopLevel)
-            {
-                if(defining == Defining::Name)
-                {
-                    theatre_name = buffer;
-                    defining = Defining::Index;
-                    buffer.clear();
-                }
-
-                else if(defining == Defining::Index)
-                {
-                    theatre_index = buffer;
-                    defining = Defining::Context;
-                    buffer.clear();
-                }
-            }
-            continue;
         case tab:
         case space:
             if(buffer.empty())
@@ -292,6 +281,12 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 variable_name = buffer;
                 parsing = Parsing::VariableValue;
                 buffer.clear();
+                break;
+            case Parsing::ObjectName:
+                temp_data.SetName(buffer);
+                buffer.clear();
+                defining = Defining::Variable;
+                parsing  = Parsing::VariableName;
                 break;
             default:
                 break;
@@ -311,10 +306,8 @@ SafeStatus TheatreParser::try_ParseTheatre()
             continue;
         }
         case enter_reference:
-            variable_type = VariableType::TheatreRef;
-            continue;
         case enter_engine_ref:
-            variable_type = VariableType::EngineRef;
+            variable_type = VariableType::Reference;
             continue;
         case enter_numeric:
             variable_type = VariableType::Number;
@@ -322,6 +315,8 @@ SafeStatus TheatreParser::try_ParseTheatre()
         case enter_exit_string:
             if(inside_string)
                 { continue; }
+            if(context == Context::Resources)
+                { variable_name = "File"; }
         case exit_numeric:
             if
             (
@@ -342,7 +337,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
             variable_value = buffer;
             buffer.clear();
             temp_data.AddVariable(variable_name, variable_value, variable_type);
-            parsing = Parsing::VariableName;
+            if(context != Context::Resources)
+                { parsing = Parsing::VariableName; }
+            else
+                { parsing = Parsing::ObjectType; }
             continue;
         case enter_context:
             if(location == Location::TopLevel)
@@ -350,8 +348,15 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 defining = Defining::Object;
                 parsing  = Parsing::ObjectType;
 
-                if(!buffer.compare(resources) || !buffer.compare(things))
+                if(!buffer.compare(resources))
                 {
+                    context = Context::Resources;
+                    location = Location::Context;
+                    invalid_context = false;
+                }
+                else if(!buffer.compare(things))
+                {
+                    context = Context::Things;
                     location = Location::Context;
                     invalid_context = false;
                 }
@@ -365,14 +370,30 @@ SafeStatus TheatreParser::try_ParseTheatre()
             }
             if(location != Location::Sandwich)
                 { location = Location::Object; }
-            if(parsing == Parsing::ObjectName)
+            continue;
+        case newline:
+            inside_comment  = false;
+            if(location == Location::TopLevel)
             {
-                temp_data.SetName(buffer);
-                buffer.clear();
-                defining = Defining::Variable;
-                parsing  = Parsing::VariableName;
+                if(defining == Defining::Name)
+                {
+                    theatre_name = buffer;
+                    defining = Defining::Index;
+                    buffer.clear();
+                }
+
+                else if(defining == Defining::Index)
+                {
+                    theatre_index = buffer;
+                    defining = Defining::Context;
+                    buffer.clear();
+                }
             }
             continue;
+        case singleline_delimiter:
+            location = Location::Object;
+            std::print("{}, {}\n", variable_name, variable_value);
+            [[fallthrough]];
         case exit_context:
             buffer.clear();
             switch(location)
@@ -381,6 +402,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 SYNTAX_WARNING("Extraneous '{}' (will be ignored)", "}")
                 continue;
             case Location::Context:
+                context  = Context::None;
                 defining = Defining::Context;
                 location = Location::TopLevel;
                 parsing  = Parsing::Nothing;
@@ -399,7 +421,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
                 std::string sandwich_variable_value = temp_data.GetName();
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, VariableType::TheatreRef);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, VariableType::Reference);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
@@ -418,9 +440,9 @@ SafeStatus TheatreParser::try_ParseTheatre()
     }
 
     if(!s_PlayerInstantiated)
-        { s_TheatreData.AddData({"Default Player", TypeName::NostalgiaPlayer, ID::GetNewID()}); }
+        { s_TheatreData.AddData(data_t::PlayerDefaults); }
 
-    s_TheatreData.UpdateTheatreReferences(s_NameIDMap);
+    s_TheatreData.UpdateReferences(s_NameIDMap);
     s_TheatreData.OrderByPriority();
 
 #ifdef DEBUGGING
