@@ -14,7 +14,7 @@ struct TheatreData
     long m_Index = -1;
 
     const std::vector<data_t>& GetData() const;
-    void UpdateTheatreReferences(const std::map<std::string, std::string>& NameIDMap);
+    void UpdateReferences(const std::map<std::string, std::string>& NameIDMap);
     void OrderByPriority();
 
     SafeStatus AddData(const data_t& Data);

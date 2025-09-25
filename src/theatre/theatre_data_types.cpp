@@ -2,8 +2,8 @@
 #include "data_t.hpp"
 #include "variable_t.hpp"
 #include "debug.hpp"
-#include "filesystem/file_data.hpp"
-#include "embedded/resource_data.hpp"
+#include "managers/theatre_manager.hpp"
+#include "embedded/names.hpp"
 
 // Variable
 
@@ -106,44 +106,35 @@ void data_t::clear()
     m_Type = Type::Invalid;
 }
 
-#define ASSERT_VARIABLE(VAR_NAME, VAR_TYPE) \
-const auto& VAR_NAME = std::find(m_Variables.begin(), m_Variables.end(), variable_name); \
-if(VAR_NAME == m_Variables.end() || variable->m_Value.empty()) \
+#define ASSERT_VARIABLE(LOCAL_VAR, VAR_NAME, VAR_TYPE) \
+const auto& LOCAL_VAR = std::find(m_Variables.begin(), m_Variables.end(), VAR_NAME); \
+if(LOCAL_VAR == m_Variables.end() || LOCAL_VAR->m_Value.empty()) \
     { return false; } \
-else if(VAR_NAME->m_Type != VAR_TYPE) \
+else if(LOCAL_VAR->m_Type != VAR_TYPE) \
     { return false; }
 
-bool data_t::GetTheatreRef(unsigned int& real_variable, const std::string& variable_name) const
+bool data_t::GetReference(unsigned int& output, const std::string& variable_name) const
 {
-    ASSERT_VARIABLE(variable, VariableType::TheatreRef)
-    return StringToNum<unsigned int>(real_variable, variable->m_Value);
-}
-
-bool data_t::GetFileData(FileData& real_variable, const std::string& variable_name) const
-{
-    ASSERT_VARIABLE(variable, VariableType::EngineRef)
-    return(ResourceData::GetData(real_variable, variable->m_Value));
+    ASSERT_VARIABLE(variable, variable_name, VariableType::Reference);
+    unsigned int id = output;
+    if(StringToNum<unsigned int>(id, variable->m_Value))
+        { output = id; return true; }
+    return false;
 }
 
 bool data_t::GetBool(bool& real_variable, const std::string& variable_name) const
 {
-    ASSERT_VARIABLE(variable, VariableType::Bool)
+    ASSERT_VARIABLE(variable, variable_name, VariableType::Bool)
     if(!variable->m_Value.compare("true"))
-    {
-        real_variable = true;
-        return true;
-    }
+        { real_variable = true; return true; }
     else if(!variable->m_Value.compare("false"))
-    {
-        real_variable = false;
-        return true;
-    }
+        { real_variable = false; return true; }
     return false;
 }
 
 bool data_t::GetString(std::string& real_variable, const std::string& variable_name) const
 {
-    ASSERT_VARIABLE(variable, VariableType::String)
+    ASSERT_VARIABLE(variable, variable_name, VariableType::String)
     if(variable->m_Value.empty())
         { return false; }
     real_variable = variable->m_Value;
@@ -157,16 +148,33 @@ const TheatreData TheatreData::Missing;
 const std::vector<data_t>& TheatreData::GetData() const
 { return m_Data; }
 
-void TheatreData::UpdateTheatreReferences(const std::map<std::string, std::string>& ids)
+static std::map<std::string, id_t>
+s_EmbeddedDataNameIDLookup =
+{
+    { Images::Name::Missing,    IDs::iMissing    },
+    { Images::Name::LightDebug, IDs::iLightDebug },
+    { Images::Name::COMP04_5,   IDs::iCOMP04_5   },
+    { Images::Name::LolBit,     IDs::iLolBit     },
+    { Models::Name::Error,      IDs::mError      },
+    { Models::Name::Cube,       IDs::mCube       },
+    { Models::Name::Ramiel,     IDs::mRamiel     },
+    { Fonts::Name::Audiowide,   IDs::fAudiowide  },
+    { Fonts::Name::DejaVuSans,  IDs::fDejaVuSans },
+    { Fonts::Name::Verdana,     IDs::fVerdana    },
+};
+
+void TheatreData::UpdateReferences(const std::map<std::string, std::string>& ids)
 {
     for(data_t& data : m_Data)
     {
         for(variable_t& variable : data.m_Variables)
         {
-            if(variable.m_Type != VariableType::TheatreRef)
+            if(variable.m_Type != VariableType::Reference)
                 { continue; }
             if(ids.contains(variable.m_Value))
                 { variable.m_Value = ids.at(variable.m_Value); }
+            else if(s_EmbeddedDataNameIDLookup.contains(variable.m_Value))
+                { variable.m_Value = std::to_string(s_EmbeddedDataNameIDLookup.at(variable.m_Value)); }
         }
     }
 }

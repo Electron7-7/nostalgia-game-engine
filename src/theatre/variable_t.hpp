@@ -6,8 +6,7 @@
 enum class VariableType
 {
     Nothing, // This is only used by the parser
-    TheatreRef,
-    EngineRef,
+    Reference,
     Number,
     Bool,
     String,
@@ -19,10 +18,8 @@ constexpr std::string StringifyEnum(const VariableType& VariableTypeEnum)
 {
     switch(VariableTypeEnum)
     {
-    case VariableType::TheatreRef:
-        return "TheatreRef";
-    case VariableType::EngineRef:
-        return "EngineRef";
+    case VariableType::Reference:
+        return "Reference";
     case VariableType::Number:
         return "Number";
     case VariableType::Bool:

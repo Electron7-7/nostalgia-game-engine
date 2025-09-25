@@ -5,7 +5,6 @@
 #include "string_to_num.hpp"
 #include "things/id.hpp"
 #include "things/things.hpp"
-#include "filesystem/fwd.hpp"
 
 #include <vector>
 #include <algorithm>
@@ -17,7 +16,7 @@ public:
     static const data_t PlayerDefaults;
 
     data_t();
-    data_t(const std::string& Name, const std::string& Type, id_t ID = ID::None);
+    data_t(const std::string& Name, const std::string& Type, id_t ID = IDs::None);
     data_t(const std::string& Name, size_t Type, id_t ID, const std::vector<variable_t>& Variables);
 
     void AddVariable(const std::string& Name, const std::string& Value, const VariableType& Type);
@@ -36,20 +35,19 @@ public:
 
     void clear();
 
-    bool GetTheatreRef(unsigned int& AssignTo, const std::string& VariableName) const;
-    bool GetFileData(FileData& AssignTo, const std::string& VariableName) const;
-    bool GetBool(bool& AssignTo, const std::string& VariableName) const;
-    bool GetString(std::string& AssignTo, const std::string& VariableName) const;
+    bool GetReference(unsigned int& Output, const std::string& VariableName) const;
+    bool GetBool(bool& Output, const std::string& VariableName) const;
+    bool GetString(std::string& Output, const std::string& VariableName) const;
 
     template<typename T>
-    bool GetNumber(T& AssignTo, const std::string& VariableName) const
+    bool GetNumber(T& Output, const std::string& VariableName) const
     {
         const auto& variable = std::find(m_Variables.begin(), m_Variables.end(), VariableName);
         if(variable == m_Variables.end() || variable->m_Value.empty())
             { return false; }
         else if(variable->m_Type != VariableType::Number)
             { return false; }
-        StringToNum<T>(AssignTo, variable->m_Value);
+        StringToNum<T>(Output, variable->m_Value);
         return true;
     }
 
