@@ -2,32 +2,30 @@
 #define RESOURCE_H
 
 #include "../thing.hpp"
-#include "safe_return.hpp"
 #include "filesystem/file_data.hpp"
-
-enum class ResourceStatus
-{
-    NOT_PROCESSED,
-    FAILED,
-    SUCCESSFUL
-};
+#include "theatre/data_t.hpp"
 
 class Resource : public Thing
 {
 public:
-    Resource();
-    Resource(const FileData& Data);
+    Resource() = default;
+    Resource(const FileData& Data)
+    : m_FileData(Data)
+    {}
 
-    virtual SafeStatus CreateResource() { return Status::NO_ERR; };
-    virtual void SetupVariables(const data_t&);
-    virtual bool Initialize() { return true; }
-    virtual void Destroy() {};
-    virtual FileData& Data() { return m_FileData; }
-    virtual ResourceStatus Status() { return m_Status; }
+    virtual void SetupVariables(const data_t& data)
+    {
+        Thing::SetupVariables(data);
+        std::string path = "";
+        if(data.GetString(path, "File"))
+            { m_FileData.LoadFile(path); }
+    }
+
+    FileData& Data()
+        { return m_FileData; }
 
 protected:
     FileData m_FileData;
-    ResourceStatus m_Status = ResourceStatus::NOT_PROCESSED;
 };
 
 #endif // RESOURCE_H

@@ -2,14 +2,16 @@
 #define FONT_H
 
 #include "resource.hpp"
-#include "safe_return.hpp"
 
 class Font : public Resource
 {
 public:
     using Resource::Resource;
-    virtual void SetupVariables(const data_t&);
-    virtual SafeStatus CreateResource();
+    virtual void SetupVariables(const data_t& data)
+    {
+        Resource::SetupVariables(data);
+        // buffer font data
+    }
 };
 
 #endif // FONT_H
