@@ -13,6 +13,7 @@ namespace TypeName
     constexpr const char* Mesh             = "Mesh";
     constexpr const char* Font             = "Font";
     constexpr const char* Texture          = "Texture";
+    constexpr const char* Device           = "Device";
     constexpr const char* Material         = "Material";
     constexpr const char* MeshInstance     = "MeshInstance";
     constexpr const char* Thinker          = "Thinker";
@@ -31,6 +32,7 @@ namespace Type
     constexpr size_t Mesh             = ConstexprHash(TypeName::Mesh);
     constexpr size_t Font             = ConstexprHash(TypeName::Font);
     constexpr size_t Texture          = ConstexprHash(TypeName::Texture);
+    constexpr size_t Device           = ConstexprHash(TypeName::Device);
     constexpr size_t Material         = ConstexprHash(TypeName::Material);
     constexpr size_t MeshInstance     = ConstexprHash(TypeName::MeshInstance);
     constexpr size_t Thinker          = ConstexprHash(TypeName::Thinker);
@@ -64,6 +66,8 @@ inline const char* const& StringifyType(size_t TypeID)
         return TypeName::Mesh;
     case Type::Texture:
         return TypeName::Texture;
+    case Type::Device:
+        return TypeName::Device;
     case Type::Material:
         return TypeName::Material;
     case Type::MeshInstance:

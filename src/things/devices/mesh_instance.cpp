@@ -3,7 +3,7 @@
 
 void MeshInstance::SetupVariables(const data_t& data)
 {
-    Resource::SetupVariables(data);
+    Device::SetupVariables(data);
 
     data.GetTheatreRef(m_MeshID, "Mesh");
     data.GetTheatreRef(m_MaterialID, "Material");

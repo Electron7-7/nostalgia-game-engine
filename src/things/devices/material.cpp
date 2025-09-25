@@ -3,7 +3,7 @@
 
 void Material::SetupVariables(const data_t& data)
 {
-    Resource::SetupVariables(data);
+    Device::SetupVariables(data);
 
     data.GetTheatreRef(m_DiffuseTextureID, "DiffuseTexture");
     data.GetTheatreRef(m_SpecularTextureID, "SpecularTexture");

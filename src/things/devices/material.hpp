@@ -1,11 +1,11 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "../resources/resource.hpp"
+#include "device.hpp"
 
 #include <glm/glm.hpp>
 
-class Material : public Resource
+class Material : public Device
 {
 public:
     virtual void SetupVariables(const data_t&);

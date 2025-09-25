@@ -1,9 +1,9 @@
 #ifndef MESH_INSTANCE_H
 #define MESH_INSTANCE_H
 
-#include "../resources/resource.hpp"
+#include "device.hpp"
 
-class MeshInstance : public Resource
+class MeshInstance : public Device
 {
 public:
     virtual void SetupVariables(const data_t&);

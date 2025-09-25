@@ -31,6 +31,7 @@ s_ThingConstructors =
     { Type::Resource,         &l_MakeThing<Resource>         },
     { Type::Mesh,             &l_MakeThing<Mesh>             },
     { Type::Font,             &l_MakeThing<Font>             },
+    { Type::Device,           &l_MakeThing<Device>           },
     { Type::Material,         &l_MakeThing<Material>         },
     { Type::Texture,          &l_MakeThing<Texture>          },
     { Type::MeshInstance,     &l_MakeThing<MeshInstance>     },
@@ -95,5 +96,6 @@ template std::shared_ptr<NostalgiaPlayer> g_GetThing<NostalgiaPlayer>(id_t ID);
 template std::shared_ptr<Resource> g_GetThing<Resource>(id_t ID);
 template std::shared_ptr<Mesh> g_GetThing<Mesh>(id_t ID);
 template std::shared_ptr<Texture> g_GetThing<Texture>(id_t ID);
+template std::shared_ptr<Device> g_GetThing<Device>(id_t ID);
 template std::shared_ptr<MeshInstance> g_GetThing<MeshInstance>(id_t ID);
 template std::shared_ptr<Material> g_GetThing<Material>(id_t ID);
