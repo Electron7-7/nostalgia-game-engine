@@ -5,8 +5,8 @@ void MeshInstance::SetupVariables(const data_t& data)
 {
     Device::SetupVariables(data);
 
-    data.GetTheatreRef(m_MeshID, "Mesh");
-    data.GetTheatreRef(m_MaterialID, "Material");
+    data.GetReference(m_MeshID, "Mesh");
+    data.GetReference(m_MaterialID, "Material");
 }
 
 id_t MeshInstance::GetMeshID() const

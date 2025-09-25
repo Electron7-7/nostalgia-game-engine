@@ -36,21 +36,21 @@ void light_t::SetupVariables(const data_t& data)
     NOTDEBUG(m_Visible = false;)
     DEBUG(if(m_MeshInstanceID == IDs::None) { // the debug mesh/material shouldn't override a manually specificed one
         id_t mat_id = TheatreManager::CreateThing(data_t{
-            m_Name + "'s Debug Material",
+            m_Name + "'s Debug Mat",
             Type::Material,
             ID::GetNewID(),
             {
-                variable_t{"DiffuseTexture", std::to_string(IDs::iLightDebug), VariableType::TheatreRef},
+                variable_t{"DiffuseTexture", std::to_string(IDs::iLightDebug), VariableType::Reference},
                 variable_t{"FullBright", "true", VariableType::Bool},
             }
         });
         m_MeshInstanceID = TheatreManager::CreateThing(data_t{
-            m_Name + "'s Debug MeshInstance",
+            m_Name + "'s Debug MeshInst",
             Type::MeshInstance,
             ID::GetNewID(),
             {
-                variable_t{"Material", std::to_string(mat_id), VariableType::TheatreRef}
-                variable_t{"Mesh", std::to_string(IDs::mCube), VariableType::TheatreRef},
+                variable_t{"Mesh", std::to_string(IDs::mCube), VariableType::Reference},
+                variable_t{"Material", std::to_string(mat_id), VariableType::Reference}
             }
         });
     })
@@ -80,8 +80,9 @@ void SpotLight::SetupVariables(const data_t& data)
 {
     light_t::SetupVariables(data);
     data.GetNumber(m_SpotAngle, "Angle");
+    data.GetNumber(m_SpotAngle, "SpotAngle");
     data.GetNumber(m_SpotAngleFade, "AngleFade");
-    data.GetNumber(m_SpotAngleFade, "AngleFadeIntensity");
+    data.GetNumber(m_SpotAngleFade, "SpotAngleFade");
 }
 
 LightType SpotLight::Type() const

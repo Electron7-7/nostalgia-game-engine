@@ -15,7 +15,7 @@ void Actor::SetupVariables(const data_t& data)
     glm::quat quat;
     if(data.GetNumber(quat, "Quaternion"))
         { Quaternion(quat); }
-    data.GetTheatreRef(m_MeshInstanceID, "MeshInstance");
+    data.GetReference(m_MeshInstanceID, "MeshInstance");
     data.GetBool(m_Visible, "Visible");
     data.GetBool(m_Wireframe, "MakeWireframe");
     data.GetBool(m_Wireframe, "Wireframe");

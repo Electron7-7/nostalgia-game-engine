@@ -5,8 +5,8 @@ void Material::SetupVariables(const data_t& data)
 {
     Device::SetupVariables(data);
 
-    data.GetTheatreRef(m_DiffuseTextureID, "DiffuseTexture");
-    data.GetTheatreRef(m_SpecularTextureID, "SpecularTexture");
+    data.GetReference(m_DiffuseTextureID, "DiffuseTexture");
+    data.GetReference(m_SpecularTextureID, "SpecularTexture");
     data.GetNumber(m_Color, "Color");
     data.GetNumber(m_Alpha, "Alpha");
     data.GetNumber(m_SpecularSharpness, "SpecularSharpness");
