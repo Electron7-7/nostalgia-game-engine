@@ -577,8 +577,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             int i = 0;
             for(const auto& [id, thing] : things)
             {
-                #pragma message("Replace this with `std::dynamic_pointer_cast<Resource>(thing)` once I make 'ComplexResource' separate from 'Resource'")
-                if(std::dynamic_pointer_cast<Mesh>(thing) || std::dynamic_pointer_cast<Texture>(thing) || std::dynamic_pointer_cast<Font>(thing) || std::dynamic_pointer_cast<MeshInstance>(thing))
+                if(std::dynamic_pointer_cast<Resource>(thing) || std::dynamic_pointer_cast<MeshInstance>(thing))
                     { continue; }
                 s_Highlight = false;
                 bool push_color = false;
