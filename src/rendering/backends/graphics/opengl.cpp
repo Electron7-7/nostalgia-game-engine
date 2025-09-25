@@ -380,19 +380,26 @@ static void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLu
         _type = "UNKNOWN";
         break;
     }
-
     switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
+        if(!g_EnableDebugMsgHigh)
+            { return; }
         _severity = "HIGH";
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
+        if(!g_EnableDebugMsgMedium)
+            { return; }
         _severity = "MEDIUM";
         break;
     case GL_DEBUG_SEVERITY_LOW:
+        if(!g_EnableDebugMsgLow)
+            { return; }
         _severity = "LOW";
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
+        if(!g_EnableDebugMsgNotif)
+            { return; }
         _severity = "NOTIFICATION";
         break;
     default:

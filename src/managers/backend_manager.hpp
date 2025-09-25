@@ -2,8 +2,8 @@
 #define BACKEND_MANAGER_H
 
 #include "managers/manager.hpp"
-#include "rendering/backends/graphics.hpp"
-#include "rendering/backends/windowing.hpp"
+#include "rendering/backends/graphics/graphics.hpp"
+#include "rendering/backends/windowing/windowing.hpp"
 
 #include <memory>
 

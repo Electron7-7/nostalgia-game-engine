@@ -1,6 +1,6 @@
 #include "graphics.hpp"
-#include "../shader_interfaces/shader_interface.hpp"
-#include "../vertex.hpp"
+#include "rendering/shader_interfaces/shader_interface.hpp"
+#include "rendering/vertex.hpp"
 #include "filesystem/file_data.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT

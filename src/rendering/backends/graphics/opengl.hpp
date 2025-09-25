@@ -1,7 +1,7 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include "../graphics.hpp"
+#include "graphics.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 
 #include <map>
@@ -68,6 +68,10 @@ private:
     constexpr int Shader_NORMAL = 2;
     constexpr int Shader_UV = 3;
     extern int g_ShaderDebugOuptut;
+    inline bool g_EnableDebugMsgHigh = true;
+    inline bool g_EnableDebugMsgMedium = true;
+    inline bool g_EnableDebugMsgLow = true;
+    inline bool g_EnableDebugMsgNotif = false;
 #endif // DEBUGGING
 
 #endif // OPENGL_BACKEND_H
