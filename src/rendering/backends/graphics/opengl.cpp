@@ -1,19 +1,16 @@
 #include "opengl.hpp"
-#include "debug.hpp"
-#include "printing.hpp"
 #include "../../render_command.hpp"
 #include "world/world.hpp"
-#include "settings/settings.hpp" // IWYU pragma: keep
+#include "settings/settings.hpp"
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
 #include "embedded/shaders.hpp" // IWYU pragma: keep
-#include "embedded/images.hpp"
-#include "embedded/models.hpp"
-#include "things/resources/mesh.hpp"
-#include "things/resources/texture.hpp"
-#include "things/devices/material.hpp" // IWYU pragma: keep
-#include "things/devices/mesh_instance.hpp" // IWYU pragma: keep
-#include "theatre/data_t.hpp"
+#include "filesystem/file_data.hpp"
+#include "things/devices/material.hpp"
+#include "things/devices/mesh_instance.hpp"
+#include "filesystem/file_data.hpp"
+#include "debug.hpp"
+#include "printing.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"
@@ -27,6 +24,7 @@ std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
 std::map<id_t, OpenGL_MeshData>       OpenGL_Backend::m_MeshData = {};
 std::map<id_t, OpenGL_TextureID>      OpenGL_Backend::m_TextureIDs = {};
 
+static std::vector<OpenGL_BufferData> s_BufferData = {};
 static unsigned int s_VBO = 0;
 static unsigned int s_IBO = 0;
 
@@ -89,13 +87,17 @@ void OpenGL_Backend::ImGuiNewFrame()
 void OpenGL_Backend::ImGuiRender()
 { ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
-void OpenGL_Backend::BufferMesh(Mesh* mesh)
+void OpenGL_Backend::BufferMesh(const FileData& data, id_t id)
 {
-    if(mesh->Status() == ResourceStatus::SUCCESSFUL)
-        { m_MeshData[mesh->GetID()] = OpenGL_MeshData{mesh->GetVertexData(), mesh->GetIndices()}; }
+    OpenGL_BufferData temp_data;
+    if(GraphicsBackend::CreateMeshData(temp_data.vertices, temp_data.indices, data))
+    {
+        temp_data.id = id;
+        s_BufferData.push_back(temp_data);
+    }
 }
 
-void OpenGL_Backend::BufferTexture(Texture* texture)
+void OpenGL_Backend::BufferTexture(const FileData& data, id_t texture_id)
 {
     #pragma message("TODO: Only flip images that need to be flipped")
     stbi_set_flip_vertically_on_load(true);
@@ -104,11 +106,11 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     int l_Width, l_Height, l_Channels;
-    unsigned char* l_Data = stbi_load_from_memory(texture->Data().Data(), texture->Data().Size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
+    unsigned char* l_Data = stbi_load_from_memory(data.Data(), data.Size(), &l_Width, &l_Height, &l_Channels, STBI_rgb);
 
     if(!l_Data)
     {
-        PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture '{}' (ID#{})", texture->GetName(), texture->GetID())
+        PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture")
         glDeleteTextures(1, &id);
         return;
     }
@@ -123,26 +125,13 @@ void OpenGL_Backend::BufferTexture(Texture* texture)
     glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
     glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_TextureIDs[texture->GetID()] = id;
+    m_TextureIDs[texture_id] = id;
     stbi_image_free(l_Data);
 }
 
 void OpenGL_Backend::CreateRenderingData()
 {
-    std::vector<float> l_AllVertexData = {};
-    std::vector<unsigned int> l_AllIndices = {};
-    // Buffer important embedded Resources
-    Mesh error({Model::Error, std::size(Model::Error), FileType::model_OBJ});
-    error.SetupVariables({Model::Name::Error, TypeName::Mesh, Model::ID::Error});
-    Mesh cube({Model::Cube, std::size(Model::Cube), FileType::model_OBJ});
-    cube.SetupVariables({Model::Name::Cube, TypeName::Mesh, Model::ID::Cube});
-    Texture missing({Image::Missing, std::size(Image::Missing), FileType::image_JPG});
-    missing.SetupVariables({Image::Name::Missing, TypeName::Texture, Image::ID::Missing});
-    Texture light({Image::LightDebugging, std::size(Image::LightDebugging), FileType::image_JPG});
-    light.SetupVariables({Image::Name::LightDebugging, TypeName::Texture, Image::ID::LightDebugging});
-
     glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
-
     glDeleteBuffers(1, &s_VBO);
     glDeleteBuffers(1, &s_IBO);
     glGenBuffers(1, &s_VBO);
@@ -150,17 +139,22 @@ void OpenGL_Backend::CreateRenderingData()
     glBindBuffer(GL_ARRAY_BUFFER, s_VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_IBO);
 
-    for(auto& [id, data] : m_MeshData)
+    std::vector<float> l_AllVertexData = {};
+    std::vector<unsigned int> l_AllIndices = {};
+
+    for(const auto& data : s_BufferData)
     {
-        data.base_vertex   = (l_AllVertexData.size() / VAO_DEFAULT_STRIDE);
-        data.base_index    = l_AllIndices.size();
-
-        l_AllVertexData.insert(l_AllVertexData.end(), data.vertex_data.begin(), data.vertex_data.end());
+        m_MeshData[data.id] =
+        {
+            static_cast<unsigned int>(data.indices.size()),
+            static_cast<unsigned int>(l_AllVertexData.size() / VAO_DEFAULT_STRIDE),
+            static_cast<unsigned int>(l_AllIndices.size())
+        };
+        l_AllVertexData.insert(l_AllVertexData.end(), data.vertices.begin(), data.vertices.end());
         l_AllIndices.insert(l_AllIndices.end(), data.indices.begin(), data.indices.end());
-
-        data.indices.clear();
-        data.vertex_data.clear();
     }
+
+    s_BufferData.clear();
 
     glBufferData(GL_ARRAY_BUFFER, l_AllVertexData.size() * sizeof(float), l_AllVertexData.data(), GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, l_AllIndices.size() * sizeof(unsigned int), l_AllIndices.data(), GL_STATIC_DRAW);

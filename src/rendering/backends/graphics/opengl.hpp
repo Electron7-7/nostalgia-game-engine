@@ -5,19 +5,18 @@
 #include "rendering/shader_interfaces/gl_shader.hpp"
 
 #include <map>
-#include <vector>
 
 typedef unsigned int OpenGL_TextureID;
 
+struct OpenGL_BufferData
+{
+    id_t id = 0;
+    std::vector<float> vertices = {};
+    std::vector<unsigned int> indices = {};
+};
+
 struct OpenGL_MeshData
 {
-    OpenGL_MeshData(const std::vector<float>& data = {}, const std::vector<unsigned int>& indices_vec = {})
-    : vertex_data(data), indices(indices_vec), indices_count(indices_vec.size()), base_vertex(0), base_index(0)
-    {}
-
-    std::vector<float> vertex_data = {};
-    std::vector<unsigned int> indices = {};
-
     unsigned int indices_count = 0;
     unsigned int base_vertex   = 0;
     unsigned int base_index    = 0;
@@ -38,8 +37,8 @@ public:
 
     void CreateRenderingData();
     void DestroyRenderingData();
-    void BufferMesh(Mesh*);
-    void BufferTexture(Texture*);
+    void BufferMesh(const FileData&, id_t);
+    void BufferTexture(const FileData&, id_t);
     void ClearBuffer(glm::vec4);
     const ShaderInterface* GetShader(unsigned int) const;
     bool BuildShader(unsigned int, const char*, const char*);

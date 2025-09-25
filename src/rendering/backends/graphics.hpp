@@ -3,10 +3,12 @@
 
 #include "rendering/fwd.hpp"
 #include "things/fwd.hpp"
+#include "filesystem/fwd.hpp"
 
 #include "backend.hpp"
 
 #include <glm/glm.hpp>
+#include <vector>
 
 class GraphicsBackend : public _Backend
 {
@@ -25,8 +27,8 @@ public:
     // Pure virtual functions (*must* be implemented)
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
-    virtual void BufferMesh(Mesh*) = 0;
-    virtual void BufferTexture(Texture*) = 0;
+    virtual void BufferMesh(const FileData& Data, id_t ID) = 0;
+    virtual void BufferTexture(const FileData& Data, id_t ID) = 0;
     virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
@@ -38,6 +40,8 @@ public:
 protected:
     bool m_IsImGuiInitialized = false;
     static unsigned int s_CurrentlyBoundShader;
+
+    static bool CreateMeshData(std::vector<float>& VertexData, std::vector<unsigned int>& Indices, const FileData& FileData);
 };
 
 #endif // GRAPHICS_BACKEND_H

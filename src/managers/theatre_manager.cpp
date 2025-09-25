@@ -1,13 +1,15 @@
 #include "theatre_manager.hpp"
 #include "theatre/theatre_data.hpp"
 #include "theatre/theatre_parser.hpp"
-#include "managers/backend_manager.hpp"
-#include "rendering/backends/graphics.hpp"
 #include "rendering/render_command.hpp"
 #include "things/things.hpp"
 #include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
+#include "embedded/images.hpp"
+#include "embedded/models.hpp"
+#include "filesystem/file_data.hpp"
+#include "managers/backend_manager.hpp"
 #include "colors.hpp"
 #ifdef DEBUGGING
 #   include "time.hpp"
@@ -184,6 +186,15 @@ void TheatreManager::CreateThings()
 
     const std::vector<data_t>& theatre_data = TheatreParser::GetTheatreData().GetData();
     g_pBackendManager->Graphics()->DestroyRenderingData();
+
+    // Buffer important embedded Resources
+    g_pBackendManager->Graphics()->BufferTexture({Images::Missing, std::size(Images::Missing), FileType::image_JPG}, IDs::iMissing);
+    g_pBackendManager->Graphics()->BufferTexture({Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG}, IDs::iLightDebug);
+    g_pBackendManager->Graphics()->BufferTexture({Images::COMP04_5, std::size(Images::COMP04_5), FileType::image_PNG}, IDs::iCOMP04_5);
+    g_pBackendManager->Graphics()->BufferTexture({Images::LolBit, std::size(Images::LolBit), FileType::image_PNG}, IDs::iLolBit);
+    g_pBackendManager->Graphics()->BufferMesh({Models::Error, std::size(Models::Error), FileType::model_OBJ}, IDs::mError);
+    g_pBackendManager->Graphics()->BufferMesh({Models::Cube, std::size(Models::Cube), FileType::model_OBJ}, IDs::mCube);
+    g_pBackendManager->Graphics()->BufferMesh({Models::Ramiel, std::size(Models::Ramiel), FileType::model_OBJ}, IDs::mRamiel);
 
     for(const data_t& data : theatre_data)
         { CreateThing(data); }
