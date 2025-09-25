@@ -21,12 +21,9 @@ public:
 
     void RenderWorld();
 
-    static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
-
-    static std::shared_ptr<Thing>& GetThing(id_t ID);
-    static const std::shared_ptr<Thing>& cGetThing(id_t ID);
-
     static id_t CreateThing(const data_t& ThingData);
+    static std::shared_ptr<Thing> GetThing(id_t ID);
+    static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
     static bool DestroyThing(id_t ID);
 
 private:

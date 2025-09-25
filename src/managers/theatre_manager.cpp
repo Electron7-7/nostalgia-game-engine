@@ -119,23 +119,6 @@ void TheatreManager::RenderWorld()
     }
 }
 
-std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
-{ return s_LocalPlayer; }
-
-std::shared_ptr<Thing>& TheatreManager::GetThing(id_t id)
-{
-    if(!s_Things.contains(id))
-        { return s_Things.begin()->second; }
-    return s_Things.at(id);
-}
-
-const std::shared_ptr<Thing>& TheatreManager::cGetThing(id_t id)
-{
-    if(!s_Things.contains(id))
-        { return s_Things.cbegin()->second; }
-    return s_Things.at(id);
-}
-
 id_t TheatreManager::CreateThing(const data_t& cData)
 {
     std::shared_ptr<Thing> thing;
@@ -160,6 +143,16 @@ id_t TheatreManager::CreateThing(const data_t& cData)
     thing->SetupVariables(data);
     return thing->GetID();
 }
+
+std::shared_ptr<Thing> TheatreManager::GetThing(id_t id)
+{
+    if(!s_Things.contains(id))
+        { return std::make_shared<Thing>(); }
+    return s_Things.at(id);
+}
+
+std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
+{ return s_LocalPlayer; }
 
 bool TheatreManager::DestroyThing(id_t id)
 {
