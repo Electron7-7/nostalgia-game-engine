@@ -129,6 +129,7 @@ SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/demo                         \
+    $(SRC)/devices                      \
     $(SRC)/embedded                     \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
