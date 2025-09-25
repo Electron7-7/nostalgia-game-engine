@@ -12,7 +12,7 @@
 
 using namespace ImGui;
 
-static std::string s_TheatreFilePath = "theatres/NostalgiaHelloWorld.nt";
+static std::string s_TheatreFilePath = "theatres/HelloWorld.nt";
 static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
 
 static imgui_Debugger s_Debugger;

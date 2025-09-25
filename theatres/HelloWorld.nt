@@ -1,0 +1,160 @@
+// The first bit of text (that isn't a comment or whitespace) should be the Theatre name and index. While it's not a requirement, it
+// *is* a strong recommendation
+@HelloWorld#0
+
+// All definitions are contained in one or both "contexts". These contexts don't serve any functional purpose, and are simply a way
+// of keeping the file format clean, distinct, and separated. Contexts may be dropped in the future, if and when I decide to refine
+// the parser some more
+Resources
+{
+    // Resources are wrappers for file data. As such, they use simple one-line definitions starting with their type, name, an equals
+    // sign, a string variable, and finally ended with a semicolon. Strings are delimited by single quotes and will capture absolutely
+    // everything inside of them, including whitespace
+    Mesh IcoSphere = 'src/testing_app/resources/IcoSphere.obj';
+    Texture StupidTex = 'src/testing_app/resources/Stupid.png';
+    // Defining your own resources is currently limited to external files; support for adding your own internally embedded resource
+    // data should be coming soon
+}
+
+// Things are, well, everything else. Technically speaking, Resources *are* Things, but they get special treatment. Thing definition
+// follows a syntax that closely resembles a mixture of a C/C++ variable and struct.
+Things
+{
+    // Thing definition starts with the type, followed by a name (similarly to 'Resource'), which is followed by curly braces.
+    // Variables are defined inside the curly braces and are Python-esque, being terminated by a newline
+    Material LolBitMaterial
+    {
+        // This is a "Reference" variable; specifically, it's a reference to some internally defined data (in this case, a texture)
+        // and are delimited by square brackets ([])
+        DiffuseTexture = [LolBitTexture]
+    }
+
+    MeshInstance LolBitCubeMeshInstance
+    {
+        // This is also a reference, but it references a Thing/Resource defined in the current Theatre. It is delimited by angled
+        // brackets (<>)
+        Material = <LolBitMaterial>
+        Mesh = [DefaultCube]
+    }
+
+    Material RedMaterial
+    {
+        // These are all "Numerical" variables, one being a boolean and the other two being numbers. Numerical variables are delimited
+        // by parentheses (())
+        NoTexture = (trUe) // Booleans are not case-sensitive
+        // Number variables can contain up to four numbers (separated by commas)
+        Color = (1, 0.2, 0.1) // Numbers can be positive, negative, real, or whole
+        SpecularStrength = (0.6)
+    }
+
+    Actor Ramiel
+    {
+        // This is a "Sandwich" variable, which is just a way of defining a Thing inside of another Thing. It's used to help keep
+        // things looking cleaner (as well as keep smaller Things grouped more nicely). The syntax for a Sandwich is simply the
+        // variable name, a colon instead of an equals sign, followed by a typical Thing definition
+        MeshInstance : MeshInstance RamielMeshInstance
+        {
+            Mesh = [RamielModel]
+            Material = <RamielMaterial>
+        }
+        Scale = (120, 120, 120)
+        Origin = (-30, 18.152, -215) // An example of various number types working together!
+        Visible = (true)
+    }
+
+    // Things that are referenced by other Things don't need to be defined before being referenced, as seen in the case of
+    // this Material being referenced before it has been defined
+    Material RamielMaterial
+    {
+        NoTexture = (true)
+        SpecularStrength = (2.6)
+    }
+
+    Material StupidMaterial
+    {
+        Color = (0.9, 1, 1)
+        SpecularStrength = (0.2)
+        DiffuseTexture = <StupidTex>
+    }
+
+    Material DoomMaterial
+    {
+        DiffuseTexture = [DoomTexture]
+    }
+
+    MeshInstance DoomCubeMeshInstance
+    {
+        Mesh = [DefaultCube]
+        Material = <DoomMaterial>
+    }
+
+    Actor DoomCube
+    {
+        MeshInstance = <DoomCubeMeshInstance>
+        Origin = (3, 0, -3)
+        RotationDegrees = (-10, -55, 5)
+        Visible = (true)
+    }
+
+    Actor LolBitCube
+    {
+        MeshInstance = <LolBitCubeMeshInstance>
+        Origin = (-0.25, 2, -3.5)
+        RotationDegrees = (25, 0, 1)
+    }
+
+    Actor RedCube
+    {
+        MeshInstance : MeshInstance RedCubeMeshInstance
+        {
+            Mesh = [DefaultCube]
+            Material = <RedMaterial>
+        }
+        Origin = (1.35, 1, -4.45)
+        RotationDegrees = (-0.3, -64.6, -17.4)
+        Scale = (0.48, 0.58, 0.27)
+        Visible = (true)
+    }
+
+    Actor IcoSphereActor
+    {
+        MeshInstance : MeshInstance IcoSphereMeshInstance
+        {
+            Mesh = <IcoSphere>
+            Material = <StupidMaterial>
+        }
+        Origin = (-2.55, 0.15, -1.3)
+        RotationDegrees = (15.2, 38.6, 0)
+    }
+
+    NostalgiaPlayer Player
+    {
+        Origin = (0, 0.3, 4)
+    }
+
+    PointLight Test_PointLight
+    {
+        Visible = (true)
+        Origin = (1.6, 0.1, -2.1)
+        Color = (1, 0.8, 0.2)
+    }
+
+    SpotLight Test_SpotLight
+    {
+        Visible = (true)
+        Origin = (-0.32, 0.29, -0.45)
+        RotationDegrees = (27.6, 1.10, 10.1)
+        Color = (0.287, 1.0, 0.368)
+        Energy = (0.95)
+        Attenuation = (0.9)
+        Angle = (12.3)
+        AngleFade = (2)
+    }
+
+    DirectionalLight The_Sun
+    {
+        RotationDegrees = (180, 100, -25)
+        Energy = (0.6)
+        Visible = (false)
+    }
+}
