@@ -1,8 +1,7 @@
 #ifndef MODELS_H
 #define MODELS_H
 
-
-namespace Model
+namespace Models
 {
     constexpr unsigned char Error[] =
     {
@@ -16,14 +15,6 @@ namespace Model
     {
         #embed "models/Cube.obj"
     };
-
-    namespace Name
-    {
-        constexpr const char* Error  = "ErrorModel";
-        constexpr const char* Ramiel = "RamielModel";
-        constexpr const char* Cube   = "DefaultCube";
-    }
-
 }
 
 #endif // MODELS_H

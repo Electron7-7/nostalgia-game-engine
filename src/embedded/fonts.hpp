@@ -1,14 +1,13 @@
 #ifndef FONTS_H
 #define FONTS_H
 
-namespace Font
+namespace Fonts
 {
-
     constexpr unsigned char Audiowide[] =
     {
         #embed "fonts/Audiowide-Regular.ttf"
     };
-    constexpr unsigned char DejaVuSansMono[] =
+    constexpr unsigned char DejaVuSans[] =
     {
         #embed "fonts/DejaVuSansMono.ttf"
     };
@@ -16,14 +15,6 @@ namespace Font
     {
         #embed "fonts/Verdana.ttf"
     };
-
-    namespace Name
-    {
-        constexpr const char* Audiowide      = "Audiowide";
-        constexpr const char* Verdana        = "Verdana";
-        constexpr const char* DejaVuSansMono = "DejaVuSansMono";
-    }
-
 }
 
 #endif // FONTS_H

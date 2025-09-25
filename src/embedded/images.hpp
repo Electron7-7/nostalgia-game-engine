@@ -1,8 +1,7 @@
 #ifndef IMAGES_H
 #define IMAGES_H
 
-
-namespace Image
+namespace Images
 {
     constexpr unsigned char COMP04_5[] =
     {
@@ -16,19 +15,10 @@ namespace Image
     {
         #embed "images/lolbit.png"
     };
-    constexpr unsigned char LightDebugging[] =
+    constexpr unsigned char LightDebug[] =
     {
         #embed "images/LIGHT_DEBUGGING.jpg"
     };
-
-    namespace Name
-    {
-        constexpr const char* Missing        = "MissingTexture";
-        constexpr const char* COMP04_5       = "DoomTexture";
-        constexpr const char* LolBit         = "LolBitTexture";
-        constexpr const char* LightDebugging = "LightTexture";
-    }
-
 }
 
 #endif // IMAGES_H
