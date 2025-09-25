@@ -225,7 +225,7 @@ build_dir:
 clangd: ;@:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
 
-static:
+static: headers
 	$(eval LD_FLAGS =)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
@@ -236,7 +236,7 @@ static:
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
-dynamic:
+dynamic: headers
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
@@ -274,8 +274,9 @@ testapp_dynamic:
 testapps: testapp_static testapp_dynamic ;@:
 
 headers:
-	@ printf "$(BOLD)$(RED)[TODO][TODO][TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)/'$(RESET)\n"
+	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"
 	@ $(MAKE) -s $(HEADERS_OUT)
+	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
 	$(eval APP_NAME      = $(APP_BASE))
