@@ -1,9 +1,8 @@
 #include "command_line.hpp"
-#include "managers/backend_manager.hpp"
-#include "settings/settings.hpp"
 #include "safe_return.hpp"
 #include "printing.hpp"
-#include "managers/manager.hpp"
+#include "managers/backend_manager.hpp"
+#include "settings/settings.hpp"
 
 SafeStatus HardExitProgram();
 SafeStatus PrototypeFullscreen();

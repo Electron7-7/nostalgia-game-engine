@@ -11,8 +11,8 @@ namespace TypeName
     constexpr const char* Thing            = "Thing";
     constexpr const char* Resource         = "Resource";
     constexpr const char* Mesh             = "Mesh";
-    constexpr const char* Font             = "Font";
     constexpr const char* Texture          = "Texture";
+    constexpr const char* Font             = "Font";
     constexpr const char* Device           = "Device";
     constexpr const char* Material         = "Material";
     constexpr const char* MeshInstance     = "MeshInstance";
@@ -30,8 +30,8 @@ namespace Type
     constexpr size_t Thing            = ConstexprHash(TypeName::Thing);
     constexpr size_t Resource         = ConstexprHash(TypeName::Resource);
     constexpr size_t Mesh             = ConstexprHash(TypeName::Mesh);
-    constexpr size_t Font             = ConstexprHash(TypeName::Font);
     constexpr size_t Texture          = ConstexprHash(TypeName::Texture);
+    constexpr size_t Font             = ConstexprHash(TypeName::Font);
     constexpr size_t Device           = ConstexprHash(TypeName::Device);
     constexpr size_t Material         = ConstexprHash(TypeName::Material);
     constexpr size_t MeshInstance     = ConstexprHash(TypeName::MeshInstance);

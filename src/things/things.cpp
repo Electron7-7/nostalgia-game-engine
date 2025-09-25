@@ -2,12 +2,12 @@
 #include "printing.hpp"
 #include "thing.hpp"
 #include "thinkers/thinker.hpp"
-#include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
 #include "actors/light.hpp"
+#include "resources/resource.hpp"
 #include "resources/mesh.hpp"
-#include "resources/font.hpp"
 #include "resources/texture.hpp"
+#include "resources/font.hpp"
 #include "devices/material.hpp"
 #include "devices/mesh_instance.hpp"
 #include "managers/theatre_manager.hpp"
@@ -30,10 +30,10 @@ s_ThingConstructors =
     { Type::DirectionalLight, &l_MakeThing<DirectionalLight> },
     { Type::Resource,         &l_MakeThing<Resource>         },
     { Type::Mesh,             &l_MakeThing<Mesh>             },
+    { Type::Texture,          &l_MakeThing<Texture>          },
     { Type::Font,             &l_MakeThing<Font>             },
     { Type::Device,           &l_MakeThing<Device>           },
     { Type::Material,         &l_MakeThing<Material>         },
-    { Type::Texture,          &l_MakeThing<Texture>          },
     { Type::MeshInstance,     &l_MakeThing<MeshInstance>     },
 };
 
@@ -41,8 +41,8 @@ static const std::map<size_t, int>
 s_TypePriorityMap =
 {
     { Type::Mesh,            -2 },
-    { Type::Font,            -2 },
     { Type::Texture,         -2 },
+    { Type::Font,            -2 },
     { Type::Material,        -1 },
     { Type::MeshInstance,    -1 },
     { Type::PointLight,       0 },
@@ -96,6 +96,7 @@ template std::shared_ptr<NostalgiaPlayer> g_GetThing<NostalgiaPlayer>(id_t ID);
 template std::shared_ptr<Resource> g_GetThing<Resource>(id_t ID);
 template std::shared_ptr<Mesh> g_GetThing<Mesh>(id_t ID);
 template std::shared_ptr<Texture> g_GetThing<Texture>(id_t ID);
+template std::shared_ptr<Font> g_GetThing<Font>(id_t ID);
 template std::shared_ptr<Device> g_GetThing<Device>(id_t ID);
 template std::shared_ptr<MeshInstance> g_GetThing<MeshInstance>(id_t ID);
 template std::shared_ptr<Material> g_GetThing<Material>(id_t ID);

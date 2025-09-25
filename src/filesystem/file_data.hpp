@@ -30,10 +30,9 @@ struct FileData
 public:
     static FileType s_DetectFileType(const std::string& FilePath);
 
-    FileData(const std::string& Path, FileType Type = FileType::Unknown);
-
     FileData();
     FileData(const unsigned char* Data, int Size, FileType Type);
+    FileData(const std::string& Path, FileType Type = FileType::Unknown);
     ~FileData();
 
     const unsigned char* Data() const;
