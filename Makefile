@@ -197,7 +197,7 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all run printout build_dir clangd static dynamic libraries testapp_static testapp_dynamic testapps headers linux windows release debug clean_target clean_all clean mostlyclean disable_colors
+.PHONY: all run printout build_dir clangd static dynamic libraries testapp_static testapp_dynamic testapps headers linux windows release debug clean mostlyclean disable_colors
 
 all: headers static dynamic testapp_static testapp_dynamic ;@:
 
