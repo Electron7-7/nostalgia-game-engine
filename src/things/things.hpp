@@ -66,6 +66,8 @@ inline const char* const& StringifyType(size_t TypeID)
         return TypeName::Mesh;
     case Type::Texture:
         return TypeName::Texture;
+    case Type::Font:
+        return TypeName::Font;
     case Type::Device:
         return TypeName::Device;
     case Type::Material:
