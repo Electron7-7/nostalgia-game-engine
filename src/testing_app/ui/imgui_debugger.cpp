@@ -119,14 +119,14 @@ void imgui_Debugger::Update()
 #include "rendering/backends/graphics/opengl.hpp"
 #include "things/things.hpp"
 #include "things/actors/light.hpp"
-#include "things/devices/mesh_instance.hpp" // IWYU pragma: keep
-#include "things/devices/material.hpp" // IWYU pragma: keep
+#include "things/devices/mesh_instance.hpp"
+#include "things/devices/material.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
 #include "embedded/names.hpp"
 #include "settings/settings.hpp"
-#include "world/transform_3d.hpp" // IWYU pragma: keep
+// #include "world/transform_3d.hpp" // IWYU pragma: keep
 
 #include <set>
 #include <format>
@@ -378,8 +378,28 @@ static void s_ManualStopwatchWindow(float width)
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
-    Checkbox("Print Frame#", &g_PrintFrameNumbers);
-    Checkbox("Print Tick#", &g_PrintTickNumbers);
+    if(CollapsingHeader("Message Settings"))
+    {
+        PushStyleColor(ImGuiCol_Header, ImVec4(0.357f, 0.195f, 0.195f, 1.0f));
+        PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.f, 2.f));
+        if(CollapsingHeader("General Message Settings", ImGuiTreeNodeFlags_FramePadding))
+        {
+            Checkbox("Print Frame#", &g_PrintFrameNumbers);
+            SameLine();
+            Checkbox("Print Tick#", &g_PrintTickNumbers);
+        }
+        if(CollapsingHeader("OpenGL Message Settings", ImGuiTreeNodeFlags_FramePadding))
+        {
+            Text("Severity Levels");
+            Separator();
+            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
+            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
+            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
+            Checkbox("Notification", &g_EnableDebugMsgNotif);
+        }
+        PopStyleVar();
+        PopStyleColor();
+    }
 
     if(CollapsingHeader("Render Settings"))
     {
