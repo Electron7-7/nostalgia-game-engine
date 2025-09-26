@@ -1,6 +1,6 @@
 #include "input_manager.hpp"
-#include "debug.hpp"
 #include "backend_manager.hpp"
+#include "input/keybind.hpp"
 #include "input/event.hpp"
 #include "input/event_queue.hpp"
 #include "commands/command_line.hpp"
@@ -24,6 +24,9 @@ void InputManager::prototype_CustomCharacterCallback(unsigned int codepoint) con
 
 bool InputManager::Init()
 {
+    KeyBind::AddBinding("Escape", CommandLine::cmd_ExitProgram);
+    KeyBind::AddBinding("F", CommandLine::cmd_PrototypeFullscreen);
+    EventQueue::EnableEventQueue();
     return true;
 }
 
@@ -32,7 +35,6 @@ void InputManager::Update()
     g_pBackendManager->Windowing()->PollEvents();
 
     SafeStatus process_status = EventQueue::try_BeginProcessing();
-
     if(process_status != Status::NO_ERR && process_status != Status::EventQueueEMPTY)
     {
         PRINT_ERROR("InputManager::ProcessEvents - g_pEventSystem::BeginProcessing returned '{}'!\n", process_status.Printout())
@@ -41,20 +43,14 @@ void InputManager::Update()
 
     while(EventQueue::GetCurrentQueueSize() > 0)
     {
-        PRINT_DEBUG("Processing Event Queue!")
-
         SafeReturn<Event> next_event = EventQueue::GetNextEvent();
-
         if(next_event.Status() != Status::NO_ERR)
         {
             PRINT_WARNING("InputManager::ProcessEvents - g_pEventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
             continue;
         }
-
-        SafeStatus command_status = CommandLine::try_RunCommand(next_event.Data().GetCommand());
-
-        if(command_status != Status::NO_ERR)
-            PRINT_WARNING("InputManager::ProcessEvents - CommandLine::try_RunCommand returned '{}'\n", command_status.Printout())
+        if(!CommandLine::RunCommand(next_event.Data().GetCommand()))
+            { PRINT_WARNING("InputManager::ProcessEvents - Invalid command '{}'", next_event.Data().GetCommand()) }
     }
 
     EventQueue::EndProcessing();
@@ -64,26 +60,20 @@ void InputManager::Update()
 SafeStatus InputManager::Press(KeyID key)
 {
     ASSERT_KEY(key)
-
     EventQueue::try_QueueEvents(key);
-
     return Status::NO_ERR;
 }
 
 SafeStatus InputManager::Repeat(KeyID key)
 {
     ASSERT_KEY(key)
-
     EventQueue::try_QueueEvents(key);
-
     return Status::NO_ERR;
 }
 
 SafeStatus InputManager::Release(KeyID key)
 {
     ASSERT_KEY(key)
-
     EventQueue::try_QueueEvents(key, true);
-
     return Status::NO_ERR;
 }

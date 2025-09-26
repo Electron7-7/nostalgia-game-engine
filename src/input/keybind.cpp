@@ -1,74 +1,81 @@
 #include "keybind.hpp"
-
 #include "key.hpp"
+#include "printing.hpp" // IWYU pragma: keep // used in macro
 
 #include <map>
 #include <set>
 
-#define ASSERT_KEYNAME(KEY_NAME) \
-if(!key_strings_map.contains(KEY_NAME)) \
-    { return false; } \
-KeyID KEYID = key_strings_map.at(KEY_NAME);
+std::map<KeyID, std::set<KeyBind>> KeyBind::m_sKeybinds = {};
 
-static std::map<KeyID, std::set<KeyBind>> keybinds_map = {};
-
-KeyBind::KeyBind(const char* command, bool on_release)
-: _command(command), _on_release(on_release)
+KeyBind::KeyBind(const std::string& command, bool on_release)
+: m_Command(command), m_OnRelease(on_release)
 {}
 
 KeyBind::KeyBind(const KeyBind& copy_from)
-: KeyBind(copy_from._command, copy_from._on_release)
+: KeyBind(copy_from.m_Command, copy_from.m_OnRelease)
 {}
 
 KeyBind::KeyBind()
-: KeyBind("Null")
+: KeyBind("")
 {}
 
-SafeReturn<KeyBinds> GetBindings(KeyID key)
+SafeReturn<std::set<KeyBind>> KeyBind::GetBindings(KeyID key)
 {
-    if(!keybinds_map.contains(key) || keybinds_map.at(key).empty())
-        { return SafeReturn<KeyBinds>({KeyBind()}, Status::KeyBindsKEY_HAS_NO_BINDS); }
-    return keybinds_map.at(key);
+    if(!m_sKeybinds.contains(key) || m_sKeybinds.at(key).empty())
+        { return SafeReturn<std::set<KeyBind>>({KeyBind()}, Status::KeyBindsKEY_HAS_NO_BINDS); }
+    return m_sKeybinds.at(key);
 }
 
-bool try_AddBinding(const std::string& key_name, const char* command_name)
+bool KeyBind::AddBinding(const std::string& key_name, const std::string& command_name)
 {
-    ASSERT_KEYNAME(key_name)
-
-    if(!keybinds_map.contains(KEYID))
-        { keybinds_map[KEYID] = {}; }
-
-    keybinds_map.at(KEYID).insert(keybinds_map.at(KEYID).end(), command_name);
+    if(!sAssertKeyname(key_name))
+        { return false; }
+    KeyID id = key_strings_map.at(key_name);
+    m_sKeybinds[id].insert(m_sKeybinds[id].end(), command_name);
     return true;
 }
 
-bool try_RemoveBinding(const std::string& key_name, const char* command_name)
+bool KeyBind::RemoveBinding(const std::string& key_name, const std::string& command_name)
 {
-    ASSERT_KEYNAME(key_name)
+    if(!sAssertKeyname(key_name))
+        { return false; }
+    KeyID id = key_strings_map.at(key_name);
 
-    if(!keybinds_map.contains(KEYID) || !keybinds_map.at(KEYID).contains(command_name))
+    if(!m_sKeybinds.contains(id) || !m_sKeybinds.at(id).contains(command_name))
         { return true; }
 
-    std::set<KeyBind>& key_binds = keybinds_map.at(KEYID);
+    auto& key_binds = m_sKeybinds.at(id);
 
     key_binds.erase(command_name);
 
     if(key_binds.size() == 0)
-        { keybinds_map.erase(KEYID); }
+        { m_sKeybinds.erase(id); }
 
     return true;
 }
 
-bool try_ClearBindings(const std::string& key_name)
+bool KeyBind::ClearBindings(const std::string& key_name)
 {
-    ASSERT_KEYNAME(key_name)
+    if(!sAssertKeyname(key_name))
+        { return false; }
+    KeyID id = key_strings_map.at(key_name);
 
-    if(!keybinds_map.contains(KEYID))
+    if(!m_sKeybinds.contains(id))
         { return true; }
 
-    keybinds_map.erase(KEYID);
+    m_sKeybinds.erase(id);
     return true;
 }
 
-void ClearAllBindings()
-{ keybinds_map.clear(); }
+void KeyBind::ClearAllBindings()
+{ m_sKeybinds.clear(); }
+
+bool KeyBind::sAssertKeyname(const std::string& key_name)
+{
+    if(!key_strings_map.contains(key_name))
+    {
+        PRINT_WARNING("KeyBind::sAssertKeyname - Invalid key name '{}'", key_name)
+        return false;
+    }
+    return true;
+}

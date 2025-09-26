@@ -94,10 +94,10 @@ bool EventQueue::DisableEventQueue()
 SafeStatus EventQueue::try_BeginProcessing()
 {
     if(is_processing_events)
-    { return Status::ERROR_ALREADY_ACTIVE; }
+        { return Status::ERROR_ALREADY_ACTIVE; }
 
     if(_active_queue.empty() || _last_processed_event_index >= _active_queue.size())
-    { return Status::EventQueueEMPTY; }
+        { return Status::EventQueueEMPTY; }
 
     _safe_queue.clear(); // Just to be, well, safe
 
@@ -123,12 +123,12 @@ bool EventQueue::EndProcessing()
 SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
 {
     if(!can_queue_events)
-    { return Status::EventQueueNOT_ENABLED; }
+        { return Status::EventQueueNOT_ENABLED; }
 
-    SafeReturn<KeyBinds> keybinds = GetBindings(key);
+    SafeReturn<std::set<KeyBind>> keybinds = KeyBind::GetBindings(key);
 
     if(keybinds.Status() != Status::NO_ERR)
-    { return keybinds.Status(); }
+        { return keybinds.Status(); }
 
     is_queueing_events = true;
 
@@ -179,8 +179,10 @@ void EventQueue::PanicClearQueue()
     _active_queue.clear();
     _safe_queue.clear();
 
-    if(reactivate_event_queue)      { EnableEventQueue();    }
-    if(reactivate_event_processing) { try_BeginProcessing(); }
+    if(reactivate_event_queue)
+        { EnableEventQueue(); }
+    if(reactivate_event_processing)
+        { try_BeginProcessing(); }
 }
 
 void EventQueue::StartRecordingDemo()

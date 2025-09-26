@@ -2,6 +2,7 @@
 #define KEYBIND_H
 
 #include "key.hpp"
+#include "hash.hpp"
 #include "safe_return.hpp"
 
 #include <set>
@@ -12,25 +13,27 @@ struct KeyBind
 public:
     KeyBind();
     KeyBind(const KeyBind& CopyFrom);
-    KeyBind(const char* Command, bool OnRelease = false);
+    KeyBind(const std::string& Command, bool OnRelease = false);
 
-    const char* Command() const { return _command; }
-    const bool OnRelease() const { return _on_release; }
+    const std::string& Command() const  { return m_Command; }
+    const bool OnRelease() const { return m_OnRelease; }
 
-    constexpr bool operator<(const KeyBind& Other) const { return (_command < Other._command); }
+    constexpr bool operator<(const KeyBind& Other) const { return (ConstexprHash(m_Command) < ConstexprHash(Other.m_Command)); }
     constexpr bool operator>(const KeyBind& Other) const { return !(*this < Other); }
 
+    static SafeReturn<std::set<KeyBind>> GetBindings(KeyID Key);
+    static bool AddBinding(const std::string& KeyName, const std::string& CommandName);
+    static bool RemoveBinding(const std::string& KeyName, const std::string& CommandName);
+    static bool ClearBindings(const std::string& KeyName);
+    static void ClearAllBindings();
+
 private:
-    const char* _command = "Null";
-    bool _on_release = false;
+    std::string m_Command = "";
+    bool m_OnRelease = false;
+
+    static std::map<KeyID, std::set<KeyBind>> m_sKeybinds;
+
+    static bool sAssertKeyname(const std::string&);
 };
-
-typedef std::set<KeyBind> KeyBinds;
-
-SafeReturn<KeyBinds> GetBindings(KeyID Key);
-bool try_AddBinding(const std::string& KeyName, const char* CommandName);
-bool try_RemoveBinding(const std::string& KeyName, const char* CommandName);
-bool try_ClearBindings(const std::string& KeyName);
-void ClearAllBindings();
 
 #endif // KEYBIND_H
