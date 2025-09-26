@@ -24,6 +24,7 @@ public:
     void ResizeWindow(int Width, int Height);
     void MoveWindow(int XPosition, int YPosition);
     void SetFullscreen(bool FullscreenOn);
+    void ToggleFullscreen();
 
     void SwapBuffers();
     void PollEvents();

@@ -165,6 +165,12 @@ void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
         { glfwSetWindowMonitor(m_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE); }
 }
 
+void GLFW_Backend::ToggleFullscreen()
+{
+    assert(m_IsInitialized);
+    SetFullscreen(!Window::Fullscreen);
+}
+
 void GLFW_Backend::SwapBuffers()
 { glfwSwapBuffers(m_MainWindow); }
 

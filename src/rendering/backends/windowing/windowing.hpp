@@ -23,6 +23,7 @@ public:
     virtual void ResizeWindow(int Width, int Height) = 0;
     virtual void MoveWindow(int XPosition, int YPosition) = 0;
     virtual void SetFullscreen(bool FullscreenOn) = 0;
+    virtual void ToggleFullscreen() = 0;
 
     virtual void SwapBuffers() = 0;
     virtual void PollEvents() = 0;
