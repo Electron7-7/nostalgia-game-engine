@@ -3,6 +3,7 @@
 
 #include "id.hpp"
 #include "things.hpp"
+#include "input/fwd.hpp"
 
 #include <string>
 
@@ -13,6 +14,9 @@ class _thing
 public:
     virtual ~_thing() = default;
 
+    virtual void Tick() = 0;
+    virtual void Update() = 0;
+    virtual void Input(const InputEvent&) = 0;
     virtual void SetupVariables(const data_t&) = 0;
     virtual bool Initialize() = 0;
     virtual void Destroy() = 0;
@@ -30,6 +34,9 @@ protected:
 class Thing : public _thing
 {
 public:
+    virtual void Input(const InputEvent&) {};
+    virtual void Tick() {};
+    virtual void Update() {};
     virtual void SetupVariables(const data_t&);
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}
