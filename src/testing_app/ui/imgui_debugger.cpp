@@ -266,13 +266,17 @@ void imgui_Debugger::Update()
             }
             EndTabBar();
 #       endif // DEBUGGING
-            static std::string sDemoFileName = "demo";
-            if(InputText("Demo File Output", &sDemoFileName))
-                { EventQueue::SetDemoFileName(sDemoFileName); }
+            static std::string sDemoFileOut = "demo";
+            if(InputText("Demo File Output", &sDemoFileOut))
+                { EventQueue::SetDemoFileName(sDemoFileOut); }
             if(Button("Start Recording Demo"))
                 { EventQueue::StartRecordingDemo(); }
             if(Button("Stop Recording Demo"))
                 { EventQueue::StopRecordingDemo(); }
+            static std::string sDemoFileIn = "demo-1.dem";
+            InputText("Demo File Input", &sDemoFileIn);
+            if(Button("Play Demo File"))
+                { EventQueue::LoadDemoFromFile(sDemoFileIn); }
         }
         End();
     }
