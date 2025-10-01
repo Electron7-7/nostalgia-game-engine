@@ -168,11 +168,11 @@ void imgui_Debugger::Update()
     DEBUG(if(s_TheatreInspectorActive)
         { s_InspectTheatreWindow(&s_TheatreInspectorActive); })
 
-    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
+    if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
-    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_Q))
+    if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_Q))
         { g_pApplication->Shutdown(); }
-    if(IsKeyDown(ImGuiKey_LeftSuper) && IsKeyPressed(ImGuiKey_Q))
+    if(IsKeyDown(ImGuiMod_Super) && IsKeyPressed(ImGuiKey_Q))
         { g_pApplication->Shutdown(); }
 
     DEBUG(static bool s_PopOutStopwatches = false;)
