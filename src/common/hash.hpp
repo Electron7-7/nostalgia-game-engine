@@ -1,43 +1,60 @@
 #ifndef HASH_H
 #define HASH_H
 
+#include "frozen/string.h"
+
 #include <string>
 #include <utility>
 #include <type_traits>
+
+typedef unsigned int hash_t;
 
 // https://stackoverflow.com/a/23684632
 template<class>struct ConstexprHasher;
 
 template<>
-struct ConstexprHasher<std::string>
+struct ConstexprHasher<frozen::string>
 {
-    std::size_t constexpr operator()(char const* input) const
+    hash_t constexpr operator()(char const* input) const
     {
         return *input ?
             static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :
             5381;
     }
+    hash_t operator()(const frozen::string& string) const
+    { return (*this)(string.data()); }
+};
 
-    std::size_t operator()(const std::string& string) const
-    { return (*this)(string.c_str()); }
+template<>
+struct ConstexprHasher<std::string>
+{
+    hash_t constexpr operator()(char const* input) const
+    {
+        return *input ?
+            static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :
+            5381;
+    }
+    hash_t operator()(const std::string& string) const
+    { return (*this)(string.data()); }
 };
 
 template<>
 struct ConstexprHasher<const char*>
 {
-    std::size_t constexpr operator()(char const* input) const
+    hash_t constexpr operator()(char const* input) const
     {
         return *input ?
             static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :
             5381;
     }
-
-    std::size_t operator()(const std::string& string) const
-    { return (*this)(string.c_str()); }
+    hash_t operator()(const frozen::string& string) const
+    { return (*this)(string.data()); }
+    hash_t operator()(const std::string& string) const
+    { return (*this)(string.data()); }
 };
 
 template<typename T>
-std::size_t constexpr ConstexprHash(T&& t)
+hash_t constexpr ConstexprHash(T&& t)
 { return ConstexprHasher<typename std::decay<T>::type>()(std::forward<T>(t)); }
 
 #endif // HASH_H
