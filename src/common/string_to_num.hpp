@@ -1,7 +1,6 @@
 #ifndef STRING_TO_NUM_H
 #define STRING_TO_NUM_H
 
-#include <stdexcept>
 #include <string>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
