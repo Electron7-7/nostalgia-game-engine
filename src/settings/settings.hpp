@@ -23,7 +23,7 @@ public:
     struct Engine
     {
         static int   TickRate;
-        static float TickInterval;
+        static float TickInterval();
         static int   GraphicsBackend;
         static int   WindowingBackend;
     };
@@ -47,6 +47,10 @@ public:
         static float FOV;
         static float ViewCutoffNear;
         static float ViewCutoffFar;
+        static bool  RawMouseMotion;
+        static float MouseSensitivity;
+        static float MouseSensitivityScale;
+        static float MovementSpeed;
     };
 
     struct Graphics

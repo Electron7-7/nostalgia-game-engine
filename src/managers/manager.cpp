@@ -199,7 +199,7 @@ void _Manager::TickLoop()
     {
         // Tickrate Calculation (From GraphX)
         current_time = Time::Current();
-        current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval;
+        current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval();
         last_time = current_time;
         while(current_tick_length >= 1.0)
         {
