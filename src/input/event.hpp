@@ -5,6 +5,7 @@
 #include "binding.hpp"
 #include "enums.hpp"
 #include "printing.hpp"
+#include "debug.hpp"
 #include "time.hpp"
 #include "managers/manager.hpp"
 
@@ -141,7 +142,8 @@ public:
             type_name = "Invalid";
             break;
         }
-        return std::format("InputEvent Log - Creation Time: {}, Event Type: {} ({}), Input ID: {}", m_Time, static_cast<int>(type), type_name, static_cast<id_t>(m_Binding));
+        NOTDEBUG(return std::format("InputEvent Log - Creation Time: {:0.3f}, Event Type: {} ({}), Input ID: {}", m_Time, static_cast<int>(type), type_name, static_cast<id_t>(m_Binding));)
+        DEBUG(return std::format("InputEvent Log - Creation Time: {:0.3f}, Event Type: {} ({}), Input ID: {} ({})", m_Time, static_cast<int>(type), type_name, static_cast<id_t>(m_Binding), InputID::debug_GetName(m_Binding));)
     }
 
 protected:
