@@ -1,14 +1,49 @@
 #include "imgui_debugger.hpp"
+#include "../app/nostalgia_goggles.hpp"
+#include "managers/manager.hpp"
+#include "settings/settings.hpp"
+#include "managers/backend_manager.hpp"
+#include "theatre/theatre_parser.hpp"
+#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
-#include "managers/theatre_manager.hpp"
-#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
-#include "theatre/theatre_parser.hpp"
-#include "managers/manager.hpp"
+#include "debug.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
+
+#ifdef DEBUGGING
+#   include "time.hpp"
+#   include "managers/theatre_manager.hpp"
+#   include "rendering/backends/graphics/opengl.hpp"
+#   include "things/things.hpp"
+#   include "things/actors/light.hpp"
+#   include "things/devices/mesh_instance.hpp"
+#   include "things/devices/material.hpp"
+#   include "things/resources/resource.hpp"
+#   include "embedded/names.hpp"
+
+#   include <set>
+#   include <format>
+#   include <memory>
+#   include <random>
+
+static std::random_device s_RandomDevice;
+
+static bool s_TheatreInspectorActive = false;
+static bool s_AutoStopwatchEnabled = true;
+
+static std::vector<TheatreLog>   s_TheatreLogs = {};
+static std::vector<StopwatchLog> s_ManualStopwatchLogs = {};
+static std::vector<StopwatchLog> s_StopwatchLogs = {};
+static std::set<int>             s_StopwatchLogIds = {};
+
+static void s_AutomaticStopwatchWindow(float);
+static void s_ManualStopwatchWindow(float);
+static void s_TheatreDebuggingWindow();
+#endif // DEBUGGING
+static void s_GeneralDebuggingWindow();
 
 using namespace ImGui;
 
@@ -18,11 +53,100 @@ static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
 
+static void s_GeneralDebuggingWindow()
+{
+    DEBUG(BeginChild("General Debugging");)
+    NOTDEBUG(BeginChild("Settings");)
+#ifdef DEBUGGING
+    if(CollapsingHeader("Messages"))
+    {
+        SeparatorText("General");
+            Checkbox("Print Frame#", &g_PrintFrameNumbers);
+            SameLine();
+            Checkbox("Print Tick#", &g_PrintTickNumbers);
+        if(Settings::Engine::GraphicsBackend == gBackendIDs::gOpenGL)
+        {
+            SeparatorText("OpenGL");
+            Text("Severity Levels");
+            Separator();
+            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
+            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
+            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
+            Checkbox("Notification", &g_EnableDebugMsgNotif);
+        }
+    }
+
+    if(CollapsingHeader("Rendering"))
+    {
+        Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
+        Text("Shader Output");
+        Separator();
+        static int s_Selected = Shader_ALL;
+        static const char* s_SelectableNames[4] =
+        {
+            "Default",
+            "Vertex Colors",
+            "Vertex Normals",
+            "Vertex UVs"
+        };
+        for(int i = 0 ; i < 4 ; ++i)
+        {
+            bool l_Selected = (s_Selected == i);
+            if(Checkbox(s_SelectableNames[i], &l_Selected))
+                { s_Selected = i; }
+        }
+        g_ShaderDebugOuptut = s_Selected;
+    }
+    if(CollapsingHeader("Engine"))
+    {
+        DragInt("Tick Rate", &Settings::Engine::TickRate);
+        Text("Tick Interval: %f", Settings::Engine::TickInterval());
+        Text("Graphics Backend: %d", Settings::Engine::GraphicsBackend);
+        Text("Windowing Backend: %d", Settings::Engine::WindowingBackend);
+    }
+#endif // DEBUGGING
+    if(CollapsingHeader("Window"))
+    {
+        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
+            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
+        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
+        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
+        if(Settings::Window::Fullscreen)
+        {
+            l_Pos[0] = Settings::Window::FullscreenXPosition;
+            l_Pos[1] = Settings::Window::FullscreenYPosition;
+            l_Size[0] = Settings::Window::FullscreenWidth;
+            l_Size[1] = Settings::Window::FullscreenHeight;
+        }
+        InputInt2("Position", l_Pos);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
+        InputInt2("Size", l_Size);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
+        NewLine();
+    }
+    if(CollapsingHeader("Player"))
+    {
+        SeparatorText("Camera");
+        SliderFloat("Vertical FOV", &Settings::Player::FOV, 0.0f, 180.0f);
+        DragFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.001f, 0.001f, 100000.0f);
+        DragFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 1.0f, 0.001f, 100000.0f);
+        SeparatorText("Movement");
+        SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
+        SeparatorText("Mouse");
+        if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))
+            { g_pBackendManager->Windowing()->SetRawMouseMotion(Settings::Player::RawMouseMotion); }
+        SliderFloat("Mouse Sensitivity", &Settings::Player::MouseSensitivity, 0.0f, 5.0f);
+        SliderFloat("Mouse Sensitivity Multiplier", &Settings::Player::MouseSensitivityScale, 0.0f, 1.0f);
+    }
+    EndChild();
+}
+
 bool imgui_Debugger::Init()
 {
     if(m_IsInitialized)
         { return true; }
-
     m_IsInitialized = true;
     return true;
 }
@@ -31,62 +155,50 @@ void imgui_Debugger::Shutdown()
 {
     if(!m_IsInitialized)
         { return; }
-
     m_IsInitialized = false;
 }
 
-static void s_TerribleRenderDebugWindow()
-{
-    SetNextWindowSize({930, 100}, ImGuiCond_FirstUseEver);
-    if(Begin("Player movement placeholder (very shitty)"))
-    {
-        auto player = TheatreManager::GetLocalPlayer();
-
-        Text("Origin:  ");
-        SameLine();
-        SetNextItemWidth(GetWindowWidth() - 95);
-        DragGLMv3("##player_pos", &player->Origin(), 0.05f, -200.0f, 200.0f, "%.2f", ImGuiSliderFlags_WrapAround);
-
-        glm::vec3 Euler = player->Euler(true);
-
-        Text("Rotation:");
-        SameLine();
-        SetNextItemWidth(GetWindowWidth() - 95);
-        if(DragGLMv3("##rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-            { player->Euler(Euler, true); }
-    }
-    End();
-}
-
-#ifndef DEBUGGING
 void imgui_Debugger::Update()
 {
     static bool show_demo_window = false;
     if(show_demo_window)
         { ShowDemoWindow(&show_demo_window); }
 
+    DEBUG(if(s_TheatreInspectorActive)
+        { s_InspectTheatreWindow(&s_TheatreInspectorActive); })
+
     if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
+    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_Q))
+        { g_pApplication->Shutdown(); }
+    if(IsKeyDown(ImGuiKey_LeftSuper) && IsKeyPressed(ImGuiKey_Q))
+        { g_pApplication->Shutdown(); }
+
+    DEBUG(static bool s_PopOutStopwatches = false;)
 
     static bool show_main_window = true;
-    if(IsKeyPressed(ImGuiKey_Tab))
+    if(IsKeyPressed(ImGuiKey_Escape))
         { show_main_window = !show_main_window; }
 
-    SetNextWindowSize({875,180}, ImGuiCond_FirstUseEver);
+    DEBUG(SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);)
+    NOTDEBUG(SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);)
     if(show_main_window)
     {
         if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
         {
             if(BeginMenuBar())
             {
-                if(BeginMenu("ImGui"))
+                if(BeginMenu("Menu"))
                 {
                     if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
                         { show_demo_window = true; }
+                    if(MenuItem("Quit", "CTRL+Q"))
+                        { g_pApplication->Shutdown(); }
                     EndMenu();
                 }
                 EndMenuBar();
-                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want to use the debug window, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
+#           ifndef DEBUGGING
+                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want all the debug features, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
 
                 InputText("Theatre File", &s_TheatreFilePath);
                 if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
@@ -106,48 +218,59 @@ void imgui_Debugger::Update()
                     { _Manager::ShutdownTheatre(); }
                 if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
                     { EndDisabled(); }
+                NewLine();
+                SeparatorText("Settings");
+                s_GeneralDebuggingWindow();
+#           endif // !DEBUGGING
             }
+#       ifdef DEBUGGING
+            if(BeginTabBar("Debug Tools"))
+            {
+                if(BeginTabItem("General"))
+                {
+                    s_GeneralDebuggingWindow();
+                    EndTabItem();
+                }
+                if(s_PopOutStopwatches)
+                {
+                    SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
+                    if(Begin("Stopwatches"))
+                    {
+                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                        s_AutomaticStopwatchWindow(width);
+                        SameLine();
+                        s_ManualStopwatchWindow(width);
+                    }
+                    End();
+                }
+                if(BeginTabItem("Stopwatches"))
+                {
+                    const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
+                    if(Button(pop_out_label))
+                        { s_PopOutStopwatches = !s_PopOutStopwatches; }
+                    if(!s_PopOutStopwatches)
+                    {
+                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
+                        s_AutomaticStopwatchWindow(width);
+                        SameLine();
+                        s_ManualStopwatchWindow(width);
+                    }
+                    EndTabItem();
+                }
+                if(BeginTabItem("Theatres"))
+                {
+                    s_TheatreDebuggingWindow();
+                    EndTabItem();
+                }
+            }
+            EndTabBar();
+#       endif // DEBUGGING
         }
         End();
     }
-    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-        { s_TerribleRenderDebugWindow(); }
 }
-#else  // DEBUGGING
-#include "time.hpp"
-#include "managers/backend_manager.hpp"
-#include "rendering/backends/graphics/opengl.hpp"
-#include "things/things.hpp"
-#include "things/actors/light.hpp"
-#include "things/devices/mesh_instance.hpp"
-#include "things/devices/material.hpp"
-#include "things/resources/texture.hpp"
-#include "things/resources/mesh.hpp"
-#include "things/resources/font.hpp"
-#include "embedded/names.hpp"
-#include "settings/settings.hpp"
-// #include "world/transform_3d.hpp" // IWYU pragma: keep
 
-#include <set>
-#include <format>
-#include <memory>
-#include <random>
-
-static std::random_device s_RandomDevice;
-
-static bool s_TheatreInspectorActive = false;
-static bool s_AutoStopwatchEnabled = true;
-
-static std::vector<TheatreLog>   s_TheatreLogs = {};
-static std::vector<StopwatchLog> s_ManualStopwatchLogs = {};
-static std::vector<StopwatchLog> s_StopwatchLogs = {};
-static std::set<int>             s_StopwatchLogIds = {};
-
-static void s_AutomaticStopwatchWindow(float);
-static void s_ManualStopwatchWindow(float);
-static void s_GeneralDebuggingWindow();
-static void s_TheatreDebuggingWindow();
-
+#ifdef DEBUGGING
 void s_HandleAutomaticStopwatchToggle()
 {
     s_AutoStopwatchEnabled = !s_AutoStopwatchEnabled;
@@ -371,83 +494,6 @@ static void s_ManualStopwatchWindow(float width)
                 SetTooltip("Started @ %s\nStopped @ %s", stopwatch.GetStartTime().c_str(), tooltip_extra.c_str());
             }
         }
-    }
-    EndChild();
-}
-
-static void s_GeneralDebuggingWindow()
-{
-    BeginChild("General Debugging");
-    if(CollapsingHeader("Message Settings"))
-    {
-        PushStyleColor(ImGuiCol_Header, ImVec4(0.357f, 0.195f, 0.195f, 1.0f));
-        PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2.f, 2.f));
-        if(CollapsingHeader("General Message Settings", ImGuiTreeNodeFlags_FramePadding))
-        {
-            Checkbox("Print Frame#", &g_PrintFrameNumbers);
-            SameLine();
-            Checkbox("Print Tick#", &g_PrintTickNumbers);
-        }
-        if(CollapsingHeader("OpenGL Message Settings", ImGuiTreeNodeFlags_FramePadding))
-        {
-            Text("Severity Levels");
-            Separator();
-            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
-            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
-            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
-            Checkbox("Notification", &g_EnableDebugMsgNotif);
-        }
-        PopStyleVar();
-        PopStyleColor();
-    }
-
-    if(CollapsingHeader("Render Settings"))
-    {
-        Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-        Text("Shader Output");
-        Separator();
-        static int s_Selected = Shader_ALL;
-        static const char* s_SelectableNames[4] =
-        {
-            "Default",
-            "Vertex Colors",
-            "Vertex Normals",
-            "Vertex UVs"
-        };
-        for(int i = 0 ; i < 4 ; ++i)
-        {
-            bool l_Selected = (s_Selected == i);
-            if(Checkbox(s_SelectableNames[i], &l_Selected))
-                { s_Selected = i; }
-        }
-        g_ShaderDebugOuptut = s_Selected;
-    }
-    if(CollapsingHeader("Window Settings"))
-    {
-        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
-            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
-        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
-        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
-        if(Settings::Window::Fullscreen)
-        {
-            l_Pos[0] = Settings::Window::FullscreenXPosition;
-            l_Pos[1] = Settings::Window::FullscreenYPosition;
-            l_Size[0] = Settings::Window::FullscreenWidth;
-            l_Size[1] = Settings::Window::FullscreenHeight;
-        }
-        InputInt2("Position", l_Pos);
-        if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
-        InputInt2("Size", l_Size);
-        if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
-        NewLine();
-    }
-    if(CollapsingHeader("Player Settings"))
-    {
-        SliderFloat("Vertical FOV", &Settings::Player::FOV, 0.0f, 180.0f);
-        DragFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.001f, 0.001f, 100000.0f);
-        DragFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 1.0f, 0.001f, 100000.0f);
     }
     EndChild();
 }
@@ -835,85 +881,5 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             { s_Thing = nullptr; }
     }
     End();
-}
-
-void imgui_Debugger::Update()
-{
-    static bool show_demo_window = false;
-    if(show_demo_window)
-        { ShowDemoWindow(&show_demo_window); }
-
-    if(s_TheatreInspectorActive)
-        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
-
-    if(IsKeyDown(ImGuiKey_LeftCtrl) && IsKeyPressed(ImGuiKey_G))
-        { show_demo_window = !show_demo_window; }
-
-    static bool s_PopOutStopwatches = false;
-
-    static bool show_main_window = true;
-    if(IsKeyPressed(ImGuiKey_Tab))
-        { show_main_window = !show_main_window; }
-
-    SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
-    if(show_main_window)
-    {
-        if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
-        {
-            if(BeginMenuBar())
-            {
-                if(BeginMenu("ImGui"))
-                {
-                    if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                        { show_demo_window = true; }
-                    EndMenu();
-                }
-                EndMenuBar();
-            }
-            if(BeginTabBar("Debug Tools"))
-            {
-                if(BeginTabItem("General"))
-                {
-                    s_GeneralDebuggingWindow();
-                    EndTabItem();
-                }
-                if(s_PopOutStopwatches)
-                {
-                    SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
-                    if(Begin("Stopwatches"))
-                    {
-                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                        s_AutomaticStopwatchWindow(width);
-                        SameLine();
-                        s_ManualStopwatchWindow(width);
-                    }
-                    End();
-                }
-                if(BeginTabItem("Stopwatches"))
-                {
-                    const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
-                    if(Button(pop_out_label))
-                        { s_PopOutStopwatches = !s_PopOutStopwatches; }
-                    if(!s_PopOutStopwatches)
-                    {
-                        float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                        s_AutomaticStopwatchWindow(width);
-                        SameLine();
-                        s_ManualStopwatchWindow(width);
-                    }
-                    EndTabItem();
-                }
-                if(BeginTabItem("Theatres"))
-                {
-                    s_TheatreDebuggingWindow();
-                    EndTabItem();
-                }
-            }
-            EndTabBar();
-        }
-        End();
-    }
-    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-        { s_TerribleRenderDebugWindow(); }
 }
 #endif // !DEBUGGING
