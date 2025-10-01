@@ -530,3 +530,17 @@ Okay, I need to change how the Theatre file format works. Basically, Resources w
 Aight, let's get started. I need to re-work Theatre files and Theatre parsing while doing the Resource re-work. First, I'm gonna commit and push any unrelated work.
 
 After about six hours of working non-stop, I've successfully implemented Devices, made Resources as small as possible, implemented embedded Resources (currently only engine resources but it should be trivial to add the ability to add to them), and updated the parser. On the surface, not much seems to have changed, but internally the code is much more stable and far easier to iterate on.
+
+[09/25/25]
+Here's what's up next: skybox, fonts/text, physics. Although, I might want to implement player movement inputs first, for sanity's sake.
+
+[09/26/25]
+InputEvent is a wrapper for an InputBinding (wrapper for an ID and InputType) and an InputStatus. InputAction will be changed to just be a way to identify certain pre-defined actions for certain bindings (so, probably a map of bindings to sets of strings or something).
+
+[09/29/25]
+Okay, I'm back. I'm going to outline the new input system before I fuck around with it. Probably using Milanote or something.
+
+Aight, I'm going to loosely base my input events and actions off of Godot's InputEvent and input actions.
+
+[09/30/25]
+I finished up the input system! Managed to get mouse motion working; it *should* be queue-able and usable in demo files, but I'm implementing demos next time. There's a very rudimentary player control system in place, for demonstration/debugging purposes, but I'm worried that choosing to handle inputs every tick instead of every frame might be making the camera controls feel less smooth. The movement is stuttery but that's to be expected until I implement interpolation. All inputs have an ID used by the new 'binding_t' type, which is a small wrapper for an ID, status, and boolean which represents whether or not that binding was just changed. 'InputEvent' objects are only pushed to the queue if the binding is pressed/active or has just been changed on that tick. The InputManager along with the WindowingBackend iterate over every binding and determine which ones get InputEvents and which ones don't. Then, the InputManager iterates over every InputEvent and passes them to TheatreManager, an InputEvent callback function (if supplied), and other places in the future. Currently, the inputs for toggling the menu and window fullscreen are now handled by the application!
