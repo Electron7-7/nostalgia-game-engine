@@ -39,12 +39,13 @@ bool NostalgiaGoggles::PreInit()
 }
 
 void NostalgiaGoggles::Shutdown()
-{
-    _Manager::RemoveAll();
-}
+{ _Manager::Stop(); }
 
 void NostalgiaGoggles::PostShutdown()
-{}
+{
+    _Manager::ShutdownAllManagers();
+    _Manager::RemoveAll();
+}
 
 int NostalgiaGoggles::Main()
 {
@@ -57,7 +58,12 @@ int NostalgiaGoggles::Main()
     // _Manager::Add(g_pPhysicsManager);
 
     if(!_Manager::InitAllManagers())
-        { return 1; }
+    {
+        Shutdown();
+        PRINT_ERROR("NostalgiaGoggles::Main - _Manager::InitAllManagers failed!!")
+        return 1;
+    }
+
     g_pInputManager->SetInputEventCallback(sInputEventHandler);
 
     // g_pMenuManager->PushMenu("Main Menu");
@@ -65,7 +71,11 @@ int NostalgiaGoggles::Main()
 
     InputManager::AddAction(sToggleFullscreen,   InputID::KeyF);
     InputManager::AddAction(sToggleMouseCapture, InputID::KeyESC);
+    InputManager::AddAction("+forward",  InputID::KeyW);
+    InputManager::AddAction("+backward", InputID::KeyS);
+    InputManager::AddAction("+left",     InputID::KeyA);
+    InputManager::AddAction("+right",    InputID::KeyD);
+
     _Manager::Start(); // gameloop
-    _Manager::ShutdownAllManagers();
     return 0;
 }
