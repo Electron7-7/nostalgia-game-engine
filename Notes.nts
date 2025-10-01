@@ -544,3 +544,9 @@ Aight, I'm going to loosely base my input events and actions off of Godot's Inpu
 
 [09/30/25]
 I finished up the input system! Managed to get mouse motion working; it *should* be queue-able and usable in demo files, but I'm implementing demos next time. There's a very rudimentary player control system in place, for demonstration/debugging purposes, but I'm worried that choosing to handle inputs every tick instead of every frame might be making the camera controls feel less smooth. The movement is stuttery but that's to be expected until I implement interpolation. All inputs have an ID used by the new 'binding_t' type, which is a small wrapper for an ID, status, and boolean which represents whether or not that binding was just changed. 'InputEvent' objects are only pushed to the queue if the binding is pressed/active or has just been changed on that tick. The InputManager along with the WindowingBackend iterate over every binding and determine which ones get InputEvents and which ones don't. Then, the InputManager iterates over every InputEvent and passes them to TheatreManager, an InputEvent callback function (if supplied), and other places in the future. Currently, the inputs for toggling the menu and window fullscreen are now handled by the application!
+
+Curious to see if I can get demos working in under an hour... probably not, lmao, but why the hell not try?
+
+Well, I got the demo files to generate with the proper data; now all I need to do is write the parser.
+
+It wasn't an hour, but in just under two I fully implemented demo files. Holy shit!
