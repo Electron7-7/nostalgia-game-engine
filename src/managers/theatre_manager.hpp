@@ -5,6 +5,7 @@
 #include "debug.hpp"
 #include "things/fwd.hpp"
 #include "theatre/fwd.hpp"
+#include "input/event.hpp"
 
 #include <memory>
 #include <map>
@@ -15,12 +16,11 @@ class TheatreManager : public Manager
 public:
     void Update();
     void Tick();
-
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     void RenderWorld();
-
+    static void DelegateInputEvent(const InputEvent& InputEvent);
     static id_t CreateThing(const data_t& ThingData);
     static std::shared_ptr<Thing> GetThing(id_t ID);
     static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();

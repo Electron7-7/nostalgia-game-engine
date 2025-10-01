@@ -36,6 +36,9 @@ void TheatreManager::Update()
     if(g_PrintFrameNumbers)
         { std::print("{}TheatreManager::Update #{} @ {}\n", sty::Bold + fg::Green, Manager::m_sFrameNumber, Time::Elapsed()); }
 #endif // DEBUGGING
+    s_LocalPlayer->Update();
+    for(auto& [id, thing] : s_Things)
+        { thing->Update(); }
 }
 
 void TheatreManager::Tick()
@@ -44,6 +47,9 @@ void TheatreManager::Tick()
     if(g_PrintTickNumbers)
         { std::print("{}TheatreManager::Tick #{} @ {}\n", sty::Bold + fg::Blue, Manager::m_sTickNumber, Time::Elapsed()); }
 #endif // DEBUGGING
+    s_LocalPlayer->Tick();
+    for(auto& [id, thing] : s_Things)
+        { thing->Tick(); }
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
@@ -117,6 +123,13 @@ void TheatreManager::RenderWorld()
         g_pBackendManager->Graphics()->RenderSingleCommand(*rendercmd);
         rendercmd = s_RenderCommandQueue.erase(rendercmd);
     }
+}
+
+void TheatreManager::DelegateInputEvent(const InputEvent& event)
+{
+    s_LocalPlayer->Input(event);
+    for(const auto& [id, thing] : s_Things)
+        { thing->Input(event); }
 }
 
 id_t TheatreManager::CreateThing(const data_t& cData)
