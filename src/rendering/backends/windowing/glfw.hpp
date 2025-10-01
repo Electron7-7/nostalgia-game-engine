@@ -2,11 +2,10 @@
 #define GLFW_BACKEND_H
 
 #include "windowing.hpp"
-#include "input/key.hpp"
+#include "input/id.hpp"
+#include "frozen/map.h"
 
-#include <map>
-
-struct GLFWwindow; // Forward Declaration
+struct GLFWwindow;  // Forward Declaration
 struct GLFWmonitor; // Forward Declaration
 
 class GLFW_Backend : public WindowingBackend
@@ -14,7 +13,8 @@ class GLFW_Backend : public WindowingBackend
 public:
     bool Init();
     void Shutdown();
-    BackendID GetID() { return gBackendIDs::wGLFW; }
+    BackendID GetID() final
+    { return gBackendIDs::wGLFW; }
 
     bool InitImGui();
     void ImGuiNewFrame();
@@ -23,9 +23,17 @@ public:
 
     void ResizeWindow(int Width, int Height);
     void MoveWindow(int XPosition, int YPosition);
-    void SetFullscreen(bool FullscreenOn);
     void ToggleFullscreen();
+    void ToggleRawMouseMotion();
+    MouseMode ToggleMouseMode(MouseMode, MouseMode);
+    void SetFullscreen(bool FullscreenOn);
+    void SetRawMouseMotion(bool RawMotionOn);
+    bool SetMouseMode(MouseMode);
+    MouseMode GetMouseMode();
 
+    void GetMousePosition(glm::vec2&);
+    bool GetKey(binding_t&);
+    bool GetMotion(binding_t&, const glm::vec2&);
     void SwapBuffers();
     void PollEvents();
     void UpdateState();
@@ -35,14 +43,10 @@ private:
     GLFWmonitor* m_LastFullscreenedMonitor = nullptr;
 
     // GLFW callback functions
-    static void glfw_KeyCallbackFunction(GLFWwindow*, int, int, int, int);
-    static void glfw_CharacterCallbackFunction(GLFWwindow*, unsigned int);
-    static void glfw_CursorPosCallbackFunction(GLFWwindow*, double, double);
     static void glfw_WindowPositionCallbackFunction(GLFWwindow*, int, int);
     static void glfw_WindowResizeCallbackFunction(GLFWwindow*, int, int);
 
-    typedef unsigned int GLFW_KeyID;
-    static const std::map<GLFW_KeyID, KeyID> key_ids;
+    static constinit const frozen::map<id_t, id_t, InputID::KeysCount + InputID::MouseButtonsCount> s_cInputIdToGlfw;
 };
 
 #endif // GLFW_BACKEND_H

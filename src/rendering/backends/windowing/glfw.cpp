@@ -1,14 +1,13 @@
 #include "glfw.hpp"
 #include "debug.hpp"
 #include "managers/backend_manager.hpp"
-#include "managers/input_manager.hpp"
+#include "input/binding.hpp"
 #include "settings/settings.hpp"
 #include "DearImGui/imgui_impl_glfw.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 
-#define ASSERT_KEY(glfw_key_id) if(!key_ids.contains(glfw_key_id)) return;
-#define CONVERT_KEY(glfw_key_id) key_ids.at(glfw_key_id)
+#include <glm/vec2.hpp>
 
 typedef Settings::Window Window;
 
@@ -29,7 +28,9 @@ bool GLFW_Backend::Init()
         return false;
     }
 
-    compatible_graphics_backends = { gBackendIDs::gOpenGL };
+    SetRawMouseMotion(Settings::Player::RawMouseMotion);
+
+    m_CompatibleGraphicsBackends = { gBackendIDs::gOpenGL };
     m_IsInitialized = true;
     return true;
 }
@@ -61,6 +62,7 @@ void GLFW_Backend::Shutdown()
     if(m_IsImGuiInitialized)
         { ImGui_ImplGlfw_Shutdown(); }
 
+    glfwDestroyWindow(m_MainWindow);
     glfwTerminate();
 
     m_IsInitialized = false;
@@ -115,9 +117,6 @@ SafeStatus GLFW_Backend::CreateMainWindow()
 
     glfwSetWindowSizeCallback(m_MainWindow, GLFW_Backend::glfw_WindowResizeCallbackFunction);
     glfwSetWindowPosCallback(m_MainWindow, GLFW_Backend::glfw_WindowPositionCallbackFunction);
-    glfwSetKeyCallback(m_MainWindow, GLFW_Backend::glfw_KeyCallbackFunction);
-    glfwSetCharCallback(m_MainWindow, GLFW_Backend::glfw_CharacterCallbackFunction);
-    glfwSetCursorPosCallback(m_MainWindow, GLFW_Backend::glfw_CursorPosCallbackFunction);
 
     return Status::NO_ERR;
 }
@@ -150,6 +149,24 @@ void GLFW_Backend::MoveWindow(int position_x, int position_y)
     glfwSetWindowPos(m_MainWindow, position_x, position_y);
 }
 
+void GLFW_Backend::ToggleFullscreen()
+{
+    assert(m_IsInitialized);
+    SetFullscreen(!Window::Fullscreen);
+}
+
+void GLFW_Backend::ToggleRawMouseMotion()
+{ SetRawMouseMotion(!Settings::Player::RawMouseMotion); }
+
+MouseMode GLFW_Backend::ToggleMouseMode(MouseMode secondary, MouseMode primary)
+{
+    if(m_MouseMode == primary)
+        { SetMouseMode(secondary); }
+    else
+        { SetMouseMode(primary); }
+    return m_MouseMode;
+}
+
 void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
 {
     assert(m_IsInitialized);
@@ -165,10 +182,66 @@ void GLFW_Backend::SetFullscreen(bool is_fullscreen_enabled)
         { glfwSetWindowMonitor(m_MainWindow, nullptr, Window::XPosition, Window::YPosition, Window::Width, Window::Height, GLFW_DONT_CARE); }
 }
 
-void GLFW_Backend::ToggleFullscreen()
+void GLFW_Backend::SetRawMouseMotion(bool toggle)
 {
-    assert(m_IsInitialized);
-    SetFullscreen(!Window::Fullscreen);
+    Settings::Player::RawMouseMotion = toggle;
+    if(glfwRawMouseMotionSupported() && Settings::Player::RawMouseMotion)
+        { glfwSetInputMode(m_MainWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE); }
+}
+
+bool GLFW_Backend::SetMouseMode(MouseMode mode)
+{
+    int glfw_mode;
+    switch(mode)
+    {
+    case MouseMode::Captured:
+        glfw_mode = GLFW_CURSOR_CAPTURED;
+        break;
+    case MouseMode::Disabled:
+        glfw_mode = GLFW_CURSOR_DISABLED;
+        break;
+    case MouseMode::Hidden:
+        glfw_mode = GLFW_CURSOR_HIDDEN;
+        break;
+    case MouseMode::Normal:
+        glfw_mode = GLFW_CURSOR_NORMAL;
+        break;
+    }
+    m_MouseMode = mode;
+    glfwSetInputMode(m_MainWindow, GLFW_CURSOR, glfw_mode);
+    return true;
+}
+
+MouseMode GLFW_Backend::GetMouseMode()
+{ return m_MouseMode; }
+
+void GLFW_Backend::GetMousePosition(glm::vec2& output)
+{
+    double l_Position[2] = {0.0, 0.0};
+    glfwGetCursorPos(m_MainWindow, &l_Position[0], &l_Position[1]);
+    output = glm::vec2{l_Position[0], l_Position[1]};
+}
+
+bool GLFW_Backend::GetKey(binding_t& binding)
+{
+    if(!s_cInputIdToGlfw.contains(binding))
+        { return false; }
+    InputStatus l_LastStatus = binding.Status;
+    binding.Status = static_cast<InputStatus>(glfwGetKey(m_MainWindow, s_cInputIdToGlfw.at(binding)));
+    binding.JustChanged = (binding.Status != l_LastStatus);
+    return (binding.JustChanged || binding.Status == InputStatus::Active);
+}
+
+bool GLFW_Backend::GetMotion(binding_t& binding, const glm::vec2& motion)
+{
+    if(binding != InputID::MouseMotionX && binding != InputID::MouseMotionY)
+        { return false; }
+    InputStatus l_LastStatus = binding.Status;
+    binding.Status = static_cast<InputStatus>(
+        (binding == InputID::MouseMotionX && motion.x != 0.0f) ||
+        (binding == InputID::MouseMotionY && motion.y != 0.0f));
+    binding.JustChanged = (binding.Status != l_LastStatus);
+    return (binding.JustChanged || binding.Status == InputStatus::Active);
 }
 
 void GLFW_Backend::SwapBuffers()
@@ -195,37 +268,6 @@ void GLFW_Backend::UpdateState()
 
     ResizeWindow(new_width, new_height);
     MoveWindow(new_xpos, new_ypos);
-}
-
-// PRIVATE FUNCTIONS
-void GLFW_Backend::glfw_CharacterCallbackFunction(GLFWwindow* window, unsigned int codepoint)
-{ g_pInputManager->prototype_CustomCharacterCallback(codepoint); }
-
-void GLFW_Backend::glfw_KeyCallbackFunction(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    ASSERT_KEY(key);
-    switch(action)
-    {
-    case GLFW_RELEASE:
-        g_pInputManager->Release(CONVERT_KEY(key));
-        break;
-    case GLFW_PRESS:
-        g_pInputManager->Press(CONVERT_KEY(key));
-        break;
-    case GLFW_REPEAT:
-        g_pInputManager->Repeat(CONVERT_KEY(key));
-        break;
-    }
-}
-
-void GLFW_Backend::glfw_CursorPosCallbackFunction(GLFWwindow* window, double position_x, double position_y)
-{
-    /*
-    For raw mouse motion, use:
-    --------------------------
-        if (glfwRawMouseMotionSupported())
-            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-    */
 }
 
 void GLFW_Backend::glfw_WindowPositionCallbackFunction(GLFWwindow* window, int position_x, int position_y)
