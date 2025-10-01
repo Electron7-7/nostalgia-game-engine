@@ -194,10 +194,13 @@ bool EventQueue::StopRecordingDemo()
         ++demo_recording_number;
     }
 
-    std::ofstream demo_file(DEMO_FILENAME);
-    for(const auto& event : demo_recording_storage)
-        { demo_file << event; }
-    demo_file.close();
+    if(!demo_recording_storage.empty() && !demo_recording_storage.at(0).empty())
+    {
+        std::ofstream demo_file(DEMO_FILENAME);
+        for(const auto& event : demo_recording_storage)
+            { demo_file << event; }
+        demo_file.close();
+    }
     demo_recording_storage.clear();
     return true;
 }
