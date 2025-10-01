@@ -5,7 +5,7 @@
 #include <sstream>
 #include <fstream>
 
-std::vector<Event> DemoParser::_event_queue = {};
+std::vector<InputEvent> DemoParser::_event_queue = {};
 bool DemoParser::is_demo_file_parsed = false;
 bool DemoParser::is_demo_file_loaded = false;
 
@@ -54,7 +54,7 @@ bool DemoParser::LoadDemoFromMemory(const std::string& demo_file_data)
     return at_least_one_line_was_parsed;
 }
 
-std::vector<Event> DemoParser::GetEventQueue()
+std::vector<InputEvent> DemoParser::GetEventQueue()
 { return _event_queue; }
 
 bool DemoParser::ParseLine(const std::string& line)
@@ -83,7 +83,7 @@ bool DemoParser::ParseLine(const std::string& line)
         }
     }
 
-    double creation_time;
+    /*double creation_time;
     try
     {
         creation_time = std::stod(creation_time_buffer);
@@ -92,9 +92,9 @@ bool DemoParser::ParseLine(const std::string& line)
     {
         // TODO: add printouts for this exception
         creation_time = 0.0;
-    }
+    }*/
 
-    _event_queue.insert(_event_queue.end(), Event(std::string(command_buffer.c_str()), creation_time));
+    // _event_queue.insert(_event_queue.end(), InputEvent(std::string(command_buffer.c_str()), creation_time));
 
     return true;
 }
