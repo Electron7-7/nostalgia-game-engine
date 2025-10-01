@@ -22,14 +22,14 @@
 
 using namespace ManagerEnums;
 
-static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
-static std::vector<RenderCommand> s_RenderCommandQueue = {};
-static bool s_ReadyToRender = false;
-
 static TheatreManager s_TheatreManager;
 TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
 std::map<id_t, std::shared_ptr<Thing>> TheatreManager::s_Things = {};
+
+static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
+static std::vector<RenderCommand> s_RenderCommandQueue = {};
+static bool s_ReadyToRender = false;
 
 void TheatreManager::Update()
 {

@@ -29,7 +29,8 @@ public:
 
     bool Init();
     void Shutdown();
-    BackendID GetID() { return gBackendIDs::gOpenGL; }
+    BackendID GetID() final
+    { return gBackendIDs::gOpenGL; }
 
     bool InitImGui();
     void ImGuiNewFrame();

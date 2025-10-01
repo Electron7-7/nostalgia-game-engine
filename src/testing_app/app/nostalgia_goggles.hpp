@@ -8,12 +8,13 @@ class NostalgiaGoggles : public _Application
     typedef _Application BaseClass;
 
 public:
-    virtual bool Create();
-    virtual bool PreInit();
-    virtual int Main();
-    virtual void Shutdown();
-    virtual void PostShutdown();
-    virtual const char* GetAppName() { return "Nostalgia Goggles"; };
+    bool Create();
+    bool PreInit();
+    int Main();
+    void Shutdown();
+    void PostShutdown();
+    const char* GetAppName()
+    { return "Nostalgia Goggles"; };
 };
 
 extern NostalgiaGoggles* g_pApplication;

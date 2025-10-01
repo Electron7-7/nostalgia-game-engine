@@ -5,9 +5,8 @@
 #include "managers/render_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/ui_manager.hpp"
-#include "testing_app/ui/imgui_debugger.hpp"
+#include "../ui/imgui_debugger.hpp"
 
-// Singleton accessor
 static NostalgiaGoggles s_NostalgiaGogglesApp;
 NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
@@ -22,19 +21,18 @@ static SafeStatus sInputEventHandler(const InputEvent& event)
         { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
     return Status::NO_ERR;
 }
+
 bool NostalgiaGoggles::Create()
 {
     if(!BaseClass::Create())
-    { return false; }
-
+        { return false; }
     return true;
 }
 
 bool NostalgiaGoggles::PreInit()
 {
     if(!BaseClass::PreInit())
-    { return false; }
-
+        { return false; }
     return true;
 }
 

@@ -51,8 +51,8 @@ bool BackendManager::Init()
 
 void BackendManager::Shutdown()
 {
-    s_Windowing->Shutdown();
     s_Graphics->Shutdown();
+    s_Windowing->Shutdown();
 
     if(m_IsImguiInitialized)
         { ImGui::DestroyContext(); }
@@ -91,7 +91,6 @@ void BackendManager::ImGuiNewFrame()
 {
     if(!m_IsImguiInitialized)
         { return; }
-
     s_Graphics->ImGuiNewFrame();
     s_Windowing->ImGuiNewFrame();
     ImGui::NewFrame();
@@ -104,7 +103,6 @@ void BackendManager::ImGuiRender()
 {
     if(!m_IsImguiInitialized)
         { return; }
-
     ImGui::Render();
     s_Graphics->ImGuiRender();
 }

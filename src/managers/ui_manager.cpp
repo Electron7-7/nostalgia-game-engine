@@ -13,7 +13,7 @@ bool UIManager::Init()
     g_pBackendManager->InitImGui();
 
     for(ImGui_Object* imgui_object : imgui_objects)
-    { imgui_object->Init(); }
+        { imgui_object->Init(); }
 
     return true;
 }
@@ -28,7 +28,6 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) 
 void UIManager::DrawUI()
 {
     // Do all non-ImGui drawing here...
-
     DrawImGuiUI();
 }
 
@@ -37,7 +36,7 @@ void UIManager::DrawImGuiUI()
     g_pBackendManager->ImGuiNewFrame();
 
     for(ImGui_Object* imgui_object : imgui_objects)
-    { imgui_object->Update(); }
+        { imgui_object->Update(); }
 
     g_pBackendManager->ImGuiRender();
 }
@@ -46,7 +45,7 @@ void UIManager::Shutdown()
 {
     // Do all non-ImGui shutdown stuff here...
     for(ImGui_Object* imgui_object : imgui_objects)
-    { imgui_object->Shutdown(); }
+        { imgui_object->Shutdown(); }
 }
 
 ImGui_Object* UIManager::AddImGuiObject(ImGui_Object* new_object)
