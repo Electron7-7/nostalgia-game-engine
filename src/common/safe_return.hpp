@@ -86,6 +86,7 @@ struct Status
     inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x21, "FilesystemFILE_READ_ERROR"              );
     inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x22, "ResourceBAD_FILE_DATA"                  );
     inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x23, "FileDataDATA_IS_LOCKED"                 );
+    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x24, "EventQueueINVALID_EVENT"                );
 };
 
 template<typename T>
