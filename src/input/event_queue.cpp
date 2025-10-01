@@ -1,17 +1,18 @@
 #include "event_queue.hpp"
 #include "debug.hpp"
 #include "colors.hpp"
-#include "keybind.hpp"
 #include "filesystem/filesystem.hpp"
 #include "demo/demo_parser.hpp"
 
+#include <format>
 #include <climits>
 #include <fstream>
+#include <glm/vec2.hpp>
 
 #define DEMO_FILENAME (demo_recording_name + std::to_string(demo_recording_number) + demo_recording_extension)
 
-std::vector<Event> EventQueue::_active_queue = {};
-std::vector<Event> EventQueue::_safe_queue = {};
+std::vector<InputEvent> EventQueue::m_sActiveQueue = {};
+std::vector<InputEvent> EventQueue::m_sSafeQueue   = {};
 unsigned int EventQueue::_last_processed_event_index = 0;
 
 bool EventQueue::can_queue_events = false;
@@ -27,27 +28,26 @@ std::string EventQueue::demo_recording_extension = ".demo";
 
 void EventQueue::DebugPrintQueueLog()
 {
-    size_t active_queue_size = _active_queue.size();
+    size_t active_queue_size = m_sActiveQueue.size();
     std::string queue_printout = "";
 
     for(size_t i = 0 ; i < active_queue_size ; ++i)
     {
-        std::vector<Event>::iterator it = _active_queue.begin();
-        std::advance(it, i);
-        queue_printout += it->EventLog() + "\n";
+        auto event = m_sActiveQueue.at(i);
+        queue_printout += (event.Log() + "\n");
     }
 
     std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", Style::Bold + Foreground::Blue, Style::Reset, queue_printout);
 }
 
-void EventQueue::LoadQueue(const std::vector<Event>& event_queue)
+void EventQueue::LoadQueue(const std::vector<InputEvent>& event_queue)
 {
     ClearQueue();
-    _active_queue = event_queue;
+    m_sActiveQueue = event_queue;
 }
 
 #pragma message("idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...")
-bool EventQueue::LoadDemoFromFile(const std::string &demo_file_path)
+bool EventQueue::LoadDemoFromFile(const std::string& demo_file_path)
 {
     DemoParser demo_parser;
 
@@ -56,11 +56,11 @@ bool EventQueue::LoadDemoFromFile(const std::string &demo_file_path)
 
     ClearQueue();
 
-    _active_queue = demo_parser.GetEventQueue();
+    m_sActiveQueue = demo_parser.GetEventQueue();
     return true;
 }
 
-bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
+bool EventQueue::LoadDemoFromMemory(const std::string& demo_file)
 {
     DemoParser demo_parser;
 
@@ -69,7 +69,7 @@ bool EventQueue::LoadDemoFromMemory(const std::string &demo_file)
 
     ClearQueue();
 
-    _active_queue = demo_parser.GetEventQueue();
+    m_sActiveQueue = demo_parser.GetEventQueue();
     return true;
 }
 
@@ -95,17 +95,16 @@ SafeStatus EventQueue::try_BeginProcessing()
 {
     if(is_processing_events)
         { return Status::ERROR_ALREADY_ACTIVE; }
-
-    if(_active_queue.empty() || _last_processed_event_index >= _active_queue.size())
+    if(m_sActiveQueue.empty() || _last_processed_event_index >= m_sActiveQueue.size())
         { return Status::EventQueueEMPTY; }
 
-    _safe_queue.clear(); // Just to be, well, safe
+    m_sSafeQueue.clear(); // Just to be, well, safe
 
-    std::vector<Event>::iterator queue_begin = _active_queue.begin();
+    std::vector<InputEvent>::iterator queue_begin = m_sActiveQueue.begin();
     std::advance(queue_begin, _last_processed_event_index);
 
-    _safe_queue.insert(_safe_queue.cend(), queue_begin, _active_queue.end());
-    _last_processed_event_index += _safe_queue.size(); // This variable is 1 index ahead, because we don't want to process the same event twice
+    m_sSafeQueue.insert(m_sSafeQueue.cend(), queue_begin, m_sActiveQueue.end());
+    _last_processed_event_index += m_sSafeQueue.size(); // This variable is 1 index ahead, because we don't want to process the same event twice
 
     is_processing_events = true;
     return Status::NO_ERR;
@@ -120,49 +119,41 @@ bool EventQueue::EndProcessing()
     return true;
 }
 
-SafeStatus EventQueue::try_QueueEvents(KeyID key, bool is_released)
+SafeStatus EventQueue::QueueInputEvent(const InputEvent& event)
 {
     if(!can_queue_events)
         { return Status::EventQueueNOT_ENABLED; }
-
-    SafeReturn<std::set<KeyBind>> keybinds = KeyBind::GetBindings(key);
-
-    if(keybinds.Status() != Status::NO_ERR)
-        { return keybinds.Status(); }
-
+    else if(!event.Valid())
+        { return Status::EventQueueINVALID_EVENT; }
     is_queueing_events = true;
-
-    for(const KeyBind& keybind : keybinds.Data())
-        if(keybind.OnRelease() == is_released)
-        { _active_queue.push_back(Event(keybind.Command())); }
-
+    m_sActiveQueue.push_back(event);
     is_queueing_events = false;
     return Status::NO_ERR;
 }
 
-SafeReturn<Event> EventQueue::GetNextEvent()
+SafeReturn<InputEvent> EventQueue::GetNextEvent()
 {
     if(!is_processing_events)
-        { return SafeReturn(Event(), Status::EventQueueNOT_PROCESSING_EVENTS); }
-    if(_safe_queue.empty())
-        { return SafeReturn(Event(), Status::EventQueueEMPTY); }
+        { return SafeReturn(InputEvent(), Status::EventQueueNOT_PROCESSING_EVENTS); }
+    else if(m_sSafeQueue.empty())
+        { return SafeReturn(InputEvent(), Status::EventQueueEMPTY); }
 
-    Event next_event(_safe_queue.front());
+    InputEvent next_event(m_sSafeQueue.front());
 
     if(do_demo_recording)
         { RecordEventToDemo(next_event); }
 
-    _safe_queue.erase(_safe_queue.cbegin());
+    m_sSafeQueue.erase(m_sSafeQueue.cbegin());
     return SafeReturn(next_event);
 }
 
 unsigned int EventQueue::GetCurrentQueueSize()
-{ return _safe_queue.size(); }
+{ return m_sSafeQueue.size(); }
 
 void EventQueue::ClearQueue()
 {
-    _active_queue.clear();
-    _safe_queue.clear();
+    m_sActiveQueue.clear();
+    m_sSafeQueue.clear();
 }
 
 void EventQueue::PanicClearQueue()
@@ -176,8 +167,8 @@ void EventQueue::PanicClearQueue()
     DisableEventQueue();
     EndProcessing();
 
-    _active_queue.clear();
-    _safe_queue.clear();
+    m_sActiveQueue.clear();
+    m_sSafeQueue.clear();
 
     if(reactivate_event_queue)
         { EnableEventQueue(); }
@@ -210,5 +201,7 @@ bool EventQueue::StopRecordingDemo()
     return true;
 }
 
-void EventQueue::RecordEventToDemo(const Event& event)
-{ demo_recording_storage += "Creation Time: [" + std::to_string(event.GetCreationTime()) + "] Command: <" + event.GetCommand() + ">\n"; }
+void EventQueue::RecordEventToDemo(const InputEvent& event)
+{
+    #pragma message("TODO: Kinda like the 'Log' functions in each input event type, but for a demo file")
+}
