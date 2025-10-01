@@ -11,6 +11,17 @@
 static NostalgiaGoggles s_NostalgiaGogglesApp;
 NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
+static std::string sToggleFullscreen   ("ToggleFullscreen");
+static std::string sToggleMouseCapture ("ToggleMouseCapture");
+
+static SafeStatus sInputEventHandler(const InputEvent& event)
+{
+    if(event.IsFirstAction(sToggleFullscreen))
+        { g_pBackendManager->Windowing()->ToggleFullscreen(); }
+    else if(event.IsFirstAction(sToggleMouseCapture))
+        { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
+    return Status::NO_ERR;
+}
 bool NostalgiaGoggles::Create()
 {
     if(!BaseClass::Create())
@@ -47,10 +58,13 @@ int NostalgiaGoggles::Main()
 
     if(!_Manager::InitAllManagers())
         { return 1; }
+    g_pInputManager->SetInputEventCallback(sInputEventHandler);
 
     // g_pMenuManager->PushMenu("Main Menu");
     g_pUIManager->AddImGuiObject(g_pDebugger);
 
+    InputManager::AddAction(sToggleFullscreen,   InputID::KeyF);
+    InputManager::AddAction(sToggleMouseCapture, InputID::KeyESC);
     _Manager::Start(); // gameloop
     _Manager::ShutdownAllManagers();
     return 0;
