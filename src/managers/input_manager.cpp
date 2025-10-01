@@ -35,6 +35,13 @@ bool InputManager::Init()
     return true;
 }
 
+void InputManager::Shutdown()
+{
+    EventQueue::EndProcessing();
+    EventQueue::StopRecordingDemo();
+    EventQueue::DisableEventQueue();
+}
+
 void InputManager::Update()
 {
     PollInputs();
@@ -75,6 +82,49 @@ void InputManager::PollInputs()
             { EventQueue::QueueInputEvent({binding, m_sCurrentMousePosition, m_sLastMousePosition, l_sBindingActionsLookup[binding]}); }
     }
 }
+
+const BindingIterator InputManager::QueryBinding(id_t id)
+{ return std::find(s_Bindings.cbegin(), s_Bindings.cend(), id); }
+
+const BindingIterator InputManager::QueryBinding(const std::string& name)
+{ return std::find(s_Bindings.cbegin(), s_Bindings.cend(), InputID::GetID(name)); }
+
+bool InputManager::JustPressed(id_t id)
+{ return (Pressed(id) && QueryBinding(id)->JustChanged); }
+
+bool InputManager::JustPressed(const std::string& name)
+{ return JustPressed(InputID::GetID(name)); }
+
+bool InputManager::Pressed(id_t id)
+{ return (QueryBinding(id)->Status == InputStatus::Pressed); }
+
+bool InputManager::Pressed(const std::string& name)
+{ return Pressed(InputID::GetID(name)); }
+
+bool InputManager::Released(id_t id)
+{ return (QueryBinding(id)->Status == InputStatus::Released); }
+
+bool InputManager::Released(const std::string& name)
+{ return Released(InputID::GetID(name)); }
+
+bool InputManager::JustActive(id_t id)
+{ return JustPressed(id); }
+
+bool InputManager::JustActive(const std::string& name)
+{ return JustActive(InputID::GetID(name)); }
+
+bool InputManager::Active(id_t id)
+{ return Pressed(id); }
+
+bool InputManager::Active(const std::string& name)
+{ return Active(InputID::GetID(name)); }
+
+bool InputManager::Inactive(id_t id)
+{ return Released(id); }
+
+bool InputManager::Inactive(const std::string& name)
+{ return Inactive(InputID::GetID(name)); }
+
 
 InputEventCallbackFunction InputManager::SetInputEventCallback(InputEventCallbackFunction callback)
 { return (m_sInputEventCallback = callback); }
