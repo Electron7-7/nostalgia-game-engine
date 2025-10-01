@@ -1,27 +1,10 @@
 #include "command_line.hpp"
 #include "safe_return.hpp"
 #include "printing.hpp"
-#include "managers/backend_manager.hpp"
-
-SafeStatus s_HardExitProgram()
-{
-    _Manager::Stop();
-    return Status::NO_ERR;
-}
-
-SafeStatus s_PrototypeFullscreen()
-{
-    g_pBackendManager->Windowing()->ToggleFullscreen();
-    return Status::NO_ERR;
-}
 
 // These commands should always be available
 static const std::map<std::string, CommandFunction>
-s_cCommands =
-{
-    { CommandLine::cmd_ExitProgram, &s_HardExitProgram },
-    { CommandLine::cmd_PrototypeFullscreen, &s_PrototypeFullscreen },
-};
+s_cCommands = {};
 
 std::map<std::string, CommandFunction> CommandLine::m_sCommands = {};
 std::vector<std::string> CommandLine::m_sActiveQueue  = {};

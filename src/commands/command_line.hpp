@@ -23,9 +23,6 @@ public:
     static bool AddCommand(const std::string& Command, CommandFunction);
     static bool RemoveCommand(const std::string& Command);
 
-    static constexpr const char* cmd_ExitProgram = "please don't do this unless you know what you're doing";
-    static constexpr const char* cmd_PrototypeFullscreen = "PrototypeFullscreen";
-
 private:
     static std::map<std::string, CommandFunction> m_sCommands;
     static std::vector<std::string> m_sActiveQueue;
