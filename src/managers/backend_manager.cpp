@@ -95,6 +95,9 @@ void BackendManager::ImGuiNewFrame()
     s_Graphics->ImGuiNewFrame();
     s_Windowing->ImGuiNewFrame();
     ImGui::NewFrame();
+#   pragma message("Find a better way of disabling mouse input for ImGui when the cursor is disabled")
+    if(s_Windowing->GetMouseMode() == MouseMode::Disabled)
+        { ImGui::GetIO().ClearInputMouse(); }
 }
 
 void BackendManager::ImGuiRender()
