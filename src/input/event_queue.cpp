@@ -28,16 +28,10 @@ std::string EventQueue::demo_recording_extension = "dem";
 
 void EventQueue::DebugPrintQueueLog()
 {
-    size_t active_queue_size = m_sActiveQueue.size();
-    std::string queue_printout = "";
-
-    for(size_t i = 0 ; i < active_queue_size ; ++i)
-    {
-        auto event = m_sActiveQueue.at(i);
-        queue_printout += (event.Log() + "\n");
-    }
-
-    std::print("{0}-- Start of Queue Log --{1}\n{2}\n{0}--- End of Queue Log ---{1}", Style::Bold + Foreground::Blue, Style::Reset, queue_printout);
+    std::print("{}-- Start of Queue Log --{}\n", Style::Bold + Foreground::Blue, Style::Reset);
+    for(auto& event : m_sActiveQueue)
+        { std::print("{}\n", event.Log()); }
+    std::print("{}--- End of Queue Log ---{}\n", Style::Bold + Foreground::Blue, Style::Reset);
 }
 
 void EventQueue::LoadQueue(const std::vector<InputEvent>& event_queue)
@@ -46,30 +40,25 @@ void EventQueue::LoadQueue(const std::vector<InputEvent>& event_queue)
     m_sActiveQueue = event_queue;
 }
 
-#pragma message("idk if both EventQueue and DemoParser having the same 'LoadDemo' functions is a great idea...")
 bool EventQueue::LoadDemoFromFile(const std::string& demo_file_path)
 {
     DemoParser demo_parser;
-
     if(!demo_parser.LoadDemoFromFile(demo_file_path))
         { return false; }
-
     ClearQueue();
-
     m_sActiveQueue = demo_parser.GetEventQueue();
+    DEBUG(DebugPrintQueueLog();)
     return true;
 }
 
 bool EventQueue::LoadDemoFromMemory(const std::string& demo_file)
 {
     DemoParser demo_parser;
-
     if(!demo_parser.LoadDemoFromMemory(demo_file))
         { return false; }
-
     ClearQueue();
-
     m_sActiveQueue = demo_parser.GetEventQueue();
+    DEBUG(DebugPrintQueueLog();)
     return true;
 }
 
