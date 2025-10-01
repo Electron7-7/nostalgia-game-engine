@@ -1,6 +1,14 @@
 #ifndef INPUT_ENUMS_H
 #define INPUT_ENUMS_H
 
+enum class InputEventType
+{
+    Key,
+    MouseButton,
+    MouseMotion,
+    Invalid
+};
+
 enum class InputStatus
 {
     Pressed  = 1,
