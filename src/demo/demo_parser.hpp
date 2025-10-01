@@ -8,16 +8,13 @@
 class DemoParser
 {
 public:
-    static bool LoadDemoFromMemory(const std::string& DemoFile);
-    static bool LoadDemoFromFile(const std::string& DemoFilePath);
-    static std::vector<InputEvent> GetEventQueue();
+    bool LoadDemoFromMemory(const std::string& DemoFile);
+    bool LoadDemoFromFile(const std::string& DemoFilePath);
+    std::vector<InputEvent> GetEventQueue();
 
 private:
-    static std::vector<InputEvent> _event_queue;
-    static bool is_demo_file_parsed;
-    static bool is_demo_file_loaded;
-
-    static bool ParseLine(const std::string& Line);
+    std::vector<InputEvent> m_EventQueue = {};
+    bool ParseLine(const std::string& Line);
 };
 
 #endif // DEMO_PARSER_H

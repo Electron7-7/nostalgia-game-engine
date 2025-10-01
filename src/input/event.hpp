@@ -147,6 +147,7 @@ public:
 protected:
     friend class InputManager;
     friend class EventQueue;
+    friend class DemoParser;
     binding_t   m_Binding = binding_t();
     double      m_Time    = Time::Elapsed();
     long        m_Tick    = _Manager::TickNumber();

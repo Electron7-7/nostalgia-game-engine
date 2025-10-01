@@ -25,6 +25,7 @@ public:
     bool Locked = false;
 
 private:
+    friend class DemoParser;
     id_t m_ID = INVALID_ID;
 };
 
