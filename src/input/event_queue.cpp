@@ -9,7 +9,7 @@
 #include <fstream>
 #include <glm/vec2.hpp>
 
-#define DEMO_FILENAME (demo_recording_name + std::to_string(demo_recording_number) + demo_recording_extension)
+#define DEMO_FILENAME std::format("{}-{}.{}", demo_recording_name, demo_recording_number, demo_recording_extension)
 
 std::vector<InputEvent> EventQueue::m_sActiveQueue = {};
 std::vector<InputEvent> EventQueue::m_sSafeQueue   = {};
@@ -21,10 +21,10 @@ bool EventQueue::is_queueing_events = false;
 bool EventQueue::is_copying_queue = false;
 bool EventQueue::do_demo_recording = false;
 
-std::string EventQueue::demo_recording_storage = "";
+std::vector<std::string> EventQueue::demo_recording_storage = {};
 std::string EventQueue::demo_recording_name = "demo";
 int EventQueue::demo_recording_number = 1;
-std::string EventQueue::demo_recording_extension = ".demo";
+std::string EventQueue::demo_recording_extension = "dem";
 
 void EventQueue::DebugPrintQueueLog()
 {
@@ -73,11 +73,13 @@ bool EventQueue::LoadDemoFromMemory(const std::string& demo_file)
     return true;
 }
 
+void EventQueue::SetDemoFileName(const std::string& name)
+{ Filesystem::MakePathAbsolute(name, demo_recording_name); }
+
 bool EventQueue::EnableEventQueue()
 {
     if(can_queue_events)
         { return false; }
-
     can_queue_events = true;
     return true;
 }
@@ -86,7 +88,6 @@ bool EventQueue::DisableEventQueue()
 {
     if(!can_queue_events)
         { return false; }
-
     can_queue_events = false;
     return true;
 }
@@ -114,7 +115,6 @@ bool EventQueue::EndProcessing()
 {
     if(!is_processing_events)
         { return false; }
-
     is_processing_events = false;
     return true;
 }
@@ -127,6 +127,8 @@ SafeStatus EventQueue::QueueInputEvent(const InputEvent& event)
         { return Status::EventQueueINVALID_EVENT; }
     is_queueing_events = true;
     m_sActiveQueue.push_back(event);
+    if(do_demo_recording)
+        { RecordEventToDemo(event); }
     is_queueing_events = false;
     return Status::NO_ERR;
 }
@@ -139,11 +141,8 @@ SafeReturn<InputEvent> EventQueue::GetNextEvent()
         { return SafeReturn(InputEvent(), Status::EventQueueEMPTY); }
 
     InputEvent next_event(m_sSafeQueue.front());
-
-    if(do_demo_recording)
-        { RecordEventToDemo(next_event); }
-
     m_sSafeQueue.erase(m_sSafeQueue.cbegin());
+
     return SafeReturn(next_event);
 }
 
@@ -196,12 +195,28 @@ bool EventQueue::StopRecordingDemo()
     }
 
     std::ofstream demo_file(DEMO_FILENAME);
-    demo_file << demo_recording_storage;
+    for(const auto& event : demo_recording_storage)
+        { demo_file << event; }
     demo_file.close();
+    demo_recording_storage.clear();
     return true;
 }
 
 void EventQueue::RecordEventToDemo(const InputEvent& event)
 {
-    #pragma message("TODO: Kinda like the 'Log' functions in each input event type, but for a demo file")
+    std::string actions = "";
+    std::string extras = "";
+    size_t i = 0;
+    size_t size = event.Actions().size();
+    for(const auto& action : event.Actions())
+    {
+        actions += action;
+        if(i++ < (size - 1))
+            { actions += ","; }
+    }
+    if(!actions.empty())
+        { extras += std::format(" <{}>", actions); }
+    if(event.IsMouseMotion())
+        { extras += std::format(" ({:0.3f},{:0.3f}) ({:0.3f},{:0.3f})", event.CurrentMousePosition().x, event.CurrentMousePosition().y, event.LastMousePosition().x, event.LastMousePosition().y); }
+    demo_recording_storage.push_back(std::format("[{} : {:0.3f}] ({} : {} : {}){}\n", event.TickNumber(), event.CreationTime(), static_cast<id_t>(event.Binding()), static_cast<int>(event.Binding().Status), static_cast<int>(event.Binding().JustChanged), extras));
 }

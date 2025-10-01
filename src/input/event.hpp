@@ -6,6 +6,7 @@
 #include "enums.hpp"
 #include "printing.hpp"
 #include "time.hpp"
+#include "managers/manager.hpp"
 
 #include <set>
 #include <format>
@@ -147,8 +148,8 @@ protected:
     friend class InputManager;
     friend class EventQueue;
     binding_t   m_Binding = binding_t();
-    double      m_Time    = Time::Current();
-    long        m_Tick    = 0;
+    double      m_Time    = Time::Elapsed();
+    long        m_Tick    = _Manager::TickNumber();
     std::set<std::string> m_Actions = {};
     glm::vec2 m_CurrentMousePosition = {0.0f, 0.0f};
     glm::vec2 m_LastMousePosition = {0.0f, 0.0f};

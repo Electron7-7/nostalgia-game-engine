@@ -13,6 +13,7 @@ public:
     static void LoadQueue(const std::vector<InputEvent>& InitFromQueue);
     static bool LoadDemoFromFile(const std::string& DemoFilePath);
     static bool LoadDemoFromMemory(const std::string& DemoFile);
+    static void SetDemoFileName(const std::string& DemoFileName);
 
     static bool EnableEventQueue();
     static bool DisableEventQueue();
@@ -44,7 +45,7 @@ private:
     static int demo_recording_number;
     static std::string demo_recording_name;
     static std::string demo_recording_extension;
-    static std::string demo_recording_storage;
+    static std::vector<std::string> demo_recording_storage;
 
     static void PushFront(const InputEvent& event);
     static bool PopFront();
