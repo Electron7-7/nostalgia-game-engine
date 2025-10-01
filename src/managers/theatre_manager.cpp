@@ -3,6 +3,7 @@
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/things.hpp"
+#include "things/thing.hpp"
 #include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
