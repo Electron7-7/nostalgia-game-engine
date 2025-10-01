@@ -1,5 +1,6 @@
 #include "imgui_debugger.hpp"
 #include "../app/nostalgia_goggles.hpp"
+#include "input/event_queue.hpp"
 #include "managers/manager.hpp"
 #include "settings/settings.hpp"
 #include "managers/backend_manager.hpp"
@@ -265,6 +266,13 @@ void imgui_Debugger::Update()
             }
             EndTabBar();
 #       endif // DEBUGGING
+            static std::string sDemoFileName = "demo";
+            if(InputText("Demo File Output", &sDemoFileName))
+                { EventQueue::SetDemoFileName(sDemoFileName); }
+            if(Button("Start Recording Demo"))
+                { EventQueue::StartRecordingDemo(); }
+            if(Button("Stop Recording Demo"))
+                { EventQueue::StopRecordingDemo(); }
         }
         End();
     }
