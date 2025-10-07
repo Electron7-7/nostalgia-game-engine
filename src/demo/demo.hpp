@@ -10,6 +10,8 @@ struct Demo
 {
 public:
     Demo();
+    Demo(const TheatreData& TheatreData);
+    Demo(const TheatreData& TheatreData, const std::string& BaseName);
     Demo(const TheatreData& TheatreData, const std::vector<EventQueue>& Queues);
     Demo(const TheatreData& TheatreData, const std::vector<EventQueue>& Queues, const std::string& BaseName);
 

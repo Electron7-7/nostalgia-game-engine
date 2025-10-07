@@ -18,6 +18,14 @@ Demo::Demo(const TheatreData& theatre_data, const std::vector<EventQueue>& queue
     mName(base_name)
 {}
 
+Demo::Demo(const TheatreData& theatre_data):
+    Demo(theatre_data, {}, sDefaultBaseName)
+{}
+
+Demo::Demo(const TheatreData& theatre_data, const std::string& name):
+    Demo(theatre_data, {}, name)
+{}
+
 Demo::Demo(const TheatreData& theatre_data, const std::vector<EventQueue>& queues):
     Demo(theatre_data, queues, sDefaultBaseName)
 {}

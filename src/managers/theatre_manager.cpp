@@ -135,6 +135,9 @@ void TheatreManager::RenderWorld()
     }
 }
 
+TheatreData& TheatreManager::GetData()
+{ return sCurrentTheatreData; }
+
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
 {
     s_LocalPlayer->Input(event);

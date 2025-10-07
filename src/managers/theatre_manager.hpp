@@ -21,6 +21,8 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     void RenderWorld();
+
+    static TheatreData& GetData();
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);
     static std::shared_ptr<Thing> GetThing(ID ObjectID);
