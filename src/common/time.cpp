@@ -6,7 +6,6 @@
 static const std::chrono::time_point cProgramStartSteady = std::chrono::steady_clock::now();
 static const std::chrono::time_point cProgramStartSystem = std::chrono::system_clock::now();
 static constexpr const char* cTimeFormat = "{:%X}";
-static double sWaitStart = 0.0;
 
 #define STEADY_NOW std::chrono::steady_clock::now()
 #define SYSTEM_NOW std::chrono::system_clock::now()
