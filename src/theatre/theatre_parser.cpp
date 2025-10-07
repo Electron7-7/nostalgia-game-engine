@@ -33,8 +33,7 @@ static const std::string s_cSyntaxWarningPrefix = " NostalgiaTheatre Syntax Warn
 
 static bool s_PlayerInstantiated = false;
 static std::map<std::string, std::string> s_NameIDMap = {};
-static std::string s_TheatreFileDataString = "";
-static TheatreData s_TheatreData;
+static std::string sTheatreFileDataString = "";
 
 static const std::set<std::string> c_NostalgiaExtensions =
 {
@@ -72,31 +71,31 @@ static const char space                = ' ';
 static const std::string resources     = "Resources";
 static const std::string things        = "Things";
 
-const TheatreData& TheatreParser::GetTheatreData()
-{ return s_TheatreData; }
-
-SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
+SafeStatus TheatreParser::try_LoadTheatreFromFile(TheatreData& output, const std::string& theatre_file)
 {
     if(!FileSystem::IsFile(theatre_file))
         { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
-    if(!c_NostalgiaExtensions.contains(FileSystem::GetExtension(theatre_file)))
+    else if(!c_NostalgiaExtensions.contains(FileSystem::GetExtension(theatre_file)))
         { return Status::TheatreParserWRONG_FILE_EXTENSION; }
-    if(!FileSystem::try_ReadFileToString(theatre_file, s_TheatreFileDataString))
+    else if(!FileSystem::try_ReadFileToString(theatre_file, sTheatreFileDataString))
         { return Status::ERROR_FILE_READ_ERROR; }
-    return Status::NO_ERR;
+    return try_ParseTheatre(output);
 }
 
-void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
-{ s_TheatreFileDataString = theatre_data; }
-
-static void s_AddParsedDataHelper(ThingData& data)
+SafeStatus TheatreParser::try_LoadTheatreFromMemory(TheatreData& output, const std::string& theatre_data)
 {
-    if(data.type() == ThingType::NostalgiaPlayer)
-        { s_PlayerInstantiated = true; data.uid = UniqueIDs::Reserved::Player; }
+    sTheatreFileDataString = theatre_data;
+    return try_ParseTheatre(output);
+}
+
+static void s_AddParsedDataHelper(TheatreData& theatre_data, ThingData& thing_data)
+{
+    if(thing_data.type() == ThingType::NostalgiaPlayer)
+        { s_PlayerInstantiated = true; thing_data.uid = UniqueIDs::Reserved::Player; }
     else
-        { data.uid = UniqueIDs::Generate(); }
-    s_TheatreData.AddData(data);
-    s_NameIDMap[data.name] = std::to_string(data.uid);
+        { thing_data.uid = UniqueIDs::Generate(); }
+    theatre_data.AddData(thing_data);
+    s_NameIDMap[thing_data.name] = std::to_string(thing_data.uid);
 }
 
 enum class Context
@@ -132,18 +131,18 @@ enum class Parsing
     VariableValue
 };
 
-SafeStatus TheatreParser::try_ParseTheatre()
+SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
 {
-    #pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
+#   pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
     UniqueIDs::Clear();
 
     s_NameIDMap.clear();
-    s_TheatreData.clear();
+    TheatreData theatre_data;
 
     COLUMN = 1;
     LINE   = 1;
 
-    size_t data_size = s_TheatreFileDataString.size();
+    size_t data_size = sTheatreFileDataString.size();
 
     char character = '\0';
     std::string buffer = "";
@@ -172,7 +171,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
     for(size_t iterator = 0 ; iterator < data_size ; ++iterator,++COLUMN)
     {
-        character = s_TheatreFileDataString.at(iterator);
+        character = sTheatreFileDataString.at(iterator);
 
         if(set_new_line)
         {
@@ -219,7 +218,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         switch(character)
         {
         case comment_delimiter:
-            if(iterator+1 < data_size && s_TheatreFileDataString.at(++iterator))
+            if(iterator+1 < data_size && sTheatreFileDataString.at(++iterator))
                 { inside_comment = true; }
             continue;
         case name_delimiter:
@@ -390,7 +389,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 location = Location::Object;
                 parsing  = Parsing::VariableName;
 
-                s_AddParsedDataHelper(temp_data);
+                s_AddParsedDataHelper(theatre_data, temp_data);
 
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
@@ -401,7 +400,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 continue;
             }
 
-            s_AddParsedDataHelper(temp_data);
+            s_AddParsedDataHelper(theatre_data, temp_data);
 
             temp_data.clear();
             variable_name.clear();
@@ -413,13 +412,15 @@ SafeStatus TheatreParser::try_ParseTheatre()
     }
 
     if(!s_PlayerInstantiated)
-        { s_TheatreData.AddData(ThingData::PlayerDefaults); }
+        { theatre_data.AddData(ThingData::PlayerDefaults); }
 
-    s_TheatreData.UpdateReferences(s_NameIDMap);
-    s_TheatreData.OrderByPriority();
+    theatre_data.UpdateReferences(s_NameIDMap);
+    theatre_data.OrderByPriority();
 
 #ifdef DEBUGGING
-    s_TheatreData.debug_PrintData();
+    theatre_data.debug_PrintData();
 #endif // DEBUGGING
+    output = theatre_data;
+    theatre_data.clear();
     return Status::NO_ERR;
 }

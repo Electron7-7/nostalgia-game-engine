@@ -22,6 +22,10 @@ public:
 
     void RenderWorld();
 
+    static void LoadTheatreData(const TheatreData& Data);
+    static bool LoadTheatreFromFile(const std::string& File);
+    static bool LoadTheatreFromMemory(const std::string& FileData);
+
     static TheatreData& GetData();
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);

@@ -71,7 +71,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     g_pDebugger->StartTheatreTiming(true);
 #endif // DEBUGGING
 
-    if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre()))
+    if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre(sCurrentTheatreData)))
         { return FUCKED; }
 
     s_ReadyToRender = false;
@@ -133,6 +133,28 @@ void TheatreManager::RenderWorld()
         g_pBackendManager->Graphics()->RenderSingleCommand(*rendercmd);
         rendercmd = s_RenderCommandQueue.erase(rendercmd);
     }
+}
+
+void TheatreManager::LoadTheatreData(const TheatreData& data)
+{
+    sCurrentTheatreData = data;
+    _Manager::StartNewTheatre();
+}
+
+bool TheatreManager::LoadTheatreFromFile(const std::string& file)
+{
+    if(TheatreParser::try_LoadTheatreFromFile(sCurrentTheatreData, file) != Status::NO_ERR)
+        { return false; }
+    _Manager::StartNewTheatre();
+    return true;
+}
+
+bool TheatreManager::LoadTheatreFromMemory(const std::string& data)
+{
+    if(TheatreParser::try_LoadTheatreFromMemory(sCurrentTheatreData, data) != Status::NO_ERR)
+        { return false; }
+    _Manager::StartNewTheatre();
+    return true;
 }
 
 TheatreData& TheatreManager::GetData()
@@ -202,8 +224,6 @@ bool TheatreManager::DestroyThing(ID id)
 void TheatreManager::CreateThings()
 {
     s_ReadyToRender = false;
-
-    sCurrentTheatreData = TheatreParser::GetTheatreData();
 
     // Clear rendering data and buffer important embedded Resources
     g_pBackendManager->Graphics()->DestroyRenderingData();

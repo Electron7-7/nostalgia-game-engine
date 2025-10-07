@@ -119,7 +119,9 @@ bool InputManager::StartPlayingDemo(const std::string& path_or_data)
     if(m_sPlayingDemo)
         { return false; }
     m_sDemo.clear();
-    return m_sPlayingDemo = DemoParser(path_or_data, m_sDemo);
+    if(!DemoParser(path_or_data, m_sDemo))
+        { return false; }
+    return (m_sPlayingDemo = m_sDemo.Play());
 }
 
 bool InputManager::StopPlayingDemo()

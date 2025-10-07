@@ -2,6 +2,8 @@
 #include "debug.hpp"
 #include "filesystem/filesystem.hpp"
 #include "input/event.hpp"
+#include "managers/theatre_manager.hpp"
+#include "theatre/theatre_parser.hpp"
 
 #include <fstream>
 
@@ -36,6 +38,7 @@ bool Demo::Play()
         { return true; }
     else if(mTheatreData == TheatreData::Missing)
         { return false; }
+    TheatreManager::LoadTheatreData(mTheatreData);
     return mIsPlaying = true;
 }
 

@@ -7,11 +7,9 @@
 struct TheatreParser
 {
 public:
-    static const TheatreData& GetTheatreData();
-    static SafeStatus try_ParseTheatre();
-
-    static SafeStatus try_LoadTheatreFromFile(const std::string& FilePath);
-    static void LoadTheatreFromMemory(const std::string& FileData);
+    static SafeStatus try_ParseTheatre(TheatreData& Output);
+    static SafeStatus try_LoadTheatreFromFile(TheatreData& Output, const std::string& FilePath);
+    static SafeStatus try_LoadTheatreFromMemory(TheatreData& Output, const std::string& FileData);
 };
 
 #ifdef DEBUGGING
