@@ -526,8 +526,7 @@ static void s_TheatreDebuggingWindow()
     if(Button("Load Theatre"))
     {
         s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-        if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
-            { _Manager::StartNewTheatre(); }
+        TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
     }
     if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
