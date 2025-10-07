@@ -1,13 +1,13 @@
 #include "imgui_debugger.hpp"
 #include "../app/nostalgia_goggles.hpp"
-#include "input/event_queue.hpp"
 #include "managers/manager.hpp"
-#include "settings/settings.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/backend_manager.hpp"
+#include "settings/settings.hpp"
 #include "theatre/theatre_parser.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
-#include "thirdparty/DearImGui/imgui.h"
-#include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "DearImGui/imgui.h"
+#include "DearImGui/imgui_stdlib.h"
 #include "debug.hpp"
 
 #include <glm/glm.hpp>
@@ -17,8 +17,8 @@
 #ifdef DEBUGGING
 #   include "time.hpp"
 #   include "managers/theatre_manager.hpp"
+#   include "things/thing_factory.hpp"
 #   include "rendering/backends/graphics/opengl.hpp"
-#   include "things/things.hpp"
 #   include "things/actors/light.hpp"
 #   include "things/devices/mesh_instance.hpp"
 #   include "things/devices/material.hpp"
@@ -50,6 +50,8 @@ using namespace ImGui;
 
 static std::string s_TheatreFilePath = "theatres/HelloWorld.nt";
 static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
+static std::string sDemoFileOut = "demo";
+static std::string sDemoFileIn = std::format("{}.dem", sDemoFileOut);
 
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
@@ -266,17 +268,14 @@ void imgui_Debugger::Update()
             }
             EndTabBar();
 #       endif // DEBUGGING
-            static std::string sDemoFileOut = "demo";
-            if(InputText("Demo File Output", &sDemoFileOut))
-                { EventQueue::SetDemoFileName(sDemoFileOut); }
+            InputText("Demo File Output", &sDemoFileOut);
             if(Button("Start Recording Demo"))
-                { EventQueue::StartRecordingDemo(); }
+                { InputManager::StartRecordingDemo(sDemoFileOut); }
             if(Button("Stop Recording Demo"))
-                { EventQueue::StopRecordingDemo(); }
-            static std::string sDemoFileIn = "demo-1.dem";
+                { InputManager::StopRecordingDemo(); }
             InputText("Demo File Input", &sDemoFileIn);
             if(Button("Play Demo File"))
-                { EventQueue::LoadDemoFromFile(sDemoFileIn); }
+                { InputManager::StartPlayingDemo(sDemoFileIn); }
         }
         End();
     }
@@ -307,7 +306,7 @@ bool StopwatchLog::Start(const std::string& message)
     m_IsFinished   = false;
     m_Message = message;
 
-    m_FormattedStartTime = Time::CurrentSystem();
+    m_FormattedStartTime = Time::CurrentFormatted();
     m_HighResStartTime   = Time::Current();
     m_HighResStopTime    = m_HighResStartTime;
     return true;
@@ -320,7 +319,7 @@ bool StopwatchLog::Stop()
     m_IsRunning   = false;
     m_IsFinished  = true;
     m_HighResStopTime = Time::Current();
-    m_FormattedStopTime = Time::CurrentSystem();
+    m_FormattedStopTime = Time::CurrentFormatted();
     return true;
 }
 
@@ -580,16 +579,16 @@ static bool s_GetImageName(std::string& out, id_t id)
 {
     switch(id)
     {
-    case IDs::iMissing:
+    case UniqueIDs::Reserved::i_Missing:
         out = Images::Name::Missing;
         break;
-    case IDs::iCOMP04_5:
+    case UniqueIDs::Reserved::i_COMP04_5:
         out = Images::Name::COMP04_5;
         break;
-    case IDs::iLolBit:
+    case UniqueIDs::Reserved::i_LolBit:
         out = Images::Name::LolBit;
         break;
-    case IDs::iLightDebug:
+    case UniqueIDs::Reserved::i_LightDebug:
         out = Images::Name::LightDebug;
         break;
     default:
@@ -602,13 +601,13 @@ static bool s_GetModelName(std::string& out, id_t id)
 {
     switch(id)
     {
-    case IDs::mError:
+    case UniqueIDs::Reserved::m_Error:
         out = Models::Name::Error;
         break;
-    case IDs::mRamiel:
+    case UniqueIDs::Reserved::m_Ramiel:
         out = Models::Name::Ramiel;
         break;
-    case IDs::mCube:
+    case UniqueIDs::Reserved::m_Cube:
         out = Models::Name::Cube;
         break;
     default:
@@ -631,9 +630,9 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             InputInt("Max Buttons Per Row", &s_MaxPerRow, 1, 5);
             PopItemFlag();
             BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
-            const std::map<id_t, std::shared_ptr<Thing>>& things = TheatreManager::s_Things;
-            int i = 0;
-            for(const auto& [id, thing] : things)
+            std::shared_ptr<Thing> thing;
+            int i = -1;
+            while(TheatreManager::debug_GetThingAtIndex(++i, thing))
             {
                 if(std::dynamic_pointer_cast<Resource>(thing) || std::dynamic_pointer_cast<MeshInstance>(thing))
                     { continue; }
@@ -643,7 +642,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     { PushStyleColor(ImGuiCol_Button, IM_COL32(100, 103, 48, 255)); push_color = true; }
                 else if(std::dynamic_pointer_cast<Actor>(thing))
                     { PushStyleColor(ImGuiCol_Button, IM_COL32(103, 48, 101, 255)); push_color = true; }
-                if(Button(thing->GetName().c_str(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                if(Button(thing->name().c_str(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
                 {
                     s_Thing = thing;
                     s_Highlight = true;
@@ -654,12 +653,12 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     { s_Highlight = true; }
                 if(std::dynamic_pointer_cast<Actor>(thing))
                 {
-                    g_GetThing<Material>(
-                        g_GetThing<MeshInstance>(
+                    TheatreManager::GetThing<Material>(
+                        TheatreManager::GetThing<MeshInstance>(
                             std::dynamic_pointer_cast<Actor>(
                                 thing)->GetMeshInstanceID()
                             )->GetMaterialID()
-                        )->m_DebugHighlight.a = s_Highlight;
+                        )->mDebugHighlight.a = s_Highlight;
                 }
                 if(++i < s_MaxPerRow)
                     { SameLine(); }
@@ -677,9 +676,9 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
             if(TreeNodeEx("Immutable Properties", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                Text("Name: '%s'", s_Thing->GetName().c_str());
-                Text("Type: (%s)", StringifyType(s_Thing->GetType()));
-                Text("ID: [%u]", s_Thing->GetID());
+                Text("Name: '%s'", s_Thing->name().c_str());
+                Text("Type: (%s)", ThingFactory::GetTypeName(s_Thing->type()).c_str());
+                Text("ID: [%u]", (id_t)s_Thing->uid());
                 if(actor)
                 {
                     Text("Quaternion: (%f, %f, %f, %f)", actor->Quaternion().w, actor->Quaternion().x, actor->Quaternion().y, actor->Quaternion().z);
@@ -692,24 +691,24 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             {
                 if(actor)
                 {
-                    auto mInst = g_GetThing<MeshInstance>(actor->GetMeshInstanceID());
-                    auto mat = g_GetThing<Material>(mInst->GetMaterialID());
+                    auto mInst = TheatreManager::GetThing<MeshInstance>(actor->GetMeshInstanceID());
+                    auto mat = TheatreManager::GetThing<Material>(mInst->GetMaterialID());
                     PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0,0,0,0));
                     PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0,0,0,0));
                     static ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_Leaf;
-                    if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->GetName().c_str(), actor->GetMeshInstanceID()))
+                    if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->name().c_str(), (id_t)actor->GetMeshInstanceID()))
                     {
-                        std::string mesh_name = TheatreManager::GetThing(mInst->GetMeshID())->GetName();
+                        std::string mesh_name = TheatreManager::GetThing(mInst->GetMeshID())->name();
                         s_GetModelName(mesh_name, mInst->GetMeshID());
-                        TreeNodeEx("Mesh", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "Mesh - '%s' [%u]", mesh_name.c_str(), mInst->GetMeshID());
-                        if(TreeNodeEx("Material", tree_flags, "Material - '%s' [%u]", TheatreManager::GetThing(mInst->GetMaterialID())->GetName().c_str(), mInst->GetMaterialID()))
+                        TreeNodeEx("Mesh", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "Mesh - '%s' [%u]", mesh_name.c_str(), (id_t)mInst->GetMeshID());
+                        if(TreeNodeEx("Material", tree_flags, "Material - '%s' [%u]", TheatreManager::GetThing(mInst->GetMaterialID())->name().c_str(), (id_t)mInst->GetMaterialID()))
                         {
-                            std::string diffuse_name  = TheatreManager::GetThing(mat->GetDiffuseTexture())->GetName();
-                            std::string specular_name = TheatreManager::GetThing(mat->GetSpecularTexture())->GetName();
+                            std::string diffuse_name  = TheatreManager::GetThing(mat->GetDiffuseTexture())->name();
+                            std::string specular_name = TheatreManager::GetThing(mat->GetSpecularTexture())->name();
                             s_GetImageName(diffuse_name, mat->GetDiffuseTexture());
                             s_GetImageName(specular_name, mat->GetSpecularTexture());
-                            TreeNodeEx("DiffuseTexture",  tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), mat->GetDiffuseTexture());
-                            TreeNodeEx("SpecularTexture", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "SpecularTexture - '%s' [%u]", specular_name.c_str(), mat->GetSpecularTexture());
+                            TreeNodeEx("DiffuseTexture",  tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), (id_t)mat->GetDiffuseTexture());
+                            TreeNodeEx("SpecularTexture", tree_flags | ImGuiTreeNodeFlags_NoTreePushOnOpen, "SpecularTexture - '%s' [%u]", specular_name.c_str(), (id_t)mat->GetSpecularTexture());
                             TreePop();
                         }
                         TreePop();
@@ -719,12 +718,12 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
                 if(material)
                 {
-                    std::string diffuse_name  = TheatreManager::GetThing(material->GetDiffuseTexture())->GetName();
-                    std::string specular_name = TheatreManager::GetThing(material->GetSpecularTexture())->GetName();
+                    std::string diffuse_name  = TheatreManager::GetThing(material->GetDiffuseTexture())->name();
+                    std::string specular_name = TheatreManager::GetThing(material->GetSpecularTexture())->name();
                     s_GetImageName(diffuse_name, material->GetDiffuseTexture());
                     s_GetImageName(specular_name, material->GetSpecularTexture());
-                    Text("DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), material->GetDiffuseTexture());
-                    Text("SpecularTexture - '%s' [%u]", specular_name.c_str(), material->GetSpecularTexture());
+                    Text("DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), (id_t)material->GetDiffuseTexture());
+                    Text("SpecularTexture - '%s' [%u]", specular_name.c_str(), (id_t)material->GetSpecularTexture());
                 }
                 TreePop();
             }
@@ -740,14 +739,14 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 std::string string = "";
                 if(material)
                 {
-                    Checkbox("Don't Use Textures", &material->m_DontUseTexture);
+                    Checkbox("Don't Use Textures", &material->mDontUseTexture);
                     max_size = 19;
                     width_scaler = 8.2f;
                 }
 
                 if(light)
                 {
-                    Checkbox("Enabled", &light->m_Enabled);
+                    Checkbox("Enabled", &light->mEnabled);
                     SameLine();
                 }
 
@@ -755,11 +754,11 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     max_size = 9;
                     width_scaler = 9.6f;
-                    Checkbox("Visible", &actor->m_Visible);
+                    Checkbox("Visible", &actor->mVisible);
                     if(!light)
                     {
                         SameLine();
-                        Checkbox("Actor Wireframe", &actor->m_Wireframe);
+                        Checkbox("Actor Wireframe", &actor->mWireframe);
                         if(IsItemHovered())
                             { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     }
@@ -774,42 +773,42 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv3("##color", &light->m_Color, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                    ColorEditGLMv3("##color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
 
                     string = "Energy:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Energy", &light->m_Energy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("##Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     string = "SpecularStrength:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##SpecularStrength", &light->m_SpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("##SpecularStrength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     string = "AmbientStrength:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##AmbientStrength", &light->m_AmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("##AmbientStrength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     string = "Attenuation:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Attenuation", &light->m_Attenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("##Attenuation", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     string = "Range:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Range", &light->m_Range, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("##Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     if(std::dynamic_pointer_cast<SpotLight>(light))
                     {
@@ -818,14 +817,14 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         Text("%s", string.c_str());
                         SameLine();
                         SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                        InputFloat("##SpotAngle", &light->m_SpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("##SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                         string = "SpotAngleFade:";
                         string.insert(string.end(), max_size - string.size(), ' ');
                         Text("%s", string.c_str());
                         SameLine();
                         SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                        InputFloat("##SpotAngleFade", &light->m_SpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("##SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                     }
                 }
 
@@ -863,28 +862,28 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv3("##mat_color", &material->m_Color, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                    ColorEditGLMv3("##mat_color", &material->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
 
                     string = "SpecularSharpness:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputInt("##SpecularSharpness", &material->m_SpecularSharpness, 2, 8);
+                    InputInt("##SpecularSharpness", &material->mSpecularSharpness, 2, 8);
 
                     string = "SpecularStrength:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##SpecularStrength", &material->m_SpecularStrength, 0.05f, 0.1f, "%.3f");
+                    InputFloat("##SpecularStrength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
 
                     string = "DebugHighlight:";
                     string.insert(string.end(), max_size - string.size(), ' ');
                     Text("%s", string.c_str());
                     SameLine();
                     SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv4("##mat_DebugHighlight", &material->m_DebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
+                    ColorEditGLMv4("##mat_DebugHighlight", &material->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
                 }
                 EndChild();
             }
