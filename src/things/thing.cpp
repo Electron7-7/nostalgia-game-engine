@@ -1,18 +1,23 @@
 #include "thing.hpp"
-#include "theatre/data_t.hpp"
+#include "theatre/thing_data.hpp"
 
-id_t _thing::GetID() const
-{ return m_ID; }
+Thing::~Thing() = default;
 
-const std::string& _thing::GetName() const
-{ return m_Name; }
-
-size_t _thing::GetType() const
-{ return m_Type; }
-
-void Thing::SetupVariables(const data_t& data)
+void Thing::SetupVariables(const ThingData& data)
 {
-    m_ID = data.GetID();
-    m_Name = data.GetName();
-    m_Type = data.GetType();
+    mUID  = data.uid;
+    mName = data.name;
+    mType = data.type();
 }
+
+void Thing::Shutdown()
+{ UniqueIDs::Erase(mUID); }
+
+ID Thing::uid() const
+{ return mUID; }
+
+ID Thing::type() const
+{ return mType; }
+
+const std::string& Thing::name() const
+{ return mName; }

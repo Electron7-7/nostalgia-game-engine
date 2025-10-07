@@ -1,49 +1,36 @@
 #ifndef THING_H
 #define THING_H
 
-#include "id.hpp"
-#include "things.hpp"
 #include "input/fwd.hpp"
+#include "theatre/fwd.hpp"
 
-#include <string>
+#include "types.hpp"
 
-struct data_t; // Forward Declaration
-
-class _thing
+class Thing
 {
 public:
-    virtual ~_thing() = default;
+    virtual ~Thing();
 
-    virtual void Tick() = 0;
-    virtual void Update() = 0;
-    virtual void Input(const InputEvent&) = 0;
-    virtual void SetupVariables(const data_t&) = 0;
-    virtual bool Initialize() = 0;
-    virtual void Destroy() = 0;
-
-    id_t GetID() const;
-    size_t GetType() const;
-    const std::string& GetName() const;
-
-protected:
-    id_t m_ID = IDs::None;
-    size_t m_Type = Type::Thing;
-    std::string m_Name = "Untitled Thing";
-};
-
-class Thing : public _thing
-{
-public:
-    virtual void Input(const InputEvent&) {};
     virtual void Tick() {};
     virtual void Update() {};
-    virtual void SetupVariables(const data_t&);
-    virtual bool Initialize() { return true; }
-    virtual void Destroy() {}
+    virtual void Input(const InputEvent& Event) {};
+
+    // Derived classes must call their base class' `::SetupVariables` method at the start of their own implementation of `::SetupVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetupVariables`.
+    virtual void SetupVariables(const ThingData& Data);
+    // Derived classes must call their base class' `::Shutdown` method at the start of their own implementation of `::Shutdown`. If done properly, this will result in a chain of function calls all the way to `Thing::Shutdown`.
+    virtual void Shutdown();
+
+    ID uid() const;
+    ID type() const;
+    const std::string& name() const;
+
+protected:
+    ID mUID = ID::None;
+    ID mType = ThingType::Thing;
+    std::string mName = "Untitled Thing";
 };
 
 template<typename T>
-concept IsThing = requires
-{ std::derived_from<T, Thing> == true; };
+concept IsThing = requires { std::derived_from<T,Thing>; };
 
 #endif // THING_H
