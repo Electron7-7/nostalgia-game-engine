@@ -1,5 +1,5 @@
 #include "render_manager.hpp"
-#include "theatre_manager.hpp"
+#include "theatre_parser_manager.hpp"
 #include "ui_manager.hpp"
 #include "backend_manager.hpp"
 

@@ -1,5 +1,5 @@
 #include "mesh_instance.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 
 void MeshInstance::SetupVariables(const ThingData& data)
 {

@@ -1,5 +1,5 @@
 #include "actor.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 
 void Actor::SetupVariables(const ThingData& data)
 {

@@ -12,4 +12,4 @@ enum class VariableType;
 // Parser
 struct TheatreParser;
 
-#endif // THEATRE_FWD_H
+#endif // THEATRE_PARSER_FWD_H

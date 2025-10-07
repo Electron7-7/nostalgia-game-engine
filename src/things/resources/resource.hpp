@@ -3,7 +3,7 @@
 
 #include "../thing.hpp"
 #include "filesystem/file_data.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 
 class Resource : public Thing
 {

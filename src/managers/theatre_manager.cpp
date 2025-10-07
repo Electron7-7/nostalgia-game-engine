@@ -1,6 +1,6 @@
 #include "theatre_manager.hpp"
-#include "theatre/theatre_data.hpp"
-#include "theatre/theatre_parser.hpp"
+#include "theatre_parser/theatre_data.hpp"
+#include "theatre_parser/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/thing.hpp"
 #include "embedded/images.hpp"

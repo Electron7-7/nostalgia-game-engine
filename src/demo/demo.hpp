@@ -2,7 +2,7 @@
 #define DEMO_H
 
 #include "input/event_queue.hpp"
-#include "theatre/theatre_data.hpp"
+#include "theatre_parser/theatre_data.hpp"
 
 #include <vector>
 

@@ -2,8 +2,8 @@
 #include "debug.hpp"
 #include "filesystem/filesystem.hpp"
 #include "input/event.hpp"
+#include "theatre_parser/theatre_parser.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/theatre_parser.hpp"
 
 #include <fstream>
 

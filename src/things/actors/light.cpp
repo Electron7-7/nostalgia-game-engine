@@ -1,8 +1,8 @@
 #include "light.hpp"
 #include "debug.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/thing_data.hpp"
-#include "theatre/thing_variable.hpp"
+#include "theatre_parser/thing_data.hpp"
+#include "theatre_parser/thing_variable.hpp"
 
 int light_t::sPointCount       = 0;
 int light_t::sSpotCount        = 0;

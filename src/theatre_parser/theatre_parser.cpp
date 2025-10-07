@@ -1,10 +1,12 @@
 #include "theatre_parser.hpp"
 #include "debug.hpp"
-#include "to_lower.hpp"
 #include "filesystem/filesystem.hpp"
+#include "to_lower.hpp"
+#include "filesystem/file_data.hpp"
 
 #include <string>
-#include <set>
+
+// TODO: make a separate project for Theatre file syntax and include error/warning generation?
 
 // Yes, this is stupid. Too bad!"
 #ifdef DEBUGGING
@@ -17,38 +19,22 @@
 #   define COLUMN   g_Column
 #   define LINE     g_Line
 #else  // !DEBUGGING
-    size_t s_Column = 1;
-    size_t s_Line   = 1;
+    static size_t s_Column = 1;
+    static size_t s_Line   = 1;
 
 #   define COLUMN   s_Column
 #   define LINE     s_Line
 #endif // DEBUGGING
 
-static const std::string s_cParserLocation = std::to_string(LINE) + ":" + std::to_string(COLUMN);
-static const std::string s_cSyntaxErrorPrefix   = " NostalgiaTheatre Syntax Error at "   + s_cParserLocation;
-static const std::string s_cSyntaxWarningPrefix = " NostalgiaTheatre Syntax Warning at " + s_cParserLocation;
+FileData TheatreParser::m_sTheatreFile;
 
-#define SYNTAX_ERROR(FORMAT, ARGS...)   __LABELLED_PRINT(__ERROR   + s_cSyntaxErrorPrefix,   FORMAT, ARGS)
-#define SYNTAX_WARNING(FORMAT, ARGS...) __LABELLED_PRINT(__WARNING + s_cSyntaxWarningPrefix, FORMAT, ARGS)
-
-static bool s_PlayerInstantiated = false;
-static std::map<std::string, std::string> s_NameIDMap = {};
-static std::string sTheatreFileDataString = "";
-
-static const std::set<std::string> c_NostalgiaExtensions =
+/*static const std::set<std::string> c_NostalgiaExtensions =
 {
     ".theatre",
     ".t",
     ".nostalgiatheatre",
     ".nt"
-};
-
-// TODO: Add support for GraphXTheatre files?
-static const std::set<std::string> c_GraphXExtensions =
-{
-    ".graphxtheatre",
-    ".gt",
-};
+};*/
 
 static const char enter_context        = '{';
 static const char enter_numeric        = '(';
@@ -70,33 +56,6 @@ static const char tab                  = '\t';
 static const char space                = ' ';
 static const std::string resources     = "Resources";
 static const std::string things        = "Things";
-
-SafeStatus TheatreParser::try_LoadTheatreFromFile(TheatreData& output, const std::string& theatre_file)
-{
-    if(!FileSystem::IsFile(theatre_file))
-        { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
-    else if(!c_NostalgiaExtensions.contains(FileSystem::GetExtension(theatre_file)))
-        { return Status::TheatreParserWRONG_FILE_EXTENSION; }
-    else if(!FileSystem::try_ReadFileToString(theatre_file, sTheatreFileDataString))
-        { return Status::ERROR_FILE_READ_ERROR; }
-    return try_ParseTheatre(output);
-}
-
-SafeStatus TheatreParser::try_LoadTheatreFromMemory(TheatreData& output, const std::string& theatre_data)
-{
-    sTheatreFileDataString = theatre_data;
-    return try_ParseTheatre(output);
-}
-
-static void s_AddParsedDataHelper(TheatreData& theatre_data, ThingData& thing_data)
-{
-    if(thing_data.type() == ThingType::NostalgiaPlayer)
-        { s_PlayerInstantiated = true; thing_data.uid = UniqueIDs::Reserved::Player; }
-    else
-        { thing_data.uid = UniqueIDs::Generate(); }
-    theatre_data.AddData(thing_data);
-    s_NameIDMap[thing_data.name] = std::to_string(thing_data.uid);
-}
 
 enum class Context
 {
@@ -131,18 +90,36 @@ enum class Parsing
     VariableValue
 };
 
-SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
+bool TheatreParser::ParseTheatreFile(const std::string& path, TheatreData& output)
 {
-#   pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
-    UniqueIDs::Clear();
+    if(SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)) != Status::NO_ERR)
+        { return false; }
+    return ReadTheatre(output);
+}
 
-    s_NameIDMap.clear();
+bool TheatreParser::ParseTheatreFileFromMemory(const FileData& data, TheatreData& output)
+{
+    m_sTheatreFile = data;
+    return ReadTheatre(output);
+}
+
+bool TheatreParser::WriteTheatre(const TheatreData& data, const std::string& path)
+{
+    return FileSystem::try_WriteFileFromString(path,data.formatted());
+}
+
+bool TheatreParser::ReadTheatre(TheatreData& output)
+{
+#   pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
+    UniqueIDs::Clear();
+    std::map<std::string, std::string> name_id_map = {};
+
     TheatreData theatre_data;
+    ThingData   temp_data;
+    ThingData   temp_data_swap;
 
     COLUMN = 1;
     LINE   = 1;
-
-    size_t data_size = sTheatreFileDataString.size();
 
     char character = '\0';
     std::string buffer = "";
@@ -156,6 +133,7 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
     bool inside_string    = false;
     bool invalid_context  = false;
     bool set_new_line     = false;
+    bool has_player_actor = false;
 
     std::string theatre_name  = "";
     std::string theatre_index = "";
@@ -166,32 +144,23 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
 
     std::string sandwich_variable_name = "";
 
-    ThingData temp_data;
-    ThingData temp_data_swap;
-
-    for(size_t iterator = 0 ; iterator < data_size ; ++iterator,++COLUMN)
+    const unsigned char* data = m_sTheatreFile.Data();
+    int data_size = m_sTheatreFile.Size();
+    for(int iterator = 0 ; iterator < data_size ; ++iterator,++COLUMN)
     {
-        character = sTheatreFileDataString.at(iterator);
-
         if(set_new_line)
         {
             ++LINE;
             COLUMN = 1;
-            set_new_line = false;
         }
+        set_new_line = false;
+        character = data[iterator];
 
-#   ifdef DEBUGGING
-        // Setting a breakpoint after the 'if' statement here lets me break on a specific line and column
-        if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
-            { PRINT_DEBUG("Break opportunity at line {}, column {}", LINE, COLUMN) }
-#   endif // DEBUGGING
+        DEBUG(if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
+                { PRINT_DEBUG("Breakpoint opportunity at line {}, column {}", LINE, COLUMN) })
 
-        set_new_line = (character == '\n');
-
-        // Temporarily bypass comment/string/context skipping on certain conditions
-        #pragma message("TODO: Make this shit less bad")
-        // TODO: Expanding on the message above, figure out how to remove this secondary switch statement (yes, it comes
-        // first but it's still secondary)
+#       pragma message("TODO: Make this shit less bad")
+        // TODO: Expanding on the message above, figure out how to remove this secondary switch statement (yes, it comes first but it's still secondary)
         switch(character)
         {
         case newline:
@@ -218,7 +187,7 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
         switch(character)
         {
         case comment_delimiter:
-            if(iterator+1 < data_size && sTheatreFileDataString.at(++iterator))
+            if(iterator > 0 && (data[iterator - 1] == comment_delimiter))
                 { inside_comment = true; }
             continue;
         case name_delimiter:
@@ -335,10 +304,7 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
                     invalid_context = false;
                 }
                 else
-                {
-                    SYNTAX_ERROR("Invalid context name: '{}'. Theatre parsing will be aborted", buffer)
-                    invalid_context = true;
-                }
+                    { invalid_context = true; }
                 buffer.clear();
                 continue;
             }
@@ -346,6 +312,7 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
                 { location = Location::Object; }
             continue;
         case newline:
+            set_new_line = true;
             inside_comment  = false;
             if(location == Location::TopLevel)
             {
@@ -373,7 +340,7 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
             switch(location)
             {
             case Location::TopLevel:
-                SYNTAX_WARNING("Extraneous '{}' (will be ignored)", "}")
+                PRINT_WARNING("TheatreFile - Extraneous '{}' (will be ignored)", "}")
                 continue;
             case Location::Context:
                 context  = Context::None;
@@ -390,19 +357,24 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
                 defining = Defining::Variable;
                 location = Location::Object;
                 parsing  = Parsing::VariableName;
+            }
 
-                s_AddParsedDataHelper(theatre_data, temp_data);
+            if(temp_data.type() == ThingType::NostalgiaPlayer)
+                { has_player_actor = true; temp_data.uid = UniqueIDs::Reserved::Player; }
+            else
+                { temp_data.uid = UniqueIDs::Generate(); }
+            theatre_data.AddData(temp_data);
+            name_id_map[temp_data.name] = std::to_string(temp_data.uid);
 
+            if(location == Location::Sandwich)
+            {
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReference);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReferenceT);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
-                continue;
             }
-
-            s_AddParsedDataHelper(theatre_data, temp_data);
 
             temp_data.clear();
             variable_name.clear();
@@ -413,16 +385,14 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
         buffer += character;
     }
 
-    if(!s_PlayerInstantiated)
+    if(!has_player_actor)
         { theatre_data.AddData(ThingData::PlayerDefaults); }
 
-    theatre_data.UpdateReferences(s_NameIDMap);
+    theatre_data.UpdateReferences(name_id_map);
     theatre_data.OrderByPriority();
 
-#ifdef DEBUGGING
-    theatre_data.debug_PrintData();
-#endif // DEBUGGING
+    DEBUG(theatre_data.debug_PrintData();)
     output = theatre_data;
     theatre_data.clear();
-    return Status::NO_ERR;
+    return false;
 }

@@ -2,7 +2,7 @@
 #define THEATRE_MANAGER_H
 
 #include "things/fwd.hpp"
-#include "theatre/fwd.hpp"
+#include "theatre_parser/fwd.hpp"
 
 #include "things/thing_factory.hpp"
 #include "manager.hpp"

@@ -4,7 +4,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
-#include "theatre/theatre_parser.hpp"
+#include "theatre_parser/theatre_parser.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"

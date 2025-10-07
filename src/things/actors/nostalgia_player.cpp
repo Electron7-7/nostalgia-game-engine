@@ -1,5 +1,5 @@
 #include "nostalgia_player.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 #include "input/event.hpp"
 #include "settings/settings.hpp"
 #include "managers/backend_manager.hpp"

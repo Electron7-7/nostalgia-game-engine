@@ -1,5 +1,5 @@
 #include "thing.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 
 Thing::~Thing() = default;
 

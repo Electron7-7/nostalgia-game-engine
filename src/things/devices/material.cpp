@@ -1,5 +1,5 @@
 #include "material.hpp"
-#include "theatre/thing_data.hpp"
+#include "theatre_parser/thing_data.hpp"
 
 void Material::SetupVariables(const ThingData& data)
 {
