@@ -8,24 +8,24 @@
 class Material : public Device
 {
 public:
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
 
-    id_t GetDiffuseTexture() const;
-    void SetDiffuseTexture(id_t TextureID);
+    ID GetDiffuseTexture() const;
+    void SetDiffuseTexture(ID TextureID);
 
-    id_t GetSpecularTexture() const;
-    void SetSpecularTexture(id_t TextureID);
+    ID GetSpecularTexture() const;
+    void SetSpecularTexture(ID TextureID);
 
-    glm::vec3 m_Color = glm::vec3(1.0f);
-    float     m_Alpha = 1.0f;
-    int       m_SpecularSharpness = 16;
-    float     m_SpecularStrength = 0.0f;
-    bool      m_DontUseTexture = false;
-    glm::vec4 m_DebugHighlight = glm::vec4(0.9f, 0.2f, 1.0f, 0.0f);
+    glm::vec3 mColor = glm::vec3(1.0f);
+    float     mAlpha = 1.0f;
+    int       mSpecularSharpness = 16;
+    float     mSpecularStrength = 0.0f;
+    bool      mDontUseTexture = false;
+    glm::vec4 mDebugHighlight = glm::vec4(0.9f, 0.2f, 1.0f, 0.0f);
 
 private:
-    id_t m_DiffuseTextureID  = IDs::None;
-    id_t m_SpecularTextureID = IDs::None;
+    ID mDiffuseTextureID  = ID::None;
+    ID mSpecularTextureID = ID::None;
 };
 
 #endif // MATERIAL_H

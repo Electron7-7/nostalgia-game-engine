@@ -6,7 +6,7 @@
 class Device : public Thing
 {
 public:
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
 };
 
 #endif // DEVICE_H

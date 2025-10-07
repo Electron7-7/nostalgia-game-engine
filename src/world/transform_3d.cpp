@@ -2,33 +2,33 @@
 #include "world.hpp"
 
 const glm::vec3& Transform3D::cOrigin() const
-{ return m_Origin; }
+{ return mOrigin; }
 
 const glm::vec3& Transform3D::cScale() const
-{ return m_Scale; }
+{ return mScale; }
 
 glm::vec3& Transform3D::Origin()
-{ return m_Origin; }
+{ return mOrigin; }
 
 glm::quat Transform3D::Quaternion() const
-{ return m_Quaternion; }
+{ return mQuaternion; }
 
 glm::vec3 Transform3D::Euler(bool degrees) const
-{ return (degrees) ? glm::degrees(m_Euler) : m_Euler; }
+{ return (degrees) ? glm::degrees(mEuler) : mEuler; }
 
 glm::vec3& Transform3D::Scale()
-{ return m_Scale; }
+{ return mScale; }
 
 void Transform3D::Quaternion(const glm::quat& quaternion)
 {
-    m_Quaternion = quaternion;
-    m_Euler = glm::eulerAngles(quaternion);
+    mQuaternion = quaternion;
+    mEuler = glm::eulerAngles(quaternion);
 }
 
 void Transform3D::Euler(const glm::vec3& euler, bool degrees)
 {
-    m_Euler = (degrees) ? glm::radians(euler) : euler;
-    m_Quaternion = glm::quat(m_Euler);
+    mEuler = (degrees) ? glm::radians(euler) : euler;
+    mQuaternion = glm::quat(mEuler);
 }
 
 glm::vec3 Transform3D::Front() const

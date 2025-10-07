@@ -6,7 +6,7 @@
 class Thinker : public Thing
 {
 public:
-    virtual void SetupVariables(const data_t&) {};
+    virtual void SetupVariables(const ThingData&) {};
 
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}

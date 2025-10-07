@@ -1,7 +1,7 @@
 #include "device.hpp"
-#include "theatre/data_t.hpp"
+#include "theatre/thing_data.hpp"
 
-void Device::SetupVariables(const data_t& data)
+void Device::SetupVariables(const ThingData& data)
 {
     Thing::SetupVariables(data);
 }

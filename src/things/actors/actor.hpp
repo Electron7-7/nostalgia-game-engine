@@ -7,21 +7,21 @@
 class Actor : public Thing, public Transform3D
 {
 public:
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
     virtual bool Initialize() { return true; }
     virtual void Destroy() {}
 
     virtual void Update() {}
     virtual void Tick() {}
 
-    id_t GetMeshInstanceID() const;
-    void SetMeshInstanceID(id_t MeshInstanceID);
+    ID GetMeshInstanceID() const;
+    void SetMeshInstanceID(ID MeshInstanceID);
 
-    bool m_Visible = true;
-    bool m_Wireframe = false;
+    bool mVisible = true;
+    bool mWireframe = false;
 
 protected:
-    id_t m_MeshInstanceID = IDs::None;
+    ID mMeshInstanceID = ID::None;
 };
 
 #endif // ACTOR_H

@@ -4,28 +4,28 @@
 #include "things/actors/actor.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "things/actors/light.hpp"
-#include "things/devices//mesh_instance.hpp"
-#include "things/devices//material.hpp"
+#include "things/devices/mesh_instance.hpp"
+#include "things/devices/material.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 
-RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, id_t shader)
-: m_ShaderID(shader), m_MeshInstanceID(actor->GetMeshInstanceID()), m_Wireframe(actor->m_Wireframe)
+RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id)
+: shader(shader_id), mesh_instance(actor->GetMeshInstanceID()), is_wireframe(actor->mWireframe)
 {
     if(dynamic_pointer_cast<light_t>(actor))
     {
-        g_GetThing<Material>(
-            g_GetThing<MeshInstance>(
+        TheatreManager::GetThing<Material>(
+            TheatreManager::GetThing<MeshInstance>(
                 actor->GetMeshInstanceID()
                 )->GetMaterialID()
-            )->m_Color = dynamic_pointer_cast<light_t>(actor)->m_Color;
+            )->mColor = dynamic_pointer_cast<light_t>(actor)->mColor;
     }
 
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->cScale());
     glm::mat4 rotMat   = glm::mat4_cast(actor->Quaternion());
     glm::mat4 transMat = glm::translate(glm::mat4(1.0f), actor->cOrigin());
-    m_ModelMatrix = transMat * rotMat * scaleMat;
+    model_matrix = transMat * rotMat * scaleMat;
 }
 
 glm::vec3 RenderCommand::ViewPosition() const

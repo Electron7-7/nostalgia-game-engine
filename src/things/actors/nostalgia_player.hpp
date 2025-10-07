@@ -20,7 +20,7 @@ enum class Movement
 class NostalgiaPlayer : public Actor
 {
 public:
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
     virtual bool Initialize();
     virtual void Input(const InputEvent&);
     virtual void Tick();
@@ -32,10 +32,10 @@ public:
 
 private:
     DEBUG(friend void l_TerribleRenderDebugWindow();)
-    glm::vec3 m_Velocity = glm::vec3(0.0f);
-    glm::vec3 m_ViewPosition = glm::vec3(0.0f, 1.5f, 0.0f);
-    glm::vec2 m_MovementDirection = glm::vec2(0.0f);
-    glm::vec2 m_LookWish = glm::vec2(0.0f);
+    glm::vec3 mVelocity = glm::vec3(0.0f);
+    glm::vec3 mViewPosition = glm::vec3(0.0f, 1.5f, 0.0f);
+    glm::vec2 mMovementDirection = glm::vec2(0.0f);
+    glm::vec2 mLookWish = glm::vec2(0.0f);
 };
 
 #endif // NOSTALGIA_PLAYER_H

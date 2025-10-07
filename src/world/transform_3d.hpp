@@ -24,10 +24,10 @@ public:
     virtual glm::vec3 Up() const;
 
 protected:
-    glm::vec3 m_Origin     = glm::vec3(0.0f);
-    glm::quat m_Quaternion = glm::quat();
-    glm::vec3 m_Euler      = glm::vec3(0.0f);
-    glm::vec3 m_Scale      = glm::vec3(1.0f);
+    glm::vec3 mOrigin     = glm::vec3(0.0f);
+    glm::quat mQuaternion = glm::quat();
+    glm::vec3 mEuler      = glm::vec3(0.0f);
+    glm::vec3 mScale      = glm::vec3(1.0f);
 };
 
 #endif // TRANSFORM_3D_H

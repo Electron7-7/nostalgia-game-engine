@@ -2,6 +2,7 @@
 #define RENDER_COMMAND_H
 
 #include "things/fwd.hpp"
+#include "ids.hpp"
 #include "shader_interfaces/shader_interface.hpp"
 
 #include <glm/glm.hpp>
@@ -10,16 +11,16 @@
 struct RenderCommand
 {
 public:
-    RenderCommand(std::shared_ptr<Actor>, id_t ShaderID = Shaders::BlinnPhong);
+    RenderCommand(std::shared_ptr<Actor>, ID ShaderID = Shaders::BlinnPhong);
 
     glm::vec3 ViewPosition() const;
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
 
-    id_t m_ShaderID = Shaders::BlinnPhong;
-    id_t m_MeshInstanceID = IDs::None;
-    glm::mat4 m_ModelMatrix = glm::mat4(1.0f);
-    bool m_Wireframe = false;
+    ID shader = Shaders::BlinnPhong;
+    ID mesh_instance = ID::None;
+    glm::mat4 model_matrix = glm::mat4(1.0f);
+    bool is_wireframe = false;
 };
 
 #endif // RENDER_COMMAND_H

@@ -18,26 +18,26 @@ public:
     virtual bool IncrementIndex() = 0;
     virtual LightType Type() const = 0;
 
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
 
     int Index() const;
 
-    glm::vec3 m_Color        = glm::vec3(1.0f);
-    float m_Energy           = 0.8f;
-    float m_SpecularStrength = 1.0f;
-    float m_AmbientStrength  = 0.05f;
-    float m_Attenuation      = 1.0f;
-    float m_Range            = 100.0f;
-    float m_SpotAngle        = 17.5f;
-    float m_SpotAngleFade    = 5.0f;
-    bool  m_Enabled          = true;
+    glm::vec3 mColor        = glm::vec3(1.0f);
+    float mEnergy           = 0.8f;
+    float mSpecularStrength = 1.0f;
+    float mAmbientStrength  = 0.05f;
+    float mAttenuation      = 1.0f;
+    float mRange            = 100.0f;
+    float mSpotAngle        = 17.5f;
+    float mSpotAngleFade    = 5.0f;
+    bool  mEnabled          = true;
 
 protected:
-    int m_Index = 0;
+    int mIndex = 0;
 
-    static int s_PointCount;
-    static int s_SpotCount;
-    static int s_DirectionalCount;
+    static int sPointCount;
+    static int sSpotCount;
+    static int sDirectionalCount;
 
     static constexpr int MAX_POINT = 48;
     static constexpr int MAX_SPOT  = 48;
@@ -56,7 +56,7 @@ class SpotLight : public light_t
 {
 public:
     static int GetCount();
-    void SetupVariables(const data_t&);
+    void SetupVariables(const ThingData&);
     LightType Type() const final;
     bool IncrementIndex() final;
 };
@@ -65,7 +65,7 @@ class DirectionalLight : public light_t
 {
 public:
     static int GetCount();
-    void SetupVariables(const data_t&);
+    void SetupVariables(const ThingData&);
     LightType Type() const final;
     bool IncrementIndex() final;
 };

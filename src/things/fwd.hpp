@@ -1,19 +1,20 @@
 #ifndef THINGS_FWD_H
 #define THINGS_FWD_H
 
-#include "id.hpp" // IWYU pragma: keep
+// Thing Factory
+class ThingFactory;
 
 // Light Data
 struct LightData;
 
-// Thing
+// Things
 class Thing;
-
-// Thinkers
 class Thinker;
-
-//Actors
 class Actor;
+class Resource;
+class Device;
+
+// Actors
 class NostalgiaPlayer;
 class light_t;
 class PointLight;
@@ -21,9 +22,10 @@ class SpotLight;
 class DirectionalLight;
 
 // Resources
-class Resource;
 class Mesh;
 class Texture;
+
+// Devices
 class MeshInstance;
 class Material;
 

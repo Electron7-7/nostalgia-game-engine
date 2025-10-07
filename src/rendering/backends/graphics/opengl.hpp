@@ -38,8 +38,8 @@ public:
 
     void CreateRenderingData();
     void DestroyRenderingData();
-    void BufferMesh(const FileData&, id_t);
-    void BufferTexture(const FileData&, id_t);
+    void BufferMesh(const FileData&, ID);
+    void BufferTexture(const FileData&, ID);
     void ClearBuffer(glm::vec4);
     const ShaderInterface* GetShader(unsigned int) const;
     bool BuildShader(unsigned int, const char*, const char*);
@@ -53,14 +53,14 @@ private:
 #   define VAO_DEFAULT 0
 #   define VAO_DEFAULT_STRIDE 11
 
-    static std::array<unsigned int, VAOS_AMOUNT> m_VAOs;
-    static std::map<unsigned int, GLShader> m_Shaders;
+    static std::array<unsigned int, VAOS_AMOUNT> mVAOs;
+    static std::map<unsigned int, GLShader> mShaders;
 
-    static std::map<id_t, OpenGL_MeshData> m_MeshData;
-    static std::map<id_t, OpenGL_TextureID> m_TextureIDs;
+    static std::map<ID, OpenGL_MeshData> mMeshData;
+    static std::map<ID, OpenGL_TextureID> mTextureIDs;
 
-    unsigned int GetTextureID(id_t);
-    OpenGL_MeshData* GetMeshData(id_t);
+    unsigned int GetTextureID(ID);
+    OpenGL_MeshData* GetMeshData(ID);
 };
 
 #ifdef DEBUGGING

@@ -8,10 +8,10 @@ class Mesh : public Resource
 {
 public:
     using Resource::Resource;
-    virtual void SetupVariables(const data_t& data)
+    virtual void SetupVariables(const ThingData& data)
     {
         Resource::SetupVariables(data);
-        g_pBackendManager->Graphics()->BufferMesh(m_FileData, m_ID);
+        g_pBackendManager->Graphics()->BufferMesh(mFileData, mUID);
     }
 };
 

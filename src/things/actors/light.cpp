@@ -1,88 +1,88 @@
 #include "light.hpp"
 #include "debug.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/data_t.hpp"
-#include "theatre/variable_t.hpp"
+#include "theatre/thing_data.hpp"
+#include "theatre/thing_variable.hpp"
 
-int light_t::s_PointCount       = 0;
-int light_t::s_SpotCount        = 0;
-int light_t::s_DirectionalCount = 0;
+int light_t::sPointCount       = 0;
+int light_t::sSpotCount        = 0;
+int light_t::sDirectionalCount = 0;
 
 void light_t::ClearCounts()
 {
-    light_t::s_PointCount       = 0;
-    light_t::s_SpotCount        = 0;
-    light_t::s_DirectionalCount = 0;
+    light_t::sPointCount       = 0;
+    light_t::sSpotCount        = 0;
+    light_t::sDirectionalCount = 0;
 }
 
-void light_t::SetupVariables(const data_t& data)
+void light_t::SetupVariables(const ThingData& data)
 {
     Scale() = glm::vec3(0.1f);
 
     Actor::SetupVariables(data);
 
-    data.GetNumber(m_Color, "Color");
-    data.GetNumber(m_Energy, "Energy");
-    data.GetNumber(m_SpecularStrength, "SpecularStrength");
-    data.GetNumber(m_AmbientStrength, "AmbientStrength");
-    data.GetNumber(m_Attenuation, "FadeIntensity");
-    data.GetNumber(m_Attenuation, "Attenuation");
-    data.GetNumber(m_Range, "Range");
-    data.GetBool(m_Enabled, "LightVisible");
-    data.GetBool(m_Enabled, "Enabled");
-    if(data.GetBool(m_Enabled, "Disabled"))
-        { m_Enabled = !m_Enabled; }
+    data.GetNumber(mColor, "Color");
+    data.GetNumber(mEnergy, "Energy");
+    data.GetNumber(mSpecularStrength, "SpecularStrength");
+    data.GetNumber(mAmbientStrength, "AmbientStrength");
+    data.GetNumber(mAttenuation, "FadeIntensity");
+    data.GetNumber(mAttenuation, "Attenuation");
+    data.GetNumber(mRange, "Range");
+    data.GetBool(mEnabled, "LightVisible");
+    data.GetBool(mEnabled, "Enabled");
+    if(data.GetBool(mEnabled, "Disabled"))
+        { mEnabled = !mEnabled; }
 
-    NOTDEBUG(m_Visible = false;)
-    DEBUG(if(m_MeshInstanceID == IDs::None) { // the debug mesh/material shouldn't override a manually specificed one
-        id_t mat_id = TheatreManager::CreateThing(data_t{
-            m_Name + "'s Debug Mat",
-            Type::Material,
-            ID::GetNewID(),
+    NOTDEBUG(mVisible = false;)
+    DEBUG(if(mMeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
+        id_t mat_id = TheatreManager::CreateThing(ThingData{
+            mName + "'s Debug Mat",
+            ThingType::Material,
+            UniqueIDs::Generate(),
             {
-                variable_t{"DiffuseTexture", std::to_string(IDs::iLightDebug), VariableType::Reference},
-                variable_t{"FullBright", "true", VariableType::Bool},
+                ThingVar{"DiffuseTexture", std::to_string(UniqueIDs::Reserved::i_LightDebug), ThingVar::eReference},
+                ThingVar{"FullBright", "true", ThingVar::eBool},
             }
         });
-        m_MeshInstanceID = TheatreManager::CreateThing(data_t{
-            m_Name + "'s Debug MeshInst",
-            Type::MeshInstance,
-            ID::GetNewID(),
+        mMeshInstanceID = TheatreManager::CreateThing(ThingData{
+            mName + "'s Debug MeshInst",
+            ThingType::MeshInstance,
+            UniqueIDs::Generate(),
             {
-                variable_t{"Mesh", std::to_string(IDs::mCube), VariableType::Reference},
-                variable_t{"Material", std::to_string(mat_id), VariableType::Reference}
+                ThingVar{"Mesh", std::to_string(UniqueIDs::Reserved::m_Cube), ThingVar::eReference},
+                ThingVar{"Material", std::to_string(mat_id), ThingVar::eReference}
             }
         });
     })
 }
 
 int light_t::Index() const
-{ return m_Index; }
+{ return mIndex; }
 
 int PointLight::GetCount()
-{ return light_t::s_PointCount;}
+{ return light_t::sPointCount;}
 
 LightType PointLight::Type() const
 { return LightType::POINT; }
 
 bool PointLight::IncrementIndex()
 {
-    if(light_t::s_PointCount >= MAX_POINT)
+    if(light_t::sPointCount >= MAX_POINT)
         { return false; }
-    m_Index = light_t::s_PointCount++;
+    mIndex = light_t::sPointCount++;
     return true;
 }
 
 int SpotLight::GetCount()
-{ return light_t::s_SpotCount;}
+{ return light_t::sSpotCount;}
 
-void SpotLight::SetupVariables(const data_t& data)
+void SpotLight::SetupVariables(const ThingData& data)
 {
     light_t::SetupVariables(data);
-    data.GetNumber(m_SpotAngle, "Angle");
-    data.GetNumber(m_SpotAngle, "SpotAngle");
-    data.GetNumber(m_SpotAngleFade, "AngleFade");
-    data.GetNumber(m_SpotAngleFade, "SpotAngleFade");
+    data.GetNumber(mSpotAngle, "Angle");
+    data.GetNumber(mSpotAngle, "SpotAngle");
+    data.GetNumber(mSpotAngleFade, "AngleFade");
+    data.GetNumber(mSpotAngleFade, "SpotAngleFade");
 }
 
 LightType SpotLight::Type() const
@@ -90,19 +90,19 @@ LightType SpotLight::Type() const
 
 bool SpotLight::IncrementIndex()
 {
-    if(light_t::s_SpotCount >= MAX_SPOT)
+    if(light_t::sSpotCount >= MAX_SPOT)
         { return false; }
-    m_Index = light_t::s_SpotCount++;
+    mIndex = light_t::sSpotCount++;
     return true;
 }
 
 int DirectionalLight::GetCount()
-{ return light_t::s_DirectionalCount;}
+{ return light_t::sDirectionalCount;}
 
-void DirectionalLight::SetupVariables(const data_t& data)
+void DirectionalLight::SetupVariables(const ThingData& data)
 {
     Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
-    m_Visible = false;
+    mVisible = false;
     light_t::SetupVariables(data);
 }
 
@@ -111,8 +111,8 @@ LightType DirectionalLight::Type() const
 
 bool DirectionalLight::IncrementIndex()
 {
-    if(light_t::s_DirectionalCount >= MAX_DIRECTIONAL)
+    if(light_t::sDirectionalCount >= MAX_DIRECTIONAL)
         { return false; }
-    m_Index = light_t::s_DirectionalCount++;
+    mIndex = light_t::sDirectionalCount++;
     return true;
 }

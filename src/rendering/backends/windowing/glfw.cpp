@@ -222,26 +222,26 @@ void GLFW_Backend::GetMousePosition(glm::vec2& output)
     output = glm::vec2{l_Position[0], l_Position[1]};
 }
 
-bool GLFW_Backend::GetKey(binding_t& binding)
+bool GLFW_Backend::GetKey(InputBinding& binding)
 {
     if(!s_cInputIdToGlfw.contains(binding))
         { return false; }
-    InputStatus l_LastStatus = binding.Status;
-    binding.Status = static_cast<InputStatus>(glfwGetKey(m_MainWindow, s_cInputIdToGlfw.at(binding)));
-    binding.JustChanged = (binding.Status != l_LastStatus);
-    return (binding.JustChanged || binding.Status == InputStatus::Active);
+    InputStatus l_LastStatus = binding.status;
+    binding.status = static_cast<InputStatus>(glfwGetKey(m_MainWindow, s_cInputIdToGlfw.at(binding)));
+    binding.just_changed = (binding.status != l_LastStatus);
+    return (binding.just_changed || binding.status == InputStatus::Active);
 }
 
-bool GLFW_Backend::GetMotion(binding_t& binding, const glm::vec2& motion)
+bool GLFW_Backend::GetMotion(InputBinding& binding, const glm::vec2& motion)
 {
-    if(binding != InputID::MouseMotionX && binding != InputID::MouseMotionY)
+    if(binding != BindingIDs::MouseMotionX && binding != BindingIDs::MouseMotionY)
         { return false; }
-    InputStatus l_LastStatus = binding.Status;
-    binding.Status = static_cast<InputStatus>(
-        (binding == InputID::MouseMotionX && motion.x != 0.0f) ||
-        (binding == InputID::MouseMotionY && motion.y != 0.0f));
-    binding.JustChanged = (binding.Status != l_LastStatus);
-    return (binding.JustChanged || binding.Status == InputStatus::Active);
+    InputStatus l_LastStatus = binding.status;
+    binding.status = static_cast<InputStatus>(
+        (binding == BindingIDs::MouseMotionX && motion.x != 0.0f) ||
+        (binding == BindingIDs::MouseMotionY && motion.y != 0.0f));
+    binding.just_changed = (binding.status != l_LastStatus);
+    return (binding.just_changed || binding.status == InputStatus::Active);
 }
 
 void GLFW_Backend::SwapBuffers()

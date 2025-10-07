@@ -1,31 +1,31 @@
 #include "material.hpp"
-#include "theatre/data_t.hpp"
+#include "theatre/thing_data.hpp"
 
-void Material::SetupVariables(const data_t& data)
+void Material::SetupVariables(const ThingData& data)
 {
     Device::SetupVariables(data);
 
-    data.GetReference(m_DiffuseTextureID, "DiffuseTexture");
-    data.GetReference(m_SpecularTextureID, "SpecularTexture");
-    data.GetNumber(m_Color, "Color");
-    data.GetNumber(m_Alpha, "Alpha");
-    data.GetNumber(m_SpecularSharpness, "SpecularSharpness");
+    data.GetReference(mDiffuseTextureID, "DiffuseTexture");
+    data.GetReference(mSpecularTextureID, "SpecularTexture");
+    data.GetNumber(mColor, "Color");
+    data.GetNumber(mAlpha, "Alpha");
+    data.GetNumber(mSpecularSharpness, "SpecularSharpness");
     // TODO: Pick a better default value?
-    if(!data.GetNumber(m_SpecularStrength, "SpecularStrength") && m_SpecularTextureID != IDs::None)
-        { m_SpecularStrength = 1.0f; }
-    data.GetBool(m_DontUseTexture, "UseVertexColors");
-    data.GetBool(m_DontUseTexture, "OnlyUseVertexColors");
-    data.GetBool(m_DontUseTexture, "NoTexture");
+    if(!data.GetNumber(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::None)
+        { mSpecularStrength = 1.0f; }
+    data.GetBool(mDontUseTexture, "UseVertexColors");
+    data.GetBool(mDontUseTexture, "OnlyUseVertexColors");
+    data.GetBool(mDontUseTexture, "NoTexture");
 }
 
-id_t Material::GetDiffuseTexture() const
-{ return m_DiffuseTextureID; }
+ID Material::GetDiffuseTexture() const
+{ return mDiffuseTextureID; }
 
-void Material::SetDiffuseTexture(id_t texture_id)
-{ m_DiffuseTextureID = texture_id; }
+void Material::SetDiffuseTexture(ID texture_id)
+{ mDiffuseTextureID = texture_id; }
 
-id_t Material::GetSpecularTexture() const
-{ return m_SpecularTextureID; }
+ID Material::GetSpecularTexture() const
+{ return mSpecularTextureID; }
 
-void Material::SetSpecularTexture(id_t texture_id)
-{ m_SpecularTextureID = texture_id; }
+void Material::SetSpecularTexture(ID texture_id)
+{ mSpecularTextureID = texture_id; }

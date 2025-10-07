@@ -1,12 +1,12 @@
 #include "actor.hpp"
-#include "theatre/data_t.hpp"
+#include "theatre/thing_data.hpp"
 
-void Actor::SetupVariables(const data_t& data)
+void Actor::SetupVariables(const ThingData& data)
 {
     Thing::SetupVariables(data); // Currently, this doesn't do anything
 
-    data.GetNumber(m_Origin, "Origin");
-    data.GetNumber(m_Scale, "Scale");
+    data.GetNumber(mOrigin, "Origin");
+    data.GetNumber(mScale, "Scale");
     glm::vec3 euler;
     if(data.GetNumber(euler, "RotationDegrees"))
         { Euler(euler, true); }
@@ -15,14 +15,14 @@ void Actor::SetupVariables(const data_t& data)
     glm::quat quat;
     if(data.GetNumber(quat, "Quaternion"))
         { Quaternion(quat); }
-    data.GetReference(m_MeshInstanceID, "MeshInstance");
-    data.GetBool(m_Visible, "Visible");
-    data.GetBool(m_Wireframe, "MakeWireframe");
-    data.GetBool(m_Wireframe, "Wireframe");
+    data.GetReference(mMeshInstanceID, "MeshInstance");
+    data.GetBool(mVisible, "Visible");
+    data.GetBool(mWireframe, "MakeWireframe");
+    data.GetBool(mWireframe, "Wireframe");
 }
 
-id_t Actor::GetMeshInstanceID() const
-{ return m_MeshInstanceID; }
+ID Actor::GetMeshInstanceID() const
+{ return mMeshInstanceID; }
 
-void Actor::SetMeshInstanceID(id_t mesh_instance_id)
-{ m_MeshInstanceID = mesh_instance_id; }
+void Actor::SetMeshInstanceID(ID mesh_instance_id)
+{ mMeshInstanceID = mesh_instance_id; }

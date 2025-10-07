@@ -5,6 +5,7 @@
 #include "things/fwd.hpp"
 #include "filesystem/fwd.hpp"
 
+#include "ids.hpp"
 #include "../backend.hpp"
 
 #include <glm/glm.hpp>
@@ -27,8 +28,8 @@ public:
     // Pure virtual functions (*must* be implemented)
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
-    virtual void BufferMesh(const FileData& Data, id_t ID) = 0;
-    virtual void BufferTexture(const FileData& Data, id_t ID) = 0;
+    virtual void BufferMesh(const FileData& Data, ID) = 0;
+    virtual void BufferTexture(const FileData& Data, ID) = 0;
     virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;

@@ -7,7 +7,7 @@ class Font : public Resource
 {
 public:
     using Resource::Resource;
-    virtual void SetupVariables(const data_t& data)
+    virtual void SetupVariables(const ThingData& data)
     {
         Resource::SetupVariables(data);
         // buffer font data

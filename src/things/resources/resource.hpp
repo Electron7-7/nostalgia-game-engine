@@ -3,29 +3,29 @@
 
 #include "../thing.hpp"
 #include "filesystem/file_data.hpp"
-#include "theatre/data_t.hpp"
+#include "theatre/thing_data.hpp"
 
 class Resource : public Thing
 {
 public:
     Resource() = default;
     Resource(const FileData& Data)
-    : m_FileData(Data)
+    : mFileData(Data)
     {}
 
-    virtual void SetupVariables(const data_t& data)
+    virtual void SetupVariables(const ThingData& data)
     {
         Thing::SetupVariables(data);
         std::string path = "";
         if(data.GetString(path, "File"))
-            { m_FileData.LoadFile(path); }
+            { mFileData.LoadFile(path); }
     }
 
     FileData& Data()
-        { return m_FileData; }
+        { return mFileData; }
 
 protected:
-    FileData m_FileData;
+    FileData mFileData;
 };
 
 #endif // RESOURCE_H

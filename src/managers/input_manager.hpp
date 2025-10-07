@@ -38,17 +38,18 @@ public:
 
     static bool AddAction(const std::string& Action);
     static bool AddAction(const std::string& Action, const std::string& InputName);
-    static bool AddAction(const std::string& Action, id_t InputID);
+    static bool AddAction(const std::string& Action, ID InputID);
 
     static bool AssignToAction(const std::string& Action, const std::string& InputName);
-    static bool AssignToAction(const std::string& Action, id_t InputID);
+    static bool AssignToAction(const std::string& Action, ID InputID);
 
     static bool DeleteAction(const std::string& ActionName);
     static bool ClearActions(const std::string& InputName);
-    static bool ClearActions(id_t InputID);
+    static bool ClearActions(ID InputID);
 
 private:
-    static std::vector<binding_t> s_Bindings;
+
+    static std::vector<InputBinding> s_Bindings;
     static InputEventCallbackFunction m_sInputEventCallback;
     static glm::vec2 m_sCurrentMousePosition;
     static glm::vec2 m_sLastMousePosition;

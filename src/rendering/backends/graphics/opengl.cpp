@@ -2,10 +2,10 @@
 #include "../../render_command.hpp"
 #include "world/world.hpp"
 #include "settings/settings.hpp"
-#include "things/things.hpp"
 #include "things/actors/light.hpp"
 #include "embedded/shaders.hpp" // IWYU pragma: keep
 #include "filesystem/file_data.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "filesystem/file_data.hpp"
@@ -19,10 +19,10 @@
 
 DEBUG(int g_ShaderDebugOuptut = Shader_ALL;)
 
-std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::m_VAOs = {};
-std::map<unsigned int, GLShader>      OpenGL_Backend::m_Shaders = {};
-std::map<id_t, OpenGL_MeshData>       OpenGL_Backend::m_MeshData = {};
-std::map<id_t, OpenGL_TextureID>      OpenGL_Backend::m_TextureIDs = {};
+std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::mVAOs = {};
+std::map<unsigned int, GLShader>      OpenGL_Backend::mShaders = {};
+std::map<ID, OpenGL_MeshData>       OpenGL_Backend::mMeshData = {};
+std::map<ID, OpenGL_TextureID>      OpenGL_Backend::mTextureIDs = {};
 
 static std::vector<OpenGL_BufferData> s_BufferData = {};
 static unsigned int s_VBO = 0;
@@ -44,7 +44,7 @@ bool OpenGL_Backend::Init()
     PRINT_DEBUG("OpenGL_Backend::Init")
     PRINT_DEBUG("OpenGL Version: {}", (char*)glGetString(GL_VERSION))
 
-    glGenVertexArrays(VAOS_AMOUNT, m_VAOs.data());
+    glGenVertexArrays(VAOS_AMOUNT, mVAOs.data());
 
 #   ifndef CLANGD_KEEPS_CRASHING_HERE
         BuildShader(Shaders::BlinnPhong, GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
@@ -87,7 +87,7 @@ void OpenGL_Backend::ImGuiNewFrame()
 void OpenGL_Backend::ImGuiRender()
 { ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
-void OpenGL_Backend::BufferMesh(const FileData& data, id_t id)
+void OpenGL_Backend::BufferMesh(const FileData& data, ID id)
 {
     OpenGL_BufferData temp_data;
     if(GraphicsBackend::CreateMeshData(temp_data.vertices, temp_data.indices, data))
@@ -97,7 +97,7 @@ void OpenGL_Backend::BufferMesh(const FileData& data, id_t id)
     }
 }
 
-void OpenGL_Backend::BufferTexture(const FileData& data, id_t texture_id)
+void OpenGL_Backend::BufferTexture(const FileData& data, ID texture_id)
 {
     #pragma message("TODO: Only flip images that need to be flipped")
     stbi_set_flip_vertically_on_load(true);
@@ -125,13 +125,13 @@ void OpenGL_Backend::BufferTexture(const FileData& data, id_t texture_id)
     glTextureParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, 16);
     glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_TextureIDs[texture_id] = id;
+    mTextureIDs[texture_id] = id;
     stbi_image_free(l_Data);
 }
 
 void OpenGL_Backend::CreateRenderingData()
 {
-    glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
+    glBindVertexArray(mVAOs.at(VAO_DEFAULT));
     glDeleteBuffers(1, &s_VBO);
     glDeleteBuffers(1, &s_IBO);
     glGenBuffers(1, &s_VBO);
@@ -144,7 +144,7 @@ void OpenGL_Backend::CreateRenderingData()
 
     for(const auto& data : s_BufferData)
     {
-        m_MeshData[data.id] =
+        mMeshData[data.id] =
         {
             static_cast<unsigned int>(data.indices.size()),
             static_cast<unsigned int>(l_AllVertexData.size() / VAO_DEFAULT_STRIDE),
@@ -171,8 +171,8 @@ void OpenGL_Backend::CreateRenderingData()
 
 void OpenGL_Backend::DestroyRenderingData()
 {
-    m_TextureIDs.clear();
-    m_MeshData.clear();
+    mTextureIDs.clear();
+    mMeshData.clear();
 }
 
 void OpenGL_Backend::Shutdown()
@@ -188,44 +188,44 @@ void OpenGL_Backend::Shutdown()
 
 bool OpenGL_Backend::BuildShader(unsigned int shader, const char* vertex_shader_code, const char* fragment_shader_code)
 {
-    if(m_Shaders.contains(shader))
-        { glDeleteShader(m_Shaders.at(shader).ID()); }
-    m_Shaders[shader] = GLShader();
+    if(mShaders.contains(shader))
+        { glDeleteShader(mShaders.at(shader).ID()); }
+    mShaders[shader] = GLShader();
     std::string vertex_shader(vertex_shader_code);
     std::string fragment_shader(fragment_shader_code);
-    return m_Shaders.at(shader).CompileShader(vertex_shader, fragment_shader);
+    return mShaders.at(shader).CompileShader(vertex_shader, fragment_shader);
 }
 
 bool OpenGL_Backend::BindShader(unsigned int shader)
 {
-    if(!m_Shaders.contains(shader))
+    if(!mShaders.contains(shader))
     {
         PRINT_WARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
         return false;
     }
-    glUseProgram(m_Shaders.at(shader).ID());
+    glUseProgram(mShaders.at(shader).ID());
     s_CurrentlyBoundShader = shader;
     return true;
 }
 
 bool OpenGL_Backend::DeleteShader(unsigned int shader)
 {
-    if(!m_Shaders.contains(shader) || shader == Shaders::BlinnPhong)
+    if(!mShaders.contains(shader) || shader == Shaders::BlinnPhong)
         { return false; }
     BindShader(Shaders::BlinnPhong);
-    glDeleteShader(m_Shaders.at(shader).ID());
-    m_Shaders.erase(shader);
+    glDeleteShader(mShaders.at(shader).ID());
+    mShaders.erase(shader);
     return true;
 }
 
 const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
 {
-    if(!m_Shaders.contains(shader_selection))
+    if(!mShaders.contains(shader_selection))
     {
         PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
         shader_selection = Shaders::BlinnPhong;
     }
-    return &m_Shaders.at(shader_selection);
+    return &mShaders.at(shader_selection);
 }
 
 void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
@@ -245,55 +245,55 @@ void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
         break;
     }
 
-    GetShader(shader)->SetUniform(l_Light + "color",             light->m_Color);
-    GetShader(shader)->SetUniform(l_Light + "energy",            light->m_Energy);
-    GetShader(shader)->SetUniform(l_Light + "specular_strength", light->m_SpecularStrength);
-    GetShader(shader)->SetUniform(l_Light + "ambient_strength",  light->m_AmbientStrength);
-    GetShader(shader)->SetUniform(l_Light + "attenuation",       light->m_Attenuation);
-    GetShader(shader)->SetUniform(l_Light + "range",             light->m_Range);
+    GetShader(shader)->SetUniform(l_Light + "color",             light->mColor);
+    GetShader(shader)->SetUniform(l_Light + "energy",            light->mEnergy);
+    GetShader(shader)->SetUniform(l_Light + "specular_strength", light->mSpecularStrength);
+    GetShader(shader)->SetUniform(l_Light + "ambient_strength",  light->mAmbientStrength);
+    GetShader(shader)->SetUniform(l_Light + "attenuation",       light->mAttenuation);
+    GetShader(shader)->SetUniform(l_Light + "range",             light->mRange);
     GetShader(shader)->SetUniform(l_Light + "position",          light->cOrigin());
     GetShader(shader)->SetUniform(l_Light + "direction",         light->Front());
-    GetShader(shader)->SetUniform(l_Light + "spot_cutoff",       glm::cos(glm::radians(light->m_SpotAngle)));
-    GetShader(shader)->SetUniform(l_Light + "spot_cutoff_fade",  glm::cos(glm::radians(light->m_SpotAngle - light->m_SpotAngleFade)));
+    GetShader(shader)->SetUniform(l_Light + "spot_cutoff",       glm::cos(glm::radians(light->mSpotAngle)));
+    GetShader(shader)->SetUniform(l_Light + "spot_cutoff_fade",  glm::cos(glm::radians(light->mSpotAngle - light->mSpotAngleFade)));
 }
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
-    auto mesh_instance = g_GetThing<MeshInstance>(rendercmd.m_MeshInstanceID);
-    auto material      = g_GetThing<Material>(mesh_instance->GetMaterialID());
+    auto mesh_instance = TheatreManager::GetThing<MeshInstance>(rendercmd.mesh_instance);
+    auto material      = TheatreManager::GetThing<Material>(mesh_instance->GetMaterialID());
 
-    glBindVertexArray(m_VAOs.at(VAO_DEFAULT));
-    BindShader(rendercmd.m_ShaderID);
+    glBindVertexArray(mVAOs.at(VAO_DEFAULT));
+    BindShader(rendercmd.shader);
 
-    if(!material->m_DontUseTexture)
+    if(!material->mDontUseTexture)
         { glEnable(GL_FRAMEBUFFER_SRGB); }
-    if(rendercmd.m_Wireframe || Settings::Graphics::GlobalWireframe)
+    if(rendercmd.is_wireframe || Settings::Graphics::GlobalWireframe)
         { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
     glEnable(GL_BLEND);
 
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
-    DEBUG(GetShader(rendercmd.m_ShaderID)->SetUniform("debug_output", g_ShaderDebugOuptut);)
-    GetShader(rendercmd.m_ShaderID)->SetUniform("debug_highlight", material->m_DebugHighlight * material->m_DebugHighlight.a);
+    DEBUG(GetShader(rendercmd.shader)->SetUniform("debug_output", g_ShaderDebugOuptut);)
+    GetShader(rendercmd.shader)->SetUniform("debug_highlight", material->mDebugHighlight * material->mDebugHighlight.a);
 
-    GetShader(rendercmd.m_ShaderID)->SetUniform("point_lights_count", PointLight::GetCount());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("spot_lights_count", SpotLight::GetCount());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("directional_lights_count", DirectionalLight::GetCount());
+    GetShader(rendercmd.shader)->SetUniform("point_lights_count", PointLight::GetCount());
+    GetShader(rendercmd.shader)->SetUniform("spot_lights_count", SpotLight::GetCount());
+    GetShader(rendercmd.shader)->SetUniform("directional_lights_count", DirectionalLight::GetCount());
 
-    GetShader(rendercmd.m_ShaderID)->SetUniform("model_matrix", rendercmd.m_ModelMatrix);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.m_ModelMatrix))));
-    GetShader(rendercmd.m_ShaderID)->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("view_matrix", rendercmd.ViewMatrix());
-    GetShader(rendercmd.m_ShaderID)->SetUniform("view_position", rendercmd.ViewPosition());
+    GetShader(rendercmd.shader)->SetUniform("model_matrix", rendercmd.model_matrix);
+    GetShader(rendercmd.shader)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.model_matrix))));
+    GetShader(rendercmd.shader)->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
+    GetShader(rendercmd.shader)->SetUniform("view_matrix", rendercmd.ViewMatrix());
+    GetShader(rendercmd.shader)->SetUniform("view_position", rendercmd.ViewPosition());
 
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_diffuse",  0);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.texture_specular", 1);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.use_textures", !material->m_DontUseTexture);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.diffuse_color", material->m_Color);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.alpha", material->m_Alpha);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_sharpness", material->m_SpecularSharpness);
-    GetShader(rendercmd.m_ShaderID)->SetUniform("current_material.specular_strength", material->m_SpecularStrength);
+    GetShader(rendercmd.shader)->SetUniform("current_material.texture_diffuse",  0);
+    GetShader(rendercmd.shader)->SetUniform("current_material.texture_specular", 1);
+    GetShader(rendercmd.shader)->SetUniform("current_material.use_textures", !material->mDontUseTexture);
+    GetShader(rendercmd.shader)->SetUniform("current_material.diffuse_color", material->mColor);
+    GetShader(rendercmd.shader)->SetUniform("current_material.alpha", material->mAlpha);
+    GetShader(rendercmd.shader)->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+    GetShader(rendercmd.shader)->SetUniform("current_material.specular_strength", material->mSpecularStrength);
 
     OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
 
@@ -303,18 +303,18 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-unsigned int OpenGL_Backend::GetTextureID(id_t id)
+unsigned int OpenGL_Backend::GetTextureID(ID id)
 {
-    if(!m_TextureIDs.contains(id))
-        { return m_TextureIDs.at(IDs::iMissing); }
-    return m_TextureIDs.at(id);
+    if(!mTextureIDs.contains(id))
+        { return mTextureIDs.at(UniqueIDs::Reserved::i_Missing); }
+    return mTextureIDs.at(id);
 }
 
-OpenGL_MeshData* OpenGL_Backend::GetMeshData(id_t id)
+OpenGL_MeshData* OpenGL_Backend::GetMeshData(ID id)
 {
-    if(!m_MeshData.contains(id))
-        { return &m_MeshData.at(IDs::mError); }
-    return &m_MeshData.at(id);
+    if(!mMeshData.contains(id))
+        { return &mMeshData.at(UniqueIDs::Reserved::m_Error); }
+    return &mMeshData.at(id);
 }
 
 //----------------------------------------------------------------------------------

@@ -77,23 +77,26 @@ const TheatreData& TheatreParser::GetTheatreData()
 
 SafeStatus TheatreParser::try_LoadTheatreFromFile(const std::string& theatre_file)
 {
-    if(!Filesystem::IsFile(theatre_file))
+    if(!FileSystem::IsFile(theatre_file))
         { return Status::TheatreParserFILE_DOES_NOT_EXIST; }
-    if(!c_NostalgiaExtensions.contains(Filesystem::GetExtension(theatre_file)))
+    if(!c_NostalgiaExtensions.contains(FileSystem::GetExtension(theatre_file)))
         { return Status::TheatreParserWRONG_FILE_EXTENSION; }
-    return Filesystem::try_ReadFileToString(theatre_file, s_TheatreFileDataString);
+    if(!FileSystem::try_ReadFileToString(theatre_file, s_TheatreFileDataString))
+        { return Status::ERROR_FILE_READ_ERROR; }
+    return Status::NO_ERR;
 }
 
 void TheatreParser::LoadTheatreFromMemory(const std::string& theatre_data)
 { s_TheatreFileDataString = theatre_data; }
 
-static void s_AddParsedDataHelper(data_t& data)
+static void s_AddParsedDataHelper(ThingData& data)
 {
-    data.SetID(ID::GetNewID());
+    if(data.type() == ThingType::NostalgiaPlayer)
+        { s_PlayerInstantiated = true; data.uid = UniqueIDs::Reserved::Player; }
+    else
+        { data.uid = UniqueIDs::Generate(); }
     s_TheatreData.AddData(data);
-    s_NameIDMap[data.GetName()] = std::to_string(data.GetID());
-    if(data.GetType() == Type::NostalgiaPlayer)
-        { s_PlayerInstantiated = true; data.SetID(IDs::Player); }
+    s_NameIDMap[data.name] = std::to_string(data.uid);
 }
 
 enum class Context
@@ -132,7 +135,7 @@ enum class Parsing
 SafeStatus TheatreParser::try_ParseTheatre()
 {
     #pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need to give each Theatre a unique set of IDs (which they will manage)")
-    ID::ClearIDs();
+    UniqueIDs::Clear();
 
     s_NameIDMap.clear();
     s_TheatreData.clear();
@@ -160,12 +163,12 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
     std::string  variable_name  = "";
     std::string  variable_value = "";
-    VariableType variable_type  = VariableType::Nothing;
+    penum_t      variable_type  = ThingVar::eNothing;
 
     std::string sandwich_variable_name = "";
 
-    data_t temp_data;
-    data_t temp_data_swap;
+    ThingData temp_data;
+    ThingData temp_data_swap;
 
     for(size_t iterator = 0 ; iterator < data_size ; ++iterator,++COLUMN)
     {
@@ -188,40 +191,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
         // Temporarily bypass comment/string/context skipping on certain conditions
         #pragma message("TODO: Make this shit less bad")
+        // TODO: Expanding on the message above, figure out how to remove this secondary switch statement (yes, it comes
+        // first but it's still secondary)
         switch(character)
         {
-        /*case exit_context:
-        {
-            if(!invalid_context)
-                { break; }
-
-            size_t temp_it = iterator;
-            bool exit_while = false;
-            bool check_word = false;
-            std::string temp_buffer = "";
-            while(!exit_while && temp_it < (data_size - 1))
-            {
-                char temp_character = s_TheatreFileDataString.at(++temp_it);
-                switch(temp_character)
-                {
-                case ' ':
-                case '\n':
-                case '\t':
-                    exit_while = check_word;
-                    break;
-                default:
-                    check_word = true;
-                    temp_buffer += temp_character;
-                    break;
-                }
-            }
-            if(!temp_buffer.compare(things) || !temp_buffer.compare(resources))
-            {
-                invalid_context = false;
-                break;
-            }
-            continue;
-        }*/
         case newline:
             inside_comment = false;
             break;
@@ -230,7 +203,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 { break; }
             inside_string = !inside_string;
             if(inside_string)
-                { variable_type = VariableType::String; }
+                { variable_type = ThingVar::eString; }
             break;
         }
 
@@ -273,7 +246,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
             switch(parsing)
             {
             case Parsing::ObjectType:
-                temp_data.SetType(buffer);
+                temp_data.set_type(buffer);
                 parsing = Parsing::ObjectName;
                 buffer.clear();
                 break;
@@ -283,7 +256,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 buffer.clear();
                 break;
             case Parsing::ObjectName:
-                temp_data.SetName(buffer);
+                temp_data.name = buffer;
                 buffer.clear();
                 defining = Defining::Variable;
                 parsing  = Parsing::VariableName;
@@ -307,10 +280,10 @@ SafeStatus TheatreParser::try_ParseTheatre()
         }
         case enter_reference:
         case enter_engine_ref:
-            variable_type = VariableType::Reference;
+            variable_type = ThingVar::eReference;
             continue;
         case enter_numeric:
-            variable_type = VariableType::Number;
+            variable_type = ThingVar::eNumber;
             continue;
         case enter_exit_string:
             if(inside_string)
@@ -320,7 +293,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
         case exit_numeric:
             if
             (
-                variable_type == VariableType::Number &&
+                variable_type == ThingVar::eNumber &&
                 buffer.size() >= 4 && // Has to be as large as "true"
                 (
                     !ToLower(buffer).compare("false") ||
@@ -328,7 +301,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
                 )
             )
             {
-                variable_type = VariableType::Bool;
+                variable_type = ThingVar::eBool;
                 buffer = ToLower(buffer);
             }
             [[fallthrough]];
@@ -419,9 +392,9 @@ SafeStatus TheatreParser::try_ParseTheatre()
 
                 s_AddParsedDataHelper(temp_data);
 
-                std::string sandwich_variable_value = temp_data.GetName();
+                std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, VariableType::Reference);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReference);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
@@ -440,7 +413,7 @@ SafeStatus TheatreParser::try_ParseTheatre()
     }
 
     if(!s_PlayerInstantiated)
-        { s_TheatreData.AddData(data_t::PlayerDefaults); }
+        { s_TheatreData.AddData(ThingData::PlayerDefaults); }
 
     s_TheatreData.UpdateReferences(s_NameIDMap);
     s_TheatreData.OrderByPriority();

@@ -1,8 +1,12 @@
 #ifndef THEATRE_DATA_H
 #define THEATRE_DATA_H
 
-#include "data_t.hpp"
+#include "fwd.hpp"
+
+#include "ids.hpp"
+#include "thing_data.hpp"
 #include "safe_return.hpp"
+#include "frozen/string.h"
 
 #include <map>
 
@@ -10,23 +14,25 @@ struct TheatreData
 {
     static const TheatreData Missing;
 
-    std::string m_Name = "Untitled Theatre";
-    long m_Index = -1;
+    frozen::string name = "TheatreData";
+    int index = -1;
 
-    const std::vector<data_t>& GetData() const;
+    const std::vector<ThingData>& GetData() const;
     void UpdateReferences(const std::map<std::string, std::string>& NameIDMap);
     void OrderByPriority();
 
-    SafeStatus AddData(const data_t& Data);
+    SafeStatus AddData(const ThingData& Data);
 
+    ID id() const;
     void clear();
-
-#ifdef DEBUGGING
     void debug_PrintData();
-#endif // DEBUGGING
+
+    constexpr bool operator==(const TheatreData& Other) const
+    { return (id_ == Other.id_); }
 
 private:
-    std::vector<data_t> m_Data;
+    std::vector<ThingData> data_ = {};
+    ID id_ = ID::None;
 };
 
 #endif // THEATRE_DATA_H

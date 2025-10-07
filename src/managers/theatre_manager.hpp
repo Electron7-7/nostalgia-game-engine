@@ -1,10 +1,11 @@
 #ifndef THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#include "manager.hpp"
-#include "debug.hpp"
 #include "things/fwd.hpp"
 #include "theatre/fwd.hpp"
+
+#include "things/thing.hpp"
+#include "manager.hpp"
 #include "input/event.hpp"
 
 #include <memory>
@@ -21,18 +22,21 @@ public:
 
     void RenderWorld();
     static void DelegateInputEvent(const InputEvent& InputEvent);
-    static id_t CreateThing(const data_t& ThingData);
-    static std::shared_ptr<Thing> GetThing(id_t ID);
+    static ID CreateThing(const ThingData& ThingData);
+    static std::shared_ptr<Thing> GetThing(ID ObjectID);
     static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
-    static bool DestroyThing(id_t ID);
+    static bool DestroyThing(ID);
+    static bool debug_GetThingAtIndex(unsigned int MapIndex, std::shared_ptr<Thing>& Output);
+
+    template<IsThing T>
+    static std::shared_ptr<T> GetThing(ID ObjectID);
 
 private:
-    DEBUG(friend class imgui_Debugger;)
-    static std::map<id_t, std::shared_ptr<Thing>> s_Things;
+    static std::map<ID, std::shared_ptr<Thing>> m_sThings;
 
     static void CreateThings();
     static void DestroyThings();
-    static bool s_DestroyThing(id_t);
+    static bool s_DestroyThing(ID);
 };
 
 extern TheatreManager* g_pTheatreManager;

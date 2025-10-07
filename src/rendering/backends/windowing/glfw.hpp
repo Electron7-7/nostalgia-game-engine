@@ -2,7 +2,7 @@
 #define GLFW_BACKEND_H
 
 #include "windowing.hpp"
-#include "input/id.hpp"
+#include "ids.hpp"
 #include "frozen/map.h"
 
 struct GLFWwindow;  // Forward Declaration
@@ -32,8 +32,8 @@ public:
     MouseMode GetMouseMode();
 
     void GetMousePosition(glm::vec2&);
-    bool GetKey(binding_t&);
-    bool GetMotion(binding_t&, const glm::vec2&);
+    bool GetKey(InputBinding&);
+    bool GetMotion(InputBinding&, const glm::vec2&);
     void SwapBuffers();
     void PollEvents();
     void UpdateState();
@@ -46,7 +46,7 @@ private:
     static void glfw_WindowPositionCallbackFunction(GLFWwindow*, int, int);
     static void glfw_WindowResizeCallbackFunction(GLFWwindow*, int, int);
 
-    static constinit const frozen::map<id_t, id_t, InputID::KeysCount + InputID::MouseButtonsCount> s_cInputIdToGlfw;
+    static constinit const frozen::map<ID, id_t, BindingIDs::KeysCount + BindingIDs::MouseButtonsCount - 1> s_cInputIdToGlfw;
 };
 
 #endif // GLFW_BACKEND_H

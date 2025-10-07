@@ -6,14 +6,14 @@
 class MeshInstance : public Device
 {
 public:
-    virtual void SetupVariables(const data_t&);
+    virtual void SetupVariables(const ThingData&);
 
-    id_t GetMeshID() const;
-    id_t GetMaterialID() const;
+    ID GetMeshID() const;
+    ID GetMaterialID() const;
 
 private:
-    id_t m_MeshID     = IDs::None;
-    id_t m_MaterialID = IDs::None;
+    ID mMeshID     = ID::None;
+    ID mMaterialID = ID::None;
 };
 
 #endif // MESH_INSTANCE_H
