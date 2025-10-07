@@ -16,7 +16,7 @@ std::shared_ptr<Thing> gThingMakerTemplate();
 class ThingFactory
 {
 public:
-    static bool AddThing(pThingMaker_t MakerFunction_ptr, ID TypeId, const std::string& Name, int Priority = 0);
+    static bool AddThing(pThingMaker_t MakerFunction_ptr, const std::string& TypeName, int Priority = 0);
     static pThingMaker_t MakeThing(ID TypeId);
     static bool SetPriority(ID TypeId, int Priority);
     static int  GetPriority(ID TypeId);

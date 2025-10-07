@@ -14,8 +14,8 @@ const ThingData ThingData::PlayerDefaults(
 
 ThingData::ThingData() = default;
 
-ThingData::ThingData(const std::string& name, const std::string& type_name, ID id)
-: name(name), uid(id), type_(ConstexprHash(type_name))
+ThingData::ThingData(const std::string& name, const std::string& type_name)
+: name(name), type_(ConstexprHash(type_name))
 {
     if(!ThingFactory::IsThing(type_))
         { PRINT_ERROR("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, id, type_) }

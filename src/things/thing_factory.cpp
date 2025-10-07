@@ -80,16 +80,17 @@ ThingFactory::m_sTypePriorities =
     { ThingType::Thing,            1 },
 };
 
-bool ThingFactory::AddThing(pThingMaker_t maker_ptr, ID type, const std::string& name, int priority)
+bool ThingFactory::AddThing(pThingMaker_t maker_ptr, const std::string& type_name, int priority)
 {
-    if(m_sThingMakers.contains(type))
+    ID type_id = ConstexprHash(type_name);
+    if(m_sThingMakers.contains(type_id))
     {
-        PRINT_WARNING("ThingFactory::AddThing - Thing type '{}' already added", GetTypeName(type))
+        PRINT_WARNING("ThingFactory::AddThing - '{}' already added", type_name)
         return false;
     }
-    m_sThingMakers[type] = maker_ptr;
-    m_sTypeNames[type] = name;
-    m_sTypePriorities[type] = priority;
+    m_sThingMakers[type_id] = maker_ptr;
+    m_sTypeNames[type_id] = type_name;
+    m_sTypePriorities[type_id] = priority;
     return true;
 }
 

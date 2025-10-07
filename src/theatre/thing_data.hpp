@@ -16,8 +16,8 @@ public:
     static const ThingData PlayerDefaults;
 
     ThingData();
-    ThingData(const std::string& Name, const std::string& TypeName, ID = ID::None);
-    ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables);
+    ThingData(const std::string& Name, const std::string& TypeName);
+    ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables = {});
 
     void AddVariable(const std::string& Name, const std::string& Value, const penum_t& Type);
 
