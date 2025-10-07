@@ -119,16 +119,30 @@ int ThingFactory::GetPriority(ID type)
     return m_sTypePriorities.at(type);
 }
 
-bool ThingFactory::IsThing(ID type)
-{ return m_sThingMakers.contains(type); }
-
-bool ThingFactory::IsThing(const std::string& name)
-{ return IsThing(ConstexprHash(name)); }
-
 const std::string& ThingFactory::GetTypeName(ID type)
 {
     static std::string l_sInvalidTypeName = "Invalid";
     if(!m_sTypeNames.contains(type))
         { return l_sInvalidTypeName; }
     return m_sTypeNames.at(type);
+}
+
+bool ThingFactory::IsThing(ID type)
+{ return m_sThingMakers.contains(type); }
+
+bool ThingFactory::IsThing(const std::string& name)
+{ return IsThing(ConstexprHash(name)); }
+
+bool ThingFactory::IsResource(ID type)
+{ return IsDerivedFrom<Resource>(type); }
+
+bool ThingFactory::IsResource(const std::string& name)
+{ return IsResource(ConstexprHash(name)); }
+
+template<ThingDerived T>
+bool ThingFactory::IsDerivedFrom(ID type)
+{
+    if(!IsThing(type))
+        { return false; }
+    return (std::dynamic_pointer_cast<T>(m_sThingMakers.at(type)()) != nullptr);
 }

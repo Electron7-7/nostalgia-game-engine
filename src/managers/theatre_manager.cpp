@@ -3,7 +3,6 @@
 #include "theatre/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
 #include "things/thing.hpp"
-#include "things/thing_factory.hpp"
 #include "embedded/images.hpp"
 #include "embedded/models.hpp"
 #include "filesystem/file_data.hpp"
@@ -270,7 +269,7 @@ bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<T
     return true;
 }
 
-template<IsThing T>
+template<ThingDerived T>
 std::shared_ptr<T> TheatreManager::GetThing(ID id)
 {
     auto thing = dynamic_pointer_cast<T>(TheatreManager::GetThing(id));

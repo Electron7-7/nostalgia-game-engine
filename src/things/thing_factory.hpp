@@ -3,6 +3,7 @@
 
 #include "fwd.hpp"
 #include "ids.hpp"
+#include "thing.hpp"
 
 #include <map>
 #include <memory>
@@ -13,6 +14,9 @@ std::shared_ptr<Thing>(*pThingMaker_t)();
 template<typename T>
 std::shared_ptr<Thing> gThingMakerTemplate();
 
+template<typename T>
+concept ThingDerived = requires { std::derived_from<T, Thing>; };
+
 class ThingFactory
 {
 public:
@@ -20,9 +24,15 @@ public:
     static pThingMaker_t MakeThing(ID TypeId);
     static bool SetPriority(ID TypeId, int Priority);
     static int  GetPriority(ID TypeId);
+    static const std::string& GetTypeName(ID TypeId);
+
     static bool IsThing(ID TypeId);
     static bool IsThing(const std::string& TypeName);
-    static const std::string& GetTypeName(ID TypeId);
+    static bool IsResource(ID TypeId); // Uses `ThingFactory::IsDerived`
+    static bool IsResource(const std::string& TypeName); // Uses `ThingFactory::IsDerived`
+
+    template<ThingDerived T>
+    static bool IsDerivedFrom(ID TypeID); // Slower than `ThingFactory::IsThing` as this function uses dynamic casting to test derivation
 
 private:
     static std::map<ID, std::string>   m_sTypeNames;

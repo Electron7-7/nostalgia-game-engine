@@ -30,7 +30,4 @@ protected:
     std::string mName = "Untitled Thing";
 };
 
-template<typename T>
-concept IsThing = requires { std::derived_from<T,Thing>; };
-
 #endif // THING_H

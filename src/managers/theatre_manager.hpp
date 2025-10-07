@@ -4,7 +4,7 @@
 #include "things/fwd.hpp"
 #include "theatre/fwd.hpp"
 
-#include "things/thing.hpp"
+#include "things/thing_factory.hpp"
 #include "manager.hpp"
 #include "input/event.hpp"
 
@@ -34,7 +34,7 @@ public:
     static bool DestroyThing(ID);
     static bool debug_GetThingAtIndex(unsigned int MapIndex, std::shared_ptr<Thing>& Output);
 
-    template<IsThing T>
+    template<ThingDerived T>
     static std::shared_ptr<T> GetThing(ID ObjectID);
 
 private:
