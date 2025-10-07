@@ -2,8 +2,8 @@
 #define THEATRE_FWD_H
 
 // Data
-struct data_t;
-struct variable_t;
+struct ThingData;
+struct ThingVar;
 struct TheatreData;
 
 // Enum
