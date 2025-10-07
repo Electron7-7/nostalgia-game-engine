@@ -550,3 +550,25 @@ Curious to see if I can get demos working in under an hour... probably not, lmao
 Well, I got the demo files to generate with the proper data; now all I need to do is write the parser.
 
 It wasn't an hour, but in just under two I fully implemented demo files. Holy shit!
+
+Playing back demos is not fully working yet.
+
+[10/01/25]
+Okay, the main issue is that demo playback needs to either be deferred until the next Tick or interrupt the current Tick's input processing. I'm going to put this logic into InputManager.
+
+[10/02/25]
+I've figured out the issue with demos: the event queue is used to process all input events for *only the current tick/frame* but the demo queue is full of events over multiple ticks/frames. I just need to spread out the demo playback code over multiple ticks instead of a singular tick.
+
+Holy shit I fucking finished the demo system and it works near perfectly!!! The only thing left to do is implement state loading for the Theatre, player, and Things. Right now, when you play a demo it just plays back the inputs regardless of what Theatre is loaded or what the player's state is.
+
+Started working on that + a hash system for TheatreData. I've noticed that there's a lot of lag when playing back a demo file, so I'll want to work on optimizing playback.
+
+Oh, and demos also fuck up some bindings/actions (probably happens when creating the input event if I had to guess).
+
+[10/03/25]
+Okay, time to finish up the demos system. I need to make demos store the Theatre and player state and, when played back, load that Theatre and setup that state. I also need to fix the performance issues.
+
+[10/06/25]
+Whew, I had gotten really sucked into the whole ID system and I made a huge re-write of IDs, Unique IDs, and Binding IDs.
+
+All right, finished up the ID re-write and also fiddled with the Theatre data printout a bit.
