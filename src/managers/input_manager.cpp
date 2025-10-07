@@ -102,7 +102,7 @@ bool InputManager::StartRecordingDemo(const std::string& name)
         PRINT_WARNING("InputManager::StartRecordingDemo - Cannot start recording a demo while one is being played")
         return false;
     }
-    m_sDemo = Demo(TheatreManager::GetData(), name);
+    m_sDemo = Demo(TheatreManager::GetCurrentTheatreData(), name);
     return m_sRecordingDemo = true;
 }
 

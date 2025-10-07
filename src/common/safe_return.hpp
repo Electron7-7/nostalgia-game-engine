@@ -71,19 +71,15 @@ struct Status
     inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0x0C, "SettingsINVALID_SETTING_NAME"           );
     inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0x0D, "DataTypeINVALID_VARIABLE_NAME"          );
     inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x0E, "DataTypeEMPTY_VARIABLE"                 );
-    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x0F, "TheatreParserFILE_DOES_NOT_EXIST"       );
-    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x10, "TheatreParserWRONG_FILE_EXTENSION"      );
-    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x11, "TheatreParserNO_THEATRE_LOADED"         );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x12, "TheatreParserMISSING_THEATRE_NAME"      );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x13, "TheatreParserMISSING_THEATRE_INDEX"     );
-    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x14, "TheatreDataINVALID_TYPE"                );
-    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x15, "ResourceUNKNOWN_FILETYPE"               );
-    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x16, "FileDataNO_DATA_OR_FILE"                );
-    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x17, "FileDataFAILED_TO_PROCESS_FILE"         );
-    inline static SafeStatus FileSystemINVALID_PATH                 = SafeStatus( 0x18, "FileSystemINVALID_PATH"                 );
-    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x19, "ResourceBAD_FILE_DATA"                  );
-    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x20, "FileDataDATA_IS_LOCKED"                 );
-    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x21, "EventQueueINVALID_EVENT"                );
+    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x0F, "TheatreDataINVALID_TYPE"                );
+    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x10, "ResourceUNKNOWN_FILETYPE"               );
+    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x11, "FileDataNO_DATA_OR_FILE"                );
+    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x12, "FileDataFAILED_TO_PROCESS_FILE"         );
+    inline static SafeStatus FileSystemINVALID_PATH                 = SafeStatus( 0x13, "FileSystemINVALID_PATH"                 );
+    inline static SafeStatus FileSystemFAILED_TO_WRITE_FILE         = SafeStatus( 0x14, "FileSystemFAILED_TO_WRITE_FILE"         );
+    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x15, "ResourceBAD_FILE_DATA"                  );
+    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x16, "FileDataDATA_IS_LOCKED"                 );
+    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x17, "EventQueueINVALID_EVENT"                );
 };
 
 template<typename T>

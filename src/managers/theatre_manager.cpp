@@ -34,10 +34,11 @@ TheatreManager* g_pTheatreManager = &s_TheatreManager;
 
 std::map<ID, std::shared_ptr<Thing>> TheatreManager::m_sThings = {};
 
-static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer = std::make_shared<NostalgiaPlayer>();
-static std::vector<RenderCommand> s_RenderCommandQueue = {};
-static bool s_ReadyToRender = false;
-static TheatreData sCurrentTheatreData;
+static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer{std::make_shared<NostalgiaPlayer>()};
+static std::vector<RenderCommand> s_RenderCommandQueue{};
+static bool s_ReadyToRender{false};
+static TheatreData sCurrentTheatreData{};
+static std::string sCurrentTheatrePath{""};
 
 void TheatreManager::Update()
 {
@@ -69,9 +70,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 #ifdef DEBUGGING
     g_pDebugger->StartTheatreTiming(true);
 #endif // DEBUGGING
-
-    if(!SafeStatus::PrintCheck(TheatreParser::try_ParseTheatre(sCurrentTheatreData)))
-        { return FUCKED; }
 
     s_ReadyToRender = false;
 
@@ -137,27 +135,32 @@ void TheatreManager::RenderWorld()
 void TheatreManager::LoadTheatreData(const TheatreData& data)
 {
     sCurrentTheatreData = data;
+    sCurrentTheatrePath = "";
     _Manager::StartNewTheatre();
-}
-
-bool TheatreManager::LoadTheatreFromFile(const std::string& file)
-{
-    if(TheatreParser::try_LoadTheatreFromFile(sCurrentTheatreData, file) != Status::NO_ERR)
-        { return false; }
-    _Manager::StartNewTheatre();
-    return true;
 }
 
 bool TheatreManager::LoadTheatreFromMemory(const std::string& data)
 {
-    if(TheatreParser::try_LoadTheatreFromMemory(sCurrentTheatreData, data) != Status::NO_ERR)
+    if(!TheatreParser::ParseTheatreFileFromMemory(data, sCurrentTheatreData))
         { return false; }
+    sCurrentTheatrePath = "";
     _Manager::StartNewTheatre();
     return true;
 }
 
-TheatreData& TheatreManager::GetData()
+bool TheatreManager::LoadTheatreFromFile(const std::string& path)
+{
+    if(!TheatreParser::ParseTheatreFile(path, sCurrentTheatreData))
+        { return false; }
+    sCurrentTheatrePath = path;
+    _Manager::StartNewTheatre();
+    return true;
+}
+
+const TheatreData& TheatreManager::GetCurrentTheatreData()
 { return sCurrentTheatreData; }
+const std::string& TheatreManager::GetCurrentTheatrePath()
+{ return sCurrentTheatrePath; }
 
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
 {

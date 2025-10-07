@@ -22,11 +22,12 @@ public:
 
     void RenderWorld();
 
-    static void LoadTheatreData(const TheatreData& Data);
-    static bool LoadTheatreFromFile(const std::string& File);
-    static bool LoadTheatreFromMemory(const std::string& FileData);
+    static void LoadTheatreData(const TheatreData&);
+    static bool LoadTheatreFromMemory(const std::string& Data);
+    static bool LoadTheatreFromFile(const std::string& Path);
 
-    static TheatreData& GetData();
+    static const TheatreData& GetCurrentTheatreData();
+    static const std::string& GetCurrentTheatrePath();
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);
     static std::shared_ptr<Thing> GetThing(ID ObjectID);

@@ -1,15 +1,20 @@
 #ifndef THEATRE_PARSER_H
 #define THEATRE_PARSER_H
 
-#include "safe_return.hpp"
+#include "filesystem/fwd.hpp"
+
 #include "theatre_data.hpp"
 
 struct TheatreParser
 {
 public:
-    static SafeStatus try_ParseTheatre(TheatreData& Output);
-    static SafeStatus try_LoadTheatreFromFile(TheatreData& Output, const std::string& FilePath);
-    static SafeStatus try_LoadTheatreFromMemory(TheatreData& Output, const std::string& FileData);
+    static bool ParseTheatreFile(const std::string& FilePath, TheatreData& Output);
+    static bool ParseTheatreFileFromMemory(const FileData& FileData, TheatreData& Output);
+    static bool WriteTheatre(const TheatreData& TheatreData, const std::string& FilePath);
+
+private:
+    static FileData m_sTheatreFile;
+    static bool ReadTheatre(TheatreData&);
 };
 
 #ifdef DEBUGGING
