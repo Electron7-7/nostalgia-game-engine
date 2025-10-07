@@ -15,9 +15,9 @@ static std::string sToggleMouseCapture ("ToggleMouseCapture");
 
 static SafeStatus sInputEventHandler(const InputEvent& event)
 {
-    if(event.IsFirstAction(sToggleFullscreen))
+    if(event.IsInput(sToggleFullscreen) && event.JustPressed())
         { g_pBackendManager->Windowing()->ToggleFullscreen(); }
-    else if(event.IsFirstAction(sToggleMouseCapture))
+    else if(event.IsInput(sToggleMouseCapture) && event.JustPressed())
         { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
     return Status::NO_ERR;
 }
@@ -67,12 +67,12 @@ int NostalgiaGoggles::Main()
     // g_pMenuManager->PushMenu("Main Menu");
     g_pUIManager->AddImGuiObject(g_pDebugger);
 
-    InputManager::AddAction(sToggleFullscreen,   InputID::KeyF);
-    InputManager::AddAction(sToggleMouseCapture, InputID::KeyESC);
-    InputManager::AddAction("+forward",  InputID::KeyW);
-    InputManager::AddAction("+backward", InputID::KeyS);
-    InputManager::AddAction("+left",     InputID::KeyA);
-    InputManager::AddAction("+right",    InputID::KeyD);
+    InputManager::AddAction(sToggleFullscreen,   BindingIDs::KeyF);
+    InputManager::AddAction(sToggleMouseCapture, BindingIDs::KeyESC);
+    InputManager::AddAction("+forward",  BindingIDs::KeyW);
+    InputManager::AddAction("+backward", BindingIDs::KeyS);
+    InputManager::AddAction("+left",     BindingIDs::KeyA);
+    InputManager::AddAction("+right",    BindingIDs::KeyD);
 
     _Manager::Start(); // gameloop
     return 0;

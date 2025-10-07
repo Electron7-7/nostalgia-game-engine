@@ -17,7 +17,7 @@ static std::map<std::string, FileType> s_FileTypesByExtension =
 
 FileType FileData::s_DetectFileType(const std::string& path)
 {
-    std::string extension = Filesystem::GetExtension(path);
+    std::string extension = FileSystem::GetExtension(path);
     if(!s_FileTypesByExtension.contains(extension))
         { return FileType::Unknown; }
     return s_FileTypesByExtension.at(extension);
@@ -41,8 +41,7 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }
 
-    std::string file_path = "";
-    Filesystem::MakePathAbsolute(path, file_path);
+    std::string file_path = FileSystem::GetAbsolute(path);
 
     // https://stackoverflow.com/a/22131201
     FILE* image_file = fopen(file_path.c_str(), "r+");

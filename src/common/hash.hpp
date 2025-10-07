@@ -15,7 +15,7 @@ template<class>struct ConstexprHasher;
 template<>
 struct ConstexprHasher<frozen::string>
 {
-    hash_t constexpr operator()(char const* input) const
+    hash_t constexpr operator()(const char* input) const
     {
         return *input ?
             static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :
@@ -28,7 +28,7 @@ struct ConstexprHasher<frozen::string>
 template<>
 struct ConstexprHasher<std::string>
 {
-    hash_t constexpr operator()(char const* input) const
+    hash_t constexpr operator()(const char* input) const
     {
         return *input ?
             static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :
@@ -41,7 +41,7 @@ struct ConstexprHasher<std::string>
 template<>
 struct ConstexprHasher<const char*>
 {
-    hash_t constexpr operator()(char const* input) const
+    hash_t constexpr operator()(const char* input) const
     {
         return *input ?
             static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) :

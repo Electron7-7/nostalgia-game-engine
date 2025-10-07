@@ -1,15 +1,18 @@
 #include "filesystem.hpp"
 
-#include <filesystem>
 #include <fstream>
+#include <filesystem>
 
-using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
+#pragma message("TODO: Implement support for symlinks once I understand how to properly interact with them via std::filesystem")
 
+namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
+
+// `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
 #ifdef COMPILING_WINDOWS
 #   include <windows.h>
 #   include <libloaderapi.h>
 #   pragma message("FIXME: Improve this (it's from GraphX)")
-    std::string Filesystem::GetBinaryPath()
+    std::string FileSystem::GetProgramDirectory()
     {
         char out_path[MAX_PATH] = {0};
         GetModuleFileNameA(NULL, out_path, MAX_PATH);
@@ -32,63 +35,105 @@ using namespace std::filesystem; // Fuck you, I'm not writing allat bullshit err
         return new_buffer + "\\";
     }
 #else  // !COMPILING_WINDOWS
-    std::string Filesystem::GetBinaryPath()
-    { return read_symlink(path("/proc/self/exe")).remove_filename().string(); }
+    std::string FileSystem::GetProgramDirectory()
+    { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string(); }
 #endif // COMPILING_WINDOWS
 
-bool Filesystem::PathExists(const std::string& _path)
-{ return(exists(path(_path))); }
+std::string FileSystem::GetCurrentDirectory()
+{ return fs::current_path().string(); }
 
-bool Filesystem::IsFile(const std::string& _path)
-{ return(PathExists(_path) && (is_regular_file(path(_path)) || is_block_file(path(_path)) || is_character_file(path(_path)))); }
-
-bool Filesystem::IsDirectory(const std::string& _path)
-{ return(PathExists(_path) && is_directory(path(_path))); }
-
-std::string Filesystem::GetExtension(const std::string& name)
-{
-    path file_name(name);
-    if(!file_name.has_extension())
-        { return ""; }
-    return file_name.extension().string();
-}
-
-void Filesystem::MakePathAbsolute(const std::string& _path, std::string& output)
-{
-    if(!PathExists(_path) || IsDirectory(_path))
-        { return; }
-    output = absolute(path(_path)).generic_string();
-}
-
-SafeStatus Filesystem::try_ReadFileToString(const std::string& _path, std::string& output)
+bool FileSystem::try_ReadFileToString(const std::string& string_path, std::string& output)
 {
     std::string file_path = "";
-    MakePathAbsolute(_path, file_path);
+    if(!GetAbsolute(string_path, file_path))
+        { return false; }
 
     std::ifstream file_stream(file_path);
 
     if(!file_stream.is_open())
-        { return Status::FilesystemFILE_READ_ERROR; }
+        { return false; }
 
     output = std::string(std::istreambuf_iterator<char>(file_stream), std::istreambuf_iterator<char>());
     file_stream.close();
 
-    return Status::NO_ERR;
+    return true;
 }
 
-SafeStatus Filesystem::try_GetFileSize(const std::string& _path, size_t& output)
+bool FileSystem::try_GetFileSize(const std::string& string_path, size_t& output)
 {
     std::string file_path = "";
-    MakePathAbsolute(_path, file_path);
+    if(!GetAbsolute(string_path, file_path))
+        { return false; }
 
     // The rest of this code is thanks to: https://stackoverflow.com/a/22131201
     FILE* image_file = fopen(file_path.c_str(), "r+");
 
     if(image_file == nullptr)
-        { return Status::FilesystemFILE_READ_ERROR; }
+        { return false; }
 
     fseek(image_file, 0, SEEK_END);
     output = ftell(image_file); // This could overflow... too bad!
     fclose(image_file);
-    return Status::NO_ERR;
+    return true;
+}
+
+bool FileSystem::Exists(const std::string& string_path)
+{ return fs::exists({string_path}); }
+
+bool FileSystem::IsFile(const std::string& string_path)
+{ return fs::is_regular_file({string_path}); }
+
+bool FileSystem::IsDirectory(const std::string& string_path)
+{ return fs::is_directory({string_path}); }
+
+bool FileSystem::IsAbsolute(const std::string& string_path)
+{ return fs::path(string_path).is_absolute(); }
+
+std::string FileSystem::GetAbsolute(const std::string& string_path)
+{ return fs::absolute({string_path}).string(); }
+
+bool FileSystem::GetAbsolute(const std::string& string_path, std::string& output)
+{
+    output = GetAbsolute(string_path);
+    return fs::exists({output});
+}
+
+bool FileSystem::IsRelative(const std::string& string_path)
+{ return fs::path(string_path).is_relative(); }
+
+std::string FileSystem::GetRelative(const std::string& string_path)
+{ return fs::relative({string_path}).string(); }
+
+bool FileSystem::GetRelative(const std::string& string_path, std::string& output)
+{
+    output = GetRelative(string_path);
+    return fs::exists({output});
+}
+
+std::string FileSystem::GetDir(const std::string& string_path)
+{
+    fs::path path(string_path);
+    return (path.has_filename()) ? path.parent_path().string() : string_path;
+}
+
+void FileSystem::GetDir(const std::string& string_path, std::string& output)
+{ output = GetDir(string_path); }
+
+std::string FileSystem::GetStem(const std::string& string_path, bool remove_extension)
+{
+    if(!remove_extension)
+        { return fs::path({string_path}).stem().string(); }
+    return fs::path({string_path}).stem().replace_extension("").string();
+}
+
+void FileSystem::GetStem(const std::string& string_path, std::string& output, bool remove_extension)
+{ output = GetStem(string_path, remove_extension); }
+
+void FileSystem::GetExtension(const std::string& name, std::string& output, bool remove_prefix)
+{ output = GetExtension(name, remove_prefix); }
+
+std::string FileSystem::GetExtension(const std::string& name, bool remove_prefix)
+{
+    std::string extension = fs::path(name).extension().string();
+    return (remove_prefix && extension.size() > 1) ? extension.substr(1) : extension;
 }

@@ -190,7 +190,7 @@ void _Manager::TickLoop()
 {
     size_t number_of_managers = m_sGameManagers.size();
 
-    // Tickrate Setup (From GraphX)
+    // Tickrate SetupVariables (From GraphX)
     double last_time = Time::Current();
     double current_tick_length = 0.0;
     double current_time = 0.0;
@@ -203,10 +203,10 @@ void _Manager::TickLoop()
         last_time = current_time;
         while(current_tick_length >= 1.0)
         {
-            for(size_t i = 0 ; i < number_of_managers ; ++i)
-                { m_sGameManagers.at(i)->Tick(); }
             --current_tick_length;
             ++m_sTickNumber;
+            for(size_t i = 0 ; i < number_of_managers ; ++i)
+                { m_sGameManagers.at(i)->Tick(); }
         }
     }
 }

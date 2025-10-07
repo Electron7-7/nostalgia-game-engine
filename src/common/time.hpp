@@ -9,8 +9,8 @@ struct Time
     static double Current();
     static double Elapsed();
 
-    static std::string StartSystem();
-    static std::string CurrentSystem();
+    static std::string StartFormatted();
+    static std::string CurrentFormatted();
 };
 
 #endif // TIME_H

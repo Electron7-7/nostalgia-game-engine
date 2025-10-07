@@ -6,7 +6,7 @@
 namespace
 {
     typedef unsigned int __statusId_t;
-    constexpr __statusId_t NO_ERR_STATUS = 0;
+    constexpr __statusId_t NO_ERR_STATUS = 0x0;
 }
 
 struct SafeStatus
@@ -38,7 +38,7 @@ public:
     {
         if(Status.Status() != NO_ERR_STATUS)
         {
-            PRINT_ERROR("{} - {}", Prefix, Status.Printout());
+            PRINT_ERROR("{} returned '{}'", Prefix, Status.Printout());
             return false;
         }
         return true;
@@ -46,7 +46,7 @@ public:
 
 private:
     __statusId_t m_Status = NO_ERR_STATUS;
-    const char* m_Printout  = "NO_ERR?";
+    const char* m_Printout  = "NO_ERR";
 
     friend struct Status;
     constexpr SafeStatus(const __statusId_t Status, const char* Printout)
@@ -57,36 +57,33 @@ private:
 struct Status
 {
     inline static SafeStatus NO_ERR;
-    inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0x1,  "ERROR_GENERIC"                          );
-    inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0x2,  "ERROR_ALREADY_ACTIVE"                   );
-    inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0x3,  "ERROR_INVALID_KEY_ID"                   );
-    inline static SafeStatus ERROR_EXCEPTION_CAUGHT                 = SafeStatus( 0x4,  "ERROR_EXCEPTION_CAUGHT"                 );
-    inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0x5,  "WindowingBackendWINDOW_CREATION_FAILED" );
-    inline static SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   = SafeStatus( 0x6,  "WindowingBackendGRAPHICS_INIT_FAILED"   );
-    inline static SafeStatus EventQueueNOT_ENABLED                  = SafeStatus( 0x7,  "EventQueueNOT_ENABLED"                  );
-    inline static SafeStatus EventQueueNOT_PROCESSING_EVENTS        = SafeStatus( 0x8,  "EventQueueNOT_PROCESSING_EVENTS"        );
-    inline static SafeStatus EventQueueEMPTY                        = SafeStatus( 0x9,  "EventQueueEMPTY"                        );
-    inline static SafeStatus InputManagerKEY_NOT_FOUND              = SafeStatus( 0xA,  "InputManagerKEY_NOT_FOUND"              );
-    inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0xB,  "InputManagerKEY_IS_LOCKED"              );
-    inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0xC,  "CommandLineINVALID_COMMAND"             );
-    inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0xD,  "KeyBindsKEY_HAS_NO_BINDS"               );
-    inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0xE,  "SettingsINVALID_SETTING_NAME"           );
-    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0xF,  "DataTypeINVALID_VARIABLE_NAME"          );
-    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x10, "DataTypeEMPTY_VARIABLE"                 );
-    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x11, "TheatreParserFILE_DOES_NOT_EXIST"       );
-    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x12, "TheatreParserWRONG_FILE_EXTENSION"      );
-    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x13, "TheatreParserNO_THEATRE_LOADED"         );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x14, "TheatreParserMISSING_THEATRE_NAME"      );
-    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x15, "TheatreParserMISSING_THEATRE_INDEX"     );
-    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x16, "TheatreDataINVALID_TYPE"                );
-    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x17, "ResourceUNKNOWN_FILETYPE"               );
-    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x18, "FileDataNO_DATA_OR_FILE"                );
-    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x19, "FileDataFAILED_TO_PROCESS_FILE"         );
-    inline static SafeStatus FilesystemINVALID_PATH                 = SafeStatus( 0x20, "FilesystemINVALID_PATH"                 );
-    inline static SafeStatus FilesystemFILE_READ_ERROR              = SafeStatus( 0x21, "FilesystemFILE_READ_ERROR"              );
-    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x22, "ResourceBAD_FILE_DATA"                  );
-    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x23, "FileDataDATA_IS_LOCKED"                 );
-    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x24, "EventQueueINVALID_EVENT"                );
+    inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0x01, "ERROR_GENERIC"                          );
+    inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0x02, "ERROR_ALREADY_ACTIVE"                   );
+    inline static SafeStatus ERROR_INVALID_KEY_ID                   = SafeStatus( 0x03, "ERROR_INVALID_KEY_ID"                   );
+    inline static SafeStatus ERROR_EXCEPTION_CAUGHT                 = SafeStatus( 0x04, "ERROR_EXCEPTION_CAUGHT"                 );
+    inline static SafeStatus ERROR_FILE_READ_ERROR                  = SafeStatus( 0x05, "ERROR_FILE_READ_ERROR"                  );
+    inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0x06, "WindowingBackendWINDOW_CREATION_FAILED" );
+    inline static SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   = SafeStatus( 0x07, "WindowingBackendGRAPHICS_INIT_FAILED"   );
+    inline static SafeStatus InputManagerKEY_NOT_FOUND              = SafeStatus( 0x08, "InputManagerKEY_NOT_FOUND"              );
+    inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0x09, "InputManagerKEY_IS_LOCKED"              );
+    inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0x0A, "CommandLineINVALID_COMMAND"             );
+    inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0x0B, "KeyBindsKEY_HAS_NO_BINDS"               );
+    inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0x0C, "SettingsINVALID_SETTING_NAME"           );
+    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0x0D, "DataTypeINVALID_VARIABLE_NAME"          );
+    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x0E, "DataTypeEMPTY_VARIABLE"                 );
+    inline static SafeStatus TheatreParserFILE_DOES_NOT_EXIST       = SafeStatus( 0x0F, "TheatreParserFILE_DOES_NOT_EXIST"       );
+    inline static SafeStatus TheatreParserWRONG_FILE_EXTENSION      = SafeStatus( 0x10, "TheatreParserWRONG_FILE_EXTENSION"      );
+    inline static SafeStatus TheatreParserNO_THEATRE_LOADED         = SafeStatus( 0x11, "TheatreParserNO_THEATRE_LOADED"         );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_NAME      = SafeStatus( 0x12, "TheatreParserMISSING_THEATRE_NAME"      );
+    inline static SafeStatus TheatreParserMISSING_THEATRE_INDEX     = SafeStatus( 0x13, "TheatreParserMISSING_THEATRE_INDEX"     );
+    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x14, "TheatreDataINVALID_TYPE"                );
+    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x15, "ResourceUNKNOWN_FILETYPE"               );
+    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x16, "FileDataNO_DATA_OR_FILE"                );
+    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x17, "FileDataFAILED_TO_PROCESS_FILE"         );
+    inline static SafeStatus FileSystemINVALID_PATH                 = SafeStatus( 0x18, "FileSystemINVALID_PATH"                 );
+    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x19, "ResourceBAD_FILE_DATA"                  );
+    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x20, "FileDataDATA_IS_LOCKED"                 );
+    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x21, "EventQueueINVALID_EVENT"                );
 };
 
 template<typename T>
