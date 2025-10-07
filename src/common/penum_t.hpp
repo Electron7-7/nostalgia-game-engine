@@ -13,6 +13,10 @@ struct penum_t
     unsigned short id() const { return mID; }
     const char* name() const  { return mName; }
 
+    constexpr operator int() const { return mID; }
+    constexpr operator const char*() const { return mName; }
+    constexpr operator std::string() const { return mName; }
+
     constexpr bool operator==(const penum_t& other) const { return (mID == other.mID); }
     constexpr bool operator!=(const penum_t& other) const { return (mID != other.mID); }
     constexpr bool operator< (const penum_t& other) const { return (mID <  other.mID); }
