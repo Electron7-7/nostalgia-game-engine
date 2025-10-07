@@ -42,6 +42,22 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
 std::string FileSystem::GetCurrentDirectory()
 { return fs::current_path().string(); }
 
+SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
+{
+    std::string absolute_path = GetAbsolute(path);
+    if(!Exists(GetStem(absolute_path)))
+        { return Status::FileSystemINVALID_PATH; }
+    else if(FileSystem::Exists(path))
+        { PRINT_WARNING("FileSystem::try_WriteFileFromString - Attempting to overwrite file at '{}'!", path) }
+
+    std::ofstream file(absolute_path);
+    if(!file.is_open())
+        { return Status::FileSystemFAILED_TO_WRITE_FILE; }
+    file.write(data.data(), data.size());
+    file.close();
+    return Status::NO_ERR;
+}
+
 bool FileSystem::try_ReadFileToString(const std::string& string_path, std::string& output)
 {
     std::string file_path = "";
@@ -75,6 +91,13 @@ bool FileSystem::try_GetFileSize(const std::string& string_path, size_t& output)
     output = ftell(image_file); // This could overflow... too bad!
     fclose(image_file);
     return true;
+}
+
+std::string FileSystem::Directory(const std::string& string_path)
+{
+    if(string_path.empty() || string_path.ends_with('/'))
+        { return string_path; }
+    return string_path + "/";
 }
 
 bool FileSystem::Exists(const std::string& string_path)
