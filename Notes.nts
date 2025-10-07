@@ -572,3 +572,7 @@ Okay, time to finish up the demos system. I need to make demos store the Theatre
 Whew, I had gotten really sucked into the whole ID system and I made a huge re-write of IDs, Unique IDs, and Binding IDs.
 
 All right, finished up the ID re-write and also fiddled with the Theatre data printout a bit.
+
+I finished up by updating the demo system. It now takes Theatre data and isn't lagging like it was before, but it doesn't actually load/reset the Theatre yet.
+
+Not gonna write it yet, but I need to store the TheatreData either in the demo file or (preferably) in an external Theatre file (or, store the file path to an existing one if one exists).
