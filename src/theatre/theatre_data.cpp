@@ -32,7 +32,7 @@ void TheatreData::UpdateReferences(const std::map<std::string, std::string>& ids
     {
         for(ThingVar& variable : data.variables)
         {
-            if(variable.type != ThingVar::eReference)
+            if(variable.type != ThingVar::eReferenceT || variable.type != ThingVar::eReferenceE)
                 { continue; }
             if(ids.contains(variable.value))
                 { variable.value = ids.at(variable.value); }
@@ -84,6 +84,27 @@ SafeStatus TheatreData::AddData(const ThingData& data)
         { return Status::TheatreDataINVALID_TYPE; }
     data_.push_back(data);
     return Status::NO_ERR;
+}
+
+std::string TheatreData::formatted() const
+{
+    std::string resources("");
+    std::string things("");
+
+    for(const auto& thing_data : data_)
+    {
+        if(ThingFactory::IsResource(thing_data.uid) && !thing_data.variables.empty())
+            { resources += std::format("\t{} {} = {}", ThingFactory::GetTypeName(thing_data.uid), name, thing_data.variables.at(0).formatted_value()); }
+        else
+        {
+            things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.uid), name);
+            for(const auto& variable : thing_data.variables)
+                { things += std::format("\t\t{}\n", variable.formatted()); }
+            things += std::format("\t}}\n");
+        }
+    }
+
+    return std::format("@{}#{}\n\nResources\n{{\n{}}}\n\nThings\n{{\n{}}}\n", name, index, resources, things);
 }
 
 void TheatreData::clear()

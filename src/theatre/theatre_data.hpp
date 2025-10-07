@@ -23,6 +23,7 @@ struct TheatreData
 
     SafeStatus AddData(const ThingData& Data);
 
+    std::string formatted() const;
     ID id() const;
     void clear();
     void debug_PrintData();

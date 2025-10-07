@@ -18,7 +18,7 @@ ThingData::ThingData(const std::string& name, const std::string& type_name)
 : name(name), type_(ConstexprHash(type_name))
 {
     if(!ThingFactory::IsThing(type_))
-        { PRINT_ERROR("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, id, type_) }
+        { PRINT_ERROR("ThingData::ThingData({}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, type_) }
 }
 
 ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vector<ThingVar>& variables)
@@ -87,7 +87,7 @@ else if(LOCAL_VAR->type != VAR_TYPE) \
 
 bool ThingData::GetReference(ID& output, const std::string& variable_name) const
 {
-    ASSERT_VARIABLE(variable, variable_name, ThingVar::eReference);
+    ASSERT_VARIABLE(variable, variable_name, ThingVar::eReferenceT && variable->type != ThingVar::eReferenceE);
     unsigned int id = output;
     if(StringToNum<unsigned int>(id, variable->value))
         { output = id; return true; }

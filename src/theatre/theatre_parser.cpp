@@ -278,8 +278,10 @@ SafeStatus TheatreParser::try_ParseTheatre(TheatreData& output)
             continue;
         }
         case enter_reference:
+            variable_type = ThingVar::eReferenceT;
+            continue;
         case enter_engine_ref:
-            variable_type = ThingVar::eReference;
+            variable_type = ThingVar::eReferenceE;
             continue;
         case enter_numeric:
             variable_type = ThingVar::eNumber;
