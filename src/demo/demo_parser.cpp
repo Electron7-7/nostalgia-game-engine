@@ -1,178 +1,143 @@
 #include "demo_parser.hpp"
-#include "debug.hpp"
 #include "printing.hpp"
-#include "filesystem/filesystem.hpp"
+#include "truncate_string.hpp"
 #include "string_to_num.hpp"
+#include "filesystem/filesystem.hpp"
+#include "managers/input_manager.hpp"
 
 #include <sstream>
-#include <fstream>
 
-bool DemoParser::LoadDemoFromFile(const std::string& demo_file_path)
+DemoParser::DemoParser(const std::string& path, Demo& output)
 {
-    if(!Filesystem::IsFile(demo_file_path))
+    if(FileSystem::IsFile(path))
+        { m_DemoSuccessfullyLoaded = LoadDemoFromFile(path, output); }
+    else
+        { m_DemoSuccessfullyLoaded = LoadDemoFromMemory(path, output); }
+}
+
+bool DemoParser::LoadDemoFromFile(const std::string& path, Demo& output)
+{
+    std::string file_data("");
+    if(!FileSystem::try_ReadFileToString(path, file_data))
     {
-        PRINT_ERROR("DemoParser::LoadDemoFromFile - demo doesn't exist at path: '{}'", demo_file_path)
+        PRINT_WARNING("DemoParser::LoadDemoFromFile - Failed to load demo file '{}'\n", gTruncateString(path));
         return false;
     }
-
-    std::ifstream demo_file(demo_file_path);
-    std::string line;
-    bool at_least_one_line_was_parsed = false;
-    if(demo_file.is_open())
-    {
-        while(std::getline(demo_file,line))
-        {
-            if(ParseLine(line))
-                { at_least_one_line_was_parsed = true; }
-            else
-                { PRINT_WARNING("DemoParser::LoadDemoFromFile - a line failed to parse: '{}'", line) }
-        }
-        demo_file.close();
-        return at_least_one_line_was_parsed;
-    }
-
-    PRINT_ERROR("DemoParser::LoadDemoFromFile - unable to open file at path: '{}'", demo_file_path)
-    return false;
+    return LoadDemoFromMemory(file_data, output);
 }
 
-bool DemoParser::LoadDemoFromMemory(const std::string& demo_file_data)
+bool DemoParser::LoadDemoFromMemory(const std::string& data, Demo& output)
 {
-    std::istringstream demo_data(demo_file_data);
+    std::istringstream demo_data(data);
+    std::vector<InputEvent> event_queue;
+    bool l_AtLeastOneLineParsed = false;
     std::string line;
-    bool at_least_one_line_was_parsed = false;
     while(std::getline(demo_data, line))
     {
-        if(ParseLine(line))
-            { at_least_one_line_was_parsed = true; }
+        if(ParseLine(line, event_queue, output))
+            { l_AtLeastOneLineParsed = true; }
         else
-            { PRINT_WARNING("A line failed to parse - \"{}\"", line) }
+            { PRINT_WARNING("DemoParser::ParseLine - Failed to parse this line: '{}'", line) }
     }
-    return at_least_one_line_was_parsed;
+    if(!l_AtLeastOneLineParsed)
+        { PRINT_WARNING("DemoParser::LoadDemoFromMemory - Failed to parse demo file data") }
+    return l_AtLeastOneLineParsed;
 }
 
-std::vector<InputEvent> DemoParser::GetEventQueue()
-{ return m_EventQueue; }
-
-bool DemoParser::ParseLine(const std::string& line)
+static void sAdvanceCharacter(char& character, size_t& iterator, const std::string& line)
 {
-    std::string l_Tick;
-    std::string l_CreationTime;
-    bool l_ParsedFirstParens = false;
-    std::string l_BindingID;
-    std::string l_BindingStatus;
-    std::string l_BindingJustPressed;
-    std::vector<std::string> l_Actions;
-    bool l_IsMouseMotion = false;
-    std::string l_CurrentMouse;
-    std::string l_LastMouse;
+    if(++iterator >= line.size())
+        { iterator = 0; }
+    character = line.at(iterator);
+}
+
+bool DemoParser::ParseLine(const std::string& line, std::vector<InputEvent>& queue, Demo& demo)
+{
+    if(line.starts_with('<'))
+    {
+        demo.push_back(queue);
+        queue.clear();
+        return true;
+    }
+
+    std::string id_buffer;
+    std::string status_buffer;
+    std::string just_changed_buffer;
+    std::string curr_mouse_buffer;
+    std::string last_mouse_buffer;
+    bool is_mouse_motion = false;
 
     for(size_t i = 0 ; i < line.length() ; ++i)
     {
         char character = line.at(i);
         if(character == '[')
         {
-            character = line.at(++i);
+            sAdvanceCharacter(character, i, line);
             while(character != ']')
             {
                 while(character != ':')
                 {
-                    if(character != ' ')
-                        { l_Tick.append(1, character); }
-                    character = line.at(++i);
+                    id_buffer.append(1, character);
+                    sAdvanceCharacter(character, i, line);
                 }
-                character = line.at(++i);
+                sAdvanceCharacter(character, i, line);
+                while(character != ':')
+                {
+                    status_buffer.append(1, character);
+                    sAdvanceCharacter(character, i, line);
+                }
+                sAdvanceCharacter(character, i, line);
                 while(character != ']')
                 {
-                    if(character != ' ')
-                        { l_CreationTime.append(1, character); }
-                    character = line.at(++i);
+                    just_changed_buffer.append(1, character);
+                    sAdvanceCharacter(character, i, line);
                 }
             }
             continue;
         }
-
-
         if(character == '(')
         {
-            character = line.at(++i);
-            if(!l_ParsedFirstParens)
+            sAdvanceCharacter(character, i, line);
+            while(character != ')')
             {
-                l_ParsedFirstParens = true;
-                while(character != ':')
-                {
-                    if(character != ' ')
-                        { l_BindingID.append(1, character); }
-                    character = line.at(++i);
-                }
-                character = line.at(++i);
-                while(character != ':')
-                {
-                    if(character != ' ')
-                        { l_BindingStatus.append(1, character); }
-                    character = line.at(++i);
-                }
-                character = line.at(++i);
-                while(character != ')')
-                {
-                    if(character != ' ')
-                        { l_BindingJustPressed.append(1, character); }
-                    character = line.at(++i);
-                }
+                if(!is_mouse_motion)
+                    { curr_mouse_buffer.append(1, character); }
+                else
+                    { last_mouse_buffer.append(1, character); }
+                sAdvanceCharacter(character, i, line);
             }
-            else if(l_ParsedFirstParens && !l_IsMouseMotion)
-            {
-                l_IsMouseMotion = true;
-                while(character != ')')
-                {
-                    if(character != ' ')
-                        { l_CurrentMouse.append(1, character); }
-                    character = line.at(++i);
-                }
-            }
-            else if(l_ParsedFirstParens && l_IsMouseMotion)
-            {
-                while(character != ')')
-                {
-                    if(character != ' ')
-                        { l_LastMouse.append(1, character); }
-                    character = line.at(++i);
-                }
-            }
-            continue;
-        }
-
-        if(character == '<')
-        {
-            character = line.at(++i);
-            while(character != '>')
-            {
-                std::string l_Action = "";
-                while((character != ',' || character != '>') && i < line.size() - 1)
-                {
-                    if(character != ' ')
-                        { l_Action.append(1, character); }
-                    character = line.at(++i);
-                }
-                l_Actions.push_back(l_Action);
-            }
-            continue;
+            is_mouse_motion = (curr_mouse_buffer.size() > 1);
         }
     }
 
-    PRINT_DEBUG("l_Tick: '{}', l_CreationTime: '{}'", l_Tick, l_CreationTime)
-    PRINT_DEBUG("l_BindingID: '{}', l_BindingStatus: '{}', l_BindingJustPressed: '{}', l_CurrentMouse: '{}', l_LastMouse: '{}',", l_BindingID, l_BindingStatus, l_BindingJustPressed, l_CurrentMouse, l_LastMouse)
+    if(!is_mouse_motion)
+    {
+        curr_mouse_buffer.clear();
+        last_mouse_buffer.clear();
+    }
+
+    id_t id;
+    int status;
+    int just_changed;
+    glm::vec2 curr_mouse{0.0f, 0.0f};
+    glm::vec2 last_mouse{0.0f, 0.0f};
+
+    if(!StringToNum(id, id_buffer) ||
+        !StringToNum(status, status_buffer) ||
+        !StringToNum(just_changed, just_changed_buffer))
+    { return false; }
+    else if(is_mouse_motion &&
+        (!StringToNum(curr_mouse, curr_mouse_buffer) ||
+            !StringToNum(last_mouse, last_mouse_buffer)))
+    { return false; }
 
     InputEvent new_event;
-    unsigned int l_Status;
-    if(!StringToNum(new_event.m_Tick, l_Tick)) { return false; }
-    if(!StringToNum(new_event.m_Time, l_CreationTime)) { return false; }
-    if(!StringToNum(new_event.m_Binding.m_ID, l_BindingID)) { return false; }
-    if(!StringToNum(l_Status, l_BindingStatus)) { return false; }
-    if(!StringToNum(new_event.m_Binding.JustChanged, l_BindingJustPressed)) { return false; }
-    if(!StringToNum(new_event.m_CurrentMousePosition, l_CurrentMouse)) { return false; }
-    if(!StringToNum(new_event.m_LastMousePosition, l_LastMouse)) { return false; }
-    new_event.m_Binding.Status = static_cast<InputStatus>(l_Status);
-    m_EventQueue.push_back(new_event);
+    new_event.mBinding = InputManager::m_sGetBinding(id);
+    new_event.mBinding.status = static_cast<InputStatus>(status);
+    new_event.mBinding.just_changed = static_cast<bool>(just_changed);
+    new_event.mActions = InputManager::GetActions(id);
+    new_event.mCurMousePos = curr_mouse;
+    new_event.mLastMousePos = last_mouse;
+    queue.push_back(new_event);
     return true;
 }
-

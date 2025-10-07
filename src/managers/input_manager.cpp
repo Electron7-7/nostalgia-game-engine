@@ -2,21 +2,28 @@
 #include "backend_manager.hpp"
 #include "theatre_manager.hpp"
 #include "input/event_queue.hpp"
+#include "demo/demo_parser.hpp"
+#include "debug.hpp"
 
 #include <thread>
 
 using namespace ManagerEnums;
 
-static InputManager s_InputManager;
-InputManager* g_pInputManager = &s_InputManager;
-
 std::vector<InputBinding> InputManager::s_Bindings = {};
 InputEventCallbackFunction InputManager::m_sInputEventCallback = nullptr;
-glm::vec2 InputManager::m_sCurrentMousePosition = {0.0f, 0.0f};
-glm::vec2 InputManager::m_sLastMousePosition = {0.0f, 0.0f};
+glm::vec2 InputManager::m_sMousePosition = {0.0f, 0.0f};
+bool InputManager::m_sRecordingDemo = false;
+bool InputManager::m_sPlayingDemo = false;
+bool InputManager::m_sProcessingQueue = false;
+Demo InputManager::m_sDemo;
+EventQueue InputManager::m_sInputEventQueue;
+EventQueue InputManager::m_sDemoEventQueue;
 
-static std::map<id_t, std::set<std::string>> l_sBindingActionsLookup = {};
-static std::set<std::string> l_sActions = {};
+static std::map<id_t, std::set<std::string>> sBindingActionsLookup = {};
+static std::set<std::string> sActions = {};
+
+static InputManager s_InputManager;
+InputManager* g_pInputManager = &s_InputManager;
 
 void InputManager::m_sHandleInputEvent(const InputEvent& event)
 {
@@ -31,46 +38,48 @@ bool InputManager::Init()
     for(const auto& [name, id] : BindingIDs::cBindingNames)
         { l_UniqueBindings.emplace(id); }
     s_Bindings.assign(l_UniqueBindings.begin(), l_UniqueBindings.end());
-    EventQueue::EnableEventQueue();
     return true;
 }
 
-void InputManager::Shutdown()
+void InputManager::Tick()
 {
-    EventQueue::EndProcessing();
-    EventQueue::StopRecordingDemo();
-    EventQueue::DisableEventQueue();
-}
+    if(m_sProcessingQueue)
+        { return; }
 
-void InputManager::Update()
-{
-    PollInputs();
-    SafeStatus process_status = EventQueue::try_BeginProcessing();
-    if(process_status != Status::NO_ERR && process_status != Status::EventQueueEMPTY)
+    EventQueue event_queue;
+
+    if(m_sPlayingDemo && !m_sDemo.GetNextQueue(event_queue))
+        { StopPlayingDemo(); }
+    if(!m_sPlayingDemo)
+        { mPollInputs(event_queue); }
+    if(!event_queue.BeginProcessing())
+        { return; }
+    if(m_sRecordingDemo)
+        { m_sDemo.push_back(event_queue); }
+
+    m_sProcessingQueue = true;
+    InputEvent temp_event;
+
+    while(event_queue.GetNextEvent(temp_event))
     {
-        PRINT_ERROR("InputManager::ProcessEvents - g_pEventSystem::BeginProcessing returned '{}'!\n", process_status.Printout())
-        return;
-    }
-    while(EventQueue::GetCurrentQueueSize() > 0)
-    {
-        auto next_event = EventQueue::GetNextEvent();
-        if(next_event.Status() != Status::NO_ERR)
-        {
-            PRINT_WARNING("InputManager::ProcessEvents - g_pEventSystem::GetNextEvent returned '{}'!", next_event.Status().Printout());
-            continue;
-        }
-        std::thread l_InputEventCallbackThread(m_sHandleInputEvent, next_event.Data());
-        TheatreManager::DelegateInputEvent(next_event.Data());
+        if(m_sPlayingDemo)
+            { PRINT_DEBUG("{}", temp_event.Log()) }
+        std::thread l_InputEventCallbackThread(m_sHandleInputEvent, temp_event);
+        TheatreManager::DelegateInputEvent(temp_event);
         l_InputEventCallbackThread.join();
     }
-    EventQueue::EndProcessing();
+
+    event_queue.EndProcessing();
+    m_sProcessingQueue = false;
 }
 
-void InputManager::PollInputs()
+void InputManager::mPollInputs(EventQueue& queue)
 {
-    m_sLastMousePosition = m_sCurrentMousePosition;
+    if(!queue.BeginQueueing())
+        { return; }
+    glm::vec2 last_mouse_position = m_sMousePosition;
     auto window = g_pBackendManager->Windowing();
-    window->GetMousePosition(m_sCurrentMousePosition);
+    window->GetMousePosition(m_sMousePosition);
     window->PollEvents();
     for(auto& binding : s_Bindings)
     {
@@ -81,11 +90,53 @@ void InputManager::PollInputs()
         else if(window->GetMotion(binding, m_sMousePosition - last_mouse_position))
             { queue.QueueEvent({binding, m_sMousePosition, last_mouse_position, sBindingActionsLookup[binding]}); }
     }
+    queue.EndQueueing();
 }
 
-const BindingIterator InputManager::QueryBinding(id_t id)
-{ return std::find(s_Bindings.cbegin(), s_Bindings.cend(), id); }
+bool InputManager::StartRecordingDemo(const std::string& name)
+{
+    if(m_sRecordingDemo)
+        { return true; }
+    else if(m_sPlayingDemo)
+    {
+        PRINT_WARNING("InputManager::StartRecordingDemo - Cannot start recording a demo while one is being played")
+        return false;
+    }
+    m_sDemo = Demo();
+    return m_sRecordingDemo = true;
+}
 
+bool InputManager::StopRecordingDemo()
+{
+    if(!m_sRecordingDemo)
+        { return true; }
+    m_sRecordingDemo = false;
+    return m_sDemo.WriteToFile();
+}
+
+bool InputManager::StartPlayingDemo(const std::string& path_or_data)
+{
+    if(m_sPlayingDemo)
+        { return false; }
+    m_sDemo.clear();
+    return m_sPlayingDemo = DemoParser(path_or_data, m_sDemo);
+}
+
+bool InputManager::StopPlayingDemo()
+{
+    if(!m_sPlayingDemo)
+        { return false; }
+    return !(m_sPlayingDemo = false);
+}
+
+InputBinding& InputManager::m_sGetBinding(ID id)
+{
+    static InputBinding l_sEmpty = InputBinding();
+    auto it = std::find(s_Bindings.begin(), s_Bindings.end(), id);
+    if(it != s_Bindings.end())
+        { return *it; }
+    return l_sEmpty;
+}
 
 bool InputManager::JustPressed(ID id)
 { return (Pressed(id) && m_sGetBinding(id).just_changed); }
@@ -125,6 +176,17 @@ bool InputManager::Inactive(const std::string& name)
 
 InputEventCallbackFunction InputManager::SetInputEventCallback(InputEventCallbackFunction callback)
 { return (m_sInputEventCallback = callback); }
+
+const std::set<std::string>& InputManager::GetActions(ID id)
+{
+    static std::set<std::string> l_sEmpty = {};
+    if(!sBindingActionsLookup.contains(id))
+        { return l_sEmpty; }
+    return sBindingActionsLookup.at(id);
+}
+
+const std::set<std::string>& InputManager::GetActions(const std::string& name)
+{ return GetActions(BindingIDs::GetID(name)); }
 
 bool InputManager::AddAction(const std::string& action)
 { return AddAction(action, ""); }
