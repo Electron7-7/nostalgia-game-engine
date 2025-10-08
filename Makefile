@@ -141,7 +141,7 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/settings                     \
     $(SRC)/types                        \
-    $(SRC)/theatre                      \
+    $(SRC)/theatre_parser               \
     $(SRC)/things                       \
     $(SRC)/things/actors                \
     $(SRC)/things/resources             \
