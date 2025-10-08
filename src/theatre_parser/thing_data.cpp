@@ -78,37 +78,49 @@ bool ThingData::set_type(ID type)
 void ThingData::clear()
 { *this = ThingData(); }
 
-#define ASSERT_VARIABLE(LOCAL_VAR, VAR_NAME, VAR_TYPE) \
-const auto& LOCAL_VAR = std::find(variables.begin(), variables.end(), VAR_NAME); \
-if(LOCAL_VAR == variables.end() || LOCAL_VAR->value.empty()) \
-    { return false; } \
-else if(LOCAL_VAR->type != VAR_TYPE) \
-    { return false; }
-
-bool ThingData::GetReference(ID& output, const std::string& variable_name) const
+bool ThingData::GetReference(ID& output, const std::string& name) const
 {
-    ASSERT_VARIABLE(variable, variable_name, ThingVar::eReferenceT && variable->type != ThingVar::eReferenceE);
-    unsigned int id = output;
-    if(StringToNum<unsigned int>(id, variable->value))
-        { output = id; return true; }
+    if(auto assert_var = AssertVariable(name, {ThingVar::eReferenceE, ThingVar::eReferenceT});
+        SafeStatus::Check(assert_var.Status()))
+    {
+        unsigned int id = output;
+        if(StringToNum<unsigned int>(id, assert_var.Data()->value))
+            { output = id; return true; }
+    }
     return false;
 }
 
-bool ThingData::GetBool(bool& real_variable, const std::string& variable_name) const
+bool ThingData::GetBool(bool& output, const std::string& name) const
 {
-    ASSERT_VARIABLE(variable, variable_name, ThingVar::eBool)
-    if(!variable->value.compare("true"))
-        { real_variable = true; return true; }
-    else if(!variable->value.compare("false"))
-        { real_variable = false; return true; }
+    if(auto assert_var = AssertVariable(name, {ThingVar::eBool});
+        SafeStatus::Check(assert_var.Status()))
+    {
+        if(!assert_var.Data()->value.compare("true"))
+            { return output = true; }
+        else if(!assert_var.Data()->value.compare("false"))
+            { return !(output = false); }
+    }
     return false;
 }
 
-bool ThingData::GetString(std::string& real_variable, const std::string& variable_name) const
+bool ThingData::GetString(std::string& output, const std::string& name) const
 {
-    ASSERT_VARIABLE(variable, variable_name, ThingVar::eString)
-    if(variable->value.empty())
+    auto assert_var = AssertVariable(name, {ThingVar::eString});
+    if(!SafeStatus::Check(assert_var.Status()))
         { return false; }
-    real_variable = variable->value;
+    output = assert_var.Data()->value;
     return true;
+}
+
+SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& name, const std::set<penum_t>& types) const
+{
+    auto iter = std::find(variables.cbegin(), variables.cend(), name);
+    auto status = Status::NO_ERR;
+    if(iter == variables.cend())
+        { status = Status::ThingDataINVALID_VARIABLE_NAME; }
+    else if(!types.contains(iter->type))
+        { status = Status::ThingDataINVALID_VARIABLE_TYPE; }
+    else if(iter->value.empty())
+        { status = Status::ThingDataVARIABLE_VALUE_EMPTY; }
+    return {iter, status};
 }

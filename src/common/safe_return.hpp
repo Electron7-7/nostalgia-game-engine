@@ -80,6 +80,9 @@ struct Status
     inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x15, "ResourceBAD_FILE_DATA"                  );
     inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x16, "FileDataDATA_IS_LOCKED"                 );
     inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x17, "EventQueueINVALID_EVENT"                );
+    inline static SafeStatus ThingDataINVALID_VARIABLE_NAME         = SafeStatus( 0x18, "ThingDataINVALID_VARIABLE_NAME"         );
+    inline static SafeStatus ThingDataINVALID_VARIABLE_TYPE         = SafeStatus( 0x19, "ThingDataINVALID_VARIABLE_TYPE"         );
+    inline static SafeStatus ThingDataVARIABLE_VALUE_EMPTY          = SafeStatus( 0x20, "ThingDataVARIABLE_VALUE_EMPTY"          );
 };
 
 template<typename T>

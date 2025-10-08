@@ -3,10 +3,11 @@
 
 #include "thing_variable.hpp"
 #include "string_to_num.hpp"
+#include "safe_return.hpp"
 #include "things/types.hpp"
 
 #include <vector>
-#include <algorithm>
+#include <set>
 #include <string>
 #include <format>
 
@@ -38,17 +39,18 @@ public:
     template<typename T>
     bool GetNumber(T& Output, const std::string& VarName) const
     {
-        const auto& variable = std::find(variables.begin(), variables.end(), VarName);
-        if(variable == variables.end() || variable->value.empty())
+        auto assert_var = AssertVariable(VarName, {ThingVar::eNumber});
+        if(!SafeStatus::Check(assert_var.Status()))
             { return false; }
-        else if(variable->type != ThingVar::eNumber)
-            { return false; }
-        StringToNum<T>(Output, variable->value);
+        StringToNum<T>(Output, assert_var.Data()->value);
         return true;
     }
 
 private:
     ID type_ = ThingType::Thing;
+
+    typedef std::vector<ThingVar>::const_iterator VarIter_t;
+    SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const std::set<penum_t>& OneOrMoreTypes) const;
 };
 
 template<>
