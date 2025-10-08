@@ -224,10 +224,7 @@ ManagerEnums::TheatreState_t _Manager::GetTheatreState()
 { return theatre_state; }
 
 void _Manager::StartNewTheatre()
-{
-    m_sTheatreShutdownRequested = true;
-    m_sTheatreStartRequested = true;
-}
+{ m_sTheatreShutdownRequested = m_sTheatreStartRequested = true; }
 
 void _Manager::ShutdownTheatre()
 { m_sTheatreShutdownRequested = true; }

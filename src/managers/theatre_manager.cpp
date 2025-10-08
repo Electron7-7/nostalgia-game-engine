@@ -142,7 +142,11 @@ void TheatreManager::LoadTheatreData(const TheatreData& data)
 bool TheatreManager::LoadTheatreFromMemory(const std::string& data)
 {
     if(!TheatreParser::ParseTheatreFileFromMemory(data, sCurrentTheatreData))
-        { return false; }
+    {
+        PRINT_WARNING("TheatreManager::LoadTheatreFromFile - unable to load Theatre")
+        DEBUG(std::println("{}Theatre File Data:{}\n{}", sty::Bold + fg::Cyan, sty::Reset, data);)
+        return false;
+    }
     sCurrentTheatrePath = "";
     _Manager::StartNewTheatre();
     return true;
@@ -151,7 +155,10 @@ bool TheatreManager::LoadTheatreFromMemory(const std::string& data)
 bool TheatreManager::LoadTheatreFromFile(const std::string& path)
 {
     if(!TheatreParser::ParseTheatreFile(path, sCurrentTheatreData))
-        { return false; }
+    {
+        PRINT_WARNING("TheatreManager::LoadTheatreFromFile - unable to load Theatre file '{}'", path)
+        return false;
+    }
     sCurrentTheatrePath = path;
     _Manager::StartNewTheatre();
     return true;
