@@ -92,7 +92,7 @@ enum class Parsing
 
 bool TheatreParser::ParseTheatreFile(const std::string& path, TheatreData& output)
 {
-    if(SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)) != Status::NO_ERR)
+    if(!SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)))
         { return false; }
     return ReadTheatre(output);
 }
@@ -333,7 +333,6 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             continue;
         case singleline_delimiter:
             location = Location::Object;
-            std::print("{}, {}\n", variable_name, variable_value);
             [[fallthrough]];
         case exit_context:
             buffer.clear();
@@ -394,5 +393,5 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
     DEBUG(theatre_data.debug_PrintData();)
     output = theatre_data;
     theatre_data.clear();
-    return false;
+    return true;
 }

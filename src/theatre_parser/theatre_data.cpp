@@ -99,7 +99,7 @@ std::string TheatreData::formatted() const
         {
             things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.uid), name);
             for(const auto& variable : thing_data.variables)
-                { things += std::format("\t\t{}\n", variable.formatted()); }
+                { things += std::format("\t\t{}\n", variable.formatted_value()); }
             things += std::format("\t}}\n");
         }
     }

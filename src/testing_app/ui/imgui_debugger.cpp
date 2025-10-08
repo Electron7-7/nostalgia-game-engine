@@ -4,7 +4,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
-#include "theatre_parser/theatre_parser.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
@@ -16,9 +16,9 @@
 
 #ifdef DEBUGGING
 #   include "time.hpp"
-#   include "managers/theatre_manager.hpp"
 #   include "things/thing_factory.hpp"
 #   include "rendering/backends/graphics/opengl.hpp"
+#   include "theatre_parser/theatre_parser.hpp"
 #   include "things/actors/light.hpp"
 #   include "things/devices/mesh_instance.hpp"
 #   include "things/devices/material.hpp"
@@ -209,8 +209,7 @@ void imgui_Debugger::Update()
                 if(Button("Load Theatre"))
                 {
                     s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-                    if(SafeStatus::PrintCheck(TheatreParser::try_LoadTheatreFromFile(s_TheatreFilePath)))
-                        { _Manager::StartNewTheatre(); }
+                    TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
                 }
                 if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
                     { EndDisabled(); }

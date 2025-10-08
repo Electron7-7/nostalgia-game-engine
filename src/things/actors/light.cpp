@@ -1,8 +1,10 @@
 #include "light.hpp"
 #include "debug.hpp"
-#include "managers/theatre_manager.hpp"
 #include "theatre_parser/thing_data.hpp"
-#include "theatre_parser/thing_variable.hpp"
+#ifdef DEBUGGING
+#   include "managers/theatre_manager.hpp"
+#   include "theatre_parser/thing_variable.hpp"
+#endif // DEBUGGING
 
 int light_t::sPointCount       = 0;
 int light_t::sSpotCount        = 0;
@@ -40,7 +42,7 @@ void light_t::SetupVariables(const ThingData& data)
             ThingType::Material,
             UniqueIDs::Generate(),
             {
-                ThingVar{"DiffuseTexture", std::to_string(UniqueIDs::Reserved::i_LightDebug), ThingVar::eReference},
+                ThingVar{"DiffuseTexture", std::to_string(UniqueIDs::Reserved::i_LightDebug), ThingVar::eReferenceT},
                 ThingVar{"FullBright", "true", ThingVar::eBool},
             }
         });
@@ -49,8 +51,8 @@ void light_t::SetupVariables(const ThingData& data)
             ThingType::MeshInstance,
             UniqueIDs::Generate(),
             {
-                ThingVar{"Mesh", std::to_string(UniqueIDs::Reserved::m_Cube), ThingVar::eReference},
-                ThingVar{"Material", std::to_string(mat_id), ThingVar::eReference}
+                ThingVar{"Mesh", std::to_string(UniqueIDs::Reserved::m_Cube), ThingVar::eReferenceT},
+                ThingVar{"Material", std::to_string(mat_id), ThingVar::eReferenceT}
             }
         });
     })
