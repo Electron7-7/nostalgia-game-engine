@@ -576,3 +576,6 @@ All right, finished up the ID re-write and also fiddled with the Theatre data pr
 I finished up by updating the demo system. It now takes Theatre data and isn't lagging like it was before, but it doesn't actually load/reset the Theatre yet.
 
 Not gonna write it yet, but I need to store the TheatreData either in the demo file or (preferably) in an external Theatre file (or, store the file path to an existing one if one exists).
+
+[10/08/25]
+On my home PC, I fixed some syntax errors and improved `ThingData` a little bit. There's still an issue with external meshes and textures not being processed, and Devices not being used. I think it's probably related to either the `ThingFactory`, `TheatreParser`, or something with the ID system.
