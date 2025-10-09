@@ -577,5 +577,38 @@ I finished up by updating the demo system. It now takes Theatre data and isn't l
 
 Not gonna write it yet, but I need to store the TheatreData either in the demo file or (preferably) in an external Theatre file (or, store the file path to an existing one if one exists).
 
+[10/07/25]
+All right, here's the plan: demos will have a TheatreData member and a FileData member. If the TheatreData member is full and the FileData member is empty, then the demo will save the TheatreData to a Theatre file (I'll need to build a reverse parser and/or rebuild the current parser). The top of the demo file will contain both the absolute and relative file path to the Theatre file; if the demo doesn't create the file, it's because the FileData member was full, instead.
+
+First, I'm gonna clean up the TheatreParser and its relationship with the TheatreManager.
+
+Okay, so I've cleaned up the parser, data types, and added some functions to FileSystem for writing to a file and making a directory path (i.e: appending '/' to a string if it needs it). Now, I need to replace the TheatreData in Demo with FileData. I also want to take these functions and variables out of Demo and put them into some "DemoController" class.
+
+Also, refer here: (https://www.reddit.com/r/cpp_questions/comments/oeq7sa/comment/n6yfdtt/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button)
+
 [10/08/25]
 On my home PC, I fixed some syntax errors and improved `ThingData` a little bit. There's still an issue with external meshes and textures not being processed, and Devices not being used. I think it's probably related to either the `ThingFactory`, `TheatreParser`, or something with the ID system.
+
+Found the problem, lmfao; I'm fairly certain it's that the TheatreParser isn't assigning IDs to Theatre reference variables. Honestly, that should be done by the TheatreManager, so no better time than now to change that. I'll fix this issue first to confirm that's what's wrong.
+
+Yup, once again I did a
+:::C++
+if(thing != thing || thing != thing)
+:::
+instead of
+:::C++
+if(thing != thing && thing != thing)
+:::
+
+lmfao.
+
+Huh, now only the Actors with cube meshes are showing and no Error meshes are showing. The other ones are just... gone?
+
+God damnit... it's the fucking parser; it's not parsing sandwiches and that fucks up the entire thing. It's because of me trying to get rid of the duplicate code.
+
+Yup, it works now. Aight, I still wanna try and condense that code before I move on to the ID assignment shit and then finally finishing the demo controller system and testing it.
+
+Fixed. Finally. On to the ID assignment.
+
+[10/09/25]
+I committed my code from last night, implemented the DemoController, refactored the printouts/debug system, and made some other various changes. All this at my house before work. Pretty happy, all things considered. Oh, and yes, demos load Theatres and play correctly (so far).
