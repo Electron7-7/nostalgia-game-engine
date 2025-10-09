@@ -613,6 +613,8 @@ Fixed. Finally. On to the ID assignment.
 [10/09/25]
 I committed my code from last night, implemented the DemoController, refactored the printouts/debug system, and made some other various changes. All this at my house before work. Pretty happy, all things considered. Oh, and yes, demos load Theatres and play correctly (so far).
 
-Note: demos need to not reset the player if recorded in the middle of playing.
+Okay, there's a few small issues; firstly, playing back a demo causes a crash at the very end (most likely due to an access violation in the demo vector) and secondly, playing back a demo will *always* load a Theatre and reset the player. There might also be input dropping/off-by-one errors but those aren't as important to fix. The biggest issue is the Theatre loading and player setting because it kind of bleeds into save states. I'm not gonna bother with building a save/load system yet; instead, I'll either use `ThingData`, `TheatreData`, or a new custom struct to save the player's information.
 
-Note: Possible off by one errors with binding IDs and playing back demos.
+Here's an idea: maybe save the current Theatre state as a `TheatreData` object, diff it with the original Theatre's `TheatreData`, and then save the difference to the demo file?
+
+Oh, also, re-sizing the window in Wayland doesn't correctly re-size the viewport.
