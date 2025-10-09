@@ -8,22 +8,19 @@
 class EventQueue
 {
 public:
-    bool BeginQueueing();
-    bool BeginProcessing();
-    bool EndQueueing();
-    bool EndProcessing();
+    EventQueue();
+    EventQueue(const std::vector<InputEvent>&);
 
     bool QueueEvent(const InputEvent& Event);
     bool GetNextEvent(InputEvent& Output);
-    bool ReplaceQueue(const std::vector<InputEvent>& Queue);
+    void ReplaceQueue(const std::vector<InputEvent>& Queue);
 
     void PrintQueueLog();
 
+    bool empty() const;
+
 private:
     std::vector<InputEvent> mQueue = {};
-    bool mReplacingQueue   = false;
-    bool mProcessingEvents = false;
-    bool mQueueingEvents   = false;
 };
 
 #endif // EVENT_QUEUE_H

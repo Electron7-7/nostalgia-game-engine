@@ -4,6 +4,11 @@
 #include <format>
 #include <print>
 
+EventQueue::EventQueue() = default;
+EventQueue::EventQueue(const std::vector<InputEvent>& queue):
+    mQueue{queue}
+{}
+
 void EventQueue::PrintQueueLog()
 {
     std::print("{}--- Start InputEvent Queue Log ---{}\n", Style::Bold + Foreground::Blue, Style::Reset);
@@ -12,47 +17,12 @@ void EventQueue::PrintQueueLog()
     std::print("{}--- Stop InputEvent Queue Log ---{}\n", Style::Bold + Foreground::Blue, Style::Reset);
 }
 
-bool EventQueue::ReplaceQueue(const std::vector<InputEvent>& new_queue)
-{
-    if(mQueueingEvents || mReplacingQueue)
-        { return false; }
-    mReplacingQueue = true;
-    mQueue = new_queue;
-    return !(mReplacingQueue = false);
-}
-
-bool EventQueue::BeginQueueing()
-{
-    if(mReplacingQueue || mQueueingEvents || mProcessingEvents)
-        { return false; }
-    mQueue.clear();
-    return mQueueingEvents = true;
-}
-
-bool EventQueue::BeginProcessing()
-{
-    if(mProcessingEvents || mReplacingQueue || mQueueingEvents)
-        { return false; }
-    return mProcessingEvents = true;
-}
-
-bool EventQueue::EndQueueing()
-{
-    if(!mQueueingEvents)
-        { return false; }
-    return !(mQueueingEvents = false);
-}
-
-bool EventQueue::EndProcessing()
-{
-    if(!mProcessingEvents)
-        { return false; }
-    return !(mProcessingEvents = false);
-}
+void EventQueue::ReplaceQueue(const std::vector<InputEvent>& new_queue)
+{ mQueue = new_queue; }
 
 bool EventQueue::QueueEvent(const InputEvent& event)
 {
-    if(!event.Valid() || mReplacingQueue || !mQueueingEvents)
+    if(!event.Valid())
         { return false; }
     mQueue.push_back(event);
     return true;
@@ -60,9 +30,12 @@ bool EventQueue::QueueEvent(const InputEvent& event)
 
 bool EventQueue::GetNextEvent(InputEvent& output)
 {
-    if(!mProcessingEvents || mQueue.empty())
+    if(mQueue.empty())
         { return false; }
-    output = InputEvent(mQueue.back());
+    output = InputEvent{mQueue.back()};
     mQueue.pop_back();
     return true;
 }
+
+bool EventQueue::empty() const
+{ return mQueue.empty(); }

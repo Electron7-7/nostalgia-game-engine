@@ -43,7 +43,7 @@ public:
 private:
     friend class InputManager;
     friend class EventQueue;
-    friend class DemoParser;
+    friend class DemoController;
 
     double mTime = Time::Elapsed();
     long   mTick = _Manager::TickNumber();

@@ -4,7 +4,6 @@
 #include "input/fwd.hpp"
 
 #include "manager.hpp"
-#include "demo/demo.hpp"
 #include "safe_return.hpp"
 
 #include <glm/vec2.hpp>
@@ -18,11 +17,6 @@ class InputManager : public Manager
 public:
     bool Init();
     void Tick();
-
-    static bool StartRecordingDemo(const std::string& DemoName = "");
-    static bool StopRecordingDemo();
-    static bool StartPlayingDemo(const std::string& FilePath_Or_DemoData);
-    static bool StopPlayingDemo();
 
     static bool Pressed(ID InputID);
     static bool Released(ID InputID);
@@ -54,22 +48,16 @@ public:
     static bool ClearActions(ID InputID);
 
 private:
-    static Demo m_sDemo;
-
     static std::vector<InputBinding> s_Bindings;
     static InputEventCallbackFunction m_sInputEventCallback;
     static glm::vec2 m_sMousePosition;
     static EventQueue m_sInputEventQueue;
     static EventQueue m_sDemoEventQueue;
 
-    static bool m_sRecordingDemo;
-    static bool m_sPlayingDemo;
-    static bool m_sProcessingQueue;
-
     static void m_sHandleInputEvent(const InputEvent&);
     void mPollInputs(EventQueue&);
 
-    friend class DemoParser;
+    friend class DemoController;
     static InputBinding& m_sGetBinding(ID);
 };
 

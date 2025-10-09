@@ -83,6 +83,8 @@ struct Status
     inline static SafeStatus ThingDataINVALID_VARIABLE_NAME         = SafeStatus( 0x18, "ThingDataINVALID_VARIABLE_NAME"         );
     inline static SafeStatus ThingDataINVALID_VARIABLE_TYPE         = SafeStatus( 0x19, "ThingDataINVALID_VARIABLE_TYPE"         );
     inline static SafeStatus ThingDataVARIABLE_VALUE_EMPTY          = SafeStatus( 0x20, "ThingDataVARIABLE_VALUE_EMPTY"          );
+    inline static SafeStatus DemoControllerLINE_FAILED              = SafeStatus( 0x21, "DemoControllerLINE_FAILED"              );
+    inline static SafeStatus DemoControllerLINE_PARSED              = SafeStatus( 0x22, "DemoControllerLINE_PARSED"              );
 };
 
 template<typename T>

@@ -2,8 +2,8 @@
 #include "backend_manager.hpp"
 #include "theatre_manager.hpp"
 #include "input/event_queue.hpp"
-#include "demo/demo_parser.hpp"
 #include "debug.hpp"
+#include "demo/demo_controller.hpp"
 
 #include <thread>
 
@@ -12,10 +12,6 @@ using namespace ManagerEnums;
 std::vector<InputBinding> InputManager::s_Bindings = {};
 InputEventCallbackFunction InputManager::m_sInputEventCallback = nullptr;
 glm::vec2 InputManager::m_sMousePosition = {0.0f, 0.0f};
-bool InputManager::m_sRecordingDemo = false;
-bool InputManager::m_sPlayingDemo = false;
-bool InputManager::m_sProcessingQueue = false;
-Demo InputManager::m_sDemo;
 EventQueue InputManager::m_sInputEventQueue;
 EventQueue InputManager::m_sDemoEventQueue;
 
@@ -43,40 +39,20 @@ bool InputManager::Init()
 
 void InputManager::Tick()
 {
-    if(m_sProcessingQueue)
-        { return; }
-
     EventQueue event_queue;
-
-    if(m_sPlayingDemo && !m_sDemo.GetNextQueue(event_queue))
-        { StopPlayingDemo(); }
-    if(!m_sPlayingDemo)
-        { mPollInputs(event_queue); }
-    if(!event_queue.BeginProcessing())
-        { return; }
-    if(m_sRecordingDemo)
-        { m_sDemo.push_back(event_queue); }
-
-    m_sProcessingQueue = true;
+    mPollInputs(event_queue);
+    g_pDemoController->ProcessQueue(event_queue);
     InputEvent temp_event;
-
     while(event_queue.GetNextEvent(temp_event))
     {
-        if(m_sPlayingDemo)
-            { PRINT_DEBUG("{}", temp_event.Log()) }
         std::thread l_InputEventCallbackThread(m_sHandleInputEvent, temp_event);
         TheatreManager::DelegateInputEvent(temp_event);
         l_InputEventCallbackThread.join();
     }
-
-    event_queue.EndProcessing();
-    m_sProcessingQueue = false;
 }
 
 void InputManager::mPollInputs(EventQueue& queue)
 {
-    if(!queue.BeginQueueing())
-        { return; }
     glm::vec2 last_mouse_position = m_sMousePosition;
     auto window = g_pBackendManager->Windowing();
     window->GetMousePosition(m_sMousePosition);
@@ -90,45 +66,6 @@ void InputManager::mPollInputs(EventQueue& queue)
         else if(window->GetMotion(binding, m_sMousePosition - last_mouse_position))
             { queue.QueueEvent({binding, m_sMousePosition, last_mouse_position, sBindingActionsLookup[binding]}); }
     }
-    queue.EndQueueing();
-}
-
-bool InputManager::StartRecordingDemo(const std::string& name)
-{
-    if(m_sRecordingDemo)
-        { return true; }
-    else if(m_sPlayingDemo)
-    {
-        PRINT_WARNING("InputManager::StartRecordingDemo - Cannot start recording a demo while one is being played")
-        return false;
-    }
-    m_sDemo = Demo(TheatreManager::GetCurrentTheatreData(), name);
-    return m_sRecordingDemo = true;
-}
-
-bool InputManager::StopRecordingDemo()
-{
-    if(!m_sRecordingDemo)
-        { return true; }
-    m_sRecordingDemo = false;
-    return m_sDemo.WriteToFile();
-}
-
-bool InputManager::StartPlayingDemo(const std::string& path_or_data)
-{
-    if(m_sPlayingDemo)
-        { return false; }
-    m_sDemo.clear();
-    if(!DemoParser(path_or_data, m_sDemo))
-        { return false; }
-    return (m_sPlayingDemo = m_sDemo.Play());
-}
-
-bool InputManager::StopPlayingDemo()
-{
-    if(!m_sPlayingDemo)
-        { return false; }
-    return !(m_sPlayingDemo = false);
 }
 
 InputBinding& InputManager::m_sGetBinding(ID id)

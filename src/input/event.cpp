@@ -86,7 +86,7 @@ InputEventType InputEvent::Type() const
 }
 
 bool InputEvent::IsMouseMotion() const
-{ return (mBinding >= BindingIDs::MouseMotionFront && mBinding <= BindingIDs::MouseMotionEnd); }
+{ return (mBinding >= BindingIDs::MouseMotionFront && mBinding < BindingIDs::MouseMotionEnd); }
 
 bool InputEvent::IsType(InputEventType EventType) const
 { return (Type() == EventType); }
@@ -120,12 +120,20 @@ std::string InputEvent::Log() const
 
 std::string InputEvent::DemoString() const
 {
-    return std::format("[{}:{}:{}] ({:0.3f},{:0.3f}) ({:0.3f},{:0.3f})",
-        static_cast<id_t>(mBinding),
-        static_cast<int>(mBinding.status),
-        static_cast<int>(mBinding.just_changed),
-        mCurMousePos.x,
-        mCurMousePos.y,
-        mLastMousePos.x,
-        mLastMousePos.y);
+    std::string output{
+        std::format("<{}:{}:{}>",
+            static_cast<id_t>(mBinding),
+            static_cast<int>(mBinding.status),
+            static_cast<int>(mBinding.just_changed)
+        )
+    };
+    if(IsMouseMotion())
+    {
+        output += std::format(" ({:0.3f},{:0.3f}) ({:0.3f},{:0.3f})",
+            mCurMousePos.x,
+            mCurMousePos.y,
+            mLastMousePos.x,
+            mLastMousePos.y);
+    }
+    return output;
 }
