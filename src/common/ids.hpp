@@ -1,22 +1,24 @@
 #ifndef IDS_H
 #define IDS_H
 
+#include "embedded/names.hpp"
 #include "frozen/map.h"
 
 #include <string>
 #include <format>
+#include <map>
 
 typedef unsigned int id_t;
 
 struct ID
 {
 public:
-    constexpr ID(const id_t& id): id_(id) {}
+    constexpr ID(const id_t& id = None): id_(id) {}
 
     constexpr operator const id_t&() const
     { return id_; }
 
-    static constexpr id_t None    = static_cast<unsigned int>(-2);    // Same as `UINT_MAX - 1`
+    static constexpr id_t None    = static_cast<unsigned int>(-2); // Same as `UINT_MAX - 1`
     static constexpr id_t Invalid = static_cast<unsigned int>(-1); // Same as `UINT_MAX`
     static constexpr id_t front   = 0;
     static constexpr id_t back    = None - 1;
@@ -62,6 +64,21 @@ struct UniqueIDs
         // Boundaries
         static constexpr ID front = Player;
         static constexpr ID back  = f_Audiowide;
+
+        inline static const std::map<std::string, id_t>
+        ResourceNameToUIDMap =
+        {
+            { Images::Name::Missing,    i_Missing    },
+            { Images::Name::LightDebug, i_LightDebug },
+            { Images::Name::COMP04_5,   i_COMP04_5   },
+            { Images::Name::LolBit,     i_LolBit     },
+            { Models::Name::Error,      m_Error      },
+            { Models::Name::Cube,       m_Cube       },
+            { Models::Name::Ramiel,     m_Ramiel     },
+            { Fonts::Name::Audiowide,   f_Audiowide  },
+            { Fonts::Name::DejaVuSans,  f_DejaVuSans },
+            { Fonts::Name::Verdana,     f_Verdana    },
+        };
     };
 
     // Boundaries

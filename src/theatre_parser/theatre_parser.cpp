@@ -103,20 +103,19 @@ bool TheatreParser::ParseTheatreFileFromMemory(const FileData& data, TheatreData
     return ReadTheatre(output);
 }
 
-bool TheatreParser::WriteTheatre(const TheatreData& data, const std::string& path)
+SafeReturn<std::string> TheatreParser::WriteTheatre(const TheatreData& data, const std::string& file_path)
 {
-    return FileSystem::try_WriteFileFromString(path,data.formatted());
+    std::string final_path = (FileSystem::HasStem(file_path)) ? file_path : FileSystem::Directory(file_path) + data.name;
+    return SafeReturn(final_path, FileSystem::try_WriteFileFromString(final_path, data.formatted()));
 }
 
 bool TheatreParser::ReadTheatre(TheatreData& output)
 {
 #   pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
-    UniqueIDs::Clear();
-    std::map<std::string, std::string> name_id_map = {};
 
-    TheatreData theatre_data;
-    ThingData   temp_data;
-    ThingData   temp_data_swap;
+    ThingData temp_data;
+    ThingData temp_data_swap;
+    output.clear();
 
     COLUMN = 1;
     LINE   = 1;
@@ -133,7 +132,6 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
     bool inside_string    = false;
     bool invalid_context  = false;
     bool set_new_line     = false;
-    bool has_player_actor = false;
 
     std::string theatre_name  = "";
     std::string theatre_index = "";
@@ -313,7 +311,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             continue;
         case newline:
             set_new_line = true;
-            inside_comment  = false;
+            inside_comment = false;
             if(location == Location::TopLevel)
             {
                 if(defining == Defining::Name)
@@ -356,42 +354,27 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                 defining = Defining::Variable;
                 location = Location::Object;
                 parsing  = Parsing::VariableName;
-            }
 
-            if(temp_data.type() == ThingType::NostalgiaPlayer)
-                { has_player_actor = true; temp_data.uid = UniqueIDs::Reserved::Player; }
-            else
-                { temp_data.uid = UniqueIDs::Generate(); }
-            theatre_data.AddData(temp_data);
-            name_id_map[temp_data.name] = std::to_string(temp_data.uid);
+                output.AddData(temp_data);
 
-            if(location == Location::Sandwich)
-            {
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
                 temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReferenceT);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
+                continue;
             }
 
+            output.AddData(temp_data);
             temp_data.clear();
             variable_name.clear();
             variable_value.clear();
             continue;
         }
-
         buffer += character;
     }
-
-    if(!has_player_actor)
-        { theatre_data.AddData(ThingData::PlayerDefaults); }
-
-    theatre_data.UpdateReferences(name_id_map);
-    theatre_data.OrderByPriority();
-
-    DEBUG(theatre_data.debug_PrintData();)
-    output = theatre_data;
-    theatre_data.clear();
+    output.name = theatre_name;
+    StringToNum(output.index, theatre_index);
     return true;
 }

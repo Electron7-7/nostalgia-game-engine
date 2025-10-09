@@ -4,13 +4,14 @@
 #include "filesystem/fwd.hpp"
 
 #include "theatre_data.hpp"
+#include "safe_return.hpp"
 
 struct TheatreParser
 {
 public:
     static bool ParseTheatreFile(const std::string& FilePath, TheatreData& Output);
     static bool ParseTheatreFileFromMemory(const FileData& FileData, TheatreData& Output);
-    static bool WriteTheatre(const TheatreData& TheatreData, const std::string& FilePath);
+    static SafeReturn<std::string> WriteTheatre(const TheatreData& TheatreData, const std::string& OutputPath);
 
 private:
     static FileData m_sTheatreFile;

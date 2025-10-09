@@ -3,6 +3,7 @@
 
 #include "penum_t.hpp"
 #include "colors.hpp"
+#include "ids.hpp"
 
 #include <string>
 #include <format>
@@ -12,6 +13,7 @@ struct ThingVar
     std::string name{"Untitled ThingVar"};
     std::string value{""};
     penum_t     type{eNothing};
+    ID reference_id{ID::None};
 
     static constexpr penum_t eNothing    { 0, "Nothing"   };
     static constexpr penum_t eReferenceT { 1, "TheatreReference" };
@@ -42,9 +44,9 @@ struct ThingVar
     std::string log(bool colored = false) const
     {
         if(colored)
-            { return std::format("{2}({5}){0} {1}{3}{0} == {4}", sty::Reset, sty::Bold + fg::Green, sty::Bold + fg::Yellow, name, value, type); }
+            { return std::format("{2}({5}){0} {1}{3}{0} == {4}", sty::Reset, sty::Bold + fg::Green, sty::Bold + fg::Yellow, name, formatted_value(), type); }
         else
-            { return std::format("({2}) {0} == {1}", name, value, type); }
+            { return std::format("({2}) {0} == {1}", name, formatted_value(), type); }
     }
 
     constexpr bool operator==(const std::string& VarName) const

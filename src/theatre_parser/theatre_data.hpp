@@ -6,20 +6,16 @@
 #include "ids.hpp"
 #include "thing_data.hpp"
 #include "safe_return.hpp"
-#include "frozen/string.h"
-
-#include <map>
 
 struct TheatreData
 {
     static const TheatreData Missing;
 
-    frozen::string name = "TheatreData";
+    std::vector<ThingData> things_data{};
+    std::string name{"UntitledTheatre"};
     int index = -1;
 
-    const std::vector<ThingData>& GetData() const;
-    void UpdateReferences(const std::map<std::string, std::string>& NameIDMap);
-    void OrderByPriority();
+    void SetupUIDsAndPriorities();
 
     SafeStatus AddData(const ThingData& Data);
 
@@ -32,7 +28,6 @@ struct TheatreData
     { return (id_ == Other.id_); }
 
 private:
-    std::vector<ThingData> data_ = {};
     ID id_ = ID::None;
 };
 

@@ -82,11 +82,7 @@ bool ThingData::GetReference(ID& output, const std::string& name) const
 {
     if(auto assert_var = AssertVariable(name, {ThingVar::eReferenceE, ThingVar::eReferenceT});
         SafeStatus::Check(assert_var.Status()))
-    {
-        unsigned int id = output;
-        if(StringToNum<unsigned int>(id, assert_var.Data()->value))
-            { output = id; return true; }
-    }
+        { output = assert_var.Data()->reference_id; return true; }
     return false;
 }
 

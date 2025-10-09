@@ -4,12 +4,11 @@
 #include <random>
 #include <set>
 
-static constexpr unsigned int cMaxUniqueIDs = (UniqueIDs::back - UniqueIDs::Reserved::back); // Probably one less than the real max but it shouldn't matter
-
 static std::random_device sRandomSeed;
 static std::mt19937 sIdEngine(sRandomSeed());
-static std::uniform_int_distribution<id_t> sIdDistribution(UniqueIDs::front, UniqueIDs::back);
-static std::set<ID> sExistingIDs = {};
+static std::uniform_int_distribution<id_t> sIdDistribution{UniqueIDs::front, UniqueIDs::back};
+static std::set<ID> sExistingIDs{};
+static constexpr unsigned int cMaxUniqueIDs{UniqueIDs::back - UniqueIDs::Reserved::back}; // Probably one less than the real max but it shouldn't matter
 
 ID UniqueIDs::Generate()
 {

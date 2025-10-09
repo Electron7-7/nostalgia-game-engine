@@ -1,46 +1,13 @@
 #include "theatre_data.hpp"
-#include "embedded/names.hpp"
 #include "things/thing_factory.hpp"
 #include "colors.hpp"
+
+#include <map>
 
 const TheatreData TheatreData::Missing;
 
 ID TheatreData::id() const
 { return id_; }
-
-const std::vector<ThingData>& TheatreData::GetData() const
-{ return data_; }
-
-static std::map<std::string, ID>
-s_EmbeddedDataNameIDLookup =
-{
-    { Images::Name::Missing,    UniqueIDs::Reserved::i_Missing    },
-    { Images::Name::LightDebug, UniqueIDs::Reserved::i_LightDebug },
-    { Images::Name::COMP04_5,   UniqueIDs::Reserved::i_COMP04_5   },
-    { Images::Name::LolBit,     UniqueIDs::Reserved::i_LolBit     },
-    { Models::Name::Error,      UniqueIDs::Reserved::m_Error      },
-    { Models::Name::Cube,       UniqueIDs::Reserved::m_Cube       },
-    { Models::Name::Ramiel,     UniqueIDs::Reserved::m_Ramiel     },
-    { Fonts::Name::Audiowide,   UniqueIDs::Reserved::f_Audiowide  },
-    { Fonts::Name::DejaVuSans,  UniqueIDs::Reserved::f_DejaVuSans },
-    { Fonts::Name::Verdana,     UniqueIDs::Reserved::f_Verdana    },
-};
-
-void TheatreData::UpdateReferences(const std::map<std::string, std::string>& ids)
-{
-    for(ThingData& data : data_)
-    {
-        for(ThingVar& variable : data.variables)
-        {
-            if(variable.type != ThingVar::eReferenceT || variable.type != ThingVar::eReferenceE)
-                { continue; }
-            if(ids.contains(variable.value))
-                { variable.value = ids.at(variable.value); }
-            else if(s_EmbeddedDataNameIDLookup.contains(variable.value))
-                { variable.value = std::to_string(s_EmbeddedDataNameIDLookup.at(variable.value)); }
-        }
-    }
-}
 
 // QuickSort functions heavily plagiarized from: https://www.w3schools.com/dsa/dsa_algo_quicksort.php
 static int s_DataPartition(std::vector<ThingData>& array, int low, int high)
@@ -75,14 +42,36 @@ static void s_DataQuickSort(std::vector<ThingData>& array, int low, int high)
     }
 }
 
-void TheatreData::OrderByPriority()
-{ s_DataQuickSort(data_, 0, data_.size() - 1); }
+void TheatreData::SetupUIDsAndPriorities()
+{
+    s_DataQuickSort(things_data, 0, things_data.size() - 1);
+
+    std::map<std::string, id_t> name_id_map{UniqueIDs::Reserved::ResourceNameToUIDMap};
+    UniqueIDs::Clear();
+
+    // I wanted to combine these two `for` loops, but it's safer to separate them, since I can't guarantee that
+    // referenced things will have defined UIDs even after sorting by priority. Perhaps in the future I can change
+    // this, but for now it's fine to have two for loops (even if I personally hate it).
+    for(ThingData& data : things_data)
+        { name_id_map[data.name] = data.uid = UniqueIDs::Generate(); }
+
+    for(ThingData& data : things_data)
+    {
+        for(ThingVar& variable : data.variables)
+        {
+            if(variable.type != ThingVar::eReferenceT && variable.type != ThingVar::eReferenceE)
+                { continue; }
+            else if(name_id_map.contains(variable.value))
+                { variable.reference_id = name_id_map.at(variable.value); }
+        }
+    }
+}
 
 SafeStatus TheatreData::AddData(const ThingData& data)
 {
     if(!ThingFactory::IsThing(data.type()))
         { return Status::TheatreDataINVALID_TYPE; }
-    data_.push_back(data);
+    things_data.push_back(data);
     return Status::NO_ERR;
 }
 
@@ -90,29 +79,28 @@ std::string TheatreData::formatted() const
 {
     std::string resources("");
     std::string things("");
-
-    for(const auto& thing_data : data_)
+    for(const ThingData& thing_data : things_data)
     {
-        if(ThingFactory::IsResource(thing_data.uid) && !thing_data.variables.empty())
-            { resources += std::format("\t{} {} = {}", ThingFactory::GetTypeName(thing_data.uid), name, thing_data.variables.at(0).formatted_value()); }
+        std::println("thing_data.uid == {}", thing_data.type());
+        if(ThingFactory::IsResource(thing_data.type()) && !thing_data.variables.empty())
+            { resources += std::format("\t{} {} = {}\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
         else
         {
-            things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.uid), name);
-            for(const auto& variable : thing_data.variables)
-                { things += std::format("\t\t{}\n", variable.formatted_value()); }
+            things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name);
+            for(const ThingVar& variable : thing_data.variables)
+                { things += std::format("\t\t{} = {}\n", variable.name, variable.formatted_value()); }
             things += std::format("\t}}\n");
         }
     }
-
     return std::format("@{}#{}\n\nResources\n{{\n{}}}\n\nThings\n{{\n{}}}\n", name, index, resources, things);
 }
 
 void TheatreData::clear()
-{ data_.clear(); }
+{ things_data.clear(); }
 
 void TheatreData::debug_PrintData()
 {
     std::println("{}Theatre Data Printout:{}", sty::Bold + fg::Cyan, sty::Reset);
-    for(const auto& data : data_)
-        { std::println("{}", data.log(true, true)); }
+    for(const ThingData& thing_data : things_data)
+        { std::println("{}", thing_data.log(true, true)); }
 }
