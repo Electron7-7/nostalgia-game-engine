@@ -2,13 +2,12 @@
 #include "../app/nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
+#include "demo/demo_controller.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"
-#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
-#include "debug.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -58,9 +57,10 @@ imgui_Debugger* g_pDebugger = &s_Debugger;
 
 static void s_GeneralDebuggingWindow()
 {
-    DEBUG(BeginChild("General Debugging");)
-    NOTDEBUG(BeginChild("Settings");)
-#ifdef DEBUGGING
+#ifndef DEBUGGING
+    BeginChild("Settings");
+#else  // DEBUGGING
+    BeginChild("General Debugging");
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
@@ -166,10 +166,6 @@ void imgui_Debugger::Update()
     static bool show_demo_window = false;
     if(show_demo_window)
         { ShowDemoWindow(&show_demo_window); }
-
-    DEBUG(if(s_TheatreInspectorActive)
-        { s_InspectTheatreWindow(&s_TheatreInspectorActive); })
-
     if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
     if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_Q))
@@ -177,14 +173,18 @@ void imgui_Debugger::Update()
     if(IsKeyDown(ImGuiMod_Super) && IsKeyPressed(ImGuiKey_Q))
         { g_pApplication->Shutdown(); }
 
-    DEBUG(static bool s_PopOutStopwatches = false;)
-
     static bool show_main_window = true;
     if(IsKeyPressed(ImGuiKey_Escape))
         { show_main_window = !show_main_window; }
 
-    DEBUG(SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);)
-    NOTDEBUG(SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);)
+#ifndef DEBUGGING
+    SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);
+#else // DEBUGGING
+    static bool s_PopOutStopwatches = false;
+    if(s_TheatreInspectorActive)
+        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
+    SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
+#endif
     if(show_main_window)
     {
         if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
@@ -200,32 +200,8 @@ void imgui_Debugger::Update()
                     EndMenu();
                 }
                 EndMenuBar();
-#           ifndef DEBUGGING
-                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want all the debug features, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
-
-                InputText("Theatre File", &s_TheatreFilePath);
-                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                    { BeginDisabled(); }
-                if(Button("Load Theatre"))
-                {
-                    s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-                    TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
-                }
-                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                    { EndDisabled(); }
-
-                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                    { BeginDisabled(); }
-                if(Button("Exit Theatre"))
-                    { _Manager::ShutdownTheatre(); }
-                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                    { EndDisabled(); }
-                NewLine();
-                SeparatorText("Settings");
-                s_GeneralDebuggingWindow();
-#           endif // !DEBUGGING
+#ifdef DEBUGGING
             }
-#       ifdef DEBUGGING
             if(BeginTabBar("Debug Tools"))
             {
                 if(BeginTabItem("General"))
@@ -266,15 +242,39 @@ void imgui_Debugger::Update()
                 }
             }
             EndTabBar();
-#       endif // DEBUGGING
+#else  // !DEBUGGING
+                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want all the debug features, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
+
+                InputText("Theatre File", &s_TheatreFilePath);
+                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                    { BeginDisabled(); }
+                if(Button("Load Theatre"))
+                {
+                    s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
+                    TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
+                }
+                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+                    { EndDisabled(); }
+
+                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                    { BeginDisabled(); }
+                if(Button("Exit Theatre"))
+                    { _Manager::ShutdownTheatre(); }
+                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+                    { EndDisabled(); }
+                NewLine();
+                SeparatorText("Settings");
+                s_GeneralDebuggingWindow();
+            }
+#endif // DEBUGGING
             InputText("Demo File Output", &sDemoFileOut);
             if(Button("Start Recording Demo"))
-                { InputManager::StartRecordingDemo(sDemoFileOut); }
+                { g_pDemoController->Record(); }
             if(Button("Stop Recording Demo"))
-                { InputManager::StopRecordingDemo(); }
+                { g_pDemoController->StopRecording(); g_pDemoController->Save(sDemoFileOut); }
             InputText("Demo File Input", &sDemoFileIn);
             if(Button("Play Demo File"))
-                { InputManager::StartPlayingDemo(sDemoFileIn); }
+                { g_pDemoController->Play(sDemoFileIn); }
         }
         End();
     }
