@@ -614,3 +614,5 @@ Fixed. Finally. On to the ID assignment.
 I committed my code from last night, implemented the DemoController, refactored the printouts/debug system, and made some other various changes. All this at my house before work. Pretty happy, all things considered. Oh, and yes, demos load Theatres and play correctly (so far).
 
 Note: demos need to not reset the player if recorded in the middle of playing.
+
+Note: Possible off by one errors with binding IDs and playing back demos.
