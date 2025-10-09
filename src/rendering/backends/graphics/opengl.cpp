@@ -244,7 +244,6 @@ void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
         l_Light = "directional" + l_Light;
         break;
     }
-
     GetShader(shader)->SetUniform(l_Light + "color",             light->mColor);
     GetShader(shader)->SetUniform(l_Light + "energy",            light->mEnergy);
     GetShader(shader)->SetUniform(l_Light + "specular_strength", light->mSpecularStrength);
