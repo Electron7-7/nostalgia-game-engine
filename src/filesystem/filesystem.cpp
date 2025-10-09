@@ -3,7 +3,7 @@
 #include <fstream>
 #include <filesystem>
 
-#pragma message("TODO: Implement support for symlinks once I understand how to properly interact with them via std::filesystem")
+// TODO: Implement support for symlinks once I understand how to properly interact with them via std::filesystem
 
 namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 
@@ -79,15 +79,15 @@ bool FileSystem::try_GetFileSize(const std::string& string_path, size_t& output)
     if(!GetAbsolute(string_path, file_path))
         { return false; }
 
-    // The rest of this code is thanks to: https://stackoverflow.com/a/22131201
-    FILE* image_file = fopen(file_path.c_str(), "r+");
+    // https://stackoverflow.com/a/22131201
+    FILE* file = fopen(file_path.c_str(), "r+");
 
-    if(image_file == nullptr)
+    if(!file)
         { return false; }
 
-    fseek(image_file, 0, SEEK_END);
-    output = ftell(image_file); // This could overflow... too bad!
-    fclose(image_file);
+    fseek(file, 0, SEEK_END);
+    output = ftell(file); // This could overflow(?)... too bad!
+    fclose(file);
     return true;
 }
 
@@ -147,8 +147,8 @@ bool FileSystem::HasStem(const std::string& string_path)
 std::string FileSystem::GetStem(const std::string& string_path, bool remove_extension)
 {
     if(!remove_extension)
-        { return fs::path({string_path}).stem().string(); }
-    return fs::path({string_path}).stem().replace_extension("").string();
+        { return fs::path{string_path}.stem().string(); }
+    return fs::path{string_path}.stem().replace_extension("").string();
 }
 
 void FileSystem::GetStem(const std::string& string_path, std::string& output, bool remove_extension)
