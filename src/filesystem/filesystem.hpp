@@ -32,6 +32,7 @@ struct FileSystem
     static std::string GetDir(const std::string& Path);
     static void GetDir(const std::string& Path, std::string& Output);
 
+    static bool HasStem(const std::string& Path);
     static std::string GetStem(const std::string& Path, bool RemoveExtension = false);
     static void GetStem(const std::string& Path, std::string& Output, bool RemoveExtension = false);
 
