@@ -1,11 +1,11 @@
 #include "glfw.hpp"
-#include "debug.hpp"
+#include "printing.hpp"
 #include "managers/backend_manager.hpp"
 #include "input/binding.hpp"
 #include "settings/settings.hpp"
-#include "DearImGui/imgui_impl_glfw.h"
-#include "GLFW/glfw3.h"
-#include "glad/glad.h"
+#include "thirdparty/DearImGui/imgui_impl_glfw.h"
+#include "thirdparty/GLFW/glfw3.h"
+#include "thirdparty/glad/glad.h"
 
 #include <glm/vec2.hpp>
 
@@ -16,14 +16,14 @@ bool GLFW_Backend::Init()
     if(m_IsInitialized)
         { return true; }
 
-    PRINT_DEBUG("GLFW_Backend::Init")
+    print_debug("GLFW_Backend::Init");
 
     glfwInit();
 
     SafeStatus window_status = CreateMainWindow();
     if(window_status != Status::NO_ERR)
     {
-        PRINT_ERROR("{}", window_status.Printout())
+        print_error("{}", window_status.Printout());
         glfwTerminate();
         return false;
     }
@@ -45,7 +45,7 @@ bool GLFW_Backend::InitImGui()
     case gBackendIDs::gOpenGL:
         if(!ImGui_ImplGlfw_InitForOpenGL(m_MainWindow, true))
         {
-            PRINT_ERROR("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!")
+            print_error("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!");
             return false;
         }
         break;
@@ -98,7 +98,7 @@ SafeStatus GLFW_Backend::CreateMainWindow()
 
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        PRINT_DEBUG("Failed to initialize GLAD!")
+        print_debug("Failed to initialize GLAD!");
         return Status::WindowingBackendGRAPHICS_INIT_FAILED;
     }
 

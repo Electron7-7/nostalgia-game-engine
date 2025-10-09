@@ -43,7 +43,7 @@ bool BackendManager::Init()
         { return false; }
     if(!s_Windowing->CompatibleWith(s_Graphics->GetID()))
     {
-        PRINT_ERROR("BackendManager::Init - The selected graphics & windowing backends are not compatible with each-other! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)")
+        print_error("BackendManager::Init - The selected graphics & windowing backends are not compatible with each-other! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)");
         return false;
     }
     return true;

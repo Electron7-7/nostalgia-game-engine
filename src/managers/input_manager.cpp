@@ -2,7 +2,6 @@
 #include "backend_manager.hpp"
 #include "theatre_manager.hpp"
 #include "input/event_queue.hpp"
-#include "debug.hpp"
 #include "demo/demo_controller.hpp"
 
 #include <thread>
@@ -137,7 +136,7 @@ bool InputManager::AddAction(const std::string& action, ID input_id)
 {
     if(sActions.contains(action))
     {
-        PRINT_WARNING("InputManager::AddAction - Action '{}' already exists", action)
+        print_warning("InputManager::AddAction - Action '{}' already exists", action);
         return false;
     }
     if(action.at(0) == '+' && action.size() > 1)
@@ -155,12 +154,12 @@ bool InputManager::AssignToAction(const std::string& action, ID input_id)
 {
     if(!sActions.contains(action))
     {
-        PRINT_WARNING("InputManager::AssignToAction - Action '{}' doesn't exist", action)
+        print_warning("InputManager::AssignToAction - Action '{}' doesn't exist", action);
         return false;
     }
     else if(input_id == ID::Invalid)
     {
-        PRINT_WARNING("InputManager::AssignToAction - Invalid input ID")
+        print_warning("InputManager::AssignToAction - Invalid input ID");
         return false;
     }
     sBindingActionsLookup[input_id].emplace(action);
@@ -184,7 +183,7 @@ bool InputManager::ClearActions(ID input_id)
 {
     if(input_id == ID::Invalid)
     {
-        PRINT_WARNING("InputManager::ClearActions - Invalid input ID")
+        print_warning("InputManager::ClearActions - Invalid input ID");
         return false;
     }
     sBindingActionsLookup.erase(input_id);

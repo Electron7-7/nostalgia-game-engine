@@ -1,6 +1,6 @@
 #include "theatre_data.hpp"
 #include "things/thing_factory.hpp"
-#include "colors.hpp"
+#include "colors.hpp" // IWYU pragma: keep
 
 #include <map>
 
@@ -81,7 +81,6 @@ std::string TheatreData::formatted() const
     std::string things("");
     for(const ThingData& thing_data : things_data)
     {
-        std::println("thing_data.uid == {}", thing_data.type());
         if(ThingFactory::IsResource(thing_data.type()) && !thing_data.variables.empty())
             { resources += std::format("\t{} {} = {}\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
         else
@@ -100,7 +99,9 @@ void TheatreData::clear()
 
 void TheatreData::debug_PrintData()
 {
-    std::println("{}Theatre Data Printout:{}", sty::Bold + fg::Cyan, sty::Reset);
+    print_debug("Theatre Data Printout:", sty::Bold + fg::Cyan, sty::Reset);
+#ifdef DEBUGGING
     for(const ThingData& thing_data : things_data)
-        { std::println("{}", thing_data.log(true, true)); }
+        { println("{}", thing_data.log(true, true)); }
+#endif
 }

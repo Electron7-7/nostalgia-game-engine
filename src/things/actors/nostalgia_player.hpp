@@ -2,7 +2,6 @@
 #define NOSTALGIA_PLAYER_H
 
 #include "actor.hpp"
-#include "debug.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -31,7 +30,6 @@ public:
     void SetViewPosition(const glm::vec3& ViewPosition);
 
 private:
-    DEBUG(friend void l_TerribleRenderDebugWindow();)
     glm::vec3 mVelocity = glm::vec3(0.0f);
     glm::vec3 mViewPosition = glm::vec3(0.0f, 1.5f, 0.0f);
     glm::vec2 mMovementDirection = glm::vec2(0.0f);

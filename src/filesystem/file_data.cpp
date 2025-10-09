@@ -48,7 +48,7 @@ SafeStatus FileData::LoadFile(const std::string& path, FileType type)
 
     if(!image_file)
     {
-        PRINT_WARNING("FileData::LoadFile - Failed to load file '{}'", path)
+        print_warning("FileData::LoadFile - Failed to load file '{}'", path);
         m_Status = DataStatus::FAILED;
         return Status::FileDataFAILED_TO_PROCESS_FILE;
     }

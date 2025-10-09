@@ -38,13 +38,13 @@ void CommandLine::ProcessCommands()
     {
         if(!m_sCommands.contains(m_sNextCommand))
         {
-            PRINT_WARNING("CommandLine::ProcessCommands - invalid command '{}'", m_sNextCommand)
+            print_warning("CommandLine::ProcessCommands - invalid command '{}'", m_sNextCommand);
             continue;
         }
 
         SafeStatus command_status = m_sCommands.at(m_sNextCommand)();
         if(command_status.Status() != Status::NO_ERR)
-            { PRINT_WARNING("CommandLine::ProcessCommands - command returned with the status: '{}'", command_status.Printout()) }
+            { print_warning("CommandLine::ProcessCommands - command returned with the status: '{}'", command_status.Printout()); }
     }
     m_sIsProcessingCommands = false;
     m_sProcessQueue.clear(); // Just in case
@@ -83,7 +83,7 @@ bool CommandLine::AddCommand(const std::string& command, CommandFunction functio
 {
     if(m_sCommands.contains(command))
     {
-        PRINT_WARNING("CommandLine::AddCommand - const std::string& '{}' already exists", command)
+        print_warning("CommandLine::AddCommand - const std::string& '{}' already exists", command);
         return false;
     }
     m_sCommands[command] = function;
@@ -94,7 +94,7 @@ bool CommandLine::RemoveCommand(const std::string& command)
 {
     if(s_cCommands.contains(command))
     {
-        PRINT_WARNING("CommandLine::RemoveCommand - Command '{}' is an engine command and cannot be removed", command)
+        print_warning("CommandLine::RemoveCommand - Command '{}' is an engine command and cannot be removed", command);
         return false;
     }
     return m_sCommands.erase(command);

@@ -1,5 +1,5 @@
 #include "gl_shader.hpp"
-#include "debug.hpp"
+#include "printing.hpp"
 #include "colors.hpp"
 #include "glad/glad.h"
 
@@ -16,8 +16,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glCompileShader(vertex);
     if(!GLShaderErrorHandler(vertex))
     {
-        PRINT_ERROR("Vertex shader failed to compile!")
-        PRINT_DEBUG("Shader Code:{}\n{}", sty::Reset, v_shader_code)
+        print_error("Vertex shader failed to compile!");
+        print_debug("Shader Code:{}\n{}", sty::Reset, v_shader_code);
         return false;
     }
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -25,8 +25,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glCompileShader(fragment);
     if(!GLShaderErrorHandler(fragment))
     {
-        PRINT_ERROR("Fragment shader failed to compile! Shader code:")
-        PRINT_DEBUG("Shader Code:{}\n{}", sty::Reset, f_shader_code)
+        print_error("Fragment shader failed to compile! Shader code:");
+        print_debug("Shader Code:{}\n{}", sty::Reset, f_shader_code);
         return false;
     }
     m_ID = glCreateProgram();
@@ -35,9 +35,9 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glLinkProgram(m_ID);
     if(!GLShaderErrorHandler(m_ID, true))
     {
-        PRINT_ERROR("Shader Program failed to compile!")
-        PRINT_DEBUG("Vertex Shader Code:{}\n{}", sty::Reset, v_shader_code)
-        PRINT_DEBUG("Fragment Shader Code:{}\n{}", sty::Reset, f_shader_code)
+        print_error("Shader Program failed to compile!");
+        print_debug("Vertex Shader Code:{}\n{}", sty::Reset, v_shader_code);
+        print_debug("Fragment Shader Code:{}\n{}", sty::Reset, f_shader_code);
         return false;
     }
     glDeleteShader(vertex);
@@ -94,7 +94,7 @@ bool GLShader::GLShaderErrorHandler(unsigned int shader, bool is_program_linking
             { glGetProgramInfoLog(shader, info_log_length, nullptr, shader_error_message.data()); }
         else
             { glGetShaderInfoLog(shader, info_log_length, nullptr, shader_error_message.data()); }
-        PRINT_ERROR("GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data())
+        print_error("GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data());
         return false;
     }
 

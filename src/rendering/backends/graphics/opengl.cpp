@@ -9,7 +9,6 @@
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "filesystem/file_data.hpp"
-#include "debug.hpp"
 #include "printing.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
@@ -17,7 +16,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
-DEBUG(int g_ShaderDebugOuptut = Shader_ALL;)
+#ifdef DEBUGGING
+    int g_ShaderDebugOuptut = Shader_ALL;
+    static void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);
+#endif
 
 std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::mVAOs = {};
 std::map<unsigned int, GLShader>      OpenGL_Backend::mShaders = {};
@@ -27,8 +29,6 @@ std::map<ID, OpenGL_TextureID>      OpenGL_Backend::mTextureIDs = {};
 static std::vector<OpenGL_BufferData> s_BufferData = {};
 static unsigned int s_VBO = 0;
 static unsigned int s_IBO = 0;
-
-DEBUG(static void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);)
 
 void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 {
@@ -41,25 +41,25 @@ bool OpenGL_Backend::Init()
     if(m_IsInitialized)
         { return true; }
 
-    PRINT_DEBUG("OpenGL_Backend::Init")
-    PRINT_DEBUG("OpenGL Version: {}", (char*)glGetString(GL_VERSION))
+    print_debug("OpenGL_Backend::Init");
+    print_debug("OpenGL Version: {}", (char*)glGetString(GL_VERSION));
 
     glGenVertexArrays(VAOS_AMOUNT, mVAOs.data());
 
-#   ifndef CLANGD_KEEPS_CRASHING_HERE
+#ifndef CLANGD_KEEPS_CRASHING_HERE
         BuildShader(Shaders::BlinnPhong, GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
         BuildShader(Shaders::Fullbright, GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
-#   endif
+#endif
 
     World::SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
     World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
     World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
 
-    DEBUG(
+#ifdef DEBUGGING
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(OpenGL_DebugMessageCallback, nullptr);
         glEnable(GL_DEBUG_OUTPUT);
-    )
+#endif
     glEnable(GL_DEPTH_TEST);
 
     m_IsInitialized = true;
@@ -73,7 +73,7 @@ bool OpenGL_Backend::InitImGui()
 
     if(!ImGui_ImplOpenGL3_Init())
     {
-        PRINT_ERROR("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!")
+        print_error("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!");
         return false;
     }
 
@@ -110,7 +110,7 @@ void OpenGL_Backend::BufferTexture(const FileData& data, ID texture_id)
 
     if(!l_Data)
     {
-        PRINT_ERROR("OpenGL_Backend::BufferTexture - Failed to load Texture")
+        print_error("OpenGL_Backend::BufferTexture - Failed to load Texture");
         glDeleteTextures(1, &id);
         return;
     }
@@ -200,7 +200,7 @@ bool OpenGL_Backend::BindShader(unsigned int shader)
 {
     if(!mShaders.contains(shader))
     {
-        PRINT_WARNING("OpenGL_Backend::BindShader - invalid shader label! Returning false")
+        print_warning("OpenGL_Backend::BindShader - invalid shader label! Returning false");
         return false;
     }
     glUseProgram(mShaders.at(shader).ID());
@@ -222,7 +222,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
 {
     if(!mShaders.contains(shader_selection))
     {
-        PRINT_ERROR("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection)
+        print_error("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection);
         shader_selection = Shaders::BlinnPhong;
     }
     return &mShaders.at(shader_selection);
@@ -273,7 +273,9 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
-    DEBUG(GetShader(rendercmd.shader)->SetUniform("debug_output", g_ShaderDebugOuptut);)
+#ifdef DEBUGGING
+    GetShader(rendercmd.shader)->SetUniform("debug_output", g_ShaderDebugOuptut);
+#endif
     GetShader(rendercmd.shader)->SetUniform("debug_highlight", material->mDebugHighlight * material->mDebugHighlight.a);
 
     GetShader(rendercmd.shader)->SetUniform("point_lights_count", PointLight::GetCount());
@@ -320,7 +322,7 @@ OpenGL_MeshData* OpenGL_Backend::GetMeshData(ID id)
 // OpenGL Debug Message Callback Function
 // https://gist.github.com/liam-middlebrook/c52b069e4be2d87a6d2f (with minor tweaks)
 //----------------------------------------------------------------------------------
-DEBUG(
+#ifdef DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* data)
 {
     std::string _source;
@@ -405,5 +407,6 @@ static void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLu
         _severity = "UNKNOWN";
         break;
     }
-    PRINT_DEBUG("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);
-})
+    print_debug("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);;
+}
+#endif // DEBUGGING

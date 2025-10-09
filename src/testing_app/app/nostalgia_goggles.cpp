@@ -58,7 +58,7 @@ int NostalgiaGoggles::Main()
     if(!_Manager::InitAllManagers())
     {
         Shutdown();
-        PRINT_ERROR("NostalgiaGoggles::Main - _Manager::InitAllManagers failed!!")
+        print_error("NostalgiaGoggles::Main - _Manager::InitAllManagers failed!!");
         return 1;
     }
 

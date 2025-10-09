@@ -1,5 +1,4 @@
 #include "theatre_parser.hpp"
-#include "debug.hpp"
 #include "filesystem/filesystem.hpp"
 #include "to_lower.hpp"
 #include "filesystem/file_data.hpp"
@@ -154,10 +153,12 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         set_new_line = false;
         character = data[iterator];
 
-        DEBUG(if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
-                { PRINT_DEBUG("Breakpoint opportunity at line {}, column {}", LINE, COLUMN) })
+#ifdef DEBUGGING
+        if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
+            { print_debug("Breakpoint opportunity at line {}, column {}", LINE, COLUMN); }
+#endif // DEBUGGING
 
-#       pragma message("TODO: Make this shit less bad")
+#pragma message("TODO: Make this shit less bad")
         // TODO: Expanding on the message above, figure out how to remove this secondary switch statement (yes, it comes first but it's still secondary)
         switch(character)
         {
@@ -337,7 +338,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             switch(location)
             {
             case Location::TopLevel:
-                PRINT_WARNING("TheatreFile - Extraneous '{}' (will be ignored)", "}")
+                print_warning("TheatreFile - Extraneous '{}' (will be ignored)", "}");
                 continue;
             case Location::Context:
                 context  = Context::None;

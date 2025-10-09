@@ -14,7 +14,7 @@ ID UniqueIDs::Generate()
 {
     if(sExistingIDs.size() == cMaxUniqueIDs)
     {
-        PRINT_WARNING("UniqueIDs::Generate - Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUniqueIDs)
+        print_warning("UniqueIDs::Generate - Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUniqueIDs);
         sExistingIDs.clear();
     }
     ID new_id = UniqueIDs::front;

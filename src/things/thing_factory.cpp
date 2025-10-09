@@ -85,7 +85,7 @@ bool ThingFactory::AddThing(pThingMaker_t maker_ptr, const std::string& type_nam
     ID type_id = ConstexprHash(type_name);
     if(m_sThingMakers.contains(type_id))
     {
-        PRINT_WARNING("ThingFactory::AddThing - '{}' already added", type_name)
+        print_warning("ThingFactory::AddThing - '{}' already added", type_name);
         return false;
     }
     m_sThingMakers[type_id] = maker_ptr;
@@ -98,7 +98,7 @@ pThingMaker_t ThingFactory::MakeThing(ID type)
 {
     if(!m_sThingMakers.contains(type))
     {
-        PRINT_WARNING("ThingFactory::MakeThing - Type '{}' is an invalid type! An empty Thing will be returned", GetTypeName(type))
+        print_warning("ThingFactory::MakeThing - Type '{}' is an invalid type! An empty Thing will be returned", GetTypeName(type));
         return gThingMakerTemplate<Thing>;
     }
     return m_sThingMakers.at(type);

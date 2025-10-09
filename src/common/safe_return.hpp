@@ -38,7 +38,7 @@ public:
     {
         if(Status.Status() != NO_ERR_STATUS)
         {
-            PRINT_ERROR("{} returned '{}'", Prefix, Status.Printout());
+            print_error("{} returned '{}'", Prefix, Status.Printout());
             return false;
         }
         return true;

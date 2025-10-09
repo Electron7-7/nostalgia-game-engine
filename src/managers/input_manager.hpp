@@ -5,6 +5,7 @@
 
 #include "manager.hpp"
 #include "safe_return.hpp"
+#include "ids.hpp"
 
 #include <glm/vec2.hpp>
 #include <string>

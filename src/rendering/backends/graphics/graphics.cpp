@@ -22,7 +22,7 @@ bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<u
         break;
     case FileType::Unknown:
     default:
-        PRINT_WARNING("GraphicsBackend::CreateMeshData - Data of unknown file-type cannot be buffered")
+        print_warning("GraphicsBackend::CreateMeshData - Data of unknown file-type cannot be buffered");
         return false;
     }
     return true;
@@ -38,13 +38,13 @@ bool CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indi
     {
         if(!reader.Error().empty())
         {
-            PRINT_ERROR("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error())
+            print_error("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error());
             return false;
         }
     }
 
     if(!reader.Warning().empty())
-        { PRINT_WARNING("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Warning: '{}'", reader.Warning()) }
+        { print_warning("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Warning: '{}'", reader.Warning()); }
 
     auto& attrib = reader.GetAttrib();
     auto& shapes = reader.GetShapes();

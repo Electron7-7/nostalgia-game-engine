@@ -1,5 +1,4 @@
 #include "light.hpp"
-#include "debug.hpp"
 #include "theatre_parser/thing_data.hpp"
 #ifdef DEBUGGING
 #   include "managers/theatre_manager.hpp"
@@ -35,8 +34,10 @@ void light_t::SetupVariables(const ThingData& data)
     if(data.GetBool(mEnabled, "Disabled"))
         { mEnabled = !mEnabled; }
 
-    NOTDEBUG(mVisible = false;)
-    DEBUG(if(mMeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
+#pragma message("TODO: should the light's debug mesh be limited to the debug build, or should Lights be always invisible with a special variable for enabling their debug mesh?")
+#ifdef DEBUGGING
+    mVisible = true;
+    if(mMeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
         id_t mat_id = TheatreManager::CreateThing(ThingData{
             mName + "'s Debug Mat",
             ThingType::Material,
@@ -55,7 +56,10 @@ void light_t::SetupVariables(const ThingData& data)
                 ThingVar{"Material", std::to_string(mat_id), ThingVar::eReferenceT}
             }
         });
-    })
+    }
+#else  // !DEBUGGING
+    mVisible = false;
+#endif // DEBUGGING
 }
 
 int light_t::Index() const

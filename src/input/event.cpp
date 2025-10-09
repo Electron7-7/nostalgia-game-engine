@@ -40,7 +40,7 @@ const glm::vec2& InputEvent::LastMousePosition() const
 glm::vec2 InputEvent::MouseMotion() const
 {
     if(!IsMouseMotion())
-        { PRINT_WARNING("InputEvent::MouseMotion called on an event that isn't mouse motion") }
+        { print_warning("InputEvent::MouseMotion called on an event that isn't mouse motion"); }
     return mCurMousePos - mLastMousePos;
 }
 

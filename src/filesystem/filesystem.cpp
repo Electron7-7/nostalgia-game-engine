@@ -46,7 +46,7 @@ SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const st
 {
     std::string absolute_path = GetAbsolute(path);
     if(FileSystem::Exists(path))
-        { PRINT_WARNING("FileSystem::try_WriteFileFromString - Attempting to overwrite file at '{}'!", path) }
+        { print_warning("FileSystem::try_WriteFileFromString - Attempting to overwrite file at '{}'!", path); }
 
     std::ofstream file(absolute_path);
     if(!file.is_open())
