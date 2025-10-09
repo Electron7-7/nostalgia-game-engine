@@ -45,9 +45,7 @@ std::string FileSystem::GetCurrentDirectory()
 SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
 {
     std::string absolute_path = GetAbsolute(path);
-    if(!Exists(GetStem(absolute_path)))
-        { return Status::FileSystemINVALID_PATH; }
-    else if(FileSystem::Exists(path))
+    if(FileSystem::Exists(path))
         { PRINT_WARNING("FileSystem::try_WriteFileFromString - Attempting to overwrite file at '{}'!", path) }
 
     std::ofstream file(absolute_path);
