@@ -7,7 +7,6 @@
 #include "things/types.hpp"
 
 #include <vector>
-#include <set>
 #include <string>
 #include <format>
 
@@ -50,7 +49,7 @@ private:
     ID type_ = ThingType::Thing;
 
     typedef std::vector<ThingVar>::const_iterator VarIter_t;
-    SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const std::set<penum_t>& OneOrMoreTypes) const;
+    SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const penum_t& VarType) const;
 };
 
 template<>

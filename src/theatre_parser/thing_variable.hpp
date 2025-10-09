@@ -15,12 +15,11 @@ struct ThingVar
     penum_t     type{eNothing};
     ID reference_id{ID::None};
 
-    static constexpr penum_t eNothing    { 0, "Nothing"   };
-    static constexpr penum_t eReferenceT { 1, "TheatreReference" };
-    static constexpr penum_t eReferenceE { 2, "EngineReference"  };
-    static constexpr penum_t eNumber     { 3, "Number"    };
-    static constexpr penum_t eBool       { 4, "Bool"      };
-    static constexpr penum_t eString     { 5, "String"    };
+    static constexpr penum_t eNothing   { 0, "Nothing"   };
+    static constexpr penum_t eReference { 1, "Reference" };
+    static constexpr penum_t eNumber    { 2, "Number"    };
+    static constexpr penum_t eBool      { 3, "Bool"      };
+    static constexpr penum_t eString    { 4, "String"    };
 
     std::string formatted_value() const
     {
@@ -31,10 +30,10 @@ struct ThingVar
         case eBool:
         case eNumber:
             return std::format("({})", value);
-        case eReferenceE:
-            return std::format("[{}]", value);
-        case eReferenceT:
-            return std::format("<{}>", value);
+        case eReference:
+            return (reference_id < UniqueIDs::front)
+                ? std::format("[{}]", value)
+                : std::format("<{}>", value);
         case eNothing:
         default:
             return value;

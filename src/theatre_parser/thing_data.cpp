@@ -80,7 +80,7 @@ void ThingData::clear()
 
 bool ThingData::GetReference(ID& output, const std::string& name) const
 {
-    if(auto assert_var = AssertVariable(name, {ThingVar::eReferenceE, ThingVar::eReferenceT});
+    if(auto assert_var = AssertVariable(name, ThingVar::eReference);
         SafeStatus::Check(assert_var.Status()))
         { output = assert_var.Data()->reference_id; return true; }
     return false;
@@ -88,7 +88,7 @@ bool ThingData::GetReference(ID& output, const std::string& name) const
 
 bool ThingData::GetBool(bool& output, const std::string& name) const
 {
-    if(auto assert_var = AssertVariable(name, {ThingVar::eBool});
+    if(auto assert_var = AssertVariable(name, ThingVar::eBool);
         SafeStatus::Check(assert_var.Status()))
     {
         if(!assert_var.Data()->value.compare("true"))
@@ -108,13 +108,13 @@ bool ThingData::GetString(std::string& output, const std::string& name) const
     return true;
 }
 
-SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& name, const std::set<penum_t>& types) const
+SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& name, const penum_t& type) const
 {
     auto iter = std::find(variables.cbegin(), variables.cend(), name);
     auto status = Status::NO_ERR;
     if(iter == variables.cend())
         { status = Status::ThingDataINVALID_VARIABLE_NAME; }
-    else if(!types.contains(iter->type))
+    else if(iter->type != type)
         { status = Status::ThingDataINVALID_VARIABLE_TYPE; }
     else if(iter->value.empty())
         { status = Status::ThingDataVARIABLE_VALUE_EMPTY; }

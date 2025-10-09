@@ -246,10 +246,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             continue;
         }
         case enter_reference:
-            variable_type = ThingVar::eReferenceT;
-            continue;
         case enter_engine_ref:
-            variable_type = ThingVar::eReferenceE;
+            variable_type = ThingVar::eReference;
             continue;
         case enter_numeric:
             variable_type = ThingVar::eNumber;
@@ -360,7 +358,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
 
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReferenceT);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReference);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
