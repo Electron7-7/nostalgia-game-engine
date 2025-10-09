@@ -1,7 +1,8 @@
 #include "thing.hpp"
 #include "theatre_parser/thing_data.hpp"
 
-Thing::~Thing() = default;
+Thing::~Thing()
+{ UniqueIDs::Erase(mUID); }
 
 void Thing::SetupVariables(const ThingData& data)
 {
@@ -9,9 +10,6 @@ void Thing::SetupVariables(const ThingData& data)
     mName = data.name;
     mType = data.type();
 }
-
-void Thing::Shutdown()
-{ UniqueIDs::Erase(mUID); }
 
 ID Thing::uid() const
 { return mUID; }

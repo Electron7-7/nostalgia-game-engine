@@ -17,8 +17,6 @@ public:
 
     // Derived classes must call their base class' `::SetupVariables` method at the start of their own implementation of `::SetupVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetupVariables`.
     virtual void SetupVariables(const ThingData& Data);
-    // Derived classes must call their base class' `::Shutdown` method at the start of their own implementation of `::Shutdown`. If done properly, this will result in a chain of function calls all the way to `Thing::Shutdown`.
-    virtual void Shutdown();
 
     ID uid() const;
     ID type() const;

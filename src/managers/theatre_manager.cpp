@@ -210,6 +210,8 @@ bool TheatreManager::DestroyThing(ID id)
     }
     if(!UniqueIDs::Contains(id))
         { print_warning("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 'm_sThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id); }
+    m_sThings.erase(id);
+    return UniqueIDs::Erase(id);
 }
 
 void TheatreManager::CreateThings()
@@ -238,20 +240,10 @@ void TheatreManager::CreateThings()
 
 void TheatreManager::DestroyThings()
 {
-    for(const auto& [key, thing] : m_sThings)
-    {
-        thing->Shutdown();
-        m_sThings.erase(key);
-    }
-}
-
-bool TheatreManager::s_DestroyThing(ID id)
-{
-    if(!m_sThings.contains(id))
-        { return false; }
-    m_sThings.at(id)->Shutdown();
-    m_sThings.erase(id);
-    return UniqueIDs::Erase(id);
+#pragma message("TODO: Use godbolt to figure out whether or not I need to do this (will `Thing::~Thing()`, and therefore, `UniqueIDs::Erase(mUID)` be called by every Thing even if they have their own destructor?)")
+    for(const auto& [id, thing] : m_sThings)
+        { UniqueIDs::Erase(id); }
+    m_sThings.clear();
 }
 
 bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<Thing>& output)
