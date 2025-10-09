@@ -128,8 +128,6 @@ SRC := src
 SRC_DIRS :=                             \
     $(SRC)/commands                     \
     $(SRC)/common                       \
-    $(SRC)/demo                         \
-    $(SRC)/devices                      \
     $(SRC)/embedded                     \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
@@ -140,7 +138,6 @@ SRC_DIRS :=                             \
     $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/settings                     \
-    $(SRC)/types                        \
     $(SRC)/theatre_parser               \
     $(SRC)/things                       \
     $(SRC)/things/actors                \
