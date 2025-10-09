@@ -7,22 +7,13 @@
 #include "embedded/models.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/backend_manager.hpp"
+#include "things/actors/nostalgia_player.hpp"
+#include "things/actors/light.hpp"
 #include "colors.hpp"
 #ifdef DEBUGGING
 #   include "time.hpp"
 #   include "testing_app/ui/imgui_debugger.hpp"
 #endif // DEBUGGING
-
-// Headers included for `TheatreManager::GetThing` function template
-#include "things/thinkers/thinker.hpp" // IWYU pragma: keep
-#include "things/actors/nostalgia_player.hpp"
-#include "things/actors/light.hpp"
-#include "things/resources/resource.hpp" // IWYU pragma: keep
-#include "things/resources/mesh.hpp" // IWYU pragma: keep
-#include "things/resources/texture.hpp" // IWYU pragma: keep
-#include "things/resources/font.hpp" // IWYU pragma: keep
-#include "things/devices/material.hpp" // IWYU pragma: keep
-#include "things/devices/mesh_instance.hpp" // IWYU pragma: keep
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -201,13 +192,6 @@ ID TheatreManager::CreateThing(const ThingData& cData)
     return thing->uid();
 }
 
-std::shared_ptr<Thing> TheatreManager::GetThing(ID id)
-{
-    if(!m_sThings.contains(id))
-        { return std::make_shared<Thing>(); }
-    return m_sThings.at(id);
-}
-
 std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
 { return s_LocalPlayer; }
 
@@ -283,27 +267,3 @@ bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<T
     output = it->second;
     return true;
 }
-
-template<ThingDerived T>
-std::shared_ptr<T> TheatreManager::GetThing(ID id)
-{
-    auto thing = dynamic_pointer_cast<T>(TheatreManager::GetThing(id));
-    if(!thing)
-        { return std::make_shared<T>(); }
-    return thing;
-}
-
-template std::shared_ptr<Thing> TheatreManager::GetThing<Thing>(ID);
-template std::shared_ptr<Thinker> TheatreManager::GetThing<Thinker>(ID);
-template std::shared_ptr<Actor> TheatreManager::GetThing<Actor>(ID);
-template std::shared_ptr<PointLight> TheatreManager::GetThing<PointLight>(ID);
-template std::shared_ptr<SpotLight> TheatreManager::GetThing<SpotLight>(ID);
-template std::shared_ptr<DirectionalLight> TheatreManager::GetThing<DirectionalLight>(ID);
-template std::shared_ptr<NostalgiaPlayer> TheatreManager::GetThing<NostalgiaPlayer>(ID);
-template std::shared_ptr<Resource> TheatreManager::GetThing<Resource>(ID);
-template std::shared_ptr<Mesh> TheatreManager::GetThing<Mesh>(ID);
-template std::shared_ptr<Texture> TheatreManager::GetThing<Texture>(ID);
-template std::shared_ptr<Font> TheatreManager::GetThing<Font>(ID);
-template std::shared_ptr<Device> TheatreManager::GetThing<Device>(ID);
-template std::shared_ptr<MeshInstance> TheatreManager::GetThing<MeshInstance>(ID);
-template std::shared_ptr<Material> TheatreManager::GetThing<Material>(ID);

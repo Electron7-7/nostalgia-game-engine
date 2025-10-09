@@ -30,13 +30,21 @@ public:
     static const std::string& GetCurrentTheatrePath();
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);
-    static std::shared_ptr<Thing> GetThing(ID ObjectID);
     static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
     static bool DestroyThing(ID);
-    static bool debug_GetThingAtIndex(unsigned int MapIndex, std::shared_ptr<Thing>& Output);
+
+    static std::shared_ptr<Thing> GetThing(ID ObjectID)
+    { return (m_sThings.contains(ObjectID)) ? m_sThings.at(ObjectID) : std::make_shared<Thing>(); }
 
     template<ThingDerived T>
-    static std::shared_ptr<T> GetThing(ID ObjectID);
+    static std::shared_ptr<T> GetThing(ID ObjectID)
+    {
+        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(TheatreManager::GetThing(ObjectID)))
+            { return thing; }
+        return std::make_shared<T>();
+    }
+
+    static bool debug_GetThingAtIndex(unsigned int MapIndex, std::shared_ptr<Thing>& Output);
 
 private:
     static std::map<ID, std::shared_ptr<Thing>> m_sThings;
