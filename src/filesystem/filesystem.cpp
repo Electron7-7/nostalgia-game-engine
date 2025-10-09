@@ -131,14 +131,14 @@ bool FileSystem::GetRelative(const std::string& string_path, std::string& output
     return fs::exists({output});
 }
 
-std::string FileSystem::GetDir(const std::string& string_path)
+std::string FileSystem::GetDir(const std::string& string_path, bool make_absolute)
 {
-    fs::path path(string_path);
+    fs::path path = (make_absolute) ? fs::path{GetAbsolute(string_path)} : fs::path{string_path};
     return (path.has_filename()) ? path.parent_path().string() : string_path;
 }
 
-void FileSystem::GetDir(const std::string& string_path, std::string& output)
-{ output = GetDir(string_path); }
+void FileSystem::GetDir(const std::string& string_path, std::string& output, bool make_absolute)
+{ output = GetDir(string_path, make_absolute); }
 
 #pragma message("TODO: Should I add a boolean to toggle accepting stems with no extensions as a valid directory? Because this is basically a way of detecting whether or not a path is to a directory or not, regardless of whether or not it exists")
 bool FileSystem::HasStem(const std::string& string_path)

@@ -29,8 +29,8 @@ struct FileSystem
     static std::string GetRelative(const std::string& Path);
     static bool GetRelative(const std::string& Path, std::string& Output);
 
-    static std::string GetDir(const std::string& Path);
-    static void GetDir(const std::string& Path, std::string& Output);
+    static std::string GetDir(const std::string& Path, bool MakeAbsolute = false);
+    static void GetDir(const std::string& Path, std::string& Output, bool MakeAbsolute = false);
 
     static bool HasStem(const std::string& Path);
     static std::string GetStem(const std::string& Path, bool RemoveExtension = false);
