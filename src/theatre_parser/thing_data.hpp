@@ -20,6 +20,7 @@ public:
     ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables = {});
 
     void AddVariable(const std::string& Name, const std::string& Value, const penum_t& Type);
+    void AddReference(const std::string& Name, id_t ReferenceID);
 
     std::string name = "Untitled Thing";
     ID uid = ID::None;

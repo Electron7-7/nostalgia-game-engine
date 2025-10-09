@@ -40,3 +40,13 @@ bool UniqueIDs::Erase(ID id)
 
 bool UniqueIDs::Contains(ID id)
 { return sExistingIDs.contains(id); }
+
+bool UniqueIDs::IsReserved(ID id)
+{ return (id < front); }
+
+bool UniqueIDs::GetReservedIDName(ID id, std::string& output)
+{
+    for(const auto& [name, r_id] : Reserved::ResourceNameToUIDMap)
+        { if(r_id == id) { output = name; return true; } }
+    return false;
+}

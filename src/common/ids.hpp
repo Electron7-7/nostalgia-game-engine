@@ -40,6 +40,8 @@ struct UniqueIDs
     static ID Generate();
     static bool PopLast();
     static bool Contains(ID UID);
+    static bool IsReserved(ID UID);
+    static bool GetReservedIDName(ID UID, std::string& Output);
     static bool Erase(ID UID);
     static bool Push(ID UID);
     static void Clear();

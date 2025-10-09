@@ -2,6 +2,7 @@
 #include "printing.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
+#include "managers/theatre_manager.hpp"
 
 const ThingData ThingData::PlayerDefaults(
     "Default Player",
@@ -31,15 +32,15 @@ ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vect
 }
 
 void ThingData::AddVariable(const std::string& _name, const std::string& data, const penum_t& _type)
+{ variables.emplace_back(_name, data, _type); }
+
+void ThingData::AddReference(const std::string& _name, id_t id)
 {
-    auto variable = std::find(variables.begin(), variables.end(), _name);
-    if(variable != variables.end())
-    {
-        variable->name  = _name;
-        variable->value =  data;
-        variable->type  = _type;
-    }
-    variables.emplace_back(_name, data, _type);
+    std::string value{"-1"}; // ID::None == '-1'
+    if(!UniqueIDs::GetReservedIDName(id, value))
+        { value = TheatreManager::GetThing(id)->name(); }
+    variables.emplace_back(_name, value, ThingVar::eReference);
+    variables.back().reference_id = id;
 }
 
 std::string ThingData::log(bool colored, bool indent) const
