@@ -2,7 +2,7 @@
 #include "../app/nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
-#include "demo/demo_controller.hpp"
+#include "input/demo_controller.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"

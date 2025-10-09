@@ -2,7 +2,7 @@
 #include "backend_manager.hpp"
 #include "theatre_manager.hpp"
 #include "input/event_queue.hpp"
-#include "demo/demo_controller.hpp"
+#include "input/demo_controller.hpp"
 
 #include <thread>
 
