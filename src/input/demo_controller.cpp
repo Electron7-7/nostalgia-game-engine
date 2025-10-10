@@ -71,7 +71,7 @@ bool DemoController::Save(const std::string& path)
     }
 
     InputEvent temp_event;
-    std::string output{std::format("!Nostalgia Gen1 Demo\n{{{}}}", theatre_path)};
+    std::string output{std::format("!Nostalgia Gen 1 Demo\n{{{}}}", theatre_path)};
     size_t i = -1;
     for(EventQueue& queue : sDemo)
     {
