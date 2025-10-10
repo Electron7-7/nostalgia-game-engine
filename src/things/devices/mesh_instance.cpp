@@ -1,12 +1,22 @@
 #include "mesh_instance.hpp"
 #include "theatre_parser/thing_data.hpp"
 
-void MeshInstance::SetupVariables(const ThingData& data)
+void MeshInstance::SetVariables(const ThingData& data)
 {
-    Device::SetupVariables(data);
+    Device::SetVariables(data);
 
-    data.GetReference(mMeshID, "Mesh");
-    data.GetReference(mMaterialID, "Material");
+    data.GetVariable(mMeshID, "Mesh");
+    data.GetVariable(mMaterialID, "Material");
+}
+
+ThingData MeshInstance::GetVariables() const
+{
+    ThingData thing_data{Device::GetVariables()};
+
+    thing_data.AddVariable(mMeshID, "Mesh");
+    thing_data.AddVariable(mMaterialID, "Material");
+
+    return thing_data;
 }
 
 ID MeshInstance::GetMeshID() const

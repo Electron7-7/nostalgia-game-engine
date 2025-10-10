@@ -6,10 +6,6 @@
 #include "safe_return.hpp"
 #include "things/types.hpp"
 
-#include <vector>
-#include <string>
-#include <format>
-
 struct ThingData
 {
 public:
@@ -19,12 +15,37 @@ public:
     ThingData(const std::string& Name, const std::string& TypeName);
     ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables = {});
 
-    void AddVariable(const std::string& Name, const std::string& Value, const penum_t& Type);
-    void AddReference(const std::string& Name, id_t ReferenceID);
-
     std::string name = "Untitled Thing";
     ID uid = ID::None;
     std::vector<ThingVar> variables = {};
+
+    bool RemoveVariable(const std::string& VariableName);
+    void AddVariable(const ThingVar& Value, const std::string& Name);
+    template<IsNumber T>
+        void AddVariable(const T& Value, const std::string& Name)
+        { AddVariable(ThingVar{Value}, Name); }
+    void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);
+
+    template<typename T>
+    bool GetVariable(T& Output, const std::string& Name) const
+    {
+        if constexpr(std::is_same_v<std::string, std::decay_t<T>>)
+            { return GetString(Output, Name); }
+        else if constexpr(std::is_same_v<std::decay_t<ID>, std::decay_t<T>>)
+            { return GetReference(Output, Name); }
+        else if constexpr(std::is_same_v<bool, std::decay_t<T>>)
+            { return GetBoolean(Output, Name); }
+        else if constexpr(std::is_arithmetic_v<T> || GLMContainer<T>)
+        {
+            if(auto assert_var = AssertVariable(Name, ThingVar::eNumber);
+                SafeStatus::Check(assert_var.Status()))
+            {
+                StringToNum<T>(Output, assert_var.Data()->value);
+                return true;
+            }
+            return false;
+        }
+    }
 
     std::string log(bool colored = false, bool indent_items = false) const;
     ID   type() const;
@@ -32,25 +53,15 @@ public:
     bool set_type(ID Type);
     void clear();
 
-    bool GetReference(ID& Output, const std::string& VarName) const;
-    bool GetBool(bool& Output, const std::string& VarName) const;
-    bool GetString(std::string& Output, const std::string& VarName) const;
-
-    template<typename T>
-    bool GetNumber(T& Output, const std::string& VarName) const
-    {
-        auto assert_var = AssertVariable(VarName, {ThingVar::eNumber});
-        if(!SafeStatus::Check(assert_var.Status()))
-            { return false; }
-        StringToNum<T>(Output, assert_var.Data()->value);
-        return true;
-    }
-
 private:
     ID type_ = ThingType::Thing;
 
     typedef std::vector<ThingVar>::const_iterator VarIter_t;
     SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const penum_t& VarType) const;
+
+    bool GetReference(ID& ReferenceOutput, const std::string& VariableName) const;
+    bool GetBoolean(bool& BooleanOutput, const std::string& VariableName) const;
+    bool GetString(std::string& StringOutput, const std::string& VariableName) const;
 };
 
 template<>

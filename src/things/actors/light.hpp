@@ -18,7 +18,8 @@ public:
     virtual bool IncrementIndex() = 0;
     virtual LightType Type() const = 0;
 
-    virtual void SetupVariables(const ThingData&);
+    virtual void SetVariables(const ThingData&);
+    virtual ThingData GetVariables() const;
 
     int Index() const;
 

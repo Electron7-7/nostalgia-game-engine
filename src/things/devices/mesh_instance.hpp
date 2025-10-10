@@ -6,7 +6,8 @@
 class MeshInstance : public Device
 {
 public:
-    virtual void SetupVariables(const ThingData&);
+    virtual void SetVariables(const ThingData&);
+    virtual ThingData GetVariables() const;
 
     ID GetMeshID() const;
     ID GetMaterialID() const;

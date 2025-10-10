@@ -1,24 +1,39 @@
 #include "actor.hpp"
 #include "theatre_parser/thing_data.hpp"
+#include "glm_to_string.hpp" // IWYU pragma: keep
 
-void Actor::SetupVariables(const ThingData& data)
+void Actor::SetVariables(const ThingData& data)
 {
-    Thing::SetupVariables(data); // Currently, this doesn't do anything
+    Thing::SetVariables(data); // Currently, this doesn't do anything
 
-    data.GetNumber(mOrigin, "Origin");
-    data.GetNumber(mScale, "Scale");
+    data.GetVariable(mOrigin, "Origin");
+    data.GetVariable(mScale, "Scale");
     glm::vec3 euler;
-    if(data.GetNumber(euler, "RotationDegrees"))
+    if(data.GetVariable(euler, "RotationDegrees"))
         { Euler(euler, true); }
-    if(data.GetNumber(euler, "Rotation"))
+    if(data.GetVariable(euler, "Rotation"))
         { Euler(euler); }
     glm::quat quat;
-    if(data.GetNumber(quat, "Quaternion"))
+    if(data.GetVariable(quat, "Quaternion"))
         { Quaternion(quat); }
-    data.GetReference(mMeshInstanceID, "MeshInstance");
-    data.GetBool(mVisible, "Visible");
-    data.GetBool(mWireframe, "MakeWireframe");
-    data.GetBool(mWireframe, "Wireframe");
+    data.GetVariable(mMeshInstanceID, "MeshInstance");
+    data.GetVariable(mVisible, "Visible");
+    data.GetVariable(mWireframe, "MakeWireframe");
+    data.GetVariable(mWireframe, "Wireframe");
+}
+
+ThingData Actor::GetVariables() const
+{
+    ThingData data{Thing::GetVariables()};
+
+    data.AddVariable(mOrigin, "Origin");
+    data.AddVariable(mScale, "Scale");
+    data.AddVariable(mQuaternion, "Quaternion");
+    data.AddVariable(mMeshInstanceID, "MeshInstance");
+    data.AddVariable(mVisible, "Visible");
+    data.AddVariable(mWireframe, "Wireframe");
+
+    return data;
 }
 
 ID Actor::GetMeshInstanceID() const

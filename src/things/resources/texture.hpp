@@ -8,9 +8,9 @@ class Texture : public Resource
 {
 public:
     using Resource::Resource;
-    virtual void SetupVariables(const ThingData& data)
+    virtual void SetVariables(const ThingData& data)
     {
-        Resource::SetupVariables(data);
+        Resource::SetVariables(data);
         g_pBackendManager->Graphics()->BufferTexture(mFileData, mUID);
     }
 };

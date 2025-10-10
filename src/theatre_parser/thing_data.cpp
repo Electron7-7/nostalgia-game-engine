@@ -1,22 +1,22 @@
 #include "thing_data.hpp"
 #include "printing.hpp"
+#include "colors.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
-#include "managers/theatre_manager.hpp"
 
 const ThingData ThingData::PlayerDefaults(
     "Default Player",
     ThingType::NostalgiaPlayer,
     UniqueIDs::Reserved::Player,
     {
-        ThingVar{"Rotation", "0, 0, 0", ThingVar::eNumber},
-        ThingVar{"Origin", "0, 0, 0", ThingVar::eNumber},
+        ThingVar{glm::vec3(0.0f), "Rotation"},
+        ThingVar{glm::vec3(0.0f), "Origin"},
     });
 
 ThingData::ThingData() = default;
 
-ThingData::ThingData(const std::string& name, const std::string& type_name)
-: name(name), type_(ConstexprHash(type_name))
+ThingData::ThingData(const std::string& _name, const std::string& type_name)
+: name(_name), type_(ConstexprHash(type_name))
 {
     if(!ThingFactory::IsThing(type_))
         { print_error("ThingData::ThingData({}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, type_); }
@@ -31,16 +31,27 @@ ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vect
         { print_error("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type '{}' is an invalid type!", name, type_, uid, ThingFactory::GetTypeName(type_)); }
 }
 
-void ThingData::AddVariable(const std::string& _name, const std::string& data, const penum_t& _type)
-{ variables.emplace_back(_name, data, _type); }
-
-void ThingData::AddReference(const std::string& _name, id_t id)
+bool ThingData::RemoveVariable(const std::string& _name)
 {
-    std::string value{"-1"}; // ID::None == '-1'
-    if(!UniqueIDs::GetReservedIDName(id, value))
-        { value = TheatreManager::GetThing(id)->name(); }
-    variables.emplace_back(_name, value, ThingVar::eReference);
-    variables.back().reference_id = id;
+    if(auto iter = std::find(variables.cbegin(), variables.cend(), _name);
+        iter != variables.cend())
+    { variables.erase(iter); return true; }
+    return false;
+}
+
+void ThingData::AddVariable(const ThingVar& variable, const std::string& _name)
+{
+    RemoveVariable(_name);
+    variables.push_back(variable); variables.back().name = _name;
+}
+
+void ThingData::AddVariable(const std::string& _name, const std::string& value_as_string, const penum_t& type)
+{
+    RemoveVariable(_name);
+    variables.emplace_back();
+    variables.back().name  = _name;
+    variables.back().value = value_as_string;
+    variables.back().type  = type;
 }
 
 std::string ThingData::log(bool colored, bool indent) const
@@ -79,17 +90,17 @@ bool ThingData::set_type(ID type)
 void ThingData::clear()
 { *this = ThingData(); }
 
-bool ThingData::GetReference(ID& output, const std::string& name) const
+bool ThingData::GetReference(ID& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(name, ThingVar::eReference);
+    if(auto assert_var = AssertVariable(_name, ThingVar::eReference);
         SafeStatus::Check(assert_var.Status()))
         { output = assert_var.Data()->reference_id; return true; }
     return false;
 }
 
-bool ThingData::GetBool(bool& output, const std::string& name) const
+bool ThingData::GetBoolean(bool& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(name, ThingVar::eBool);
+    if(auto assert_var = AssertVariable(_name, ThingVar::eBool);
         SafeStatus::Check(assert_var.Status()))
     {
         if(!assert_var.Data()->value.compare("true"))
@@ -100,18 +111,18 @@ bool ThingData::GetBool(bool& output, const std::string& name) const
     return false;
 }
 
-bool ThingData::GetString(std::string& output, const std::string& name) const
+bool ThingData::GetString(std::string& output, const std::string& _name) const
 {
-    auto assert_var = AssertVariable(name, {ThingVar::eString});
-    if(!SafeStatus::Check(assert_var.Status()))
+    auto assert_var = AssertVariable(_name, {ThingVar::eString});
+    if(!SafeStatus::Check(assert_var.Status()) || assert_var.Data()->value.empty())
         { return false; }
     output = assert_var.Data()->value;
     return true;
 }
 
-SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& name, const penum_t& type) const
+SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& _name, const penum_t& type) const
 {
-    auto iter = std::find(variables.cbegin(), variables.cend(), name);
+    auto iter = std::find(variables.cbegin(), variables.cend(), _name);
     auto status = Status::NO_ERR;
     if(iter == variables.cend())
         { status = Status::ThingDataINVALID_VARIABLE_NAME; }

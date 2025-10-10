@@ -8,7 +8,8 @@
 class Material : public Device
 {
 public:
-    virtual void SetupVariables(const ThingData&);
+    virtual void SetVariables(const ThingData&);
+    virtual ThingData GetVariables() const;
 
     ID GetDiffuseTexture() const;
     void SetDiffuseTexture(ID TextureID);

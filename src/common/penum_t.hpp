@@ -6,27 +6,27 @@
 struct penum_t
 {
     constexpr penum_t(unsigned short id = 0, const char* name = "penum_t"):
-        mID(id),
-        mName(name)
+        id_(id),
+        name_(name)
     {}
 
-    unsigned short id() const { return mID; }
-    const char* name() const  { return mName; }
+    unsigned short id() const { return id_; }
+    const char* name()  const { return name_; }
 
-    constexpr operator int() const { return mID; }
-    constexpr operator const char*() const { return mName; }
-    constexpr operator std::string() const { return mName; }
+    constexpr operator int() const { return id_; }
+    constexpr operator const char*() const { return name_; }
+    constexpr operator std::string() const { return name_; }
 
-    constexpr bool operator==(const penum_t& other) const { return (mID == other.mID); }
-    constexpr bool operator!=(const penum_t& other) const { return (mID != other.mID); }
-    constexpr bool operator< (const penum_t& other) const { return (mID <  other.mID); }
-    constexpr bool operator> (const penum_t& other) const { return (mID >  other.mID); }
-    constexpr bool operator<=(const penum_t& other) const { return (mID <= other.mID); }
-    constexpr bool operator>=(const penum_t& other) const { return (mID >= other.mID); }
+    constexpr bool operator==(const penum_t& other) const { return (id_ == other.id_); }
+    constexpr bool operator!=(const penum_t& other) const { return (id_ != other.id_); }
+    constexpr bool operator< (const penum_t& other) const { return (id_ <  other.id_); }
+    constexpr bool operator> (const penum_t& other) const { return (id_ >  other.id_); }
+    constexpr bool operator<=(const penum_t& other) const { return (id_ <= other.id_); }
+    constexpr bool operator>=(const penum_t& other) const { return (id_ >= other.id_); }
 
 private:
-    unsigned short mID = 0;
-    const char* mName  = "penum_t";
+    unsigned short id_ = 0;
+    const char* name_  = "penum_t";
 };
 
 template<>

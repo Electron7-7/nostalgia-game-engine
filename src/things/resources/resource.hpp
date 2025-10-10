@@ -10,15 +10,21 @@ class Resource : public Thing
 public:
     Resource() = default;
     Resource(const FileData& Data)
-    : mFileData(Data)
-    {}
+        : mFileData(Data) {}
 
-    virtual void SetupVariables(const ThingData& data)
+    virtual void SetVariables(const ThingData& data)
     {
-        Thing::SetupVariables(data);
+        Thing::SetVariables(data);
         std::string path = "";
-        if(data.GetString(path, "File"))
+        if(data.GetVariable(path, "File"))
             { mFileData.LoadFile(path); }
+    }
+
+    virtual ThingData GetVariables() const
+    {
+        ThingData thing_data{Thing::GetVariables()};
+        thing_data.AddVariable(mFileData.Path(), "File");
+        return thing_data;
     }
 
     FileData& Data()

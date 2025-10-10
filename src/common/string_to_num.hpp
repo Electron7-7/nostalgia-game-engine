@@ -1,43 +1,44 @@
 #ifndef STRING_TO_NUM_H
 #define STRING_TO_NUM_H
 
-#include <stdexcept>
-#include <string>
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
+#include "glm_to_string.hpp"
 
-#define SHITTY_FUCKING_MACRO(STD, VARIABLE)   \
-T new_value = 0;                              \
-try                                           \
-{                                             \
-    new_value = STD(string);                  \
-}                                             \
-catch(std::invalid_argument const& exception) \
-{                                             \
-    return false;                             \
-}                                             \
-VARIABLE = new_value;                         \
-return true;
+#include <stdexcept>
+
+template<typename T>
+T StringToNum(const std::string& string)
+{
+    T output{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::None`
+    if constexpr(!std::is_integral_v<T>)
+    {
+        try { output = std::stold(string); }
+        catch(std::invalid_argument const& e) {}
+    }
+    else
+    {
+        try { output = std::stoll(string); }
+        catch(std::invalid_argument const& e) {}
+    }
+    return output;
+}
 
 template<typename T>
 bool StringToNum(T& number, const std::string& string)
 {
+    T try_number{0};
     if constexpr(!std::is_integral_v<T>)
-        { SHITTY_FUCKING_MACRO(std::stold, number) }
-    SHITTY_FUCKING_MACRO(std::stoll, number)
+    {
+        try { try_number = std::stold(string); }
+        catch(std::invalid_argument const& e) { return false; }
+    }
+    else
+    {
+        try { try_number = std::stoll(string); }
+        catch(std::invalid_argument const& e) { return false; }
+    }
+    number = try_number;
+    return true;
 }
-
-template<typename T>
-concept GLMContainer = requires
-{
-    (
-        std::is_same_v<std::decay_t<glm::vec2>, std::decay_t<T>> ||
-        std::is_same_v<std::decay_t<glm::vec3>, std::decay_t<T>> ||
-        std::is_same_v<std::decay_t<glm::vec4>, std::decay_t<T>> ||
-        std::is_same_v<std::decay_t<glm::quat>, std::decay_t<T>>
-    ) == true;
-};
 
 template<GLMContainer T, unsigned int size>
 bool InterpretGLM(T& variable, const std::string& string)

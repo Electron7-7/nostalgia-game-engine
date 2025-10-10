@@ -36,7 +36,7 @@ bool UniqueIDs::Push(ID id)
 }
 
 bool UniqueIDs::Erase(ID id)
-{ return(sExistingIDs.erase(id)); }
+{ return (sExistingIDs.erase(id) != 0); }
 
 bool UniqueIDs::Contains(ID id)
 { return sExistingIDs.contains(id); }

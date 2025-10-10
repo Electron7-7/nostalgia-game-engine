@@ -2,14 +2,17 @@
 #include "theatre_parser/thing_data.hpp"
 
 Thing::~Thing()
-{ UniqueIDs::Erase(mUID); }
+{}
 
-void Thing::SetupVariables(const ThingData& data)
+void Thing::SetVariables(const ThingData& data)
 {
     mUID  = data.uid;
     mName = data.name;
     mType = data.type();
 }
+
+ThingData Thing::GetVariables() const
+{ return ThingData{mName, mType, mUID}; }
 
 ID Thing::uid() const
 { return mUID; }

@@ -4,19 +4,22 @@
 #include "settings/settings.hpp"
 #include "managers/backend_manager.hpp"
 
-void NostalgiaPlayer::SetupVariables(const ThingData& data)
+void NostalgiaPlayer::SetVariables(const ThingData& data)
 {
-    Actor::SetupVariables(data);
+    Actor::SetVariables(data);
 
-    data.GetNumber(mViewPosition, "ViewPosition");
+    data.GetVariable(mViewPosition, "ViewPosition");
 }
 
-bool NostalgiaPlayer::Initialize()
+ThingData NostalgiaPlayer::GetVariables() const
 {
-    if(!Actor::Initialize())
-        { return false; }
-    return true;
+    ThingData data{Actor::GetVariables()};
+
+    data.AddVariable(mViewPosition, "ViewPosition");
+
+    return data;
 }
+
 
 void NostalgiaPlayer::Input(const InputEvent& event)
 {

@@ -7,12 +7,11 @@
 class Actor : public Thing, public Transform3D
 {
 public:
-    virtual void SetupVariables(const ThingData&);
-    virtual bool Initialize() { return true; }
-    virtual void Destroy() {}
-
-    virtual void Update() {}
     virtual void Tick() {}
+    virtual void Update() {}
+    virtual void Input(const InputEvent&) {}
+    virtual void SetVariables(const ThingData&);
+    virtual ThingData GetVariables() const;
 
     ID GetMeshInstanceID() const;
     void SetMeshInstanceID(ID MeshInstanceID);

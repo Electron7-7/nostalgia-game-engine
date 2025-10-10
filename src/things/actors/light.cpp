@@ -2,7 +2,6 @@
 #include "theatre_parser/thing_data.hpp"
 #ifdef DEBUGGING
 #   include "managers/theatre_manager.hpp"
-#   include "theatre_parser/thing_variable.hpp"
 #endif // DEBUGGING
 
 int light_t::sPointCount       = 0;
@@ -16,50 +15,72 @@ void light_t::ClearCounts()
     light_t::sDirectionalCount = 0;
 }
 
-void light_t::SetupVariables(const ThingData& data)
+void light_t::SetVariables(const ThingData& data)
 {
     Scale() = glm::vec3(0.1f);
 
-    Actor::SetupVariables(data);
+    Actor::SetVariables(data);
 
-    data.GetNumber(mColor, "Color");
-    data.GetNumber(mEnergy, "Energy");
-    data.GetNumber(mSpecularStrength, "SpecularStrength");
-    data.GetNumber(mAmbientStrength, "AmbientStrength");
-    data.GetNumber(mAttenuation, "FadeIntensity");
-    data.GetNumber(mAttenuation, "Attenuation");
-    data.GetNumber(mRange, "Range");
-    data.GetBool(mEnabled, "LightVisible");
-    data.GetBool(mEnabled, "Enabled");
-    if(data.GetBool(mEnabled, "Disabled"))
+    data.GetVariable(mColor, "Color");
+    data.GetVariable(mEnergy, "Energy");
+    data.GetVariable(mSpecularStrength, "SpecularStrength");
+    data.GetVariable(mAmbientStrength, "AmbientStrength");
+    data.GetVariable(mAttenuation, "FadeIntensity");
+    data.GetVariable(mAttenuation, "Attenuation");
+    data.GetVariable(mRange, "Range");
+    data.GetVariable(mEnabled, "LightVisible");
+    data.GetVariable(mEnabled, "Enabled");
+    if(data.GetVariable(mEnabled, "Disabled"))
         { mEnabled = !mEnabled; }
 
 #pragma message("TODO: should the light's debug mesh be limited to the debug build, or should Lights be always invisible with a special variable for enabling their debug mesh?")
 #ifdef DEBUGGING
     mVisible = true;
     if(mMeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
-        id_t mat_id = TheatreManager::CreateThing(ThingData{
-            mName + "'s Debug Mat",
+        ID mat_id = TheatreManager::CreateThing({
+            mName + "_DebugMaterial",
             ThingType::Material,
             UniqueIDs::Generate(),
             {
-                ThingVar{"DiffuseTexture", std::to_string(UniqueIDs::Reserved::i_LightDebug), ThingVar::eReferenceT},
-                ThingVar{"FullBright", "true", ThingVar::eBool},
+                {UniqueIDs::Reserved::i_LightDebug, "DiffuseTexture"},
+                {true, "FullBright"},
             }
         });
-        mMeshInstanceID = TheatreManager::CreateThing(ThingData{
-            mName + "'s Debug MeshInst",
+        mMeshInstanceID = TheatreManager::CreateThing({
+            mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
             UniqueIDs::Generate(),
             {
-                ThingVar{"Mesh", std::to_string(UniqueIDs::Reserved::m_Cube), ThingVar::eReferenceT},
-                ThingVar{"Material", std::to_string(mat_id), ThingVar::eReferenceT}
+                {UniqueIDs::Reserved::m_Cube, "Mesh"},
+                {mat_id, "Material"}
             }
         });
     }
 #else  // !DEBUGGING
     mVisible = false;
 #endif // DEBUGGING
+}
+
+ThingData light_t::GetVariables() const
+{
+    ThingData data{Actor::GetVariables()};
+
+    data.AddVariable(mColor, "Color");
+    data.AddVariable(mEnergy, "Energy");
+    data.AddVariable(mSpecularStrength, "SpecularStrength");
+    data.AddVariable(mAmbientStrength, "AmbientStrength");
+    data.AddVariable(mAttenuation, "FadeIntensity");
+    data.AddVariable(mAttenuation, "Attenuation");
+    data.AddVariable(mRange, "Range");
+    data.AddVariable(mEnabled, "LightVisible");
+    data.AddVariable(mEnabled, "Enabled");
+    data.AddVariable(mVisible, "Visible");
+#ifndef DEBUGGING // See above pragma message
+    data.RemoveVariable("Mesh");
+    data.RemoveVariable("Material");
+#endif
+
+    return data;
 }
 
 int light_t::Index() const
@@ -84,11 +105,11 @@ int SpotLight::GetCount()
 
 void SpotLight::SetupVariables(const ThingData& data)
 {
-    light_t::SetupVariables(data);
-    data.GetNumber(mSpotAngle, "Angle");
-    data.GetNumber(mSpotAngle, "SpotAngle");
-    data.GetNumber(mSpotAngleFade, "AngleFade");
-    data.GetNumber(mSpotAngleFade, "SpotAngleFade");
+    light_t::SetVariables(data);
+    data.GetVariable(mSpotAngle, "Angle");
+    data.GetVariable(mSpotAngle, "SpotAngle");
+    data.GetVariable(mSpotAngleFade, "AngleFade");
+    data.GetVariable(mSpotAngleFade, "SpotAngleFade");
 }
 
 LightType SpotLight::Type() const
@@ -109,7 +130,7 @@ void DirectionalLight::SetupVariables(const ThingData& data)
 {
     Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
     mVisible = false;
-    light_t::SetupVariables(data);
+    light_t::SetVariables(data);
 }
 
 LightType DirectionalLight::Type() const

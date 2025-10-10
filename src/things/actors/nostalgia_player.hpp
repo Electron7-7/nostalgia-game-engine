@@ -19,10 +19,10 @@ enum class Movement
 class NostalgiaPlayer : public Actor
 {
 public:
-    virtual void SetupVariables(const ThingData&);
-    virtual bool Initialize();
-    virtual void Input(const InputEvent&);
     virtual void Tick();
+    virtual void Input(const InputEvent&);
+    virtual void SetVariables(const ThingData&);
+    virtual ThingData GetVariables() const;
 
     void Move(const glm::vec2& Direction);
     void Look(const glm::vec2& Position);
