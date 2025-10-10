@@ -7,10 +7,9 @@
 #include <string>
 #include <vector>
 
-class DemoController
+class gen1_demo_controller
 {
 public:
-
     bool Record();
     bool StopRecording();
     bool RecordingDemo() const;
@@ -32,6 +31,8 @@ private:
     bool ParseDemo(const std::string&, std::vector<EventQueue>&);
     SafeStatus ParseLine(const std::string&, std::vector<InputEvent>&, std::vector<EventQueue>&);
 };
+
+typedef gen1_demo_controller DemoController;
 
 extern DemoController* g_pDemoController;
 

@@ -40,10 +40,11 @@ public:
     std::string Log() const;
     std::string DemoString() const;
 
+    constexpr bool Valid() const
+    { return BindingIDs::Exists(mBinding); }
+
 private:
-    friend class InputManager;
-    friend class EventQueue;
-    friend class DemoController;
+    friend class gen1_demo_controller;
 
     double mTime = Time::Elapsed();
     long   mTick = _Manager::TickNumber();
@@ -51,9 +52,6 @@ private:
     std::set<std::string> mActions = {};
     glm::vec2 mCurMousePos  = {0.0f, 0.0f};
     glm::vec2 mLastMousePos = {0.0f, 0.0f};
-
-    constexpr bool Valid() const
-    { return BindingIDs::Exists(mBinding); }
 };
 
 #endif // EVENT_H

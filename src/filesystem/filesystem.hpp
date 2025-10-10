@@ -36,8 +36,12 @@ struct FileSystem
     static std::string GetStem(const std::string& Path, bool RemoveExtension = false);
     static void GetStem(const std::string& Path, std::string& Output, bool RemoveExtension = false);
 
+    static bool HasExtension(const std::string& Path);
     static std::string GetExtension(const std::string& FileName, bool RemovePeriodPrefix = false);
     static void GetExtension(const std::string& FileName, std::string& Output, bool RemovePeriodPrefix = false);
+
+    static void ReplaceExtension(const std::string& NewExtension, std::string& Output);
+    static std::string ReplaceExtension(const std::string& NewExtension, const std::string& Path);
 };
 
 #endif // FILESYSTEM_H

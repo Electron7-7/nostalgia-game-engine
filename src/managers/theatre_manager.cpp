@@ -1,4 +1,5 @@
 #include "theatre_manager.hpp"
+#include "input/demo_controller.hpp"
 #include "theatre_parser/theatre_data.hpp"
 #include "theatre_parser/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
@@ -29,7 +30,6 @@ static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer{std::make_shared<Nostalgia
 static std::vector<RenderCommand> s_RenderCommandQueue{};
 static bool s_ReadyToRender{false};
 static TheatreData sCurrentTheatreData{};
-static std::string sCurrentTheatrePath{""};
 
 void TheatreManager::Update()
 {
@@ -85,6 +85,8 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     g_pDebugger->StartTheatreTiming(false);
 #endif // DEBUGGING
 
+    g_pDemoController->StopRecording();
+    g_pDemoController->Save();
     s_ReadyToRender = false;
     DestroyThings();
     g_pBackendManager->Graphics()->DestroyRenderingData();
@@ -126,7 +128,6 @@ void TheatreManager::RenderWorld()
 void TheatreManager::LoadTheatreData(const TheatreData& data)
 {
     sCurrentTheatreData = data;
-    sCurrentTheatrePath = "";
     _Manager::StartNewTheatre();
 }
 
@@ -138,7 +139,6 @@ bool TheatreManager::LoadTheatreFromMemory(const std::string& data)
         print_debugging("{}Theatre File Data:{}\n{}", sty::Bold + fg::Cyan, sty::Reset, data);
         return false;
     }
-    sCurrentTheatrePath = "";
     _Manager::StartNewTheatre();
     return true;
 }
@@ -150,15 +150,21 @@ bool TheatreManager::LoadTheatreFromFile(const std::string& path)
         print_warning("TheatreManager::LoadTheatreFromFile - unable to load Theatre file '{}'", path);
         return false;
     }
-    sCurrentTheatrePath = path;
     _Manager::StartNewTheatre();
     return true;
 }
 
-const TheatreData& TheatreManager::GetCurrentTheatreData()
+const TheatreData& TheatreManager::GetInitialState()
 { return sCurrentTheatreData; }
-const std::string& TheatreManager::GetCurrentTheatrePath()
-{ return sCurrentTheatrePath; }
+
+TheatreData TheatreManager::GetCurrentState()
+{
+    TheatreData data{sCurrentTheatreData};
+    data.clear();
+    for(const auto& [id, thing] : m_sThings)
+        { data.AddData(thing->GetVariables()); }
+    return data;
+}
 
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
 {
@@ -183,12 +189,12 @@ ID TheatreManager::CreateThing(const ThingData& cData)
     if(data.type() == ThingType::NostalgiaPlayer)
     {
         thing = static_pointer_cast<Thing>(s_LocalPlayer);
-        thing->SetupVariables(ThingData::PlayerDefaults);
+        thing->SetVariables(ThingData::PlayerDefaults);
     }
     else
         { thing = m_sThings[data.uid] = ThingFactory::MakeThing(data.type())(); }
 
-    thing->SetupVariables(data);
+    thing->SetVariables(data);
     return thing->uid();
 }
 
@@ -210,8 +216,18 @@ bool TheatreManager::DestroyThing(ID id)
     }
     if(!UniqueIDs::Contains(id))
         { print_warning("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 'm_sThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id); }
-    m_sThings.erase(id);
-    return UniqueIDs::Erase(id);
+    return (m_sThings.erase(id) != 0);
+}
+
+bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<Thing>& output)
+{
+    if(m_sThings.size() <= index)
+        { return false; }
+    auto it = m_sThings.begin();
+    for(size_t i = 0 ; i <= index ; ++i)
+    { ++it; }
+    output = it->second;
+    return true;
 }
 
 void TheatreManager::CreateThings()
@@ -240,19 +256,7 @@ void TheatreManager::CreateThings()
 
 void TheatreManager::DestroyThings()
 {
-#pragma message("TODO: Use godbolt to figure out whether or not I need to do this (will `Thing::~Thing()`, and therefore, `UniqueIDs::Erase(mUID)` be called by every Thing even if they have their own destructor?)")
-    for(const auto& [id, thing] : m_sThings)
-        { UniqueIDs::Erase(id); }
+#pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
+    UniqueIDs::Clear();
     m_sThings.clear();
-}
-
-bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<Thing>& output)
-{
-    if(m_sThings.size() <= index)
-        { return false; }
-    auto it = m_sThings.begin();
-    for(size_t i = 0 ; i <= index ; ++i)
-    { ++it; }
-    output = it->second;
-    return true;
 }

@@ -59,7 +59,7 @@ void TheatreData::SetupUIDsAndPriorities()
     {
         for(ThingVar& variable : data.variables)
         {
-            if(variable.type != ThingVar::eReferenceT && variable.type != ThingVar::eReferenceE)
+            if(variable.type != ThingVar::eReference)
                 { continue; }
             else if(name_id_map.contains(variable.value))
                 { variable.reference_id = name_id_map.at(variable.value); }
@@ -87,7 +87,10 @@ std::string TheatreData::formatted() const
         {
             things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name);
             for(const ThingVar& variable : thing_data.variables)
-                { things += std::format("\t\t{} = {}\n", variable.name, variable.formatted_value()); }
+            {
+                if(auto format_var = variable.formatted(); !format_var.empty())
+                    { things += std::format("\t\t{}\n", format_var); }
+            }
             things += std::format("\t}}\n");
         }
     }

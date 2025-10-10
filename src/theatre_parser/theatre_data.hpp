@@ -13,6 +13,7 @@ struct TheatreData
 
     std::vector<ThingData> things_data{};
     std::string name{"UntitledTheatre"};
+    std::string file_path{""};
     int index = -1;
 
     void SetupUIDsAndPriorities();

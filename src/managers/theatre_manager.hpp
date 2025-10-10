@@ -26,8 +26,9 @@ public:
     static bool LoadTheatreFromMemory(const std::string& Data);
     static bool LoadTheatreFromFile(const std::string& Path);
 
-    static const TheatreData& GetCurrentTheatreData();
-    static const std::string& GetCurrentTheatrePath();
+    static const TheatreData& GetInitialState();
+    static TheatreData GetCurrentState();
+
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);
     static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
@@ -51,7 +52,6 @@ private:
 
     static void CreateThings();
     static void DestroyThings();
-    static bool s_DestroyThing(ID);
 };
 
 extern TheatreManager* g_pTheatreManager;

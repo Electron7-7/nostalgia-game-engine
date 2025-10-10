@@ -5,10 +5,12 @@
 #include "filesystem/filesystem.hpp"
 #include "theatre_parser/theatre_parser.hpp"
 #include "printing.hpp"
+#include "string_to_num.hpp"
 #include "truncate_string.hpp"
 
 #include <sstream>
 
+static std::string sExtension{".gen1_demo"};
 static std::vector<EventQueue> sDemo{};
 
 static DemoController sDemoController;
@@ -20,7 +22,12 @@ bool DemoController::Record()
         { return false; }
     else if(is_playing_)
     {
-        print_warning("DemoController::Record - Cannot record a demo while a demo is being played");
+        print_error("DemoController::Record - Cannot record a gen1 demo while a gen1 demo is being played");
+        return false;
+    }
+    else if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
+    {
+        print_error("DemoController::Record - You can't start recording a gen1 demo inside a Theatre");
         return false;
     }
     sDemo.clear();
@@ -41,12 +48,12 @@ bool DemoController::Save(const std::string& path)
 {
     if(!recorded_unsaved_demo_ || sDemo.empty())
         { return false; }
-    std::string theatre_path{g_pTheatreManager->GetCurrentTheatrePath()};
+    std::string theatre_path{g_pTheatreManager->GetInitialState().file_path};
     if(theatre_path.empty())
     {
-        auto status = TheatreParser::WriteTheatre(g_pTheatreManager->GetCurrentTheatreData(), FileSystem::GetDir(path));
+        auto status = TheatreParser::WriteTheatre(g_pTheatreManager->GetCurrentState(), FileSystem::GetDir(path));
         if(status.Status() != Status::NO_ERR)
-            { print_warning("DemoController::Save - Unable to save Theatre file for demo");; return false; }
+            { print_warning("DemoController::Save - unable to save Theatre file for gen1 demo"); return false; }
         theatre_path = status.Data();
     }
     std::string base_name = FileSystem::GetAbsolute(path);
@@ -57,14 +64,14 @@ bool DemoController::Save(const std::string& path)
         name = base_name;
         if(iterator != 0)
             { name += std::format("_{}", iterator); }
-        name += std::format(".dem");
+        name += sExtension;
         if(!FileSystem::Exists(name))
             { break; }
         ++iterator;
     }
 
     InputEvent temp_event;
-    std::string output{std::format("{{{}}}", theatre_path)};
+    std::string output{std::format("!Nostalgia Gen1 Demo\n{{{}}}", theatre_path)};
     size_t i = -1;
     for(EventQueue& queue : sDemo)
     {
@@ -81,7 +88,7 @@ bool DemoController::Play(const std::string& path)
         { return false; }
     else if(is_recording_)
     {
-        print_warning("DemoController::Play - Cannot play a demo while a demo is being recorded");
+        print_error("DemoController::Play - cannot play a gen1 demo while a gen1 demo is being recorded");
         return false;
     }
     sDemo.clear();
@@ -105,7 +112,7 @@ void DemoController::ProcessQueue(EventQueue& queue)
     if(is_playing_)
     {
         if(sDemo.empty())
-            { StopPlaying(); }
+            { StopPlaying(); return; }
         queue = sDemo.back();
         sDemo.pop_back();
     }
@@ -118,8 +125,11 @@ bool DemoController::ParseDemo(const std::string& path, std::vector<EventQueue>&
     std::string file_data("");
     if(!FileSystem::try_ReadFileToString(path, file_data))
     {
-        print_warning("DemoController::LoadDemoFromFile - Failed to load demo file '{}'\n", gTruncateString(path));;
-        return false;
+        if(!FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
+        {
+            print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path));;
+            return false;
+        }
     }
     std::vector<InputEvent> event_queue;
     bool l_AtLeastOneLineParsed = false;
@@ -131,10 +141,10 @@ bool DemoController::ParseDemo(const std::string& path, std::vector<EventQueue>&
         if(status == Status::DemoControllerLINE_PARSED)
             { l_AtLeastOneLineParsed = true; }
         else if(status == Status::DemoControllerLINE_FAILED)
-            { print_warning("DemoController::ParseLine - Failed to parse this line: '{}'", line); }
+            { print_warning("DemoController::ParseLine - gen1 demo failed to parse this line: '{}'", line); }
     }
     if(!l_AtLeastOneLineParsed)
-        { print_warning("DemoController::LoadDemoFromMemory - No inputs recorded or otherwise unable to parse Demo file"); }
+        { print_warning("DemoController::LoadDemoFromMemory - no inputs recorded or otherwise unable to parse gen1 demo file"); }
     return l_AtLeastOneLineParsed;
 }
 
@@ -155,7 +165,6 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     }
     else if(line.starts_with('{'))
     {
-        print_debug("Loading Theatre: '{}'", line.substr(1, line.size() - 2));
         TheatreManager::LoadTheatreFromFile(line.substr(1, line.size() - 2));
         return Status::NO_ERR;
     }
@@ -226,7 +235,7 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     { return Status::DemoControllerLINE_FAILED; }
 
     InputEvent new_event;
-    new_event.mBinding = InputManager::m_sGetBinding(id);
+    new_event.mBinding = InputManager::GetBinding(id);
     new_event.mBinding.status = static_cast<InputStatus>(status);
     new_event.mBinding.just_changed = static_cast<bool>(just_changed);
     new_event.mActions = InputManager::GetActions(id);

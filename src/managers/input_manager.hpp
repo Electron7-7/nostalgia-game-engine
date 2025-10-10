@@ -48,6 +48,8 @@ public:
     static bool ClearActions(const std::string& InputName);
     static bool ClearActions(ID InputID);
 
+    static InputBinding& GetBinding(ID);
+
 private:
     static std::vector<InputBinding> s_Bindings;
     static InputEventCallbackFunction m_sInputEventCallback;
@@ -57,9 +59,6 @@ private:
 
     static void m_sHandleInputEvent(const InputEvent&);
     void mPollInputs(EventQueue&);
-
-    friend class DemoController;
-    static InputBinding& m_sGetBinding(ID);
 };
 
 extern InputManager* g_pInputManager;

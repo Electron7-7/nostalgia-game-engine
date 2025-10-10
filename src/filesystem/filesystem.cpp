@@ -46,7 +46,7 @@ SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const st
 {
     std::string absolute_path = GetAbsolute(path);
     if(FileSystem::Exists(path))
-        { print_warning("FileSystem::try_WriteFileFromString - Attempting to overwrite file at '{}'!", path); }
+        { print_warning("FileSystem::try_WriteFileFromString - Overwriting file '{}'!", path); }
 
     std::ofstream file(absolute_path);
     if(!file.is_open())
@@ -151,6 +151,9 @@ std::string FileSystem::GetStem(const std::string& string_path, bool remove_exte
     return fs::path{string_path}.stem().replace_extension("").string();
 }
 
+bool FileSystem::HasExtension(const std::string& string_path)
+{ return !GetExtension(string_path).empty(); }
+
 void FileSystem::GetStem(const std::string& string_path, std::string& output, bool remove_extension)
 { output = GetStem(string_path, remove_extension); }
 
@@ -162,3 +165,9 @@ std::string FileSystem::GetExtension(const std::string& name, bool remove_prefix
     std::string extension = fs::path(name).extension().string();
     return (remove_prefix && extension.size() > 1) ? extension.substr(1) : extension;
 }
+
+void FileSystem::ReplaceExtension(const std::string& extension, std::string& output)
+{ output = fs::path{output}.replace_extension({extension}).generic_string(); }
+
+std::string FileSystem::ReplaceExtension(const std::string& extension, const std::string& string_path)
+{ return fs::path{string_path}.replace_extension({extension}).generic_string(); }

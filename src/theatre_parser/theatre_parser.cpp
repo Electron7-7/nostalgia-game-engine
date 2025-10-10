@@ -1,7 +1,8 @@
 #include "theatre_parser.hpp"
 #include "filesystem/filesystem.hpp"
-#include "to_lower.hpp"
 #include "filesystem/file_data.hpp"
+#include "string_to_num.hpp"
+#include "to_lower.hpp"
 
 #include <string>
 
@@ -91,9 +92,9 @@ enum class Parsing
 
 bool TheatreParser::ParseTheatreFile(const std::string& path, TheatreData& output)
 {
-    if(!SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)))
-        { return false; }
-    return ReadTheatre(output);
+    if(SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)) && ReadTheatre(output))
+        { output.file_path = path; return true; }
+    return false;
 }
 
 bool TheatreParser::ParseTheatreFileFromMemory(const FileData& data, TheatreData& output)
@@ -104,7 +105,7 @@ bool TheatreParser::ParseTheatreFileFromMemory(const FileData& data, TheatreData
 
 SafeReturn<std::string> TheatreParser::WriteTheatre(const TheatreData& data, const std::string& file_path)
 {
-    std::string final_path = (FileSystem::HasStem(file_path)) ? file_path : FileSystem::Directory(file_path) + data.name;
+    std::string final_path = (FileSystem::HasStem(file_path)) ? file_path : FileSystem::Directory(file_path) + FileSystem::ReplaceExtension(".nt", data.name);
     return SafeReturn(final_path, FileSystem::try_WriteFileFromString(final_path, data.formatted()));
 }
 
@@ -373,7 +374,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         }
         buffer += character;
     }
-    output.name = theatre_name;
-    StringToNum(output.index, theatre_index);
+    output.name  = theatre_name;
+    output.index = StringToNum<id_t>(theatre_index);
     return true;
 }

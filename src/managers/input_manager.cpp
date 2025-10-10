@@ -67,7 +67,7 @@ void InputManager::mPollInputs(EventQueue& queue)
     }
 }
 
-InputBinding& InputManager::m_sGetBinding(ID id)
+InputBinding& InputManager::GetBinding(ID id)
 {
     static InputBinding l_sEmpty = InputBinding();
     auto it = std::find(s_Bindings.begin(), s_Bindings.end(), id);
@@ -77,19 +77,19 @@ InputBinding& InputManager::m_sGetBinding(ID id)
 }
 
 bool InputManager::JustPressed(ID id)
-{ return (Pressed(id) && m_sGetBinding(id).just_changed); }
+{ return (Pressed(id) && GetBinding(id).just_changed); }
 
 bool InputManager::JustPressed(const std::string& name)
 { return JustPressed(BindingIDs::GetID(name)); }
 
 bool InputManager::Pressed(ID id)
-{ return (m_sGetBinding(id).status == InputStatus::Pressed); }
+{ return (GetBinding(id).status == InputStatus::Pressed); }
 
 bool InputManager::Pressed(const std::string& name)
 { return Pressed(BindingIDs::GetID(name)); }
 
 bool InputManager::Released(ID id)
-{ return (m_sGetBinding(id).status == InputStatus::Released); }
+{ return (GetBinding(id).status == InputStatus::Released); }
 
 bool InputManager::Released(const std::string& name)
 { return Released(BindingIDs::GetID(name)); }
