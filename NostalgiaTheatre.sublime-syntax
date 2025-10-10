@@ -201,11 +201,11 @@ contexts:
     - match: '(,)(?:\s+)?(?=\))'
       captures:
         1: invalid.illegal.unexpected-text
-    - match: '(([^\s\d\),\.-])|(\.|-|,){2,}|[\d\.-]\s+([^,\)]))'
+    - match: '(([^\s\d\),\.-])|((\.|--|,){2,})|[\d\.-]\s+([^,\)]))'
       captures:
         2: invalid.illegal.unexpected-text
         3: invalid.illegal.unexpected-text
-        4: invalid.illegal.unexpected-text
+        5: invalid.illegal.unexpected-text
     - match: '\d'
       scope: constant.numeric
     - match: '-{1}'
