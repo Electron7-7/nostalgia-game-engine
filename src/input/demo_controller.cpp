@@ -21,7 +21,7 @@ DemoController* g_pDemoController = &sDemoController;
 
 void DemoController::NotifyOfTheatreChange()
 {
-    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL && is_recording_)
+    if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL && is_recording_)
         { sIndexOfTheatreLoad = sDemo.size() - 1; }
 }
 
@@ -80,10 +80,12 @@ bool DemoController::Save(const std::string& path)
     }
 
     InputEvent temp_event;
-    std::string output{std::format("!Nostalgia Gen 1 Demo\n{{{}}}", theatre_path)};
+    std::string output{std::format("!Nostalgia Gen 1 Demo")};
     size_t i = -1;
     for(EventQueue& queue : sDemo)
     {
+        if(i == sIndexOfTheatreLoad)
+            { output += std::format("\n{{{}}}", theatre_path); }
         output += std::format("\n[{}]", ++i);
         while(queue.GetNextEvent(temp_event))
             { output += std::format("\n\t{}", temp_event.DemoString()); }
@@ -124,8 +126,8 @@ void DemoController::ProcessQueue(EventQueue& queue)
         if(sPlaybackIndex >= sDemo.size())
             { StopPlaying(); return; }
         queue = sDemo.at(sPlaybackIndex);
-        if(sPlaybackIndex == sIndexOfTheatreLoad)
-            { g_pTheatreManager->LoadTheatreFromFile(sDemoTheatreName); }
+        if(sIndexOfTheatreLoad == sPlaybackIndex)
+            { TheatreManager::LoadTheatreFromFile(sDemoTheatreName); }
         ++sPlaybackIndex;
     }
     else if(is_recording_)
@@ -178,6 +180,7 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     else if(line.starts_with('{'))
     {
         sDemoTheatreName = line.substr(1, line.size() - 2);
+        sIndexOfTheatreLoad = demo.size() - 1;
         return Status::NO_ERR;
     }
     else if(line.starts_with('!'))
