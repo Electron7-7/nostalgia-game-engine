@@ -10,6 +10,8 @@
 class gen1_demo_controller
 {
 public:
+    void NotifyOfTheatreChange();
+
     bool Record();
     bool StopRecording();
     bool RecordingDemo() const;

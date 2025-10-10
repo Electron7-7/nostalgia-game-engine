@@ -62,6 +62,8 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     g_pDebugger->StartTheatreTiming(true);
 #endif // DEBUGGING
 
+    g_pDemoController->NotifyOfTheatreChange();
+
     s_ReadyToRender = false;
 
     CreateThings();

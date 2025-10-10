@@ -11,10 +11,19 @@
 #include <sstream>
 
 static std::string sExtension{".gen1_demo"};
+static std::string sDemoTheatreName{""};
 static std::vector<EventQueue> sDemo{};
+static size_t sIndexOfTheatreLoad{0};
+static size_t sPlaybackIndex{0};
 
 static DemoController sDemoController;
 DemoController* g_pDemoController = &sDemoController;
+
+void DemoController::NotifyOfTheatreChange()
+{
+    if(_Manager::GetTheatreState() == ManagerEnums::IN_LEVEL && is_recording_)
+        { sIndexOfTheatreLoad = sDemo.size() - 1; }
+}
 
 bool DemoController::Record()
 {
@@ -91,6 +100,7 @@ bool DemoController::Play(const std::string& path)
         print_error("DemoController::Play - cannot play a gen1 demo while a gen1 demo is being recorded");
         return false;
     }
+    sPlaybackIndex = 0;
     sDemo.clear();
     if(!ParseDemo(path, sDemo))
         { return false; }
@@ -111,10 +121,12 @@ void DemoController::ProcessQueue(EventQueue& queue)
 {
     if(is_playing_)
     {
-        if(sDemo.empty())
+        if(sPlaybackIndex >= sDemo.size())
             { StopPlaying(); return; }
-        queue = sDemo.back();
-        sDemo.pop_back();
+        queue = sDemo.at(sPlaybackIndex);
+        if(sPlaybackIndex == sIndexOfTheatreLoad)
+            { g_pTheatreManager->LoadTheatreFromFile(sDemoTheatreName); }
+        ++sPlaybackIndex;
     }
     else if(is_recording_)
         { sDemo.push_back(queue); }
@@ -165,9 +177,11 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     }
     else if(line.starts_with('{'))
     {
-        TheatreManager::LoadTheatreFromFile(line.substr(1, line.size() - 2));
+        sDemoTheatreName = line.substr(1, line.size() - 2);
         return Status::NO_ERR;
     }
+    else if(line.starts_with('!'))
+        { return Status::NO_ERR; }
 
     std::string id_buffer;
     std::string status_buffer;
