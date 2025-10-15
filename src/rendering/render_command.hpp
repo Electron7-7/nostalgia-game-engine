@@ -17,10 +17,10 @@ public:
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
 
-    ID shader = Shaders::BlinnPhong;
-    ID mesh_instance = ID::None;
-    glm::mat4 model_matrix = glm::mat4(1.0f);
-    bool is_wireframe = false;
+    ID shader{Shaders::BlinnPhong};
+    ID mesh_instance{ID::None};
+    glm::mat4 model_matrix{1.0f};
+    bool is_wireframe{false};
     glm::vec4 debug_highlight{0.0f};
 };
 
