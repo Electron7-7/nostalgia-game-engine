@@ -622,3 +622,11 @@ Oh, also, re-sizing the window in Wayland doesn't correctly re-size the viewport
 Shit, I need to undo the separation of `ThingVar::eReference`. The only real reason for doing that was for the printout, but I can just use `value < UniqueIDs::front`.
 
 After researching Doom vs Quake/Source demos, I've concluded that I want to change demo files. They're currently like DOOM demos, just a bunch of recorded inputs, but I want them to be more like Quake/Source demos which are actual snapshots of the game state (I think on each tick). I'm naming the current demo system "gen1 demos".
+
+[10/10/25]
+Before I get started, a note about Gen 1 demos: I should change `sDemo` from a vector of EventQueues to a vector of strings. That way I can slot in exactly when the Theatre is loaded and add other things when necessary. I might also wanna make it a manager. Anyways, on to planning the next feature and planning more than I have been.
+
+Time to implement Jolt! I'm gonna have the physics manager be the final abstraction to get Jolt bodies via IDs, collider Devices will be the only Things that directly access those bodies, and everything else is through the collider (position, orientation, friction, etc).
+
+[10/15/25]
+Holy shit, so after the weekend, I tried to implement Jolt and I was mostly successful, but I thought I had a problem where the contact validator wasn't validating contacts. Nope, turns out I'm dumb and while the Collider's scale was applying to the Actor and its MeshInstance, it *wasn't* being applied to the size of the collider body's shape. Which wasted an entire day. I'm now comitting all of my changes.
