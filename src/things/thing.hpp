@@ -11,9 +11,10 @@ class Thing
 public:
     virtual ~Thing();
 
-    virtual void Tick() {};
-    virtual void Update() {};
-    virtual void Input(const InputEvent&) {};
+    virtual void Ready() {}
+    virtual void Tick() {}
+    virtual void Update() {}
+    virtual void Input(const InputEvent&) {}
 
     // Derived classes must call their base class' `::SetVariables` method at the start of their own implementation of `::SetVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetVariables`.
     //

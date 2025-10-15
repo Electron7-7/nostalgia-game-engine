@@ -21,6 +21,7 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
+    void ReadyThings() const;
     void RenderWorld();
     bool ThingExists(const ID& UID) const;
     ID GetType(ID ObjectID) const;

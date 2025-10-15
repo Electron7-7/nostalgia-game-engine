@@ -276,7 +276,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 #ifdef DEBUGGING
     GetShader(rendercmd.shader)->SetUniform("debug_output", g_ShaderDebugOuptut);
 #endif
-    GetShader(rendercmd.shader)->SetUniform("debug_highlight", material->mDebugHighlight * material->mDebugHighlight.a);
+    GetShader(rendercmd.shader)->SetUniform("debug_highlight", rendercmd.debug_highlight * rendercmd.debug_highlight.a);
 
     GetShader(rendercmd.shader)->SetUniform("point_lights_count", PointLight::GetCount());
     GetShader(rendercmd.shader)->SetUniform("spot_lights_count", SpotLight::GetCount());

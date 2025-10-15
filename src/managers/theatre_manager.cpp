@@ -71,6 +71,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     s_ReadyToRender = false;
 
     CreateThings();
+    ReadyThings();
     g_pBackendManager->Graphics()->CreateRenderingData();
 
     s_ReadyToRender = true;
@@ -103,6 +104,9 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 
     return FINISHED;
 }
+
+void TheatreManager::ReadyThings() const
+{ for(const auto& [id, thing] : m_sThings) { thing->Ready(); } }
 
 void TheatreManager::RenderWorld()
 {

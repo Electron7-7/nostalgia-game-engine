@@ -1,6 +1,7 @@
 #include "actor.hpp"
+#include "managers/theatre_manager.hpp"
+#include "things/devices/collider.hpp"
 #include "theatre_parser/thing_data.hpp"
-#include "glm_to_string.hpp" // IWYU pragma: keep
 
 void Actor::SetVariables(const ThingData& data)
 {
@@ -29,10 +30,25 @@ ThingData Actor::GetVariables() const
     return data;
 }
 
-ID Actor::GetMeshInstanceID() const
+void Actor::Ready()
+{
+    if(auto collider = g_pTheatreManager->GetThing<Collider>(mColliderID);
+        !collider->BodyIDInvalid())
+        { mScale = collider->Scale(); }
+}
+
+void Actor::Tick()
+{
+    if(mColliderID == ID::None)
+        { return; }
+    mOrigin = g_pTheatreManager->GetThing<Collider>(mColliderID)->Origin();
+    SetQuaternion(g_pTheatreManager->GetThing<Collider>(mColliderID)->Quaternion());
+}
+
+ID Actor::MeshInstanceID() const
 { return mMeshInstanceID; }
 
-void Actor::SetMeshInstanceID(ID mesh_instance_id)
+void Actor::MeshInstanceID(ID mesh_instance_id)
 { mMeshInstanceID = mesh_instance_id; }
 
 ID Actor::ColliderID() const

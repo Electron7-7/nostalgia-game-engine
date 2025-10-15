@@ -7,14 +7,16 @@
 class Actor : public Thing, public Transform3D
 {
 public:
-    virtual void Tick() {}
+    virtual void Ready();
+    virtual void Tick();
     virtual void Update() {}
     virtual void Input(const InputEvent&) {}
     virtual void SetVariables(const ThingData&);
     virtual ThingData GetVariables() const;
 
-    ID GetMeshInstanceID() const;
-    void SetMeshInstanceID(ID MeshInstanceID);
+    ID MeshInstanceID() const;
+    void MeshInstanceID(ID MeshInstanceID);
+
     ID ColliderID() const;
     void ColliderID(ID UID);
 

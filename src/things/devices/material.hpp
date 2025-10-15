@@ -22,7 +22,6 @@ public:
     int       mSpecularSharpness = 16;
     float     mSpecularStrength = 0.0f;
     bool      mDontUseTexture = false;
-    glm::vec4 mDebugHighlight = glm::vec4(0.9f, 0.2f, 1.0f, 0.0f);
 
 private:
     ID mDiffuseTextureID  = ID::None;
