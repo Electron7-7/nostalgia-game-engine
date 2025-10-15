@@ -15,6 +15,8 @@ public:
 
     ID GetMeshInstanceID() const;
     void SetMeshInstanceID(ID MeshInstanceID);
+    ID ColliderID() const;
+    void ColliderID(ID UID);
 
     bool mVisible = true;
     bool mWireframe = false;
@@ -24,6 +26,7 @@ public:
 
 protected:
     ID mMeshInstanceID = ID::None;
+    ID mColliderID     = ID::None;
 };
 
 #endif // ACTOR_H

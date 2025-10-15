@@ -17,6 +17,7 @@ void Actor::SetVariables(const ThingData& data)
     if(data.GetVariable(quat, "Quaternion"))
         { Quaternion(quat); }
     data.GetVariable(mMeshInstanceID, "MeshInstance");
+    data.GetVariable(mColliderID, "Collider");
     data.GetVariable(mVisible, "Visible");
     data.GetVariable(mWireframe, "MakeWireframe");
     data.GetVariable(mWireframe, "Wireframe");
@@ -31,6 +32,7 @@ ThingData Actor::GetVariables() const
     data.AddVariable(mScale, "Scale");
     data.AddVariable(mQuaternion, "Quaternion");
     data.AddVariable(mMeshInstanceID, "MeshInstance");
+    data.AddVariable(mColliderID, "Collider");
     data.AddVariable(mVisible, "Visible");
     data.AddVariable(mWireframe, "Wireframe");
     data.AddVariable(mDebugHighlight, "DebugHighlight");
@@ -43,3 +45,9 @@ ID Actor::GetMeshInstanceID() const
 
 void Actor::SetMeshInstanceID(ID mesh_instance_id)
 { mMeshInstanceID = mesh_instance_id; }
+
+ID Actor::ColliderID() const
+{ return mColliderID; }
+
+void Actor::ColliderID(ID uid)
+{ mColliderID = uid; }

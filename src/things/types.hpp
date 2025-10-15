@@ -13,6 +13,7 @@ namespace ThingType
     constexpr ID Texture          = ConstexprHash("Texture");
     constexpr ID Font             = ConstexprHash("Font");
     constexpr ID Device           = ConstexprHash("Device");
+    constexpr ID Collider         = ConstexprHash("Collider");
     constexpr ID Material         = ConstexprHash("Material");
     constexpr ID MeshInstance     = ConstexprHash("MeshInstance");
     constexpr ID Actor            = ConstexprHash("Actor");
