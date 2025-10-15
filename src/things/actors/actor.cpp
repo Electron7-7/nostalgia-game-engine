@@ -41,7 +41,7 @@ void Actor::Tick()
 {
     if(mColliderID == ID::None)
         { return; }
-    mOrigin = g_pTheatreManager->GetThing<Collider>(mColliderID)->Origin();
+    SetOrigin(g_pTheatreManager->GetThing<Collider>(mColliderID)->Origin());
     SetQuaternion(g_pTheatreManager->GetThing<Collider>(mColliderID)->Quaternion());
 }
 
