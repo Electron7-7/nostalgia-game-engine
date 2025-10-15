@@ -4,13 +4,13 @@
 
 void Transform3D::SetTransformVariables(const ThingData& data)
 {
-    data.GetVariable(mOrigin, "Origin");
-    data.GetVariable(mScale, "Scale");
+    data.GetVariable(mOrigin, "Origin", "Position");
+    data.GetVariable(mScale, "Scale", "Size");
     if(!data.GetVariable(mQuaternion, "Quaternion"))
     {
-        if(data.GetVariable(mEuler, "Rotation"))
+        if(data.GetVariable(mEuler, "Rotation", "Euler"))
             { SetQuaternion({mEuler}); }
-        else if(data.GetVariable(mEuler, "RotationDegrees"))
+        else if(data.GetVariable(mEuler, "RotationDegrees", "EulerDegrees"))
             { SetEuler(mEuler, true); SetQuaternion({mEuler}); }
     }
 }
