@@ -1,5 +1,26 @@
 #include "transform_3d.hpp"
 #include "world.hpp"
+#include "theatre_parser/thing_data.hpp"
+
+void Transform3D::SetTransformVariables(const ThingData& data)
+{
+    data.GetVariable(mOrigin, "Origin");
+    data.GetVariable(mScale, "Scale");
+    if(!data.GetVariable(mQuaternion, "Quaternion"))
+    {
+        if(data.GetVariable(mEuler, "Rotation"))
+            { SetQuaternion({mEuler}); }
+        else if(data.GetVariable(mEuler, "RotationDegrees"))
+            { SetEuler(mEuler, true); SetQuaternion({mEuler}); }
+    }
+}
+
+void Transform3D::GetTransformVariables(ThingData& data) const
+{
+    data.AddVariable(mOrigin, "Origin");
+    data.AddVariable(mScale, "Scale");
+    data.AddVariable(mQuaternion, "Quaternion");
+}
 
 const glm::vec3& Transform3D::Origin() const
 { return mOrigin; }

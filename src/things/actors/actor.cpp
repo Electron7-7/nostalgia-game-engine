@@ -4,18 +4,9 @@
 
 void Actor::SetVariables(const ThingData& data)
 {
-    Thing::SetVariables(data); // Currently, this doesn't do anything
+    Thing::SetVariables(data);
+    SetTransformVariables(data);
 
-    data.GetVariable(mOrigin, "Origin");
-    data.GetVariable(mScale, "Scale");
-    glm::vec3 euler;
-    if(data.GetVariable(euler, "RotationDegrees"))
-        { Euler(euler, true); }
-    if(data.GetVariable(euler, "Rotation"))
-        { Euler(euler); }
-    glm::quat quat;
-    if(data.GetVariable(quat, "Quaternion"))
-        { Quaternion(quat); }
     data.GetVariable(mMeshInstanceID, "MeshInstance");
     data.GetVariable(mColliderID, "Collider");
     data.GetVariable(mVisible, "Visible");
@@ -27,10 +18,8 @@ void Actor::SetVariables(const ThingData& data)
 ThingData Actor::GetVariables() const
 {
     ThingData data{Thing::GetVariables()};
+    GetTransformVariables(data);
 
-    data.AddVariable(mOrigin, "Origin");
-    data.AddVariable(mScale, "Scale");
-    data.AddVariable(mQuaternion, "Quaternion");
     data.AddVariable(mMeshInstanceID, "MeshInstance");
     data.AddVariable(mColliderID, "Collider");
     data.AddVariable(mVisible, "Visible");

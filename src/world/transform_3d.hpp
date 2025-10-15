@@ -1,6 +1,8 @@
 #ifndef TRANSFORM_3D_H
 #define TRANSFORM_3D_H
 
+#include "theatre_parser/fwd.hpp"
+
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -8,6 +10,9 @@
 class Transform3D
 {
 public:
+    virtual void SetTransformVariables(const ThingData&);
+    virtual void GetTransformVariables(ThingData&) const;
+
     virtual const glm::vec3& Origin() const;
     virtual const glm::vec3& Scale() const;
     virtual const glm::quat& Quaternion() const;

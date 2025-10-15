@@ -22,16 +22,8 @@ Collider::~Collider()
 void Collider::SetVariables(const ThingData& data)
 {
     Device::SetVariables(data);
+    SetTransformVariables(data);
 
-    data.GetVariable(mOrigin, "Origin", "Position");
-    if(!data.GetVariable(mQuaternion, "Quaternion"))
-    {
-        if(data.GetVariable(mEuler, "Rotation"))
-            { SetQuaternion({mEuler}); }
-        else if(data.GetVariable(mEuler, "RotationDegrees"))
-            { SetEuler(mEuler, true); SetQuaternion({mEuler}); }
-    }
-    data.GetVariable(mScale, "Scale", "Size");
     data.GetVariable(mShape, "Shape", "ColliderShape", "BodyShape");
     data.GetVariable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
     data.GetVariable(mInitialImpulse, "InitialImpulse", "Impulse");
@@ -44,7 +36,8 @@ void Collider::SetVariables(const ThingData& data)
 
 ThingData Collider::GetVariables() const
 {
-    ThingData data = Device::GetVariables();
+    ThingData data{Device::GetVariables()};
+    GetTransformVariables(data);
     data.AddVariable(mShape, "Shape");
     data.AddVariable(mMotion, "Motion");
     data.AddVariable(mInitialImpulse, "InitialImpulse");
