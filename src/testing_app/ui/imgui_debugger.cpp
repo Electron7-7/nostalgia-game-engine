@@ -1,7 +1,6 @@
 #include "imgui_debugger.hpp"
 #include "../app/nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
-#include "managers/input_manager.hpp"
 #include "input/demo_controller.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
@@ -15,13 +14,15 @@
 
 #ifdef DEBUGGING
 #   include "time.hpp"
-#   include "things/thing_factory.hpp"
 #   include "rendering/backends/graphics/opengl.hpp"
+#   include "managers/physics_manager.hpp"
 #   include "theatre_parser/theatre_parser.hpp"
+#   include "things/thing_factory.hpp"
 #   include "things/actors/light.hpp"
 #   include "things/devices/mesh_instance.hpp"
 #   include "things/devices/material.hpp"
 #   include "things/resources/resource.hpp"
+#   include "things/devices/collider.hpp"
 #   include "embedded/names.hpp"
 
 #   include <set>
@@ -77,6 +78,15 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
             Checkbox("Notification", &g_EnableDebugMsgNotif);
         }
+        SeparatorText("Jolt Physics");
+        SeparatorText("Contact");
+        Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
+        Checkbox("Added", &gEnableMsg_ContactAdded); SameLine();
+        Checkbox("Persisted", &gEnableMsg_ContactPersisted); SameLine();
+        Checkbox("Removed", &gEnableMsg_ContactRemoved);
+        SeparatorText("Body");
+        Checkbox("Activated", &gEnableMsg_BodyActivated); SameLine();
+        Checkbox("Deactivated", &gEnableMsg_BodyDeactivated);
     }
 
     if(CollapsingHeader("Rendering"))
@@ -617,57 +627,46 @@ static bool s_GetModelName(std::string& out, id_t id)
 void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
     static std::shared_ptr<Thing> s_Thing = nullptr;
+    static int s_MaxPerRow = 3;
     if(Begin("Theatre Inspector", is_active))
     {
-        static float width_scaler = 1.0f;
-        static int s_MaxPerRow = 3;
-        static bool s_Highlight = false;
         if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
         {
             PushItemFlag(ImGuiItemFlags_NoNavDefaultFocus, true);
             InputInt("Max Buttons Per Row", &s_MaxPerRow, 1, 5);
             PopItemFlag();
             BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
-            std::shared_ptr<Thing> thing;
-            int i = -1;
-            while(TheatreManager::debug_GetThingAtIndex(++i, thing))
+            std::vector<ID> ids{g_pTheatreManager->GetThingIDs()};
+            int i{0};
+            for(auto uid : ids)
             {
-                if(std::dynamic_pointer_cast<Resource>(thing) || std::dynamic_pointer_cast<MeshInstance>(thing))
+                std::shared_ptr<Thing> thing{g_pTheatreManager->GetThing(uid)};
+                ImU32 push_color = IM_COL32(0, 0, 0, 0);
+                ImGuiCol_ push_col = ImGuiCol_TextDisabled;
+                if(std::dynamic_pointer_cast<Resource>(thing))
                     { continue; }
-                s_Highlight = false;
-                bool push_color = false;
-                if(std::dynamic_pointer_cast<light_t>(thing))
-                    { PushStyleColor(ImGuiCol_Button, IM_COL32(100, 103, 48, 255)); push_color = true; }
-                else if(std::dynamic_pointer_cast<Actor>(thing))
-                    { PushStyleColor(ImGuiCol_Button, IM_COL32(103, 48, 101, 255)); push_color = true; }
-                if(Button(thing->name().c_str(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                else if(auto actor = std::dynamic_pointer_cast<Actor>(thing))
                 {
-                    s_Thing = thing;
-                    s_Highlight = true;
+                    push_col = ImGuiCol_Button;
+                    push_color = (std::dynamic_pointer_cast<light_t>(thing))
+                        ? IM_COL32(100, 103, 48, 255)
+                        : IM_COL32(103, 48, 101, 255);
                 }
-                if(push_color)
-                    { PopStyleColor(); }
-                if(IsItemHovered())
-                    { s_Highlight = true; }
-                if(std::dynamic_pointer_cast<Actor>(thing))
-                {
-                    TheatreManager::GetThing<Material>(
-                        TheatreManager::GetThing<MeshInstance>(
-                            std::dynamic_pointer_cast<Actor>(
-                                thing)->GetMeshInstanceID()
-                            )->GetMaterialID()
-                        )->mDebugHighlight.a = s_Highlight;
-                }
-                if(++i < s_MaxPerRow)
-                    { SameLine(); }
-                else
-                    { i = 0; }
+                PushStyleColor(push_col, push_color);
+                if(Button(thing->name().data(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                    { s_Thing = g_pTheatreManager->GetThing(uid); }
+                g_pTheatreManager->GetThing<Actor>(uid)->mDebugHighlight.a = IsItemHovered();
+                PopStyleColor();
+                if(++i < s_MaxPerRow) { SameLine(); }
+                else { i = 0; }
             }
             EndChild();
         }
-        auto actor = std::dynamic_pointer_cast<Actor>(s_Thing);
-        auto light = std::dynamic_pointer_cast<light_t>(s_Thing);
+
+        auto actor    = std::dynamic_pointer_cast<Actor>(s_Thing);
+        auto light    = std::dynamic_pointer_cast<light_t>(s_Thing);
         auto material = std::dynamic_pointer_cast<Material>(s_Thing);
+        auto collider = std::dynamic_pointer_cast<Collider>(s_Thing);
 
         if(s_Thing && _Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         {
@@ -675,7 +674,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             if(TreeNodeEx("Immutable Properties", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 Text("Name: '%s'", s_Thing->name().c_str());
-                Text("Type: (%s)", ThingFactory::GetTypeName(s_Thing->type()).c_str());
+                Text("Type: (%s)", g_pThingFactory->GetTypeName(s_Thing->type()).c_str());
                 Text("ID: [%u]", (id_t)s_Thing->uid());
                 if(actor)
                 {
@@ -687,14 +686,28 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             }
             if(TreeNode("Member Info"))
             {
-                if(actor)
+                if(material)
                 {
-                    auto mInst = TheatreManager::GetThing<MeshInstance>(actor->GetMeshInstanceID());
-                    auto mat = TheatreManager::GetThing<Material>(mInst->GetMaterialID());
-                    PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0,0,0,0));
-                    PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0,0,0,0));
+                    std::string diffuse_name  = TheatreManager::GetThing(material->GetDiffuseTexture())->name();
+                    std::string specular_name = TheatreManager::GetThing(material->GetSpecularTexture())->name();
+                    s_GetImageName(diffuse_name, material->GetDiffuseTexture());
+                    s_GetImageName(specular_name, material->GetSpecularTexture());
+                    Text("DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), (id_t)material->GetDiffuseTexture());
+                    Text("SpecularTexture - '%s' [%u]", specular_name.c_str(), (id_t)material->GetSpecularTexture());
+                }
+                else if(collider)
+                {
+                    Text("Type: %s", g_pThingFactory->GetTypeName(collider->type()).data());
+                    Text("Shape: %s", collider->Shape().name());
+                }
+                else if(actor)
+                {
+                    auto mInst = TheatreManager::GetThing<MeshInstance>(actor->MeshInstanceID());
+                    auto mat   = TheatreManager::GetThing<Material>(mInst->GetMaterialID());
                     static ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_Leaf;
-                    if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->name().c_str(), (id_t)actor->GetMeshInstanceID()))
+                    PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0,0,0,0));
+                    PushStyleColor(ImGuiCol_HeaderActive,  ImVec4(0,0,0,0));
+                    if(TreeNodeEx("MeshInstance", tree_flags, "MeshInstance - '%s' [%u]", mInst->name().c_str(), (id_t)actor->MeshInstanceID()))
                     {
                         std::string mesh_name = TheatreManager::GetThing(mInst->GetMeshID())->name();
                         s_GetModelName(mesh_name, mInst->GetMeshID());
@@ -714,177 +727,65 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     PopStyleColor();
                     PopStyleColor();
                 }
-                if(material)
-                {
-                    std::string diffuse_name  = TheatreManager::GetThing(material->GetDiffuseTexture())->name();
-                    std::string specular_name = TheatreManager::GetThing(material->GetSpecularTexture())->name();
-                    s_GetImageName(diffuse_name, material->GetDiffuseTexture());
-                    s_GetImageName(specular_name, material->GetSpecularTexture());
-                    Text("DiffuseTexture - '%s' [%u]", diffuse_name.c_str(), (id_t)material->GetDiffuseTexture());
-                    Text("SpecularTexture - '%s' [%u]", specular_name.c_str(), (id_t)material->GetSpecularTexture());
-                }
                 TreePop();
             }
             EndChild();
 
-            int max_size = 0;
-            if(actor || light || material)
+            BeginChild("Edit Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
+            SeparatorText("Mutable Properties");
+            if(material)
             {
-                BeginChild("Edit Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
-                Text("Mutable Properties");
-                Separator();
-
-                std::string string = "";
-                if(material)
-                {
-                    Checkbox("Don't Use Textures", &material->mDontUseTexture);
-                    max_size = 19;
-                    width_scaler = 8.2f;
-                }
-
+                Checkbox("Don't Use Textures", &material->mDontUseTexture);
+                ColorEditGLMv3("Color", &material->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                InputInt("SpecularSharpness", &material->mSpecularSharpness, 2, 8);
+                InputFloat("SpecularStrength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
+            }
+            else if(collider)
+            {
+                if(Button("Reset Collider Transform"))
+                    { collider->ResetTransform(); }
+                bool active = collider->Active();
+                if(Checkbox("Active", &active))
+                    { collider->ToggleActivation(); }
+            }
+            else if(actor)
+            {
                 if(light)
                 {
                     Checkbox("Enabled", &light->mEnabled);
                     SameLine();
-                }
-
-                if(actor)
-                {
-                    max_size = 9;
-                    width_scaler = 9.6f;
-                    Checkbox("Visible", &actor->mVisible);
-                    if(!light)
-                    {
-                        SameLine();
-                        Checkbox("Actor Wireframe", &actor->mWireframe);
-                        if(IsItemHovered())
-                            { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
-                    }
-                }
-
-                if(light)
-                {
-                    max_size = 17;
-                    width_scaler = 8.4f;
-                    string = "Color:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv3("##color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
-
-                    string = "Energy:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-
-                    string = "SpecularStrength:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##SpecularStrength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-
-                    string = "AmbientStrength:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##AmbientStrength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-
-                    string = "Attenuation:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Attenuation", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-
-                    string = "Range:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                    InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("SpecularStrength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("AmbientStrength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Attenuation", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
 
                     if(std::dynamic_pointer_cast<SpotLight>(light))
                     {
-                        string = "SpotAngle:";
-                        string.insert(string.end(), max_size - string.size(), ' ');
-                        Text("%s", string.c_str());
-                        SameLine();
-                        SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                        InputFloat("##SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-
-                        string = "SpotAngleFade:";
-                        string.insert(string.end(), max_size - string.size(), ' ');
-                        Text("%s", string.c_str());
-                        SameLine();
-                        SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                        InputFloat("##SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                     }
                 }
 
-                if(actor)
-                {
-                    string = "Origin:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    DragGLMv3("##origin", &actor->Origin(), 0.05f, -200.0f, 200.0f, "%.2f");
+                Checkbox("Visible", &actor->mVisible);
+                SameLine();
+                Checkbox("Actor Wireframe", &actor->mWireframe);
+                if(IsItemHovered())
+                    { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
 
-                    glm::vec3 Euler = actor->Euler(true);
-
-                    string = "Rotation:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    if(DragGLMv3("##rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                        { actor->Euler(Euler, true); }
-
-                    string = "Scale:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    DragGLMv3("##scale", &actor->Scale(), 0.01f, -100.0f, 100.0f, "%.2f");
-                }
-
-                if(material)
-                {
-                    string = "Color:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv3("##mat_color", &material->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
-
-                    string = "SpecularSharpness:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputInt("##SpecularSharpness", &material->mSpecularSharpness, 2, 8);
-
-                    string = "SpecularStrength:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    InputFloat("##SpecularStrength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
-
-                    string = "DebugHighlight:";
-                    string.insert(string.end(), max_size - string.size(), ' ');
-                    Text("%s", string.c_str());
-                    SameLine();
-                    SetNextItemWidth(GetWindowWidth() - (max_size * width_scaler));
-                    ColorEditGLMv4("##mat_DebugHighlight", &material->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-                }
-                EndChild();
+                glm::vec3 Euler{actor->Euler(true)};
+                glm::vec3 Origin{actor->Origin()};
+                glm::vec3 Scale{actor->Scale()};
+                if(DragGLMv3("Origin", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
+                    { actor->SetOrigin(Origin); }
+                if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                    { actor->SetEuler(Euler, true); }
+                if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
+                    { actor->SetScale(Scale); }
             }
+            EndChild();
         }
         else
             { s_Thing = nullptr; }
