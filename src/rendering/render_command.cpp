@@ -22,9 +22,9 @@ RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id)
     }
 
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->cScale());
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->Scale());
     glm::mat4 rotMat   = glm::mat4_cast(actor->Quaternion());
-    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), actor->cOrigin());
+    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), actor->Origin());
     model_matrix = transMat * rotMat * scaleMat;
 }
 

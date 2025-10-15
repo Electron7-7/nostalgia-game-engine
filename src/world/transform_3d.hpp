@@ -8,16 +8,15 @@
 class Transform3D
 {
 public:
-    virtual const glm::vec3& cOrigin() const;
-    virtual const glm::vec3& cScale() const;
-
-    virtual glm::vec3& Origin();
-    virtual glm::vec3& Scale();
-
-    virtual glm::quat Quaternion() const;
+    virtual const glm::vec3& Origin() const;
+    virtual const glm::vec3& Scale() const;
+    virtual const glm::quat& Quaternion() const;
     virtual glm::vec3 Euler(bool Degrees = false) const;
-    virtual void Quaternion(const glm::quat&);
-    virtual void Euler(const glm::vec3&, bool Degrees = false);
+
+    virtual void SetOrigin(const glm::vec3& NewOrigin);
+    virtual void SetScale(const glm::vec3& NewScale);
+    virtual void SetQuaternion(const glm::quat& NewQuaternion);
+    virtual void SetEuler(const glm::vec3& NewEuler, bool Degrees = false);
 
     virtual glm::vec3 Front() const;
     virtual glm::vec3 Right() const;

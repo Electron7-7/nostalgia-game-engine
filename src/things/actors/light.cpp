@@ -17,7 +17,7 @@ void light_t::ClearCounts()
 
 void light_t::SetVariables(const ThingData& data)
 {
-    Scale() = glm::vec3(0.1f);
+    mScale = glm::vec3(0.1f);
 
     Actor::SetVariables(data);
 

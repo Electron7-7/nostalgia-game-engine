@@ -250,7 +250,7 @@ void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
     GetShader(shader)->SetUniform(l_Light + "ambient_strength",  light->mAmbientStrength);
     GetShader(shader)->SetUniform(l_Light + "attenuation",       light->mAttenuation);
     GetShader(shader)->SetUniform(l_Light + "range",             light->mRange);
-    GetShader(shader)->SetUniform(l_Light + "position",          light->cOrigin());
+    GetShader(shader)->SetUniform(l_Light + "position",          light->Origin());
     GetShader(shader)->SetUniform(l_Light + "direction",         light->Front());
     GetShader(shader)->SetUniform(l_Light + "spot_cutoff",       glm::cos(glm::radians(light->mSpotAngle)));
     GetShader(shader)->SetUniform(l_Light + "spot_cutoff_fade",  glm::cos(glm::radians(light->mSpotAngle - light->mSpotAngleFade)));
