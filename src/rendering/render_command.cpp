@@ -10,7 +10,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id)
-: shader(shader_id), mesh_instance(actor->GetMeshInstanceID()), is_wireframe(actor->mWireframe)
+: shader(shader_id), mesh_instance(actor->GetMeshInstanceID()), is_wireframe(actor->mWireframe), debug_highlight(actor->mDebugHighlight)
 {
     if(dynamic_pointer_cast<light_t>(actor))
     {

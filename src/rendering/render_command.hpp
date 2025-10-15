@@ -21,6 +21,7 @@ public:
     ID mesh_instance = ID::None;
     glm::mat4 model_matrix = glm::mat4(1.0f);
     bool is_wireframe = false;
+    glm::vec4 debug_highlight{0.0f};
 };
 
 #endif // RENDER_COMMAND_H

@@ -19,6 +19,9 @@ public:
     bool mVisible = true;
     bool mWireframe = false;
 
+    // Off by default (alpha == 0.0f)
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};
+
 protected:
     ID mMeshInstanceID = ID::None;
 };

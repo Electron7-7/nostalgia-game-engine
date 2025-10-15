@@ -20,6 +20,7 @@ void Actor::SetVariables(const ThingData& data)
     data.GetVariable(mVisible, "Visible");
     data.GetVariable(mWireframe, "MakeWireframe");
     data.GetVariable(mWireframe, "Wireframe");
+    data.GetVariable(mDebugHighlight, "DebugHighlight");
 }
 
 ThingData Actor::GetVariables() const
@@ -32,6 +33,7 @@ ThingData Actor::GetVariables() const
     data.AddVariable(mMeshInstanceID, "MeshInstance");
     data.AddVariable(mVisible, "Visible");
     data.AddVariable(mWireframe, "Wireframe");
+    data.AddVariable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }
