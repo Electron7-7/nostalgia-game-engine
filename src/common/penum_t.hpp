@@ -5,28 +5,23 @@
 
 struct penum_t
 {
-    constexpr penum_t(unsigned short id = 0, const char* name = "penum_t"):
+    constexpr penum_t() = default;
+    constexpr penum_t(ushort id, const char* name):
         id_(id),
         name_(name)
     {}
 
-    unsigned short id() const { return id_; }
-    const char* name()  const { return name_; }
+    constexpr ushort id() const { return id_; }
+    constexpr const char* name()  const { return name_; }
 
-    constexpr operator int() const { return id_; }
-    constexpr operator const char*() const { return name_; }
-    constexpr operator std::string() const { return name_; }
+    constexpr operator ushort() const { return id_; }
 
     constexpr bool operator==(const penum_t& other) const { return (id_ == other.id_); }
-    constexpr bool operator!=(const penum_t& other) const { return (id_ != other.id_); }
-    constexpr bool operator< (const penum_t& other) const { return (id_ <  other.id_); }
-    constexpr bool operator> (const penum_t& other) const { return (id_ >  other.id_); }
-    constexpr bool operator<=(const penum_t& other) const { return (id_ <= other.id_); }
-    constexpr bool operator>=(const penum_t& other) const { return (id_ >= other.id_); }
+    constexpr bool operator< (const penum_t& other) const { return (id_ < other.id_); }
 
 private:
-    unsigned short id_ = 0;
-    const char* name_  = "penum_t";
+    ushort id_{static_cast<ushort>(-1)};
+    const char* name_{""};
 };
 
 template<>
