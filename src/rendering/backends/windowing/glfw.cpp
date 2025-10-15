@@ -9,7 +9,7 @@
 
 #include <glm/vec2.hpp>
 
-typedef Settings::Window Window;
+using namespace Settings;
 
 bool GLFW_Backend::Init()
 {

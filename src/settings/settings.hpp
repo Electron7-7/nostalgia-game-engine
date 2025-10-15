@@ -3,60 +3,59 @@
 
 #include "safe_return.hpp"
 
-struct Settings
+namespace Settings
 {
-public:
     // The 'SetSetting' and 'try_Get-' functions are for users to define their own settings without needing to recompile
     // the library. However, there will also be structs full of static settings that can't be removed; these are settings
     // that are more universal, like window width/height, certain graphics options, and the tick rate. Use the functions
     // (and, consequently, the maps) when adding custom options to the engine/game. Use the static variables when their
     // specific purpose is required (e.g: setting the window's fullscreen state).
 
-    static void SetSetting(const char* SettingName, const char* Setting);
-    static void SetSetting(const char* SettingName, float Setting);
-    static void SetSetting(const char* SettingName, int Setting);
+    extern void SetSetting(const char* SettingName, const char* Setting);
+    extern void SetSetting(const char* SettingName, float Setting);
+    extern void SetSetting(const char* SettingName, int Setting);
 
-    static SafeReturn<const char*> try_GetString(const char* SettingName);
-    static SafeReturn<float>       try_GetFloat(const char* SettingName);
-    static SafeReturn<int>         try_GetInt(const char* SettingName);
+    extern SafeReturn<const char*> try_GetString(const char* SettingName);
+    extern SafeReturn<float>       try_GetFloat(const char* SettingName);
+    extern SafeReturn<int>         try_GetInt(const char* SettingName);
 
-    struct Engine
+    namespace Engine
     {
-        static int   TickRate;
-        static float TickInterval();
-        static int   GraphicsBackend;
-        static int   WindowingBackend;
+        extern int   TickRate;
+        extern float TickInterval();
+        extern int   GraphicsBackend;
+        extern int   WindowingBackend;
+    }
+
+    namespace Window
+    {
+        extern int Width;
+        extern int Height;
+        extern int XPosition;
+        extern int YPosition;
+        extern int FullscreenWidth;
+        extern int FullscreenHeight;
+        extern int FullscreenXPosition;
+        extern int FullscreenYPosition;
+        extern bool Fullscreen;
+        extern const char* Name;
     };
 
-    struct Window
+    namespace Player
     {
-        static int Width;
-        static int Height;
-        static int XPosition;
-        static int YPosition;
-        static int FullscreenWidth;
-        static int FullscreenHeight;
-        static int FullscreenXPosition;
-        static int FullscreenYPosition;
-        static bool Fullscreen;
-        static const char* Name;
+        extern float FOV;
+        extern float ViewCutoffNear;
+        extern float ViewCutoffFar;
+        extern bool  RawMouseMotion;
+        extern float MouseSensitivity;
+        extern float MouseSensitivityScale;
+        extern float MovementSpeed;
     };
 
-    struct Player
+    namespace Graphics
     {
-        static float FOV;
-        static float ViewCutoffNear;
-        static float ViewCutoffFar;
-        static bool  RawMouseMotion;
-        static float MouseSensitivity;
-        static float MouseSensitivityScale;
-        static float MovementSpeed;
-    };
-
-    struct Graphics
-    {
-        static bool GlobalWireframe;
-    };
-};
+        extern bool GlobalWireframe;
+    }
+}
 
 #endif // SETTINGS_H
