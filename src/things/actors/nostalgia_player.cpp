@@ -41,7 +41,7 @@ void NostalgiaPlayer::Tick()
     mVelocity[1] = 0.0f;
     mOrigin += mVelocity;
     mMovementDirection = glm::vec3(0.0f);
-    Euler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
+    SetEuler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
 }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)

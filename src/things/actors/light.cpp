@@ -128,7 +128,7 @@ int DirectionalLight::GetCount()
 
 void DirectionalLight::SetupVariables(const ThingData& data)
 {
-    Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
+    SetEuler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
     mVisible = false;
     light_t::SetVariables(data);
 }
