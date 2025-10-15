@@ -17,6 +17,7 @@
 #endif // DEBUGGING
 
 #include <vector>
+#include <ranges>
 #include <glm/glm.hpp>
 
 using namespace ManagerEnums;
@@ -127,6 +128,12 @@ void TheatreManager::RenderWorld()
     }
 }
 
+bool TheatreManager::ThingExists(const ID& uid) const
+{ return m_sThings.contains(uid); }
+
+ID TheatreManager::GetType(ID uid) const
+{ return (ThingExists(uid)) ? GetThing(uid)->type() : (ID)ID::Invalid; }
+
 void TheatreManager::LoadTheatreData(const TheatreData& data)
 {
     sCurrentTheatreData = data;
@@ -166,6 +173,12 @@ TheatreData TheatreManager::GetCurrentState()
     for(const auto& [id, thing] : m_sThings)
         { data.AddData(thing->GetVariables()); }
     return data;
+}
+
+std::vector<ID> TheatreManager::GetThingIDs() const
+{
+    auto keys = std::views::keys(m_sThings);
+    return {keys.begin(), keys.end()};
 }
 
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
@@ -219,17 +232,6 @@ bool TheatreManager::DestroyThing(ID id)
     if(!UniqueIDs::Contains(id))
         { print_warning("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 'm_sThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id); }
     return (m_sThings.erase(id) != 0);
-}
-
-bool TheatreManager::debug_GetThingAtIndex(unsigned int index, std::shared_ptr<Thing>& output)
-{
-    if(m_sThings.size() <= index)
-        { return false; }
-    auto it = m_sThings.begin();
-    for(size_t i = 0 ; i <= index ; ++i)
-    { ++it; }
-    output = it->second;
-    return true;
 }
 
 void TheatreManager::CreateThings()

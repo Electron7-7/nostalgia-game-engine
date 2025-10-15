@@ -21,6 +21,8 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     void RenderWorld();
+    bool ThingExists(const ID& UID) const;
+    ID GetType(ID ObjectID) const;
 
     static void LoadTheatreData(const TheatreData&);
     static bool LoadTheatreFromMemory(const std::string& Data);
@@ -28,6 +30,7 @@ public:
 
     static const TheatreData& GetInitialState();
     static TheatreData GetCurrentState();
+    std::vector<ID> GetThingIDs() const;
 
     static void DelegateInputEvent(const InputEvent& InputEvent);
     static ID CreateThing(const ThingData& ThingData);
@@ -44,8 +47,6 @@ public:
             { return thing; }
         return std::make_shared<T>();
     }
-
-    static bool debug_GetThingAtIndex(unsigned int MapIndex, std::shared_ptr<Thing>& Output);
 
 private:
     static std::map<ID, std::shared_ptr<Thing>> m_sThings;
