@@ -67,7 +67,7 @@ struct UniqueIDs
         static constexpr ID front = Player;
         static constexpr ID back  = f_Audiowide;
 
-        inline static const std::map<std::string, id_t>
+        inline static const std::map<std::string, ID>
         ResourceNameToUIDMap =
         {
             { Images::Name::Missing,    i_Missing    },

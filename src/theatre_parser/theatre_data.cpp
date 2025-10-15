@@ -46,7 +46,7 @@ void TheatreData::SetupUIDsAndPriorities()
 {
     s_DataQuickSort(things_data, 0, things_data.size() - 1);
 
-    std::map<std::string, id_t> name_id_map{UniqueIDs::Reserved::ResourceNameToUIDMap};
+    std::map<std::string, ID> name_id_map{UniqueIDs::Reserved::ResourceNameToUIDMap};
     UniqueIDs::Clear();
 
     // I wanted to combine these two `for` loops, but it's safer to separate them, since I can't guarantee that
@@ -54,7 +54,6 @@ void TheatreData::SetupUIDsAndPriorities()
     // this, but for now it's fine to have two for loops (even if I personally hate it).
     for(ThingData& data : things_data)
         { name_id_map[data.name] = data.uid = UniqueIDs::Generate(); }
-
     for(ThingData& data : things_data)
     {
         for(ThingVar& variable : data.variables)
