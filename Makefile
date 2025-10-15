@@ -20,7 +20,7 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_DEBUG_RENDERER -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
@@ -97,6 +97,9 @@ else # WINDOWS
 	export ARCHIVER      ?= $(WINDOWS_AR)
 endif
 
+export JOLT_DEBUG    ?= $(ARCHIVES_DIR)/Jolt_Debug/libJolt.a
+export JOLT_RELEASE  ?= $(ARCHIVES_DIR)/Jolt_Distribution/libJolt.a
+export JOLT_LIBRARY  ?= $(JOLT_RELEASE)
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
@@ -172,8 +175,8 @@ export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
 export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
-export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/*.a)
-export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(subst .a,.o,$(ARCHIVES:$(ARCHIVES_DIR)/%=%)))
+export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/Common/*.a) $(JOLT_LIBRARY)
+export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(ARCHIVES:$(ARCHIVES_DIR)/%.a=%.o))
 export APP_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(APP_SRCS:$(SRC)/%=%)))
 
 export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
@@ -314,12 +317,14 @@ windows: ;@:
 release: ;@:
 	$(eval VERSION_FLAGS = $(RELEASE_FLAGS))
 	$(eval BUILD_VERSION = $(DIR_RELEASE))
+	$(eval JOLT_LIBRARY  = $(JOLT_RELEASE))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_VERSION = $(DIR_RELEASE))
 
 debug: ;@:
 	$(eval VERSION_FLAGS = $(DEBUG_FLAGS))
 	$(eval BUILD_VERSION = $(DIR_DEBUG))
+	$(eval JOLT_LIBRARY  = $(JOLT_DEBUG))
 	$(eval TARGET_CALLED = 1)
 	$(eval CLEAN_VERSION = $(DIR_DEBUG))
 
