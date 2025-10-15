@@ -26,8 +26,6 @@
 #   define LINE     s_Line
 #endif // DEBUGGING
 
-FileData TheatreParser::m_sTheatreFile;
-
 /*static const std::set<std::string> c_NostalgiaExtensions =
 {
     ".theatre",
@@ -35,6 +33,8 @@ FileData TheatreParser::m_sTheatreFile;
     ".nostalgiatheatre",
     ".nt"
 };*/
+
+FileData TheatreParser::m_sTheatreFile;
 
 static const char enter_context        = '{';
 static const char enter_numeric        = '(';

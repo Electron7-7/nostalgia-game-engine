@@ -20,11 +20,11 @@ public:
     std::vector<ThingVar> variables = {};
 
     bool RemoveVariable(const std::string& VariableName);
+    void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);
     void AddVariable(const ThingVar& Value, const std::string& Name);
     template<IsNumber T>
         void AddVariable(const T& Value, const std::string& Name)
         { AddVariable(ThingVar{Value}, Name); }
-    void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);
 
     template<typename T, class... Names>
         requires(... && (std::is_same_v<Names, std::string> || std::is_same_v<Names, const char*>))
