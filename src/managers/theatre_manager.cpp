@@ -32,6 +32,9 @@ static std::vector<RenderCommand> s_RenderCommandQueue{};
 static bool s_ReadyToRender{false};
 static TheatreData sCurrentTheatreData{};
 
+bool TheatreManager::Init()
+{ return g_pThingFactory->Init(); }
+
 void TheatreManager::Update()
 {
 #ifdef DEBUGGING

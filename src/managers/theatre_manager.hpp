@@ -15,6 +15,7 @@
 class TheatreManager : public Manager
 {
 public:
+    bool Init();
     void Update();
     void Tick();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
