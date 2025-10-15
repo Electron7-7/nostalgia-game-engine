@@ -372,7 +372,6 @@ bool PhysicsManager::CreateBody(const ID& uid) const
             motion_type,
             layer);
         break;
-    case penum_t::Invalid:
     default:
         print_error("PhysicsManager::CreatePhysicsBody - invalid physics body type '{}' from {}#{}", collider->Shape().name(), g_pThingFactory->GetTypeName(collider->type()), uid);
         return false;
