@@ -134,6 +134,7 @@ SRC_DIRS :=                             \
     $(SRC)/embedded                     \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
+    $(SRC)/math                         \
     $(SRC)/managers                     \
     $(SRC)/rendering                    \
     $(SRC)/rendering/backends           \
