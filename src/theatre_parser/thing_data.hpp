@@ -26,22 +26,42 @@ public:
         { AddVariable(ThingVar{Value}, Name); }
     void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);
 
-    template<typename T>
-    bool GetVariable(T& Output, const std::string& Name) const
+    template<typename T, class... Names>
+        requires(... && (std::is_same_v<Names, std::string> || std::is_same_v<Names, const char*>))
+    bool GetVariable(T& output, Names... names) const
     {
         if constexpr(std::is_same_v<std::string, std::decay_t<T>>)
-            { return GetString(Output, Name); }
+        {
+            for(const auto& name : {names...})
+                { if(GetString(output, name)) { return true; } }
+            return false;
+        }
         else if constexpr(std::is_same_v<std::decay_t<ID>, std::decay_t<T>>)
-            { return GetReference(Output, Name); }
+        {
+            for(const auto& name : {names...})
+                { if(GetReference(output, name)) { return true; } }
+            return false;
+        }
+        else if constexpr(std::is_same_v<std::decay_t<penum_t>, std::decay_t<T>>)
+        {
+            for(const auto& name : {names...})
+                { if(GetPrettyEnum(output, name)) { return true; } }
+            return false;
+        }
         else if constexpr(std::is_same_v<bool, std::decay_t<T>>)
-            { return GetBoolean(Output, Name); }
+        {
+            for(const auto& name : {names...})
+                { if(GetBoolean(output, name)) { return true; } }
+            return false;
+        }
         else if constexpr(std::is_arithmetic_v<T> || GLMContainer<T>)
         {
-            if(auto assert_var = AssertVariable(Name, ThingVar::eNumber);
-                SafeStatus::Check(assert_var.Status()))
+            for(const auto& name : {names...})
             {
-                StringToNum<T>(Output, assert_var.Data()->value);
-                return true;
+                if(auto assert_var = AssertVariable(name, ThingVar::eNumber);
+                    SafeStatus::Check(assert_var.Status()) &&
+                    StringToNum<T>(output, assert_var.Data()->value))
+                { return true; }
             }
             return false;
         }
@@ -60,6 +80,7 @@ private:
     SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const penum_t& VarType) const;
 
     bool GetReference(ID& ReferenceOutput, const std::string& VariableName) const;
+    bool GetPrettyEnum(penum_t& ReferenceOutput, const std::string& VariableName) const;
     bool GetBoolean(bool& BooleanOutput, const std::string& VariableName) const;
     bool GetString(std::string& StringOutput, const std::string& VariableName) const;
 };
