@@ -61,6 +61,8 @@ void TheatreData::SetupUIDsAndPriorities()
         {
             if(variable.type != ThingVar::eReference)
                 { continue; }
+            else if(sPrettyEnumLookup.contains(variable.value))
+                { variable.reference_id = (ID)sPrettyEnumLookup.at(variable.value).id(); }
             else if(name_id_map.contains(variable.value))
                 { variable.reference_id = name_id_map.at(variable.value); }
         }

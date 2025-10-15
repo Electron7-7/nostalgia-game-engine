@@ -6,6 +6,20 @@
 #include "ids.hpp"
 #include "thing_data.hpp"
 #include "safe_return.hpp"
+#include "frozen/map.h"
+#include "physics/enums.hpp"
+
+static constexpr frozen::map<std::string, penum_t, 7>
+sPrettyEnumLookup =
+{
+    { PhysicsBodyMotion::Dynamic.name(),   PhysicsBodyMotion::Dynamic   },
+    { PhysicsBodyMotion::Kinematic.name(), PhysicsBodyMotion::Kinematic },
+    { PhysicsBodyMotion::Static.name(),    PhysicsBodyMotion::Static    },
+    { PhysicsBodyShape::Box.name(),        PhysicsBodyShape::Box        },
+    { PhysicsBodyShape::Capsule.name(),    PhysicsBodyShape::Capsule    },
+    { PhysicsBodyShape::Cylinder.name(),   PhysicsBodyShape::Cylinder   },
+    { PhysicsBodyShape::Sphere.name(),     PhysicsBodyShape::Sphere     },
+};
 
 struct TheatreData
 {
