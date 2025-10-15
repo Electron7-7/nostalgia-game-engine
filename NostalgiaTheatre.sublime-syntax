@@ -14,14 +14,17 @@ variables:
   typenames: >-
     (?x)
     (
+      \bThing\b            |
+      \bThinker\b          |
       \bTexture\b          |
+      \bActor\b            |
+      \bResource\b         |
+      \bCollider\b         |
+      \bCollider\b         |
       \bMaterial\b         |
       \bMeshInstance\b     |
       \bImage\b            |
       \bMesh\b             |
-      \bThing\b            |
-      \bThinker\b          |
-      \bActor\b            |
       \bNostalgiaPlayer\b  |
       \bPointLight\b       |
       \bSpotLight\b        |
@@ -45,7 +48,14 @@ variables:
       \bDoomTexture\b          |
       \bVerdanaFont\b          |
       \bAudiowideRegularFont\b |
-      \bDejaVuSansMonoFont\b
+      \bDejaVuSansMonoFont\b   |
+      \bCube\b                 |
+      \bSphere\b               |
+      \bCapsule\b              |
+      \bCylinder\b             |
+      \bDynamic\b              |
+      \bKinematic\b            |
+      \bStatic\b
     )
 
 contexts:
