@@ -1,5 +1,6 @@
 #include "nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
+#include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/backend_manager.hpp"
 #include "managers/render_manager.hpp"
@@ -47,13 +48,13 @@ void NostalgiaGoggles::PostShutdown()
 
 int NostalgiaGoggles::Main()
 {
+    _Manager::Add(g_pPhysicsManager);
     _Manager::Add(g_pTheatreManager);
     _Manager::Add(g_pBackendManager);
     _Manager::Add(g_pRenderManager);
     _Manager::Add(g_pInputManager);
     _Manager::Add(g_pUIManager);
     // _Manager::Add(g_pMenuManager);
-    // _Manager::Add(g_pPhysicsManager);
 
     if(!_Manager::InitAllManagers())
     {
