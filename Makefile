@@ -136,6 +136,7 @@ SRC_DIRS :=                             \
     $(SRC)/input                        \
     $(SRC)/math                         \
     $(SRC)/managers                     \
+    $(SRC)/physics                      \
     $(SRC)/rendering                    \
     $(SRC)/rendering/backends           \
     $(SRC)/rendering/backends/graphics  \
