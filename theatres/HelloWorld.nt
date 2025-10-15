@@ -88,11 +88,33 @@ Things
         Material = <DoomMaterial>
     }
 
+    Collider FloorCollider
+    {
+        Position = (3, -5, -3)
+        Scale = (20, 2, 20)
+    }
+
+    Actor Floor
+    {
+        Collider = <FloorCollider>
+        MeshInstance : MeshInstance FloorMesh
+        {
+            Mesh = [DefaultCube]
+            Material = <RedMaterial>
+        }
+    }
+
+    Collider DoomCollider
+    {
+        Motion = [Dynamic]
+        Origin = (3, 0, -3)
+        RotationDegrees = (-10, -55, 5)
+    }
+
     Actor DoomCube
     {
         MeshInstance = <DoomCubeMeshInstance>
-        Origin = (3, 0, -3)
-        RotationDegrees = (-10, -55, 5)
+        Collider = <DoomCollider>
         Visible = (true)
     }
 
@@ -129,7 +151,7 @@ Things
 
     NostalgiaPlayer Player
     {
-        Origin = (0, 0.3, 4)
+        Origin = (0, 0.3, 6)
     }
 
     PointLight Test_PointLight
