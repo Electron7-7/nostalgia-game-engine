@@ -9,35 +9,41 @@
 #include <memory>
 
 typedef
-std::shared_ptr<Thing>(*pThingMaker_t)();
+    std::shared_ptr<Thing>(*pThingMaker_t)();
 
 template<typename T>
-std::shared_ptr<Thing> gThingMakerTemplate();
+    concept ThingDerived = requires{std::derived_from<T,Thing>;};
 
 template<typename T>
-concept ThingDerived = requires { std::derived_from<T, Thing>; };
+    std::shared_ptr<Thing> gThingMakerTemplate();
+
+constexpr int cDefaultPriority{1};
 
 class ThingFactory
 {
 public:
-    static bool AddThing(pThingMaker_t MakerFunction_ptr, const std::string& TypeName, int Priority = 0);
-    static pThingMaker_t MakeThing(ID TypeId);
-    static bool SetPriority(ID TypeId, int Priority);
-    static int  GetPriority(ID TypeId);
-    static const std::string& GetTypeName(ID TypeId);
+    bool Init();
 
-    static bool IsThing(ID TypeId);
-    static bool IsThing(const std::string& TypeName);
-    static bool IsResource(ID TypeId); // Uses `ThingFactory::IsDerived`
-    static bool IsResource(const std::string& TypeName); // Uses `ThingFactory::IsDerived`
+    bool AddThing(pThingMaker_t MakerFunction_ptr, const std::string& TypeName, int Priority = cDefaultPriority);
+    pThingMaker_t MakeThing(ID TypeId);
+    bool SetPriority(ID TypeId, int Priority);
+    int  GetPriority(ID TypeId) const;
+    const std::string& GetTypeName(ID TypeId) const;
 
+    bool IsThing(ID TypeId) const;
     template<ThingDerived T>
-    static bool IsDerivedFrom(ID TypeID); // Slower than `ThingFactory::IsThing` as this function uses dynamic casting to test derivation
+    bool IsDerivedFrom(ID TypeId) const
+        { assert(mIsInitialized); return (std::dynamic_pointer_cast<T>(mThingMakers.at(TypeId)()) != nullptr); } // Slower than `IsThing` as this function uses dynamic casting to test derivation
+    bool IsResource(ID TypeId) const; // Uses `IsDerived`
+    bool IsDevice(ID TypeId) const;   // Uses `IsDerived`
 
 private:
-    static std::map<ID, std::string>   m_sTypeNames;
-    static std::map<ID, pThingMaker_t> m_sThingMakers;
-    static std::map<ID, int>           m_sTypePriorities;
+    bool mIsInitialized{false};
+    std::map<ID, std::string>   mTypeNames{};
+    std::map<ID, pThingMaker_t> mThingMakers{};
+    std::map<ID, int>           mTypePriorities{};
 };
+
+extern ThingFactory* g_pThingFactory;
 
 #endif // THING_FACTORY_H

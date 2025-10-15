@@ -12,12 +12,12 @@ ID TheatreData::id() const
 // QuickSort functions heavily plagiarized from: https://www.w3schools.com/dsa/dsa_algo_quicksort.php
 static int s_DataPartition(std::vector<ThingData>& array, int low, int high)
 {
-    int pivot = ThingFactory::GetPriority(array.at(high).type());
+    int pivot = g_pThingFactory->GetPriority(array.at(high).type());
     int i = (low - 1);
 
     for(int j = low; j < high; ++j)
     {
-        if(ThingFactory::GetPriority(array.at(j).type()) <= pivot)
+        if(g_pThingFactory->GetPriority(array.at(j).type()) <= pivot)
         {
             ++i;
             ThingData temp = array.at(i);
@@ -71,7 +71,7 @@ void TheatreData::SetupUIDsAndPriorities()
 
 SafeStatus TheatreData::AddData(const ThingData& data)
 {
-    if(!ThingFactory::IsThing(data.type()))
+    if(!g_pThingFactory->IsThing(data.type()))
         { return Status::TheatreDataINVALID_TYPE; }
     things_data.push_back(data);
     return Status::NO_ERR;
@@ -83,11 +83,11 @@ std::string TheatreData::formatted() const
     std::string things("");
     for(const ThingData& thing_data : things_data)
     {
-        if(ThingFactory::IsResource(thing_data.type()) && !thing_data.variables.empty())
-            { resources += std::format("\t{} {} = {}\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
+        if(g_pThingFactory->IsResource(thing_data.type()) && !thing_data.variables.empty())
+            { resources += std::format("\t{} {} = {}\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
         else
         {
-            things += std::format("\t{} {}\n\t{{\n", ThingFactory::GetTypeName(thing_data.type()), thing_data.name);
+            things += std::format("\t{} {}\n\t{{\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name);
             for(const ThingVar& variable : thing_data.variables)
             {
                 if(auto format_var = variable.formatted(); !format_var.empty())

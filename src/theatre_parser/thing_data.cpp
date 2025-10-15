@@ -18,7 +18,7 @@ ThingData::ThingData() = default;
 ThingData::ThingData(const std::string& _name, const std::string& type_name)
 : name(_name), type_(ConstexprHash(type_name))
 {
-    if(!ThingFactory::IsThing(type_))
+    if(!g_pThingFactory->IsThing(type_))
         { print_error("ThingData::ThingData({}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, type_); }
 }
 
@@ -27,8 +27,8 @@ ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vect
 {
     if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaults triggers the error message bc of when it's constructed
         { return; }
-    if(!ThingFactory::IsThing(type_))
-        { print_error("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type '{}' is an invalid type!", name, type_, uid, ThingFactory::GetTypeName(type_)); }
+    if(!g_pThingFactory->IsThing(type_))
+        { print_error("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type '{}' is an invalid type!", name, type_, uid, g_pThingFactory->GetTypeName(type_)); }
 }
 
 bool ThingData::RemoveVariable(const std::string& _name)
@@ -58,9 +58,9 @@ std::string ThingData::log(bool colored, bool indent) const
 {
     std::string log;
     if(colored)
-        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", sty::Reset, sty::Bold + fg::Yellow, sty::Bold + fg::Green, ThingFactory::GetTypeName(type_), name, uid); }
+        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", sty::Reset, sty::Bold + fg::Yellow, sty::Bold + fg::Green, g_pThingFactory->GetTypeName(type_), name, uid); }
     else
-        {  log = std::format("({}) {} [{}]\n", ThingFactory::GetTypeName(type_), name, uid);  }
+        {  log = std::format("({}) {} [{}]\n", g_pThingFactory->GetTypeName(type_), name, uid);  }
     for(const auto& var : variables)
     {
         if(indent)
@@ -79,9 +79,9 @@ bool ThingData::set_type(const std::string& type_name)
 bool ThingData::set_type(ID type)
 {
     type_ = type;
-    if(!ThingFactory::IsThing(type))
+    if(!g_pThingFactory->IsThing(type))
     {
-        print_warning("ThingData::set_type - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", ThingFactory::GetTypeName(type), name);
+        print_warning("ThingData::set_type - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", g_pThingFactory->GetTypeName(type), name);
         return false;
     }
     return true;

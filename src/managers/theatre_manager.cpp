@@ -194,7 +194,7 @@ ID TheatreManager::CreateThing(const ThingData& cData)
         thing->SetVariables(ThingData::PlayerDefaults);
     }
     else
-        { thing = m_sThings[data.uid] = ThingFactory::MakeThing(data.type())(); }
+        { thing = m_sThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
 
     thing->SetVariables(data);
     return thing->uid();
