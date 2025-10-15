@@ -12,6 +12,9 @@ ThingVar::ThingVar(const ID& id, const std::string& _name)
             { value = TheatreManager::GetThing(id)->name(); }
     }
 
+ThingVar::ThingVar(const penum_t& p_enum, const std::string& _name)
+    : name{_name}, value{p_enum.name()}, type{eReference}, reference_id{p_enum.id()} {}
+
 ThingVar::ThingVar(bool boolean, const std::string& _name)
     : name{_name}, value{(boolean) ? "true" : "false"}, type{eBool} {}
 
