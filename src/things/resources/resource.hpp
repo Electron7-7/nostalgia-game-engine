@@ -9,22 +9,21 @@ class Resource : public Thing
 {
 public:
     Resource() = default;
-    Resource(const FileData& Data)
-        : mFileData(Data) {}
+    Resource(const FileData& Data): mFileData(Data) {}
 
     virtual void SetVariables(const ThingData& data)
     {
         Thing::SetVariables(data);
         std::string path = "";
-        if(data.GetVariable(path, "File"))
+        if(data.GetVariable(path, "File", "Data", "FilePath"))
             { mFileData.LoadFile(path); }
     }
 
     virtual ThingData GetVariables() const
     {
-        ThingData thing_data{Thing::GetVariables()};
-        thing_data.AddVariable(mFileData.Path(), "File");
-        return thing_data;
+        ThingData data{Thing::GetVariables()};
+        data.AddVariable(mFileData.Path(), "File");
+        return data;
     }
 
     FileData& Data()

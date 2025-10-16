@@ -203,8 +203,7 @@ static bool sJoltAssertFailed(const char* in_expression, const char* in_message,
 // END JOLT BOILERPLATE
 //
 
-#pragma message("FIXME: Implement custom job system and replace `JobSystemThreadPool`")
-
+#pragma message("TODO: Implement custom job system and replace `JobSystemThreadPool`")
 Jolt_BPLayerInterface       sBroadPhaseLayerInterface;
 Jolt_ObjectVsBPLayerFilter  sObjectVsBroadphaseLayerFilter;
 Jolt_ObjectLayerPairFilter  sObjectVsObjectLayerFilter;
@@ -216,7 +215,7 @@ static std::map<ID, BodyID> sBodyIDMap{};
 static PhysicsManager sPhysicsManager;
 PhysicsManager* g_pPhysicsManager = &sPhysicsManager;
 
-#pragma message("FIXME: Read JoltPhysics `HelloWorld.cpp` and make the necessary changes as you implement more of the engine")
+// TODO: Read JoltPhysics `HelloWorld.cpp` and make the necessary changes as you implement more of the engine
 bool PhysicsManager::Init()
 {
     RegisterDefaultAllocator();
@@ -376,10 +375,9 @@ bool PhysicsManager::CreateBody(const ID& uid) const
         print_error("PhysicsManager::CreatePhysicsBody - invalid physics body type '{}' from {}#{}", collider->Shape().name(), g_pThingFactory->GetTypeName(collider->type()), uid);
         return false;
     }
-#pragma message("TODO: Remove bodies when exiting Theatre and I think the bug with static body is due to setup?")
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
     sBodyIDMap[uid] = interface.CreateAndAddBody(settings, EActivation::Activate);
-    print_debug("Jolt Body Created\n\t- Type: {}\n\t- Shape: {}\n\tMotion: {}",
+    print_jolt_debug("Body Created - Type: {}, Shape: {}, Motion: {}",
         g_pThingFactory->GetTypeName(collider->type()),
         collider->Shape().name(),
         collider->Motion().name());
