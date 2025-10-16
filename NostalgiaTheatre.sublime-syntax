@@ -20,7 +20,6 @@ variables:
       \bActor\b            |
       \bResource\b         |
       \bCollider\b         |
-      \bCollider\b         |
       \bMaterial\b         |
       \bMeshInstance\b     |
       \bImage\b            |
@@ -36,7 +35,7 @@ variables:
   variable_exit: >-
     (?x)
     (>|\]|\)|")
-  engine_variables: >-
+  reserved_resources: >-
     (?x)
     (
       \bErrorModel\b           |
@@ -49,12 +48,16 @@ variables:
       \bVerdanaFont\b          |
       \bAudiowideRegularFont\b |
       \bDejaVuSansMonoFont\b   |
-      \bCube\b                 |
-      \bSphere\b               |
-      \bCapsule\b              |
-      \bCylinder\b             |
-      \bDynamic\b              |
-      \bKinematic\b            |
+    )
+  pretty_enums: >-
+    (?x)
+    (
+      \bBox\b       |
+      \bSphere\b    |
+      \bCapsule\b   |
+      \bCylinder\b  |
+      \bDynamic\b   |
+      \bKinematic\b |
       \bStatic\b
     )
 
@@ -153,11 +156,10 @@ contexts:
           scope: punctuation.section.block.end.bracket.curly
           pop: 2
 
-
   assignment:
     - include: comment
-    - include: theatre_reference
-    - include: engine_reference
+    - include: reference
+    - include: pretty_enum
     - include: numeric
     - include: string
     - match: '{{variable_exit}}'
@@ -165,27 +167,28 @@ contexts:
     - match: '$'
       pop: true
 
-  theatre_reference:
+  reference:
     - match: '<'
       scope: keyword.bracket.begin
       push:
       - match: '>'
         scope: keyword.bracket.end
         pop: true
+      - match: '{{reserved_resources}}'
+        scope: variable.language
       - match: '\w'
         scope: entity.name.class
       - match: '.'
         scope: invalid.illegal.unexpected-text
 
-  engine_reference:
+  pretty_enum:
     - match: '\['
       scope: keyword.bracket.begin
       push:
       - match: '\]'
         scope: keyword.bracket.end
         pop: true
-      - match: '{{engine_variables}}'
-        # scope: support.class
+      - match: '{{pretty_enums}}'
         scope: variable.language
       - match: '\w'
         scope: variable
@@ -241,12 +244,7 @@ contexts:
       - match: \'
         pop: true
 
-  newline_debug:
-    - match: '\\n'
-      # scope: invalid.deprecated
-
   comment:
-    - include: newline_debug
     - match: '//'
       scope: comment.line.double-slash
       push: comment_line
@@ -272,7 +270,6 @@ contexts:
       scope: keyword.operator.assignment
 
   comment_line:
-    - include: newline_debug
     - match: '.'
       scope: comment.line.double-slash
     - match: '$'
