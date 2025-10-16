@@ -1,6 +1,6 @@
 #include "ids.hpp"
 
-constexpr frozen::map<std::string, ID, BindingIDs::end + 26>
+constinit const frozen::map<std::string, ID, BindingIDs::end + 26>
 BindingIDs::cBindingNames =
 {
     // Keys
