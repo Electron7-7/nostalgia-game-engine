@@ -57,7 +57,8 @@ class SpotLight : public light_t
 {
 public:
     static int GetCount();
-    void SetupVariables(const ThingData&);
+    void SetVariables(const ThingData&);
+    ThingData GetVariables() const;
     LightType Type() const final;
     bool IncrementIndex() final;
 };
@@ -66,7 +67,8 @@ class DirectionalLight : public light_t
 {
 public:
     static int GetCount();
-    void SetupVariables(const ThingData&);
+    void SetVariables(const ThingData&);
+    ThingData GetVariables() const;
     LightType Type() const final;
     bool IncrementIndex() final;
 };

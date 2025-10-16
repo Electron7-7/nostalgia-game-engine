@@ -103,13 +103,23 @@ bool PointLight::IncrementIndex()
 int SpotLight::GetCount()
 { return light_t::sSpotCount;}
 
-void SpotLight::SetupVariables(const ThingData& data)
+void SpotLight::SetVariables(const ThingData& data)
 {
     light_t::SetVariables(data);
     data.GetVariable(mSpotAngle, "Angle");
     data.GetVariable(mSpotAngle, "SpotAngle");
     data.GetVariable(mSpotAngleFade, "AngleFade");
     data.GetVariable(mSpotAngleFade, "SpotAngleFade");
+}
+
+ThingData SpotLight::GetVariables() const
+{
+    ThingData data{light_t::GetVariables()};
+    data.AddVariable(mSpotAngle, "Angle");
+    data.AddVariable(mSpotAngle, "SpotAngle");
+    data.AddVariable(mSpotAngleFade, "AngleFade");
+    data.AddVariable(mSpotAngleFade, "SpotAngleFade");
+    return data;
 }
 
 LightType SpotLight::Type() const
@@ -126,11 +136,18 @@ bool SpotLight::IncrementIndex()
 int DirectionalLight::GetCount()
 { return light_t::sDirectionalCount;}
 
-void DirectionalLight::SetupVariables(const ThingData& data)
+void DirectionalLight::SetVariables(const ThingData& data)
 {
     SetEuler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
-    mVisible = false;
     light_t::SetVariables(data);
+    mVisible = false;
+}
+
+ThingData DirectionalLight::GetVariables() const
+{
+    ThingData data{light_t::GetVariables()};
+    data.AddVariable(false, "Visible");
+    return data;
 }
 
 LightType DirectionalLight::Type() const
