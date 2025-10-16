@@ -630,3 +630,5 @@ Time to implement Jolt! I'm gonna have the physics manager be the final abstract
 
 [10/15/25]
 Holy shit, so after the weekend, I tried to implement Jolt and I was mostly successful, but I thought I had a problem where the contact validator wasn't validating contacts. Nope, turns out I'm dumb and while the Collider's scale was applying to the Actor and its MeshInstance, it *wasn't* being applied to the size of the collider body's shape. Which wasted an entire day. I'm now comitting all of my changes.
+
+I want to change the Theatre debug menu; I want only Actors to be selectable, and their meshes/materials/colliders/etc to be accessible from their menu.
