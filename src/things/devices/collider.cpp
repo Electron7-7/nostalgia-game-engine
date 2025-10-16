@@ -65,7 +65,7 @@ const penum_t& Collider::Shape() const
 const penum_t& Collider::Motion() const
 { return mMotion; }
 
-void Collider::ResetTransform() const
+void Collider::ResetTransform(bool activate) const
 {
     if(BodyIDInvalid())
         { return; }
@@ -75,17 +75,25 @@ void Collider::ResetTransform() const
         mInitialRotation,
         JPH::Vec3(0, 0, 0),
         JPH::Vec3(0, 0, 0));
+    if(activate)
+        { Activate(); }
 }
 
 void Collider::ToggleActivation()
 {
     if(BodyIDInvalid())
         { return; }
-    if(Active())
-        { g_pPhysicsManager->Jolt()->GetBodyInterface().DeactivateBody(BodyID()); }
+    else if(Active())
+        { Activate(); }
     else
-        { g_pPhysicsManager->Jolt()->GetBodyInterface().ActivateBody(BodyID()); }
+        { Deactivate(); }
 }
+
+void Collider::Activate() const
+{ g_pPhysicsManager->GetBodyInterface().ActivateBody(BodyID()); }
+
+void Collider::Deactivate() const
+{ g_pPhysicsManager->GetBodyInterface().DeactivateBody(BodyID()); }
 
 bool Collider::BodyIDInvalid() const
 { return BodyID().IsInvalid(); }

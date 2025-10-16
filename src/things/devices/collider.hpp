@@ -25,8 +25,10 @@ public:
     const penum_t& Shape() const;
     const penum_t& Motion() const;
 
-    void ResetTransform() const;
+    void ResetTransform(bool ActivateOnReset = false) const;
     void ToggleActivation();
+    void Activate() const;
+    void Deactivate() const;
 
 protected:
     JPH::RVec3 mInitialPosition{JPH::Vec3()};
