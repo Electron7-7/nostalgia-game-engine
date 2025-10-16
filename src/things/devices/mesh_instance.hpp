@@ -13,8 +13,8 @@ public:
     ID GetMaterialID() const;
 
 private:
-    ID mMeshID     = ID::None;
-    ID mMaterialID = ID::None;
+    ID mMeshID     = ID::Invalid;
+    ID mMaterialID = ID::Invalid;
 };
 
 #endif // MESH_INSTANCE_H

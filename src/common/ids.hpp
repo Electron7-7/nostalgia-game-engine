@@ -13,19 +13,18 @@ typedef unsigned int id_t;
 struct ID
 {
 public:
-    constexpr ID(const id_t& id = None): id_(id) {}
+    constexpr ID(const id_t& id = ID::Invalid): id_(id) {}
 
     constexpr operator const id_t&() const
     { return id_; }
 
-    static constexpr id_t None    = static_cast<unsigned int>(-2); // Same as `UINT_MAX - 1`
     static constexpr id_t Invalid = static_cast<unsigned int>(-1); // Same as `UINT_MAX`
     static constexpr id_t front   = 0;
-    static constexpr id_t back    = None - 1;
+    static constexpr id_t back    = Invalid - 1;
 
 private:
     friend struct std::formatter<ID>;
-    id_t id_ = ID::None;
+    id_t id_ = ID::Invalid;
 };
 
 template<>

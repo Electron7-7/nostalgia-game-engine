@@ -43,7 +43,7 @@ struct TheatreData
     { return (id_ == Other.id_); }
 
 private:
-    ID id_ = ID::None;
+    ID id_ = ID::Invalid;
 };
 
 #endif // THEATRE_DATA_H

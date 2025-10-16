@@ -16,7 +16,7 @@ public:
     ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables = {});
 
     std::string name = "Untitled Thing";
-    ID uid = ID::None;
+    ID uid = ID::Invalid;
     std::vector<ThingVar> variables = {};
 
     bool RemoveVariable(const std::string& VariableName);

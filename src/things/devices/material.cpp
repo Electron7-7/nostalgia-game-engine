@@ -11,7 +11,7 @@ void Material::SetVariables(const ThingData& data)
     data.GetVariable(mAlpha, "Alpha");
     data.GetVariable(mSpecularSharpness, "SpecularSharpness");
     // TODO: Pick a better default value?
-    if(!data.GetVariable(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::None)
+    if(!data.GetVariable(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::Invalid)
         { mSpecularStrength = 1.0f; }
     data.GetVariable(mDontUseTexture, "UseVertexColors");
     data.GetVariable(mDontUseTexture, "OnlyUseVertexColors");

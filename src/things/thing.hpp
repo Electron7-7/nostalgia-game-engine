@@ -30,7 +30,7 @@ public:
     const std::string& name() const;
 
 protected:
-    ID mUID{ID::None};
+    ID mUID{ID::Invalid};
     ID mType{ThingType::Thing};
     std::string mName{""};
 };

@@ -36,7 +36,7 @@ void light_t::SetVariables(const ThingData& data)
 #pragma message("TODO: should the light's debug mesh be limited to the debug build, or should Lights be always invisible with a special variable for enabling their debug mesh?")
 #ifdef DEBUGGING
     mVisible = true;
-    if(mMeshInstanceID == ID::None) { // the debug mesh/material shouldn't override a manually specificed one
+    if(mMeshInstanceID == ID::Invalid) { // the debug mesh/material shouldn't override a manually specificed one
         ID mat_id = TheatreManager::CreateThing({
             mName + "_DebugMaterial",
             ThingType::Material,

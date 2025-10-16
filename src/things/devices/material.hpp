@@ -24,8 +24,8 @@ public:
     bool      mDontUseTexture = false;
 
 private:
-    ID mDiffuseTextureID  = ID::None;
-    ID mSpecularTextureID = ID::None;
+    ID mDiffuseTextureID  = ID::Invalid;
+    ID mSpecularTextureID = ID::Invalid;
 };
 
 #endif // MATERIAL_H

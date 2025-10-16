@@ -18,7 +18,7 @@ public:
     glm::mat4 ProjectionMatrix() const;
 
     ID shader{Shaders::BlinnPhong};
-    ID mesh_instance{ID::None};
+    ID mesh_instance{ID::Invalid};
     glm::mat4 model_matrix{1.0f};
     bool is_wireframe{false};
     glm::vec4 debug_highlight{0.0f};

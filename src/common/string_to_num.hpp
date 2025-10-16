@@ -8,7 +8,7 @@
 template<typename T>
 T StringToNum(const std::string& string)
 {
-    T output{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::None`
+    T output{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::Invalid`
     if constexpr(!std::is_integral_v<T>)
     {
         try { output = std::stold(string); }

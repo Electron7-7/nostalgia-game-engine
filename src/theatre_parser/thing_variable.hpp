@@ -29,7 +29,7 @@ struct ThingVar
     std::string name{"Untitled ThingVar"};
     std::string value{""};
     penum_t     type{eNothing};
-    ID reference_id{ID::None};
+    ID reference_id{ID::Invalid};
 
     std::string formatted() const;
     std::string formatted_value() const;
