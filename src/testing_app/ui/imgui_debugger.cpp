@@ -584,16 +584,29 @@ static void s_TheatreDebuggingWindow()
 
 static void s_NameAndUID(const auto& thing)
 {
-    Text("Name: '%s'", thing->name().data());
-    Text("UID:  [%u]", (id_t)thing->uid());
+    Text("Name - %s", thing->c_name());
+    Text("UID  - %u", (id_t)thing->uid());
 }
 
 static void s_ResourceInfo(const ID& uid, const char* tree_name)
 {
-    if(uid != ID::Invalid && TreeNode(tree_name))
+    if(g_pTheatreManager->ThingExists(uid) && TreeNode(tree_name))
     {
         auto thing = g_pTheatreManager->GetThing(uid);
         s_NameAndUID(thing);
+        TreePop();
+    }
+    else if(UniqueIDs::IsReserved(uid) && TreeNode(tree_name))
+    {
+        for(const auto& [name, id] : UniqueIDs::Reserved::ResourceNameToUIDMap)
+        {
+            if(uid == id)
+            {
+                Text("Name - %s", name.data());
+                Text("UID  - %u", (id_t)id);
+                break;
+            }
+        }
         TreePop();
     }
 }
@@ -623,7 +636,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     ? ImGuiCol_Button
                     : ImGuiCol_TextDisabled;
                 PushStyleColor(push_col, push_color);
-                if(Button(actor->name().data(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                if(Button(actor->c_name(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
                     { sActor = g_pTheatreManager->GetThing<Actor>(uid); sActivateOnReset = false; }
                 actor->mDebugHighlight.a = IsItemHovered();
                 PopStyleColor();
@@ -636,24 +649,23 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
         if(sActor && _Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         {
             BeginChild("View Actor", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
-            if(TreeNodeEx("Immutable Properties", ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                s_NameAndUID(sActor);
-                Text("Type: (%s)", g_pThingFactory->GetTypeName(sActor->type()).data());
-                Text("Quaternion: (%f, %f, %f, %f)", sActor->Quaternion().w, sActor->Quaternion().x, sActor->Quaternion().y, sActor->Quaternion().z);
-                if(IsItemHovered())
-                    { SetTooltip("%s", "(w, x, y, z)"); }
-                TreePop();
-            }
+
+            SeparatorText("Immutable Properties");
+            s_NameAndUID(sActor);
+            Text("Type - %s", g_pThingFactory->GetTypeName(sActor->type()).data());
+            Text("Quaternion - (%f, %f, %f, %f)", sActor->Quaternion().w, sActor->Quaternion().x, sActor->Quaternion().y, sActor->Quaternion().z);
+            if(IsItemHovered())
+                { SetTooltip("%s", "(w, x, y, z)"); }
+
             SeparatorText("Mutable Properties");
             if(auto light = std::dynamic_pointer_cast<light_t>(sActor))
             {
                 Checkbox("Enabled", &light->mEnabled);
                 ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
                 InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                InputFloat("SpecularStrength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                InputFloat("AmbientStrength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                InputFloat("Attenuation", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                 InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                 if(std::dynamic_pointer_cast<SpotLight>(light))
                 {
@@ -661,16 +673,13 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                 }
             }
-
             Checkbox("Visible", &sActor->mVisible); SameLine();
             Checkbox("Actor Wireframe", &sActor->mWireframe);
             if(IsItemHovered())
                 { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
-
             ColorEditGLMv4("DebugHighlight", &sActor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-
             glm::vec3 Origin{sActor->Origin()};
-            if(DragGLMv3("Origin", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
+            if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
                 { sActor->SetOrigin(Origin); }
             glm::vec3 Euler{sActor->Euler(true)};
             if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
@@ -679,23 +688,30 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
                 { sActor->SetScale(Scale); }
 
-            if(TreeNode("Children"))
+            NewLine();
+
+            if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if(sActor->MeshInstanceID() != ID::Invalid)
+                if(g_pTheatreManager->ThingExists(sActor->MeshInstanceID()))
                 {
                     SeparatorText("MeshInstance");
                     auto mesh_instance = g_pTheatreManager->GetThing<MeshInstance>(sActor->MeshInstanceID());
                     s_NameAndUID(mesh_instance);
                     s_ResourceInfo(mesh_instance->GetMeshID(), "Mesh");
-                    if(mesh_instance->GetMaterialID() != ID::Invalid && TreeNode("Material"))
+                    if(g_pTheatreManager->ThingExists(mesh_instance->GetMaterialID()))
                     {
+                        SeparatorText("Material");
                         auto material = g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID());
-                        s_ResourceInfo(material->GetDiffuseTexture(),  "DiffuseTexture");
-                        s_ResourceInfo(material->GetSpecularTexture(), "SpecularTexture");
-                        TreePop();
+                        s_NameAndUID(material);
+                        s_ResourceInfo(material->GetDiffuseTexture(),  "Diffuse Texture");
+                        s_ResourceInfo(material->GetSpecularTexture(), "Specular Texture");
+                        Checkbox("Don't Use Textures", &material->mDontUseTexture);
+                        ColorEditGLMv3("Diffuse Color", &material->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                        InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
+                        InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
                     }
                 }
-                if(sActor->ColliderID() != ID::Invalid)
+                if(g_pTheatreManager->ThingExists(sActor->ColliderID()))
                 {
                     SeparatorText("Collider");
                     auto collider = g_pTheatreManager->GetThing<Collider>(sActor->ColliderID());
@@ -719,7 +735,6 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     if(reset_pressed)
                         { collider->ResetTransform(sActivateOnReset); }
                 }
-                TreePop();
             }
             EndChild();
         }
