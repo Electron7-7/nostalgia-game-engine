@@ -22,3 +22,6 @@ ID Thing::type() const
 
 const std::string& Thing::name() const
 { return mName; }
+
+const char* const Thing::c_name() const
+{ return mName.data(); }

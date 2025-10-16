@@ -28,6 +28,7 @@ public:
     ID uid() const;
     ID type() const;
     const std::string& name() const;
+    const char* const c_name() const;
 
 protected:
     ID mUID{ID::Invalid};
