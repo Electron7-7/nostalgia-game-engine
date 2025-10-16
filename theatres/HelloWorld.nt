@@ -26,7 +26,7 @@ Things
     {
         // This is a "Reference" variable; specifically, it's a reference to some internally defined data (in this case, a texture)
         // and are delimited by square brackets ([])
-        DiffuseTexture = [LolBitTexture]
+        DiffuseTexture = <LolBitTexture>
     }
 
     MeshInstance LolBitCubeMeshInstance
@@ -34,7 +34,7 @@ Things
         // This is also a reference, but it references a Thing/Resource defined in the current Theatre. It is delimited by angled
         // brackets (<>)
         Material = <LolBitMaterial>
-        Mesh = [DefaultCube]
+        Mesh = <DefaultCube>
     }
 
     Material RedMaterial
@@ -54,7 +54,7 @@ Things
         // variable name, a colon instead of an equals sign, followed by a typical Thing definition
         MeshInstance : MeshInstance RamielMeshInstance
         {
-            Mesh = [RamielModel]
+            Mesh = <RamielModel>
             Material = <RamielMaterial>
         }
         Scale = (120, 120, 120)
@@ -79,12 +79,12 @@ Things
 
     Material DoomMaterial
     {
-        DiffuseTexture = [DoomTexture]
+        DiffuseTexture = <DoomTexture>
     }
 
     MeshInstance DoomCubeMeshInstance
     {
-        Mesh = [DefaultCube]
+        Mesh = <DefaultCube>
         Material = <DoomMaterial>
     }
 
@@ -99,7 +99,7 @@ Things
         Collider = <FloorCollider>
         MeshInstance : MeshInstance FloorMesh
         {
-            Mesh = [DefaultCube]
+            Mesh = <DefaultCube>
             Material = <RedMaterial>
         }
     }
@@ -129,7 +129,7 @@ Things
     {
         MeshInstance : MeshInstance RedCubeMeshInstance
         {
-            Mesh = [DefaultCube]
+            Mesh = <DefaultCube>
             Material = <RedMaterial>
         }
         Origin = (1.35, 1, -4.45)
