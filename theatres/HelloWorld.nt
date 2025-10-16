@@ -177,6 +177,5 @@ Things
     {
         RotationDegrees = (180, 100, -25)
         Energy = (0.6)
-        Visible = (false)
     }
 }
