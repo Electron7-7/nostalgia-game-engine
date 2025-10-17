@@ -247,8 +247,10 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             temp_data.clear();
             continue;
         }
-        case enter_reference:
         case enter_pretty_enum:
+            variable_type = ThingVar::ePrettyEnum;
+            continue;
+        case enter_reference:
             variable_type = ThingVar::eReference;
             continue;
         case enter_numeric:
@@ -274,8 +276,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                 buffer = ToLower(buffer);
             }
             [[fallthrough]];
-        case exit_reference:
         case exit_pretty_enum:
+        case exit_reference:
             variable_value = buffer;
             buffer.clear();
             temp_data.AddVariable(variable_name, variable_value, variable_type);

@@ -100,9 +100,9 @@ bool ThingData::GetReference(ID& output, const std::string& _name) const
 
 bool ThingData::GetPrettyEnum(penum_t& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(_name, ThingVar::eReference);
+    if(auto assert_var = AssertVariable(_name, ThingVar::ePrettyEnum);
         SafeStatus::Check(assert_var.Status()))
-        { output = { (ushort)assert_var.Data()->reference_id, assert_var.Data()->name.data() }; return true; }
+        { output = assert_var.Data()->pretty_enum; return true; }
     return false;
 }
 

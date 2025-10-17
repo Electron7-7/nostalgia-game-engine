@@ -58,11 +58,9 @@ void TheatreData::SetupUIDsAndPriorities()
     {
         for(ThingVar& variable : data.variables)
         {
-            if(variable.type != ThingVar::eReference)
-                { continue; }
-            else if(sPrettyEnumLookup.contains(variable.value))
-                { variable.reference_id = (ID)sPrettyEnumLookup.at(variable.value).id(); }
-            else if(name_id_map.contains(variable.value))
+            if(variable.type == ThingVar::ePrettyEnum && sPrettyEnumLookup.contains(variable.value))
+                { variable.pretty_enum = sPrettyEnumLookup.at(variable.value); }
+            else if(variable.type == ThingVar::eReference && name_id_map.contains(variable.value))
                 { variable.reference_id = name_id_map.at(variable.value); }
         }
     }

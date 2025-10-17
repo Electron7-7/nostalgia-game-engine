@@ -29,7 +29,8 @@ struct ThingVar
     std::string name{"Untitled ThingVar"};
     std::string value{""};
     penum_t     type{eNothing};
-    ID reference_id{ID::Invalid};
+    ID          reference_id{ID::Invalid};
+    penum_t     pretty_enum{};
 
     std::string formatted() const;
     std::string formatted_value() const;
@@ -38,11 +39,12 @@ struct ThingVar
     constexpr bool operator==(const std::string& VarName) const
     { return !name.compare(VarName); }
 
-    static constexpr penum_t eNothing   { 0, "Nothing"   };
-    static constexpr penum_t eReference { 1, "Reference" };
-    static constexpr penum_t eNumber    { 2, "Number"    };
-    static constexpr penum_t eBool      { 3, "Bool"      };
-    static constexpr penum_t eString    { 4, "String"    };
+    static constexpr penum_t eNothing    { 0, "Nothing"    };
+    static constexpr penum_t eReference  { 1, "Reference"  };
+    static constexpr penum_t ePrettyEnum { 2, "PrettyEnum" };
+    static constexpr penum_t eNumber     { 3, "Number"     };
+    static constexpr penum_t eBool       { 4, "Bool"       };
+    static constexpr penum_t eString     { 5, "String"     };
 };
 
 template<>
