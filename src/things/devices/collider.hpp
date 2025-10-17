@@ -14,8 +14,6 @@ public:
     Collider(const glm::vec3& Position, const glm::vec3& Rotation, const penum_t& Shape);
     Collider(const glm::vec3& Position, const glm::vec3& Rotation, const glm::vec3& Scale, const penum_t& Shape);
 
-    ~Collider();
-
     void SetVariables(const ThingData&);
     ThingData GetVariables() const;
     void Tick();

@@ -1,6 +1,7 @@
 #ifndef PHYSICS_MANAGER_H
 #define PHYSICS_MANAGER_H
 
+#include "things/fwd.hpp"
 #include "manager.hpp"
 #include "ids.hpp"
 #include "Jolt/Jolt.h" // IWYU pragma: keep
@@ -26,10 +27,14 @@ public:
     JPH::BodyInterface& GetBodyInterface() const;
     JPH::BodyID& GetBodyID(const ID& UID) const;
 
-    bool CreateBody(const ID& UID) const;
-    void DestroyBody(const ID& UID) const;
+    /// If `Collider` is `nullptr`, more work is done to verify and get the Collider at `UID`
+    bool CreateBody(ID UID,  std::shared_ptr<Collider> Collider = nullptr);
+    /// If `Collider` is `nullptr`, more work is done to verify and get the Collider at `UID`
+    bool DestroyBody(ID UID, std::shared_ptr<Collider> Collider = nullptr);
 
 private:
+    bool ValidateColliderUID(ID UID, std::shared_ptr<Collider> Ouptut);
+
     // github.com/jrouwe/JoltPhysics/blob/master/UnitTests/PhysicsTestContext.h:112-117
     JPH::TempAllocator* mTempAllocator{nullptr};
     JPH::JobSystem* mJobSystem{nullptr};

@@ -16,9 +16,6 @@ Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& 
     mScale  = scale;
 }
 
-Collider::~Collider()
-{ g_pPhysicsManager->DestroyBody(mUID); }
-
 void Collider::SetVariables(const ThingData& data)
 {
     Device::SetVariables(data);
@@ -30,8 +27,6 @@ void Collider::SetVariables(const ThingData& data)
 
     GlmToJolt(mOrigin, mInitialPosition);
     GlmToJolt(mQuaternion, mInitialRotation);
-
-    g_pPhysicsManager->CreateBody(mUID);
 }
 
 ThingData Collider::GetVariables() const

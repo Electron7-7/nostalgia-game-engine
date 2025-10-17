@@ -50,6 +50,15 @@ public:
         return std::make_shared<T>();
     }
 
+    // More efficient when breaking on an invalid UID is preferred. See `PhysicsManager::CreateBody` for an example.
+    template<ThingDerived T>
+    SafeStatus GetThing(ID ObjectID, std::shared_ptr<T>& Output)
+    {
+        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
+            { Output = thing; return Status::NO_ERR; }
+        return (ThingExists(ObjectID)) ? Status::ERROR_INVALID_ID : Status::ERROR_INVALID_TYPE;
+    }
+
 private:
     static std::map<ID, std::shared_ptr<Thing>> m_sThings;
 

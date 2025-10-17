@@ -294,23 +294,23 @@ BodyInterface& PhysicsManager::GetBodyInterface() const
 BodyID& PhysicsManager::GetBodyID(const ID& uid) const
 { return sBodyIDMap[uid]; }
 
-void PhysicsManager::DestroyBody(const ID& uid) const
+bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
 {
-    if(!mSystem || sBodyIDMap[uid].IsInvalid())
-        { return; }
-    mSystem->GetBodyInterface().RemoveBody(sBodyIDMap[uid]);
-    mSystem->GetBodyInterface().DestroyBody(sBodyIDMap[uid]);
+    if(!ValidateColliderUID(uid, collider))
+        { return false; }
+    GetBodyInterface().RemoveBody(sBodyIDMap.at(uid));
+    GetBodyInterface().DestroyBody(sBodyIDMap.at(uid));
+    print_jolt_debug("Body Destroyed - Shape: {}, Motion: {}",
+        collider->Shape(),
+        collider->Motion());
+    sBodyIDMap.erase(uid);
+    return true;
 }
 
-bool PhysicsManager::CreateBody(const ID& uid) const
+bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
 {
-    if(!g_pTheatreManager->ThingExists(uid))
-        { return print_error("PhysicsManager::CreatePhysicsBody - invalid UID: {}", uid); }
-    else if(!g_pThingFactory->IsDerivedFrom<Collider>(g_pTheatreManager->GetType(uid)))
-        { return print_error("PhysicsManager::CreatePhysicsBody - invalid type: {}", g_pThingFactory->GetTypeName(g_pTheatreManager->GetType(uid))); }
-
-    auto  collider = g_pTheatreManager->GetThing<Collider>(uid);
-    auto& interface = Jolt()->GetBodyInterface();
+    if(!ValidateColliderUID(uid, collider))
+        { return false; }
 
     BodyCreationSettings settings;
     EMotionType motion_type;
@@ -372,14 +372,27 @@ bool PhysicsManager::CreateBody(const ID& uid) const
             layer);
         break;
     default:
-        print_error("PhysicsManager::CreatePhysicsBody - invalid physics body type '{}' from {}#{}", collider->Shape().name(), g_pThingFactory->GetTypeName(collider->type()), uid);
+        print_error("PhysicsManager::CreatePhysicsBody - invalid physics body type '{}' from {}#{}",
+            collider->Shape(),
+            g_pThingFactory->GetTypeName(collider->type()),
+            uid);
         return false;
     }
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
-    sBodyIDMap[uid] = interface.CreateAndAddBody(settings, EActivation::Activate);
-    print_jolt_debug("Body Created - Type: {}, Shape: {}, Motion: {}",
-        g_pThingFactory->GetTypeName(collider->type()),
-        collider->Shape().name(),
-        collider->Motion().name());
+    sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
+    print_jolt_debug("Body Created - Shape: {}, Motion: {}",
+        collider->Shape(),
+        collider->Motion());
     return !sBodyIDMap.at(uid).IsInvalid();
+}
+
+bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> output)
+{
+    if(!mSystem)
+        { return print_error("PhysicsManager::DestroyBody - Jolt physics system is nullptr!"); }
+    else if(!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid())
+        { return print_error("PhysicsManager::DestroyBody - No valid BodyID paired with UID {}", uid); }
+    else if(!output && !SafeStatus::PrintCheck(g_pTheatreManager->GetThing<Collider>(uid, output)))
+        { return print_error("PhysicsManager::DestroyBody - No Collider with UID {}", uid); }
+    return true;
 }

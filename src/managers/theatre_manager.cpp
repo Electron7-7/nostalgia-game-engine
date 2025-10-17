@@ -105,8 +105,15 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     return FINISHED;
 }
 
-void TheatreManager::ReadyThings() const
-{ for(const auto& [id, thing] : m_sThings) { thing->Ready(); } }
+void TheatreManager::ReadyThings()
+{
+    for(const auto& [id, thing] : m_sThings)
+    {
+        if(auto collider = dynamic_pointer_cast<Collider>(thing))
+            { g_pPhysicsManager->CreateBody(id, collider); }
+        thing->Ready();
+    }
+}
 
 void TheatreManager::RenderWorld()
 {
@@ -268,6 +275,11 @@ void TheatreManager::CreateThings()
 void TheatreManager::DestroyThings()
 {
 #pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
+    for(const auto& [id, thing] : m_sThings)
+    {
+        if(auto collider = dynamic_pointer_cast<Collider>(thing))
+            { g_pPhysicsManager->DestroyBody(id, collider); }
+    }
     UniqueIDs::Clear();
     m_sThings.clear();
 }
