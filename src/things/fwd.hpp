@@ -26,6 +26,7 @@ class Mesh;
 class Texture;
 
 // Devices
+class Collider;
 class MeshInstance;
 class Material;
 
