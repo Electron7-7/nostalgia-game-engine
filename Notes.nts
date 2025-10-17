@@ -642,3 +642,8 @@ The only things left are camera controls and player physics. Quoting my Discord 
 ---
 Nostalgia now officially has all of GraphX's features (and then some) (these features are, of course, implemented much better). The only thing missing is player camera controls and player physics; the camera controls should hopefully be easy to implement with my input event system. The physics should also be easy; in fact, you can interact with physics bodies if you give the player a collider, although gravity is missing (and the collider might not work entirely properly with the current controls implementation). I just want to try and make player physics not a hardcoded implementation (e.g: i want you to be able to customize, control, or even not use it).
 ---
+
+Currently there's a crash when trying to destroy bodies before exiting a Theatre.
+
+[10/17/25]
+Yesterday was crazy; made plans to move in the next few days so I didn't work on Nostalgia much. I may work on it today or work on some other projects to boost my portfolio.
