@@ -647,3 +647,5 @@ Currently there's a crash when trying to destroy bodies before exiting a Theatre
 
 [10/17/25]
 Yesterday was crazy; made plans to move in the next few days so I didn't work on Nostalgia much. I may work on it today or work on some other projects to boost my portfolio.
+
+Huh, just found out I've been using a pseudo-ECS (entity-component system) without knowing what ECS is. Kinda cool, I guess.
