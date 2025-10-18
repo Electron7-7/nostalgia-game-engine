@@ -1,8 +1,8 @@
 #include "physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "things/thing_factory.hpp"
-#include "settings/settings.hpp"
 #include "things/devices/collider.hpp"
+#include "settings/settings.hpp"
 #include "printing.hpp"
 #include "math/conversion.hpp"
 #include "physics/enums.hpp"
@@ -285,18 +285,15 @@ void PhysicsManager::Tick()
     mSystem->Update(Settings::Engine::TickInterval(), 1, mTempAllocator, mJobSystem);
 }
 
-PhysicsSystem* PhysicsManager::Jolt() const
-{ assert(mSystem); return mSystem; }
-
-BodyInterface& PhysicsManager::GetBodyInterface() const
+BodyInterface& PhysicsManager::GetBodyInterface()
 { assert(mSystem); return mSystem->GetBodyInterface(); }
 
-BodyID& PhysicsManager::GetBodyID(const ID& uid) const
+BodyID& PhysicsManager::GetBodyID(ID uid)
 { return sBodyIDMap[uid]; }
 
 bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
 {
-    if(!ValidateColliderUID(uid, collider))
+    if(!ValidateColliderUID(uid, collider, true))
         { return false; }
     GetBodyInterface().RemoveBody(sBodyIDMap.at(uid));
     GetBodyInterface().DestroyBody(sBodyIDMap.at(uid));
@@ -309,7 +306,7 @@ bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
 
 bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
 {
-    if(!ValidateColliderUID(uid, collider))
+    if(!ValidateColliderUID(uid, collider, false))
         { return false; }
 
     BodyCreationSettings settings;
@@ -386,13 +383,13 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
     return !sBodyIDMap.at(uid).IsInvalid();
 }
 
-bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> output)
+bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> output, bool check_body_id)
 {
     if(!mSystem)
-        { return print_error("PhysicsManager::DestroyBody - Jolt physics system is nullptr!"); }
-    else if(!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid())
-        { return print_error("PhysicsManager::DestroyBody - No valid BodyID paired with UID {}", uid); }
+        { return print_error("PhysicsManager::ValidateColliderUID - Jolt physics system is nullptr!"); }
+    else if(check_body_id && (!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid()))
+        { return print_error("PhysicsManager::ValidateColliderUID - No valid BodyID paired with UID {}", uid); }
     else if(!output && !SafeStatus::PrintCheck(g_pTheatreManager->GetThing<Collider>(uid, output)))
-        { return print_error("PhysicsManager::DestroyBody - No Collider with UID {}", uid); }
+        { return print_error("PhysicsManager::ValidateColliderUID - No Collider with UID {}", uid); }
     return true;
 }

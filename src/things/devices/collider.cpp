@@ -44,15 +44,15 @@ void Collider::Tick()
     if(BodyIDInvalid())
         { return; }
     JoltToGlm(
-        g_pPhysicsManager->Jolt()->GetBodyInterface().GetRotation(BodyID()),
+        g_pPhysicsManager->GetBodyInterface().GetRotation(BodyID()),
         mQuaternion);
     JoltToGlm(
-        g_pPhysicsManager->Jolt()->GetBodyInterface().GetCenterOfMassPosition(BodyID()),
+        g_pPhysicsManager->GetBodyInterface().GetCenterOfMassPosition(BodyID()),
         mOrigin);
 }
 
 bool Collider::Active() const
-{ return g_pPhysicsManager->Jolt()->GetBodyInterface().IsActive(BodyID()); }
+{ return g_pPhysicsManager->GetBodyInterface().IsActive(BodyID()); }
 
 const penum_t& Collider::Shape() const
 { return mShape; }
@@ -64,7 +64,7 @@ void Collider::ResetTransform(bool activate) const
 {
     if(BodyIDInvalid())
         { return; }
-    g_pPhysicsManager->Jolt()->GetBodyInterface().SetPositionRotationAndVelocity(
+    g_pPhysicsManager->GetBodyInterface().SetPositionRotationAndVelocity(
         BodyID(),
         mInitialPosition,
         mInitialRotation,

@@ -23,9 +23,8 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     void Tick();
 
-    JPH::PhysicsSystem* Jolt() const;
-    JPH::BodyInterface& GetBodyInterface() const;
-    JPH::BodyID& GetBodyID(const ID& UID) const;
+    JPH::BodyInterface& GetBodyInterface();
+    JPH::BodyID& GetBodyID(ID UID);
 
     /// If `Collider` is `nullptr`, more work is done to verify and get the Collider at `UID`
     bool CreateBody(ID UID,  std::shared_ptr<Collider> Collider = nullptr);
@@ -33,7 +32,7 @@ public:
     bool DestroyBody(ID UID, std::shared_ptr<Collider> Collider = nullptr);
 
 private:
-    bool ValidateColliderUID(ID UID, std::shared_ptr<Collider> Ouptut);
+    bool ValidateColliderUID(ID UID, std::shared_ptr<Collider> Ouptut, bool ValidateBodyID);
 
     // github.com/jrouwe/JoltPhysics/blob/master/UnitTests/PhysicsTestContext.h:112-117
     JPH::TempAllocator* mTempAllocator{nullptr};
