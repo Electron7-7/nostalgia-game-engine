@@ -9,7 +9,7 @@ ThingVar::ThingVar(const ID& id, const std::string& _name)
     : name{_name}, value{""}, type{eReference}, reference_id{id}
     {
         if(!UniqueIDs::GetReservedIDName(id, value))
-            { value = TheatreManager::GetThing(id)->name(); }
+            { value = g_pTheatreManager->GetThing(id)->name(); }
     }
 
 ThingVar::ThingVar(const penum_t& p_enum, const std::string& _name)

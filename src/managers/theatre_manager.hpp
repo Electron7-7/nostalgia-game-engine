@@ -4,9 +4,10 @@
 #include "things/fwd.hpp"
 #include "theatre_parser/fwd.hpp"
 
-#include "things/thing_factory.hpp"
+#include "safe_return.hpp"
 #include "manager.hpp"
 #include "input/event.hpp"
+#include "things/thing_factory.hpp"
 
 #include <memory>
 #include <map>
@@ -21,31 +22,31 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
-    void ReadyThings() const;
+    void ReadyThings();
     void RenderWorld();
-    bool ThingExists(const ID& UID) const;
-    ID GetType(ID ObjectID) const;
+    bool ThingExists(ID UID);
+    ID GetType(ID ObjectID);
 
-    static void LoadTheatreData(const TheatreData&);
-    static bool LoadTheatreFromMemory(const std::string& Data);
-    static bool LoadTheatreFromFile(const std::string& Path);
+    void LoadTheatreData(const TheatreData&);
+    bool LoadTheatreFromMemory(const std::string& Data);
+    bool LoadTheatreFromFile(const std::string& Path);
 
-    static const TheatreData& GetInitialState();
-    static TheatreData GetCurrentState();
-    std::vector<ID> GetThingIDs() const;
+    const TheatreData& GetInitialState();
+    TheatreData GetCurrentState();
+    std::vector<ID> GetThingIDs();
 
-    static void DelegateInputEvent(const InputEvent& InputEvent);
-    static ID CreateThing(const ThingData& ThingData);
-    static std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
-    static bool DestroyThing(ID);
+    void DelegateInputEvent(const InputEvent& InputEvent);
+    ID CreateThing(const ThingData& ThingData);
+    std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
+    bool DestroyThing(ID);
 
-    static std::shared_ptr<Thing> GetThing(ID ObjectID)
-    { return (m_sThings.contains(ObjectID)) ? m_sThings.at(ObjectID) : std::make_shared<Thing>(); }
+    std::shared_ptr<Thing> GetThing(ID ObjectID)
+    { return (mThings.contains(ObjectID)) ? mThings.at(ObjectID) : std::make_shared<Thing>(); }
 
     template<ThingDerived T>
-    static std::shared_ptr<T> GetThing(ID ObjectID)
+    std::shared_ptr<T> GetThing(ID ObjectID)
     {
-        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(TheatreManager::GetThing(ObjectID)))
+        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
             { return thing; }
         return std::make_shared<T>();
     }
@@ -60,10 +61,10 @@ public:
     }
 
 private:
-    static std::map<ID, std::shared_ptr<Thing>> m_sThings;
+    std::map<ID, std::shared_ptr<Thing>> mThings{};
 
-    static void CreateThings();
-    static void DestroyThings();
+    void CreateThings();
+    void DestroyThings();
 };
 
 extern TheatreManager* g_pTheatreManager;

@@ -6,8 +6,8 @@
 #include "rendering/backends/graphics/opengl.hpp"
 #include "rendering/backends/windowing/glfw.hpp"
 
-static BackendManager s_BackendManager;
-BackendManager* g_pBackendManager = &s_BackendManager;
+static BackendManager sBackendManager;
+BackendManager* g_pBackendManager = &sBackendManager;
 
 static std::shared_ptr<GraphicsBackend>  s_Graphics  = nullptr;
 static std::shared_ptr<WindowingBackend> s_Windowing = nullptr;

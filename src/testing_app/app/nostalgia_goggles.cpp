@@ -68,12 +68,12 @@ int NostalgiaGoggles::Main()
     // g_pMenuManager->PushMenu("Main Menu");
     g_pUIManager->AddImGuiObject(g_pDebugger);
 
-    InputManager::AddAction(sToggleFullscreen,   BindingIDs::KeyF);
-    InputManager::AddAction(sToggleMouseCapture, BindingIDs::KeyESC);
-    InputManager::AddAction("+forward",  BindingIDs::KeyW);
-    InputManager::AddAction("+backward", BindingIDs::KeyS);
-    InputManager::AddAction("+left",     BindingIDs::KeyA);
-    InputManager::AddAction("+right",    BindingIDs::KeyD);
+    g_pInputManager->AddAction(sToggleFullscreen,   BindingIDs::KeyF);
+    g_pInputManager->AddAction(sToggleMouseCapture, BindingIDs::KeyESC);
+    g_pInputManager->AddAction("+forward",  BindingIDs::KeyW);
+    g_pInputManager->AddAction("+backward", BindingIDs::KeyS);
+    g_pInputManager->AddAction("+left",     BindingIDs::KeyA);
+    g_pInputManager->AddAction("+right",    BindingIDs::KeyD);
 
     _Manager::Start(); // gameloop
     return 0;

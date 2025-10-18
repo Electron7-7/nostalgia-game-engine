@@ -37,7 +37,7 @@ void light_t::SetVariables(const ThingData& data)
 #ifdef DEBUGGING
     mVisible = true;
     if(mMeshInstanceID == ID::Invalid) { // the debug mesh/material shouldn't override a manually specificed one
-        ID mat_id = TheatreManager::CreateThing({
+        ID mat_id = g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",
             ThingType::Material,
             UniqueIDs::Generate(),
@@ -46,7 +46,7 @@ void light_t::SetVariables(const ThingData& data)
                 {true, "FullBright"},
             }
         });
-        mMeshInstanceID = TheatreManager::CreateThing({
+        mMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
             UniqueIDs::Generate(),

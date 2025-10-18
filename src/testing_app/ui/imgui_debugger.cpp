@@ -260,7 +260,7 @@ void imgui_Debugger::Update()
                 if(Button("Load Theatre"))
                 {
                     s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-                    TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
+                    g_pTheatreManager->LoadTheatreFromFile(s_TheatreFilePath);
                 }
                 if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
                     { EndDisabled(); }
@@ -534,7 +534,7 @@ static void s_TheatreDebuggingWindow()
     if(Button("Load Theatre"))
     {
         s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-        TheatreManager::LoadTheatreFromFile(s_TheatreFilePath);
+        g_pTheatreManager->LoadTheatreFromFile(s_TheatreFilePath);
     }
     if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }

@@ -9,14 +9,12 @@
 
 using namespace ManagerEnums;
 
-static RenderManager s_RenderManager;
-RenderManager* g_pRenderManager = &s_RenderManager;
+static RenderManager sRenderManager;
+RenderManager* g_pRenderManager = &sRenderManager;
 
 
 bool RenderManager::Init()
-{
-    return true;
-}
+{ return true; }
 
 void RenderManager::Shutdown()
 {}

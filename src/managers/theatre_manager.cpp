@@ -1,8 +1,10 @@
 #include "theatre_manager.hpp"
+#include "physics_manager.hpp"
 #include "input/demo_controller.hpp"
 #include "theatre_parser/theatre_data.hpp"
 #include "theatre_parser/theatre_parser.hpp"
 #include "rendering/render_command.hpp"
+#include "things/devices/collider.hpp"
 #include "things/thing.hpp"
 #include "embedded/images.hpp"
 #include "embedded/models.hpp"
@@ -22,10 +24,8 @@
 
 using namespace ManagerEnums;
 
-static TheatreManager s_TheatreManager;
-TheatreManager* g_pTheatreManager = &s_TheatreManager;
-
-std::map<ID, std::shared_ptr<Thing>> TheatreManager::m_sThings = {};
+static TheatreManager sTheatreManager;
+TheatreManager* g_pTheatreManager = &sTheatreManager;
 
 static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer{std::make_shared<NostalgiaPlayer>()};
 static std::vector<RenderCommand> s_RenderCommandQueue{};
@@ -42,7 +42,7 @@ void TheatreManager::Update()
         { std::print("{}TheatreManager::Update #{} @ {}\n", sty::Bold + fg::Green, Manager::m_sFrameNumber, Time::Elapsed()); }
 #endif // DEBUGGING
     s_LocalPlayer->Update();
-    for(auto& [id, thing] : m_sThings)
+    for(auto& [id, thing] : mThings)
         { thing->Update(); }
 }
 
@@ -53,7 +53,7 @@ void TheatreManager::Tick()
         { std::print("{}TheatreManager::Tick #{} @ {}\n", sty::Bold + fg::Blue, Manager::m_sTickNumber, Time::Elapsed()); }
 #endif // DEBUGGING
     s_LocalPlayer->Tick();
-    for(auto& [id, thing] : m_sThings)
+    for(auto& [id, thing] : mThings)
         { thing->Tick(); }
 }
 
@@ -107,12 +107,8 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 
 void TheatreManager::ReadyThings()
 {
-    for(const auto& [id, thing] : m_sThings)
-    {
-        if(auto collider = dynamic_pointer_cast<Collider>(thing))
-            { g_pPhysicsManager->CreateBody(id, collider); }
-        thing->Ready();
-    }
+    for(const auto& [id, thing] : mThings)
+        { thing->Ready(); }
 }
 
 void TheatreManager::RenderWorld()
@@ -122,7 +118,7 @@ void TheatreManager::RenderWorld()
 
     light_t::ClearCounts();
 
-    for(auto& [id, thing] : m_sThings)
+    for(auto& [id, thing] : mThings)
     {
         auto actor = dynamic_pointer_cast<Actor>(thing);
         auto light = dynamic_pointer_cast<light_t>(thing);
@@ -142,10 +138,10 @@ void TheatreManager::RenderWorld()
     }
 }
 
-bool TheatreManager::ThingExists(const ID& uid) const
-{ return m_sThings.contains(uid); }
+bool TheatreManager::ThingExists(ID uid)
+{ return mThings.contains(uid); }
 
-ID TheatreManager::GetType(ID uid) const
+ID TheatreManager::GetType(ID uid)
 { return (ThingExists(uid)) ? GetThing(uid)->type() : (ID)ID::Invalid; }
 
 void TheatreManager::LoadTheatreData(const TheatreData& data)
@@ -184,21 +180,21 @@ TheatreData TheatreManager::GetCurrentState()
 {
     TheatreData data{sCurrentTheatreData};
     data.clear();
-    for(const auto& [id, thing] : m_sThings)
+    for(const auto& [id, thing] : mThings)
         { data.AddData(thing->GetVariables()); }
     return data;
 }
 
-std::vector<ID> TheatreManager::GetThingIDs() const
+std::vector<ID> TheatreManager::GetThingIDs()
 {
-    auto keys = std::views::keys(m_sThings);
+    auto keys = std::views::keys(mThings);
     return {keys.begin(), keys.end()};
 }
 
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
 {
     s_LocalPlayer->Input(event);
-    for(const auto& [id, thing] : m_sThings)
+    for(const auto& [id, thing] : mThings)
         { thing->Input(event); }
 }
 
@@ -207,7 +203,7 @@ ID TheatreManager::CreateThing(const ThingData& cData)
     std::shared_ptr<Thing> thing;
     ThingData data = cData;
 
-    if(m_sThings.contains(data.uid))
+    if(mThings.contains(data.uid))
     {
         print_warning("TheatreManager::CreateThing - A Thing with ID#{} already exists; a new ID will be generated and a duplicate Thing will be made", data.uid);
         if(!UniqueIDs::Contains(data.uid))
@@ -221,9 +217,11 @@ ID TheatreManager::CreateThing(const ThingData& cData)
         thing->SetVariables(ThingData::PlayerDefaults);
     }
     else
-        { thing = m_sThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
+        { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
 
     thing->SetVariables(data);
+    if(auto collider = dynamic_pointer_cast<Collider>(thing))
+        { g_pPhysicsManager->CreateBody(thing->uid(), collider); }
     return thing->uid();
 }
 
@@ -232,7 +230,7 @@ std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
 
 bool TheatreManager::DestroyThing(ID id)
 {
-    if(!m_sThings.contains(id))
+    if(!mThings.contains(id))
     {
         print_warning("TheatreManager::DestroyThing - No Thing with ID#{} exists", id);
         return false;
@@ -244,8 +242,8 @@ bool TheatreManager::DestroyThing(ID id)
         return false;
     }
     if(!UniqueIDs::Contains(id))
-        { print_warning("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 'm_sThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id); }
-    return (m_sThings.erase(id) != 0);
+        { print_warning("TheatreManager::DestroyThing - ID#{} is not in 's_ExistingIDs', but is somehow in 'mThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id); }
+    return (mThings.erase(id) != 0);
 }
 
 void TheatreManager::CreateThings()
@@ -275,11 +273,11 @@ void TheatreManager::CreateThings()
 void TheatreManager::DestroyThings()
 {
 #pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
-    for(const auto& [id, thing] : m_sThings)
+    for(const auto& [id, thing] : mThings)
     {
         if(auto collider = dynamic_pointer_cast<Collider>(thing))
             { g_pPhysicsManager->DestroyBody(id, collider); }
     }
     UniqueIDs::Clear();
-    m_sThings.clear();
+    mThings.clear();
 }

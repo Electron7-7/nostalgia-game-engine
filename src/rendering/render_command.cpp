@@ -17,8 +17,8 @@ RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id):
 {
     if(dynamic_pointer_cast<light_t>(actor))
     {
-        TheatreManager::GetThing<Material>(
-            TheatreManager::GetThing<MeshInstance>(
+        g_pTheatreManager->GetThing<Material>(
+            g_pTheatreManager->GetThing<MeshInstance>(
                 actor->MeshInstanceID()
                 )->GetMaterialID()
             )->mColor = dynamic_pointer_cast<light_t>(actor)->mColor;
@@ -32,11 +32,11 @@ RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id):
 }
 
 glm::vec3 RenderCommand::ViewPosition() const
-{ return TheatreManager::GetLocalPlayer()->ViewPosition(); }
+{ return g_pTheatreManager->GetLocalPlayer()->ViewPosition(); }
 
 glm::mat4 RenderCommand::ViewMatrix() const
 {
-    const auto& Player = TheatreManager::GetLocalPlayer();
+    const auto& Player = g_pTheatreManager->GetLocalPlayer();
     const auto& Origin = Player->Origin();
     return glm::lookAt(Origin, Origin + Player->Front(), Player->Up());
 }

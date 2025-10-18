@@ -258,8 +258,8 @@ void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
-    auto mesh_instance = TheatreManager::GetThing<MeshInstance>(rendercmd.mesh_instance);
-    auto material      = TheatreManager::GetThing<Material>(mesh_instance->GetMaterialID());
+    auto mesh_instance = g_pTheatreManager->GetThing<MeshInstance>(rendercmd.mesh_instance);
+    auto material      = g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID());
 
     glBindVertexArray(mVAOs.at(VAO_DEFAULT));
     BindShader(rendercmd.shader);
