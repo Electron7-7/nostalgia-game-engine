@@ -7,6 +7,7 @@
 
 #include <map>
 #include <memory>
+#include <cassert>
 
 typedef
     std::shared_ptr<Thing>(*pThingMaker_t)();
