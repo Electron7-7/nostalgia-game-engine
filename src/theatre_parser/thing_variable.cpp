@@ -5,7 +5,7 @@
 ThingVar::ThingVar(const std::string& string, const std::string& _name)
     : name{_name}, value{string}, type{eString} {}
 
-ThingVar::ThingVar(const ID& id, const std::string& _name)
+ThingVar::ThingVar(ID id, const std::string& _name)
     : name{_name}, value{""}, type{eReference}, reference_id{id}
     {
         if(!UniqueIDs::GetReservedIDName(id, value))

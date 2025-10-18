@@ -22,7 +22,7 @@ struct ThingVar
         ThingVar(const T& Number, const std::string& Name = "")
             : name{Name}, value{std::format("{}", Number)}, type{eNumber} {}
     ThingVar(const std::string& String, const std::string& Name = "");
-    ThingVar(const ID& ReferenceID, const std::string& Name = "");
+    ThingVar(ID ReferenceID, const std::string& Name = "");
     ThingVar(const penum_t& PrettyEnum, const std::string& Name = "");
     ThingVar(bool Boolean, const std::string& Name = "");
 

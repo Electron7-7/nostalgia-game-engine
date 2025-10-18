@@ -588,7 +588,7 @@ static void s_NameAndUID(const auto& thing)
     Text("UID  - %u", (id_t)thing->uid());
 }
 
-static void s_ResourceInfo(const ID& uid, const char* tree_name)
+static void s_ResourceInfo(ID uid, const char* tree_name)
 {
     if(g_pTheatreManager->ThingExists(uid) && TreeNode(tree_name))
     {

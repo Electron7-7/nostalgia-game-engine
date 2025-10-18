@@ -33,7 +33,7 @@ public:
 protected:
     ID mUID{ID::Invalid};
     ID mType{ThingType::Thing};
-    std::string mName{"Untitled Thing"};
+    std::string mName{""};
 };
 
 #endif // THING_H
