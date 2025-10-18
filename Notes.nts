@@ -649,3 +649,17 @@ Currently there's a crash when trying to destroy bodies before exiting a Theatre
 Yesterday was crazy; made plans to move in the next few days so I didn't work on Nostalgia much. I may work on it today or work on some other projects to boost my portfolio.
 
 Huh, just found out I've been using a pseudo-ECS (entity-component system) without knowing what ECS is. Kinda cool, I guess.
+
+What? The using deallocated memory crash looks like it's because `Collider::Shape` and `Collider::Motion` return something that gets deallocated before `std::print` has a chance to process it? Meaning, the `penum_t` reference gets fucked up somehow?
+
+Interesting note about my brain: when I've been programming and I don't give myself any time to decomp before talking to peopl (especially via text), I tend to word my statements kinda backwards and I think I might know one of the reasons why: boolean logic. I get so used to things like `!(statement is true)` instead of `(statement is false)` and I think it bleeds into my speaking logic. Kinda cool!
+
+Okay, the crash is a 'heap use after free' crash and it may be related to this: (https://stackoverflow.com/a/56701074); I'm thinking it might be due to the shared pointer being passed via const reference? Let's see.
+
+Oh shit, is it because of how I get `penum_t` variables with `GetThing`? Is it a pointer that gets freed when the data variable goes out of scope? Oh my god I think it is!
+
+Okay, so it has something to do with when `ThingData::GetPrettyEnum` was assigning the `penum_t&` variable to a new `penum_t` object (e.g: `output = penum_t{name, id};`). When I instead set it to a penum_t variable in the `sPrettyEnumLookup` map, the crash goes away! I kind of want to look into this real quickly.
+
+Oh my god... is it because it's constructing the object, setting the reference to that object, and then the object dies out of scope? I think it is!
+
+Also, refer here for when to use `const &` versus normal function arguments (https://stackoverflow.com/a/2627535).
