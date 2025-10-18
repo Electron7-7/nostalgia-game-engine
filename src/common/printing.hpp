@@ -8,8 +8,8 @@ template<class... Args>
     { std::println("\x1b[1;31m[ERROR] {}\x1b[0m", std::format(fmt, std::forward<Args>(args)...)); return false; }
 
 template<class... Args>
-    void print_warning(std::format_string<Args...> fmt, Args&&... args)
-    { std::println("\x1b[1;33m[WARNING] {}\x1b[0m", std::format(fmt, std::forward<Args>(args)...)); }
+    bool print_warning(std::format_string<Args...> fmt, Args&&... args)
+    { std::println("\x1b[1;33m[WARNING] {}\x1b[0m", std::format(fmt, std::forward<Args>(args)...)); return false; }
 
 // Debug printouts are only enabled in the Debug build
 #ifdef DEBUGGING
