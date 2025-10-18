@@ -1,5 +1,6 @@
 #include "demo_controller.hpp"
-#include "input/event_queue.hpp"
+#include "binding.hpp"
+#include "event_queue.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
@@ -127,7 +128,7 @@ void DemoController::ProcessQueue(EventQueue& queue)
             { StopPlaying(); return; }
         queue = sDemo.at(sPlaybackIndex);
         if(sIndexOfTheatreLoad == sPlaybackIndex)
-            { TheatreManager::LoadTheatreFromFile(sDemoTheatreName); }
+            { g_pTheatreManager->LoadTheatreFromFile(sDemoTheatreName); }
         ++sPlaybackIndex;
     }
     else if(is_recording_)
@@ -236,28 +237,27 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
         }
     }
 
-    id_t id;
-    int status;
-    int just_changed;
-    glm::vec2 curr_mouse{0.0f, 0.0f};
-    glm::vec2 last_mouse{0.0f, 0.0f};
+    id_t id{ID::Invalid};
+    int status{-1};
+    int just_changed{-1};
+    glm::vec2 curr_mouse{0.0f};
+    glm::vec2 last_mouse{0.0f};
 
-    if(!StringToNum(id, id_buffer) ||
-        !StringToNum(status, status_buffer) ||
-        !StringToNum(just_changed, just_changed_buffer))
-    { return Status::DemoControllerLINE_FAILED; }
-    else if(is_mouse_motion &&
-        (!StringToNum(curr_mouse, curr_mouse_buffer) ||
-            !StringToNum(last_mouse, last_mouse_buffer)))
-    { return Status::DemoControllerLINE_FAILED; }
+    if(StringToNum(id, id_buffer) &&
+        g_pInputManager->BindingExists(id) &&
+        StringToNum(status, status_buffer) &&
+        StringToNum(just_changed, just_changed_buffer))
+    {
+        if(is_mouse_motion &&
+            StringToNum(curr_mouse, curr_mouse_buffer) &&
+            StringToNum(last_mouse, last_mouse_buffer))
+            { queue.emplace_back(id, curr_mouse, last_mouse); }
+        else
+            { queue.emplace_back(id); }
 
-    InputEvent new_event;
-    new_event.mBinding = InputManager::GetBinding(id);
-    new_event.mBinding.status = static_cast<InputStatus>(status);
-    new_event.mBinding.just_changed = static_cast<bool>(just_changed);
-    new_event.mActions = InputManager::GetActions(id);
-    new_event.mCurMousePos = curr_mouse;
-    new_event.mLastMousePos = last_mouse;
-    queue.push_back(new_event);
-    return Status::DemoControllerLINE_PARSED;
+        g_pInputManager->GetBinding(id).status_ = static_cast<InputStatus>(status);
+        g_pInputManager->GetBinding(id).just_changed_ = static_cast<bool>(just_changed);
+        return Status::DemoControllerLINE_PARSED;
+    }
+    return Status::DemoControllerLINE_FAILED;
 }

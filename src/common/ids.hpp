@@ -2,7 +2,7 @@
 #define IDS_H
 
 #include "embedded/names.hpp"
-#include "frozen/map.h"
+#include "hash.hpp"
 
 #include <string>
 #include <format>
@@ -13,10 +13,15 @@ typedef unsigned int id_t;
 struct ID
 {
 public:
-    constexpr ID(const id_t& id = ID::Invalid): id_(id) {}
+    constexpr ID(id_t id = ID::Invalid): id_(id) {}
+    explicit constexpr ID(const char* from_name): id_(ConstexprHash(from_name)) {}
+    explicit constexpr ID(const std::string& from_name): id_(ConstexprHash(from_name)) {}
 
     constexpr operator const id_t&() const
     { return id_; }
+
+    constexpr bool invalid() const
+    { return id_ == ID::Invalid; }
 
     static constexpr id_t Invalid = static_cast<unsigned int>(-1); // Same as `UINT_MAX`
     static constexpr id_t front   = 0;
@@ -24,13 +29,13 @@ public:
 
 private:
     friend struct std::formatter<ID>;
-    id_t id_ = ID::Invalid;
+    id_t id_{ID::Invalid};
 };
 
 template<>
 struct std::formatter<ID> : std::formatter<id_t>
 {
-    auto format(const ID& id, std::format_context& ctx) const
+    auto format(ID id, std::format_context& ctx) const
     { return std::formatter<id_t>::format(id.id_, ctx); }
 };
 
@@ -163,30 +168,6 @@ namespace BindingIDs
     constexpr ID MouseMotionBack  = MouseMotionY;
     constexpr ID MouseMotionEnd   = MouseMotionBack + 1;
     constexpr ID MouseMotionCount = MouseMotionEnd - MouseMotionFront;
-
-    // Since this map accounts for both upper and lower case letters, we need to add `26` to the size
-    extern constinit const frozen::map<std::string, ID, end + 26> cBindingNames;
-
-    constexpr bool Exists(ID BindingID)
-    { return BindingID < end; } // `ID` stores an `unsigned int`, so `BindingID` can never be negative
-
-    constexpr bool Exists(const std::string& Name)
-    { return cBindingNames.contains(Name); }
-
-    constexpr ID GetID(const std::string& Name)
-    {
-        if(!Exists(Name))
-            { return ID::Invalid; }
-        return cBindingNames.at(Name);
-    }
-
-    constexpr std::string GetName(ID BindingID)
-    {
-        static constexpr std::string s_cInvalidName = "Invalid InputID";
-        for(const auto& [name, id] : cBindingNames)
-            { if(BindingID == id) { return name; } }
-        return s_cInvalidName;
-    }
 };
 
 #endif // IDS_H

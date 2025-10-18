@@ -1,7 +1,6 @@
 #ifndef INPUT_BINDING_H
 #define INPUT_BINDING_H
 
-#include "ids.hpp"
 #include "enums.hpp"
 
 #include <string>
@@ -10,24 +9,51 @@ struct InputBinding
 {
 public:
     constexpr InputBinding() = default;
-    constexpr InputBinding(ID binding_id): id_(binding_id) {}
-    constexpr InputBinding(const std::string& Name, InputStatus Status):
-        status(Status),
-        id_(BindingIDs::GetID(Name))
-    {}
 
-    constexpr operator ID() const
-    { return id_; }
-    constexpr operator id_t() const
-    { return id_; }
+    const char* name()   const { return name_; }
+    InputStatus status() const { return status_; }
+    bool just_changed()  const { return just_changed_; }
+    bool locked()        const { return locked_; }
 
-    InputStatus status = InputStatus::Inactive;
-    bool just_changed = false;
-    bool locked = false;
+    bool Activate()
+    {
+        just_changed_ = (status_ != InputStatus::Active);
+        status_ = InputStatus::Active;
+        return just_changed_;
+    }
+    bool Press() { return Activate(); }
+
+    bool Deactivate()
+    {
+        just_changed_ = (status_ != InputStatus::Inactive);
+        status_ = InputStatus::Inactive;
+        return just_changed_;
+    }
+    bool Release() { return Deactivate(); }
+
+    bool Active()   const { return status_ == InputStatus::Active; }
+    bool Pressed()  const { return Active();  }
+    bool Inactive() const { return !Active(); }
+    bool Released() const { return !Active(); }
+
+    bool JustActivated()   const { return (Active() && just_changed_); }
+    bool JustPressed()     const { return JustActivated(); }
+    bool JustDeactivated() const { return (Inactive() && just_changed_); }
+    bool JustReleased()    const { return JustDeactivated(); }
+
+    constexpr bool operator==(const std::string& name) const
+    { return !name.compare(name_); }
 
 private:
-    friend class DemoParser;
-    ID id_ = ID::Invalid;
+    friend class InputManager;
+    constexpr InputBinding(const char* name):
+        name_(name) {}
+
+    friend class gen1_demo_controller;
+    const char* name_{""};
+    InputStatus status_{InputStatus::Inactive};
+    bool just_changed_{false};
+    bool locked_{false};
 };
 
 #endif // INPUT_BINDING_H

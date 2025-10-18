@@ -16,49 +16,43 @@ typedef SafeStatus (*InputEventCallbackFunction)(const InputEvent&);
 class InputManager : public Manager
 {
 public:
+    constexpr const char* DebugName() { return "InputManager"; }
     bool Init();
     void Tick();
 
-    static bool Pressed(ID InputID);
-    static bool Released(ID InputID);
-    static bool Active(ID InputID);
-    static bool Inactive(ID InputID);
-    static bool JustPressed(ID InputID);
-    static bool JustActive(ID InputID);
-    static bool Pressed(const std::string& InputName);
-    static bool Released(const std::string& InputName);
-    static bool Active(const std::string& InputName);
-    static bool Inactive(const std::string& InputName);
-    static bool JustPressed(const std::string& InputName);
-    static bool JustActive(const std::string& InputName);
-
     InputEventCallbackFunction SetInputEventCallback(SafeStatus (*Callback)(const InputEvent&));
 
-    static const std::set<std::string>& GetActions(ID InputID);
-    static const std::set<std::string>& GetActions(const std::string& InputName);
+    const std::set<std::string>& GetActions(ID BindingID);
+    const std::set<std::string>& GetActions(const std::string& BindingName);
 
-    static bool AddAction(const std::string& Action);
-    static bool AddAction(const std::string& Action, const std::string& InputName);
-    static bool AddAction(const std::string& Action, ID InputID);
+    bool AddAction(const std::string& Action);
+    bool AddAction(const std::string& Action, const std::string& BindingName);
+    bool AddAction(const std::string& Action, ID BindingID);
 
-    static bool AssignToAction(const std::string& Action, const std::string& InputName);
-    static bool AssignToAction(const std::string& Action, ID InputID);
+    bool AssignToAction(const std::string& Action, const std::string& BindingName);
+    bool AssignToAction(const std::string& Action, ID BindingID);
 
-    static bool DeleteAction(const std::string& ActionName);
-    static bool ClearActions(const std::string& InputName);
-    static bool ClearActions(ID InputID);
+    bool DeleteAction(const std::string& ActionName);
+    bool ClearActions(ID BindingID);
+    bool ClearActions(const std::string& BindingName);
 
-    static InputBinding& GetBinding(ID);
+    InputBinding& GetBinding(ID BindingID);
+    InputBinding& GetBinding(const std::string& BindingName);
+    ID GetBindingID(const std::string& BindingName);
+
+    bool BindingExists(ID BindingID);
+    bool BindingExists(const std::string& BindingName);
 
 private:
-    static std::vector<InputBinding> s_Bindings;
-    static InputEventCallbackFunction m_sInputEventCallback;
-    static glm::vec2 m_sMousePosition;
-    static EventQueue m_sInputEventQueue;
-    static EventQueue m_sDemoEventQueue;
+    glm::vec2 mMousePosition{0.0f};
+    EventQueue* mInputEventQueue{nullptr};
+    EventQueue* mDemoEventQueue{nullptr};
 
-    static void m_sHandleInputEvent(const InputEvent&);
-    void mPollInputs(EventQueue&);
+    void PollInputs(EventQueue&);
+
+    static std::map<ID, InputBinding> m_sInputBindings;
+    static InputEventCallbackFunction m_sInputEventCallback;
+    static void HandleInputEvent(const InputEvent&);
 };
 
 extern InputManager* g_pInputManager;

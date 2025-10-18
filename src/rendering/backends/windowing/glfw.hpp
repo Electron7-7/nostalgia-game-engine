@@ -32,8 +32,8 @@ public:
     MouseMode GetMouseMode();
 
     void GetMousePosition(glm::vec2&);
-    bool GetKey(InputBinding&);
-    bool GetMotion(InputBinding&, const glm::vec2&);
+    bool GetKey(ID, InputBinding&);
+    bool GetMotion(ID, InputBinding&, const glm::vec2&);
     void SwapBuffers();
     void PollEvents();
     void UpdateState();

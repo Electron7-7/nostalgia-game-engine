@@ -2,7 +2,8 @@
 #define EVENT_H
 
 #include "fwd.hpp"
-#include "binding.hpp"
+#include "enums.hpp"
+#include "ids.hpp"
 #include "time.hpp"
 #include "managers/manager.hpp"
 
@@ -12,17 +13,15 @@
 struct InputEvent
 {
 public:
-    InputEvent();
-    InputEvent(const InputEvent& Copy);
-    InputEvent(const std::string& InputName, InputStatus Status, const std::set<std::string>& Actions = {});
-    InputEvent(const InputBinding& InputBinding, const std::set<std::string>& Actions = {});
-    InputEvent(const InputBinding& InputBinding, const glm::vec2& CurMousePos, const glm::vec2& LastMousePos, const std::set<std::string>& Actions = {});
+    InputEvent() = default;
+    InputEvent(ID BindingID);
+    InputEvent(ID BindingID, const glm::vec2& CurrentMousePosition, const glm::vec2& LastMousePosition);
 
     const glm::vec2& CurrentMousePosition() const;
     const glm::vec2& LastMousePosition() const;
     glm::vec2 MouseMotion() const;
-    const std::set<std::string>& Actions() const;
     const InputBinding& Binding() const;
+    const std::set<std::string>& Actions() const;
     InputStatus Status() const;
     bool JustPressed() const;
     bool JustReleased() const;
@@ -35,23 +34,18 @@ public:
     bool IsMouseMotion() const;
     bool IsType(InputEventType EventType) const;
     bool IsAction(const std::string& Action) const;
-    bool IsInput(const std::string& InputName) const;
-    bool IsInput(const InputBinding& InputBinding) const;
+    bool IsInput(const std::string& BindingName) const;
+    bool IsInput(ID BindingID) const;
     std::string Log() const;
     std::string DemoString() const;
-
-    constexpr bool Valid() const
-    { return BindingIDs::Exists(mBinding); }
+    bool Valid() const;
 
 private:
-    friend class gen1_demo_controller;
-
-    double mTime = Time::Elapsed();
-    long   mTick = _Manager::TickNumber();
-    InputBinding mBinding;
-    std::set<std::string> mActions = {};
-    glm::vec2 mCurMousePos  = {0.0f, 0.0f};
-    glm::vec2 mLastMousePos = {0.0f, 0.0f};
+    double mTime{Time::Elapsed()};
+    long   mTick{_Manager::TickNumber()};
+    ID mBindingID{};
+    glm::vec2 mCurMousePos{0.0f, 0.0f};
+    glm::vec2 mLastMousePos{0.0f, 0.0f};
 };
 
 #endif // EVENT_H
