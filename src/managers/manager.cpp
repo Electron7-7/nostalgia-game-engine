@@ -85,7 +85,7 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreF
 ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t function, bool is_first_call)
 {
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
-    for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
+    for(int i = m_sGameManagers.size() - 1 ; i >= 0 ; --i)
     {
         ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
@@ -172,13 +172,10 @@ void _Manager::Start()
 
     std::thread tick_thread(_Manager::TickLoop);
 
-    size_t number_of_managers = m_sGameManagers.size();
-
     while(!m_sStopRequested)
     {
         UpdateTheatreStateMachine();
-        for(size_t i = 0 ; i < number_of_managers ; ++i)
-            { m_sGameManagers.at(i)->Update(); }
+        InvokeMethod(&_Manager::Update);
         ++m_sFrameNumber;
     }
 
@@ -188,8 +185,6 @@ void _Manager::Start()
 
 void _Manager::TickLoop()
 {
-    size_t number_of_managers = m_sGameManagers.size();
-
     // Tickrate SetupVariables (From GraphX)
     double last_time = Time::Current();
     double current_tick_length = 0.0;
@@ -205,8 +200,7 @@ void _Manager::TickLoop()
         {
             --current_tick_length;
             ++m_sTickNumber;
-            for(size_t i = 0 ; i < number_of_managers ; ++i)
-                { m_sGameManagers.at(i)->Tick(); }
+            InvokeMethod(&_Manager::Tick);
         }
     }
 }
