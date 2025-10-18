@@ -716,7 +716,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     SeparatorText("Collider");
                     auto collider = g_pTheatreManager->GetThing<Collider>(sActor->ColliderID());
                     s_NameAndUID(collider);
-                    Text("Type: %s", g_pThingFactory->GetTypeName(collider->type()).data());
+                    Text("Motion: %s", collider->Motion().name());
                     Text("Shape: %s", collider->Shape().name());
                     bool active{collider->Active()};
                     Text("Is Active: %s", fmt::BoolAlt(active));
