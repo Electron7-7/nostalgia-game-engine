@@ -16,6 +16,7 @@
 class TheatreManager : public Manager
 {
 public:
+    constexpr const char* DebugName() { return "TheatreManager"; }
     bool Init();
     void Update();
     void Tick();

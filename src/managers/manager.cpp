@@ -61,6 +61,7 @@ bool _Manager::InvokeMethod(ManagerInitFunc_t function)
 {
     for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
+        print_debug("Initializing {}", m_sGameManagers.at(i)->DebugName());
         if(!(m_sGameManagers.at(i)->*function)())
             { return false; }
     }
@@ -72,6 +73,7 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreF
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
+        print_debug("Invoking Theatre method in {}", m_sGameManagers.at(i)->DebugName());
         ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             { return FUCKED; }
@@ -87,6 +89,7 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(Man
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = m_sGameManagers.size() - 1 ; i >= 0 ; --i)
     {
+        print_debug("(reverse) Invoking Theatre method in {}", m_sGameManagers.at(i)->DebugName());
         ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             { return_value = FUCKED; }
@@ -132,6 +135,7 @@ void _Manager::UpdateTheatreStateMachine()
     // Perform theatre shutdown
     if(theatre_state == SHUTTING_DOWN_LEVEL)
     {
+        print_debug("Shutting Down Theatre");
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&_Manager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
             { theatre_state = NOT_IN_LEVEL; }
@@ -154,6 +158,7 @@ void _Manager::UpdateTheatreStateMachine()
     // Perform theatre load
     if(theatre_state == LOADING_LEVEL)
     {
+        print_debug("Starting Up Theatre");
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethod(&_Manager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
             { theatre_state = NOT_IN_LEVEL; }

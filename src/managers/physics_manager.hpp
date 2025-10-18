@@ -17,6 +17,7 @@ extern bool gEnableMsg_BodyDeactivated;
 class PhysicsManager : public Manager
 {
 public:
+    constexpr const char* DebugName() { return "PhysicsManager"; }
     bool Init();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     void Shutdown();

@@ -13,6 +13,7 @@
 class RenderManager : public Manager
 {
 public:
+    constexpr const char* DebugName() { return "RenderManager"; }
     bool Init();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     void Update();

@@ -10,6 +10,7 @@
 class BackendManager : public Manager
 {
 public:
+    const char* DebugName() { return "BackendManager"; }
     bool Init();
     void Shutdown();
 

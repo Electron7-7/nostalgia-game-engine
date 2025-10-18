@@ -25,6 +25,7 @@ namespace ManagerEnums
 class _Manager
 {
 public:
+    virtual constexpr const char* DebugName() = 0;
     virtual bool Init() = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual void Update() = 0;
@@ -102,6 +103,7 @@ public:
     virtual ~Manager();
 
     // Managers are expected to implement these methods.
+    virtual constexpr const char* DebugName() { return "Manager"; };
     virtual bool Init() { return true; }
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
     virtual void Update() {}
