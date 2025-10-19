@@ -99,10 +99,7 @@ bool DemoController::Play(const std::string& path)
     if(is_playing_)
         { return false; }
     else if(is_recording_)
-    {
-        print_error("DemoController::Play - cannot play a gen1 demo while a gen1 demo is being recorded");
-        return false;
-    }
+        { return print_error("DemoController::Play - cannot play a gen1 demo while a gen1 demo is being recorded"); }
     sPlaybackIndex = 0;
     sDemo.clear();
     if(!ParseDemo(path, sDemo))
@@ -138,14 +135,9 @@ void DemoController::ProcessQueue(EventQueue& queue)
 bool DemoController::ParseDemo(const std::string& path, std::vector<EventQueue>& output)
 {
     std::string file_data("");
-    if(!FileSystem::try_ReadFileToString(path, file_data))
-    {
-        if(!FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
-        {
-            print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path));;
-            return false;
-        }
-    }
+    if(!FileSystem::try_ReadFileToString(path, file_data) &&
+        !FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
+        { return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path)); }
     std::vector<InputEvent> event_queue;
     bool l_AtLeastOneLineParsed = false;
     std::stringstream demo_data{file_data};
