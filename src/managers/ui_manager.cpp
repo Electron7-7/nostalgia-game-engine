@@ -19,12 +19,26 @@ bool UIManager::Init()
     return true;
 }
 
-ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool IsFirstCall) { return ManagerEnums::TheatreReturnValue_t::FINISHED; }
+ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool first_call)
+{
+    if(!first_call)
+        { return FINISHED; }
+    for(auto imgui_object : imgui_objects)
+        { imgui_object->CloseAllWindows(); }
+    return FINISHED;
+}
 
 void UIManager::Update()
 {}
 
-ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return ManagerEnums::TheatreReturnValue_t::FINISHED; }
+ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool first_call)
+{
+    if(!first_call)
+        { return FINISHED; }
+    for(auto imgui_object : imgui_objects)
+        { imgui_object->ReopenMainWindows(); }
+    return FINISHED;
+}
 
 void UIManager::DelegateInputEvent(const InputEvent& event)
 {

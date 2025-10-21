@@ -60,6 +60,22 @@ void BackendManager::Shutdown()
     m_IsImguiInitialized = false;
 }
 
+ManagerEnums::TheatreReturnValue_t BackendManager::TheatreInit(bool first_call)
+{
+    if(!first_call)
+        { return ManagerEnums::FINISHED; }
+    Windowing()->SetMouseMode(MouseMode::Disabled);
+    return ManagerEnums::FINISHED;
+}
+
+ManagerEnums::TheatreReturnValue_t BackendManager::TheatreShutdown(bool first_call)
+{
+    if(!first_call)
+        { return ManagerEnums::FINISHED; }
+    Windowing()->SetMouseMode(MouseMode::Normal);
+    return ManagerEnums::FINISHED;
+}
+
 std::shared_ptr<GraphicsBackend> BackendManager::Graphics()
 { return s_Graphics; }
 

@@ -13,6 +13,8 @@ public:
     const char* DebugName() { return "BackendManager"; }
     bool Init();
     void Shutdown();
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     bool InitImGui();
     void ImGuiNewFrame();
