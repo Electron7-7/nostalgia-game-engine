@@ -1,5 +1,6 @@
 #include "ui_manager.hpp"
 #include "managers/backend_manager.hpp"
+#include "input/event.hpp"
 
 using namespace ManagerEnums;
 
@@ -24,6 +25,12 @@ void UIManager::Update()
 {}
 
 ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool IsFirstCall) { return ManagerEnums::TheatreReturnValue_t::FINISHED; }
+
+void UIManager::DelegateInputEvent(const InputEvent& event)
+{
+    for(auto imgui_object : imgui_objects)
+        { imgui_object->Input(event); }
+}
 
 void UIManager::DrawUI()
 {

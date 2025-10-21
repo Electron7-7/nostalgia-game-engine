@@ -42,6 +42,7 @@ void InputManager::Tick()
     {
         std::thread l_InputEventCallbackThread(InputManager::m_sHandleInputEvent, temp_event, m_pInputEventCallback);
         g_pTheatreManager->DelegateInputEvent(temp_event);
+        g_pUIManager->DelegateInputEvent(temp_event);
         l_InputEventCallbackThread.join();
     }
 }

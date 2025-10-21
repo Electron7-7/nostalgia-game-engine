@@ -13,6 +13,7 @@ public:
     void Update();
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     void Shutdown();
+    void DelegateInputEvent(const InputEvent&);
 
     ImGui_Object* AddImGuiObject(ImGui_Object* NewImGuiObject);
     bool RemoveImGuiObject(ImGui_Object* OldImGuiObject);
