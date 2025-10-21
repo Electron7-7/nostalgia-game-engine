@@ -1,7 +1,6 @@
 #include "glfw.hpp"
 #include "common/printing.hpp"
 #include "math/glm_format.hpp" // IWYU pragma: keep
-#include "input/event.hpp"
 #include "managers/backend_manager.hpp"
 #include "input/binding.hpp"
 #include "settings/settings.hpp"
@@ -224,7 +223,7 @@ void GLFW_Backend::GetMousePosition(glm::vec2& output)
     output = glm::vec2{l_Position[0], l_Position[1]};
 }
 
-bool GLFW_Backend::GetKey(InputBinding& binding)
+bool GLFW_Backend::UpdateBinding(InputBinding& binding)
 {
     if(!s_cInputIdToGlfw.contains(binding.id()))
         { return false; }
@@ -237,15 +236,6 @@ bool GLFW_Backend::GetKey(InputBinding& binding)
         return binding.Release();
     }
     return false;
-}
-
-bool GLFW_Backend::GetMotion(InputBinding& binding, const glm::vec2& motion)
-{
-    if(!BindingIDs::IsMouseMotion(binding.id()))
-        { return false; }
-    return (gMouseMotionMatches(binding.id(), motion))
-        ? binding.Activate() || true
-        : binding.Deactivate();
 }
 
 void GLFW_Backend::SwapBuffers()

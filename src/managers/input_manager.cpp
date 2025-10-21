@@ -3,12 +3,9 @@
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "input/binding.hpp"
-#include "input/event_queue.hpp"
 #include "input/demo_controller.hpp"
 
 #include <thread>
-
-static InputActions sAllActions{};
 
 static InputManager sInputManager;
 InputManager* g_pInputManager = &sInputManager;
@@ -34,29 +31,27 @@ bool InputManager::Init()
 
 void InputManager::Tick()
 {
-    EventQueue event_queue;
-    PollInputs(event_queue);
-    g_pDemoController->ProcessQueue(event_queue);
-    InputEvent temp_event;
-    while(event_queue.GetNextEvent(temp_event))
-    {
-        std::thread l_InputEventCallbackThread(InputManager::m_sHandleInputEvent, temp_event, m_pInputEventCallback);
-        g_pTheatreManager->DelegateInputEvent(temp_event);
-        g_pUIManager->DelegateInputEvent(temp_event);
-        l_InputEventCallbackThread.join();
-    }
+    InputEvent new_event{};
+    PollInputs(new_event);
+    g_pDemoController->ProcessEvent(new_event);
+    std::thread l_InputEventCallbackThread(InputManager::m_sHandleInputEvent, new_event, m_pInputEventCallback);
+    g_pTheatreManager->DelegateInputEvent(new_event);
+    g_pUIManager->DelegateInputEvent(new_event);
+    l_InputEventCallbackThread.join();
 }
 
-void InputManager::PollInputs(EventQueue& queue)
+#pragma message("FIXME: I think that instead of have `Input` handle each individual event, it should handle whole queues so I can do things similar to `IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G)`")
+void InputManager::PollInputs(InputEvent& event)
 {
-    glm::vec2 last_mouse_position = mMousePosition;
+    glm::vec2 last_mouse_position{mMousePosition};
     auto window = g_pBackendManager->Windowing();
     window->GetMousePosition(mMousePosition);
     window->PollEvents();
+    event.UpdateMouseMotion(mMousePosition, last_mouse_position);
     for(auto& [id, binding] : mBindings)
     {
-        if(window->GetKey(binding) || window->GetMotion(binding, mMousePosition - last_mouse_position))
-            { queue.QueueEvent(InputEvent{binding, mMousePosition, last_mouse_position}); }
+        if(window->UpdateBinding(binding))
+            { event.add(binding); }
     }
 }
 
@@ -81,7 +76,7 @@ InputBinding& InputManager::GetBinding(const std::string& name)
 { return GetBinding(ID{name}); }
 
 bool InputManager::NewAction(const std::string& action)
-{ return sAllActions.add(action); }
+{ return mAllActions.add(action); }
 
 bool InputManager::AssignAction(const std::string& action, const ID& id)
 {
@@ -98,7 +93,7 @@ bool InputManager::AssignAction(const std::string& action, const std::string& na
 
 bool InputManager::DeleteAction(const std::string& action)
 {
-    sAllActions.erase(action);
+    mAllActions.erase(action);
     bool return_value{false};
     for(auto& [id, binding] : mBindings)
         { return_value = (binding.mActions.erase(action)) ? true : return_value; }
@@ -114,5 +109,5 @@ bool InputManager::ClearActions(const ID& id)
         { return false; }
     InputActions actions = mBindings.at(id).mActions;
     mBindings.at(id).mActions.clear();
-    return sAllActions.erase(actions);
+    return mAllActions.erase(actions);
 }

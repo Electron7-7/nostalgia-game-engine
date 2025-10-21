@@ -5,6 +5,7 @@
 
 #include "manager.hpp"
 #include "input/binding.hpp"
+#include "input/actions.hpp"
 #include "common/safe_return.hpp"
 #include "common/ids.hpp"
 
@@ -39,8 +40,9 @@ public:
 private:
     glm::vec2 mMousePosition{0.0f};
     std::map<ID, InputBinding> mBindings{};
+    InputActions mAllActions{};
 
-    void PollInputs(EventQueue&);
+    void PollInputs(InputEvent&);
 
     InputEventCallbackFunction m_pInputEventCallback{nullptr};
     static bool sHandlingInputEvent;
