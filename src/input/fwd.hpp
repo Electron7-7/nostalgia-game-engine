@@ -1,8 +1,10 @@
 #ifndef INPUT_FWD_H
 #define INPUT_FWD_H
 
-struct InputBinding;
-struct InputEvent;
+class binding_t;
+class InputBinding;
+class InputEvent;
 class EventQueue;
+struct InputActions;
 
 #endif // INPUT_FWD_H

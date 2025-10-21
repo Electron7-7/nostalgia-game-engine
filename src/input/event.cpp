@@ -5,18 +5,17 @@
 
 #include <format>
 
-InputEvent::InputEvent(ID id):
-    mBindingID(id) {}
+#pragma message("TODO: Decide whether or not to keep `InputEvent::mTime` and `InputEvent::mTick`")
 
-InputEvent::InputEvent(ID id, const glm::vec2& current_mouse, const glm::vec2& last_mouse):
-    mBindingID(id),
-    mCurMousePos(current_mouse),
-    mLastMousePos(last_mouse) {}
+InputEvent::InputEvent(const InputBinding& binding, const glm::vec2& current, const glm::vec2& last):
+    InputBinding(binding),
+    mCurMousePos{current},
+    mLastMousePos{last} {}
 
-const glm::vec2& InputEvent::CurrentMousePosition() const
+glm::vec2 InputEvent::CurrentMousePosition() const
 { return mCurMousePos; }
 
-const glm::vec2& InputEvent::LastMousePosition() const
+glm::vec2 InputEvent::LastMousePosition() const
 { return mLastMousePos; }
 
 glm::vec2 InputEvent::MouseMotion() const
@@ -26,70 +25,19 @@ glm::vec2 InputEvent::MouseMotion() const
     return mCurMousePos - mLastMousePos;
 }
 
-const std::set<std::string>& InputEvent::Actions() const
-{ return g_pInputManager->GetActions(mBindingID); }
-
-const InputBinding& InputEvent::Binding() const
-{ return g_pInputManager->GetBinding(mBindingID); }
-
-InputStatus InputEvent::Status() const
-{ return Binding().status(); }
-
-bool InputEvent::JustPressed() const
-{ return Binding().JustPressed(); }
-
-bool InputEvent::JustReleased() const
-{ return Released(); }
-
-bool InputEvent::Pressed() const
-{ return (Status() == InputStatus::Pressed); }
-
-bool InputEvent::Released() const
-{ return (Status() == InputStatus::Released); }
-
-bool InputEvent::JustActive() const
-{ return JustPressed(); }
-
-bool InputEvent::Active() const
-{ return Pressed(); }
-
-bool InputEvent::Inactive() const
-{ return Released(); }
-
 InputEventType InputEvent::Type() const
 {
-    if(mBindingID > BindingIDs::end)
-        { return InputEventType::Invalid; }
-    else if(mBindingID < BindingIDs::MouseButtonsEnd)
+    if(BindingIDs::IsKey(mID))
         { return InputEventType::Key; }
-    else if(mBindingID < BindingIDs::MouseMotionFront)
+    else if(BindingIDs::IsMouseButton(mID))
         { return InputEventType::MouseButton; }
-    return InputEventType::MouseMotion;
-}
-
-bool InputEvent::IsMouseMotion() const
-{
-    return (mBindingID >= BindingIDs::MouseMotionFront &&
-        mBindingID < BindingIDs::MouseMotionEnd);
+    else if(BindingIDs::IsMouseMotion(mID))
+        { return InputEventType::MouseMotion; }
+    return InputEventType::Invalid;
 }
 
 bool InputEvent::IsType(InputEventType EventType) const
 { return (Type() == EventType); }
-
-bool InputEvent::IsAction(const std::string& Action) const
-{
-    if(!Actions().contains(Action))
-        { return false; }
-    else if(Action.at(0) == '-')
-        { return Released(); }
-    return Pressed();
-}
-
-bool InputEvent::IsInput(const std::string& BindingName) const
-{ return (Binding() == BindingName); }
-
-bool InputEvent::IsInput(ID BindingID) const
-{ return (mBindingID == BindingID); }
 
 std::string InputEvent::Log() const
 {
@@ -98,18 +46,19 @@ std::string InputEvent::Log() const
         mTime,
         mTick,
         gInputEventType[static_cast<size_t>(Type())],
-        mBindingID,
-        Binding().name(),
-        (Actions().empty()) ? std::set<std::string>{"none"} : Actions());
+        mID,
+        mID.name(),
+        mActions);
 }
 
 std::string InputEvent::DemoString() const
 {
     std::string output{
-        std::format("<{}:{}:{}>",
-            mBindingID,
-            static_cast<int>(Binding().status()),
-            static_cast<int>(Binding().just_changed())
+        std::format("<{}:{}:{}:{}>",
+            mID.name(),
+            static_cast<int>(mStatus),
+            static_cast<int>(mJustChanged),
+            mActions
         )
     };
     if(IsMouseMotion())
@@ -124,4 +73,4 @@ std::string InputEvent::DemoString() const
 }
 
 bool InputEvent::Valid() const
-{ return g_pInputManager->BindingExists(mBindingID); }
+{ return g_pInputManager->BindingExists(mID); }

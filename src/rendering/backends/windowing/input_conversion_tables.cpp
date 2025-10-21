@@ -3,7 +3,7 @@
 #include "glfw.hpp"
 #include "GLFW/glfw3.h"
 
-constexpr frozen::map<ID, unsigned int, BindingIDs::KeysCount + BindingIDs::MouseButtonsCount - 1>
+constexpr frozen::map<ID, unsigned int, BindingIDs::KeyIDsCount + BindingIDs::MouseButtonIDsCount - 1>
 GLFW_Backend::s_cInputIdToGlfw =
 {
     { BindingIDs::KeyZERO,  GLFW_KEY_0 },

@@ -2,58 +2,58 @@
 #define INPUT_BINDING_H
 
 #include "enums.hpp"
+#include "actions.hpp"
+#include "common/ids.hpp"
 
 #include <string>
 
-struct InputBinding
+class InputBinding
 {
 public:
-    constexpr InputBinding() = default;
+    InputBinding() = default;
+    InputBinding(const ID&, const InputActions&, bool IsLocked = false, InputStatus = InputStatus::Inactive, bool JustChanged = false);
+    InputBinding(const ID&, bool IsLocked = false, InputStatus = InputStatus::Inactive, bool JustChanged = false);
 
-    const char* name()   const { return name_; }
-    InputStatus status() const { return status_; }
-    bool just_changed()  const { return just_changed_; }
-    bool locked()        const { return locked_; }
+    InputActions mActions{};
+    const ID& id() const;
 
-    bool Activate()
+    bool Activate();
+    bool Deactivate();
+    bool Press();
+    bool Release();
+    bool Active() const;
+    bool Inactive() const;
+    bool JustActivated() const;
+    bool JustDeactivated() const;
+    bool Pressed() const;
+    bool Released() const;
+    bool JustPressed() const;
+    bool JustReleased() const;
+    bool IsMouseMotion() const;
+    bool IsInput(const ID& BindingID) const;
+    bool IsInput(const std::string& BindingName) const;
+    bool IsValid() const;
+
+    // Returns `true` if `mActions` contains any of the supplied actions.
+    template<StringType... StringArgs>
+    bool IsAction(StringArgs... Actions) const
     {
-        just_changed_ = (status_ != InputStatus::Active);
-        status_ = InputStatus::Active;
-        return just_changed_;
+        for(const auto& action : {Actions...})
+            { if(mActions.has(action)) { return (action.at(0) == '-') ? Released() : Pressed(); } }
+        return false;
     }
-    bool Press() { return Activate(); }
 
-    bool Deactivate()
-    {
-        just_changed_ = (status_ != InputStatus::Inactive);
-        status_ = InputStatus::Inactive;
-        return just_changed_;
-    }
-    bool Release() { return Deactivate(); }
-
-    bool Active()   const { return status_ == InputStatus::Active; }
-    bool Pressed()  const { return Active();  }
-    bool Inactive() const { return !Active(); }
-    bool Released() const { return !Active(); }
-
-    bool JustActivated()   const { return (Active() && just_changed_); }
-    bool JustPressed()     const { return JustActivated(); }
-    bool JustDeactivated() const { return (Inactive() && just_changed_); }
-    bool JustReleased()    const { return JustDeactivated(); }
+    constexpr bool operator==(const ID& id) const
+    { return mID == id; }
 
     constexpr bool operator==(const std::string& name) const
-    { return !name.compare(name_); }
+    { return !name.compare(mID.name()); }
 
-private:
-    friend class InputManager;
-    constexpr InputBinding(const char* name):
-        name_(name) {}
-
-    friend class gen1_demo_controller;
-    const char* name_{""};
-    InputStatus status_{InputStatus::Inactive};
-    bool just_changed_{false};
-    bool locked_{false};
+protected:
+    ID mID{};
+    InputStatus mStatus{InputStatus::Inactive};
+    bool mJustChanged{false};
+    bool mLocked{false};
 };
 
 #endif // INPUT_BINDING_H

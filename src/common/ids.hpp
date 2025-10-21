@@ -2,8 +2,10 @@
 #define IDS_H
 
 #include "embedded/names.hpp"
-#include "hash.hpp"
+#include "frozen/set.h"
+#include "common/hash.hpp"
 
+#include <set>
 #include <string>
 #include <format>
 #include <map>
@@ -32,9 +34,9 @@ public:
     constexpr bool invalid() const
     { return id_ == ID::Invalid; }
 
-    static constexpr id_t Invalid = static_cast<unsigned int>(-1); // Same as `UINT_MAX`
-    static constexpr id_t front   = 0;
-    static constexpr id_t back    = Invalid - 1;
+    static constexpr id_t Invalid {static_cast<unsigned int>(-1)}; // Same as `UINT_MAX`
+    static constexpr id_t front   {0};
+    static constexpr id_t back    {Invalid - 1};
 
 private:
     id_t id_{ID::Invalid};
@@ -109,80 +111,107 @@ namespace UniqueIDs
 
 namespace BindingIDs
 {
-    constexpr ID KeyZERO         = 0x00;
-    constexpr ID KeyONE          = 0x01;
-    constexpr ID KeyTWO          = 0x02;
-    constexpr ID KeyTHREE        = 0x03;
-    constexpr ID KeyFOUR         = 0x04;
-    constexpr ID KeyFIVE         = 0x05;
-    constexpr ID KeySIX          = 0x06;
-    constexpr ID KeySEVEN        = 0x07;
-    constexpr ID KeyEIGHT        = 0x08;
-    constexpr ID KeyNINE         = 0x09;
-    constexpr ID KeyA            = 0x0A;
-    constexpr ID KeyB            = 0x0B;
-    constexpr ID KeyC            = 0x0C;
-    constexpr ID KeyD            = 0x0D;
-    constexpr ID KeyE            = 0x0E;
-    constexpr ID KeyF            = 0x0F;
-    constexpr ID KeyG            = 0x10;
-    constexpr ID KeyH            = 0x11;
-    constexpr ID KeyI            = 0x12;
-    constexpr ID KeyJ            = 0x13;
-    constexpr ID KeyK            = 0x14;
-    constexpr ID KeyL            = 0x15;
-    constexpr ID KeyM            = 0x16;
-    constexpr ID KeyN            = 0x17;
-    constexpr ID KeyO            = 0x18;
-    constexpr ID KeyP            = 0x19;
-    constexpr ID KeyQ            = 0x1A;
-    constexpr ID KeyR            = 0x1B;
-    constexpr ID KeyS            = 0x1C;
-    constexpr ID KeyT            = 0x1D;
-    constexpr ID KeyU            = 0x1E;
-    constexpr ID KeyV            = 0x1F;
-    constexpr ID KeyW            = 0x20;
-    constexpr ID KeyX            = 0x21;
-    constexpr ID KeyY            = 0x22;
-    constexpr ID KeyZ            = 0x23;
-    constexpr ID KeyLEFTSHIFT    = 0x24;
-    constexpr ID KeyRIGHTSHIFT   = 0x25;
-    constexpr ID KeyLEFTCONTROL  = 0x26;
-    constexpr ID KeyRIGHTCONTROL = 0x27;
-    constexpr ID KeyLEFTALT      = 0x28;
-    constexpr ID KeyRIGHTALT     = 0x29;
-    constexpr ID KeyFUNCTION     = 0x2A;
-    constexpr ID KeyLEFTSUPER    = 0x2B;
-    constexpr ID KeyRIGHTSUPER   = 0x2C;
-    constexpr ID KeyENTER        = 0x2D;
-    constexpr ID KeyBACKSPACE    = 0x3E;
-    constexpr ID KeyTAB          = 0x3F;
-    constexpr ID KeySPACE        = 0x30;
-    constexpr ID KeyESC          = 0x31;
-    constexpr ID MouseLEFT       = 0x32;
-    constexpr ID MouseRIGHT      = 0x33;
-    constexpr ID MouseMIDDLE     = 0x34;
-    constexpr ID MouseMotionX    = 0x35;
-    constexpr ID MouseMotionY    = 0x36;
+    constexpr ID KeyZERO         {"0"};
+    constexpr ID KeyONE          {"1"};
+    constexpr ID KeyTWO          {"2"};
+    constexpr ID KeyTHREE        {"3"};
+    constexpr ID KeyFOUR         {"4"};
+    constexpr ID KeyFIVE         {"5"};
+    constexpr ID KeySIX          {"6"};
+    constexpr ID KeySEVEN        {"7"};
+    constexpr ID KeyEIGHT        {"8"};
+    constexpr ID KeyNINE         {"9"};
+    constexpr ID KeyA            {"A"};
+    constexpr ID KeyB            {"B"};
+    constexpr ID KeyC            {"C"};
+    constexpr ID KeyD            {"D"};
+    constexpr ID KeyE            {"E"};
+    constexpr ID KeyF            {"F"};
+    constexpr ID KeyG            {"G"};
+    constexpr ID KeyH            {"H"};
+    constexpr ID KeyI            {"I"};
+    constexpr ID KeyJ            {"J"};
+    constexpr ID KeyK            {"K"};
+    constexpr ID KeyL            {"L"};
+    constexpr ID KeyM            {"M"};
+    constexpr ID KeyN            {"N"};
+    constexpr ID KeyO            {"O"};
+    constexpr ID KeyP            {"P"};
+    constexpr ID KeyQ            {"Q"};
+    constexpr ID KeyR            {"R"};
+    constexpr ID KeyS            {"S"};
+    constexpr ID KeyT            {"T"};
+    constexpr ID KeyU            {"U"};
+    constexpr ID KeyV            {"V"};
+    constexpr ID KeyW            {"W"};
+    constexpr ID KeyX            {"X"};
+    constexpr ID KeyY            {"Y"};
+    constexpr ID KeyZ            {"Z"};
+    constexpr ID KeyLEFTSHIFT    {"LShift"};
+    constexpr ID KeyRIGHTSHIFT   {"RShift"};
+    constexpr ID KeyLEFTCONTROL  {"LCtrl"};
+    constexpr ID KeyRIGHTCONTROL {"RCtrl"};
+    constexpr ID KeyLEFTALT      {"LAlt"};
+    constexpr ID KeyRIGHTALT     {"RAlt"};
+    constexpr ID KeyFUNCTION     {"Fn"};
+    constexpr ID KeyLEFTSUPER    {"LSuper"};
+    constexpr ID KeyRIGHTSUPER   {"RSuper"};
+    constexpr ID KeyENTER        {"Enter"};
+    constexpr ID KeyBACKSPACE    {"Backspace"};
+    constexpr ID KeyTAB          {"Tab"};
+    constexpr ID KeySPACE        {"Space"};
+    constexpr ID KeyESC          {"Escape"};
+    constexpr ID MouseLEFT       {"LeftMouse"};
+    constexpr ID MouseRIGHT      {"RightMouse"};
+    constexpr ID MouseMIDDLE     {"MiddleMouse"};
+    constexpr ID MouseMotionX    {"MouseX"};
+    constexpr ID MouseMotionY    {"MouseY"};
 
-    constexpr ID front = KeyZERO;
-    constexpr ID back  = MouseMotionY;
-    constexpr ID end   = back + 1;
+    constexpr uint KeyIDsCount{50};
+    constexpr uint MouseButtonIDsCount{3};
+    constexpr uint MouseMotionIDsCount{2};
 
-    constexpr ID KeysFront = KeyZERO;
-    constexpr ID KeysBack  = KeyESC;
-    constexpr ID KeysEnd   = KeysBack + 1;
-    constexpr ID KeysCount = KeysEnd - KeysFront;
+    // TODO: Expand this list
+    constexpr frozen::set<ID, KeyIDsCount>
+    KeyIDs {
+        KeyZERO, KeyONE, KeyTWO, KeyTHREE, KeyFOUR, KeyFIVE, KeySIX, KeySEVEN, KeyEIGHT, KeyNINE,
+        KeyLEFTSHIFT, KeyRIGHTSHIFT, KeyLEFTCONTROL,  KeyLEFTALT,  KeyFUNCTION,  KeyENTER, KeyESC,
+        KeyLEFTSUPER, KeyRIGHTSUPER, KeyRIGHTCONTROL, KeyRIGHTALT, KeyBACKSPACE, KeySPACE, KeyTAB,
+        KeyA, KeyB, KeyC, KeyD, KeyE, KeyF, KeyG, KeyH, KeyI, KeyJ, KeyK, KeyL, KeyM,
+        KeyN, KeyO, KeyP, KeyQ, KeyR, KeyS, KeyT, KeyU, KeyV, KeyW, KeyX, KeyY, KeyZ,
+    };
 
-    constexpr ID MouseButtonsFront = MouseLEFT;
-    constexpr ID MouseButtonsBack  = MouseMIDDLE;
-    constexpr ID MouseButtonsEnd   = MouseButtonsBack + 1;
-    constexpr ID MouseButtonsCount = MouseButtonsEnd - MouseButtonsFront;
+    // TODO: Expand this list
+    constexpr frozen::set<ID, MouseButtonIDsCount>
+    MouseButtonIDs {
+        MouseLEFT, MouseRIGHT, MouseMIDDLE,
+    };
 
-    constexpr ID MouseMotionFront = MouseMotionX;
-    constexpr ID MouseMotionBack  = MouseMotionY;
-    constexpr ID MouseMotionEnd   = MouseMotionBack + 1;
-    constexpr ID MouseMotionCount = MouseMotionEnd - MouseMotionFront;
+    constexpr frozen::set<ID, MouseMotionIDsCount>
+    MouseMotionIDs { MouseMotionX, MouseMotionY };
+
+    template<CanBeID T>
+    constexpr bool IsKey(T binding)
+    { return KeyIDs.contains(ID{binding}); }
+
+    template<CanBeID T>
+    constexpr bool IsMouseButton(T binding)
+    { return MouseButtonIDs.contains(ID{binding}); }
+
+    template<CanBeID T>
+    constexpr bool IsMouseMotion(T binding)
+    { return MouseMotionIDs.contains(ID{binding}); }
+
+    constexpr void GetAllBindingIDs(std::vector<ID>& output)
+    {
+        output.reserve(KeyIDsCount + MouseButtonIDsCount + MouseMotionIDsCount);
+        std::merge(BindingIDs::KeyIDs.cbegin(), BindingIDs::KeyIDs.cend(),
+            BindingIDs::MouseButtonIDs.cbegin(), BindingIDs::MouseButtonIDs.cend(),
+            std::inserter(output, output.begin()));
+        output.insert(output.cend(),
+            BindingIDs::MouseMotionIDs.cbegin(),
+            BindingIDs::MouseMotionIDs.cend());
+    }
 };
 
 #endif // IDS_H

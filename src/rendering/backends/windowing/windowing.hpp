@@ -43,8 +43,8 @@ public:
     virtual MouseMode GetMouseMode() = 0;
 
     virtual void GetMousePosition(glm::vec2& Output) = 0;
-    virtual bool GetKey(ID BindingID, InputBinding& Binding) = 0;
-    virtual bool GetMotion(ID BindingID, InputBinding& Binding, const glm::vec2& MouseMotion) = 0;
+    virtual bool GetKey(InputBinding& Binding) = 0;
+    virtual bool GetMotion(InputBinding& Binding, const glm::vec2& MouseMotion) = 0;
     virtual void SwapBuffers() = 0;
     virtual void PollEvents()  = 0;
     virtual void UpdateState() = 0;

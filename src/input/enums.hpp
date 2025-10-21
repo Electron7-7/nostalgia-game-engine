@@ -22,8 +22,8 @@ gInputEventType =
 
 enum class InputStatus
 {
-    Pressed  = 1,
-    Released = 0,
+    Pressed  = true,
+    Released = false,
     Active   = Pressed,
     Inactive = Released
 };

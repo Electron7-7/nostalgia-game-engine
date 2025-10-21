@@ -179,12 +179,13 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     else if(line.starts_with('!'))
         { return Status::NO_ERR; }
 
-    std::string id_buffer;
-    std::string status_buffer;
-    std::string just_changed_buffer;
-    std::string curr_mouse_buffer;
-    std::string last_mouse_buffer;
-    bool is_mouse_motion = false;
+    std::string id_buffer{""};
+    std::string status_buffer{""};
+    std::string just_changed_buffer{""};
+    std::string curr_mouse_buffer{""};
+    std::string last_mouse_buffer{""};
+    std::vector<std::string> actions{};
+    bool is_mouse_motion{false};
 
     for(size_t i = 0 ; i < line.length() ; ++i)
     {
@@ -206,11 +207,22 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
                     sAdvanceCharacter(character, i, line);
                 }
                 sAdvanceCharacter(character, i, line);
-                while(character != '>')
+                while(character != ':')
                 {
                     just_changed_buffer.append(1, character);
                     sAdvanceCharacter(character, i, line);
                 }
+                sAdvanceCharacter(character, i, line);
+                std::string action_buffer{""};
+                while(character != '>')
+                {
+                    if(character == ',')
+                        { actions.push_back(action_buffer); action_buffer.clear(); }
+                    else
+                        { action_buffer.append(1, character); }
+                    sAdvanceCharacter(character, i, line);
+                }
+                actions.push_back(action_buffer);
             }
             continue;
         }
@@ -229,26 +241,27 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
         }
     }
 
-    id_t id{ID::Invalid};
+    ID id{id_buffer};
     int status{-1};
     int just_changed{-1};
     glm::vec2 curr_mouse{0.0f};
     glm::vec2 last_mouse{0.0f};
 
-    if(StringToNum(id, id_buffer) &&
+    if(!id.invalid() &&
         g_pInputManager->BindingExists(id) &&
         StringToNum(status, status_buffer) &&
         StringToNum(just_changed, just_changed_buffer))
     {
-        if(is_mouse_motion &&
-            StringToNum(curr_mouse, curr_mouse_buffer) &&
-            StringToNum(last_mouse, last_mouse_buffer))
-            { queue.emplace_back(id, curr_mouse, last_mouse); }
-        else
-            { queue.emplace_back(id); }
-
-        g_pInputManager->GetBinding(id).status_ = static_cast<InputStatus>(status);
-        g_pInputManager->GetBinding(id).just_changed_ = static_cast<bool>(just_changed);
+        StringToNum(curr_mouse, curr_mouse_buffer);
+        StringToNum(last_mouse, last_mouse_buffer);
+        queue.emplace_back(
+            InputBinding{
+                id,
+                actions,
+                static_cast<bool>(just_changed),
+                static_cast<InputStatus>(status)},
+            curr_mouse,
+            last_mouse);
         return Status::DemoControllerLINE_PARSED;
     }
     return Status::DemoControllerLINE_FAILED;

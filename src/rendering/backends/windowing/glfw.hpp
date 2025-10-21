@@ -32,8 +32,8 @@ public:
     MouseMode GetMouseMode();
 
     void GetMousePosition(glm::vec2&);
-    bool GetKey(ID, InputBinding&);
-    bool GetMotion(ID, InputBinding&, const glm::vec2&);
+    bool GetKey(InputBinding&);
+    bool GetMotion(InputBinding&, const glm::vec2&);
     void SwapBuffers();
     void PollEvents();
     void UpdateState();
@@ -46,7 +46,9 @@ private:
     static void glfw_WindowPositionCallbackFunction(GLFWwindow*, int, int);
     static void glfw_WindowResizeCallbackFunction(GLFWwindow*, int, int);
 
-    static constinit const frozen::map<ID, id_t, BindingIDs::KeysCount + BindingIDs::MouseButtonsCount - 1> s_cInputIdToGlfw;
+    // -1 because GLFW doesn't have an ID for the `fn` key
+    static constinit const frozen::map<ID, id_t, BindingIDs::KeyIDsCount + BindingIDs::MouseButtonIDsCount - 1>
+        s_cInputIdToGlfw;
 };
 
 #endif // GLFW_BACKEND_H
