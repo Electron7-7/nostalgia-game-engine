@@ -129,6 +129,9 @@ VPATH := $(SRC_DIRS):$(DIR_ROOT)
 SRC := src
 
 SRC_DIRS :=                             \
+    $(SRC)/backends                     \
+    $(SRC)/backends/graphics            \
+    $(SRC)/backends/windowing           \
     $(SRC)/commands                     \
     $(SRC)/common                       \
     $(SRC)/embedded                     \
@@ -138,9 +141,6 @@ SRC_DIRS :=                             \
     $(SRC)/managers                     \
     $(SRC)/physics                      \
     $(SRC)/rendering                    \
-    $(SRC)/rendering/backends           \
-    $(SRC)/rendering/backends/graphics  \
-    $(SRC)/rendering/backends/windowing \
     $(SRC)/rendering/shader_interfaces  \
     $(SRC)/settings                     \
     $(SRC)/theatre_parser               \
@@ -224,6 +224,7 @@ printout:
 build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
+# Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
 clangd: ;@:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
 
@@ -233,7 +234,6 @@ static: headers
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval BUILDING_STATIC_LIBRARY = 1)
-	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
@@ -243,7 +243,6 @@ dynamic: headers
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
-	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
@@ -258,7 +257,6 @@ testapp_static:
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
-	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(BOLD)$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
 
@@ -269,7 +267,6 @@ testapp_dynamic:
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
-	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
 
