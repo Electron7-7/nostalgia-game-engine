@@ -13,12 +13,21 @@ typedef unsigned int id_t;
 struct ID
 {
 public:
-    constexpr ID(id_t id = ID::Invalid): id_(id) {}
-    explicit constexpr ID(const char* from_name): id_(ConstexprHash(from_name)) {}
-    explicit constexpr ID(const std::string& from_name): id_(ConstexprHash(from_name)) {}
+    constexpr ID() = default;
+
+    constexpr ID(id_t id):
+        id_{id}, name_{""} {}
+
+    explicit constexpr ID(const char* from_name):
+        id_{ConstexprHash(from_name)}, name_{from_name} {}
+    explicit constexpr ID(const std::string& from_name):
+        id_{ConstexprHash(from_name)}, name_{from_name.data()} {}
 
     constexpr operator const id_t&() const
     { return id_; }
+
+    constexpr const char* name() const
+    { return name_; }
 
     constexpr bool invalid() const
     { return id_ == ID::Invalid; }
@@ -28,15 +37,21 @@ public:
     static constexpr id_t back    = Invalid - 1;
 
 private:
-    friend struct std::formatter<ID>;
     id_t id_{ID::Invalid};
+    const char* name_{"ID::Invalid"};
 };
 
 template<>
 struct std::formatter<ID> : std::formatter<id_t>
 {
     auto format(ID id, std::format_context& ctx) const
-    { return std::formatter<id_t>::format(id.id_, ctx); }
+    { return std::formatter<id_t>::format(static_cast<id_t>(id), ctx); }
+};
+
+template<typename T>
+concept CanBeID = requires{
+    (std::is_same_v<T,id_t> || std::is_same_v<T,ID>) &&
+    (std::is_same_v<T,const char*> || std::is_same_v<T,std::string>);
 };
 
 namespace UniqueIDs
