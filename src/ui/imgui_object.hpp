@@ -10,6 +10,9 @@ public:
     virtual void Shutdown() {}
     virtual void Update() {}
     virtual void Input(const InputEvent&) {}
+    virtual void ReopenMainWindows() {}
+    virtual void CloseAllWindows() = 0;
+    virtual bool AreAllWindowsClosed() = 0;
 
 protected:
     virtual ~ImGui_Object() {}
