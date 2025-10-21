@@ -1,7 +1,7 @@
 #ifndef SAFE_RETURN_H
 #define SAFE_RETURN_H
 
-#include "printing.hpp"
+#include "common/printing.hpp"
 
 namespace
 {

@@ -4,13 +4,14 @@
 #include "frozen/string.h"
 
 #include <string>
-#include <utility>
 #include <type_traits>
 
 typedef unsigned int hash_t;
 
 // https://stackoverflow.com/a/23684632
-template<class>struct ConstexprHasher;
+
+template<class>
+    struct ConstexprHasher;
 
 template<>
 struct ConstexprHasher<frozen::string>
