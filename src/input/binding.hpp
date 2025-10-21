@@ -15,12 +15,17 @@ public:
     InputBinding(const ID&, bool IsLocked = false, InputStatus = InputStatus::Inactive, bool JustChanged = false);
 
     InputActions mActions{};
+
     const ID& id() const;
+    InputStatus status() const;
+    bool just_changed() const;
+    bool locked() const;
 
     bool Activate();
     bool Deactivate();
     bool Press();
     bool Release();
+
     bool Active() const;
     bool Inactive() const;
     bool JustActivated() const;
@@ -43,9 +48,12 @@ public:
         return false;
     }
 
+    constexpr bool operator==(const InputBinding& binding) const
+    { return mID == binding.mID; }
+    constexpr bool operator<(const InputBinding& binding) const
+    { return mID < binding.mID; }
     constexpr bool operator==(const ID& id) const
     { return mID == id; }
-
     constexpr bool operator==(const std::string& name) const
     { return !name.compare(mID.name()); }
 

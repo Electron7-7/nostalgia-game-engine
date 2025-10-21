@@ -15,8 +15,10 @@ InputBinding::InputBinding(const ID& id, bool locked, InputStatus status, bool c
 
 InputActions mActions{};
 
-const ID& InputBinding::id() const
-{ return mID; }
+const ID& InputBinding::id()       const { return mID;          }
+InputStatus InputBinding::status() const { return mStatus;      }
+bool InputBinding::just_changed()  const { return mJustChanged; }
+bool InputBinding::locked()        const { return mLocked;      }
 
 bool InputBinding::Activate()
 {
@@ -45,7 +47,6 @@ bool InputBinding::Released()        const { return Inactive();        }
 bool InputBinding::JustPressed()     const { return JustActivated();   }
 bool InputBinding::JustReleased()    const { return JustDeactivated(); }
 
-bool InputBinding::IsMouseMotion()                         const { return BindingIDs::IsMouseMotion(mID);      }
 bool InputBinding::IsInput(const ID& BindingID)            const { return (mID == BindingID);                  }
 bool InputBinding::IsInput(const std::string& BindingName) const { return IsInput(ConstexprHash(BindingName)); }
 bool InputBinding::IsValid()                               const { return mID != ID::Invalid;                  }
