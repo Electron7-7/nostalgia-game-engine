@@ -663,3 +663,10 @@ Okay, so it has something to do with when `ThingData::GetPrettyEnum` was assigni
 Oh my god... is it because it's constructing the object, setting the reference to that object, and then the object dies out of scope? I think it is!
 
 Also, refer here for when to use `const &` versus normal function arguments (https://stackoverflow.com/a/2627535).
+
+TODO: MAJOR TODO: I don't like the global key binds thing. The queue should be the master, not the bindings. I fucked up.
+
+[10/20/25]
+Finished up my Input rework.
+
+I'm also going to move the backends into `src/backends`.
