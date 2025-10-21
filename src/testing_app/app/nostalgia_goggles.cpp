@@ -13,15 +13,14 @@ NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
 std::string gToggleFullscreen{"ToggleFullscreen"};
 std::string gToggleMouseCapture{"ToggleMouseCapture"};
-static std::string sExitApplication{"ExitApplication"};
 
 static SafeStatus sInputEventHandler(const InputEvent& event)
 {
-    if(event.IsAction(gToggleFullscreen) && event.JustPressed())
+    if(event.IsActionPressed(gToggleFullscreen))
         { g_pBackendManager->Windowing()->ToggleFullscreen(); }
-    else if(event.IsAction(gToggleMouseCapture) && event.JustPressed())
+    else if(event.IsActionPressed(gToggleMouseCapture))
         { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
-    else if(event.IsAction(sExitApplication) && event.JustPressed())
+    else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyQ))
         { g_pApplication->Shutdown(); }
     return Status::NO_ERR;
 }

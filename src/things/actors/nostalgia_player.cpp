@@ -2,7 +2,6 @@
 #include "theatre_parser/thing_data.hpp"
 #include "input/event.hpp"
 #include "settings/settings.hpp"
-#include "managers/backend_manager.hpp"
 
 void NostalgiaPlayer::SetVariables(const ThingData& data)
 {
@@ -24,13 +23,13 @@ ThingData NostalgiaPlayer::GetVariables() const
 void NostalgiaPlayer::Input(const InputEvent& event)
 {
     Move({
-        event.IsAction("+right")   - event.IsAction("+left"),
-        event.IsAction("+forward") - event.IsAction("+backward")
+        event.IsActionDown("+right")   - event.IsActionDown("+left"),
+        event.IsActionDown("+forward") - event.IsActionDown("+backward")
     });
-    if(g_pBackendManager->Windowing()->GetMouseMode() != MouseMode::Disabled)
-        { mLookWish = glm::vec2(0.0f); return; }
-    else if(event.IsType(InputEventType::MouseMotion))
+    if(event.IsMouseCaptured())
         { Look(event.MouseMotion()); }
+    else
+        { Look(glm::vec2{0.0f}); }
 }
 
 void NostalgiaPlayer::Tick()
