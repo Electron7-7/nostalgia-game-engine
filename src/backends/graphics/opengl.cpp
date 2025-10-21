@@ -1,5 +1,5 @@
 #include "opengl.hpp"
-#include "../../render_command.hpp"
+#include "rendering/render_command.hpp"
 #include "world/world.hpp"
 #include "settings/settings.hpp"
 #include "things/actors/light.hpp"

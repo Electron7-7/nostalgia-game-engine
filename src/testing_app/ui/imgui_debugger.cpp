@@ -15,7 +15,7 @@
 
 #ifdef DEBUGGING
 #   include "common/time.hpp"
-#   include "rendering/backends/graphics/opengl.hpp"
+#   include "backends/graphics/opengl.hpp"
 #   include "managers/physics_manager.hpp"
 #   include "theatre_parser/theatre_parser.hpp"
 #   include "things/thing_factory.hpp"
