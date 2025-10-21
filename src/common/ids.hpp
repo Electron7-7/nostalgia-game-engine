@@ -5,7 +5,6 @@
 #include "frozen/set.h"
 #include "common/hash.hpp"
 
-#include <set>
 #include <string>
 #include <format>
 #include <map>
@@ -20,15 +19,13 @@ public:
     constexpr ID(id_t id):
         id_{id}, name_{""} {}
 
-    explicit constexpr ID(const char* from_name):
-        id_{ConstexprHash(from_name)}, name_{from_name} {}
     explicit constexpr ID(const std::string& from_name):
-        id_{ConstexprHash(from_name)}, name_{from_name.data()} {}
+        id_{ConstexprHash(from_name.data())}, name_{from_name} {}
 
     constexpr operator const id_t&() const
     { return id_; }
 
-    constexpr const char* name() const
+    constexpr const std::string& name() const
     { return name_; }
 
     constexpr bool invalid() const
@@ -40,7 +37,7 @@ public:
 
 private:
     id_t id_{ID::Invalid};
-    const char* name_{"ID::Invalid"};
+    std::string name_{"ID::Invalid"};
 };
 
 template<>
@@ -164,12 +161,9 @@ namespace BindingIDs
     constexpr ID MouseLEFT       {"LeftMouse"};
     constexpr ID MouseRIGHT      {"RightMouse"};
     constexpr ID MouseMIDDLE     {"MiddleMouse"};
-    constexpr ID MouseMotionX    {"MouseX"};
-    constexpr ID MouseMotionY    {"MouseY"};
 
     constexpr uint KeyIDsCount{50};
     constexpr uint MouseButtonIDsCount{3};
-    constexpr uint MouseMotionIDsCount{2};
 
     // TODO: Expand this list
     constexpr frozen::set<ID, KeyIDsCount>
@@ -187,9 +181,6 @@ namespace BindingIDs
         MouseLEFT, MouseRIGHT, MouseMIDDLE,
     };
 
-    constexpr frozen::set<ID, MouseMotionIDsCount>
-    MouseMotionIDs { MouseMotionX, MouseMotionY };
-
     template<CanBeID T>
     constexpr bool IsKey(T binding)
     { return KeyIDs.contains(ID{binding}); }
@@ -199,18 +190,15 @@ namespace BindingIDs
     { return MouseButtonIDs.contains(ID{binding}); }
 
     template<CanBeID T>
-    constexpr bool IsMouseMotion(T binding)
-    { return MouseMotionIDs.contains(ID{binding}); }
+    constexpr bool IsBinding(T binding)
+    { return IsKey(binding) || IsMouseButton(binding); }
 
     constexpr void GetAllBindingIDs(std::vector<ID>& output)
     {
-        output.reserve(KeyIDsCount + MouseButtonIDsCount + MouseMotionIDsCount);
+        output.reserve(KeyIDsCount + MouseButtonIDsCount);
         std::merge(BindingIDs::KeyIDs.cbegin(), BindingIDs::KeyIDs.cend(),
             BindingIDs::MouseButtonIDs.cbegin(), BindingIDs::MouseButtonIDs.cend(),
             std::inserter(output, output.begin()));
-        output.insert(output.cend(),
-            BindingIDs::MouseMotionIDs.cbegin(),
-            BindingIDs::MouseMotionIDs.cend());
     }
 };
 
