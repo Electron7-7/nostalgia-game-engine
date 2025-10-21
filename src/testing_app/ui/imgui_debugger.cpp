@@ -58,21 +58,30 @@ static std::string sDemoFileIn = std::format("{}.dem", sDemoFileOut);
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
 
-static bool sShowMainWindow{false};
+static bool sShowMainWindow{true};
+static bool sShowDemoWindow{false};
+
 void imgui_Debugger::Input(const InputEvent& event)
 {
-    if(event.IsAction(gToggleMouseCapture) && event.JustPressed())
+    if(event.IsActionPressed(gToggleMouseCapture))
         { sShowMainWindow = !sShowMainWindow; }
+    else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyG))
+        { sShowDemoWindow = !sShowDemoWindow; }
 }
+
+void imgui_Debugger::CloseAllWindows()
+{ sShowDemoWindow = sShowMainWindow = false; }
+
+void imgui_Debugger::ReopenMainWindows()
+{ sShowMainWindow = true; }
+
+bool imgui_Debugger::AreAllWindowsClosed()
+{ return !(sShowDemoWindow || sShowMainWindow); }
 
 void imgui_Debugger::Update()
 {
-    static bool show_demo_window = false;
-    if(show_demo_window)
-        { ShowDemoWindow(&show_demo_window); }
-    if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G))
-        { show_demo_window = !show_demo_window; }
-
+    if(sShowDemoWindow)
+        { ShowDemoWindow(&sShowDemoWindow); }
 #ifndef DEBUGGING
     SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);
 #else // DEBUGGING
@@ -90,7 +99,7 @@ void imgui_Debugger::Update()
                 if(BeginMenu("Menu"))
                 {
                     if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                        { show_demo_window = true; }
+                        { sShowDemoWindow = true; }
                     if(MenuItem("Quit", "CTRL+Q"))
                         { g_pApplication->Shutdown(); }
                     EndMenu();
