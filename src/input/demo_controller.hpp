@@ -21,7 +21,7 @@ public:
     bool StopPlaying();
     bool PlayingDemo() const;
 
-    void ProcessQueue(EventQueue&);
+    void ProcessEvent(InputEvent&);
 
     static constexpr std::string default_demo_name{"demo"};
 
@@ -30,8 +30,8 @@ private:
     bool is_recording_{false};
     bool recorded_unsaved_demo_{false};
 
-    bool ParseDemo(const std::string&, std::vector<EventQueue>&);
-    SafeStatus ParseLine(const std::string&, std::vector<InputEvent>&, std::vector<EventQueue>&);
+    bool ParseDemo(const std::string&, std::vector<InputEvent>&);
+    SafeStatus ParseLine(const std::string&, InputEvent&, std::vector<InputEvent>&);
 };
 
 typedef gen1_demo_controller DemoController;

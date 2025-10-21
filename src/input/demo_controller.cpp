@@ -1,6 +1,5 @@
 #include "demo_controller.hpp"
 #include "binding.hpp"
-#include "event_queue.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
@@ -13,7 +12,7 @@
 
 static std::string sExtension{".gen1_demo"};
 static std::string sDemoTheatreName{""};
-static std::vector<EventQueue> sDemo{};
+static std::vector<InputEvent> sDemo{};
 static size_t sIndexOfTheatreLoad{0};
 static size_t sPlaybackIndex{0};
 
@@ -31,15 +30,9 @@ bool DemoController::Record()
     if(is_recording_)
         { return false; }
     else if(is_playing_)
-    {
-        print_error("DemoController::Record - Cannot record a gen1 demo while a gen1 demo is being played");
-        return false;
-    }
+        { return print_error("DemoController::Record - Cannot record a gen1 demo while a gen1 demo is being played"); }
     else if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-    {
-        print_error("DemoController::Record - You can't start recording a gen1 demo inside a Theatre");
-        return false;
-    }
+        { return print_error("DemoController::Record - You can't start recording a gen1 demo inside a Theatre"); }
     sDemo.clear();
     return is_recording_ = true;
 }
@@ -63,7 +56,7 @@ bool DemoController::Save(const std::string& path)
     {
         auto status = TheatreParser::WriteTheatre(g_pTheatreManager->GetCurrentState(), FileSystem::GetDir(path));
         if(status.Status() != Status::NO_ERR)
-            { print_warning("DemoController::Save - unable to save Theatre file for gen1 demo"); return false; }
+            { return print_warning("DemoController::Save - unable to save Theatre file for gen1 demo"); }
         theatre_path = status.Data();
     }
     std::string base_name = FileSystem::GetAbsolute(path);
@@ -80,16 +73,13 @@ bool DemoController::Save(const std::string& path)
         ++iterator;
     }
 
-    InputEvent temp_event;
     std::string output{std::format("!Nostalgia Gen 1 Demo")};
     size_t i = -1;
-    for(EventQueue& queue : sDemo)
+    for(InputEvent& event : sDemo)
     {
         if(i == sIndexOfTheatreLoad)
             { output += std::format("\n{{{}}}", theatre_path); }
-        output += std::format("\n[{}]", ++i);
-        while(queue.GetNextEvent(temp_event))
-            { output += std::format("\n\t{}", temp_event.DemoString()); }
+        output += std::format("\n[{}] {}", ++i, event.DemoString());
     }
     return FileSystem::try_WriteFileFromString(name, output);
 }
@@ -111,40 +101,41 @@ bool DemoController::StopPlaying()
 {
     if(!is_playing_)
         { return false; }
+    _Manager::ShutdownTheatre();
     return !(is_playing_ = false);
 }
 
 bool DemoController::PlayingDemo() const
 { return is_playing_; }
 
-void DemoController::ProcessQueue(EventQueue& queue)
+void DemoController::ProcessEvent(InputEvent& event)
 {
     if(is_playing_)
     {
         if(sPlaybackIndex >= sDemo.size())
             { StopPlaying(); return; }
-        queue = sDemo.at(sPlaybackIndex);
+        event = sDemo.at(sPlaybackIndex);
         if(sIndexOfTheatreLoad == sPlaybackIndex)
             { g_pTheatreManager->LoadTheatreFromFile(sDemoTheatreName); }
         ++sPlaybackIndex;
     }
     else if(is_recording_)
-        { sDemo.push_back(queue); }
+        { sDemo.push_back(event); }
 }
 
-bool DemoController::ParseDemo(const std::string& path, std::vector<EventQueue>& output)
+bool DemoController::ParseDemo(const std::string& path, std::vector<InputEvent>& output)
 {
     std::string file_data("");
     if(!FileSystem::try_ReadFileToString(path, file_data) &&
         !FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
         { return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path, true, 68)); }
-    std::vector<InputEvent> event_queue;
+    InputEvent event;
     bool l_AtLeastOneLineParsed = false;
     std::stringstream demo_data{file_data};
     std::string line;
     while(std::getline(demo_data, line))
     {
-        SafeStatus status = ParseLine(line, event_queue, output);
+        SafeStatus status = ParseLine(line, event, output);
         if(status == Status::DemoControllerLINE_PARSED)
             { l_AtLeastOneLineParsed = true; }
         else if(status == Status::DemoControllerLINE_FAILED)
@@ -162,12 +153,34 @@ static void sAdvanceCharacter(char& character, size_t& iterator, const std::stri
     character = line.at(iterator);
 }
 
-SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputEvent>& queue, std::vector<EventQueue>& demo)
+SafeStatus DemoController::ParseLine(const std::string& line, InputEvent& event, std::vector<InputEvent>& demo)
 {
     if(line.starts_with('['))
     {
-        demo.emplace_back(queue);
-        queue.clear();
+        demo.emplace_back(event);
+        event.clear();
+        std::string buffer{""};
+        glm::vec2 curr_mouse{0.0f};
+        glm::vec2 last_mouse{0.0f};
+        bool current_mouse{true};
+        bool parsing_data{false};
+        for(const char& char_ : line)
+        {
+            if(char_ == ')')
+            {
+                if(current_mouse)
+                    { StringToNum(curr_mouse, buffer); buffer.clear(); }
+                else
+                    { StringToNum(last_mouse, buffer); buffer.clear(); }
+                current_mouse = parsing_data = false;
+                continue;
+            }
+            else if(char_ == '(')
+                { parsing_data = true; continue; }
+            if(parsing_data)
+                { buffer.append(1, char_); }
+        }
+        event.UpdateMouseMotion(curr_mouse, last_mouse);
         return Status::NO_ERR;
     }
     else if(line.starts_with('{'))
@@ -182,10 +195,7 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
     std::string id_buffer{""};
     std::string status_buffer{""};
     std::string just_changed_buffer{""};
-    std::string curr_mouse_buffer{""};
-    std::string last_mouse_buffer{""};
     std::vector<std::string> actions{};
-    bool is_mouse_motion{false};
 
     for(size_t i = 0 ; i < line.length() ; ++i)
     {
@@ -226,42 +236,22 @@ SafeStatus DemoController::ParseLine(const std::string& line, std::vector<InputE
             }
             continue;
         }
-        if(character == '(')
-        {
-            sAdvanceCharacter(character, i, line);
-            while(character != ')')
-            {
-                if(!is_mouse_motion)
-                    { curr_mouse_buffer.append(1, character); }
-                else
-                    { last_mouse_buffer.append(1, character); }
-                sAdvanceCharacter(character, i, line);
-            }
-            is_mouse_motion = (curr_mouse_buffer.size() > 1);
-        }
     }
 
     ID id{id_buffer};
     int status{-1};
     int just_changed{-1};
-    glm::vec2 curr_mouse{0.0f};
-    glm::vec2 last_mouse{0.0f};
 
     if(!id.invalid() &&
         g_pInputManager->BindingExists(id) &&
         StringToNum(status, status_buffer) &&
         StringToNum(just_changed, just_changed_buffer))
     {
-        StringToNum(curr_mouse, curr_mouse_buffer);
-        StringToNum(last_mouse, last_mouse_buffer);
-        queue.emplace_back(
-            InputBinding{
-                id,
-                actions,
-                static_cast<bool>(just_changed),
-                static_cast<InputStatus>(status)},
-            curr_mouse,
-            last_mouse);
+        event.add(InputBinding{
+            ID{id_buffer},
+            actions,
+            static_cast<bool>(just_changed),
+            static_cast<InputStatus>(status)});
         return Status::DemoControllerLINE_PARSED;
     }
     return Status::DemoControllerLINE_FAILED;
