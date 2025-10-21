@@ -3,8 +3,8 @@
 #include "DearImGui/imgui.h"
 #include "common/printing.hpp"
 // Include all backends here
-#include "rendering/backends/graphics/opengl.hpp"
-#include "rendering/backends/windowing/glfw.hpp"
+#include "backends/graphics/opengl.hpp"
+#include "backends/windowing/glfw.hpp"
 
 static BackendManager sBackendManager;
 BackendManager* g_pBackendManager = &sBackendManager;

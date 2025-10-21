@@ -1,6 +1,6 @@
 // 'frozen' maps for converting various values between different windowing libraries and Nostalgia
 
-#include "glfw.hpp"
+#include "windowing/glfw.hpp"
 #include "GLFW/glfw3.h"
 
 constexpr frozen::map<ID, unsigned int, BindingIDs::KeyIDsCount + BindingIDs::MouseButtonIDsCount - 1>

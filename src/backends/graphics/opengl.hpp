@@ -1,7 +1,7 @@
 #ifndef OPENGL_BACKEND_H
 #define OPENGL_BACKEND_H
 
-#include "graphics.hpp"
+#include "../graphics.hpp"
 #include "rendering/shader_interfaces/gl_shader.hpp"
 
 #include <map>

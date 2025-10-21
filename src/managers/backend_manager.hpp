@@ -1,9 +1,11 @@
 #ifndef BACKEND_MANAGER_H
 #define BACKEND_MANAGER_H
 
-#include "managers/manager.hpp"
-#include "rendering/backends/graphics/graphics.hpp"
-#include "rendering/backends/windowing/windowing.hpp"
+#include "manager.hpp"
+// I include these here instead of "backends/fwd.hpp" because you probably want to interface with a backend when you
+// include the backend manager header, so why make you type allat shit out?
+#include "backends/graphics.hpp"
+#include "backends/windowing.hpp"
 
 #include <memory>
 
