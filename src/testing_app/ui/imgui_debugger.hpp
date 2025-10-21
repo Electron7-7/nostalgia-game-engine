@@ -11,8 +11,7 @@ struct StopwatchLog; // Forward Declaration
 class imgui_Debugger : public ImGui_Object
 {
 public:
-    bool Init();
-    void Shutdown();
+    void Input(const InputEvent&);
     void Update();
 #ifdef DEBUGGING
     StopwatchLog& StartStopwatch(const std::string& Message = "No Message");

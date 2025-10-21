@@ -2,11 +2,12 @@
 #include "../app/nostalgia_goggles.hpp"
 #include "managers/manager.hpp"
 #include "input/demo_controller.hpp"
+#include "input/event.hpp"
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_stdlib.h"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_stdlib.h"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -57,119 +58,11 @@ static std::string sDemoFileIn = std::format("{}.dem", sDemoFileOut);
 static imgui_Debugger s_Debugger;
 imgui_Debugger* g_pDebugger = &s_Debugger;
 
-static void s_GeneralDebuggingWindow()
+static bool sShowMainWindow{false};
+void imgui_Debugger::Input(const InputEvent& event)
 {
-#ifndef DEBUGGING
-    BeginChild("Settings");
-#else  // DEBUGGING
-    BeginChild("General Debugging");
-    if(CollapsingHeader("Messages"))
-    {
-        SeparatorText("General");
-            Checkbox("Print Frame#", &g_PrintFrameNumbers);
-            SameLine();
-            Checkbox("Print Tick#", &g_PrintTickNumbers);
-        if(Settings::Engine::GraphicsBackend == gBackendIDs::gOpenGL)
-        {
-            SeparatorText("OpenGL");
-            Text("Severity Levels");
-            Separator();
-            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
-            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
-            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
-            Checkbox("Notification", &g_EnableDebugMsgNotif);
-        }
-        SeparatorText("Jolt Physics");
-        SeparatorText("Contact");
-        Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
-        Checkbox("Added", &gEnableMsg_ContactAdded); SameLine();
-        Checkbox("Persisted", &gEnableMsg_ContactPersisted); SameLine();
-        Checkbox("Removed", &gEnableMsg_ContactRemoved);
-        SeparatorText("Body");
-        Checkbox("Activated", &gEnableMsg_BodyActivated); SameLine();
-        Checkbox("Deactivated", &gEnableMsg_BodyDeactivated);
-    }
-
-    if(CollapsingHeader("Rendering"))
-    {
-        Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-        Text("Shader Output");
-        Separator();
-        static int s_Selected = Shader_ALL;
-        static const char* s_SelectableNames[4] =
-        {
-            "Default",
-            "Vertex Colors",
-            "Vertex Normals",
-            "Vertex UVs"
-        };
-        for(int i = 0 ; i < 4 ; ++i)
-        {
-            bool l_Selected = (s_Selected == i);
-            if(Checkbox(s_SelectableNames[i], &l_Selected))
-                { s_Selected = i; }
-        }
-        g_ShaderDebugOuptut = s_Selected;
-    }
-    if(CollapsingHeader("Engine"))
-    {
-        DragInt("Tick Rate", &Settings::Engine::TickRate);
-        Text("Tick Interval: %f", Settings::Engine::TickInterval());
-        Text("Graphics Backend: %d", Settings::Engine::GraphicsBackend);
-        Text("Windowing Backend: %d", Settings::Engine::WindowingBackend);
-    }
-#endif // DEBUGGING
-    if(CollapsingHeader("Window"))
-    {
-        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
-            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
-        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
-        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
-        if(Settings::Window::Fullscreen)
-        {
-            l_Pos[0] = Settings::Window::FullscreenXPosition;
-            l_Pos[1] = Settings::Window::FullscreenYPosition;
-            l_Size[0] = Settings::Window::FullscreenWidth;
-            l_Size[1] = Settings::Window::FullscreenHeight;
-        }
-        InputInt2("Position", l_Pos);
-        if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
-        InputInt2("Size", l_Size);
-        if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
-        NewLine();
-    }
-    if(CollapsingHeader("Player"))
-    {
-        SeparatorText("Camera");
-        SliderFloat("Vertical FOV", &Settings::Player::FOV, 0.0f, 180.0f);
-        DragFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.001f, 0.001f, 100000.0f);
-        DragFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 1.0f, 0.001f, 100000.0f);
-        SeparatorText("Movement");
-        SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
-        SeparatorText("Mouse");
-        if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))
-            { g_pBackendManager->Windowing()->SetRawMouseMotion(Settings::Player::RawMouseMotion); }
-        SliderFloat("Mouse Sensitivity", &Settings::Player::MouseSensitivity, 0.0f, 5.0f);
-        SliderFloat("Mouse Sensitivity Multiplier", &Settings::Player::MouseSensitivityScale, 0.0f, 1.0f);
-    }
-    EndChild();
-}
-
-bool imgui_Debugger::Init()
-{
-    if(m_IsInitialized)
-        { return true; }
-    m_IsInitialized = true;
-    return true;
-}
-
-void imgui_Debugger::Shutdown()
-{
-    if(!m_IsInitialized)
-        { return; }
-    m_IsInitialized = false;
+    if(event.IsAction(gToggleMouseCapture) && event.JustPressed())
+        { sShowMainWindow = !sShowMainWindow; }
 }
 
 void imgui_Debugger::Update()
@@ -179,14 +72,6 @@ void imgui_Debugger::Update()
         { ShowDemoWindow(&show_demo_window); }
     if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G))
         { show_demo_window = !show_demo_window; }
-    if(IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_Q))
-        { g_pApplication->Shutdown(); }
-    if(IsKeyDown(ImGuiMod_Super) && IsKeyPressed(ImGuiKey_Q))
-        { g_pApplication->Shutdown(); }
-
-    static bool show_main_window = true;
-    if(IsKeyPressed(ImGuiKey_Escape))
-        { show_main_window = !show_main_window; }
 
 #ifndef DEBUGGING
     SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);
@@ -196,9 +81,9 @@ void imgui_Debugger::Update()
         { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
 #endif
-    if(show_main_window)
+    if(sShowMainWindow)
     {
-        if(Begin("Debugging", &show_main_window, ImGuiWindowFlags_MenuBar))
+        if(Begin("Debugging", &sShowMainWindow, ImGuiWindowFlags_MenuBar))
         {
             if(BeginMenuBar())
             {
@@ -422,6 +307,106 @@ void imgui_Debugger::StopTheatreTiming(bool loading)
         { log.m_LoadTime.Stop(); }
     else
         { log.m_UnloadTime.Stop(); }
+}
+
+static void s_GeneralDebuggingWindow()
+{
+#ifndef DEBUGGING
+    BeginChild("Settings");
+#else  // DEBUGGING
+    BeginChild("General Debugging");
+    if(CollapsingHeader("Messages"))
+    {
+        SeparatorText("General");
+            Checkbox("Print Frame#", &g_PrintFrameNumbers);
+            SameLine();
+            Checkbox("Print Tick#", &g_PrintTickNumbers);
+        if(Settings::Engine::GraphicsBackend == gBackendIDs::gOpenGL)
+        {
+            SeparatorText("OpenGL");
+            Text("Severity Levels");
+            Separator();
+            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
+            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
+            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
+            Checkbox("Notification", &g_EnableDebugMsgNotif);
+        }
+        SeparatorText("Jolt Physics");
+        SeparatorText("Contact");
+        Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
+        Checkbox("Added", &gEnableMsg_ContactAdded); SameLine();
+        Checkbox("Persisted", &gEnableMsg_ContactPersisted); SameLine();
+        Checkbox("Removed", &gEnableMsg_ContactRemoved);
+        SeparatorText("Body");
+        Checkbox("Activated", &gEnableMsg_BodyActivated); SameLine();
+        Checkbox("Deactivated", &gEnableMsg_BodyDeactivated);
+    }
+
+    if(CollapsingHeader("Rendering"))
+    {
+        Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
+        Text("Shader Output");
+        Separator();
+        static int s_Selected = Shader_ALL;
+        static const char* s_SelectableNames[4] =
+        {
+            "Default",
+            "Vertex Colors",
+            "Vertex Normals",
+            "Vertex UVs"
+        };
+        for(int i = 0 ; i < 4 ; ++i)
+        {
+            bool l_Selected = (s_Selected == i);
+            if(Checkbox(s_SelectableNames[i], &l_Selected))
+                { s_Selected = i; }
+        }
+        g_ShaderDebugOuptut = s_Selected;
+    }
+    if(CollapsingHeader("Engine"))
+    {
+        DragInt("Tick Rate", &Settings::Engine::TickRate);
+        Text("Tick Interval: %f", Settings::Engine::TickInterval());
+        Text("Graphics Backend: %d", Settings::Engine::GraphicsBackend);
+        Text("Windowing Backend: %d", Settings::Engine::WindowingBackend);
+    }
+#endif // DEBUGGING
+    if(CollapsingHeader("Window"))
+    {
+        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
+            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
+        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
+        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
+        if(Settings::Window::Fullscreen)
+        {
+            l_Pos[0] = Settings::Window::FullscreenXPosition;
+            l_Pos[1] = Settings::Window::FullscreenYPosition;
+            l_Size[0] = Settings::Window::FullscreenWidth;
+            l_Size[1] = Settings::Window::FullscreenHeight;
+        }
+        InputInt2("Position", l_Pos);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
+        InputInt2("Size", l_Size);
+        if(IsItemDeactivatedAfterEdit())
+            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
+        NewLine();
+    }
+    if(CollapsingHeader("Player"))
+    {
+        SeparatorText("Camera");
+        SliderFloat("Vertical FOV", &Settings::Player::FOV, 0.0f, 180.0f);
+        DragFloat("View Cutoff Near", &Settings::Player::ViewCutoffNear, 0.001f, 0.001f, 100000.0f);
+        DragFloat("View Cutoff Far", &Settings::Player::ViewCutoffFar, 1.0f, 0.001f, 100000.0f);
+        SeparatorText("Movement");
+        SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
+        SeparatorText("Mouse");
+        if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))
+            { g_pBackendManager->Windowing()->SetRawMouseMotion(Settings::Player::RawMouseMotion); }
+        SliderFloat("Mouse Sensitivity", &Settings::Player::MouseSensitivity, 0.0f, 5.0f);
+        SliderFloat("Mouse Sensitivity Multiplier", &Settings::Player::MouseSensitivityScale, 0.0f, 1.0f);
+    }
+    EndChild();
 }
 
 static void s_PrintStopwatchLog(const StopwatchLog& stopwatch, size_t i)

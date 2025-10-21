@@ -1,4 +1,5 @@
 #include "nostalgia_goggles.hpp"
+#include "../ui/imgui_debugger.hpp"
 #include "managers/manager.hpp"
 #include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
@@ -6,20 +7,22 @@
 #include "managers/render_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/ui_manager.hpp"
-#include "../ui/imgui_debugger.hpp"
 
 static NostalgiaGoggles s_NostalgiaGogglesApp;
 NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
-static std::string sToggleFullscreen   ("ToggleFullscreen");
-static std::string sToggleMouseCapture ("ToggleMouseCapture");
+std::string gToggleFullscreen{"ToggleFullscreen"};
+std::string gToggleMouseCapture{"ToggleMouseCapture"};
+static std::string sExitApplication{"ExitApplication"};
 
 static SafeStatus sInputEventHandler(const InputEvent& event)
 {
-    if(event.IsInput(sToggleFullscreen) && event.JustPressed())
+    if(event.IsAction(gToggleFullscreen) && event.JustPressed())
         { g_pBackendManager->Windowing()->ToggleFullscreen(); }
-    else if(event.IsInput(sToggleMouseCapture) && event.JustPressed())
+    else if(event.IsAction(gToggleMouseCapture) && event.JustPressed())
         { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
+    else if(event.IsAction(sExitApplication) && event.JustPressed())
+        { g_pApplication->Shutdown(); }
     return Status::NO_ERR;
 }
 
@@ -59,8 +62,7 @@ int NostalgiaGoggles::Main()
     if(!_Manager::InitAllManagers())
     {
         Shutdown();
-        print_error("NostalgiaGoggles::Main - _Manager::InitAllManagers failed!!");
-        return 1;
+        return !print_error("NostalgiaGoggles::Main - _Manager::InitAllManagers failed!!");
     }
 
     g_pInputManager->SetInputEventCallback(sInputEventHandler);
@@ -68,12 +70,12 @@ int NostalgiaGoggles::Main()
     // g_pMenuManager->PushMenu("Main Menu");
     g_pUIManager->AddImGuiObject(g_pDebugger);
 
-    g_pInputManager->AddAction(sToggleFullscreen,   BindingIDs::KeyF);
-    g_pInputManager->AddAction(sToggleMouseCapture, BindingIDs::KeyESC);
-    g_pInputManager->AddAction("+forward",  BindingIDs::KeyW);
-    g_pInputManager->AddAction("+backward", BindingIDs::KeyS);
-    g_pInputManager->AddAction("+left",     BindingIDs::KeyA);
-    g_pInputManager->AddAction("+right",    BindingIDs::KeyD);
+    g_pInputManager->AssignAction(gToggleFullscreen,   BindingIDs::KeyF);
+    g_pInputManager->AssignAction(gToggleMouseCapture, BindingIDs::KeyESC);
+    g_pInputManager->AssignAction("+forward",  BindingIDs::KeyW);
+    g_pInputManager->AssignAction("+backward", BindingIDs::KeyS);
+    g_pInputManager->AssignAction("+left",     BindingIDs::KeyA);
+    g_pInputManager->AssignAction("+right",    BindingIDs::KeyD);
 
     _Manager::Start(); // gameloop
     return 0;
