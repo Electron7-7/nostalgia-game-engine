@@ -3,7 +3,7 @@
 
 #include "things/fwd.hpp"
 #include "manager.hpp"
-#include "ids.hpp"
+#include "common/ids.hpp"
 #include "Jolt/Jolt.h" // IWYU pragma: keep
 #include "Jolt/Physics/PhysicsSystem.h"
 

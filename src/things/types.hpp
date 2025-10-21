@@ -1,8 +1,8 @@
 #ifndef THING_TYPES_H
 #define THING_TYPES_H
 
-#include "ids.hpp"
-#include "hash.hpp"
+#include "common/ids.hpp"
+#include "common/hash.hpp"
 
 namespace ThingType
 {

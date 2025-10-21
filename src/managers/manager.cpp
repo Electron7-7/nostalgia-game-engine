@@ -1,6 +1,6 @@
 #include "manager.hpp"
 #include "settings/settings.hpp"
-#include "time.hpp"
+#include "common/time.hpp"
 
 #include <GLFW/glfw3.h>
 #include <cassert>

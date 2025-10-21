@@ -1,6 +1,7 @@
 #include "thing_variable.hpp"
-#include "colors.hpp"
 #include "managers/theatre_manager.hpp"
+#include "common/colors.hpp"
+#include "common/globals.hpp"
 
 ThingVar::ThingVar(const std::string& string, const std::string& _name)
     : name{_name}, value{string}, type{eString} {}
@@ -16,7 +17,7 @@ ThingVar::ThingVar(const penum_t& p_enum, const std::string& _name)
     : name{_name}, type{ePrettyEnum}, pretty_enum{p_enum} {}
 
 ThingVar::ThingVar(bool boolean, const std::string& _name)
-    : name{_name}, value{(boolean) ? "true" : "false"}, type{eBool} {}
+    : name{_name}, value{(boolean) ? gTrue : gFalse}, type{eBool} {}
 
 std::string ThingVar::formatted() const
 {

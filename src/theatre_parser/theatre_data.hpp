@@ -3,9 +3,9 @@
 
 #include "fwd.hpp"
 
-#include "ids.hpp"
+#include "common/ids.hpp"
 #include "thing_data.hpp"
-#include "safe_return.hpp"
+#include "common/safe_return.hpp"
 #include "frozen/map.h"
 #include "physics/enums.hpp"
 
@@ -28,7 +28,7 @@ struct TheatreData
     std::vector<ThingData> things_data{};
     std::string name{"UntitledTheatre"};
     std::string file_path{""};
-    int index = -1;
+    id_t index{ID::Invalid};
 
     void SetupUIDsAndPriorities();
 

@@ -9,7 +9,7 @@
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "filesystem/file_data.hpp"
-#include "printing.hpp"
+#include "common/printing.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "glad/glad.h"

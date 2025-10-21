@@ -1,6 +1,6 @@
 #include "event.hpp"
 #include "binding.hpp"
-#include "printing.hpp"
+#include "common/printing.hpp"
 #include "managers/input_manager.hpp"
 
 #include <format>

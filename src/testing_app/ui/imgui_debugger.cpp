@@ -13,7 +13,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #ifdef DEBUGGING
-#   include "time.hpp"
+#   include "common/time.hpp"
 #   include "rendering/backends/graphics/opengl.hpp"
 #   include "managers/physics_manager.hpp"
 #   include "theatre_parser/theatre_parser.hpp"
@@ -21,13 +21,15 @@
 #   include "things/actors/light.hpp"
 #   include "things/devices/mesh_instance.hpp"
 #   include "things/devices/material.hpp"
-#   include "format_bool.hpp"
 #   include "things/devices/collider.hpp"
 
 #   include <set>
 #   include <format>
 #   include <memory>
 #   include <random>
+
+// Because DearImGui loves c-strings and I don't
+#define _fmtBool(BOOL) std::format("{}", (bool)BOOL).data()
 
 static std::random_device s_RandomDevice;
 
@@ -719,7 +721,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     Text("Motion: %s", collider->Motion().name());
                     Text("Shape: %s", collider->Shape().name());
                     bool active{collider->Active()};
-                    Text("Is Active: %s", fmt::BoolAlt(active));
+                    Text("Is Active: %s", _fmtBool(active));
                     if(!active)
                     {
                         if(Button("Activate"))

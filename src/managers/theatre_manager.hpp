@@ -4,7 +4,7 @@
 #include "things/fwd.hpp"
 #include "theatre_parser/fwd.hpp"
 
-#include "safe_return.hpp"
+#include "common/safe_return.hpp"
 #include "manager.hpp"
 #include "input/event.hpp"
 #include "things/thing_factory.hpp"

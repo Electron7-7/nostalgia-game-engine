@@ -1,7 +1,7 @@
 #ifndef PHYSICS_ENUMS_H
 #define PHYSICS_ENUMS_H
 
-#include "penum_t.hpp"
+#include "common/penum_t.hpp"
 
 namespace PhysicsBodyShape
 {

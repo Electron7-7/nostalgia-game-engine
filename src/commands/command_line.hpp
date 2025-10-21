@@ -1,7 +1,7 @@
 #ifndef COMMAND_LINE_H
 #define COMMAND_LINE_H
 
-#include "safe_return.hpp"
+#include "common/safe_return.hpp"
 
 #include <map>
 #include <vector>

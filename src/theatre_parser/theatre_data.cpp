@@ -1,6 +1,6 @@
 #include "theatre_data.hpp"
 #include "things/thing_factory.hpp"
-#include "colors.hpp" // IWYU pragma: keep
+#include "common/colors.hpp" // IWYU pragma: keep
 
 #include <map>
 

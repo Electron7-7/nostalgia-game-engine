@@ -1,6 +1,6 @@
 #include "command_line.hpp"
-#include "safe_return.hpp"
-#include "printing.hpp"
+#include "common/safe_return.hpp"
+#include "common/printing.hpp"
 
 // These commands should always be available
 static const std::map<std::string, CommandFunction>

@@ -4,8 +4,8 @@
 #include "input/fwd.hpp"
 
 #include "manager.hpp"
-#include "safe_return.hpp"
-#include "ids.hpp"
+#include "common/safe_return.hpp"
+#include "common/ids.hpp"
 
 #include <glm/vec2.hpp>
 #include <string>

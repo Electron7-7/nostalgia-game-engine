@@ -3,9 +3,9 @@
 
 #include "fwd.hpp"
 #include "enums.hpp"
-#include "ids.hpp"
-#include "time.hpp"
 #include "managers/manager.hpp"
+#include "common/time.hpp"
+#include "common/ids.hpp"
 
 #include <glm/vec2.hpp>
 #include <set>

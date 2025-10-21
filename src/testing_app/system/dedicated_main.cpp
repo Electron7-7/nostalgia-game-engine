@@ -1,5 +1,5 @@
 #include "testing_app/app/nostalgia_goggles.hpp"
-#include "printing.hpp"
+#include "common/printing.hpp"
 
 #ifdef _WIN32
 #include <windows.h>

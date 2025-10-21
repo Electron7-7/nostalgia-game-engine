@@ -1,5 +1,5 @@
 #include "glfw.hpp"
-#include "printing.hpp"
+#include "common/printing.hpp"
 #include "managers/backend_manager.hpp"
 #include "input/binding.hpp"
 #include "settings/settings.hpp"

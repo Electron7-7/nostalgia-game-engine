@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include "safe_return.hpp"
+#include "common/safe_return.hpp"
 
 namespace Settings
 {

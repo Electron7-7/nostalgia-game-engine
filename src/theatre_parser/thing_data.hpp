@@ -2,9 +2,10 @@
 #define THING_DATA_H
 
 #include "thing_variable.hpp"
-#include "string_to_num.hpp"
-#include "safe_return.hpp"
 #include "things/types.hpp"
+#include "common/string_concepts.hpp"
+#include "common/string_to_num.hpp"
+#include "common/safe_return.hpp"
 
 struct ThingData
 {
@@ -26,11 +27,10 @@ public:
         void AddVariable(const T& Value, const std::string& Name)
         { AddVariable(ThingVar{Value}, Name); }
 
-    template<typename T, class... Names>
-        requires(... && (std::is_same_v<Names, std::string> || std::is_same_v<Names, const char*>))
+    template<typename T, StringType... Names>
     bool GetVariable(T& output, Names... names) const
     {
-        if constexpr(std::is_same_v<std::string, std::decay_t<T>>)
+        if constexpr(std::is_same_v<std::decay_t<std::string>, std::decay_t<T>>)
         {
             for(const auto& name : {names...})
                 { if(GetString(output, name)) { return true; } }

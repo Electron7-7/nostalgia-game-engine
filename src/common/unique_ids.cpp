@@ -1,5 +1,5 @@
-#include "ids.hpp"
-#include "printing.hpp"
+#include "common/ids.hpp"
+#include "common/printing.hpp"
 
 #include <random>
 #include <set>

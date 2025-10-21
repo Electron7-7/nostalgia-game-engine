@@ -1,5 +1,5 @@
 #include "event_queue.hpp"
-#include "colors.hpp"
+#include "common/colors.hpp"
 
 #include <format>
 #include <print>

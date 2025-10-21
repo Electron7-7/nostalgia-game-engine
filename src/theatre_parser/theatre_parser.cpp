@@ -1,8 +1,8 @@
 #include "theatre_parser.hpp"
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
-#include "string_to_num.hpp"
-#include "to_lower.hpp"
+#include "common/string_to_num.hpp"
+#include "common/string_compare.hpp"
 
 #include <string>
 
@@ -262,18 +262,10 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             if(context == Context::Resources)
                 { variable_name = "File"; }
         case exit_numeric:
-            if
-            (
-                variable_type == ThingVar::eNumber &&
-                buffer.size() >= 4 && // Has to be as large as "true"
-                (
-                    !ToLower(buffer).compare("false") ||
-                    !ToLower(buffer).compare("true")
-                )
-            )
+            if(variable_type == ThingVar::eNumber && gIsBool(buffer))
             {
                 variable_type = ThingVar::eBool;
-                buffer = ToLower(buffer);
+                gSetLowercase(buffer);
             }
             [[fallthrough]];
         case exit_pretty_enum:
@@ -377,7 +369,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         }
         buffer += character;
     }
-    output.name  = theatre_name;
-    output.index = StringToNum<id_t>(theatre_index);
+    output.name = theatre_name;
+    StringToNum<id_t>(output.index, theatre_index);
     return true;
 }

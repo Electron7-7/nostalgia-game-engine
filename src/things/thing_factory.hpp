@@ -2,7 +2,7 @@
 #define THING_FACTORY_H
 
 #include "fwd.hpp"
-#include "ids.hpp"
+#include "common/ids.hpp"
 #include "thing.hpp"
 
 #include <map>

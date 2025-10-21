@@ -36,7 +36,7 @@ DYNAMIC_LIBRARIES        := -lglfw -lfreetype
 DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
 
-INCLUDE := -I src -I src/thirdparty -I src/common -I src/thirdparty/FreeType
+INCLUDE := -I src -I src/thirdparty -I src/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux

@@ -5,7 +5,7 @@
 #include "things/fwd.hpp"
 #include "filesystem/fwd.hpp"
 
-#include "ids.hpp"
+#include "common/ids.hpp"
 #include "../backend.hpp"
 
 #include <glm/glm.hpp>

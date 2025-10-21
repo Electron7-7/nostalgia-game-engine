@@ -4,7 +4,7 @@
 #include "filesystem/fwd.hpp"
 
 #include "theatre_data.hpp"
-#include "safe_return.hpp"
+#include "common/safe_return.hpp"
 
 struct TheatreParser
 {

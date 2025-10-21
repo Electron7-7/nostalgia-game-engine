@@ -1,6 +1,6 @@
 #include "gl_shader.hpp"
-#include "printing.hpp"
-#include "colors.hpp"
+#include "common/printing.hpp"
+#include "common/colors.hpp"
 #include "glad/glad.h"
 
 #include <glm/gtc/type_ptr.hpp>

@@ -12,9 +12,9 @@
 #include "managers/backend_manager.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
-#include "colors.hpp"
+#include "common/colors.hpp"
 #ifdef DEBUGGING
-#   include "time.hpp"
+#   include "common/time.hpp"
 #   include "testing_app/ui/imgui_debugger.hpp"
 #endif // DEBUGGING
 

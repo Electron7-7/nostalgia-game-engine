@@ -1,7 +1,7 @@
 #include "backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "DearImGui/imgui.h"
-#include "printing.hpp"
+#include "common/printing.hpp"
 // Include all backends here
 #include "rendering/backends/graphics/opengl.hpp"
 #include "rendering/backends/windowing/glfw.hpp"

@@ -2,7 +2,7 @@
 #define RENDER_COMMAND_H
 
 #include "things/fwd.hpp"
-#include "ids.hpp"
+#include "common/ids.hpp"
 #include "shader_interfaces/shader_interface.hpp"
 
 #include <glm/glm.hpp>

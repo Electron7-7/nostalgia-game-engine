@@ -1,8 +1,9 @@
 #include "thing_data.hpp"
-#include "printing.hpp"
-#include "colors.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
+#include "common/globals.hpp"
+#include "common/printing.hpp"
+#include "common/colors.hpp"
 
 const ThingData ThingData::PlayerDefaults(
     "Default Player",
@@ -111,9 +112,9 @@ bool ThingData::GetBoolean(bool& output, const std::string& _name) const
     if(auto assert_var = AssertVariable(_name, ThingVar::eBool);
         SafeStatus::Check(assert_var.Status()))
     {
-        if(!assert_var.Data()->value.compare("true"))
+        if(!assert_var.Data()->value.compare(gTrue))
             { return output = true; }
-        else if(!assert_var.Data()->value.compare("false"))
+        else if(!assert_var.Data()->value.compare(gFalse))
             { return !(output = false); }
     }
     return false;

@@ -1,19 +1,20 @@
 #ifndef THING_VARIABLE_H
 #define THING_VARIABLE_H
 
-#include "penum_t.hpp"
-#include "ids.hpp"
-#include "glm_to_string.hpp"
+#include "common/penum_t.hpp"
+#include "common/ids.hpp"
+#include "math/glm_concepts.hpp"
+#include "math/glm_format.hpp" // IWYU pragma: keep // used by one of the constructors
 
 #include <string>
 #include <format>
 
 template<typename T>
-concept IsNumber = requires
-{
-    !std::is_same_v<bool, std::decay_t<T>> &&
-    (std::is_arithmetic_v<T> || GLMContainer<T>) == true;
-};
+    concept IsNumber = requires
+    {
+        !std::is_same_v<bool, std::decay_t<T>> &&
+        (std::is_arithmetic_v<T> || GLMContainer<T>);
+    };
 
 struct ThingVar
 {

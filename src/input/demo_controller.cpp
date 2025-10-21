@@ -5,9 +5,9 @@
 #include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "theatre_parser/theatre_parser.hpp"
-#include "printing.hpp"
-#include "string_to_num.hpp"
-#include "truncate_string.hpp"
+#include "common/printing.hpp"
+#include "common/string_to_num.hpp"
+#include "common/string_transform.hpp"
 
 #include <sstream>
 
@@ -137,7 +137,7 @@ bool DemoController::ParseDemo(const std::string& path, std::vector<EventQueue>&
     std::string file_data("");
     if(!FileSystem::try_ReadFileToString(path, file_data) &&
         !FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
-        { return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path)); }
+        { return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path, true, 68)); }
     std::vector<InputEvent> event_queue;
     bool l_AtLeastOneLineParsed = false;
     std::stringstream demo_data{file_data};
