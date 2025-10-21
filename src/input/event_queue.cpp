@@ -22,7 +22,7 @@ void EventQueue::ReplaceQueue(const std::vector<InputEvent>& new_queue)
 
 bool EventQueue::QueueEvent(const InputEvent& event)
 {
-    if(!event.Valid())
+    if(event.empty())
         { return false; }
     mQueue.push_back(event);
     return true;
