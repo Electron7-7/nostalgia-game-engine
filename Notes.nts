@@ -670,3 +670,6 @@ TODO: MAJOR TODO: I don't like the global key binds thing. The queue should be t
 Finished up my Input rework.
 
 I'm also going to move the backends into `src/backends`.
+
+[10/21/25]
+I'm gonna move the backends while I also try to fix the viewport issue. Also, I need to commit my changes today.
