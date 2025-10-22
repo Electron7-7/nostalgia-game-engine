@@ -36,7 +36,7 @@ std::string ThingVar::formatted_value() const
     case eNumber:
         return std::format("[{}]", value);
     case eReference:
-        return std::format("<{}>", value);
+        return std::format("<{}> // uid: {}", value, reference_id);
     case ePrettyEnum:
         return std::format("({})", pretty_enum.name());
     case eNothing:
