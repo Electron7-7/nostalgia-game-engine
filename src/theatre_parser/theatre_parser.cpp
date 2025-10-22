@@ -93,7 +93,7 @@ enum class Parsing
 
 bool TheatreParser::ParseTheatreFile(const std::string& path, TheatreData& output)
 {
-    if(SafeStatus::PrintCheck(m_sTheatreFile.LoadFile(path)) && ReadTheatre(output))
+    if(m_sTheatreFile.LoadFile(path).PrintCheck() && ReadTheatre(output))
         { output.file_path = path; return true; }
     return false;
 }

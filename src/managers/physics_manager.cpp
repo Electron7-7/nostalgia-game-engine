@@ -389,7 +389,7 @@ bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> outpu
         { return print_error("PhysicsManager::ValidateColliderUID - Jolt physics system is nullptr!"); }
     else if(check_body_id && (!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid()))
         { return print_error("PhysicsManager::ValidateColliderUID - No valid BodyID paired with UID {}", uid); }
-    else if(!output && !SafeStatus::PrintCheck(g_pTheatreManager->GetThing<Collider>(uid, output)))
+    else if(!output && !g_pTheatreManager->GetThing<Collider>(uid, output).PrintCheck())
         { return print_error("PhysicsManager::ValidateColliderUID - No Collider with UID {}", uid); }
     return true;
 }

@@ -46,7 +46,7 @@ void TheatreData::SetupUIDsAndPriorities()
 {
     s_DataQuickSort(things_data, 0, things_data.size() - 1);
 
-    std::map<std::string, ID> name_id_map{UniqueIDs::Reserved::ResourceNameToUIDMap};
+    std::map<std::string, ID> name_id_map{};
     UniqueIDs::Clear();
 
     // I wanted to combine these two `for` loops, but it's safer to separate them, since I can't guarantee that
@@ -60,8 +60,12 @@ void TheatreData::SetupUIDsAndPriorities()
         {
             if(variable.type == ThingVar::ePrettyEnum && sPrettyEnumLookup.contains(variable.value))
                 { variable.pretty_enum = sPrettyEnumLookup.at(variable.value); }
-            else if(variable.type == ThingVar::eReference && name_id_map.contains(variable.value))
-                { variable.reference_id = name_id_map.at(variable.value); }
+            else if(variable.type == ThingVar::eReference &&
+                !UniqueIDs::GetReservedID(variable.value, variable.reference_id))
+            {
+                if(name_id_map.contains(variable.value))
+                    { variable.reference_id = name_id_map.at(variable.value); }
+            }
         }
     }
 }
@@ -101,7 +105,7 @@ void TheatreData::clear()
 
 void TheatreData::debug_PrintData()
 {
-    print_debug("Theatre Data Printout:", sty::Bold + fg::Cyan, sty::Reset);
+    print_debug("Theatre Data Printout:", Sty::Bold + Fg::Cyan, Sty::Reset);
 #ifdef DEBUGGING
     for(const ThingData& thing_data : things_data)
         { println("{}", thing_data.log(true, true)); }

@@ -6,10 +6,10 @@
 ThingVar::ThingVar(const std::string& string, const std::string& _name)
     : name{_name}, value{string}, type{eString} {}
 
-ThingVar::ThingVar(ID id, const std::string& _name)
+ThingVar::ThingVar(const ID& id, const std::string& _name)
     : name{_name}, value{""}, type{eReference}, reference_id{id}
     {
-        if(!UniqueIDs::GetReservedIDName(id, value))
+        if(!UniqueIDs::GetReservedName(id, value))
             { value = g_pTheatreManager->GetThing(id)->name(); }
     }
 
@@ -48,7 +48,7 @@ std::string ThingVar::formatted_value() const
 std::string ThingVar::log(bool colored) const
 {
     if(colored)
-        { return std::format("{2}({5}){0} {1}{3}{0} == {4}", sty::Reset, sty::Bold + fg::Green, sty::Bold + fg::Yellow, name, formatted_value(), type); }
+        { return std::format("{2}({5}){0} {1}{3}{0} == {4}", Sty::Reset, Sty::Bold + Fg::Green, Sty::Bold + Fg::Yellow, name, formatted_value(), type); }
     else
         { return std::format("({2}) {0} == {1}", name, formatted_value(), type); }
 }

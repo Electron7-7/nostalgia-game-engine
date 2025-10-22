@@ -23,9 +23,6 @@ public:
     bool RemoveVariable(const std::string& VariableName);
     void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);
     void AddVariable(const ThingVar& Value, const std::string& Name);
-    template<IsNumber T>
-        void AddVariable(const T& Value, const std::string& Name)
-        { AddVariable(ThingVar{Value}, Name); }
 
     template<typename T, StringType... Names>
     bool GetVariable(T& output, Names... names) const
@@ -58,8 +55,7 @@ public:
         {
             for(const auto& name : {names...})
             {
-                if(auto assert_var = AssertVariable(name, ThingVar::eNumber);
-                    SafeStatus::Check(assert_var.Status()) &&
+                if(auto assert_var = AssertVariable(name, ThingVar::eNumber); assert_var.Check() &&
                     StringToNum<T>(output, assert_var.Data()->value))
                 { return true; }
             }

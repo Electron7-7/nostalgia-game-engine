@@ -17,7 +17,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     if(!GLShaderErrorHandler(vertex))
     {
         print_error("Vertex shader failed to compile!");
-        print_debug("Shader Code:{}\n{}", sty::Reset, v_shader_code);
+        print_debug("Shader Code:{}\n{}", Sty::Reset, v_shader_code);
         return false;
     }
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -26,7 +26,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     if(!GLShaderErrorHandler(fragment))
     {
         print_error("Fragment shader failed to compile! Shader code:");
-        print_debug("Shader Code:{}\n{}", sty::Reset, f_shader_code);
+        print_debug("Shader Code:{}\n{}", Sty::Reset, f_shader_code);
         return false;
     }
     m_ID = glCreateProgram();
@@ -36,8 +36,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     if(!GLShaderErrorHandler(m_ID, true))
     {
         print_error("Shader Program failed to compile!");
-        print_debug("Vertex Shader Code:{}\n{}", sty::Reset, v_shader_code);
-        print_debug("Fragment Shader Code:{}\n{}", sty::Reset, f_shader_code);
+        print_debug("Vertex Shader Code:{}\n{}", Sty::Reset, v_shader_code);
+        print_debug("Fragment Shader Code:{}\n{}", Sty::Reset, f_shader_code);
         return false;
     }
     glDeleteShader(vertex);

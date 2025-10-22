@@ -59,7 +59,7 @@ std::string ThingData::log(bool colored, bool indent) const
 {
     std::string log;
     if(colored)
-        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", sty::Reset, sty::Bold + fg::Yellow, sty::Bold + fg::Green, g_pThingFactory->GetTypeName(type_), name, uid); }
+        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", Sty::Reset, Sty::Bold + Fg::Yellow, Sty::Bold + Fg::Green, g_pThingFactory->GetTypeName(type_), name, uid); }
     else
         {  log = std::format("({}) {} [{}]\n", g_pThingFactory->GetTypeName(type_), name, uid);  }
     for(const auto& var : variables)
@@ -93,24 +93,21 @@ void ThingData::clear()
 
 bool ThingData::GetReference(ID& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(_name, ThingVar::eReference);
-        SafeStatus::Check(assert_var.Status()))
+    if(auto assert_var = AssertVariable(_name, ThingVar::eReference); assert_var.Check())
         { output = assert_var.Data()->reference_id; return true; }
     return false;
 }
 
 bool ThingData::GetPrettyEnum(penum_t& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(_name, ThingVar::ePrettyEnum);
-        SafeStatus::Check(assert_var.Status()))
+    if(auto assert_var = AssertVariable(_name, ThingVar::ePrettyEnum); assert_var.Check())
         { output = assert_var.Data()->pretty_enum; return true; }
     return false;
 }
 
 bool ThingData::GetBoolean(bool& output, const std::string& _name) const
 {
-    if(auto assert_var = AssertVariable(_name, ThingVar::eBool);
-        SafeStatus::Check(assert_var.Status()))
+    if(auto assert_var = AssertVariable(_name, ThingVar::eBool); assert_var.Check())
     {
         if(!assert_var.Data()->value.compare(gTrue))
             { return output = true; }
@@ -123,7 +120,7 @@ bool ThingData::GetBoolean(bool& output, const std::string& _name) const
 bool ThingData::GetString(std::string& output, const std::string& _name) const
 {
     auto assert_var = AssertVariable(_name, {ThingVar::eString});
-    if(!SafeStatus::Check(assert_var.Status()) || assert_var.Data()->value.empty())
+    if(!assert_var.Check() || assert_var.Data()->value.empty())
         { return false; }
     output = assert_var.Data()->value;
     return true;
