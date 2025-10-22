@@ -383,15 +383,26 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Window"))
     {
-        static WindowInfo sInfo{Settings::Window::Info()};
-        if(Checkbox("Fullscreen", &sInfo.fullscreen))
-            { Settings::Window::setInfo(sInfo); }
-        InputInt2("Position", &sInfo.position.x, &sInfo.position.y);
-        if(IsItemDeactivatedAfterEdit())
-            { Settings::Window::setInfo(sInfo); }
-        DragInt2("Size", &sInfo.size.width, &sInfo.size.height);
-        if(IsItemDeactivatedAfterEdit())
-            { Settings::Window::setInfo(sInfo); }
+        WindowInfo windowed{Settings::Window::WindowedInfo()};
+        WindowInfo fullscreen{Settings::Window::FullscreenInfo()};
+        Text("sWindowedInfo");
+        Text("\t- name: %s", windowed.name.data());
+        Text("\t- position: [%d, %d]", windowed.position.x, windowed.position.y);
+        Text("\t- size: [%d, %d]", windowed.size.width, windowed.size.height);
+        Text("\t- framebuffer size: [%d, %d]", windowed.framebuffer_size.width, windowed.framebuffer_size.height);
+        Text("\nsFullscreenInfo");
+        Text("\t- name: %s", fullscreen.name.data());
+        Text("\t- position: [%d, %d]", fullscreen.position.x, fullscreen.position.y);
+        Text("\t- size: [%d, %d]", fullscreen.size.width, fullscreen.size.height);
+        Text("\t- framebuffer size: [%d, %d]", fullscreen.framebuffer_size.width, fullscreen.framebuffer_size.height);
+        WindowInfo sInfo{Settings::Window::Info()};
+        bool sFullscreen{Settings::Window::Fullscreen()};
+        if(Checkbox("Fullscreen", &sFullscreen))
+            { Settings::Window::ToggleFullscreen(); sInfo = Settings::Window::Info(); }
+        if(DragInt2("Position", &sInfo.position.x, &sInfo.position.y))
+            { Settings::Window::setPosition(sInfo.position); }
+        if(DragInt2("Size", &sInfo.size.width, &sInfo.size.height))
+            { Settings::Window::setSize(sInfo.size); }
         NewLine();
     }
     if(CollapsingHeader("Player"))
