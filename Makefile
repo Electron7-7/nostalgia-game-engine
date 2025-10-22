@@ -137,6 +137,7 @@ SRC_DIRS :=                             \
     $(SRC)/embedded                     \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
+    $(SRC)/interfaces                   \
     $(SRC)/math                         \
     $(SRC)/managers                     \
     $(SRC)/physics                      \
@@ -148,7 +149,6 @@ SRC_DIRS :=                             \
     $(SRC)/things/actors                \
     $(SRC)/things/resources             \
     $(SRC)/things/devices               \
-    $(SRC)/world                        \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
@@ -235,6 +235,7 @@ static: headers
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval BUILDING_STATIC_LIBRARY = 1)
 	@ -mkdir -p $(BUILD_ARCHIVES)
+	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
@@ -243,6 +244,7 @@ dynamic: headers
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
+	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
@@ -257,6 +259,7 @@ testapp_static:
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
+	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(BOLD)$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
 
@@ -267,6 +270,7 @@ testapp_dynamic:
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_APP = 1)
+	@ -rm -f $(BUILD_DIR)/$(APP)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
 
