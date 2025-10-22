@@ -250,8 +250,9 @@ SafeStatus DemoController::ParseLine(const std::string& line, InputEvent& event,
         event.add(InputBinding{
             ID{id_buffer},
             actions,
-            static_cast<bool>(just_changed),
-            static_cast<InputStatus>(status)});
+            false,
+            static_cast<InputStatus>(status),
+            static_cast<bool>(just_changed)});
         return Status::DemoControllerLINE_PARSED;
     }
     return Status::DemoControllerLINE_FAILED;
