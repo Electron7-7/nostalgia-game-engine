@@ -85,7 +85,7 @@ std::string TheatreData::formatted() const
     for(const ThingData& thing_data : things_data)
     {
         if(g_pThingFactory->IsResource(thing_data.type()) && !thing_data.variables.empty())
-            { resources += std::format("\t{} {} = {}\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
+            { resources += std::format("\t{} {} = {};\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
         else
         {
             things += std::format("\t{} {}\n\t{{\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name);

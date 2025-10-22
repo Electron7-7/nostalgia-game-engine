@@ -34,11 +34,11 @@ std::string ThingVar::formatted_value() const
         return std::format("'{}'", value);
     case eBool:
     case eNumber:
-        return std::format("({})", value);
+        return std::format("[{}]", value);
     case eReference:
         return std::format("<{}>", value);
     case ePrettyEnum:
-        return std::format("[{}]", value);
+        return std::format("({})", pretty_enum.name());
     case eNothing:
     default:
         return value;

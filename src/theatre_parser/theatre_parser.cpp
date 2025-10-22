@@ -37,15 +37,15 @@
 FileData TheatreParser::m_sTheatreFile;
 
 static const char enter_context        = '{';
-static const char enter_numeric        = '(';
+static const char enter_numeric        = '[';
 static const char enter_reference      = '<';
 #pragma message("TODO: Implement `p_enum` as its own variable type")
-static const char enter_pretty_enum    = '[';
+static const char enter_pretty_enum    = '(';
 static const char enter_exit_string    = '\'';
 static const char exit_context         = '}';
-static const char exit_numeric         = ')';
+static const char exit_numeric         = ']';
 static const char exit_reference       = '>';
-static const char exit_pretty_enum     = ']';
+static const char exit_pretty_enum     = ')';
 static const char name_delimiter       = '@';
 static const char index_delimiter      = '#';
 static const char assignment_delimiter = '=';
