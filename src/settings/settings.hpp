@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include "common/fwd.hpp"
+#include "window_info.hpp"
 
 #include <glm/fwd.hpp>
 
@@ -26,16 +27,21 @@ namespace Settings
 
     namespace Window
     {
-        extern int Width;
-        extern int Height;
-        extern int XPosition;
-        extern int YPosition;
-        extern int FullscreenWidth;
-        extern int FullscreenHeight;
-        extern int FullscreenXPosition;
-        extern int FullscreenYPosition;
-        extern bool Fullscreen;
-        extern const char* Name;
+        const WindowInfo& Info();
+        const std::string& Name();
+        const char* c_Name();
+        bool Fullscreen();
+        const position_t& Position();
+        const scale_t& Size();
+        const scale_t& FramebufferSize();
+        void setInfo(const WindowInfo&);
+        void setName(const std::string&);
+        void setFullscreen(bool);
+        // Returns the fullscreen status
+        bool ToggleFullscreen();
+        void setPosition(const position_t&);
+        void setSize(const scale_t&);
+        void setFramebufferSize(const scale_t&);
     }
 
     namespace Player
