@@ -3,6 +3,8 @@
 
 #include "common/safe_return.hpp"
 
+#include <glm/fwd.hpp>
+
 namespace Settings
 {
     // The 'SetSetting' and 'try_Get-' functions are for users to define their own settings without needing to recompile
@@ -27,6 +29,15 @@ namespace Settings
         extern int   WindowingBackend;
     }
 
+    namespace World
+    {
+        extern const glm::vec3& Up();
+        extern const glm::vec3& Right();
+        extern const glm::vec3& Front();
+
+        extern bool UpdateOrientation(const ID& GraphicsLibraryID);
+    }
+
     namespace Window
     {
         extern int Width;
@@ -39,7 +50,7 @@ namespace Settings
         extern int FullscreenYPosition;
         extern bool Fullscreen;
         extern const char* Name;
-    };
+    }
 
     namespace Player
     {
@@ -50,7 +61,7 @@ namespace Settings
         extern float MouseSensitivity;
         extern float MouseSensitivityScale;
         extern float MovementSpeed;
-    };
+    }
 
     namespace Graphics
     {

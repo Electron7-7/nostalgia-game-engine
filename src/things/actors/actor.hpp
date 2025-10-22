@@ -2,7 +2,7 @@
 #define ACTOR_H
 
 #include "../thing.hpp"
-#include "world/transform_3d.hpp"
+#include "interfaces/transform_3d.hpp"
 
 class Actor : public Thing, public Transform3D
 {

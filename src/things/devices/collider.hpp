@@ -2,7 +2,7 @@
 #define COLLIDER_H
 
 #include "device.hpp"
-#include "world/transform_3d.hpp"
+#include "interfaces/transform_3d.hpp"
 
 #include <physics/framework.hpp>
 #include <glm/glm.hpp>

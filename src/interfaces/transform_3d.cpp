@@ -1,11 +1,11 @@
 #include "transform_3d.hpp"
-#include "world.hpp"
+#include "settings/settings.hpp"
 #include "theatre_parser/thing_data.hpp"
 
 void Transform3D::SetTransformVariables(const ThingData& data)
 {
     data.GetVariable(mOrigin, "Origin", "Position");
-    data.GetVariable(mScale, "Scale", "Size");
+    data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
     if(!data.GetVariable(mQuaternion, "Quaternion"))
     {
         if(data.GetVariable(mEuler, "Rotation", "Euler"))
@@ -53,10 +53,10 @@ void Transform3D::SetEuler(const glm::vec3& euler, bool degrees)
 }
 
 glm::vec3 Transform3D::Front() const
-{ return (Quaternion() * World::Front()); }
+{ return (Quaternion() * Settings::World::Front()); }
 
 glm::vec3 Transform3D::Right() const
-{ return (Quaternion() * World::Right()); }
+{ return (Quaternion() * Settings::World::Right()); }
 
 glm::vec3 Transform3D::Up() const
-{ return (Quaternion() * World::Up()); }
+{ return (Quaternion() * Settings::World::Up()); }
