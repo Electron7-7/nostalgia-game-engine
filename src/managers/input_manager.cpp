@@ -40,7 +40,6 @@ void InputManager::Tick()
     l_InputEventCallbackThread.join();
 }
 
-#pragma message("FIXME: I think that instead of have `Input` handle each individual event, it should handle whole queues so I can do things similar to `IsKeyDown(ImGuiMod_Ctrl) && IsKeyPressed(ImGuiKey_G)`")
 void InputManager::PollInputs(InputEvent& event)
 {
     glm::vec2 last_mouse_position{mMousePosition};

@@ -261,7 +261,6 @@ void TheatreManager::CreateThings()
     g_pBackendManager->Graphics()->BufferMesh({Models::Ramiel, std::size(Models::Ramiel), FileType::model_OBJ}, UniqueIDs::Reserved::m_Ramiel);
 
     sCurrentTheatreData.SetupUIDsAndPriorities();
-    print_debug("Reconstructed Theatre File:");
     sCurrentTheatreData.debug_PrintData();
 
     for(ThingData& data : sCurrentTheatreData.things_data)
