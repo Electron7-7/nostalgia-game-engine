@@ -2913,6 +2913,30 @@ bool ImGui::DragInt4(const char* label, int v[4], float v_speed, int v_min, int 
     return DragScalarN(label, ImGuiDataType_S32, v, 4, v_speed, &v_min, &v_max, format, flags);
 }
 
+bool ImGui::DragInt2(const char* label, int* v, int* v2, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+    int temp[2]{*v, *v2};
+    bool status{DragScalarN(label, ImGuiDataType_S32, temp, 2, v_speed, &v_min, &v_max, format, flags)};
+    *v = temp[0]; *v2 = temp[1];
+    return status;
+}
+
+bool ImGui::DragInt3(const char* label, int* v, int* v2, int* v3, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+    int temp[3]{*v, *v2, *v3};
+    bool status{DragScalarN(label, ImGuiDataType_S32, temp, 3, v_speed, &v_min, &v_max, format, flags)};
+    *v = temp[0]; *v2 = temp[1]; *v3 = temp[2];
+    return status;
+}
+
+bool ImGui::DragInt4(const char* label, int* v, int* v2, int* v3, int* v4, float v_speed, int v_min, int v_max, const char* format, ImGuiSliderFlags flags)
+{
+    int temp[4]{*v, *v2, *v3, *v4};
+    bool status{DragScalarN(label, ImGuiDataType_S32, temp, 4, v_speed, &v_min, &v_max, format, flags)};
+    *v = temp[0]; *v2 = temp[1]; *v3 = temp[2]; *v4 = temp[3];
+    return status;
+}
+
 // NB: You likely want to specify the ImGuiSliderFlags_AlwaysClamp when using this.
 bool ImGui::DragIntRange2(const char* label, int* v_current_min, int* v_current_max, float v_speed, int v_min, int v_max, const char* format, const char* format_max, ImGuiSliderFlags flags)
 {
@@ -4000,6 +4024,30 @@ bool ImGui::InputInt3(const char* label, int v[3], ImGuiInputTextFlags flags)
 bool ImGui::InputInt4(const char* label, int v[4], ImGuiInputTextFlags flags)
 {
     return InputScalarN(label, ImGuiDataType_S32, v, 4, NULL, NULL, "%d", flags);
+}
+
+bool ImGui::InputInt2(const char* label, int* v, int* v2, ImGuiInputTextFlags flags)
+{
+    int temp[2]{*v, *v2};
+    bool status{InputScalarN(label, ImGuiDataType_S32, temp, 2, NULL, NULL, "%d", flags)};
+    *v = temp[0]; *v2 = temp[1];
+    return status;
+}
+
+bool ImGui::InputInt3(const char* label, int* v, int* v2, int* v3, ImGuiInputTextFlags flags)
+{
+    int temp[3]{*v, *v2, *v3};
+    bool status{InputScalarN(label, ImGuiDataType_S32, temp, 3, NULL, NULL, "%d", flags)};
+    *v = temp[0]; *v2 = temp[1]; *v3 = temp[2];
+    return status;
+}
+
+bool ImGui::InputInt4(const char* label, int* v, int* v2, int* v3, int* v4, ImGuiInputTextFlags flags)
+{
+    int temp[4]{*v, *v2, *v3, *v4};
+    bool status{InputScalarN(label, ImGuiDataType_S32, temp, 4, NULL, NULL, "%d", flags)};
+    *v = temp[0]; *v2 = temp[1]; *v3 = temp[2]; *v4 = temp[3];
+    return status;
 }
 
 bool ImGui::InputDouble(const char* label, double* v, double step, double step_fast, const char* format, ImGuiInputTextFlags flags)
