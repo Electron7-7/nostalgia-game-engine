@@ -17,6 +17,7 @@
 #   include "common/time.hpp"
 #   include "backends/graphics/opengl.hpp"
 #   include "managers/physics_manager.hpp"
+#   include "filesystem/filesystem.hpp"
 #   include "theatre_parser/theatre_parser.hpp"
 #   include "things/thing_factory.hpp"
 #   include "things/actors/light.hpp"
@@ -330,7 +331,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Frame#", &g_PrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &g_PrintTickNumbers);
-        if(Settings::Engine::GraphicsBackend == gBackendIDs::gOpenGL)
+        if(Settings::Engine::GraphicsBackend == BackendIDs::gOpenGL)
         {
             SeparatorText("OpenGL");
             Text("Severity Levels");
@@ -376,29 +377,21 @@ static void s_GeneralDebuggingWindow()
     {
         DragInt("Tick Rate", &Settings::Engine::TickRate);
         Text("Tick Interval: %f", Settings::Engine::TickInterval());
-        Text("Graphics Backend: %d", Settings::Engine::GraphicsBackend);
-        Text("Windowing Backend: %d", Settings::Engine::WindowingBackend);
+        Text("Graphics Backend: %s", Settings::Engine::GraphicsBackend.c_name());
+        Text("Windowing Backend: %s", Settings::Engine::WindowingBackend.c_name());
     }
 #endif // DEBUGGING
     if(CollapsingHeader("Window"))
     {
-        if(Checkbox("Fullscreen", &Settings::Window::Fullscreen))
-            { g_pBackendManager->Windowing()->SetFullscreen(Settings::Window::Fullscreen); }
-        int l_Pos[2]  = { Settings::Window::XPosition, Settings::Window::YPosition };
-        int l_Size[2] = { Settings::Window::Width, Settings::Window::Height };
-        if(Settings::Window::Fullscreen)
-        {
-            l_Pos[0] = Settings::Window::FullscreenXPosition;
-            l_Pos[1] = Settings::Window::FullscreenYPosition;
-            l_Size[0] = Settings::Window::FullscreenWidth;
-            l_Size[1] = Settings::Window::FullscreenHeight;
-        }
-        InputInt2("Position", l_Pos);
+        static WindowInfo sInfo{Settings::Window::Info()};
+        if(Checkbox("Fullscreen", &sInfo.fullscreen))
+            { Settings::Window::setInfo(sInfo); }
+        InputInt2("Position", &sInfo.position.x, &sInfo.position.y);
         if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->MoveWindow(l_Pos[0], l_Pos[1]); }
-        InputInt2("Size", l_Size);
+            { Settings::Window::setInfo(sInfo); }
+        DragInt2("Size", &sInfo.size.width, &sInfo.size.height);
         if(IsItemDeactivatedAfterEdit())
-            { g_pBackendManager->Windowing()->ResizeWindow(l_Size[0], l_Size[1]); }
+            { Settings::Window::setInfo(sInfo); }
         NewLine();
     }
     if(CollapsingHeader("Player"))
@@ -535,8 +528,12 @@ static void s_TheatreDebuggingWindow()
     if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
 
+    static std::string l_TheatreFilePath{"SavedTheatre.nt"};
     if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         { BeginDisabled(); }
+    if(Button("Save Theatre State"))
+        { FileSystem::try_WriteFileFromString(l_TheatreFilePath, g_pTheatreManager->GetCurrentState().formatted()); }
+    SameLine(); InputText("File Path", &l_TheatreFilePath, ImGuiInputTextFlags_CharsNoBlank);
     if(Button("Exit Theatre"))
         { _Manager::ShutdownTheatre(); }
     if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
@@ -594,15 +591,8 @@ static void s_ResourceInfo(ID uid, const char* tree_name)
     }
     else if(UniqueIDs::IsReserved(uid) && TreeNode(tree_name))
     {
-        for(const auto& [name, id] : UniqueIDs::Reserved::ResourceNameToUIDMap)
-        {
-            if(uid == id)
-            {
-                Text("Name - %s", name.data());
-                Text("UID  - %u", (id_t)id);
-                break;
-            }
-        }
+        Text("Name - %s", UniqueIDs::Reserved::EmbeddedResourceNames.at(uid).data());
+        Text("UID  - %u", static_cast<id_t>(uid));
         TreePop();
     }
 }
