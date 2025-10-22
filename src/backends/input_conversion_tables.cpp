@@ -4,7 +4,7 @@
 #include "GLFW/glfw3.h"
 
 constexpr frozen::map<ID, unsigned int, BindingIDs::KeyIDsCount + BindingIDs::MouseButtonIDsCount - 1>
-GLFW_Backend::s_cInputIdToGlfw =
+GLFW_Backend::m_sInputIdToGlfw =
 {
     { BindingIDs::KeyZERO,  GLFW_KEY_0 },
     { BindingIDs::KeyONE,   GLFW_KEY_1 },
