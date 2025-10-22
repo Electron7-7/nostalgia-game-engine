@@ -40,11 +40,11 @@ Things
     Material RedMaterial
     {
         // These are all "Numerical" variables, one being a boolean and the other two being numbers. Numerical variables are delimited
-        // by parentheses (())
-        NoTexture = (trUe) // Booleans are not case-sensitive
+        // by square brackets ([])
+        NoTexture = [trUe] // Booleans are not case-sensitive
         // Number variables can contain up to four numbers (separated by commas)
-        Color = (1, 0.2, 0.1) // Numbers can be positive, negative, real, or whole
-        SpecularStrength = (0.6)
+        Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
+        SpecularStrength = [0.6]
     }
 
     Actor Ramiel
@@ -57,23 +57,23 @@ Things
             Mesh = <RamielModel>
             Material = <RamielMaterial>
         }
-        Scale = (120, 120, 120)
-        Origin = (-30, 18.152, -215) // An example of various number types working together!
-        Visible = (true)
+        Scale = [120, 120, 120]
+        Origin = [-30, 18.152, -215] // An example of various number types working together!
+        Visible = [true]
     }
 
     // Things that are referenced by other Things don't need to be defined before being referenced, as seen in the case of
     // this Material being referenced before it has been defined
     Material RamielMaterial
     {
-        NoTexture = (true)
-        SpecularStrength = (2.6)
+        NoTexture = [true]
+        SpecularStrength = [2.6]
     }
 
     Material StupidMaterial
     {
-        Color = (0.9, 1, 1)
-        SpecularStrength = (0.2)
+        Color = [0.9, 1, 1]
+        SpecularStrength = [0.2]
         DiffuseTexture = <StupidTex>
     }
 
@@ -90,8 +90,8 @@ Things
 
     Collider FloorCollider
     {
-        Position = (3, -5, -3)
-        Scale = (20, 2, 20)
+        Position = [3, -5, -3]
+        Scale = [20, 2, 20]
     }
 
     Actor Floor
@@ -106,23 +106,23 @@ Things
 
     Collider DoomCollider
     {
-        Motion = [Dynamic]
-        Origin = (3, 0, -3)
-        RotationDegrees = (-10, -55, 5)
+        Motion = (Dynamic)
+        Origin = [3, 0, -3]
+        RotationDegrees = [-10, -55, 5]
     }
 
     Actor DoomCube
     {
         MeshInstance = <DoomCubeMeshInstance>
         Collider = <DoomCollider>
-        Visible = (true)
+        Visible = [true]
     }
 
     Actor LolBitCube
     {
         MeshInstance = <LolBitCubeMeshInstance>
-        Origin = (-0.25, 2, -3.5)
-        RotationDegrees = (25, 0, 1)
+        Origin = [-0.25, 2, -3.5]
+        RotationDegrees = [25, 0, 1]
     }
 
     Actor RedCube
@@ -132,10 +132,10 @@ Things
             Mesh = <DefaultCube>
             Material = <RedMaterial>
         }
-        Origin = (1.35, 1, -4.45)
-        RotationDegrees = (-0.3, -64.6, -17.4)
-        Scale = (0.48, 0.58, 0.27)
-        Visible = (true)
+        Origin = [1.35, 1, -4.45]
+        RotationDegrees = [-0.3, -64.6, -17.4]
+        Scale = [0.48, 0.58, 0.27]
+        Visible = [true]
     }
 
     Actor IcoSphereActor
@@ -145,37 +145,37 @@ Things
             Mesh = <IcoSphere>
             Material = <StupidMaterial>
         }
-        Origin = (-2.55, 0.15, -1.3)
-        RotationDegrees = (15.2, 38.6, 0)
+        Origin = [-2.55, 0.15, -1.3]
+        RotationDegrees = [15.2, 38.6, 0]
     }
 
     NostalgiaPlayer Player
     {
-        Origin = (0, 0.3, 6)
+        Origin = [0, 0.3, 6]
     }
 
     PointLight Test_PointLight
     {
-        Visible = (true)
-        Origin = (1.6, 0.1, -2.1)
-        Color = (1, 0.8, 0.2)
+        Visible = [true]
+        Origin = [1.6, 0.1, -2.1]
+        Color = [1, 0.8, 0.2]
     }
 
     SpotLight Test_SpotLight
     {
-        Visible = (true)
-        Origin = (-0.32, 0.29, -0.45)
-        RotationDegrees = (27.6, 1.10, 10.1)
-        Color = (0.287, 1.0, 0.368)
-        Energy = (0.95)
-        Attenuation = (0.9)
-        Angle = (12.3)
-        AngleFade = (2)
+        Visible = [true]
+        Origin = [-0.32, 0.29, -0.45]
+        RotationDegrees = [27.6, 1.10, 10.1]
+        Color = [0.287, 1.0, 0.368]
+        Energy = [0.95]
+        Attenuation = [0.9]
+        Angle = [12.3]
+        AngleFade = [2]
     }
 
     DirectionalLight The_Sun
     {
-        RotationDegrees = (180, 100, -25)
-        Energy = (0.6)
+        RotationDegrees = [180, 100, -25]
+        Energy = [0.6]
     }
 }
