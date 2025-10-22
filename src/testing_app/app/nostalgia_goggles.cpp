@@ -1,5 +1,6 @@
 #include "nostalgia_goggles.hpp"
-#include "../ui/imgui_debugger.hpp"
+#include "testing_app/ui/imgui_debugger.hpp"
+#include "settings/settings.hpp"
 #include "managers/manager.hpp"
 #include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
@@ -17,7 +18,7 @@ std::string gToggleMouseCapture{"ToggleMouseCapture"};
 static SafeStatus sInputEventHandler(const InputEvent& event)
 {
     if(event.IsActionPressed(gToggleFullscreen))
-        { g_pBackendManager->Windowing()->ToggleFullscreen(); }
+        { Settings::Window::ToggleFullscreen(); }
     else if(event.IsActionPressed(gToggleMouseCapture))
         { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
     else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyQ))
