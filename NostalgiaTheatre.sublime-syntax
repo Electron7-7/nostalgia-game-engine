@@ -182,10 +182,10 @@ contexts:
         scope: invalid.illegal.unexpected-text
 
   pretty_enum:
-    - match: '\['
+    - match: '\('
       scope: keyword.bracket.begin
       push:
-      - match: '\]'
+      - match: '\)'
         scope: keyword.bracket.end
         pop: true
       - match: '{{pretty_enums}}'
@@ -196,15 +196,15 @@ contexts:
         scope: invalid.illegal.unexpected-text
 
   numeric:
-    - match: '(?=\()'
+    - match: '(?=\[)'
       push:
-      - match: '\('
+      - match: '\['
         scope: keyword.bracket.begin
         branch_point: numeric_value
         branch:
           - numbers
           - boolean
-      - match: '\)'
+      - match: '\]'
         scope: keyword.bracket.end
         pop: true
 
@@ -214,7 +214,7 @@ contexts:
     - match: '(,)(?:\s+)?(?=\))'
       captures:
         1: invalid.illegal.unexpected-text
-    - match: '(([^\s\d\),\.-])|((\.|--|,){2,})|[\d\.-]\s+([^,\)]))'
+    - match: '(([^\s\d\],\.-])|((\.|--|,){2,})|[\d\.-]\s+([^,\]]))'
       captures:
         2: invalid.illegal.unexpected-text
         3: invalid.illegal.unexpected-text
@@ -227,7 +227,7 @@ contexts:
       scope: punctuation.separator.comma
     - match: '(?>=\d)\.{1}'
       scope: punctuation.delimiter.decimal.period
-    - match: '(?=\))'
+    - match: '(?=\])'
       pop: true
 
   boolean:
