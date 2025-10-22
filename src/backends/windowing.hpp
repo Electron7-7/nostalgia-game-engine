@@ -21,40 +21,32 @@ enum class MouseMode
 class WindowingBackend : public _Backend
 {
 public:
-    // Inherited by _Backend
     virtual ~WindowingBackend() = default;
-    virtual bool Init() { return true; }
-    virtual void Shutdown() { m_IsInitialized = false; m_IsImGuiInitialized = false; }
-    virtual BackendID GetID() { return gBackendIDs::Invalid; }
-
-    virtual bool InitImGui() { return true; }
+    virtual bool Init() { return false; }
+    virtual void Shutdown() {}
+    virtual const ID& GetID() const { return BackendIDs::Invalid; }
+    virtual bool InitImGui() { return false; }
+    virtual void ShutdownImGui() {}
     virtual void ImGuiNewFrame() {}
 
     virtual SafeStatus CreateMainWindow() = 0;
-
-    virtual void ResizeWindow(int Width, int Height) = 0;
-    virtual void MoveWindow(int XPosition, int YPosition) = 0;
-    virtual void ToggleFullscreen() = 0;
     virtual void ToggleRawMouseMotion() = 0;
     virtual MouseMode ToggleMouseMode(MouseMode Secondary, MouseMode Primary = MouseMode::Normal) = 0;
-    virtual void SetFullscreen(bool FullscreenOn) = 0;
+    virtual void UpdateState() = 0;
     virtual void SetRawMouseMotion(bool RawMotionOn) = 0;
     virtual bool SetMouseMode(MouseMode) = 0;
     virtual MouseMode GetMouseMode() = 0;
-
     virtual void GetMousePosition(glm::vec2& Output) = 0;
     virtual bool UpdateBinding(InputBinding& Binding) = 0;
     virtual void SwapBuffers() = 0;
     virtual void PollEvents()  = 0;
-    virtual void UpdateState() = 0;
 
-    bool CompatibleWith(BackendID GraphicsBackend) const
-    { return m_CompatibleGraphicsBackends.contains(GraphicsBackend); }
+    bool CompatibleWith(const ID& GraphicsBackend) const
+    { return mCompatibleGraphicsBackends.contains(GraphicsBackend); }
 
 protected:
-    std::set<BackendID> m_CompatibleGraphicsBackends = {};
-    bool m_IsImGuiInitialized = false;
-    MouseMode m_MouseMode = MouseMode::Normal;
+    std::set<id_t> mCompatibleGraphicsBackends{};
+    MouseMode mMouseMode{MouseMode::Normal};
 };
 
 #endif // WINDOWING_BACKEND_H
