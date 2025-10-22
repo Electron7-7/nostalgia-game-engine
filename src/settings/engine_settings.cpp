@@ -3,5 +3,5 @@
 
 int   Settings::Engine::TickRate = 70;
 float Settings::Engine::TickInterval() { return (1.0f / TickRate); }
-int   Settings::Engine::GraphicsBackend  = gBackendIDs::gOpenGL;
-int   Settings::Engine::WindowingBackend = gBackendIDs::wGLFW;
+ID    Settings::Engine::GraphicsBackend{BackendIDs::gOpenGL};
+ID    Settings::Engine::WindowingBackend{BackendIDs::wGLFW};

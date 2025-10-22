@@ -11,8 +11,8 @@ namespace Settings
     {
         extern int   TickRate;
         extern float TickInterval();
-        extern int   GraphicsBackend;
-        extern int   WindowingBackend;
+        extern ID    GraphicsBackend;
+        extern ID    WindowingBackend;
     }
 
     namespace World
