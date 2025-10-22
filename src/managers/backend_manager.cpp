@@ -9,17 +9,17 @@
 static BackendManager sBackendManager;
 BackendManager* g_pBackendManager = &sBackendManager;
 
-static std::shared_ptr<GraphicsBackend>  s_Graphics  = nullptr;
-static std::shared_ptr<WindowingBackend> s_Windowing = nullptr;
+static std::shared_ptr<GraphicsBackend>  s_pGraphics{nullptr};
+static std::shared_ptr<WindowingBackend> s_pWindowing{nullptr};
 
 static void CreateGraphicsBackend()
 {
     switch(Settings::Engine::GraphicsBackend)
     {
-    case gBackendIDs::gOpenGL:
+    case BackendIDs::gOpenGL:
     default:
-        s_Graphics = std::make_shared<OpenGL_Backend>();
-        break;
+        s_pGraphics = std::make_shared<OpenGL_Backend>();
+        return;
     }
 }
 
@@ -27,37 +27,33 @@ static void CreateWindowingBackend()
 {
     switch(Settings::Engine::WindowingBackend)
     {
-    case gBackendIDs::wGLFW:
+    case BackendIDs::wGLFW:
     default:
-        s_Windowing = std::make_shared<GLFW_Backend>();
-        break;
+        s_pWindowing = std::make_shared<GLFW_Backend>();
+        return;
     }
 }
 
 bool BackendManager::Init()
 {
+#pragma message("TODO: select the backends from a saved config (so you can change backends)")
     CreateGraphicsBackend();
     CreateWindowingBackend();
 
-    if(!s_Windowing->Init() || !s_Graphics->Init())
+    if(!s_pWindowing->Init() || !s_pGraphics->Init())
         { return false; }
-    if(!s_Windowing->CompatibleWith(s_Graphics->GetID()))
-    {
-        print_error("BackendManager::Init - The selected graphics & windowing backends are not compatible with each-other! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)");
-        return false;
-    }
+    else if(!s_pWindowing->CompatibleWith(s_pGraphics->GetID()))
+        { return print_error("BackendManager::Init - The selected graphics & windowing backends are not compatible with each-other! (currently, the only existing backends are OpenGL and GLFW, so you should NOT see this message)"); }
+    else if(!Settings::World::UpdateOrientation(s_pGraphics->GetID()))
+        { print_warning("BackendManager::Init - The selected graphics backend '{}' was not able to update the world orientation; this may be the cause of any visual issues", s_pGraphics->GetID().name()); }
     return true;
 }
 
 void BackendManager::Shutdown()
 {
-    s_Graphics->Shutdown();
-    s_Windowing->Shutdown();
-
-    if(m_IsImguiInitialized)
-        { ImGui::DestroyContext(); }
-
-    m_IsImguiInitialized = false;
+    ShutdownImGui();
+    s_pGraphics->Shutdown();
+    s_pWindowing->Shutdown();
 }
 
 ManagerEnums::TheatreReturnValue_t BackendManager::TheatreInit(bool first_call)
@@ -77,14 +73,14 @@ ManagerEnums::TheatreReturnValue_t BackendManager::TheatreShutdown(bool first_ca
 }
 
 std::shared_ptr<GraphicsBackend> BackendManager::Graphics()
-{ return s_Graphics; }
+{ return s_pGraphics; }
 
 std::shared_ptr<WindowingBackend> BackendManager::Windowing()
-{ return s_Windowing; }
+{ return s_pWindowing; }
 
 bool BackendManager::InitImGui()
 {
-    if(m_IsImguiInitialized)
+    if(mImGuiInitialized)
         { return true; }
 
     IMGUI_CHECKVERSION();
@@ -93,32 +89,36 @@ bool BackendManager::InitImGui()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    if(!s_Windowing->InitImGui() || !s_Graphics->InitImGui())
-    {
-        ImGui::DestroyContext();
-        return false;
-    }
+    mImGuiInitialized = s_pWindowing->InitImGui() && s_pGraphics->InitImGui();
+    return mImGuiInitialized;
+}
 
-    m_IsImguiInitialized = true;
-    return true;
+void BackendManager::ShutdownImGui()
+{
+    if(!mImGuiInitialized)
+        { return; }
+    s_pGraphics->ShutdownImGui();
+    s_pWindowing->ShutdownImGui();
+    ImGui::DestroyContext();
+    mImGuiInitialized = false;
 }
 
 void BackendManager::ImGuiNewFrame()
 {
-    if(!m_IsImguiInitialized)
+    if(!mImGuiInitialized)
         { return; }
-    s_Graphics->ImGuiNewFrame();
-    s_Windowing->ImGuiNewFrame();
+    s_pGraphics->ImGuiNewFrame();
+    s_pWindowing->ImGuiNewFrame();
     ImGui::NewFrame();
 #   pragma message("Find a better way of disabling mouse input for ImGui when the cursor is disabled")
-    if(s_Windowing->GetMouseMode() == MouseMode::Disabled)
+    if(s_pWindowing->GetMouseMode() == MouseMode::Disabled)
         { ImGui::GetIO().ClearInputMouse(); }
 }
 
 void BackendManager::ImGuiRender()
 {
-    if(!m_IsImguiInitialized)
+    if(!mImGuiInitialized)
         { return; }
     ImGui::Render();
-    s_Graphics->ImGuiRender();
+    s_pGraphics->ImGuiRender();
 }

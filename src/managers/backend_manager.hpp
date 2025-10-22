@@ -19,6 +19,7 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     bool InitImGui();
+    void ShutdownImGui();
     void ImGuiNewFrame();
     void ImGuiRender();
 
@@ -26,7 +27,7 @@ public:
     std::shared_ptr<WindowingBackend> Windowing();
 
 private:
-    bool m_IsImguiInitialized = false;
+    bool mImGuiInitialized{false};
 };
 
 extern BackendManager* g_pBackendManager;
