@@ -319,6 +319,16 @@ void imgui_Debugger::StopTheatreTiming(bool loading)
         { log.m_UnloadTime.Stop(); }
 }
 
+static void s_WindowInfo(const WindowInfo& info, const char* title)
+{
+    Text("%s\n\t\t- name: %s\n\t\t- position: [%d, %d]\n\t\t- size: [%d, %d]\n\t\t- framebuffer size: [%d, %d]",
+        title,
+        info.name.data(),
+        info.position.x, info.position.y,
+        info.size.width, info.size.height,
+        info.framebuffer_size.width, info.framebuffer_size.height);
+}
+
 static void s_GeneralDebuggingWindow()
 {
 #ifndef DEBUGGING
@@ -383,26 +393,23 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Window"))
     {
-        WindowInfo windowed{Settings::Window::WindowedInfo()};
-        WindowInfo fullscreen{Settings::Window::FullscreenInfo()};
-        Text("sWindowedInfo");
-        Text("\t- name: %s", windowed.name.data());
-        Text("\t- position: [%d, %d]", windowed.position.x, windowed.position.y);
-        Text("\t- size: [%d, %d]", windowed.size.width, windowed.size.height);
-        Text("\t- framebuffer size: [%d, %d]", windowed.framebuffer_size.width, windowed.framebuffer_size.height);
-        Text("\nsFullscreenInfo");
-        Text("\t- name: %s", fullscreen.name.data());
-        Text("\t- position: [%d, %d]", fullscreen.position.x, fullscreen.position.y);
-        Text("\t- size: [%d, %d]", fullscreen.size.width, fullscreen.size.height);
-        Text("\t- framebuffer size: [%d, %d]", fullscreen.framebuffer_size.width, fullscreen.framebuffer_size.height);
-        WindowInfo sInfo{Settings::Window::Info()};
-        bool sFullscreen{Settings::Window::Fullscreen()};
-        if(Checkbox("Fullscreen", &sFullscreen))
-            { Settings::Window::ToggleFullscreen(); sInfo = Settings::Window::Info(); }
-        if(DragInt2("Position", &sInfo.position.x, &sInfo.position.y))
-            { Settings::Window::setPosition(sInfo.position); }
-        if(DragInt2("Size", &sInfo.size.width, &sInfo.size.height))
-            { Settings::Window::setSize(sInfo.size); }
+        if(TreeNode("Window Info"))
+        {
+            s_WindowInfo(Settings::Window::WindowedInfo(), "sWindowedInfo");
+            s_WindowInfo(Settings::Window::FullscreenInfo(), "sFullscreenInfo");
+            TreePop();
+        }
+        bool fullscreen{Settings::Window::Fullscreen()};
+        if(Checkbox("Fullscreen", &fullscreen))
+            { Settings::Window::ToggleFullscreen(); }
+
+        auto position{Settings::Window::Position()};
+        if(DragInt2("Position", &position.x, &position.y))
+            { Settings::Window::setPosition(position); }
+
+        auto size{Settings::Window::Size()};
+        if(DragInt2("Size", &size.width, &size.height))
+            { Settings::Window::setSize(size); }
         NewLine();
     }
     if(CollapsingHeader("Player"))
