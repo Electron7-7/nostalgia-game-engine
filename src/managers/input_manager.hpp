@@ -11,6 +11,7 @@
 
 #include <glm/vec2.hpp>
 #include <string>
+#include <map>
 
 typedef SafeStatus (*InputEventCallbackFunction)(const InputEvent&);
 

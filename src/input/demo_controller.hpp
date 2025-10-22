@@ -1,7 +1,7 @@
 #ifndef DEMO_CONTROLLER_H
 #define DEMO_CONTROLLER_H
 
-#include "input/fwd.hpp"
+#include "fwd.hpp"
 #include "common/safe_return.hpp"
 
 #include <string>
