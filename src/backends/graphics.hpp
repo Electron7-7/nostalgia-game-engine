@@ -5,32 +5,29 @@
 #include "things/fwd.hpp"
 #include "filesystem/fwd.hpp"
 
-#include "common/ids.hpp"
 #include "backend.hpp"
 
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
 #include <vector>
 
 class GraphicsBackend : public _Backend
 {
 public:
-    // Inherited by _Backend
     virtual ~GraphicsBackend() = default;
     virtual bool Init() { return true; }
-    virtual void Shutdown() { m_IsInitialized = false; m_IsImGuiInitialized = false; }
-    virtual BackendID GetID() { return gBackendIDs::Invalid; }
+    virtual void Shutdown() {}
+    virtual const ID& GetID() const { return BackendIDs::Invalid; }
 
-    // Virtual functions (can be unimplemented)
-    virtual bool InitImGui() { return true; }
+    virtual bool InitImGui() { return false; }
+    virtual void ShutdownImGui() {}
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
-    // Pure virtual functions (*must* be implemented)
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
-    virtual void BufferMesh(const FileData& Data, ID) = 0;
-    virtual void BufferTexture(const FileData& Data, ID) = 0;
-    virtual void ClearBuffer(glm::vec4 ClearColor) = 0;
+    virtual void BufferMesh(const FileData& Data, const ID&) = 0;
+    virtual void BufferTexture(const FileData& Data, const ID&) = 0;
+    virtual void ClearBuffer(const glm::vec4& ClearColor) = 0;
     virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
     virtual bool BindShader(unsigned int ShaderSelection) = 0;
     virtual bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
@@ -39,8 +36,7 @@ public:
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
 
 protected:
-    bool m_IsImGuiInitialized = false;
-    static unsigned int s_CurrentlyBoundShader;
+    unsigned int mCurrentlyBoundShader{0};
 
     static bool CreateMeshData(std::vector<float>& VertexData, std::vector<unsigned int>& Indices, const FileData& FileData);
 };

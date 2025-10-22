@@ -1,14 +1,11 @@
 #include "graphics.hpp"
-#include "rendering/shader_interfaces/shader_interface.hpp"
 #include "rendering/vertex.hpp"
 #include "filesystem/file_data.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "TinyOBJLoader/tiny_obj_loader.h"
 
-unsigned int GraphicsBackend::s_CurrentlyBoundShader = Shaders::BlinnPhong;
-
-bool CreateOBJMesh(std::vector<float>&, std::vector<unsigned int>&, const FileData&);
+static bool s_CreateOBJMesh(std::vector<float>&, std::vector<unsigned int>&, const FileData&);
 
 bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
 {
@@ -18,7 +15,7 @@ bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<u
     switch(data.Type())
     {
     case FileType::model_OBJ:
-        return CreateOBJMesh(vertices, indices, data);
+        return s_CreateOBJMesh(vertices, indices, data);
         break;
     case FileType::Unknown:
     default:
@@ -29,7 +26,7 @@ bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<u
 }
 
 // Taken from GraphX
-bool CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
+static bool s_CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
 {
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
@@ -37,10 +34,7 @@ bool CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indi
     if(!reader.ParseFromString(data.String(), "", reader_config))
     {
         if(!reader.Error().empty())
-        {
-            print_error("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error());
-            return false;
-        }
+            { return print_error("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error()); }
     }
 
     if(!reader.Warning().empty())

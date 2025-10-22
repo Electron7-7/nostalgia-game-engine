@@ -6,20 +6,18 @@
 
 #include <map>
 
-typedef unsigned int OpenGL_TextureID;
-
 struct OpenGL_BufferData
 {
-    id_t id = 0;
-    std::vector<float> vertices = {};
-    std::vector<unsigned int> indices = {};
+    id_t id{0};
+    std::vector<float> vertices{};
+    std::vector<unsigned int> indices{};
 };
 
 struct OpenGL_MeshData
 {
-    unsigned int indices_count = 0;
-    unsigned int base_vertex   = 0;
-    unsigned int base_index    = 0;
+    uint indices_count{0};
+    uint base_vertex{0};
+    uint base_index{0};
 };
 
 class OpenGL_Backend : public GraphicsBackend
@@ -29,50 +27,50 @@ public:
 
     bool Init();
     void Shutdown();
-    BackendID GetID() final
-    { return gBackendIDs::gOpenGL; }
+    const ID& GetID() const final { return BackendIDs::gOpenGL; }
 
-    bool InitImGui();
-    void ImGuiNewFrame();
-    void ImGuiRender();
+    bool InitImGui() final;
+    void ShutdownImGui() final;
+    void ImGuiNewFrame() final;
+    void ImGuiRender() final;
 
-    void CreateRenderingData();
-    void DestroyRenderingData();
-    void BufferMesh(const FileData&, ID);
-    void BufferTexture(const FileData&, ID);
-    void ClearBuffer(glm::vec4);
-    const ShaderInterface* GetShader(unsigned int) const;
-    bool BuildShader(unsigned int, const char*, const char*);
-    bool BindShader(unsigned int);
-    bool DeleteShader(unsigned int);
-    void RenderSingleCommand(const RenderCommand&);
-    void BufferLight(light_t*, unsigned int);
+    void CreateRenderingData() final;
+    void DestroyRenderingData() final;
+    void BufferMesh(const FileData&, const ID&) final;
+    void BufferTexture(const FileData&, const ID&) final;
+    void ClearBuffer(const glm::vec4&) final;
+    const ShaderInterface* GetShader(unsigned int) const final;
+    bool BuildShader(unsigned int, const char*, const char*) final;
+    bool BindShader(unsigned int) final;
+    bool DeleteShader(unsigned int) final;
+    void RenderSingleCommand(const RenderCommand&) final;
+    void BufferLight(light_t*, unsigned int) final;
 
 private:
 #   define VAOS_AMOUNT 1
 #   define VAO_DEFAULT 0
 #   define VAO_DEFAULT_STRIDE 11
 
-    static std::array<unsigned int, VAOS_AMOUNT> mVAOs;
-    static std::map<unsigned int, GLShader> mShaders;
+    std::array<uint, VAOS_AMOUNT> mVAOs{};
+    std::map<uint, GLShader> mShaders{};
 
-    static std::map<ID, OpenGL_MeshData> mMeshData;
-    static std::map<ID, OpenGL_TextureID> mTextureIDs;
+    std::map<ID, OpenGL_MeshData> mMeshData{};
+    std::map<ID, uint> mTextureIDs{};
 
-    unsigned int GetTextureID(ID);
-    OpenGL_MeshData* GetMeshData(ID);
+    uint GetTextureID(const ID&);
+    OpenGL_MeshData* GetMeshData(const ID&);
 };
 
 #ifdef DEBUGGING
-    constexpr int Shader_ALL = 0;
-    constexpr int Shader_COLOR = 1;
-    constexpr int Shader_NORMAL = 2;
-    constexpr int Shader_UV = 3;
+    constexpr int Shader_ALL{0};
+    constexpr int Shader_COLOR{1};
+    constexpr int Shader_NORMAL{2};
+    constexpr int Shader_UV{3};
     extern int g_ShaderDebugOuptut;
-    inline bool g_EnableDebugMsgHigh = true;
-    inline bool g_EnableDebugMsgMedium = true;
-    inline bool g_EnableDebugMsgLow = true;
-    inline bool g_EnableDebugMsgNotif = false;
+    inline bool g_EnableDebugMsgHigh{true};
+    inline bool g_EnableDebugMsgMedium{true};
+    inline bool g_EnableDebugMsgLow{true};
+    inline bool g_EnableDebugMsgNotif{false};
 #endif // DEBUGGING
 
 #endif // OPENGL_BACKEND_H

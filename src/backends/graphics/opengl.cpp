@@ -1,35 +1,29 @@
 #include "opengl.hpp"
-#include "rendering/render_command.hpp"
-#include "settings/settings.hpp"
-#include "things/actors/light.hpp"
-#include "embedded/shaders.hpp" // IWYU pragma: keep
-#include "filesystem/file_data.hpp"
+#include "embedded/shaders.hpp" // IWYU pragma: keep // see the `clangd` target in the Makefile
 #include "managers/theatre_manager.hpp"
+#include "rendering/render_command.hpp"
+#include "filesystem/file_data.hpp"
+#include "things/actors/light.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
-#include "filesystem/file_data.hpp"
+#include "settings/settings.hpp"
 #include "common/printing.hpp"
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_impl_opengl3.h"
-#include "glad/glad.h"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_impl_opengl3.h"
+#include "thirdparty/glad/glad.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
+#include "thirdparty/stb_image/stb_image.h"
 
 #ifdef DEBUGGING
     int g_ShaderDebugOuptut = Shader_ALL;
     static void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);
 #endif
 
-std::array<unsigned int, VAOS_AMOUNT> OpenGL_Backend::mVAOs = {};
-std::map<unsigned int, GLShader>      OpenGL_Backend::mShaders = {};
-std::map<ID, OpenGL_MeshData>       OpenGL_Backend::mMeshData = {};
-std::map<ID, OpenGL_TextureID>      OpenGL_Backend::mTextureIDs = {};
+static std::vector<OpenGL_BufferData> sBufferData{};
+static uint sVBO{0};
+static uint sIBO{0};
 
-static std::vector<OpenGL_BufferData> s_BufferData = {};
-static unsigned int s_VBO = 0;
-static unsigned int s_IBO = 0;
-
-void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
+void OpenGL_Backend::ClearBuffer(const glm::vec4& clear_color)
 {
     glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -37,11 +31,8 @@ void OpenGL_Backend::ClearBuffer(glm::vec4 clear_color)
 
 bool OpenGL_Backend::Init()
 {
-    if(m_IsInitialized)
-        { return true; }
-
     print_debug("OpenGL_Backend::Init");
-    print_debug("OpenGL Version: {}", (char*)glGetString(GL_VERSION));
+    print_debug("OpenGL Version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
     glGenVertexArrays(VAOS_AMOUNT, mVAOs.data());
 
@@ -50,9 +41,7 @@ bool OpenGL_Backend::Init()
         BuildShader(Shaders::Fullbright, GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
 #endif
 
-    World::SetUp(glm::vec3(0.0f, 1.0f, 0.0f));
-    World::SetRight(glm::vec3(1.0f, 0.0f, 0.0f));
-    World::SetFront(glm::vec3(0.0f, 0.0f, -1.0f));
+    // Settings::World::UpdateOrientation();
 
 #ifdef DEBUGGING
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -60,23 +49,13 @@ bool OpenGL_Backend::Init()
         glEnable(GL_DEBUG_OUTPUT);
 #endif
     glEnable(GL_DEPTH_TEST);
-
-    m_IsInitialized = true;
     return true;
 }
 
 bool OpenGL_Backend::InitImGui()
 {
-    if(m_IsImGuiInitialized)
-        { return true; }
-
     if(!ImGui_ImplOpenGL3_Init())
-    {
-        print_error("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!");
-        return false;
-    }
-
-    m_IsImGuiInitialized = true;
+        { return print_error("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!"); }
     return true;
 }
 
@@ -86,22 +65,22 @@ void OpenGL_Backend::ImGuiNewFrame()
 void OpenGL_Backend::ImGuiRender()
 { ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
-void OpenGL_Backend::BufferMesh(const FileData& data, ID id)
+void OpenGL_Backend::BufferMesh(const FileData& data, const ID& id)
 {
-    OpenGL_BufferData temp_data;
+    OpenGL_BufferData temp_data{};
     if(GraphicsBackend::CreateMeshData(temp_data.vertices, temp_data.indices, data))
     {
         temp_data.id = id;
-        s_BufferData.push_back(temp_data);
+        sBufferData.push_back(temp_data);
     }
 }
 
-void OpenGL_Backend::BufferTexture(const FileData& data, ID texture_id)
+void OpenGL_Backend::BufferTexture(const FileData& data, const ID& texture_id)
 {
     #pragma message("TODO: Only flip images that need to be flipped")
     stbi_set_flip_vertically_on_load(true);
 
-    unsigned int id = 0;
+    uint id{0};
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
 
     int l_Width, l_Height, l_Channels;
@@ -131,32 +110,32 @@ void OpenGL_Backend::BufferTexture(const FileData& data, ID texture_id)
 void OpenGL_Backend::CreateRenderingData()
 {
     glBindVertexArray(mVAOs.at(VAO_DEFAULT));
-    glDeleteBuffers(1, &s_VBO);
-    glDeleteBuffers(1, &s_IBO);
-    glGenBuffers(1, &s_VBO);
-    glGenBuffers(1, &s_IBO);
-    glBindBuffer(GL_ARRAY_BUFFER, s_VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_IBO);
+    glDeleteBuffers(1, &sVBO);
+    glDeleteBuffers(1, &sIBO);
+    glGenBuffers(1, &sVBO);
+    glGenBuffers(1, &sIBO);
+    glBindBuffer(GL_ARRAY_BUFFER, sVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sIBO);
 
     std::vector<float> l_AllVertexData = {};
-    std::vector<unsigned int> l_AllIndices = {};
+    std::vector<uint> l_AllIndices = {};
 
-    for(const auto& data : s_BufferData)
+    for(const auto& data : sBufferData)
     {
         mMeshData[data.id] =
         {
-            static_cast<unsigned int>(data.indices.size()),
-            static_cast<unsigned int>(l_AllVertexData.size() / VAO_DEFAULT_STRIDE),
-            static_cast<unsigned int>(l_AllIndices.size())
+            static_cast<uint>(data.indices.size()),
+            static_cast<uint>(l_AllVertexData.size() / VAO_DEFAULT_STRIDE),
+            static_cast<uint>(l_AllIndices.size())
         };
         l_AllVertexData.insert(l_AllVertexData.end(), data.vertices.begin(), data.vertices.end());
         l_AllIndices.insert(l_AllIndices.end(), data.indices.begin(), data.indices.end());
     }
 
-    s_BufferData.clear();
+    sBufferData.clear();
 
     glBufferData(GL_ARRAY_BUFFER, l_AllVertexData.size() * sizeof(float), l_AllVertexData.data(), GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, l_AllIndices.size() * sizeof(unsigned int), l_AllIndices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, l_AllIndices.size() * sizeof(uint), l_AllIndices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(0));
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VAO_DEFAULT_STRIDE * sizeof(float), (void*)(3 * sizeof(float)));
@@ -175,17 +154,12 @@ void OpenGL_Backend::DestroyRenderingData()
 }
 
 void OpenGL_Backend::Shutdown()
-{
-    assert(m_IsInitialized);
+{}
 
-    if(m_IsImGuiInitialized)
-        { ImGui_ImplOpenGL3_Shutdown(); }
+void OpenGL_Backend::ShutdownImGui()
+{ ImGui_ImplOpenGL3_Shutdown(); }
 
-    m_IsInitialized = false;
-    m_IsImGuiInitialized = false;
-}
-
-bool OpenGL_Backend::BuildShader(unsigned int shader, const char* vertex_shader_code, const char* fragment_shader_code)
+bool OpenGL_Backend::BuildShader(uint shader, const char* vertex_shader_code, const char* fragment_shader_code)
 {
     if(mShaders.contains(shader))
         { glDeleteShader(mShaders.at(shader).ID()); }
@@ -195,7 +169,7 @@ bool OpenGL_Backend::BuildShader(unsigned int shader, const char* vertex_shader_
     return mShaders.at(shader).CompileShader(vertex_shader, fragment_shader);
 }
 
-bool OpenGL_Backend::BindShader(unsigned int shader)
+bool OpenGL_Backend::BindShader(uint shader)
 {
     if(!mShaders.contains(shader))
     {
@@ -203,11 +177,11 @@ bool OpenGL_Backend::BindShader(unsigned int shader)
         return false;
     }
     glUseProgram(mShaders.at(shader).ID());
-    s_CurrentlyBoundShader = shader;
+    mCurrentlyBoundShader = shader;
     return true;
 }
 
-bool OpenGL_Backend::DeleteShader(unsigned int shader)
+bool OpenGL_Backend::DeleteShader(uint shader)
 {
     if(!mShaders.contains(shader) || shader == Shaders::BlinnPhong)
         { return false; }
@@ -217,7 +191,7 @@ bool OpenGL_Backend::DeleteShader(unsigned int shader)
     return true;
 }
 
-const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) const
+const ShaderInterface* OpenGL_Backend::GetShader(uint shader_selection) const
 {
     if(!mShaders.contains(shader_selection))
     {
@@ -227,7 +201,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(unsigned int shader_selection) 
     return &mShaders.at(shader_selection);
 }
 
-void OpenGL_Backend::BufferLight(light_t* light, unsigned int shader)
+void OpenGL_Backend::BufferLight(light_t* light, uint shader)
 {
     #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
     std::string l_Light = std::format("_lights[{}].", light->Index());
@@ -297,20 +271,20 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 
     OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
 
-    glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(unsigned int) * data->base_index), data->base_vertex);
+    glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(uint) * data->base_index), data->base_vertex);
 
     glDisable(GL_FRAMEBUFFER_SRGB);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-unsigned int OpenGL_Backend::GetTextureID(ID id)
+uint OpenGL_Backend::GetTextureID(const ID& id)
 {
     if(!mTextureIDs.contains(id))
         { return mTextureIDs.at(UniqueIDs::Reserved::i_Missing); }
     return mTextureIDs.at(id);
 }
 
-OpenGL_MeshData* OpenGL_Backend::GetMeshData(ID id)
+OpenGL_MeshData* OpenGL_Backend::GetMeshData(const ID& id)
 {
     if(!mMeshData.contains(id))
         { return &mMeshData.at(UniqueIDs::Reserved::m_Error); }
