@@ -3,13 +3,11 @@
 
 #include "embedded/names.hpp"
 #include "frozen/set.h"
+#include "frozen/map.h"
 #include "common/hash.hpp"
 
 #include <string>
 #include <format>
-#include <map>
-
-typedef unsigned int id_t;
 
 struct ID
 {
@@ -19,14 +17,16 @@ public:
     constexpr ID(id_t id):
         id_{id}, name_{""} {}
 
-    explicit constexpr ID(const std::string& from_name):
-        id_{ConstexprHash(from_name.data())}, name_{from_name} {}
+    constexpr ID(const std::string& name):
+        id_{ConstexprHash(name.data())}, name_{name} {}
 
     constexpr operator const id_t&() const
     { return id_; }
 
     constexpr const std::string& name() const
     { return name_; }
+    constexpr const char* c_name() const
+    { return name_.data(); }
 
     constexpr bool invalid() const
     { return id_ == ID::Invalid; }
@@ -37,7 +37,7 @@ public:
 
 private:
     id_t id_{ID::Invalid};
-    std::string name_{"ID::Invalid"};
+    std::string name_{""};
 };
 
 template<>
@@ -47,22 +47,17 @@ struct std::formatter<ID> : std::formatter<id_t>
     { return std::formatter<id_t>::format(static_cast<id_t>(id), ctx); }
 };
 
-template<typename T>
-concept CanBeID = requires{
-    (std::is_same_v<T,id_t> || std::is_same_v<T,ID>) &&
-    (std::is_same_v<T,const char*> || std::is_same_v<T,std::string>);
-};
-
 namespace UniqueIDs
 {
-    extern ID Generate();
+    extern id_t Generate();
     extern bool PopLast();
-    extern bool Contains(ID UID);
-    extern bool IsReserved(ID UID);
-    extern bool GetReservedIDName(ID UID, std::string& Output);
-    extern bool Erase(ID UID);
-    extern bool Push(ID UID);
+    extern bool Contains(const ID&);
+    extern bool Erase(const ID&);
+    extern bool Push(const ID&);
     extern void Clear();
+    extern bool IsReserved(const ID&);
+    extern bool GetReservedID(const std::string& inName, ID& outUID);
+    extern bool GetReservedName(const ID& inUID, std::string& outName);
 
     // Reserved UIDs
     namespace Reserved
@@ -85,19 +80,19 @@ namespace UniqueIDs
         constexpr ID front = Player;
         constexpr ID back  = f_Audiowide;
 
-        const std::map<std::string, ID>
-        ResourceNameToUIDMap =
+        constexpr frozen::map<ID, std::string, 10>
+        EmbeddedResourceNames =
         {
-            { Images::Name::Missing,    i_Missing    },
-            { Images::Name::LightDebug, i_LightDebug },
-            { Images::Name::COMP04_5,   i_COMP04_5   },
-            { Images::Name::LolBit,     i_LolBit     },
-            { Models::Name::Error,      m_Error      },
-            { Models::Name::Cube,       m_Cube       },
-            { Models::Name::Ramiel,     m_Ramiel     },
-            { Fonts::Name::Audiowide,   f_Audiowide  },
-            { Fonts::Name::DejaVuSans,  f_DejaVuSans },
-            { Fonts::Name::Verdana,     f_Verdana    },
+            {     i_Missing, Images::Name::Missing    },
+            {  i_LightDebug, Images::Name::LightDebug },
+            {    i_COMP04_5, Images::Name::COMP04_5   },
+            {      i_LolBit, Images::Name::LolBit     },
+            {       m_Error, Models::Name::Error      },
+            {        m_Cube, Models::Name::Cube       },
+            {      m_Ramiel, Models::Name::Ramiel     },
+            {   f_Audiowide, Fonts::Name::Audiowide   },
+            {  f_DejaVuSans, Fonts::Name::DejaVuSans  },
+            {     f_Verdana, Fonts::Name::Verdana     },
         };
     };
 
@@ -181,24 +176,21 @@ namespace BindingIDs
         MouseLEFT, MouseRIGHT, MouseMIDDLE,
     };
 
-    template<CanBeID T>
-    constexpr bool IsKey(T binding)
-    { return KeyIDs.contains(ID{binding}); }
+    constexpr bool IsKey(const ID& BindingID)
+    { return KeyIDs.contains(BindingID); }
 
-    template<CanBeID T>
-    constexpr bool IsMouseButton(T binding)
-    { return MouseButtonIDs.contains(ID{binding}); }
+    constexpr bool IsMouseButton(const ID& BindingID)
+    { return MouseButtonIDs.contains(BindingID); }
 
-    template<CanBeID T>
-    constexpr bool IsBinding(T binding)
-    { return IsKey(binding) || IsMouseButton(binding); }
+    constexpr bool IsBinding(const ID& BindingID)
+    { return IsKey(BindingID) || IsMouseButton(BindingID); }
 
-    constexpr void GetAllBindingIDs(std::vector<ID>& output)
+    constexpr void GetAllBindingIDs(std::vector<ID>& outVector)
     {
-        output.reserve(KeyIDsCount + MouseButtonIDsCount);
+        outVector.reserve(KeyIDsCount + MouseButtonIDsCount);
         std::merge(BindingIDs::KeyIDs.cbegin(), BindingIDs::KeyIDs.cend(),
             BindingIDs::MouseButtonIDs.cbegin(), BindingIDs::MouseButtonIDs.cend(),
-            std::inserter(output, output.begin()));
+            std::inserter(outVector, outVector.begin()));
     }
 };
 

@@ -10,43 +10,45 @@ static std::uniform_int_distribution<id_t> sIdDistribution{UniqueIDs::front, Uni
 static std::set<ID> sExistingIDs{};
 static constexpr unsigned int cMaxUniqueIDs{UniqueIDs::back - UniqueIDs::Reserved::back}; // Probably one less than the real max but it shouldn't matter
 
-ID UniqueIDs::Generate()
+id_t UniqueIDs::Generate()
 {
     if(sExistingIDs.size() == cMaxUniqueIDs)
     {
         print_warning("UniqueIDs::Generate - Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUniqueIDs);
         sExistingIDs.clear();
     }
-    ID new_id = UniqueIDs::front;
+    id_t new_id{UniqueIDs::front};
     sIdEngine.seed(sRandomSeed());
-    do { new_id = sIdDistribution(sIdEngine); } while ( sExistingIDs.contains(new_id) );
-    sExistingIDs.insert(new_id);
+    do { new_id = sIdDistribution(sIdEngine); } while ( !sExistingIDs.insert(new_id).second );
     return new_id;
 }
 
 void UniqueIDs::Clear()
 { sExistingIDs.clear(); }
 
-bool UniqueIDs::Push(ID id)
-{
-    if(Contains(id))
-        { return false; }
-    sExistingIDs.insert(id);
-    return true;
-}
+bool UniqueIDs::Push(const ID& id)
+{ return sExistingIDs.insert(id).second; }
 
-bool UniqueIDs::Erase(ID id)
+bool UniqueIDs::Erase(const ID& id)
 { return (sExistingIDs.erase(id) != 0); }
 
-bool UniqueIDs::Contains(ID id)
+bool UniqueIDs::Contains(const ID& id)
 { return sExistingIDs.contains(id); }
 
-bool UniqueIDs::IsReserved(ID id)
-{ return (id < front); }
+bool UniqueIDs::IsReserved(const ID& id)
+{ return id < front; }
 
-bool UniqueIDs::GetReservedIDName(ID id, std::string& output)
+bool UniqueIDs::GetReservedID(const std::string& in_name, ID& out)
 {
-    for(const auto& [name, r_id] : Reserved::ResourceNameToUIDMap)
-        { if(r_id == id) { output = name; return true; } }
+    for(auto [uid, name] : Reserved::EmbeddedResourceNames)
+        { if(!name.compare(in_name)) { out = uid; return true; } }
     return false;
+}
+
+bool UniqueIDs::GetReservedName(const ID& in, std::string& out)
+{
+    if(!Reserved::EmbeddedResourceNames.contains(in))
+        { return false; }
+    out = Reserved::EmbeddedResourceNames.at(in);
+    return true;
 }

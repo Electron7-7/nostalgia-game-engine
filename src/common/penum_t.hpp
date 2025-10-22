@@ -7,8 +7,8 @@ struct penum_t
 {
     constexpr penum_t() = default;
     constexpr penum_t(ushort id, const char* name):
-        id_(id),
-        name_(name) {}
+        id_{id},
+        name_{name} {}
 
     constexpr ushort id() const { return id_; }
     constexpr const char* name()  const { return name_; }

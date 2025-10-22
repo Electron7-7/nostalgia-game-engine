@@ -12,101 +12,107 @@ namespace
 struct SafeStatus
 {
 public:
-    SafeStatus()
-    : m_Status(NO_ERR_STATUS), m_Printout("NO_ERR")
-    {}
+    constexpr SafeStatus(const __statusId_t Status, const char* Printout):
+        mStatus(Status), mPrintout(Printout) {}
 
-    SafeStatus(const SafeStatus& CopyFrom)
-    : m_Status(CopyFrom.m_Status), m_Printout(CopyFrom.m_Printout)
-    {}
+    constexpr __statusId_t Status()  const { return mStatus;   }
+    constexpr const char* Printout() const { return mPrintout; }
 
-    const __statusId_t Status() const { return m_Status; }
-    const char* Printout() const { return m_Printout; }
-
-    constexpr bool operator==(const SafeStatus& CompareTo) const { return (m_Status == CompareTo.m_Status); }
-    constexpr bool operator!=(const SafeStatus& CompareTo) const { return (m_Status != CompareTo.m_Status); }
-    constexpr bool operator< (const SafeStatus& CompareTo) const { return (m_Status <  CompareTo.m_Status); }
-    constexpr bool operator> (const SafeStatus& CompareTo) const { return (m_Status >  CompareTo.m_Status); }
-    constexpr bool operator<=(const SafeStatus& CompareTo) const { return (m_Status <= CompareTo.m_Status); }
-    constexpr bool operator>=(const SafeStatus& CompareTo) const { return (m_Status >= CompareTo.m_Status); }
+    constexpr bool operator==(const SafeStatus& CompareTo) const { return (mStatus == CompareTo.mStatus); }
+    constexpr bool operator!=(const SafeStatus& CompareTo) const { return (mStatus != CompareTo.mStatus); }
+    constexpr bool operator< (const SafeStatus& CompareTo) const { return (mStatus <  CompareTo.mStatus); }
+    constexpr bool operator> (const SafeStatus& CompareTo) const { return (mStatus >  CompareTo.mStatus); }
+    constexpr bool operator<=(const SafeStatus& CompareTo) const { return (mStatus <= CompareTo.mStatus); }
+    constexpr bool operator>=(const SafeStatus& CompareTo) const { return (mStatus >= CompareTo.mStatus); }
 
     constexpr operator bool() const
-    { return m_Status == NO_ERR_STATUS; }
+    { return mStatus == NO_ERR_STATUS; }
 
-    static constexpr bool Check(const SafeStatus& Status) { return(Status.Status() == NO_ERR_STATUS); }
-
-    static constexpr bool PrintCheck(const SafeStatus& Status, const char* Prefix = "SafeStatus::PrintCheck")
+    bool PrintCheck(const char* Prefix = "SafeStatus::PrintCheck") const
     {
-        if(Status.Status() != NO_ERR_STATUS)
-        {
-            print_error("{} returned '{}'", Prefix, Status.Printout());
-            return false;
-        }
-        return true;
+        return (*this)
+            ? true
+            : print_error("{} returned '{}'", Prefix, Printout());
     }
 
 private:
-    __statusId_t m_Status = NO_ERR_STATUS;
-    const char* m_Printout  = "NO_ERR";
-
-    friend struct Status;
-    constexpr SafeStatus(const __statusId_t Status, const char* Printout)
-    : m_Status(Status), m_Printout(Printout)
-    {}
+    __statusId_t mStatus{NO_ERR_STATUS};
+    const char* mPrintout{"NO_ERR"};
 };
 
-struct Status
+namespace Status
 {
-    inline static SafeStatus NO_ERR;
-    inline static SafeStatus ERROR_GENERIC                          = SafeStatus( 0x01, "ERROR_GENERIC"                          );
-    inline static SafeStatus ERROR_ALREADY_ACTIVE                   = SafeStatus( 0x02, "ERROR_ALREADY_ACTIVE"                   );
-    inline static SafeStatus ERROR_INVALID_ID                       = SafeStatus( 0x03, "ERROR_INVALID_ID"                       );
-    inline static SafeStatus ERROR_INVALID_TYPE                     = SafeStatus( 0x04, "ERROR_INVALID_TYPE"                     );
-    inline static SafeStatus ERROR_EXCEPTION_CAUGHT                 = SafeStatus( 0x05, "ERROR_EXCEPTION_CAUGHT"                 );
-    inline static SafeStatus ERROR_FILE_READ_ERROR                  = SafeStatus( 0x06, "ERROR_FILE_READ_ERROR"                  );
-    inline static SafeStatus WindowingBackendWINDOW_CREATION_FAILED = SafeStatus( 0x07, "WindowingBackendWINDOW_CREATION_FAILED" );
-    inline static SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   = SafeStatus( 0x08, "WindowingBackendGRAPHICS_INIT_FAILED"   );
-    inline static SafeStatus InputManagerKEY_NOT_FOUND              = SafeStatus( 0x09, "InputManagerKEY_NOT_FOUND"              );
-    inline static SafeStatus InputManagerKEY_IS_LOCKED              = SafeStatus( 0x0A, "InputManagerKEY_IS_LOCKED"              );
-    inline static SafeStatus CommandLineINVALID_COMMAND             = SafeStatus( 0x0B, "CommandLineINVALID_COMMAND"             );
-    inline static SafeStatus KeyBindsKEY_HAS_NO_BINDS               = SafeStatus( 0x0C, "KeyBindsKEY_HAS_NO_BINDS"               );
-    inline static SafeStatus SettingsINVALID_SETTING_NAME           = SafeStatus( 0x0D, "SettingsINVALID_SETTING_NAME"           );
-    inline static SafeStatus DataTypeINVALID_VARIABLE_NAME          = SafeStatus( 0x0E, "DataTypeINVALID_VARIABLE_NAME"          );
-    inline static SafeStatus DataTypeEMPTY_VARIABLE                 = SafeStatus( 0x0F, "DataTypeEMPTY_VARIABLE"                 );
-    inline static SafeStatus TheatreDataINVALID_TYPE                = SafeStatus( 0x10, "TheatreDataINVALID_TYPE"                );
-    inline static SafeStatus ResourceUNKNOWN_FILETYPE               = SafeStatus( 0x11, "ResourceUNKNOWN_FILETYPE"               );
-    inline static SafeStatus FileDataNO_DATA_OR_FILE                = SafeStatus( 0x12, "FileDataNO_DATA_OR_FILE"                );
-    inline static SafeStatus FileDataFAILED_TO_PROCESS_FILE         = SafeStatus( 0x13, "FileDataFAILED_TO_PROCESS_FILE"         );
-    inline static SafeStatus FileSystemINVALID_PATH                 = SafeStatus( 0x14, "FileSystemINVALID_PATH"                 );
-    inline static SafeStatus FileSystemFAILED_TO_WRITE_FILE         = SafeStatus( 0x15, "FileSystemFAILED_TO_WRITE_FILE"         );
-    inline static SafeStatus ResourceBAD_FILE_DATA                  = SafeStatus( 0x16, "ResourceBAD_FILE_DATA"                  );
-    inline static SafeStatus FileDataDATA_IS_LOCKED                 = SafeStatus( 0x17, "FileDataDATA_IS_LOCKED"                 );
-    inline static SafeStatus EventQueueINVALID_EVENT                = SafeStatus( 0x18, "EventQueueINVALID_EVENT"                );
-    inline static SafeStatus ThingDataINVALID_VARIABLE_NAME         = SafeStatus( 0x19, "ThingDataINVALID_VARIABLE_NAME"         );
-    inline static SafeStatus ThingDataINVALID_VARIABLE_TYPE         = SafeStatus( 0x20, "ThingDataINVALID_VARIABLE_TYPE"         );
-    inline static SafeStatus ThingDataVARIABLE_VALUE_EMPTY          = SafeStatus( 0x21, "ThingDataVARIABLE_VALUE_EMPTY"          );
-    inline static SafeStatus DemoControllerLINE_FAILED              = SafeStatus( 0x22, "DemoControllerLINE_FAILED"              );
-    inline static SafeStatus DemoControllerLINE_PARSED              = SafeStatus( 0x23, "DemoControllerLINE_PARSED"              );
-};
+    constexpr SafeStatus NO_ERR                                 { 0x00, "NO_ERR"                                 };
+    constexpr SafeStatus ERROR_GENERIC                          { 0x01, "ERROR_GENERIC"                          };
+    constexpr SafeStatus ERROR_ALREADY_ACTIVE                   { 0x02, "ERROR_ALREADY_ACTIVE"                   };
+    constexpr SafeStatus ERROR_INVALID_ID                       { 0x03, "ERROR_INVALID_ID"                       };
+    constexpr SafeStatus ERROR_INVALID_TYPE                     { 0x04, "ERROR_INVALID_TYPE"                     };
+    constexpr SafeStatus ERROR_EXCEPTION_CAUGHT                 { 0x05, "ERROR_EXCEPTION_CAUGHT"                 };
+    constexpr SafeStatus ERROR_FILE_READ_ERROR                  { 0x06, "ERROR_FILE_READ_ERROR"                  };
+    constexpr SafeStatus WindowingBackendWINDOW_CREATION_FAILED { 0x07, "WindowingBackendWINDOW_CREATION_FAILED" };
+    constexpr SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   { 0x08, "WindowingBackendGRAPHICS_INIT_FAILED"   };
+    constexpr SafeStatus InputManagerKEY_NOT_FOUND              { 0x09, "InputManagerKEY_NOT_FOUND"              };
+    constexpr SafeStatus InputManagerKEY_IS_LOCKED              { 0x0A, "InputManagerKEY_IS_LOCKED"              };
+    constexpr SafeStatus CommandLineINVALID_COMMAND             { 0x0B, "CommandLineINVALID_COMMAND"             };
+    constexpr SafeStatus KeyBindsKEY_HAS_NO_BINDS               { 0x0C, "KeyBindsKEY_HAS_NO_BINDS"               };
+    constexpr SafeStatus SettingsINVALID_SETTING_NAME           { 0x0D, "SettingsINVALID_SETTING_NAME"           };
+    constexpr SafeStatus DataTypeINVALID_VARIABLE_NAME          { 0x0E, "DataTypeINVALID_VARIABLE_NAME"          };
+    constexpr SafeStatus DataTypeEMPTY_VARIABLE                 { 0x0F, "DataTypeEMPTY_VARIABLE"                 };
+    constexpr SafeStatus TheatreDataINVALID_TYPE                { 0x10, "TheatreDataINVALID_TYPE"                };
+    constexpr SafeStatus ResourceUNKNOWN_FILETYPE               { 0x11, "ResourceUNKNOWN_FILETYPE"               };
+    constexpr SafeStatus FileDataNO_DATA_OR_FILE                { 0x12, "FileDataNO_DATA_OR_FILE"                };
+    constexpr SafeStatus FileDataFAILED_TO_PROCESS_FILE         { 0x13, "FileDataFAILED_TO_PROCESS_FILE"         };
+    constexpr SafeStatus FileSystemINVALID_PATH                 { 0x14, "FileSystemINVALID_PATH"                 };
+    constexpr SafeStatus FileSystemFAILED_TO_WRITE_FILE         { 0x15, "FileSystemFAILED_TO_WRITE_FILE"         };
+    constexpr SafeStatus ResourceBAD_FILE_DATA                  { 0x16, "ResourceBAD_FILE_DATA"                  };
+    constexpr SafeStatus FileDataDATA_IS_LOCKED                 { 0x17, "FileDataDATA_IS_LOCKED"                 };
+    constexpr SafeStatus EventQueueINVALID_EVENT                { 0x18, "EventQueueINVALID_EVENT"                };
+    constexpr SafeStatus ThingDataINVALID_VARIABLE_NAME         { 0x19, "ThingDataINVALID_VARIABLE_NAME"         };
+    constexpr SafeStatus ThingDataINVALID_VARIABLE_TYPE         { 0x20, "ThingDataINVALID_VARIABLE_TYPE"         };
+    constexpr SafeStatus ThingDataVARIABLE_VALUE_EMPTY          { 0x21, "ThingDataVARIABLE_VALUE_EMPTY"          };
+    constexpr SafeStatus DemoControllerLINE_FAILED              { 0x22, "DemoControllerLINE_FAILED"              };
+    constexpr SafeStatus DemoControllerLINE_PARSED              { 0x23, "DemoControllerLINE_PARSED"              };
+}
 
 template<typename T>
 struct SafeReturn
 {
 public:
-    SafeReturn(T Data, SafeStatus ReturnStatus = Status::NO_ERR)
-    : m_Data(Data), m_Status(ReturnStatus)
-    {}
+    SafeReturn(const T& Data, SafeStatus ReturnStatus = Status::NO_ERR):
+        mData{Data},
+        mStatus{ReturnStatus} {}
 
-    SafeReturn(const SafeReturn& Copy)
-    : m_Data(Copy.m_Data), m_Status(Copy.m_Status)
-    {}
+    constexpr T& Data() { return mData; }
+    constexpr const SafeStatus& Status() const { return mStatus; }
 
-    const T& Data() const { return m_Data; }
-    SafeStatus Status() const { return m_Status; }
+    bool Check() const
+    { return mStatus; }
+
+    bool PrintCheck(const char* Prefix = "SafeReturn::PrintCheck") const
+    { return mStatus.PrintCheck(Prefix); }
 
 private:
-    T m_Data;
-    SafeStatus m_Status = Status::NO_ERR;
+    T mData{};
+    SafeStatus mStatus{Status::NO_ERR};
+};
+
+template<typename T>
+struct SafePointer
+{
+public:
+    constexpr SafePointer(T* DataPtr, SafeStatus ReturnStatus = Status::NO_ERR):
+        m_pData{DataPtr},
+        mStatus{ReturnStatus} {}
+
+    constexpr SafePointer(T& NonLocalData, SafeStatus ReturnStatus = Status::NO_ERR):
+        SafePointer(&NonLocalData, ReturnStatus) {}
+
+    constexpr T& Data() { return *m_pData; }
+    constexpr const SafeStatus& Status() const { return mStatus; }
+
+private:
+    T const* m_pData{nullptr};
+    SafeStatus mStatus{Status::NO_ERR};
 };
 
 #endif // SAFE_RETURN_H
