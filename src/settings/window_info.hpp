@@ -10,6 +10,11 @@ struct scale_t
     int width{0};
     int height{0};
     constexpr float AspectRatio() const { return static_cast<float>(width) / height; }
+
+    constexpr bool operator==(const scale_t& other) const
+    { return width == other.width && height == other.height; }
+    constexpr bool operator!=(const scale_t& other) const
+    { return !(*this == other); }
 };
 
 struct position_t
@@ -26,6 +31,11 @@ struct position_t
     int x{0};
     int y{0};
     Origin origin{TopLeft};
+
+    constexpr bool operator==(const position_t& other) const
+    { return x == other.x && y == other.y; }
+    constexpr bool operator!=(const position_t& other) const
+    { return !(*this == other); }
 };
 
 struct WindowInfo
@@ -35,6 +45,16 @@ struct WindowInfo
     position_t position{};
     scale_t size{};
     scale_t framebuffer_size{};
+
+    constexpr bool operator==(const WindowInfo& other) const
+    {
+        return name == other.name &&
+               position == other.position &&
+               size == other.size &&
+               framebuffer_size == other.framebuffer_size;
+    }
+    constexpr bool operator!=(const WindowInfo& other) const
+    { return !(*this == other); }
 };
 
 #endif // SETTINGS_RETURN_TYPES_H
