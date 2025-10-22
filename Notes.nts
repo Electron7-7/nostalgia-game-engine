@@ -678,3 +678,5 @@ I want to also create some documentation and releases for GitHub.
 
 [10/22/25]
 Well, I didn't do that second thing but I did majorly overhaul/clean up lots of older code and just now overhauled `Settings::Window` and the windowing backend so they now interface with eachother much more nicely (and `Settings::Window` is now used to directly update the window state).
+
+I really worked on making the settings nice and foolproof and finally fixed that fucking viewport issue. Honestly, the engine is really starting to shape up nicely! I might even work on the editor...
