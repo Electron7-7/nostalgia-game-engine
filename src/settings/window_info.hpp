@@ -41,7 +41,6 @@ struct position_t
 struct WindowInfo
 {
     std::string name{""};
-    bool fullscreen{false};
     position_t position{};
     scale_t size{};
     scale_t framebuffer_size{};

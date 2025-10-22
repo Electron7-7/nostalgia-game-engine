@@ -12,11 +12,6 @@
 
 using namespace Settings;
 
-// GLFW callback functions
-static void s_WindowPositionCallbackFunction(GLFWwindow*, int, int);
-static void s_WindowSizeCallbackFunction(GLFWwindow*, int, int);
-static void s_FrameBufferSizeCallbackFunction(GLFWwindow*, int, int);
-
 bool GLFW_Backend::Init()
 {
     print_debug("GLFW_Backend::Init");
@@ -61,11 +56,11 @@ SafeStatus GLFW_Backend::CreateMainWindow()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWmonitor* is_fullscreen = (Window::Fullscreen())
-        ? nullptr
-        : glfwGetPrimaryMonitor();
+    GLFWmonitor* monitor = (Window::Fullscreen())
+        ? glfwGetPrimaryMonitor()
+        : nullptr;
 
-    mMainWindow = glfwCreateWindow(Window::Size().width, Window::Size().height, Window::c_Name(), is_fullscreen, nullptr);
+    mMainWindow = glfwCreateWindow(Window::Size().width, Window::Size().height, Window::c_Name(), monitor, nullptr);
 
     if(!mMainWindow)
         { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
@@ -87,9 +82,9 @@ SafeStatus GLFW_Backend::CreateMainWindow()
         glfwSetWindowPos(mMainWindow, window_position_x, window_position_y);
     }
 
-    glfwSetWindowPosCallback(mMainWindow, s_WindowPositionCallbackFunction);
-    glfwSetWindowSizeCallback(mMainWindow, s_WindowSizeCallbackFunction);
-    glfwSetFramebufferSizeCallback(mMainWindow, s_FrameBufferSizeCallbackFunction);
+    glfwSetWindowPosCallback(mMainWindow, GLFW_Backend::m_sWindowPositionCallbackFunction);
+    glfwSetWindowSizeCallback(mMainWindow, GLFW_Backend::m_sWindowSizeCallbackFunction);
+    glfwSetFramebufferSizeCallback(mMainWindow, GLFW_Backend::m_sFrameBufferSizeCallbackFunction);
 
     mLastFullscreenedMonitor = glfwGetPrimaryMonitor();
     return Status::NO_ERR;
@@ -170,17 +165,16 @@ void GLFW_Backend::PollEvents()
 
 void GLFW_Backend::UpdateState()
 {
-    // if fullscreen status hasn't changed...
-    if(static_cast<bool>(glfwGetWindowMonitor(mMainWindow)) == Window::Fullscreen())
-    {
+    glfwSetWindowTitle(mMainWindow, Window::c_Name());
+    if((glfwGetWindowMonitor(mMainWindow) != nullptr) == Window::Fullscreen())
+    { // Fullscreen status hasn't changed
         glfwSetWindowPos(mMainWindow, Window::Position().x, Window::Position().y);
         glfwSetWindowSize(mMainWindow, Window::Size().width, Window::Size().height);
-        glfwSetWindowTitle(mMainWindow, Window::c_Name());
+        glViewport(0, 0, Window::FramebufferSize().width, Window::FramebufferSize().height);
         return;
     }
-    auto monitor = (Window::Fullscreen()) ? mLastFullscreenedMonitor : nullptr;
     glfwSetWindowMonitor(mMainWindow,
-        monitor,
+        (Window::Fullscreen()) ? mLastFullscreenedMonitor : nullptr,
         Window::Position().x,
         Window::Position().y,
         Window::Size().width,
@@ -188,11 +182,11 @@ void GLFW_Backend::UpdateState()
         GLFW_DONT_CARE);
 }
 
-void s_WindowPositionCallbackFunction(GLFWwindow* window, int x, int y)
-{ Window::setPosition({x, y}); }
+void GLFW_Backend::m_sWindowPositionCallbackFunction(GLFWwindow* window, int x, int y)
+{ s_vInfo().position = {x, y}; }
 
-void s_WindowSizeCallbackFunction(GLFWwindow* window, int width, int height)
-{ Window::setSize({width, height}); }
+void GLFW_Backend::m_sWindowSizeCallbackFunction(GLFWwindow* window, int width, int height)
+{ s_vInfo().size = {width, height}; }
 
-void s_FrameBufferSizeCallbackFunction(GLFWwindow* window, int width, int height)
-{ Window::setFramebufferSize({width, height}); }
+void GLFW_Backend::m_sFrameBufferSizeCallbackFunction(GLFWwindow* window, int width, int height)
+{ s_vInfo().framebuffer_size = {width, height}; glViewport(0, 0, width, height); }

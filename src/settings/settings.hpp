@@ -28,13 +28,18 @@ namespace Settings
     namespace Window
     {
         const WindowInfo& Info();
+        const WindowInfo& WindowedInfo();
+        const WindowInfo& FullscreenInfo();
         const std::string& Name();
         const char* c_Name();
         bool Fullscreen();
         const position_t& Position();
         const scale_t& Size();
         const scale_t& FramebufferSize();
-        void setInfo(const WindowInfo&);
+        void setAllInfo(const WindowInfo&);
+        void setCurrentInfo(const WindowInfo&);
+        void setWindowedInfo(const WindowInfo&);
+        void setFullscreenInfo(const WindowInfo&);
         void setName(const std::string&);
         void setFullscreen(bool);
         // Returns the fullscreen status

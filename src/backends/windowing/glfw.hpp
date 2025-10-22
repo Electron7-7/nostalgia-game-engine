@@ -40,6 +40,11 @@ private:
     // -1 because GLFW doesn't have an ID for the `fn` key
     static constinit const frozen::map<ID, id_t, BindingIDs::KeyIDsCount + BindingIDs::MouseButtonIDsCount - 1>
         m_sInputIdToGlfw;
+
+    // GLFW callback functions
+    static void m_sWindowPositionCallbackFunction(GLFWwindow*, int, int);
+    static void m_sWindowSizeCallbackFunction(GLFWwindow*, int, int);
+    static void m_sFrameBufferSizeCallbackFunction(GLFWwindow*, int, int);
 };
 
 #endif // GLFW_BACKEND_H

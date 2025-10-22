@@ -4,6 +4,7 @@
 #include "input/fwd.hpp"
 
 #include "backend.hpp"
+#include "settings/window_info.hpp"
 #include "common/safe_return.hpp"
 #include "common/ids.hpp"
 
@@ -29,10 +30,10 @@ public:
     virtual void ShutdownImGui() {}
     virtual void ImGuiNewFrame() {}
 
+    virtual void UpdateState() = 0;
     virtual SafeStatus CreateMainWindow() = 0;
     virtual void ToggleRawMouseMotion() = 0;
     virtual MouseMode ToggleMouseMode(MouseMode Secondary, MouseMode Primary = MouseMode::Normal) = 0;
-    virtual void UpdateState() = 0;
     virtual void SetRawMouseMotion(bool RawMotionOn) = 0;
     virtual bool SetMouseMode(MouseMode) = 0;
     virtual MouseMode GetMouseMode() = 0;
@@ -47,6 +48,8 @@ public:
 protected:
     std::set<id_t> mCompatibleGraphicsBackends{};
     MouseMode mMouseMode{MouseMode::Normal};
+
+    static WindowInfo& s_vInfo(bool GetCurrentStateInfo = true);
 };
 
 #endif // WINDOWING_BACKEND_H
