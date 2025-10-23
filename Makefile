@@ -138,8 +138,8 @@ SRC_DIRS :=                             \
     $(SRC)/filesystem                   \
     $(SRC)/input                        \
     $(SRC)/interfaces                   \
-    $(SRC)/math                         \
     $(SRC)/managers                     \
+    $(SRC)/math                         \
     $(SRC)/physics                      \
     $(SRC)/rendering                    \
     $(SRC)/rendering/shader_interfaces  \
@@ -149,6 +149,8 @@ SRC_DIRS :=                             \
     $(SRC)/things/actors                \
     $(SRC)/things/resources             \
     $(SRC)/things/devices               \
+    $(SRC)/things/thinkers              \
+	$(SRC)/ui                           \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \

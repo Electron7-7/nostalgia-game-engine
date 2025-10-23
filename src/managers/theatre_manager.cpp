@@ -13,10 +13,6 @@
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
 #include "common/colors.hpp"
-#ifdef DEBUGGING
-#   include "common/time.hpp"
-#   include "testing_app/ui/imgui_debugger.hpp"
-#endif // DEBUGGING
 
 #include <vector>
 #include <ranges>
@@ -37,10 +33,6 @@ bool TheatreManager::Init()
 
 void TheatreManager::Update()
 {
-#ifdef DEBUGGING
-    if(g_PrintFrameNumbers)
-        { std::print("{}TheatreManager::Update #{} @ {}\n", Sty::Bold + Fg::Green, Manager::m_sFrameNumber, Time::Elapsed()); }
-#endif // DEBUGGING
     s_LocalPlayer->Update();
     for(auto& [id, thing] : mThings)
         { thing->Update(); }
@@ -48,10 +40,6 @@ void TheatreManager::Update()
 
 void TheatreManager::Tick()
 {
-#ifdef DEBUGGING
-    if(g_PrintTickNumbers)
-        { std::print("{}TheatreManager::Tick #{} @ {}\n", Sty::Bold + Fg::Blue, Manager::m_sTickNumber, Time::Elapsed()); }
-#endif // DEBUGGING
     s_LocalPlayer->Tick();
     for(auto& [id, thing] : mThings)
         { thing->Tick(); }
@@ -61,10 +49,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 {
     if(!is_first_call)
         { return FINISHED; }
-
-#ifdef DEBUGGING
-    g_pDebugger->StartTheatreTiming(true);
-#endif // DEBUGGING
 
     g_pDemoController->NotifyOfTheatreChange();
 
@@ -76,10 +60,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 
     s_ReadyToRender = true;
 
-#ifdef DEBUGGING
-    g_pDebugger->StopTheatreTiming(true);
-#endif // DEBUGGING
-
     return FINISHED;
 }
 
@@ -88,19 +68,11 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     if(!is_first_call)
         { return FINISHED; }
 
-#ifdef DEBUGGING
-    g_pDebugger->StartTheatreTiming(false);
-#endif // DEBUGGING
-
     g_pDemoController->StopRecording();
     g_pDemoController->Save();
     s_ReadyToRender = false;
     DestroyThings();
     g_pBackendManager->Graphics()->DestroyRenderingData();
-
-#ifdef DEBUGGING
-    g_pDebugger->StopTheatreTiming(false);
-#endif // DEBUGGING
 
     return FINISHED;
 }
