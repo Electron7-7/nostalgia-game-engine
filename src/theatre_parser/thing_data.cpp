@@ -17,20 +17,23 @@ const ThingData ThingData::PlayerDefaults(
 ThingData::ThingData() = default;
 
 ThingData::ThingData(const std::string& _name, const std::string& type_name)
-: name(_name), type_(ConstexprHash(type_name))
+: name{_name}, type_{ConstexprHash(type_name)}
 {
     if(!g_pThingFactory->IsThing(type_))
         { print_error("ThingData::ThingData({}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, type_); }
 }
 
-ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vector<ThingVar>& variables)
-: name(_name), uid(_id), variables(variables), type_(_type)
+ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vector<ThingVar>& _variables)
+: name{_name}, uid{_id}, variables(_variables), type_{_type}
 {
     if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaults triggers the error message bc of when it's constructed
         { return; }
     if(!g_pThingFactory->IsThing(type_))
         { print_error("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type '{}' is an invalid type!", name, type_, uid, g_pThingFactory->GetTypeName(type_)); }
 }
+
+ThingData::ThingData(const std::string& _name, ID _type, const std::vector<ThingVar>& _variables)
+: name{_name}, variables(_variables), type_{_type} {}
 
 bool ThingData::RemoveVariable(const std::string& _name)
 {

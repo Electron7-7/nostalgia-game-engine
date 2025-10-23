@@ -14,11 +14,12 @@ public:
 
     ThingData();
     ThingData(const std::string& Name, const std::string& TypeName);
+    ThingData(const std::string& Name, ID Type, const std::vector<ThingVar>& Variables = {});
     ThingData(const std::string& Name, ID Type, ID, const std::vector<ThingVar>& Variables = {});
 
-    std::string name = "Untitled Thing";
-    ID uid = ID::Invalid;
-    std::vector<ThingVar> variables = {};
+    std::string name{"Untitled Thing"};
+    ID uid{};
+    std::vector<ThingVar> variables{};
 
     bool RemoveVariable(const std::string& VariableName);
     void AddVariable(const std::string& Name, const std::string& ValueAsString, const penum_t& Type);

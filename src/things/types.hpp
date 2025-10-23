@@ -2,25 +2,24 @@
 #define THING_TYPES_H
 
 #include "common/ids.hpp"
-#include "common/hash.hpp"
 
 namespace ThingType
 {
-    constexpr ID Thing            = ConstexprHash("Thing");
-    constexpr ID Thinker          = ConstexprHash("Thinker");
-    constexpr ID Resource         = ConstexprHash("Resource");
-    constexpr ID Mesh             = ConstexprHash("Mesh");
-    constexpr ID Texture          = ConstexprHash("Texture");
-    constexpr ID Font             = ConstexprHash("Font");
-    constexpr ID Device           = ConstexprHash("Device");
-    constexpr ID Collider         = ConstexprHash("Collider");
-    constexpr ID Material         = ConstexprHash("Material");
-    constexpr ID MeshInstance     = ConstexprHash("MeshInstance");
-    constexpr ID Actor            = ConstexprHash("Actor");
-    constexpr ID PointLight       = ConstexprHash("PointLight");
-    constexpr ID SpotLight        = ConstexprHash("SpotLight");
-    constexpr ID DirectionalLight = ConstexprHash("DirectionalLight");
-    constexpr ID NostalgiaPlayer  = ConstexprHash("NostalgiaPlayer");
+    const ID Thing            {"Thing"};
+    const ID Thinker          {"Thinker"};
+    const ID Resource         {"Resource"};
+    const ID Mesh             {"Mesh"};
+    const ID Texture          {"Texture"};
+    const ID Font             {"Font"};
+    const ID Device           {"Device"};
+    const ID Collider         {"Collider"};
+    const ID Material         {"Material"};
+    const ID MeshInstance     {"MeshInstance"};
+    const ID Actor            {"Actor"};
+    const ID PointLight       {"PointLight"};
+    const ID SpotLight        {"SpotLight"};
+    const ID DirectionalLight {"DirectionalLight"};
+    const ID NostalgiaPlayer  {"NostalgiaPlayer"};
 }
 
 #endif // THING_TYPES_H
