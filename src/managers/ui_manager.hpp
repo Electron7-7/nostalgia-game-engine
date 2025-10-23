@@ -2,7 +2,7 @@
 #define UI_MANAGER_H
 
 #include "manager.hpp"
-#include "ui/imgui_object.hpp"
+#include "user_interface/imgui_object.hpp"
 
 class UIManager : public Manager
 {

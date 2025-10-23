@@ -150,7 +150,7 @@ SRC_DIRS :=                             \
     $(SRC)/things/resources             \
     $(SRC)/things/devices               \
     $(SRC)/things/thinkers              \
-	$(SRC)/ui                           \
+	$(SRC)/user_interface               \
 
 THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/DearImGui               \
