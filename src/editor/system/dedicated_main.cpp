@@ -1,4 +1,4 @@
-#include "testing_app/app/nostalgia_goggles.hpp"
+#include "editor/app/nostalgia_goggles.hpp"
 #include "common/printing.hpp"
 
 #ifdef _WIN32
@@ -6,7 +6,6 @@
 #include <winbase.h>
 #include <shellapi.h>
 #endif // _WIN32
-
 
 int DedicatedMain(int argc, char** argv)
 {

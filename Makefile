@@ -26,8 +26,8 @@ FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 
 # These are only used when linking dynamically
-APP_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
-APP_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
+EDITOR_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
+EDITOR_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
 
 # Archives & Libraries
 ARCHIVES_DIR_LINUX       := src/static_libraries/linux
@@ -62,39 +62,39 @@ NAME_DYNAMIC_LINUX   := .so
 NAME_STATIC_WINDOWS  := .a
 NAME_DYNAMIC_WINDOWS := .dll
 
-APP_BASE := LibraryTestingApp
+EDITOR_BASE := LibraryTestingApp
 
 # LINUX
 ifneq ($(OS),Windows_NT)
-	export APP_NAME      ?= $(APP_BASE)
-	export NAME_STATIC   ?= $(NAME_STATIC_LINUX)
-	export NAME_DYNAMIC  ?= $(NAME_DYNAMIC_LINUX)
-	export BUILD_ARCH    ?= $(DIR_LINUX)
-	export DEBUG_FLAGS   ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX)
-	export RELEASE_FLAGS ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
-	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
-	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
-	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_LINUX)
-	export APP_LD_FLAGS  ?= $(APP_LD_FLAGS_LINUX)
-	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_LINUX)
-	export CXX_COMPILER  ?= $(LINUX_CXX)
-	export C_COMPILER    ?= $(LINUX_CC)
-	export ARCHIVER      ?= $(LINUX_AR)
+	export EDITOR_NAME     ?= $(EDITOR_BASE)
+	export NAME_STATIC     ?= $(NAME_STATIC_LINUX)
+	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_LINUX)
+	export BUILD_ARCH      ?= $(DIR_LINUX)
+	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX)
+	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
+	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
+	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
+	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_LINUX)
+	export EDITOR_LD_FLAGS ?= $(EDITOR_LD_FLAGS_LINUX)
+	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_LINUX)
+	export CXX_COMPILER    ?= $(LINUX_CXX)
+	export C_COMPILER      ?= $(LINUX_CC)
+	export ARCHIVER        ?= $(LINUX_AR)
 else # WINDOWS
-	export APP_NAME      ?= $(APP_BASE).exe
-	export NAME_STATIC   ?= $(NAME_STATIC_WINDOWS)
-	export NAME_DYNAMIC  ?= $(NAME_DYNAMIC_WINDOWS)
-	export BUILD_ARCH    ?= $(DIR_WINDOWS)
-	export DEBUG_FLAGS   ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS)
-	export RELEASE_FLAGS ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
-	export CXX_FLAGS     ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
-	export CC_FLAGS      ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
-	export LD_FLAGS      ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
-	export APP_LD_FLAGS  ?= $(APP_LD_FLAGS_WINDOWS)
-	export ARCHIVES_DIR  ?= $(ARCHIVES_DIR_WINDOWS)
-	export CXX_COMPILER  ?= $(WINDOWS_CXX)
-	export C_COMPILER    ?= $(WINDOWS_CC)
-	export ARCHIVER      ?= $(WINDOWS_AR)
+	export EDITOR_NAME     ?= $(EDITOR_BASE).exe
+	export NAME_STATIC     ?= $(NAME_STATIC_WINDOWS)
+	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_WINDOWS)
+	export BUILD_ARCH      ?= $(DIR_WINDOWS)
+	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS)
+	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
+	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
+	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
+	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
+	export EDITOR_LD_FLAGS ?= $(EDITOR_LD_FLAGS_WINDOWS)
+	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_WINDOWS)
+	export CXX_COMPILER    ?= $(WINDOWS_CXX)
+	export C_COMPILER      ?= $(WINDOWS_CC)
+	export ARCHIVER        ?= $(WINDOWS_AR)
 endif
 
 export JOLT_DEBUG    ?= $(ARCHIVES_DIR)/Jolt_Debug/libJolt.a
@@ -111,13 +111,13 @@ export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
 export BUILD_ARCHIVES ?= $(BUILD_OBJS)/$(DIR_ARCHIVES)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
-export NAME           ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
-export APP_TYPE       ?= $(PRETTY_STRING_STATIC)
-export APP            ?= $(APP_TYPE)$(APP_NAME)
+export NAME        ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
+export EDITOR_TYPE ?= $(PRETTY_STRING_STATIC)
+export EDITOR      ?= $(EDITOR_TYPE)$(EDITOR_NAME)
 
 export LIBRARY_FLAGS ?= $(FLAGS_STATIC)
 
-export BUILDING_APP ?=
+export BUILDING_EDITOR ?=
 export BUILDING_DYNAMIC_LIBRARY ?=
 export BUILDING_STATIC_LIBRARY  ?=
 
@@ -158,10 +158,11 @@ THIRDPARTY_SRC_DIRS :=                        \
 	$(SRC)/thirdparty/glm/detail              \
 	$(SRC)/thirdparty/glad
 
-APP_SRC_DIRS :=               \
-    $(SRC)/testing_app/app    \
-    $(SRC)/testing_app/system \
-    $(SRC)/testing_app/ui
+EDITOR_SRC_DIRS :=       \
+    $(SRC)/editor/app    \
+    $(SRC)/editor/system \
+    $(SRC)/editor/tools  \
+    $(SRC)/editor/ui
 
 DIRTY_SRC_DIRS := \
 	thirdparty
@@ -171,7 +172,7 @@ get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 CC_SRCS  ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)   $(call get_source_files,$(SRC_DIRS),*.c)
 CXX_SRCS ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp) $(call get_source_files,$(SRC_DIRS),*.cpp)
 
-APP_SRCS := $(call get_source_files,$(APP_SRC_DIRS),*.cpp)
+EDITOR_SRCS := $(call get_source_files,$(EDITOR_SRC_DIRS),*.cpp)
 
 HEADER_FILES := $(call get_source_files,$(SRC_DIRS),*.h) $(call get_source_files,$(SRC_DIRS),*.hpp)
 
@@ -181,7 +182,7 @@ export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
 export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/Common/*.a) $(JOLT_LIBRARY)
 export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(ARCHIVES:$(ARCHIVES_DIR)/%.a=%.o))
-export APP_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(APP_SRCS:$(SRC)/%=%)))
+export EDITOR_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(EDITOR_SRCS:$(SRC)/%=%)))
 
 export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
 
@@ -201,19 +202,19 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all run printout build_dir clangd static dynamic libraries testapp_static testapp_dynamic testapps headers linux windows release debug clean mostlyclean disable_colors
+.PHONY: all run printout build_dir clangd static dynamic libraries editor headers linux windows release debug clean mostlyclean disable_colors
 
-all: headers static dynamic testapp_static testapp_dynamic ;@:
+all: editor ;@:
 
 run: ;@:
-	@ $(BUILD_DIR)/$(APP)
+	@ $(BUILD_DIR)/$(EDITOR)
 
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
-	@ if [ -n "$(BUILDING_APP)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(APP) $(APP_LD_FLAGS)$(RESET)\n"; fi
+	@ if [ -n "$(BUILDING_EDITOR)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(EDITOR) $(EDITOR_LD_FLAGS)$(RESET)\n"; fi
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
 		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
 	; fi
@@ -252,31 +253,18 @@ dynamic: headers
 
 libraries: static dynamic ;@:
 
-testapp_static:
+editor: static
 	$(eval LD_FLAGS =)
-	$(eval APP_TYPE = $(PRETTY_STRING_STATIC))
+	$(eval EDITOR_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
-	$(eval APP_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
+	$(eval EDITOR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
-	$(eval BUILDING_APP = 1)
-	@ -rm -f $(BUILD_DIR)/$(APP)
-	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
-	@ printf "$(BOLD)$(DEFAULT)::Static Application Built Successfully$(RESET)\n"
-
-testapp_dynamic:
-	$(eval APP_TYPE = $(PRETTY_STRING_DYNAMIC))
-	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
-	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
-	$(eval BUILDING_STATIC_LIBRARY =)
-	$(eval BUILDING_DYNAMIC_LIBRARY =)
-	$(eval BUILDING_APP = 1)
-	@ -rm -f $(BUILD_DIR)/$(APP)
-	@ $(MAKE) -s printout $(BUILD_DIR)/$(APP)
-	@ printf "$(BOLD)$(DEFAULT)::Dynamic Application Built Successfully$(RESET)\n"
-
-testapps: testapp_static testapp_dynamic ;@:
+	$(eval BUILDING_EDITOR = 1)
+	@ -rm -f $(BUILD_DIR)/$(EDITOR)
+	@ $(MAKE) -s printout $(BUILD_DIR)/$(EDITOR)
+	@ printf "$(BOLD)$(DEFAULT)::Nostalgia Editor Built Successfully$(RESET)\n"
 
 headers:
 	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"
@@ -284,40 +272,40 @@ headers:
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
-	$(eval APP_NAME      = $(APP_BASE))
-	$(eval NAME_STATIC   = $(NAME_STATIC_LINUX))
-	$(eval NAME_DYNAMIC  = $(NAME_DYNAMIC_LINUX))
-	$(eval BUILD_ARCH    = $(DIR_LINUX))
-	$(eval DEBUG_FLAGS   = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
-	$(eval RELEASE_FLAGS = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
-	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
-	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
-	$(eval LD_FLAGS      = $(DYNAMIC_LDFLAGS_LINUX))
-	$(eval APP_LD_FLAGS  = $(APP_LD_FLAGS_LINUX))
-	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_LINUX))
-	$(eval CXX_COMPILER  = $(LINUX_CXX))
-	$(eval C_COMPILER    = $(LINUX_CC))
-	$(eval ARCHIVER      = $(LINUX_AR))
-	$(eval TARGET_CALLED = 1)
-	$(eval CLEAN_ARCH    = $(DIR_LINUX))
+	$(eval EDITOR_NAME     = $(EDITOR_BASE))
+	$(eval NAME_STATIC     = $(NAME_STATIC_LINUX))
+	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_LINUX))
+	$(eval BUILD_ARCH      = $(DIR_LINUX))
+	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
+	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
+	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
+	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
+	$(eval LD_FLAGS        = $(DYNAMIC_LDFLAGS_LINUX))
+	$(eval EDITOR_LD_FLAGS = $(EDITOR_LD_FLAGS_LINUX))
+	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_LINUX))
+	$(eval CXX_COMPILER    = $(LINUX_CXX))
+	$(eval C_COMPILER      = $(LINUX_CC))
+	$(eval ARCHIVER        = $(LINUX_AR))
+	$(eval TARGET_CALLED   = 1)
+	$(eval CLEAN_ARCH      = $(DIR_LINUX))
 
 windows: ;@:
-	$(eval APP_NAME      = $(APP_BASE).exe)
-	$(eval NAME_STATIC   = $(NAME_STATIC_WINDOWS))
-	$(eval NAME_DYNAMIC  = $(NAME_DYNAMIC_WINDOWS))
-	$(eval BUILD_ARCH    = $(DIR_WINDOWS))
-	$(eval DEBUG_FLAGS   = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS))
-	$(eval RELEASE_FLAGS = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
-	$(eval CXX_FLAGS     = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
-	$(eval CC_FLAGS      = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
-	$(eval LD_FLAGS      = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
-	$(eval APP_LD_FLAGS  = $(APP_LD_FLAGS_WINDOWS))
-	$(eval ARCHIVES_DIR  = $(ARCHIVES_DIR_WINDOWS))
-	$(eval CXX_COMPILER  = $(WINDOWS_CXX))
-	$(eval C_COMPILER    = $(WINDOWS_CC))
-	$(eval ARCHIVER      = $(WINDOWS_AR))
-	$(eval TARGET_CALLED = 1)
-	$(eval CLEAN_ARCH    = $(DIR_WINDOWS))
+	$(eval EDITOR_NAME     = $(EDITOR_BASE).exe)
+	$(eval NAME_STATIC     = $(NAME_STATIC_WINDOWS))
+	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_WINDOWS))
+	$(eval BUILD_ARCH      = $(DIR_WINDOWS))
+	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS))
+	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
+	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
+	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
+	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
+	$(eval EDITOR_LD_FLAGS = $(EDITOR_LD_FLAGS_WINDOWS))
+	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_WINDOWS))
+	$(eval CXX_COMPILER    = $(WINDOWS_CXX))
+	$(eval C_COMPILER      = $(WINDOWS_CC))
+	$(eval ARCHIVER        = $(WINDOWS_AR))
+	$(eval TARGET_CALLED   = 1)
+	$(eval CLEAN_ARCH      = $(DIR_WINDOWS))
 
 release: ;@:
 	$(eval VERSION_FLAGS = $(RELEASE_FLAGS))
@@ -441,11 +429,10 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS
 	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
-# Library Testing Applications
-$(BUILD_DIR)/$(APP): $(APP_OBJS)
-	@ printf "::Linking $(BOLD)$(GREEN)$@$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(APP_LD_FLAGS)
-
+# Editor
+$(BUILD_DIR)/$(EDITOR): $(EDITOR_OBJS)
+	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(EDITOR_LD_FLAGS)
 
 # Prints a unique cleanup message
 NOTHING_TO_CLEAN.clean:

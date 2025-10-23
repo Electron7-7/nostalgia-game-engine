@@ -10,8 +10,8 @@ Resources
     // Resources are wrappers for file data. As such, they use simple one-line definitions starting with their type, name, an equals
     // sign, a string variable, and finally ended with a semicolon. Strings are delimited by single quotes and will capture absolutely
     // everything inside of them, including whitespace
-    Mesh IcoSphere = 'src/testing_app/resources/IcoSphere.obj';
-    Texture StupidTex = 'src/testing_app/resources/Stupid.png';
+    Mesh IcoSphere = 'theatres/testing_resources/IcoSphere.obj';
+    Texture StupidTex = 'theatres/testing_resources/Stupid.png';
     // Defining your own resources is currently limited to external files; support for adding your own internally embedded resource
     // data should be coming soon
 }

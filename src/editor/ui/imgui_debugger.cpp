@@ -6,32 +6,29 @@
 #include "managers/backend_manager.hpp"
 #include "settings/settings.hpp"
 #include "managers/theatre_manager.hpp"
+#include "common/time.hpp"
+#include "backends/graphics/opengl.hpp"
+#include "managers/physics_manager.hpp"
+#include "filesystem/filesystem.hpp"
+#include "theatre_parser/theatre_parser.hpp"
+#include "things/thing_factory.hpp"
+#include "things/actors/light.hpp"
+#include "things/devices/mesh_instance.hpp"
+#include "things/devices/material.hpp"
+#include "things/devices/collider.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
-
-#ifdef DEBUGGING
-#   include "common/time.hpp"
-#   include "backends/graphics/opengl.hpp"
-#   include "managers/physics_manager.hpp"
-#   include "filesystem/filesystem.hpp"
-#   include "theatre_parser/theatre_parser.hpp"
-#   include "things/thing_factory.hpp"
-#   include "things/actors/light.hpp"
-#   include "things/devices/mesh_instance.hpp"
-#   include "things/devices/material.hpp"
-#   include "things/devices/collider.hpp"
-
-#   include <set>
-#   include <format>
-#   include <memory>
-#   include <random>
+#include <set>
+#include <format>
+#include <memory>
+#include <random>
 
 // Because DearImGui loves c-strings and I don't
-#define _fmtBool(BOOL) std::format("{}", (bool)BOOL).data()
+#define _fmtBool(BOOL) std::format("{}", static_cast<bool>(BOOL)).data()
 
 static std::random_device s_RandomDevice;
 
@@ -46,13 +43,12 @@ static std::set<int>             s_StopwatchLogIds = {};
 static void s_AutomaticStopwatchWindow(float);
 static void s_ManualStopwatchWindow(float);
 static void s_TheatreDebuggingWindow();
-#endif // DEBUGGING
 static void s_GeneralDebuggingWindow();
 
 using namespace ImGui;
 
-static std::string s_TheatreFilePath = "theatres/HelloWorld.nt";
-static std::string s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
+static std::string sTheatreFilePath = "theatres/HelloWorld.nt";
+static std::string sLastAttemptedTheatreFilePath = sTheatreFilePath;
 static std::string sDemoFileOut = "demo";
 static std::string sDemoFileIn = std::format("{}.dem", sDemoFileOut);
 
@@ -83,14 +79,11 @@ void imgui_Debugger::Update()
 {
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-#ifndef DEBUGGING
     SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);
-#else // DEBUGGING
     static bool s_PopOutStopwatches = false;
     if(s_TheatreInspectorActive)
         { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
-#endif
     if(sShowMainWindow)
     {
         if(Begin("Debugging", &sShowMainWindow, ImGuiWindowFlags_MenuBar))
@@ -106,7 +99,6 @@ void imgui_Debugger::Update()
                     EndMenu();
                 }
                 EndMenuBar();
-#ifdef DEBUGGING
             }
             if(BeginTabBar("Debug Tools"))
             {
@@ -148,31 +140,6 @@ void imgui_Debugger::Update()
                 }
             }
             EndTabBar();
-#else  // !DEBUGGING
-                Text("%s", "You are currently testing the 'Release' version of Nostalgia.\nIf you want all the debug features, please compile the 'Debug' version of both Nostalgia and the included testing app.\nThis can be done with 'make debug static testapp_static'.");
-
-                InputText("Theatre File", &s_TheatreFilePath);
-                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                    { BeginDisabled(); }
-                if(Button("Load Theatre"))
-                {
-                    s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-                    g_pTheatreManager->LoadTheatreFromFile(s_TheatreFilePath);
-                }
-                if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
-                    { EndDisabled(); }
-
-                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                    { BeginDisabled(); }
-                if(Button("Exit Theatre"))
-                    { _Manager::ShutdownTheatre(); }
-                if(_Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-                    { EndDisabled(); }
-                NewLine();
-                SeparatorText("Settings");
-                s_GeneralDebuggingWindow();
-            }
-#endif // DEBUGGING
             InputText("Demo File Output", &sDemoFileOut);
             if(Button("Start Recording Demo"))
                 { g_pDemoController->Record(); }
@@ -186,7 +153,6 @@ void imgui_Debugger::Update()
     }
 }
 
-#ifdef DEBUGGING
 void s_HandleAutomaticStopwatchToggle()
 {
     s_AutoStopwatchEnabled = !s_AutoStopwatchEnabled;
@@ -295,7 +261,7 @@ void imgui_Debugger::StartTheatreTiming(bool loading)
     {
         TheatreLog& log = s_TheatreLogs.emplace_back();
         log.m_LoadTime.Start();
-        log.m_TheatreFilePath = s_LastAttemptedTheatreFilePath;
+        log.m_TheatreFilePath = sLastAttemptedTheatreFilePath;
     }
     else
     {
@@ -331,9 +297,7 @@ static void s_WindowInfo(const WindowInfo& info, const char* title)
 
 static void s_GeneralDebuggingWindow()
 {
-#ifndef DEBUGGING
     BeginChild("Settings");
-#else  // DEBUGGING
     BeginChild("General Debugging");
     if(CollapsingHeader("Messages"))
     {
@@ -390,7 +354,6 @@ static void s_GeneralDebuggingWindow()
         Text("Graphics Backend: %s", Settings::Engine::GraphicsBackend.c_name());
         Text("Windowing Backend: %s", Settings::Engine::WindowingBackend.c_name());
     }
-#endif // DEBUGGING
     if(CollapsingHeader("Window"))
     {
         if(TreeNode("Window Info"))
@@ -534,14 +497,14 @@ static void s_TheatreDebuggingWindow()
     PushItemWidth(0.0f);
     Separator();
 
-    InputText("Theatre File", &s_TheatreFilePath);
+    InputText("Theatre File", &sTheatreFilePath);
 
     if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { BeginDisabled(); }
     if(Button("Load Theatre"))
     {
-        s_LastAttemptedTheatreFilePath = s_TheatreFilePath;
-        g_pTheatreManager->LoadTheatreFromFile(s_TheatreFilePath);
+        sLastAttemptedTheatreFilePath = sTheatreFilePath;
+        g_pTheatreManager->LoadTheatreFromFile(sTheatreFilePath);
     }
     if(_Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
@@ -747,4 +710,3 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
     }
     End();
 }
-#endif // !DEBUGGING

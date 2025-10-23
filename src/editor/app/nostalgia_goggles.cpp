@@ -1,5 +1,5 @@
 #include "nostalgia_goggles.hpp"
-#include "testing_app/ui/imgui_debugger.hpp"
+#include "editor/ui/imgui_debugger.hpp"
 #include "settings/settings.hpp"
 #include "managers/manager.hpp"
 #include "managers/physics_manager.hpp"
