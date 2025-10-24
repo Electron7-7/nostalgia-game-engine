@@ -77,6 +77,7 @@ Index of this file:
 #include <stdarg.h>                 // va_list, va_start, va_end
 #include <stddef.h>                 // ptrdiff_t, NULL
 #include <string.h>                 // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
+#include <format>
 
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
@@ -627,6 +628,22 @@ namespace ImGui
     IMGUI_API void          BulletText(const char* fmt, ...)                                IM_FMTARGS(1); // shortcut for Bullet()+Text()
     IMGUI_API void          BulletTextV(const char* fmt, va_list args)                      IM_FMTLIST(1);
     IMGUI_API void          SeparatorText(const char* label);                               // currently: formatted text with a horizontal line
+
+    // Widgets: Text that uses the newer and much better format specification (C++26)
+    template<typename... _Args>
+        IMGUI_API void      TextF(std::format_string<_Args...> fmt, _Args&&... args) { Text("%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      TextColoredF(const ImVec4& col, std::format_string<_Args...> fmt, _Args&&... args) { TextColored(col, "%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      TextDisabledF(std::format_string<_Args...> fmt, _Args&&... args) { TextDisabled("%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      TextWrappedF(std::format_string<_Args...> fmt, _Args&&... args) { TextWrapped("%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      LabelTextF(const std::string& label, std::format_string<_Args...> fmt, _Args&&... args) { LabelText(label, "%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      BulletTextF(std::format_string<_Args...> fmt, _Args&&... args) { BulletText("%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
+    template<typename... _Args>
+        IMGUI_API void      SeparatorTextF(std::format_string<_Args...> fmt, _Args&&... args) { SeparatorText("%s", std::format(fmt, std::forward<_Args>(args)...).data()); }
 
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected
