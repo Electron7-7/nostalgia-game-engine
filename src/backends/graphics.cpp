@@ -1,11 +1,85 @@
 #include "graphics.hpp"
+#include "managers/backend_manager.hpp"
 #include "rendering/vertex.hpp"
 #include "filesystem/file_data.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "TinyOBJLoader/tiny_obj_loader.h"
+#include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
+
 
 static bool s_CreateOBJMesh(std::vector<float>&, std::vector<unsigned int>&, const FileData&);
+
+bool GraphicsBackend::UseViewport(const ID& id)
+{
+    if(!IsViewportAt(id))
+        { return false; }
+    else if(mCurrentViewport == id)
+        { return true; }
+    mLastUsedViewport = mCurrentViewport;
+    mCurrentViewport  = id;
+    UpdateViewport(mViewports[mCurrentViewport]);
+    return true;
+}
+
+const ID& GraphicsBackend::CurrentViewportID()
+{ return mCurrentViewport; }
+
+const Viewport& GraphicsBackend::GetViewport(const ID& id)
+{
+    if(!IsViewportAt(id))
+    {
+        print_warning("GraphicsBackend::GetViewport - invalid id {}, the window viewport will be returned instead", id);
+        return WindowViewport();
+    }
+    return mViewports.at(id);
+}
+
+const Viewport& GraphicsBackend::WindowViewport()
+{ return mViewports.at(ViewportIDs::Window); }
+
+const Viewport& GraphicsBackend::CurrentViewport()
+{
+    if(!IsViewportAt(mCurrentViewport))
+    {
+        print_warning("GraphicsBackend::GetCurrentViewport - current viewport id {} is invalid; setting it to the window viewport", mCurrentViewport);
+        mCurrentViewport = ViewportIDs::Window;
+    }
+    return mViewports[mCurrentViewport];
+}
+
+bool GraphicsBackend::SetViewport(const ID& id, const Viewport& viewport)
+{
+    if(id == ViewportIDs::Window)
+        { return print_warning("GraphicsBackend::SetViewport - cannot change the window viewport with this function, please use `GraphicsBackend::SetWindowViewport` instead"); }
+    else if(!IsViewportAt(id))
+        { return false; }
+    mViewports[id] = viewport;
+    return true;
+}
+
+void GraphicsBackend::SetWindowViewport(const Viewport& viewport)
+{ mViewports.at(ViewportIDs::Window) = viewport; }
+
+bool GraphicsBackend::SetCurrentViewport(const Viewport& viewport)
+{ return SetViewport(mCurrentViewport, viewport); }
+
+bool GraphicsBackend::IsViewportAt(const ID& id)
+{ return mViewports.contains(id); }
+
+id_t GraphicsBackend::PushViewport(const Viewport& viewport)
+{
+    id_t new_id{ID::front};
+    do { new_id = ID::Generate(); } while ( mViewports.contains(new_id) );
+    mViewports[new_id] = viewport;
+    return new_id;
+}
+
+bool GraphicsBackend::PopViewport(const ID& id)
+{
+    if(id == ViewportIDs::Window)
+        { return print_error("GraphicsBackend::PopViewport - cannot remove the window viewport"); }
+    return mViewports.erase(id) > 0;
+}
 
 bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
 {

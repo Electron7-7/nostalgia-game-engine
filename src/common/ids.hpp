@@ -223,4 +223,10 @@ namespace BindingIDs
     }
 };
 
+namespace ViewportIDs
+{
+    const ID Window{"Window"};
+    const ID Editor3DViewport1{"Editor 3D Viewport 1"};
+}
+
 #endif // IDS_H

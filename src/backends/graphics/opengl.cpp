@@ -4,16 +4,18 @@
 #include "rendering/render_command.hpp"
 #include "filesystem/file_data.hpp"
 #include "things/actors/light.hpp"
+#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
 #include "common/printing.hpp"
-#include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_impl_opengl3.h"
 #include "thirdparty/glad/glad.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "thirdparty/stb_image/stb_image.h"
+
+#include <glm/ext/matrix_clip_space.hpp>
 
 #ifdef DEBUGGING
     int g_ShaderDebugOuptut = Shader_ALL;
@@ -285,6 +287,9 @@ OpenGL_MeshData* OpenGL_Backend::GetMeshData(const ID& id)
         { return &mMeshData.at(UniqueIDs::Reserved::m_Error); }
     return &mMeshData.at(id);
 }
+
+void OpenGL_Backend::UpdateViewport(const Viewport& viewport) const
+{ glViewport(viewport.position.x, viewport.position.y, viewport.scale.width, viewport.scale.height); }
 
 //----------------------------------------------------------------------------------
 // OpenGL Debug Message Callback Function

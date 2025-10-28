@@ -6,10 +6,12 @@
 #include "filesystem/fwd.hpp"
 
 #include "backend.hpp"
+#include "rendering/viewport.hpp"
 #include "settings/window.hpp"
 
 #include <glm/fwd.hpp>
 #include <vector>
+#include <map>
 
 class GraphicsBackend : public _Backend
 {
@@ -24,6 +26,18 @@ public:
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
+
+    bool UseViewport(const ID& ViewportID);
+    const ID& CurrentViewportID();
+    const Viewport& CurrentViewport();
+    const Viewport& WindowViewport();
+    const Viewport& GetViewport(const ID& ViewportID);
+    bool SetViewport(const ID& ViewportID, const Viewport& outViewport);
+    void SetWindowViewport(const Viewport& outViewport);
+    bool SetCurrentViewport(const Viewport& outViewport);
+    bool IsViewportAt(const ID& ViewportID);
+    uint PushViewport(const Viewport& Viewport);
+    bool PopViewport(const ID& ID);
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
     virtual void BufferMesh(const FileData& Data, const ID&) = 0;
@@ -38,8 +52,17 @@ public:
 
 protected:
     unsigned int mCurrentlyBoundShader{0};
+    std::map<ID, Viewport> mViewports{
+        { ViewportIDs::Window, Viewport{Settings::Window::FramebufferSize(), Settings::Window::FramebufferPosition()} },
+        { ViewportIDs::Editor3DViewport1, Viewport{{500, 500}} }
+    };
+
+    virtual void UpdateViewport(const Viewport&) const = 0;
 
     static bool CreateMeshData(std::vector<float>& VertexData, std::vector<unsigned int>& Indices, const FileData& FileData);
+
+private:
+    ID mLastUsedViewport{};
 };
 
 #endif // GRAPHICS_BACKEND_H

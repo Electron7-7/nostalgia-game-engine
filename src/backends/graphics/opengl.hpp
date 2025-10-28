@@ -58,6 +58,7 @@ private:
 
     uint GetTextureID(const ID&);
     OpenGL_MeshData* GetMeshData(const ID&);
+    void UpdateViewport(const Viewport&) const final;
 };
 
 #ifdef DEBUGGING

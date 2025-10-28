@@ -179,7 +179,6 @@ void GLFW_Backend::UpdateState()
     { // Fullscreen status hasn't changed
         glfwSetWindowPos(mMainWindow, Window::Position().x, Window::Position().y);
         glfwSetWindowSize(mMainWindow, Window::Size().width, Window::Size().height);
-        glViewport(0, 0, Window::FramebufferSize().width, Window::FramebufferSize().height);
         return;
     }
     glfwSetWindowMonitor(mMainWindow,
@@ -198,4 +197,7 @@ void GLFW_Backend::m_sWindowSizeCallbackFunction(GLFWwindow* window, int width, 
 { s_vInfo().size = {width, height}; }
 
 void GLFW_Backend::m_sFrameBufferSizeCallbackFunction(GLFWwindow* window, int width, int height)
-{ s_vInfo().framebuffer_size = {width, height}; glViewport(0, 0, width, height); }
+{
+    s_vInfo().framebuffer_size = {width, height};
+    g_pBackendManager->Graphics()->SetWindowViewport(Viewport{Window::FramebufferSize(), Window::FramebufferPosition()});
+}
