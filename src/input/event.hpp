@@ -24,6 +24,35 @@ public:
     bool IsKeyReleased(const ID&) const;
     bool IsMouseCaptured() const;
 
+    template<IDType... IDArgs>
+        bool AreKeysDown(IDArgs... KeyIDs) const
+        {
+            for(auto id : {KeyIDs...})
+                { if(!IsKeyDown(id)) { return false; } }
+            return true;
+        }
+    template<IDType... IDArgs>
+        bool AreKeysUp(IDArgs... KeyIDs) const
+        {
+            for(auto id : {KeyIDs...})
+                { if(!IsKeyUp(id)) { return false; } }
+            return true;
+        }
+    template<IDType... IDArgs>
+        bool AreKeysPressed(IDArgs... KeyIDs) const
+        {
+            for(auto id : {KeyIDs...})
+                { if(!IsKeyPressed(id)) { return false; } }
+            return true;
+        }
+    template<IDType... IDArgs>
+        bool AreKeysReleased(IDArgs... KeyIDs) const
+        {
+            for(auto id : {KeyIDs...})
+                { if(!IsKeyReleased(id)) { return false; } }
+            return true;
+        }
+
     template<StringType... StringArgs>
         bool IsActionDown(StringArgs... Actions) const
         {
