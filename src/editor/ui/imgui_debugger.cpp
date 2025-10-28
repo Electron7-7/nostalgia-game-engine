@@ -1,27 +1,27 @@
 #include "imgui_debugger.hpp"
-#include "../app/nostalgia_goggles.hpp"
-#include "managers/manager.hpp"
+#include "main_window.hpp"
+#include "editor/tools/stopwatch_log.hpp"
 #include "settings/window.hpp"
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
-#include "input/demo_controller.hpp"
-#include "input/event.hpp"
-#include "managers/backend_manager.hpp"
-#include "managers/theatre_manager.hpp"
-#include "common/time.hpp"
 #include "backends/graphics/opengl.hpp"
-#include "managers/physics_manager.hpp"
+#include "input/demo_controller.hpp"
+#include "managers/manager.hpp"
+#include "managers/theatre_manager.hpp"
+#include "managers/backend_manager.hpp"
 #include "filesystem/filesystem.hpp"
-#include "theatre_parser/theatre_parser.hpp"
 #include "rendering/window_info.hpp"
 #include "things/thing_factory.hpp"
 #include "things/actors/light.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/collider.hpp"
-#include "thirdparty/DearImGui/imgui.h"
-#include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "theatre_parser/theatre_data.hpp"
+#ifdef DEBUGGING
+#   include "managers/physics_manager.hpp"
+#   include "theatre_parser/theatre_parser.hpp"
+#endif // DEBUGGING
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -29,72 +29,42 @@
 #include <set>
 #include <format>
 #include <memory>
-#include <random>
 
 // Because DearImGui loves c-strings and I don't
 #define _fmtBool(BOOL) std::format("{}", static_cast<bool>(BOOL)).data()
 
-static std::random_device s_RandomDevice;
+using namespace ImGui;
 
-static bool s_TheatreInspectorActive = false;
-static bool s_AutoStopwatchEnabled = true;
+static bool sTheatreInspectorActive{false};
+static bool sAutoStopwatchEnabled{true};
 
-static std::vector<TheatreLog>   s_TheatreLogs = {};
-static std::vector<StopwatchLog> s_ManualStopwatchLogs = {};
-static std::vector<StopwatchLog> s_StopwatchLogs = {};
-static std::set<int>             s_StopwatchLogIds = {};
+static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
+static std::string               sLastAttemptedTheatreFilePath{sTheatreFilePath};
+static std::string               sDemoFileOut{"demo"};
+static std::string               sDemoFileIn{std::format("{}.dem", sDemoFileOut)};
+static std::vector<TheatreLog>   sTheatreLogs{};
+static std::vector<StopwatchLog> sManualStopwatchLogs{};
+static std::vector<StopwatchLog> sStopwatchLogs{};
+static std::set<int>             sStopwatchLogIds{};
 
 static void s_AutomaticStopwatchWindow(float);
 static void s_ManualStopwatchWindow(float);
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
-using namespace ImGui;
-
-static std::string sTheatreFilePath = "theatres/HelloWorld.nt";
-static std::string sLastAttemptedTheatreFilePath = sTheatreFilePath;
-static std::string sDemoFileOut = "demo";
-static std::string sDemoFileIn = std::format("{}.dem", sDemoFileOut);
-
-static imgui_Debugger s_Debugger;
-imgui_Debugger* g_pDebugger = &s_Debugger;
-
-static bool sShowMainWindow{true};
-static bool sShowDemoWindow{false};
-
-void imgui_Debugger::Input(const InputEvent& event)
-{
-    if(event.IsActionPressed(gToggleMouseCapture))
-        { sShowMainWindow = !sShowMainWindow; }
-    else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyG))
-        { sShowDemoWindow = !sShowDemoWindow; }
-}
+static imgui_Debugger sDebugger;
+imgui_Debugger* g_pDebugger = &sDebugger;
 
 void imgui_Debugger::Update()
 {
-    if(sShowDemoWindow)
-        { ShowDemoWindow(&sShowDemoWindow); }
-    SetNextWindowSize({854,443}, ImGuiCond_FirstUseEver);
-    static bool s_PopOutStopwatches = false;
-    if(s_TheatreInspectorActive)
-        { s_InspectTheatreWindow(&s_TheatreInspectorActive); }
+    static bool sPopOutStopwatches{false};
+    if(sTheatreInspectorActive)
+        { s_InspectTheatreWindow(&sTheatreInspectorActive); }
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
-    if(sShowMainWindow)
+    if(gShowDebugWindow)
     {
-        if(Begin("Debugging", &sShowMainWindow, ImGuiWindowFlags_MenuBar))
+        if(Begin("Debugging", &gShowDebugWindow, ImGuiWindowFlags_MenuBar))
         {
-            if(BeginMenuBar())
-            {
-                if(BeginMenu("Menu"))
-                {
-                    if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                        { sShowDemoWindow = true; }
-                    if(MenuItem("Quit", "CTRL+Q"))
-                        { g_pApplication->Shutdown(); }
-                    EndMenu();
-                }
-                EndMenuBar();
-            }
             if(BeginTabBar("Debug Tools"))
             {
                 if(BeginTabItem("General"))
@@ -102,7 +72,7 @@ void imgui_Debugger::Update()
                     s_GeneralDebuggingWindow();
                     EndTabItem();
                 }
-                if(s_PopOutStopwatches)
+                if(sPopOutStopwatches)
                 {
                     SetNextWindowSize({780,458}, ImGuiCond_FirstUseEver);
                     if(Begin("Stopwatches"))
@@ -116,10 +86,10 @@ void imgui_Debugger::Update()
                 }
                 if(BeginTabItem("Stopwatches"))
                 {
-                    const char* pop_out_label = (s_PopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
+                    const char* pop_out_label = (sPopOutStopwatches) ? "Bring Back Window" : "Pop Out Window";
                     if(Button(pop_out_label))
-                        { s_PopOutStopwatches = !s_PopOutStopwatches; }
-                    if(!s_PopOutStopwatches)
+                        { sPopOutStopwatches = !sPopOutStopwatches; }
+                    if(!sPopOutStopwatches)
                     {
                         float width = (GetWindowWidth() / 2.0f) - 12.0f;
                         s_AutomaticStopwatchWindow(width);
@@ -150,83 +120,26 @@ void imgui_Debugger::Update()
 
 void s_HandleAutomaticStopwatchToggle()
 {
-    s_AutoStopwatchEnabled = !s_AutoStopwatchEnabled;
-
-    if(s_AutoStopwatchEnabled)
+    sAutoStopwatchEnabled = !sAutoStopwatchEnabled;
+    if(sAutoStopwatchEnabled)
         { return; }
-
-    for(StopwatchLog& log : s_StopwatchLogs)
+    for(StopwatchLog& log : sStopwatchLogs)
     {
         if(log.Stop())
-            { log.m_Message = "Interrupted by disabling automatic stopwatches"; }
+            { log.OverrideMessage("Interrupted by disabling automatic stopwatches"); }
     }
 }
 
-StopwatchLog StopwatchLog::Invalid(true);
-
-bool StopwatchLog::Start(const std::string& message)
-{
-    if(m_IsRunning || m_IsFinished)
-        { return false; }
-    m_IsRunning    = true;
-    m_IsFinished   = false;
-    m_Message = message;
-
-    m_FormattedStartTime = Time::CurrentFormatted();
-    m_HighResStartTime   = Time::Current();
-    m_HighResStopTime    = m_HighResStartTime;
-    return true;
-}
-
-bool StopwatchLog::Stop()
-{
-    if(!m_IsRunning || m_IsFinished)
-        { return false; }
-    m_IsRunning   = false;
-    m_IsFinished  = true;
-    m_HighResStopTime = Time::Current();
-    m_FormattedStopTime = Time::CurrentFormatted();
-    return true;
-}
-
-const std::string& StopwatchLog::GetStartTime() const
-{ return m_FormattedStartTime; }
-
-const std::string& StopwatchLog::GetStopTime() const
-{ return m_FormattedStopTime; }
-
-double StopwatchLog::GetHiResStartTime() const
-{ return m_HighResStartTime; }
-
-double StopwatchLog::GetHiResStopTime() const
-{ return m_HighResStopTime; }
-
-double StopwatchLog::GetDuration() const
-{
-    if(m_IsRunning || !m_IsFinished)
-        { return (Time::Current() - m_HighResStartTime); }
-    return (m_HighResStopTime - m_HighResStartTime);
-}
-
-const std::string& StopwatchLog::GetMessage() const
-{ return m_Message; }
-
-bool StopwatchLog::IsRunning() const
-{ return m_IsRunning; }
-
-bool StopwatchLog::IsFinished() const
-{ return m_IsFinished; }
-
 StopwatchLog& imgui_Debugger::StartStopwatch(const std::string& message)
 {
-    if(!s_AutoStopwatchEnabled)
+    if(!sAutoStopwatchEnabled)
         { return StopwatchLog::Invalid; }
     return m_StartStopwatch(message);
 }
 
 bool imgui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 {
-    if(!s_AutoStopwatchEnabled)
+    if(!sAutoStopwatchEnabled)
         { return false; }
     return m_StopStopwatch(stopwatch);
 }
@@ -234,50 +147,49 @@ bool imgui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 StopwatchLog& imgui_Debugger::m_StartStopwatch(const std::string& message)
 {
     #pragma message("TODO: Make this thread safe")
-    StopwatchLog& stopwatch = s_StopwatchLogs.emplace_back();
+    StopwatchLog& stopwatch = sStopwatchLogs.emplace_back();
     stopwatch.Start(message);
     return stopwatch;
 }
 
 bool imgui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
 {
-    if(stopwatch == StopwatchLog::Invalid || !stopwatch.IsRunning())
+    if(stopwatch == StopwatchLog::Invalid || !stopwatch.Running())
         { return false; }
-    if(std::find(s_StopwatchLogs.begin(), s_StopwatchLogs.end(), stopwatch) == s_StopwatchLogs.end())
+    else if(std::find(sStopwatchLogs.begin(), sStopwatchLogs.end(), stopwatch) == sStopwatchLogs.end())
         { return false; }
-
-    stopwatch.Stop();
-    return true;
+    return stopwatch.Stop();
 }
+
 
 void imgui_Debugger::StartTheatreTiming(bool loading)
 {
     if(loading)
     {
-        TheatreLog& log = s_TheatreLogs.emplace_back();
-        log.m_LoadTime.Start();
-        log.m_TheatreFilePath = sLastAttemptedTheatreFilePath;
+        TheatreLog& log = sTheatreLogs.emplace_back();
+        log.load_time.Start();
+        log.name_or_file_path = sLastAttemptedTheatreFilePath;
     }
     else
     {
-        if(s_TheatreLogs.empty())
+        if(sTheatreLogs.empty())
             { return; }
-        TheatreLog& log = s_TheatreLogs.back();
-        log.m_UnloadTime.Start();
-        if(log.m_LoadTime.IsRunning())
-            { log.m_LoadTime.Stop(); }
+        TheatreLog& log = sTheatreLogs.back();
+        log.unload_time.Start();
+        if(log.load_time.Running())
+            { log.load_time.Stop(); }
     }
 }
 
 void imgui_Debugger::StopTheatreTiming(bool loading)
 {
-    if(s_TheatreLogs.empty())
+    if(sTheatreLogs.empty())
         { return; }
-    TheatreLog& log = s_TheatreLogs.back();
+    TheatreLog& log = sTheatreLogs.back();
     if(loading)
-        { log.m_LoadTime.Stop(); }
+        { log.load_time.Stop(); }
     else
-        { log.m_UnloadTime.Stop(); }
+        { log.unload_time.Stop(); }
 }
 
 static void s_WindowInfo(const WindowInfo& info, const char* title)
@@ -292,8 +204,8 @@ static void s_WindowInfo(const WindowInfo& info, const char* title)
 
 static void s_GeneralDebuggingWindow()
 {
-    BeginChild("Settings");
     BeginChild("General Debugging");
+#ifdef DEBUGGING
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
@@ -320,7 +232,7 @@ static void s_GeneralDebuggingWindow()
         Checkbox("Activated", &gEnableMsg_BodyActivated); SameLine();
         Checkbox("Deactivated", &gEnableMsg_BodyDeactivated);
     }
-
+#endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
@@ -389,14 +301,14 @@ static void s_GeneralDebuggingWindow()
 
 static void s_PrintStopwatchLog(const StopwatchLog& stopwatch, size_t i)
 {
-    if(!stopwatch.IsFinished())
+    if(!stopwatch.Finished())
         { return; }
     Separator();
     Text("Stopwatch #%zu", i);
-    Text("Time: %f", stopwatch.GetDuration());
+    Text("Time: %f", stopwatch.Duration());
     if(IsItemHovered())
-        { SetTooltip("Started @ %s (hi-res: %f)\nStopped @ %s (hi-res: %f)", stopwatch.GetStartTime().c_str(), stopwatch.GetHiResStartTime(), stopwatch.GetStopTime().c_str(), stopwatch.GetHiResStopTime()); }
-    Text("Message: '%s'", stopwatch.GetMessage().c_str());
+        { SetTooltip("Started @ %s (hi-res: %f)\nStopped @ %s (hi-res: %f)", stopwatch.StartTime().c_str(), stopwatch.HiResStartTime(), stopwatch.StopTime().c_str(), stopwatch.HiResStopTime()); }
+    Text("Message: '%s'", stopwatch.Message().c_str());
 }
 
 static void s_AutomaticStopwatchWindow(float width)
@@ -407,11 +319,11 @@ static void s_AutomaticStopwatchWindow(float width)
     Checkbox("Enable Automatic Stopwatch", &s_DummyAutoStopwatchEnabled);
     if(IsItemHovered())
         { SetTooltip("%s", "This enables/disables the program's ability to create new stopwatches"); }
-    if(s_DummyAutoStopwatchEnabled != s_AutoStopwatchEnabled)
+    if(s_DummyAutoStopwatchEnabled != sAutoStopwatchEnabled)
         { s_HandleAutomaticStopwatchToggle(); }
 
     if(Button("Clear Logs"))
-        { s_StopwatchLogs.clear(); }
+        { sStopwatchLogs.clear(); }
 
     BeginGroup();
         static bool sort_newest_first = false;
@@ -424,9 +336,9 @@ static void s_AutomaticStopwatchWindow(float width)
     EndGroup();
 
     Text("Logs:");
-    if(!s_StopwatchLogs.empty())
+    if(!sStopwatchLogs.empty())
     {
-        std::vector<StopwatchLog> logs = {s_StopwatchLogs.cbegin(), s_StopwatchLogs.cend()};
+        std::vector<StopwatchLog> logs = {sStopwatchLogs.cbegin(), sStopwatchLogs.cend()};
 
         if(sort_newest_first)
         {
@@ -448,34 +360,34 @@ static void s_ManualStopwatchWindow(float width)
     Text("%s", "Manual Stopwatch");
     if(Button("Start Stopwatch"))
     {
-        if(s_ManualStopwatchLogs.empty() || !s_ManualStopwatchLogs.back().IsRunning())
-            { s_ManualStopwatchLogs.emplace_back().Start(); }
+        if(sManualStopwatchLogs.empty() || !sManualStopwatchLogs.back().Running())
+            { sManualStopwatchLogs.emplace_back().Start(); }
     }
     if(Button("Stop Stopwatch"))
     {
-        if(!s_ManualStopwatchLogs.empty() && s_ManualStopwatchLogs.back().IsRunning())
-            { s_ManualStopwatchLogs.back().Stop(); }
+        if(!sManualStopwatchLogs.empty() && sManualStopwatchLogs.back().Running())
+            { sManualStopwatchLogs.back().Stop(); }
     }
 
-    std::string last_stopwatch_time = (s_ManualStopwatchLogs.empty()) ? "N/A" : std::to_string(s_ManualStopwatchLogs.back().GetDuration());
+    std::string last_stopwatch_time = (sManualStopwatchLogs.empty()) ? "N/A" : std::to_string(sManualStopwatchLogs.back().Duration());
     Text("Most Recent Stopwatch: %s", last_stopwatch_time.c_str());
 
     if(Button("Clear Logs"))
-        { s_ManualStopwatchLogs.clear(); }
+        { sManualStopwatchLogs.clear(); }
     Text("Logs:");
 
-    if(!s_ManualStopwatchLogs.empty())
+    if(!sManualStopwatchLogs.empty())
     {
         Separator();
-        for(size_t i = 0 ; i < s_ManualStopwatchLogs.size() ; ++i)
+        for(size_t i = 0 ; i < sManualStopwatchLogs.size() ; ++i)
         {
-            const StopwatchLog& stopwatch = s_ManualStopwatchLogs.at(i);
+            const StopwatchLog& stopwatch = sManualStopwatchLogs.at(i);
             Text("Manual Stopwatch #%zu", i);
-            Text("Time: %f", stopwatch.GetDuration());
+            Text("Time: %f", stopwatch.Duration());
             if(IsItemHovered())
             {
-                std::string tooltip_extra = (stopwatch.IsFinished()) ? std::format("{}", stopwatch.GetStopTime()) : "N/A";
-                SetTooltip("Started @ %s\nStopped @ %s", stopwatch.GetStartTime().c_str(), tooltip_extra.c_str());
+                std::string tooltip_extra = (stopwatch.Finished()) ? std::format("{}", stopwatch.StopTime()) : "N/A";
+                SetTooltip("Started @ %s\nStopped @ %s", stopwatch.StartTime().c_str(), tooltip_extra.c_str());
             }
         }
     }
@@ -485,12 +397,14 @@ static void s_ManualStopwatchWindow(float width)
 static void s_TheatreDebuggingWindow()
 {
     BeginChild("Theatre Debugging");
+#ifdef DEBUGGING
     Text("Theatre File Parser Breakpoint:");
     PushItemWidth(82.0f);
     InputInt("Line", &g_BreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     InputInt("Column", &g_BreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     PushItemWidth(0.0f);
     Separator();
+#endif // DEBUGGING
 
     InputText("Theatre File", &sTheatreFilePath);
 
@@ -520,32 +434,32 @@ static void s_TheatreDebuggingWindow()
     if(not_in_level)
     {
         BeginDisabled();
-        s_TheatreInspectorActive = false;
+        sTheatreInspectorActive = false;
     }
     if(Button("Inspect Theatre"))
-        { s_TheatreInspectorActive = !s_TheatreInspectorActive; }
+        { sTheatreInspectorActive = !sTheatreInspectorActive; }
     if(not_in_level)
         { EndDisabled(); }
 
     if(Button("Clear Logs"))
-        { s_TheatreLogs.clear(); }
+        { sTheatreLogs.clear(); }
     Text("Logs:");
 
-    for(const TheatreLog& log : s_TheatreLogs)
+    for(const TheatreLog& log : sTheatreLogs)
     {
         Separator();
-        Text("Theatre File: %s", log.m_TheatreFilePath.c_str());
-        if(log.m_LoadTime.IsFinished())
+        Text("Theatre File: %s", log.name_or_file_path.c_str());
+        if(log.load_time.Finished())
         {
-            Text("Load Time: %fs", log.m_LoadTime.GetDuration());
+            Text("Load Time: %fs", log.load_time.Duration());
             if(IsItemHovered())
-                { SetTooltip("Started @ %s\nStopped @ %s", log.m_LoadTime.GetStartTime().c_str(), log.m_LoadTime.GetStopTime().c_str()); }
+                { SetTooltip("Started @ %s\nStopped @ %s", log.load_time.StartTime().c_str(), log.load_time.StopTime().c_str()); }
         }
-        if(log.m_UnloadTime.IsFinished())
+        if(log.unload_time.Finished())
         {
-            Text("Unload Time: %fs", log.m_UnloadTime.GetDuration());
+            Text("Unload Time: %fs", log.unload_time.Duration());
             if(IsItemHovered())
-                { SetTooltip("Started @ %s\nStopped @ %s", log.m_UnloadTime.GetStartTime().c_str(), log.m_UnloadTime.GetStopTime().c_str()); }
+                { SetTooltip("Started @ %s\nStopped @ %s", log.unload_time.StartTime().c_str(), log.unload_time.StopTime().c_str()); }
         }
     }
     EndChild();
@@ -554,7 +468,10 @@ static void s_TheatreDebuggingWindow()
 static void s_NameAndUID(const auto& thing)
 {
     Text("Name - %s", thing->c_name());
-    Text("UID  - %u", (id_t)thing->uid());
+    if(thing->uid() != ID::Invalid)
+        { Text("UID  - %u", (id_t)thing->uid()); }
+    else
+        { Text("UID  - ID::Invalid"); }
 }
 
 static void s_ResourceInfo(ID uid, const char* tree_name)
@@ -611,6 +528,9 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
         if(sActor && _Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
         {
             BeginChild("View Actor", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
+            std::string destroy_text{std::format("Destroy {}", sActor->c_name())};
+            if(Button(destroy_text.data()) && g_pTheatreManager->DestroyThing(sActor->uid()))
+                { EndChild(); return; }
 
             SeparatorText("Immutable Properties");
             s_NameAndUID(sActor);
@@ -668,6 +588,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         s_ResourceInfo(material->GetDiffuseTexture(),  "Diffuse Texture");
                         s_ResourceInfo(material->GetSpecularTexture(), "Specular Texture");
                         Checkbox("Don't Use Textures", &material->mDontUseTexture);
+                        Checkbox("Ignore Lighting", &material->mFullBright);
                         ColorEditGLMv3("Diffuse Color", &material->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
                         InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
                         InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");

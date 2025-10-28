@@ -18,10 +18,10 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 #ifdef DEBUGGING
-    int g_ShaderDebugOuptut = Shader_ALL;
     static void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);
 #endif
 
+int g_ShaderDebugOuptut = Shader_ALL;
 static std::vector<OpenGL_BufferData> sBufferData{};
 static uint sVBO{0};
 static uint sIBO{0};

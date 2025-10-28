@@ -61,12 +61,13 @@ private:
     void UpdateViewport(const Viewport&) const final;
 };
 
-#ifdef DEBUGGING
+// Shader selection
+    extern int g_ShaderDebugOuptut;
     constexpr int Shader_ALL{0};
     constexpr int Shader_COLOR{1};
     constexpr int Shader_NORMAL{2};
     constexpr int Shader_UV{3};
-    extern int g_ShaderDebugOuptut;
+#ifdef DEBUGGING
     inline bool g_EnableDebugMsgHigh{true};
     inline bool g_EnableDebugMsgMedium{true};
     inline bool g_EnableDebugMsgLow{true};
