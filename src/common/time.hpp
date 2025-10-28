@@ -2,15 +2,25 @@
 #define TIME_H
 
 #include <string>
+#include <float.h>
 
-struct Time
+namespace Time
 {
-    static double Start();
-    static double Current();
-    static double Elapsed();
+    double Start();
+    double Current();
+    double Elapsed();
 
-    static std::string StartFormatted();
-    static std::string CurrentFormatted();
-};
+    std::string StartFormatted();
+    std::string CurrentFormatted();
+
+    // If `OrMsPasses` is '0.0', no maximum wait time will be set. (Well, it'll be set to `DBL_MAX`, so good luck reaching that).
+    inline void Wait(bool* WhileTrue, double OrMsPasses = 0.0)
+    {
+        double start_time{Current()};
+        if(OrMsPasses == 0.0)
+            { OrMsPasses = DBL_MAX; }
+        do {} while(WhileTrue || (Current() - start_time) >= OrMsPasses);
+    }
+}
 
 #endif // TIME_H
