@@ -24,9 +24,9 @@ using namespace ManagerEnums;
 static TheatreManager sTheatreManager;
 TheatreManager* g_pTheatreManager = &sTheatreManager;
 
-static std::shared_ptr<NostalgiaPlayer> s_LocalPlayer{std::make_shared<NostalgiaPlayer>()};
-static std::vector<RenderCommand> s_RenderCommandQueue{};
-static bool s_ReadyToRender{false};
+static std::shared_ptr<NostalgiaPlayer> sLocalPlayer{std::make_shared<NostalgiaPlayer>()};
+static std::vector<RenderCommand> sRenderCommandQueue{};
+static bool sReadyToRender{false};
 static TheatreData sCurrentTheatreData{};
 
 bool TheatreManager::Init()
@@ -35,11 +35,11 @@ bool TheatreManager::Init()
 void TheatreManager::Update()
 {
     light_t::ClearCounts();
-    s_LocalPlayer->Update();
+    sLocalPlayer->Update();
     for(auto& [id, thing] : mThings)
     {
         thing->Update();
-        if(!s_ReadyToRender)
+        if(!sReadyToRender)
             { return; }
         ID shader{Shaders::BlinnPhong};
         if(auto actor = dynamic_pointer_cast<Actor>(thing))
@@ -59,7 +59,7 @@ void TheatreManager::Update()
 
 void TheatreManager::Tick()
 {
-    s_LocalPlayer->Tick();
+    sLocalPlayer->Tick();
     for(auto& [id, thing] : mThings)
         { thing->Tick(); }
 }
@@ -71,13 +71,13 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 
     g_pDemoController->NotifyOfTheatreChange();
 
-    s_ReadyToRender = false;
+    sReadyToRender = false;
 
     CreateThings();
     ReadyThings();
     g_pBackendManager->Graphics()->CreateRenderingData();
 
-    s_ReadyToRender = true;
+    sReadyToRender = true;
 
     return FINISHED;
 }
@@ -89,7 +89,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 
     g_pDemoController->StopRecording();
     g_pDemoController->Save();
-    s_ReadyToRender = false;
+    sReadyToRender = false;
     DestroyThings();
     g_pBackendManager->Graphics()->DestroyRenderingData();
 
@@ -157,7 +157,7 @@ std::vector<ID> TheatreManager::GetThingIDs()
 
 void TheatreManager::DelegateInputEvent(const InputEvent& event)
 {
-    s_LocalPlayer->Input(event);
+    sLocalPlayer->Input(event);
     for(const auto& [id, thing] : mThings)
         { thing->Input(event); }
 }
@@ -177,7 +177,7 @@ const ID& TheatreManager::CreateThing(const ThingData& cData)
 
     if(data.type() == ThingType::NostalgiaPlayer)
     {
-        thing = static_pointer_cast<Thing>(s_LocalPlayer);
+        thing = static_pointer_cast<Thing>(sLocalPlayer);
         thing->SetVariables(ThingData::PlayerDefaults);
     }
     else
@@ -190,7 +190,7 @@ const ID& TheatreManager::CreateThing(const ThingData& cData)
 }
 
 std::shared_ptr<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
-{ return s_LocalPlayer; }
+{ return sLocalPlayer; }
 
 bool TheatreManager::DestroyThing(const ID& id)
 {
@@ -199,10 +199,10 @@ bool TheatreManager::DestroyThing(const ID& id)
         print_warning("TheatreManager::DestroyThing - No Thing with ID#{} exists", id);
         return false;
     }
-    else if(id == s_LocalPlayer->uid())
+    else if(id == sLocalPlayer->uid())
     {
-        print_warning("TheatreManager::DestroyThing - Cannot destroy the NostalgiaPlayer Thing! (ID#{})", s_LocalPlayer->uid());
-        print_debug("Player ID: {}, Thing ID: {}", s_LocalPlayer->uid(), id);
+        print_warning("TheatreManager::DestroyThing - Cannot destroy the NostalgiaPlayer Thing! (ID#{})", sLocalPlayer->uid());
+        print_debug("Player ID: {}, Thing ID: {}", sLocalPlayer->uid(), id);
         return false;
     }
     if(!UniqueIDs::Contains(id))
@@ -214,7 +214,7 @@ void TheatreManager::CreateThings()
 {
     Time::Wait(mDestroyingThings);
     mCreatingThings = true;
-    s_ReadyToRender = false;
+    sReadyToRender = false;
 
     // Clear rendering data and buffer important embedded Resources
     g_pBackendManager->Graphics()->DestroyRenderingData();
@@ -232,7 +232,7 @@ void TheatreManager::CreateThings()
     for(ThingData& data : sCurrentTheatreData.things_data)
         { CreateThing(data); }
 
-    s_ReadyToRender = true;
+    sReadyToRender = true;
     mCreatingThings = false;
 }
 
