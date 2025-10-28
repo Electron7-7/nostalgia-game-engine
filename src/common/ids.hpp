@@ -15,18 +15,40 @@ public:
     constexpr ID() = default;
 
     constexpr ID(id_t id):
-        id_{id}, name_{""} {}
+        id_{id} {}
 
     constexpr ID(const std::string& name):
         id_{ConstexprHash(name.data())}, name_{name} {}
 
-    constexpr operator const id_t&() const
+    consteval const id_t& operator()() const
+    { return id_; }
+    explicit constexpr operator id_t() const
     { return id_; }
 
     constexpr const std::string& name() const
     { return name_; }
     constexpr const char* c_name() const
     { return name_.data(); }
+    constexpr bool operator<(const ID& Other) const
+    { return id_ < Other.id_; }
+    constexpr ID operator+(int Other) const
+    { return ID{id_ + Other, name_}; }
+    constexpr bool operator==(const ID& Other) const
+    { return id_ == Other.id_; }
+    constexpr bool operator!=(const ID& Other) const
+    { return id_ != Other.id_; }
+    constexpr ID operator=(const ID& Other)
+    {
+        id_ = Other.id_;
+        if(!Other.name_.empty())
+            { name_ = Other.name_; }
+        return *this;
+    }
+    constexpr ID operator=(id_t Other)
+    {
+        id_ = Other;
+        return *this;
+    }
 
     constexpr bool invalid() const
     { return id_ == ID::Invalid; }
@@ -35,10 +57,17 @@ public:
     static constexpr id_t front   {0};
     static constexpr id_t back    {Invalid - 1};
 
+    static id_t Generate();
+
 private:
+    constexpr ID(id_t id, const std::string& str):
+        id_{id}, name_{str} {}
     id_t id_{ID::Invalid};
     std::string name_{""};
 };
+
+template<typename T>
+    concept IDType = std::is_same_v<ID,T> || std::is_constructible_v<ID,T> || std::is_convertible_v<ID,T>;
 
 template<>
 struct std::formatter<ID> : std::formatter<id_t>
