@@ -38,7 +38,6 @@ public:
     void DestroyRenderingData() final;
     void BufferMesh(const FileData&, const ID&) final;
     void BufferTexture(const FileData&, const ID&) final;
-    void ClearBuffer(const glm::vec4&) final;
     const ShaderInterface* GetShader(unsigned int) const final;
     bool BuildShader(unsigned int, const char*, const char*) final;
     bool BindShader(unsigned int) final;

@@ -21,6 +21,7 @@ public:
 
     SafeStatus CreateMainWindow() final;
 
+    void ClearBuffer(const glm::vec4&) final;
     void UpdateState() final;
     MouseMode ToggleMouseMode(MouseMode, MouseMode) final;
     void ToggleRawMouseMotion() final;

@@ -110,6 +110,7 @@ bool BackendManager::ImGuiNewFrame()
         { return false; }
     s_pGraphics->ImGuiNewFrame();
     s_pWindowing->ImGuiNewFrame();
+    Windowing()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
     ImGui::NewFrame();
 #   pragma message("Find a better way of disabling mouse input for ImGui when the cursor is disabled")
     if(s_pWindowing->GetMouseMode() == MouseMode::Disabled)

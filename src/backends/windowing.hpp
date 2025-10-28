@@ -30,6 +30,8 @@ public:
     virtual void ShutdownImGui() {}
     virtual void ImGuiNewFrame() {}
 
+    // https://gamedev.stackexchange.com/a/150215
+    virtual void ClearBuffer(const glm::vec4& ClearColor) = 0;
     virtual void UpdateState() = 0;
     virtual SafeStatus CreateMainWindow() = 0;
     virtual void ToggleRawMouseMotion() = 0;

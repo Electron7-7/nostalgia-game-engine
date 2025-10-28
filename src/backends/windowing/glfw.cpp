@@ -51,6 +51,14 @@ void GLFW_Backend::ShutdownImGui()
 void GLFW_Backend::ImGuiNewFrame()
 { ImGui_ImplGlfw_NewFrame(); }
 
+#pragma message("TODO: Implement a way to dynamically clear the depth bit if 3D is enabled")
+// https://gamedev.stackexchange.com/a/150215
+void GLFW_Backend::ClearBuffer(const glm::vec4& color)
+{
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 SafeStatus GLFW_Backend::CreateMainWindow()
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);

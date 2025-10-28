@@ -24,12 +24,6 @@ static std::vector<OpenGL_BufferData> sBufferData{};
 static uint sVBO{0};
 static uint sIBO{0};
 
-void OpenGL_Backend::ClearBuffer(const glm::vec4& clear_color)
-{
-    glClearColor(clear_color[0], clear_color[1], clear_color[2], clear_color[3]);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
 bool OpenGL_Backend::Init()
 {
     print_debug("OpenGL_Backend::Init");

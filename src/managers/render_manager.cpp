@@ -27,17 +27,12 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_
 
 void RenderManager::Update()
 {
-    if(GetTheatreState() == NOT_IN_LEVEL)
-    {
-        g_pBackendManager->Graphics()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
-        g_pUIManager->DrawUI();
-        g_pBackendManager->Windowing()->SwapBuffers();
-        return;
-    }
-
-    g_pBackendManager->Graphics()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
-    g_pTheatreManager->RenderWorld();
+    if(!g_pBackendManager->ImGuiNewFrame())
+        { g_pBackendManager->Windowing()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f)); }
     g_pUIManager->DrawUI();
+    if(GetTheatreState() == IN_LEVEL)
+        { g_pBackendManager->Graphics()->RenderStoredCommands(); }
+    g_pBackendManager->ImGuiRender();
     g_pBackendManager->Windowing()->SwapBuffers();
 }
 
