@@ -530,7 +530,7 @@ void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
             BeginChild("View Actor", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
             std::string destroy_text{std::format("Destroy {}", sActor->c_name())};
             if(Button(destroy_text.data()) && g_pTheatreManager->DestroyThing(sActor->uid()))
-                { EndChild(); return; }
+                { EndChild(); End(); sActor = nullptr; return; }
 
             SeparatorText("Immutable Properties");
             s_NameAndUID(sActor);
