@@ -2,6 +2,7 @@
 #include "theatre_parser/thing_data.hpp"
 #include "input/event.hpp"
 #include "settings/player.hpp"
+#include "math/glm_operators.hpp"
 
 void NostalgiaPlayer::SetVariables(const ThingData& data)
 {
@@ -19,17 +20,13 @@ ThingData NostalgiaPlayer::GetVariables() const
     return data;
 }
 
-
 void NostalgiaPlayer::Input(const InputEvent& event)
 {
     Move({
-        event.IsActionDown("+right")   - event.IsActionDown("+left"),
-        event.IsActionDown("+forward") - event.IsActionDown("+backward")
+        mCaptureKeyboard * (event.IsActionDown("+right")   - event.IsActionDown("+left")),
+        mCaptureKeyboard * (event.IsActionDown("+forward") - event.IsActionDown("+backward"))
     });
-    if(event.IsMouseCaptured())
-        { Look(event.MouseMotion()); }
-    else
-        { Look(glm::vec2{0.0f}); }
+    Look(mCaptureMouse * event.MouseMotion());
 }
 
 void NostalgiaPlayer::Tick()
@@ -41,6 +38,7 @@ void NostalgiaPlayer::Tick()
     mOrigin += mVelocity;
     mMovementDirection = glm::vec3(0.0f);
     SetEuler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
+    mViewMatrix = glm::lookAt(mOrigin, mOrigin + Front(), Up());
 }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)
@@ -54,6 +52,9 @@ void NostalgiaPlayer::Look(const glm::vec2& motion)
 
 const glm::vec3& NostalgiaPlayer::ViewPosition() const
 { return mViewPosition; }
+
+const glm::mat4& NostalgiaPlayer::ViewMatrix() const
+{ return mViewMatrix; }
 
 void NostalgiaPlayer::SetViewPosition(const glm::vec3& view_position)
 { mViewPosition = view_position; }

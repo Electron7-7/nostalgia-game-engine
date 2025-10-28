@@ -232,6 +232,15 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
     auto mesh_instance = g_pTheatreManager->GetThing<MeshInstance>(rendercmd.mesh_instance);
     auto material      = g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID());
+    auto player{g_pTheatreManager->GetLocalPlayer()};
+    ID shader{rendercmd.shader};
+
+    glm::mat4 projection_matrix{glm::perspective(
+        glm::radians(Settings::Player::FOV),
+        CurrentViewport().scale.AspectRatio(),
+        Settings::Player::ViewCutoffNear,
+        Settings::Player::ViewCutoffFar
+    )};
 
     glBindVertexArray(mVAOs.at(VAO_DEFAULT));
     BindShader(rendercmd.shader);
@@ -245,31 +254,32 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     glBindTextureUnit(0, GetTextureID(material->GetDiffuseTexture()));
     glBindTextureUnit(1, GetTextureID(material->GetSpecularTexture()));
 
-#ifdef DEBUGGING
-    GetShader(rendercmd.shader)->SetUniform("debug_output", g_ShaderDebugOuptut);
-#endif
-    GetShader(rendercmd.shader)->SetUniform("debug_highlight", rendercmd.debug_highlight * rendercmd.debug_highlight.a);
+    GetShader(shader)->SetUniform("debug_output", g_ShaderDebugOuptut);
+    GetShader(shader)->SetUniform("debug_highlight", rendercmd.debug_highlight * rendercmd.debug_highlight.a);
 
-    GetShader(rendercmd.shader)->SetUniform("point_lights_count", PointLight::GetCount());
-    GetShader(rendercmd.shader)->SetUniform("spot_lights_count", SpotLight::GetCount());
-    GetShader(rendercmd.shader)->SetUniform("directional_lights_count", DirectionalLight::GetCount());
+    GetShader(shader)->SetUniform("point_lights_count", PointLight::GetCount());
+    GetShader(shader)->SetUniform("spot_lights_count", SpotLight::GetCount());
+    GetShader(shader)->SetUniform("directional_lights_count", DirectionalLight::GetCount());
 
-    GetShader(rendercmd.shader)->SetUniform("model_matrix", rendercmd.model_matrix);
-    GetShader(rendercmd.shader)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.model_matrix))));
-    GetShader(rendercmd.shader)->SetUniform("projection_matrix", rendercmd.ProjectionMatrix());
-    GetShader(rendercmd.shader)->SetUniform("view_matrix", rendercmd.ViewMatrix());
-    GetShader(rendercmd.shader)->SetUniform("view_position", rendercmd.ViewPosition());
+    GetShader(shader)->SetUniform("model_matrix", rendercmd.model_matrix);
+    GetShader(shader)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(rendercmd.model_matrix))));
+    GetShader(shader)->SetUniform("projection_matrix", projection_matrix);
+    GetShader(shader)->SetUniform("view_matrix", player->ViewMatrix());
+    GetShader(shader)->SetUniform("view_position", player->ViewPosition());
 
-    GetShader(rendercmd.shader)->SetUniform("current_material.texture_diffuse",  0);
-    GetShader(rendercmd.shader)->SetUniform("current_material.texture_specular", 1);
-    GetShader(rendercmd.shader)->SetUniform("current_material.use_textures", !material->mDontUseTexture);
-    GetShader(rendercmd.shader)->SetUniform("current_material.diffuse_color", material->mColor);
-    GetShader(rendercmd.shader)->SetUniform("current_material.alpha", material->mAlpha);
-    GetShader(rendercmd.shader)->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-    GetShader(rendercmd.shader)->SetUniform("current_material.specular_strength", material->mSpecularStrength);
+    GetShader(shader)->SetUniform("current_material.texture_diffuse",  0);
+    GetShader(shader)->SetUniform("current_material.texture_specular", 1);
+    GetShader(shader)->SetUniform("current_material.use_textures", !material->mDontUseTexture);
+    GetShader(shader)->SetUniform("current_material.diffuse_color", material->mColor);
+    GetShader(shader)->SetUniform("current_material.alpha", material->mAlpha);
+    GetShader(shader)->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+    GetShader(shader)->SetUniform("current_material.specular_strength", material->mSpecularStrength);
+
+    UpdateViewport(CurrentViewport());
+    if(!BindShader(shader))
+        { print_error("OpenGL_Backend::RenderSingleCommand - failed to bind shader '{}' ({})", shader.name(), (uint)shader); return; }
 
     OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
-
     glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(uint) * data->base_index), data->base_vertex);
 
     glDisable(GL_FRAMEBUFFER_SRGB);

@@ -11,11 +11,7 @@
 struct RenderCommand
 {
 public:
-    RenderCommand(std::shared_ptr<Actor>, ID ShaderID = Shaders::BlinnPhong);
-
-    glm::vec3 ViewPosition() const;
-    glm::mat4 ViewMatrix() const;
-    glm::mat4 ProjectionMatrix() const;
+    RenderCommand(std::shared_ptr<Actor>, const ID& ShaderID = Shaders::BlinnPhong);
 
     ID shader{Shaders::BlinnPhong};
     ID mesh_instance{ID::Invalid};
