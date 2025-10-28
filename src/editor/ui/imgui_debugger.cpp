@@ -70,15 +70,6 @@ void imgui_Debugger::Input(const InputEvent& event)
         { sShowDemoWindow = !sShowDemoWindow; }
 }
 
-void imgui_Debugger::CloseAllWindows()
-{ sShowDemoWindow = sShowMainWindow = false; }
-
-void imgui_Debugger::ReopenMainWindows()
-{ sShowMainWindow = true; }
-
-bool imgui_Debugger::AreAllWindowsClosed()
-{ return !(sShowDemoWindow || sShowMainWindow); }
-
 void imgui_Debugger::Update()
 {
     if(sShowDemoWindow)

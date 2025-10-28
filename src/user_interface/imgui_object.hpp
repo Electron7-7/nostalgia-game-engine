@@ -13,9 +13,8 @@ public:
     virtual bool Init() { return true; }
     virtual void Shutdown() {}
     virtual void Update() {}
+    virtual void TheatreStateChanged(bool IsStartup) {}
     virtual void Input(const InputEvent&) {}
-    virtual void ReopenMainWindows() {}
-    virtual void CloseAllWindows() = 0;
 
 protected:
     virtual ~ImGui_Object() {}

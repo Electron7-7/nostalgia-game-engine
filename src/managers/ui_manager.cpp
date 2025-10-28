@@ -9,6 +9,7 @@ UIManager* g_pUIManager = &s_UIManager;
 
 bool UIManager::Init()
 {
+    print_debug("UIManager::Init");
     // Do all non-ImGui initialization here...
 
     g_pBackendManager->InitImGui();
@@ -24,7 +25,7 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool first_call)
     if(!first_call)
         { return FINISHED; }
     for(auto imgui_object : imgui_objects)
-        { imgui_object->CloseAllWindows(); }
+        { imgui_object->TheatreStateChanged(true); }
     return FINISHED;
 }
 
@@ -36,7 +37,7 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool first_call)
     if(!first_call)
         { return FINISHED; }
     for(auto imgui_object : imgui_objects)
-        { imgui_object->ReopenMainWindows(); }
+        { imgui_object->TheatreStateChanged(false); }
     return FINISHED;
 }
 
@@ -54,12 +55,8 @@ void UIManager::DrawUI()
 
 void UIManager::DrawImGuiUI()
 {
-    g_pBackendManager->ImGuiNewFrame();
-
     for(ImGui_Object* imgui_object : imgui_objects)
         { imgui_object->Update(); }
-
-    g_pBackendManager->ImGuiRender();
 }
 
 void UIManager::Shutdown()
@@ -71,6 +68,7 @@ void UIManager::Shutdown()
 
 ImGui_Object* UIManager::AddImGuiObject(ImGui_Object* new_object)
 {
-    imgui_objects.insert(imgui_objects.end(), new_object);
-    return imgui_objects.at(imgui_objects.size() - 1);
+    imgui_objects.push_back(new_object);
+    imgui_objects.back()->Init();
+    return imgui_objects.back();
 }

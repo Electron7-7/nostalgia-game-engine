@@ -12,9 +12,6 @@ class imgui_Debugger : public ImGui_Object
 {
 public:
     void Input(const InputEvent&);
-    void CloseAllWindows();
-    void ReopenMainWindows();
-    bool AreAllWindowsClosed();
     void Update();
 
     StopwatchLog& StartStopwatch(const std::string& Message = "No Message");
