@@ -14,10 +14,10 @@ void Thing::SetVariables(const ThingData& data)
 ThingData Thing::GetVariables() const
 { return ThingData{mName, mType, mUID}; }
 
-ID Thing::uid() const
+const ID& Thing::uid() const
 { return mUID; }
 
-ID Thing::type() const
+const ID& Thing::type() const
 { return mType; }
 
 const std::string& Thing::name() const

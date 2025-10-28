@@ -62,7 +62,7 @@ std::string ThingData::log(bool colored, bool indent) const
 {
     std::string log;
     if(colored)
-        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", Sty::Reset, Sty::Bold + Fg::Yellow, Sty::Bold + Fg::Green, g_pThingFactory->GetTypeName(type_), name, uid); }
+        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", Sty::Reset, Sty::Bold + Fg::Yellow, Sty::Bold + Fg::Green, g_pThingFactory->GetTypeName(type_), name, (uid.invalid()) ? "ID::Invalid" : std::to_string((uint)uid)); }
     else
         {  log = std::format("({}) {} [{}]\n", g_pThingFactory->GetTypeName(type_), name, uid);  }
     for(const auto& var : variables)

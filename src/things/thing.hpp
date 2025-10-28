@@ -25,8 +25,8 @@ public:
     // See `Material::GetVariables` for an example.
     virtual ThingData GetVariables() const;
 
-    ID uid() const;
-    ID type() const;
+    const ID& uid() const;
+    const ID& type() const;
     const std::string& name() const;
     const char* const c_name() const;
 
