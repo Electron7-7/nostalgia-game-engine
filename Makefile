@@ -26,8 +26,8 @@ FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
 FLAGS_LINUX           := # Nothing yet
 
 # These are only used when linking dynamically
-EDITOR_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
-EDITOR_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
+EDITR_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
+EDITR_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
 
 # Archives & Libraries
 ARCHIVES_DIR_LINUX       := src/static_libraries/linux
@@ -62,11 +62,11 @@ NAME_DYNAMIC_LINUX   := .so
 NAME_STATIC_WINDOWS  := .a
 NAME_DYNAMIC_WINDOWS := .dll
 
-EDITOR_BASE := LibraryTestingApp
+EDITR_BASE := Nostalgia_Goggles
 
 # LINUX
 ifneq ($(OS),Windows_NT)
-	export EDITOR_NAME     ?= $(EDITOR_BASE)
+	export EDITR           ?= $(EDITR_BASE)
 	export NAME_STATIC     ?= $(NAME_STATIC_LINUX)
 	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_LINUX)
 	export BUILD_ARCH      ?= $(DIR_LINUX)
@@ -75,13 +75,13 @@ ifneq ($(OS),Windows_NT)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_LINUX)
-	export EDITOR_LD_FLAGS ?= $(EDITOR_LD_FLAGS_LINUX)
+	export EDITR_LD_FLAGS  ?= $(EDITR_LD_FLAGS_LINUX)
 	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_LINUX)
 	export CXX_COMPILER    ?= $(LINUX_CXX)
 	export C_COMPILER      ?= $(LINUX_CC)
 	export ARCHIVER        ?= $(LINUX_AR)
 else # WINDOWS
-	export EDITOR_NAME     ?= $(EDITOR_BASE).exe
+	export EDITR           ?= $(EDITR_BASE).exe
 	export NAME_STATIC     ?= $(NAME_STATIC_WINDOWS)
 	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_WINDOWS)
 	export BUILD_ARCH      ?= $(DIR_WINDOWS)
@@ -90,7 +90,7 @@ else # WINDOWS
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
 	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
-	export EDITOR_LD_FLAGS ?= $(EDITOR_LD_FLAGS_WINDOWS)
+	export EDITR_LD_FLAGS  ?= $(EDITR_LD_FLAGS_WINDOWS)
 	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER    ?= $(WINDOWS_CXX)
 	export C_COMPILER      ?= $(WINDOWS_CC)
@@ -111,13 +111,11 @@ export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
 export BUILD_ARCHIVES ?= $(BUILD_OBJS)/$(DIR_ARCHIVES)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
-export NAME        ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
-export EDITOR_TYPE ?= $(PRETTY_STRING_STATIC)
-export EDITOR      ?= $(EDITOR_TYPE)$(EDITOR_NAME)
+export NAME  ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
 
 export LIBRARY_FLAGS ?= $(FLAGS_STATIC)
 
-export BUILDING_EDITOR ?=
+export BUILDING_EDITR ?=
 export BUILDING_DYNAMIC_LIBRARY ?=
 export BUILDING_STATIC_LIBRARY  ?=
 
@@ -152,13 +150,12 @@ SRC_DIRS :=                             \
     $(SRC)/things/thinkers              \
 	$(SRC)/user_interface               \
 
-THIRDPARTY_SRC_DIRS :=                        \
-	$(SRC)/thirdparty/DearImGui               \
-	$(SRC)/thirdparty/DearImGui/misc/freetype \
-	$(SRC)/thirdparty/glm/detail              \
+THIRDPARTY_SRC_DIRS :=           \
+	$(SRC)/thirdparty/DearImGui  \
+	$(SRC)/thirdparty/glm/detail \
 	$(SRC)/thirdparty/glad
 
-EDITOR_SRC_DIRS :=       \
+EDITR_SRC_DIRS :=        \
     $(SRC)/editor/app    \
     $(SRC)/editor/system \
     $(SRC)/editor/tools  \
@@ -172,7 +169,7 @@ get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 CC_SRCS  ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)   $(call get_source_files,$(SRC_DIRS),*.c)
 CXX_SRCS ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp) $(call get_source_files,$(SRC_DIRS),*.cpp)
 
-EDITOR_SRCS := $(call get_source_files,$(EDITOR_SRC_DIRS),*.cpp)
+EDITR_SRCS := $(call get_source_files,$(EDITR_SRC_DIRS),*.cpp)
 
 HEADER_FILES := $(call get_source_files,$(SRC_DIRS),*.h) $(call get_source_files,$(SRC_DIRS),*.hpp)
 
@@ -182,7 +179,7 @@ export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
 export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/Common/*.a) $(JOLT_LIBRARY)
 export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(ARCHIVES:$(ARCHIVES_DIR)/%.a=%.o))
-export EDITOR_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(EDITOR_SRCS:$(SRC)/%=%)))
+export EDITR_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(EDITR_SRCS:$(SRC)/%=%)))
 
 export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
 
@@ -206,15 +203,15 @@ export DEFAULT ?= \\x1b[39m
 
 all: editor ;@:
 
-run: ;@:
-	@ $(BUILD_DIR)/$(EDITOR)
+run: editor
+	@ $(BUILD_DIR)/$(EDITR)
 
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
-	@ if [ -n "$(BUILDING_EDITOR)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(EDITOR) $(EDITOR_LD_FLAGS)$(RESET)\n"; fi
+	@ if [ -n "$(BUILDING_EDITR)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(EDITR) $(EDITR_LD_FLAGS)$(RESET)\n"; fi
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
 		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
 	; fi
@@ -255,15 +252,15 @@ libraries: static dynamic ;@:
 
 editor: static
 	$(eval LD_FLAGS =)
-	$(eval EDITOR_TYPE = $(PRETTY_STRING_STATIC))
+	$(eval EDITR_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
-	$(eval EDITOR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
+	$(eval EDITR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
-	$(eval BUILDING_EDITOR = 1)
-	@ -rm -f $(BUILD_DIR)/$(EDITOR)
-	@ $(MAKE) -s printout $(BUILD_DIR)/$(EDITOR)
+	$(eval BUILDING_EDITR = 1)
+	@ -rm -f $(BUILD_DIR)/$(EDITR)
+	@ $(MAKE) -s printout $(BUILD_DIR)/$(EDITR)
 	@ printf "$(BOLD)$(DEFAULT)::Nostalgia Editor Built Successfully$(RESET)\n"
 
 headers:
@@ -272,7 +269,7 @@ headers:
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
-	$(eval EDITOR_NAME     = $(EDITOR_BASE))
+	$(eval EDITR           = $(EDITR_BASE))
 	$(eval NAME_STATIC     = $(NAME_STATIC_LINUX))
 	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_LINUX))
 	$(eval BUILD_ARCH      = $(DIR_LINUX))
@@ -281,7 +278,7 @@ linux: ;@:
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS        = $(DYNAMIC_LDFLAGS_LINUX))
-	$(eval EDITOR_LD_FLAGS = $(EDITOR_LD_FLAGS_LINUX))
+	$(eval EDITR_LD_FLAGS  = $(EDITR_LD_FLAGS_LINUX))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER    = $(LINUX_CXX))
 	$(eval C_COMPILER      = $(LINUX_CC))
@@ -290,7 +287,7 @@ linux: ;@:
 	$(eval CLEAN_ARCH      = $(DIR_LINUX))
 
 windows: ;@:
-	$(eval EDITOR_NAME     = $(EDITOR_BASE).exe)
+	$(eval EDITR           = $(EDITR_BASE).exe)
 	$(eval NAME_STATIC     = $(NAME_STATIC_WINDOWS))
 	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_WINDOWS))
 	$(eval BUILD_ARCH      = $(DIR_WINDOWS))
@@ -299,7 +296,7 @@ windows: ;@:
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
 	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
-	$(eval EDITOR_LD_FLAGS = $(EDITOR_LD_FLAGS_WINDOWS))
+	$(eval EDITR_LD_FLAGS  = $(EDITR_LD_FLAGS_WINDOWS))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER    = $(WINDOWS_CXX))
 	$(eval C_COMPILER      = $(WINDOWS_CC))
@@ -430,9 +427,9 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
 
 # Editor
-$(BUILD_DIR)/$(EDITOR): $(EDITOR_OBJS)
+$(BUILD_DIR)/$(EDITR): $(EDITR_OBJS)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(EDITOR_LD_FLAGS)
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(EDITR_LD_FLAGS)
 
 # Prints a unique cleanup message
 NOTHING_TO_CLEAN.clean:
