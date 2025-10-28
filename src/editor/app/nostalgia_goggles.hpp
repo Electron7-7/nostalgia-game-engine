@@ -19,7 +19,6 @@ public:
 };
 
 extern std::string gToggleFullscreen;
-extern std::string gToggleMouseCapture;
 extern NostalgiaGoggles* g_pApplication;
 
 #endif // NOSTALGIA_GOGGLES_H

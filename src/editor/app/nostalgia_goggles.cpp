@@ -1,5 +1,6 @@
 #include "nostalgia_goggles.hpp"
 #include "editor/ui/imgui_debugger.hpp"
+#include "editor/ui/main_window.hpp"
 #include "settings/window.hpp"
 #include "managers/manager.hpp"
 #include "managers/physics_manager.hpp"
@@ -13,14 +14,11 @@ static NostalgiaGoggles s_NostalgiaGogglesApp;
 NostalgiaGoggles* g_pApplication = &s_NostalgiaGogglesApp;
 
 std::string gToggleFullscreen{"ToggleFullscreen"};
-std::string gToggleMouseCapture{"ToggleMouseCapture"};
 
 static SafeStatus sInputEventHandler(const InputEvent& event)
 {
     if(event.IsActionPressed(gToggleFullscreen))
         { Settings::Window::ToggleFullscreen(); }
-    else if(event.IsActionPressed(gToggleMouseCapture))
-        { g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled); }
     else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyQ))
         { g_pApplication->Shutdown(); }
     return Status::NO_ERR;
@@ -69,9 +67,9 @@ int NostalgiaGoggles::Main()
 
     // g_pMenuManager->PushMenu("Main Menu");
     g_pUIManager->AddImGuiObject(g_pDebugger);
+    g_pUIManager->AddImGuiObject(g_pMainWindow);
 
-    g_pInputManager->AssignAction(gToggleFullscreen,   BindingIDs::KeyF);
-    g_pInputManager->AssignAction(gToggleMouseCapture, BindingIDs::KeyESC);
+    g_pInputManager->AssignAction(gToggleFullscreen, BindingIDs::KeyF);
     g_pInputManager->AssignAction("+forward",  BindingIDs::KeyW);
     g_pInputManager->AssignAction("+backward", BindingIDs::KeyS);
     g_pInputManager->AssignAction("+left",     BindingIDs::KeyA);
