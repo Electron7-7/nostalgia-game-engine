@@ -19,9 +19,9 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
 
     bool InitImGui();
-    void ShutdownImGui();
-    void ImGuiNewFrame();
-    void ImGuiRender();
+    bool ShutdownImGui();
+    bool ImGuiNewFrame();
+    bool ImGuiRender();
 
     std::shared_ptr<GraphicsBackend>  Graphics();
     std::shared_ptr<WindowingBackend> Windowing();

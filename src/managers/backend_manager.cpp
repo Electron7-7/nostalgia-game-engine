@@ -94,32 +94,34 @@ bool BackendManager::InitImGui()
     return mImGuiInitialized;
 }
 
-void BackendManager::ShutdownImGui()
+bool BackendManager::ShutdownImGui()
 {
     if(!mImGuiInitialized)
-        { return; }
+        { return false; }
     s_pGraphics->ShutdownImGui();
     s_pWindowing->ShutdownImGui();
     ImGui::DestroyContext();
-    mImGuiInitialized = false;
+    return !(mImGuiInitialized = false);
 }
 
-void BackendManager::ImGuiNewFrame()
+bool BackendManager::ImGuiNewFrame()
 {
     if(!mImGuiInitialized)
-        { return; }
+        { return false; }
     s_pGraphics->ImGuiNewFrame();
     s_pWindowing->ImGuiNewFrame();
     ImGui::NewFrame();
 #   pragma message("Find a better way of disabling mouse input for ImGui when the cursor is disabled")
     if(s_pWindowing->GetMouseMode() == MouseMode::Disabled)
         { ImGui::GetIO().ClearInputMouse(); }
+    return true;
 }
 
-void BackendManager::ImGuiRender()
+bool BackendManager::ImGuiRender()
 {
     if(!mImGuiInitialized)
-        { return; }
+        { return false; }
     ImGui::Render();
     s_pGraphics->ImGuiRender();
+    return true;
 }
