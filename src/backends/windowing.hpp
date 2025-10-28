@@ -2,9 +2,9 @@
 #define WINDOWING_BACKEND_H
 
 #include "input/fwd.hpp"
+#include "rendering/fwd.hpp"
 
 #include "backend.hpp"
-#include "settings/window_info.hpp"
 #include "common/safe_return.hpp"
 #include "common/ids.hpp"
 

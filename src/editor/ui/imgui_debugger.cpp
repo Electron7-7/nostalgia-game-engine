@@ -14,6 +14,7 @@
 #include "managers/physics_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "theatre_parser/theatre_parser.hpp"
+#include "rendering/window_info.hpp"
 #include "things/thing_factory.hpp"
 #include "things/actors/light.hpp"
 #include "things/devices/mesh_instance.hpp"
