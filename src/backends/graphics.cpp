@@ -15,6 +15,8 @@ void GraphicsBackend::BufferRenderCommand(const RenderCommand& command)
 
 void GraphicsBackend::RenderStoredCommands()
 {
+    if(mRenderCommands.empty())
+        { return; }
     g_pBackendManager->Windowing()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
     std::list<RenderCommand> current_commands{mRenderCommands.cbegin(), mRenderCommands.cend()};
     mRenderCommands.clear();
