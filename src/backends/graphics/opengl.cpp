@@ -200,7 +200,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(const ID& shader_selection) con
     return &mShaders.at(shader_selection);
 }
 
-void OpenGL_Backend::BufferLight(light_t* light, uint shader)
+void OpenGL_Backend::SetLight(light_t* light, const ID& shader)
 {
     #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
     std::string l_Light = std::format("_lights[{}].", light->Index());
@@ -243,7 +243,6 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     )};
 
     glBindVertexArray(mVAOs.at(VAO_DEFAULT));
-    BindShader(rendercmd.shader);
 
     if(!material->mDontUseTexture)
         { glEnable(GL_FRAMEBUFFER_SRGB); }

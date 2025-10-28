@@ -7,6 +7,7 @@
 
 #include "backend.hpp"
 #include "rendering/viewport.hpp"
+#include "rendering/render_command.hpp"
 #include "settings/window.hpp"
 
 #include <glm/fwd.hpp>
@@ -26,6 +27,8 @@ public:
     virtual void ImGuiNewFrame() {}
     virtual void ImGuiRender() {}
 
+    void BufferRenderCommand(const RenderCommand&);
+    void RenderStoredCommands();
 
     bool UseViewport(const ID& ViewportID);
     const ID& CurrentViewportID();
@@ -38,18 +41,22 @@ public:
     bool IsViewportAt(const ID& ViewportID);
     uint PushViewport(const Viewport& Viewport);
     bool PopViewport(const ID& ID);
+
+    virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
+    // virtual uint FrameBufferTextureID() = 0;
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
     virtual void BufferMesh(const FileData& Data, const ID&) = 0;
     virtual void BufferTexture(const FileData& Data, const ID&) = 0;
-    virtual void BufferLight(light_t* Light, unsigned int ShaderLabel) = 0;
-    virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
     virtual const ShaderInterface* GetShader(const ID& ShaderSelection) const = 0;
     virtual bool BindShader(const ID& ShaderSelection) = 0;
     virtual bool BuildShader(const ID& ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
     virtual bool DeleteShader(const ID& ShaderSelection) = 0;
+    virtual void SetLight(light_t* Light, const ID& ShaderLabel) = 0;
 
 protected:
+    std::vector<RenderCommand> mRenderCommands{};
+
     ID mCurrentlyBoundShader{Shaders::BlinnPhong};
     ID mCurrentViewport{ViewportIDs::Window};
 

@@ -33,9 +33,27 @@ bool TheatreManager::Init()
 
 void TheatreManager::Update()
 {
+    light_t::ClearCounts();
     s_LocalPlayer->Update();
     for(auto& [id, thing] : mThings)
-        { thing->Update(); }
+    {
+        thing->Update();
+        if(!s_ReadyToRender)
+            { return; }
+        ID shader{Shaders::BlinnPhong};
+        if(auto actor = dynamic_pointer_cast<Actor>(thing))
+        {
+            if(auto light = dynamic_pointer_cast<light_t>(thing);
+                light && light->mEnabled && light->IncrementIndex())
+            {
+                g_pBackendManager->Graphics()->SetLight(light.get(), shader);
+                shader = Shaders::Fullbright;
+            }
+            if(!actor->mVisible)
+                { continue; }
+            g_pBackendManager->Graphics()->BufferRenderCommand({actor, shader});
+        }
+    }
 }
 
 void TheatreManager::Tick()
@@ -81,33 +99,6 @@ void TheatreManager::ReadyThings()
 {
     for(const auto& [id, thing] : mThings)
         { thing->Ready(); }
-}
-
-void TheatreManager::RenderWorld()
-{
-    if(!s_ReadyToRender)
-        { return; }
-
-    light_t::ClearCounts();
-
-    for(auto& [id, thing] : mThings)
-    {
-        auto actor = dynamic_pointer_cast<Actor>(thing);
-        auto light = dynamic_pointer_cast<light_t>(thing);
-        unsigned int shader = Shaders::BlinnPhong;
-        if(light && light->mEnabled && light->IncrementIndex())
-        {
-            g_pBackendManager->Graphics()->BufferLight(light.get(), shader);
-            shader = Shaders::Fullbright;
-        }
-        if(actor && actor->mVisible)
-            { s_RenderCommandQueue.emplace_back(actor, shader); }
-    }
-    for(auto rendercmd = s_RenderCommandQueue.begin() ; rendercmd != s_RenderCommandQueue.end() ;)
-    {
-        g_pBackendManager->Graphics()->RenderSingleCommand(*rendercmd);
-        rendercmd = s_RenderCommandQueue.erase(rendercmd);
-    }
 }
 
 bool TheatreManager::ThingExists(const ID& uid)

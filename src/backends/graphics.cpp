@@ -6,8 +6,25 @@
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
 
+#include <list>
 
 static bool s_CreateOBJMesh(std::vector<float>&, std::vector<unsigned int>&, const FileData&);
+
+void GraphicsBackend::BufferRenderCommand(const RenderCommand& command)
+{ mRenderCommands.push_back(command); }
+
+void GraphicsBackend::RenderStoredCommands()
+{
+    g_pBackendManager->Windowing()->ClearBuffer(glm::vec4(0.29f, 0.34f, 0.26f, 1.0f));
+    std::list<RenderCommand> current_commands{mRenderCommands.cbegin(), mRenderCommands.cend()};
+    mRenderCommands.clear();
+    do
+    {
+        RenderSingleCommand(current_commands.back());
+        current_commands.pop_back();
+    }
+    while(current_commands.size() > 0);
+}
 
 bool GraphicsBackend::UseViewport(const ID& id)
 {
