@@ -25,8 +25,8 @@ public:
 
     void ReadyThings();
     void RenderWorld();
-    bool ThingExists(ID UID);
-    ID GetType(ID ObjectID);
+    bool ThingExists(const ID& UID);
+    ID GetType(const ID& ObjectID);
 
     void LoadTheatreData(const TheatreData&);
     bool LoadTheatreFromMemory(const std::string& Data);
@@ -37,15 +37,15 @@ public:
     std::vector<ID> GetThingIDs();
 
     void DelegateInputEvent(const InputEvent& InputEvent);
-    ID CreateThing(const ThingData& ThingData);
+    const ID& CreateThing(const ThingData& ThingData);
     std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
-    bool DestroyThing(ID);
+    bool DestroyThing(const ID&);
 
-    std::shared_ptr<Thing> GetThing(ID ObjectID)
+    std::shared_ptr<Thing> GetThing(const ID& ObjectID)
     { return (mThings.contains(ObjectID)) ? mThings.at(ObjectID) : std::make_shared<Thing>(); }
 
     template<ThingDerived T>
-    std::shared_ptr<T> GetThing(ID ObjectID)
+    std::shared_ptr<T> GetThing(const ID& ObjectID)
     {
         if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
             { return thing; }
@@ -54,7 +54,7 @@ public:
 
     // More efficient when breaking on an invalid UID is preferred. See `PhysicsManager::CreateBody` for an example.
     template<ThingDerived T>
-    SafeStatus GetThing(ID ObjectID, std::shared_ptr<T>& Output)
+    SafeStatus GetThing(const ID& ObjectID, std::shared_ptr<T>& Output)
     {
         if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
             { Output = thing; return Status::NO_ERR; }

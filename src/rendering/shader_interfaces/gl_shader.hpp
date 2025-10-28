@@ -20,8 +20,8 @@ public:
     void SetUniform(const std::string& Name, glm::mat4 Value) const final;
 
 private:
-    bool GLShaderErrorHandler(unsigned int ID, bool IsLinkingInsteadOfCompiling = false) const;
-    bool GLShaderClear(unsigned int ID);
+    bool GLShaderErrorHandler(const ID& ID, bool IsLinkingInsteadOfCompiling = false) const;
+    bool GLShaderClear(const ID& ID);
 };
 
 #endif // GL_SHADER_H

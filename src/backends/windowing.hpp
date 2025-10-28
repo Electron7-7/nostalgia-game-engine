@@ -48,7 +48,7 @@ public:
     { return mCompatibleGraphicsBackends.contains(GraphicsBackend); }
 
 protected:
-    std::set<id_t> mCompatibleGraphicsBackends{};
+    std::set<ID> mCompatibleGraphicsBackends{};
     MouseMode mMouseMode{MouseMode::Normal};
 
     static WindowInfo& s_vInfo(bool GetCurrentStateInfo = true);

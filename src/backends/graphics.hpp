@@ -42,16 +42,17 @@ public:
     virtual void CreateRenderingData() = 0;
     virtual void BufferMesh(const FileData& Data, const ID&) = 0;
     virtual void BufferTexture(const FileData& Data, const ID&) = 0;
-    virtual void ClearBuffer(const glm::vec4& ClearColor) = 0;
-    virtual const ShaderInterface* GetShader(unsigned int ShaderSelection) const = 0;
-    virtual bool BindShader(unsigned int ShaderSelection) = 0;
-    virtual bool BuildShader(unsigned int ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
-    virtual bool DeleteShader(unsigned int ShaderSelection) = 0;
     virtual void BufferLight(light_t* Light, unsigned int ShaderLabel) = 0;
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
+    virtual const ShaderInterface* GetShader(const ID& ShaderSelection) const = 0;
+    virtual bool BindShader(const ID& ShaderSelection) = 0;
+    virtual bool BuildShader(const ID& ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
+    virtual bool DeleteShader(const ID& ShaderSelection) = 0;
 
 protected:
-    unsigned int mCurrentlyBoundShader{0};
+    ID mCurrentlyBoundShader{Shaders::BlinnPhong};
+    ID mCurrentViewport{ViewportIDs::Window};
+
     std::map<ID, Viewport> mViewports{
         { ViewportIDs::Window, Viewport{Settings::Window::FramebufferSize(), Settings::Window::FramebufferPosition()} },
         { ViewportIDs::Editor3DViewport1, Viewport{{500, 500}} }

@@ -8,7 +8,7 @@
 
 struct OpenGL_BufferData
 {
-    id_t id{0};
+    ID id{};
     std::vector<float> vertices{};
     std::vector<unsigned int> indices{};
 };
@@ -38,10 +38,10 @@ public:
     void DestroyRenderingData() final;
     void BufferMesh(const FileData&, const ID&) final;
     void BufferTexture(const FileData&, const ID&) final;
-    const ShaderInterface* GetShader(unsigned int) const final;
-    bool BuildShader(unsigned int, const char*, const char*) final;
-    bool BindShader(unsigned int) final;
-    bool DeleteShader(unsigned int) final;
+    const ShaderInterface* GetShader(const ID&) const final;
+    bool BuildShader(const ID&, const char*, const char*) final;
+    bool BindShader(const ID&) final;
+    bool DeleteShader(const ID&) final;
     void RenderSingleCommand(const RenderCommand&) final;
     void BufferLight(light_t*, unsigned int) final;
 
@@ -51,7 +51,7 @@ private:
 #   define VAO_DEFAULT_STRIDE 11
 
     std::array<uint, VAOS_AMOUNT> mVAOs{};
-    std::map<uint, GLShader> mShaders{};
+    std::map<ID, GLShader> mShaders{};
 
     std::map<ID, OpenGL_MeshData> mMeshData{};
     std::map<ID, uint> mTextureIDs{};

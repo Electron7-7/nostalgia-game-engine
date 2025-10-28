@@ -29,9 +29,9 @@ bool GLFW_Backend::Init()
 
 bool GLFW_Backend::InitImGui()
 {
-    switch(g_pBackendManager->Graphics()->GetID())
+    switch((uint)g_pBackendManager->Graphics()->GetID())
     {
-    case BackendIDs::gOpenGL:
+    case (uint)BackendIDs::gOpenGL:
         if(!ImGui_ImplGlfw_InitForOpenGL(mMainWindow, true))
             { return print_error("GLFW_Backend::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!"); }
         break;

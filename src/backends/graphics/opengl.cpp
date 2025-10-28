@@ -39,6 +39,7 @@ bool OpenGL_Backend::Init()
 #endif
 
     // Settings::World::UpdateOrientation();
+    SetWindowViewport(Viewport{Settings::Window::FramebufferSize(), Settings::Window::FramebufferPosition()});
 
 #ifdef DEBUGGING
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -156,44 +157,45 @@ void OpenGL_Backend::Shutdown()
 void OpenGL_Backend::ShutdownImGui()
 { ImGui_ImplOpenGL3_Shutdown(); }
 
-bool OpenGL_Backend::BuildShader(uint shader, const char* vertex_shader_code, const char* fragment_shader_code)
+bool OpenGL_Backend::BuildShader(const ID& shader, const char* vertex_shader_code, const char* fragment_shader_code)
 {
     if(mShaders.contains(shader))
-        { glDeleteShader(mShaders.at(shader).ID()); }
+        { glDeleteShader(static_cast<uint>(mShaders.at(shader).id())); }
     mShaders[shader] = GLShader();
     std::string vertex_shader(vertex_shader_code);
     std::string fragment_shader(fragment_shader_code);
     return mShaders.at(shader).CompileShader(vertex_shader, fragment_shader);
 }
 
-bool OpenGL_Backend::BindShader(uint shader)
+bool OpenGL_Backend::BindShader(const ID& shader)
 {
     if(!mShaders.contains(shader))
     {
         print_warning("OpenGL_Backend::BindShader - invalid shader label! Returning false");
         return false;
     }
-    glUseProgram(mShaders.at(shader).ID());
+    glUseProgram(static_cast<uint>(mShaders.at(shader).id()));
     mCurrentlyBoundShader = shader;
     return true;
 }
 
-bool OpenGL_Backend::DeleteShader(uint shader)
+bool OpenGL_Backend::DeleteShader(const ID& shader)
 {
     if(!mShaders.contains(shader) || shader == Shaders::BlinnPhong)
         { return false; }
     BindShader(Shaders::BlinnPhong);
-    glDeleteShader(mShaders.at(shader).ID());
+    glDeleteShader(static_cast<uint>(mShaders.at(shader).id()));
     mShaders.erase(shader);
     return true;
 }
 
-const ShaderInterface* OpenGL_Backend::GetShader(uint shader_selection) const
+const ShaderInterface* OpenGL_Backend::GetShader(const ID& shader_selection) const
 {
+    ID selected_shader{shader_selection};
     if(!mShaders.contains(shader_selection))
     {
         print_error("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection);
-        shader_selection = Shaders::BlinnPhong;
+        selected_shader = Shaders::BlinnPhong;
     }
     return &mShaders.at(shader_selection);
 }

@@ -1,15 +1,17 @@
 #ifndef SHADER_INTERFACE_H
 #define SHADER_INTERFACE_H
 
+#include "common/ids.hpp"
+
 #include <string>
 #include <glm/glm.hpp>
 
 namespace Shaders
 {
-    constexpr unsigned int BlinnPhong = 0;
-    constexpr unsigned int Fullbright = 1;
-    constexpr unsigned int Skybox     = 2;
-    constexpr unsigned int Fonts      = 3;
+    constexpr ID BlinnPhong {"BlinnPhong"};
+    constexpr ID Fullbright {"Fullbright"};
+    constexpr ID Skybox     {"Skybox"};
+    constexpr ID Fonts      {"Fonts"};
 }
 
 class ShaderInterface
@@ -27,12 +29,12 @@ public:
     virtual void SetUniform(const std::string& Name, glm::mat3 Value) const = 0;
     virtual void SetUniform(const std::string& Name, glm::mat4 Value) const = 0;
 
-    unsigned int ID() { return m_ID; }
+    const ID& id() { return mID; }
 
 protected:
-    unsigned int m_ID = 0;
     bool m_IsCompiled = false;
     bool m_IsBound    = false;
+    ID mID{ID::Invalid};
 };
 
 #endif // SHADER_INTERFACE_H

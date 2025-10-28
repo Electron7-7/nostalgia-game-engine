@@ -15,9 +15,9 @@ static std::shared_ptr<WindowingBackend> s_pWindowing{nullptr};
 
 static void CreateGraphicsBackend()
 {
-    switch(Settings::Engine::GraphicsBackend)
+    switch(Settings::Engine::GraphicsBackend())
     {
-    case BackendIDs::gOpenGL:
+    case BackendIDs::gOpenGL():
     default:
         s_pGraphics = std::make_shared<OpenGL_Backend>();
         return;
@@ -26,9 +26,9 @@ static void CreateGraphicsBackend()
 
 static void CreateWindowingBackend()
 {
-    switch(Settings::Engine::WindowingBackend)
+    switch(Settings::Engine::WindowingBackend())
     {
-    case BackendIDs::wGLFW:
+    case BackendIDs::wGLFW():
     default:
         s_pWindowing = std::make_shared<GLFW_Backend>();
         return;
