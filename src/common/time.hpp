@@ -19,7 +19,7 @@ namespace Time
         double start_time{Current()};
         if(OrMsPasses == 0.0)
             { OrMsPasses = DBL_MAX; }
-        do {} while(WhileTrue || (Current() - start_time) >= OrMsPasses);
+        while(WhileTrue && *WhileTrue && (Current() - start_time) < OrMsPasses) {}
     }
 }
 
