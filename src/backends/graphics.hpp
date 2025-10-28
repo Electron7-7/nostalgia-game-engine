@@ -42,15 +42,16 @@ public:
     uint PushViewport(const Viewport& Viewport);
     bool PopViewport(const ID& ID);
 
+    virtual const ShaderInterface* GetShader(const ID& ShaderSelection) const = 0;
+    virtual bool BindShader(const ID& ShaderSelection) = 0;
+    virtual bool BuildShader(const ID& ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
+    virtual bool DeleteShader(const ID& ShaderSelection) = 0;
+
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
     virtual void BufferMesh(const FileData& Data, const ID&) = 0;
     virtual void BufferTexture(const FileData& Data, const ID&) = 0;
-    virtual const ShaderInterface* GetShader(const ID& ShaderSelection) const = 0;
-    virtual bool BindShader(const ID& ShaderSelection) = 0;
-    virtual bool BuildShader(const ID& ShaderLabel, const char* VertexShaderCode, const char* FragmentShaderCode) = 0;
-    virtual bool DeleteShader(const ID& ShaderSelection) = 0;
     virtual void SetLight(light_t* Light, const ID& ShaderLabel) = 0;
 
 protected:

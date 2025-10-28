@@ -1,7 +1,10 @@
 #include "light.hpp"
 #include "theatre_parser/thing_data.hpp"
+#include "managers/theatre_manager.hpp"
 #ifdef DEBUGGING
-#   include "managers/theatre_manager.hpp"
+#   define TRUE_IF_DEBUGGING(boolean) boolean = true
+#else  // !DEBUGGING
+#   define TRUE_IF_DEBUGGING(boolean) boolean = false
 #endif // DEBUGGING
 
 int light_t::sPointCount       = 0;
@@ -19,6 +22,9 @@ void light_t::SetVariables(const ThingData& data)
 {
     mScale = glm::vec3(0.1f);
 
+    // The light's debug mesh should only be visible by default on debug builds
+    TRUE_IF_DEBUGGING(mVisible);
+
     Actor::SetVariables(data);
 
     data.GetVariable(mColor, "Color");
@@ -31,12 +37,8 @@ void light_t::SetVariables(const ThingData& data)
     data.GetVariable(mEnabled, "LightVisible");
     data.GetVariable(mEnabled, "Enabled");
     if(data.GetVariable(mEnabled, "Disabled"))
-        { mEnabled = !mEnabled; }
-
-#pragma message("TODO: should the light's debug mesh be limited to the debug build, or should Lights be always invisible with a special variable for enabling their debug mesh?")
-#ifdef DEBUGGING
-    mVisible = true;
     if(mMeshInstanceID == ID::Invalid) { // the debug mesh/material shouldn't override a manually specificed one
+        { mEnabled = !mEnabled; }
         ID mat_id = g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",
             ThingType::Material,
@@ -56,9 +58,6 @@ void light_t::SetVariables(const ThingData& data)
             }
         });
     }
-#else  // !DEBUGGING
-    mVisible = false;
-#endif // DEBUGGING
 }
 
 ThingData light_t::GetVariables() const
@@ -88,9 +87,6 @@ int light_t::Index() const
 
 int PointLight::GetCount()
 { return light_t::sPointCount;}
-
-LightType PointLight::Type() const
-{ return LightType::POINT; }
 
 bool PointLight::IncrementIndex()
 {
@@ -122,9 +118,6 @@ ThingData SpotLight::GetVariables() const
     return data;
 }
 
-LightType SpotLight::Type() const
-{ return LightType::SPOT; }
-
 bool SpotLight::IncrementIndex()
 {
     if(light_t::sSpotCount >= MAX_SPOT)
@@ -149,9 +142,6 @@ ThingData DirectionalLight::GetVariables() const
     data.AddVariable(false, "Visible");
     return data;
 }
-
-LightType DirectionalLight::Type() const
-{ return LightType::DIRECTIONAL; }
 
 bool DirectionalLight::IncrementIndex()
 {
