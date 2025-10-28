@@ -1,4 +1,5 @@
 #include "theatre_manager.hpp"
+#include "common/time.hpp"
 #include "physics_manager.hpp"
 #include "input/demo_controller.hpp"
 #include "theatre_parser/theatre_data.hpp"
@@ -211,6 +212,8 @@ bool TheatreManager::DestroyThing(const ID& id)
 
 void TheatreManager::CreateThings()
 {
+    Time::Wait(&mDestroyingThings);
+    mCreatingThings = true;
     s_ReadyToRender = false;
 
     // Clear rendering data and buffer important embedded Resources
@@ -230,10 +233,13 @@ void TheatreManager::CreateThings()
         { CreateThing(data); }
 
     s_ReadyToRender = true;
+    mCreatingThings = false;
 }
 
 void TheatreManager::DestroyThings()
 {
+    Time::Wait(&mCreatingThings);
+    mDestroyingThings = true;
 #pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
     for(const auto& [id, thing] : mThings)
     {
@@ -242,4 +248,5 @@ void TheatreManager::DestroyThings()
     }
     UniqueIDs::Clear();
     mThings.clear();
+    mDestroyingThings = false;
 }

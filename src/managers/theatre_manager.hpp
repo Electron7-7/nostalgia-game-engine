@@ -62,6 +62,8 @@ public:
 
 private:
     std::map<ID, std::shared_ptr<Thing>> mThings{};
+    bool mCreatingThings{false};
+    bool mDestroyingThings{false};
 
     void CreateThings();
     void DestroyThings();
