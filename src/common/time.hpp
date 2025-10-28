@@ -14,12 +14,12 @@ namespace Time
     std::string CurrentFormatted();
 
     // If `OrMsPasses` is '0.0', no maximum wait time will be set. (Well, it'll be set to `DBL_MAX`, so good luck reaching that).
-    inline void Wait(bool* WhileTrue, double OrMsPasses = 0.0)
+    inline void Wait(bool& WhileTrue, double OrMsPasses = 0.0)
     {
         double start_time{Current()};
         if(OrMsPasses == 0.0)
             { OrMsPasses = DBL_MAX; }
-        while(WhileTrue && *WhileTrue && (Current() - start_time) < OrMsPasses) {}
+        while(WhileTrue && (Current() - start_time) < OrMsPasses) {}
     }
 }
 

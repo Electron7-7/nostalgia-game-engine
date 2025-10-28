@@ -212,7 +212,7 @@ bool TheatreManager::DestroyThing(const ID& id)
 
 void TheatreManager::CreateThings()
 {
-    Time::Wait(&mDestroyingThings);
+    Time::Wait(mDestroyingThings);
     mCreatingThings = true;
     s_ReadyToRender = false;
 
@@ -238,7 +238,7 @@ void TheatreManager::CreateThings()
 
 void TheatreManager::DestroyThings()
 {
-    Time::Wait(&mCreatingThings);
+    Time::Wait(mCreatingThings);
     mDestroyingThings = true;
 #pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
     for(const auto& [id, thing] : mThings)
