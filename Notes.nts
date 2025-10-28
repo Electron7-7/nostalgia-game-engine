@@ -680,3 +680,21 @@ I want to also create some documentation and releases for GitHub.
 Well, I didn't do that second thing but I did majorly overhaul/clean up lots of older code and just now overhauled `Settings::Window` and the windowing backend so they now interface with eachother much more nicely (and `Settings::Window` is now used to directly update the window state).
 
 I really worked on making the settings nice and foolproof and finally fixed that fucking viewport issue. Honestly, the engine is really starting to shape up nicely! I might even work on the editor...
+
+[10/23/25]
+I want to make the tester app the editor; it's just way more advanced and pretty much an editor at this point.
+
+[10/24/25]
+I've been working on the editor; got it to render the viewport in a small space which is cool. Now I want to actually add some live-editing things like live updating/changing of a shader and things like that. Specifically, to make the default .shader for a scene distinct (with a horizon, too) so that I can differentiate it from the rest of the background.
+
+OOH, what if I developed a way to live create a DearImGui gui?! Like, using drag n drop or something!
+
+That's for later, for now I'm going to try and learn how to use framebuffers to render the scene into an ImGui window more effectively.
+
+Okay, I first decided to implement dynamic viewport interfacing via my backend system. Now you can create, edit, set, and remove as many viewports as you please (with the main window viewport always being available to use/fallback to).
+
+Okay, now time to t ry my hand at framebuffers.
+
+[10/27/25]
+Stressful moving. Anyways, I got a test program for the framebuffer image working and I'm going to now try and learn from it + implement it into my code.
+
