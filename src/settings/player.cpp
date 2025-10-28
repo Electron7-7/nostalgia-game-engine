@@ -1,4 +1,4 @@
-#include "settings.hpp"
+#include "player.hpp"
 
 // TODO: Replace `Settings::Player::FOV` with horizontal and/or vertical FOVs? (currently it's only vertical)
 float Settings::Player::FOV{45.0f};

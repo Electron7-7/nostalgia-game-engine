@@ -6,6 +6,7 @@
 #include "filesystem/fwd.hpp"
 
 #include "backend.hpp"
+#include "settings/window.hpp"
 
 #include <glm/fwd.hpp>
 #include <vector>

@@ -1,7 +1,7 @@
 #include "nostalgia_player.hpp"
 #include "theatre_parser/thing_data.hpp"
 #include "input/event.hpp"
-#include "settings/settings.hpp"
+#include "settings/player.hpp"
 
 void NostalgiaPlayer::SetVariables(const ThingData& data)
 {

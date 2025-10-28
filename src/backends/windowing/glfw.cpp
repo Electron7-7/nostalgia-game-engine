@@ -3,7 +3,8 @@
 #include "math/glm_format.hpp" // IWYU pragma: keep
 #include "managers/backend_manager.hpp"
 #include "input/binding.hpp"
-#include "settings/settings.hpp"
+#include "settings/window.hpp"
+#include "settings/player.hpp"
 #include "thirdparty/DearImGui/imgui_impl_glfw.h"
 #include "thirdparty/GLFW/glfw3.h"
 #include "thirdparty/glad/glad.h"

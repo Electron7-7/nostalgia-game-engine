@@ -1,4 +1,4 @@
-#include "settings.hpp"
+#include "window.hpp"
 #include "managers/backend_manager.hpp"
 
 #pragma message("FIXME: Make this work with Wayland/other tiling managers")
@@ -62,6 +62,9 @@ const scale_t& Window::Size()
 const scale_t& Window::FramebufferSize()
 { return Info().framebuffer_size; }
 
+const position_t& Window::FramebufferPosition()
+{ return Info().framebuffer_position; }
+
 bool Window::ToggleFullscreen()
 { setFullscreen(!sIsFullscreen); return sIsFullscreen; }
 
@@ -79,3 +82,6 @@ void Window::setSize(const scale_t& size)
 
 void Window::setFramebufferSize(const scale_t& size)
 { s_Info().framebuffer_size = size; s_UpdateWindow(); }
+
+void Window::setFramebufferPosition(const position_t& position)
+{ s_Info().framebuffer_position = position; s_UpdateWindow(); }

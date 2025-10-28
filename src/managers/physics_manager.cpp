@@ -2,7 +2,7 @@
 #include "managers/theatre_manager.hpp"
 #include "things/thing_factory.hpp"
 #include "things/devices/collider.hpp"
-#include "settings/settings.hpp"
+#include "settings/engine.hpp"
 #include "common/printing.hpp"
 #include "math/conversion.hpp"
 #include "physics/enums.hpp"

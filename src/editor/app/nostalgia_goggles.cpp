@@ -1,6 +1,6 @@
 #include "nostalgia_goggles.hpp"
 #include "editor/ui/imgui_debugger.hpp"
-#include "settings/settings.hpp"
+#include "settings/window.hpp"
 #include "managers/manager.hpp"
 #include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
