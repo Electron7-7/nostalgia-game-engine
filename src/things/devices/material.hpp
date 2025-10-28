@@ -22,6 +22,7 @@ public:
     int       mSpecularSharpness = 16;
     float     mSpecularStrength = 0.0f;
     bool      mDontUseTexture = false;
+    bool      mFullBright{false};
 
 private:
     ID mDiffuseTextureID  = ID::Invalid;

@@ -243,7 +243,8 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
     )};
 
     glBindVertexArray(mVAOs.at(VAO_DEFAULT));
-
+    if(material->mFullBright)
+        { shader = Shaders::Fullbright; }
     if(!material->mDontUseTexture)
         { glEnable(GL_FRAMEBUFFER_SRGB); }
     if(rendercmd.is_wireframe || Settings::Graphics::GlobalWireframe)

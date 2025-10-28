@@ -16,6 +16,7 @@ void Material::SetVariables(const ThingData& data)
     data.GetVariable(mDontUseTexture, "UseVertexColors");
     data.GetVariable(mDontUseTexture, "OnlyUseVertexColors");
     data.GetVariable(mDontUseTexture, "NoTexture");
+    data.GetVariable(mFullBright, "FullBright", "mat_fullbright");
 }
 
 ThingData Material::GetVariables() const
@@ -31,6 +32,7 @@ ThingData Material::GetVariables() const
     data.AddVariable(mDontUseTexture, "UseVertexColors");
     data.AddVariable(mDontUseTexture, "OnlyUseVertexColors");
     data.AddVariable(mDontUseTexture, "NoTexture");
+    data.AddVariable(mFullBright, "FullBright");
 
     return data;
 }
