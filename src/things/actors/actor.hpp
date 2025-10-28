@@ -20,8 +20,8 @@ public:
     ID ColliderID() const;
     void ColliderID(ID UID);
 
-    bool mVisible = true;
-    bool mWireframe = false;
+    bool mVisible{true};
+    bool mWireframe{false};
 
     // Off by default (alpha == 0.0f)
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};

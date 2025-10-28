@@ -117,7 +117,7 @@ bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<u
 }
 
 // Taken from GraphX
-static bool s_CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
+bool s_CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& indices, const FileData& data)
 {
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;

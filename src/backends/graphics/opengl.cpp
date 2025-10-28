@@ -43,8 +43,8 @@ bool OpenGL_Backend::Init()
 
 #ifdef DEBUGGING
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(OpenGL_DebugMessageCallback, nullptr);
         glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(OpenGL_DebugMessageCallback, nullptr);
 #endif
     glEnable(GL_DEPTH_TEST);
     return true;
@@ -61,7 +61,7 @@ void OpenGL_Backend::ImGuiNewFrame()
 { ImGui_ImplOpenGL3_NewFrame(); }
 
 void OpenGL_Backend::ImGuiRender()
-{ ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
+{ glDisable(GL_FRAMEBUFFER_SRGB); ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); }
 
 void OpenGL_Backend::BufferMesh(const FileData& data, const ID& id)
 {
@@ -230,8 +230,8 @@ void OpenGL_Backend::SetLight(light_t* light, const ID& shader)
 
 void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 {
-    auto mesh_instance = g_pTheatreManager->GetThing<MeshInstance>(rendercmd.mesh_instance);
-    auto material      = g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID());
+    auto mesh_instance{g_pTheatreManager->GetThing<MeshInstance>(rendercmd.mesh_instance)};
+    auto material{g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID())};
     auto player{g_pTheatreManager->GetLocalPlayer()};
     ID shader{rendercmd.shader};
 
@@ -247,7 +247,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
         { shader = Shaders::Fullbright; }
     if(!material->mDontUseTexture)
         { glEnable(GL_FRAMEBUFFER_SRGB); }
-    if(rendercmd.is_wireframe || Settings::Graphics::GlobalWireframe)
+    if(Settings::Graphics::GlobalWireframe || rendercmd.is_wireframe)
         { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
     glEnable(GL_BLEND);
 

@@ -43,7 +43,6 @@ public:
     bool PopViewport(const ID& ID);
 
     virtual void RenderSingleCommand(const RenderCommand& RenderCommand) = 0;
-    // virtual uint FrameBufferTextureID() = 0;
     virtual void DestroyRenderingData() = 0;
     virtual void CreateRenderingData() = 0;
     virtual void BufferMesh(const FileData& Data, const ID&) = 0;

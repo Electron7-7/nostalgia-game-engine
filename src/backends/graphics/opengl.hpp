@@ -34,6 +34,7 @@ public:
     void ImGuiNewFrame() final;
     void ImGuiRender() final;
 
+    void RenderSingleCommand(const RenderCommand&) final;
     void CreateRenderingData() final;
     void DestroyRenderingData() final;
     void BufferMesh(const FileData&, const ID&) final;
@@ -42,7 +43,6 @@ public:
     bool BuildShader(const ID&, const char*, const char*) final;
     bool BindShader(const ID&) final;
     bool DeleteShader(const ID&) final;
-    void RenderSingleCommand(const RenderCommand&) final;
     void SetLight(light_t*, const ID&) final;
 
 private:

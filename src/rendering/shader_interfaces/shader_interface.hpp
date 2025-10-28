@@ -32,9 +32,9 @@ public:
     const ID& id() { return mID; }
 
 protected:
-    bool m_IsCompiled = false;
-    bool m_IsBound    = false;
     ID mID{ID::Invalid};
+    bool mIsCompiled{false};
+    bool mIsBound{false};
 };
 
 #endif // SHADER_INTERFACE_H
