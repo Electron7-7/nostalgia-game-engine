@@ -62,7 +62,6 @@ bool _Manager::InvokeMethod(ManagerInitFunc_t function)
 {
     for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        print_debug("Initializing {}", m_sGameManagers.at(i)->DebugName());
         if(!(m_sGameManagers.at(i)->*function)())
             { return false; }
     }
@@ -74,7 +73,6 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethod(ManagerTheatreF
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        print_debug("Invoking Theatre method in {}", m_sGameManagers.at(i)->DebugName());
         ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             { return FUCKED; }
@@ -90,7 +88,6 @@ ManagerEnums::TheatreReturnValue_t _Manager::InvokeTheatreMethodReverseOrder(Man
     ManagerEnums::TheatreReturnValue_t return_value = FINISHED;
     for(int i = m_sGameManagers.size() - 1 ; i >= 0 ; --i)
     {
-        print_debug("(reverse) Invoking Theatre method in {}", m_sGameManagers.at(i)->DebugName());
         ManagerEnums::TheatreReturnValue_t catch_return_value = (m_sGameManagers.at(i)->*function)(is_first_call);
         if(catch_return_value == FUCKED)
             { return_value = FUCKED; }

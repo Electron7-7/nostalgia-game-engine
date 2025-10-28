@@ -218,6 +218,7 @@ PhysicsManager* g_pPhysicsManager = &sPhysicsManager;
 // TODO: Read JoltPhysics `HelloWorld.cpp` and make the necessary changes as you implement more of the engine
 bool PhysicsManager::Init()
 {
+    print_debug("PhysicsManager::Init");
     RegisterDefaultAllocator();
 
     Trace = sJoltTraceImpl;

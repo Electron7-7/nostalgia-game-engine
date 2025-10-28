@@ -14,7 +14,7 @@ RenderManager* g_pRenderManager = &sRenderManager;
 
 
 bool RenderManager::Init()
-{ return true; }
+{ print_debug("RenderManager::Init"); return true; }
 
 void RenderManager::Shutdown()
 {}

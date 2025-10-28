@@ -37,6 +37,7 @@ static void CreateWindowingBackend()
 
 bool BackendManager::Init()
 {
+    print_debug("BackendManager::Init");
 #pragma message("TODO: select the backends from a saved config (so you can change backends)")
     CreateGraphicsBackend();
     CreateWindowingBackend();

@@ -22,6 +22,7 @@ void InputManager::m_sHandleInputEvent(const InputEvent& event, InputEventCallba
 
 bool InputManager::Init()
 {
+    print_debug("InputManager::Init");
     std::vector<ID> binding_ids{};
     BindingIDs::GetAllBindingIDs(binding_ids);
     for(const ID& id : binding_ids)

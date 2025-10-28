@@ -29,7 +29,7 @@ static bool s_ReadyToRender{false};
 static TheatreData sCurrentTheatreData{};
 
 bool TheatreManager::Init()
-{ return g_pThingFactory->Init(); }
+{ print_debug("TheatreManager::Init"); return g_pThingFactory->Init(); }
 
 void TheatreManager::Update()
 {
