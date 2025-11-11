@@ -20,7 +20,10 @@ public:
     constexpr ID(const std::string& name):
         id_{ConstexprHash(name.data())}, name_{name} {}
 
-    consteval const id_t& operator()() const
+    // Used primarily by 'constexpr' IDs in switch statements
+    consteval id_t v() const
+    { return id_; }
+    constexpr id_t operator()() const
     { return id_; }
     explicit constexpr operator id_t() const
     { return id_; }
@@ -53,6 +56,13 @@ public:
     constexpr bool invalid() const
     { return id_ == ID::Invalid; }
 
+    constexpr std::string log() const
+    {
+        if(name_.empty())
+            { return (id_ == ID::Invalid) ? std::format("id #{}", id_) : std::format("id 'Invalid' [{}]", id_); }
+        return std::format("id '{}' [{}]", name_, id_);
+    }
+
     static constexpr id_t Invalid {static_cast<unsigned int>(-1)}; // Same as `UINT_MAX`
     static constexpr id_t front   {0};
     static constexpr id_t back    {Invalid - 1};
@@ -70,10 +80,10 @@ template<typename T>
     concept IDType = std::is_same_v<ID,T> || std::is_constructible_v<ID,T> || std::is_convertible_v<ID,T>;
 
 template<>
-struct std::formatter<ID> : std::formatter<id_t>
+struct std::formatter<ID> : std::formatter<std::string>
 {
     auto format(ID id, std::format_context& ctx) const
-    { return std::formatter<id_t>::format(static_cast<id_t>(id), ctx); }
+    { return std::formatter<std::string>::format(id.log(), ctx); }
 };
 
 namespace UniqueIDs
