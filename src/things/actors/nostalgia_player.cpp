@@ -48,7 +48,7 @@ void NostalgiaPlayer::Move(const glm::vec2& direction)
 }
 
 void NostalgiaPlayer::Look(const glm::vec2& motion)
-{ mLookWish = motion * (Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale); }
+{ mLookWish = motion * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale; }
 
 const glm::vec3& NostalgiaPlayer::ViewPosition() const
 { return mViewPosition; }
