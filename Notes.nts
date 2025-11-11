@@ -698,5 +698,11 @@ Okay, now time to try my hand at framebuffers.
 [10/27/25]
 Stressful moving. Anyways, I got a test program for the framebuffer image working and I'm going to now try and learn from it + implement it into my code.
 
+[10/28/25]
+I'm going to overhaul the graphics backend and implement on-demand draw functions, specialized draw functions, and only setting the viewport in those functions. I will also overhaul RenderCommands and how they work in the system. First, though, commits and pushes.
+
+[11/03/25]
+Fully moved in to Piper's place; had a fun, relaxing weekend with Dexter and my other friends. Now, back to this project. Maybe. I might take a break for a few days just to work on other things and let some of the ideas for Nostalgia stew in my head.
+
 [11/11/25]
 I want to take more ideas from Godot. See the documentation, specifically: (https://docs.godotengine.org/en/stable/engine_details/architecture/internal_rendering_architecture.html#renderingdevice-abstraction)
