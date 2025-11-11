@@ -708,3 +708,5 @@ Fully moved in to Piper's place; had a fun, relaxing weekend with Dexter and my 
 I want to take more ideas from Godot. See the documentation, specifically: (https://docs.godotengine.org/en/stable/engine_details/architecture/internal_rendering_architecture.html#renderingdevice-abstraction)
 
 Okay, I think I might just follow that abstraction image very closely when modelling my own abstraction. First thing's first, let me get the project to a working build, then I'll make a new branch and get to work on the new abstraction(s).
+
+This marks the start of the rendering backend overhaul.
