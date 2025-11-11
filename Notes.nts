@@ -693,7 +693,7 @@ That's for later, for now I'm going to try and learn how to use framebuffers to 
 
 Okay, I first decided to implement dynamic viewport interfacing via my backend system. Now you can create, edit, set, and remove as many viewports as you please (with the main window viewport always being available to use/fallback to).
 
-Okay, now time to t ry my hand at framebuffers.
+Okay, now time to try my hand at framebuffers.
 
 [10/27/25]
 Stressful moving. Anyways, I got a test program for the framebuffer image working and I'm going to now try and learn from it + implement it into my code.
