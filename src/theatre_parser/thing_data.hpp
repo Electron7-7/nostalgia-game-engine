@@ -6,6 +6,30 @@
 #include "common/string_concepts.hpp"
 #include "common/string_to_num.hpp"
 #include "common/safe_return.hpp"
+#include "frozen/map.h"
+#include "physics/enums.hpp"
+#include "thirdparty/va_args_count.h"
+
+#include <type_traits>
+
+#define ADD_PENUM(penum) { penum.name(), penum },
+#define PENUM_LOOKUP(NAME, ...) \
+    constexpr frozen::map<std::string, penum_t, VA_ARGS_COUNT(__VA_ARGS__)/2> NAME = { __VA_ARGS__ }
+
+PENUM_LOOKUP(gPrettyEnumLookup,
+    ADD_PENUM(PhysicsBodyMotion::Dynamic)
+    ADD_PENUM(PhysicsBodyMotion::Kinematic)
+    ADD_PENUM(PhysicsBodyMotion::Static)
+    ADD_PENUM(PhysicsBodyShape::Box)
+    ADD_PENUM(PhysicsBodyShape::Capsule)
+    ADD_PENUM(PhysicsBodyShape::Cylinder)
+    ADD_PENUM(PhysicsBodyShape::Sphere)
+);
+
+#undef ADD_PENUM
+#undef PENUM_LOOKUP
+
+constexpr frozen::map<const char*, int, 1> gEnumLookup = {{"NOTHING_HERE_YET", 0}};
 
 struct ThingData
 {
@@ -40,10 +64,22 @@ public:
                 { if(GetReference(output, name)) { return true; } }
             return false;
         }
+        else if constexpr(std::is_enum_v<T>)
+        {
+            for(const auto& name : {names...})
+            {
+                if(gEnumLookup.contains(name))
+                    { output = static_cast<T>(gEnumLookup.at(name)); return true; }
+            }
+            return false;
+        }
         else if constexpr(std::is_same_v<std::decay_t<penum_t>, std::decay_t<T>>)
         {
             for(const auto& name : {names...})
-                { if(GetPrettyEnum(output, name)) { return true; } }
+            {
+                if(auto assert_var = AssertVariable(name, ThingVar::eEnum); assert_var.Check())
+                    { output.set(assert_var.Data()->enum_name.data(), assert_var.Data()->enum_value); return true; }
+            }
             return false;
         }
         else if constexpr(std::is_same_v<bool, std::decay_t<T>>)
@@ -77,7 +113,6 @@ private:
     SafeReturn<VarIter_t> AssertVariable(const std::string& VarName, const penum_t& VarType) const;
 
     bool GetReference(ID& ReferenceOutput, const std::string& VariableName) const;
-    bool GetPrettyEnum(penum_t& ReferenceOutput, const std::string& VariableName) const;
     bool GetBoolean(bool& BooleanOutput, const std::string& VariableName) const;
     bool GetString(std::string& StringOutput, const std::string& VariableName) const;
 };

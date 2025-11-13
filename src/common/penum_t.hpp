@@ -10,6 +10,9 @@ struct penum_t
         id_{id},
         name_{name} {}
 
+    constexpr void set(const char* name, ushort id)
+    { name_ = name; id_ = id; }
+
     constexpr ushort id() const { return id_; }
     constexpr const char* name()  const { return name_; }
 

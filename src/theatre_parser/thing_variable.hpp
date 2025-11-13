@@ -10,11 +10,10 @@
 #include <format>
 
 template<typename T>
-    concept IsNumber = requires
-    {
-        !std::is_same_v<bool, std::decay_t<T>> &&
-        (std::is_arithmetic_v<T> || GLMContainer<T>);
-    };
+    concept IsNumber = !std::is_same_v<bool, std::decay_t<T>> && (std::is_arithmetic_v<T> || GLMContainer<T>);
+
+template<typename T>
+    concept IsEnum = std::is_enum_v<T>;
 
 struct ThingVar
 {
@@ -22,6 +21,9 @@ struct ThingVar
     template<IsNumber T>
         ThingVar(const T& Number, const std::string& Name = "")
             : name{Name}, value{std::format("{}", Number)}, type{eNumber} {}
+    template<IsEnum T>
+        ThingVar(T Enum, const std::string& EnumName, const std::string& Name = "")
+            : name{Name}, type{eEnum}, enum_name{EnumName}, enum_value{Enum} {}
     ThingVar(const std::string& String, const std::string& Name = "");
     ThingVar(const ID& ReferenceID, const std::string& Name = "");
     ThingVar(const penum_t& PrettyEnum, const std::string& Name = "");
@@ -31,7 +33,8 @@ struct ThingVar
     std::string value{""};
     penum_t     type{eNothing};
     ID          reference_id{ID::Invalid};
-    penum_t     pretty_enum{};
+    std::string enum_name{""};
+    int         enum_value{0};
 
     std::string formatted() const;
     std::string formatted_value() const;
@@ -42,7 +45,7 @@ struct ThingVar
 
     static constexpr penum_t eNothing    { 0, "Nothing"    };
     static constexpr penum_t eReference  { 1, "Reference"  };
-    static constexpr penum_t ePrettyEnum { 2, "PrettyEnum" };
+    static constexpr penum_t eEnum       { 2, "Enum"       };
     static constexpr penum_t eNumber     { 3, "Number"     };
     static constexpr penum_t eBool       { 4, "Bool"       };
     static constexpr penum_t eString     { 5, "String"     };

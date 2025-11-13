@@ -14,7 +14,7 @@ ThingVar::ThingVar(const ID& id, const std::string& _name)
     }
 
 ThingVar::ThingVar(const penum_t& p_enum, const std::string& _name)
-    : name{_name}, type{ePrettyEnum}, pretty_enum{p_enum} {}
+    : name{_name}, type{eEnum}, enum_name{p_enum.name()}, enum_value{p_enum.id()} {}
 
 ThingVar::ThingVar(bool boolean, const std::string& _name)
     : name{_name}, value{(boolean) ? gTrue : gFalse}, type{eBool} {}
@@ -37,8 +37,8 @@ std::string ThingVar::formatted_value() const
         return std::format("[{}]", value);
     case eReference:
         return std::format("<{}> // uid: {}", value, reference_id);
-    case ePrettyEnum:
-        return std::format("({})", pretty_enum.name());
+    case eEnum:
+        return std::format("({})", enum_name);
     case eNothing:
     default:
         return value;

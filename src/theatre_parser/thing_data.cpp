@@ -101,13 +101,6 @@ bool ThingData::GetReference(ID& output, const std::string& _name) const
     return false;
 }
 
-bool ThingData::GetPrettyEnum(penum_t& output, const std::string& _name) const
-{
-    if(auto assert_var = AssertVariable(_name, ThingVar::ePrettyEnum); assert_var.Check())
-        { output = assert_var.Data()->pretty_enum; return true; }
-    return false;
-}
-
 bool ThingData::GetBoolean(bool& output, const std::string& _name) const
 {
     if(auto assert_var = AssertVariable(_name, ThingVar::eBool); assert_var.Check())
