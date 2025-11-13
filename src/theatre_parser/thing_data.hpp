@@ -8,6 +8,7 @@
 #include "common/safe_return.hpp"
 #include "frozen/map.h"
 #include "physics/enums.hpp"
+#include "rendering/common.hpp"
 #include "thirdparty/va_args_count.h"
 
 #include <type_traits>
@@ -29,7 +30,18 @@ PENUM_LOOKUP(gPrettyEnumLookup,
 #undef ADD_PENUM
 #undef PENUM_LOOKUP
 
-constexpr frozen::map<const char*, int, 1> gEnumLookup = {{"NOTHING_HERE_YET", 0}};
+#define ADD_ENUM(_enum) { #_enum, _enum }
+#define ADD_PENUM(name, _enum) { name, _enum }
+#define ENUM_LOOKUP(NAME, ...) \
+    constexpr frozen::map<const char*, int, VA_ARGS_COUNT(__VA_ARGS__)/2> NAME = { __VA_ARGS__ }
+
+ENUM_LOOKUP(gEnumLookup,
+    ADD_PENUM("DATA_FORMAT_NONE", RenderingCommons::DATA_FORMAT_NONE)
+);
+
+#undef ADD_ENUM
+#undef ADD_PENUM
+#undef ENUM_LOOKUP
 
 struct ThingData
 {
