@@ -39,13 +39,12 @@ FileData TheatreParser::m_sTheatreFile;
 static const char enter_context        = '{';
 static const char enter_numeric        = '[';
 static const char enter_reference      = '<';
-#pragma message("TODO: Implement `p_enum` as its own variable type")
-static const char enter_pretty_enum    = '(';
+static const char enter_enum           = '(';
 static const char enter_exit_string    = '\'';
 static const char exit_context         = '}';
 static const char exit_numeric         = ']';
 static const char exit_reference       = '>';
-static const char exit_pretty_enum     = ')';
+static const char exit_enum            = ')';
 static const char name_delimiter       = '@';
 static const char index_delimiter      = '#';
 static const char assignment_delimiter = '=';
@@ -247,8 +246,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             temp_data.clear();
             continue;
         }
-        case enter_pretty_enum:
-            variable_type = ThingVar::ePrettyEnum;
+        case enter_enum:
+            variable_type = ThingVar::eEnum;
             continue;
         case enter_reference:
             variable_type = ThingVar::eReference;
@@ -268,7 +267,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                 gSetLowercase(buffer);
             }
             [[fallthrough]];
-        case exit_pretty_enum:
+        case exit_enum:
         case exit_reference:
             variable_value = buffer;
             buffer.clear();
