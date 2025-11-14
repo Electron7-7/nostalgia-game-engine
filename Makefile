@@ -36,9 +36,11 @@ DYNAMIC_LIBRARIES        := -lglfw -lfreetype
 DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
 
-INCLUDE := -I src -I src/thirdparty -I src/thirdparty/FreeType
+INCLUDE := -I Engine/src -I Editor/src -I Engine/src/thirdparty -I Engine/src/thirdparty/FreeType
 
 DIR_ROOT      := build
+DIR_ENGINE    := Engine
+DIR_EDITR     := Editor
 DIR_LINUX     := Linux
 DIR_WINDOWS   := Windows
 DIR_DEBUG     := Debug
@@ -103,7 +105,8 @@ export JOLT_LIBRARY  ?= $(JOLT_RELEASE)
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
-export BUILD_DIR      ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
+export BUILD_ROOT     ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
+export BUILD_DIR      ?= $(BUILD_ROOT)/$(DIR_ENGINE)
 export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
 export BUILD_LIBRARY  ?= $(BUILD_DIR)/$(DIR_LIBRARY)
 export BUILD_HEADERS  ?= $(BUILD_DIR)/$(DIR_HEADERS)/$(NAME_BASE)
@@ -122,66 +125,70 @@ export BUILDING_STATIC_LIBRARY  ?=
 export CLEAN_ARCH    ?= .+
 export CLEAN_VERSION ?= .+
 
-VPATH := $(SRC_DIRS):$(DIR_ROOT)
+VPATH := $(ENGINE_SRC_DIRS):$(EDITR_SRC_DIRS):$(DIR_ROOT)
 
-SRC := src
+ENGINE_SRC := Engine/src
+EDITR_SRC  := Editor/src
 
-SRC_DIRS :=                             \
-    $(SRC)/backends                     \
-    $(SRC)/backends/graphics            \
-    $(SRC)/backends/windowing           \
-    $(SRC)/commands                     \
-    $(SRC)/common                       \
-    $(SRC)/embedded                     \
-    $(SRC)/filesystem                   \
-    $(SRC)/input                        \
-    $(SRC)/interfaces                   \
-    $(SRC)/managers                     \
-    $(SRC)/math                         \
-    $(SRC)/physics                      \
-    $(SRC)/rendering                    \
-    $(SRC)/rendering/shader_interfaces  \
-    $(SRC)/settings                     \
-    $(SRC)/theatre_parser               \
-    $(SRC)/things                       \
-    $(SRC)/things/actors                \
-    $(SRC)/things/resources             \
-    $(SRC)/things/devices               \
-    $(SRC)/things/thinkers              \
-	$(SRC)/user_interface               \
+ENGINE_SRC_DIRS :=                             \
+    $(ENGINE_SRC)/backends                     \
+    $(ENGINE_SRC)/backends/glfw                \
+    $(ENGINE_SRC)/backends/opengl              \
+    $(ENGINE_SRC)/commands                     \
+    $(ENGINE_SRC)/common                       \
+    $(ENGINE_SRC)/embedded                     \
+    $(ENGINE_SRC)/filesystem                   \
+    $(ENGINE_SRC)/input                        \
+    $(ENGINE_SRC)/interfaces                   \
+    $(ENGINE_SRC)/managers                     \
+    $(ENGINE_SRC)/math                         \
+    $(ENGINE_SRC)/physics                      \
+    $(ENGINE_SRC)/rendering                    \
+    $(ENGINE_SRC)/rendering/shader_interfaces  \
+    $(ENGINE_SRC)/settings                     \
+    $(ENGINE_SRC)/theatre_parser               \
+    $(ENGINE_SRC)/things                       \
+    $(ENGINE_SRC)/things/actors                \
+    $(ENGINE_SRC)/things/resources             \
+    $(ENGINE_SRC)/things/devices               \
+    $(ENGINE_SRC)/things/thinkers              \
+	$(ENGINE_SRC)/user_interface               \
 
-THIRDPARTY_SRC_DIRS :=           \
-	$(SRC)/thirdparty/DearImGui  \
-	$(SRC)/thirdparty/glm/detail \
-	$(SRC)/thirdparty/glad
+THIRDPARTY_SRC_DIRS :=                  \
+	$(ENGINE_SRC)/thirdparty/DearImGui  \
+	$(ENGINE_SRC)/thirdparty/glm/detail \
+	$(ENGINE_SRC)/thirdparty/glad
 
-EDITR_SRC_DIRS :=        \
-    $(SRC)/editor/app    \
-    $(SRC)/editor/system \
-    $(SRC)/editor/tools  \
-    $(SRC)/editor/ui
+EDITR_SRC_DIRS :=               \
+    $(EDITR_SRC)/editor/app    \
+    $(EDITR_SRC)/editor/system \
+    $(EDITR_SRC)/editor/tools  \
+    $(EDITR_SRC)/editor/ui
 
 DIRTY_SRC_DIRS := \
 	thirdparty
 
-get_source_files = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
+getfiles = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
-CC_SRCS  ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.c)   $(call get_source_files,$(SRC_DIRS),*.c)
-CXX_SRCS ?= $(call get_source_files,$(THIRDPARTY_SRC_DIRS),*.cpp) $(call get_source_files,$(SRC_DIRS),*.cpp)
+CC_SRCS  ?= $(call getfiles,$(ENGINE_SRC_DIRS),*.c)   $(call getfiles,$(THIRDPARTY_SRC_DIRS),*.c)
+CXX_SRCS ?= $(call getfiles,$(ENGINE_SRC_DIRS),*.cpp) $(call getfiles,$(THIRDPARTY_SRC_DIRS),*.cpp)
 
-EDITR_SRCS := $(call get_source_files,$(EDITR_SRC_DIRS),*.cpp)
+EDITR_SRCS := $(call getfiles,$(EDITR_SRC_DIRS),*.cpp)
 
-HEADER_FILES := $(call get_source_files,$(SRC_DIRS),*.h) $(call get_source_files,$(SRC_DIRS),*.hpp)
+# TODO: Make better API headers
+HEADER_FILES := $(call getfiles,$(ENGINE_SRC_DIRS),*.hpp)
 
-export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%)))
-export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
+export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(ENGINE_SRC)/%=%)))
+export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(ENGINE_SRC)/%=%)))
 export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
 
 export ARCHIVES ?= $(wildcard $(ARCHIVES_DIR)/Common/*.a) $(JOLT_LIBRARY)
 export AR_OBJS  ?= $(addprefix $(BUILD_ARCHIVES)/,$(ARCHIVES:$(ARCHIVES_DIR)/%.a=%.o))
-export EDITR_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(EDITR_SRCS:$(SRC)/%=%)))
+export EDITR_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(EDITR_SRCS:$(EDITR_SRC)/%=%)))
 
-export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
+export HEADERS_OUT ?= $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(ENGINE_SRC)/%=%))
+
+export CURRENT_SRC ?= $(ENGINE_SRC)
 
 # Printout Styles
 export RESET   ?= \\x1b[0m
@@ -221,6 +228,7 @@ printout:
 		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object files> <archive object files>$(RESET)\n" \
 	; fi
 
+# TODO: Remove this
 build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
@@ -233,7 +241,10 @@ static: headers
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
+	$(eval BUILD_DIR = $(BUILD_ROOT)/$(DIR_ENGINE))
+	$(eval CURRENT_SRC = $(ENGINE_SRC))
 	$(eval BUILDING_STATIC_LIBRARY = 1)
+	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
@@ -243,7 +254,10 @@ dynamic: headers
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
+	$(eval BUILD_DIR = $(BUILD_ROOT)/$(DIR_ENGINE))
+	$(eval CURRENT_SRC = $(ENGINE_SRC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
+	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
@@ -256,15 +270,19 @@ editor: static
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval EDITR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
+	$(eval BUILD_DIR = $(BUILD_ROOT)/$(DIR_EDITR))
+	$(eval CURRENT_SRC = $(EDITR_SRC))
 	$(eval BUILDING_STATIC_LIBRARY =)
 	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_EDITR = 1)
+	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -rm -f $(BUILD_DIR)/$(EDITR)
 	@ $(MAKE) -s printout $(BUILD_DIR)/$(EDITR)
 	@ printf "$(BOLD)$(DEFAULT)::Nostalgia Editor Built Successfully$(RESET)\n"
 
 headers:
 	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"
+	@ -mkdir -p $(BUILD_HEADERS)
 	@ $(MAKE) -s $(HEADERS_OUT)
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
@@ -389,27 +407,27 @@ disable_colors:
 	@ printf "::Output styles disabled\n"
 
 # C++ Object Files
-$(BUILD_OBJS)/%.obj: $(SRC)/%.cpp | build_dir
+$(BUILD_OBJS)/%.obj: $(CURRENT_SRC)/%.cpp
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
 	@ -mv $(@:.obj=.d) $(BUILD_DEPS)/$(notdir $(@:.obj=.d))
 
 # C Object Files
-$(BUILD_OBJS)/%.o: $(SRC)/%.c | build_dir
+$(BUILD_OBJS)/%.o: $(CURRENT_SRC)/%.c
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
 	@ -mv $(@:.o=.d) $(BUILD_DEPS)/$(notdir $(@:.o=.d))
 
 # Header Files
-$(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp | build_dir
+$(BUILD_HEADERS)/%.hpp: $(CURRENT_SRC)/%.hpp
 	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
 
 # Archive Object Files
-$(BUILD_ARCHIVES)/%.o: $(ARCHIVES_DIR)/%.a | build_dir
+$(BUILD_ARCHIVES)/%.o: $(ARCHIVES_DIR)/%.a
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(NORM)$(GREEN) (Static Library)$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ $(CXX_COMPILER) -r -o $@ -Xlinker --whole-archive $^

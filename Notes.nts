@@ -710,3 +710,15 @@ I want to take more ideas from Godot. See the documentation, specifically: (http
 Okay, I think I might just follow that abstraction image very closely when modelling my own abstraction. First thing's first, let me get the project to a working build, then I'll make a new branch and get to work on the new abstraction(s).
 
 This marks the start of the rendering backend overhaul.
+
+[11/13/25]
+Okay, okay, I'm going to be using Hazel as another guide for structuring my code. As a note: `src/backends/` for me is going to be like `Hazel/src/Platform/` in Hazel. The abstract/interface classes will be in their own separate directories (e.g: renderer/, window/, etc.) and the platform-specific implementations will be in the backends directory.
+
+Okay, so, the 'backend' class will be for initializing backends (like GLFW), and each backend will have implementations of various classes (like Window, Renderer, Framebuffer, etc).
+
+I think 'Window' should live in 'src/backends/' for now, since I'm only gonna have the one class (for now) and there's really no other place to put it.
+
+This 'Window' class will be Nostalgia's version of Hazel's 'Window' and Godot's 'DisplayServer'. Godot uses a lot of enums for properties of things, but I want to use structs instead.
+
+[11/14/25]
+I'm gonna switch my focus to the entire engine and take a "top-down" approach. Basically, instead of starting with a platform-specific implementation of an interface and working my way up, I'll start at the very top and work down. For instance: what about starting with a simple "DrawWorld" function and going down from there?
