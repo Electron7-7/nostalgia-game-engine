@@ -22,8 +22,8 @@ FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
 FLAGS_CXX_COMMON      := -std=c++26 -Wall -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_DEBUG_RENDERER -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -lstdc++exp -D COMPILING_WINDOWS
-FLAGS_LINUX           := # Nothing yet
+FLAGS_WINDOWS         := -mwindows -lstdc++exp -D NOSTALGIA_WINDOWS
+FLAGS_LINUX           := -D NOSTALGIA_LINUX
 
 # These are only used when linking dynamically
 EDITR_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
