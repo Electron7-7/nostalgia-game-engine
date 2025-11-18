@@ -1,3 +1,5 @@
+#define DO_NOT_BUILD
+#ifndef DO_NOT_BUILD
 #include "graphics.hpp"
 #include "managers/backend_manager.hpp"
 #include "renderer/vertex.hpp"
@@ -202,3 +204,4 @@ bool s_CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& in
     }
     return true;
 }
+#endif // DO_NOT_BUILD

@@ -1,11 +1,11 @@
-#ifndef RENDERING_DEVICE_COMMONS_H
-#define RENDERING_DEVICE_COMMONS_H
+#ifndef RENDERER_COMMON_H
+#define RENDERER_COMMON_H
 
 // Heavily plagiarizing Godot's rendering device systems
 
 #include <sys/types.h>
 
-class RenderingCommons
+class RendererCommon
 {
 public:
     // NOT YET IMPLEMENTED:
@@ -74,4 +74,4 @@ public:
     };
 };
 
-#endif // RENDERING_DEVICE_COMMONS_H
+#endif // RENDERER_COMMON_H
