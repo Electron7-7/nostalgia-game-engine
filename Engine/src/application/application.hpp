@@ -1,6 +1,8 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "fwd.hpp"
+
 /*
 Big note on IApplication:
 ---------------------------------------
@@ -13,12 +15,19 @@ Big note on IApplication:
 class IApplication
 {
 public:
-    // Applications are expected to implement these methods
-    virtual bool Create()       = 0;
-    virtual bool PreInit()      = 0;
-    virtual int Main()          = 0;
-    virtual void Shutdown()     = 0;
-    virtual void PostShutdown() = 0;
+    virtual int  Main() = 0;
+    virtual void Stop() = 0;
     virtual const char* GetAppName() { return "Untitled Application"; }
+
+    IApplication();
+    virtual ~IApplication() = default;
+
+    IWindow* GetWindow() const { return mMainWindow; }
+
+protected:
+    IWindow* mMainWindow{nullptr};
 };
+
+extern IApplication* g_pApplication;
+
 #endif // APPLICATION_H

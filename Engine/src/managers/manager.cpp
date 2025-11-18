@@ -1,4 +1,6 @@
 #include "manager.hpp"
+#include "application/application.hpp"
+#include "application/window.hpp"
 #include "settings/engine.hpp"
 #include "core/time.hpp"
 #include "core/printing.hpp"
@@ -179,6 +181,7 @@ void IManager::Start()
     {
         UpdateTheatreStateMachine();
         InvokeMethod(&IManager::Update);
+        g_pApplication->GetWindow()->Update();
         ++m_sFrameNumber;
     }
 
