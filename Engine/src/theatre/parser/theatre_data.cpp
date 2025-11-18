@@ -47,13 +47,13 @@ void TheatreData::SetupUIDsAndPriorities()
     s_DataQuickSort(things_data, 0, things_data.size() - 1);
 
     std::map<std::string, ID> name_id_map{};
-    UniqueIDs::Clear();
+    UniqueID::Clear();
 
     // I wanted to combine these two `for` loops, but it's safer to separate them, since I can't guarantee that
     // referenced things will have defined UIDs even after sorting by priority. Perhaps in the future I can change
     // this, but for now it's fine to have two for loops (even if I personally hate it).
     for(ThingData& data : things_data)
-        { name_id_map[data.name] = data.uid = UniqueIDs::Generate(); }
+        { name_id_map[data.name] = data.uid = UniqueID::Generate(); }
     for(ThingData& data : things_data)
     {
         for(ThingVar& variable : data.variables)
@@ -68,7 +68,7 @@ void TheatreData::SetupUIDsAndPriorities()
                     { variable.enum_value = gEnumLookup.at(variable.value.data()); }
                 break;
             case ThingVar::eReference:
-                if(!UniqueIDs::GetReservedID(variable.value, variable.reference_id) && name_id_map.contains(variable.value))
+                if(!UniqueID::GetReservedID(variable.value, variable.reference_id) && name_id_map.contains(variable.value))
                     { variable.reference_id = name_id_map.at(variable.value); }
                 break;
             default:

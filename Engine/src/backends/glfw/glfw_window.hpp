@@ -22,6 +22,10 @@ public:
     void* GetNativeWindow() const override { return static_cast<GLFWwindow*>(m_pWindow); }
     NativeWindowType GetNativeWindowType() const override { return NATIVE_GLFW_WINDOW; }
     const std::unique_ptr<Monitor>& GetPrimaryMonitor() const override;
+    uint GetFullscreenMonitorIndex() override;
+    const std::unique_ptr<Monitor>& GetFullscreenMonitor() override;
+    Error SetFullscreenMonitor(uint) override;
+
 
     Error SetVsync(Vsync) override;
     Error SetMouseMode(MouseMode) override;

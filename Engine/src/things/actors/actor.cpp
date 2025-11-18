@@ -1,7 +1,7 @@
 #include "actor.hpp"
 #include "managers/theatre_manager.hpp"
 #include "things/devices/collider.hpp"
-#include "theatre_parser/thing_data.hpp"
+#include "theatre/parser/thing_data.hpp"
 
 void Actor::SetVariables(const ThingData& data)
 {

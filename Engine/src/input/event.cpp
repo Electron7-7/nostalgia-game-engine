@@ -1,6 +1,7 @@
 #include "event.hpp"
 #include "binding.hpp"
-#include "managers/backend_manager.hpp"
+#include "application/application.hpp"
+#include "application/window.hpp"
 
 #include <math/glm_format.hpp>
 #include <format>
@@ -39,8 +40,9 @@ bool InputEvent::IsKeyPressed(const ID& id) const
 bool InputEvent::IsKeyReleased(const ID& id) const
 { return QueryInput(id, &InputBinding::JustDeactivated); }
 
+#pragma message("FIXME: This should probably not be such an engine-level check(?)")
 bool InputEvent::IsMouseCaptured() const
-{ return g_pBackendManager->Windowing()->GetMouseMode() == MouseMode::Disabled; }
+{ return g_pApplication->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED; }
 
 bool InputEvent::empty() const
 { return mInputs.empty(); }

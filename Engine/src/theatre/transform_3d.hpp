@@ -1,7 +1,7 @@
 #ifndef TRANSFORM_3D_H
 #define TRANSFORM_3D_H
 
-#include "theatre_parser/fwd.hpp"
+#include "theatre/parser/fwd.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

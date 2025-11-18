@@ -2,7 +2,7 @@
 #define DEMO_CONTROLLER_H
 
 #include "fwd.hpp"
-#include "common/safe_return.hpp"
+#include "core/safe_return.hpp"
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
 #include "light.hpp"
-#include "theatre_parser/thing_data.hpp"
+#include "theatre/parser/thing_data.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef DEBUGGING
 #   define TRUE_IF_DEBUGGING(boolean) boolean = true
@@ -42,18 +42,18 @@ void light_t::SetVariables(const ThingData& data)
         ID mat_id = g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",
             ThingType::Material,
-            UniqueIDs::Generate(),
+            UniqueID::Generate(),
             {
-                {UniqueIDs::Reserved::i_LightDebug, "DiffuseTexture"},
+                {UniqueID::Reserved::i_LightDebug, "DiffuseTexture"},
                 {true, "FullBright"},
             }
         });
         mMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
-            UniqueIDs::Generate(),
+            UniqueID::Generate(),
             {
-                {UniqueIDs::Reserved::m_Cube, "Mesh"},
+                {UniqueID::Reserved::m_Cube, "Mesh"},
                 {mat_id, "Material"}
             }
         });

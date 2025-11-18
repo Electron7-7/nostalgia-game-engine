@@ -1,6 +1,6 @@
 #include "ui_manager.hpp"
-#include "managers/backend_manager.hpp"
 #include "input/event.hpp"
+#include "core/printing.hpp"
 
 using namespace ManagerEnums;
 
@@ -12,7 +12,7 @@ bool UIManager::Init()
     print_debug("UIManager::Init");
     // Do all non-ImGui initialization here...
 
-    g_pBackendManager->InitImGui();
+    // g_pBackendManager->InitImGui();
 
     for(ImGui_Object* imgui_object : imgui_objects)
         { imgui_object->Init(); }

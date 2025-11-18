@@ -3,7 +3,7 @@
 #include "things/thing_factory.hpp"
 #include "things/devices/collider.hpp"
 #include "settings/engine.hpp"
-#include "common/printing.hpp"
+#include "core/printing.hpp"
 #include "math/conversion.hpp"
 #include "physics/enums.hpp"
 

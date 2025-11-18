@@ -1,26 +1,24 @@
 #include "imgui_debugger.hpp"
 #include "main_window.hpp"
-#include "editor/tools/stopwatch_log.hpp"
-#include "settings/window.hpp"
+#include "tools/stopwatch_log.hpp"
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
-#include "backends/graphics/opengl.hpp"
 #include "input/demo_controller.hpp"
 #include "managers/manager.hpp"
 #include "managers/theatre_manager.hpp"
-#include "managers/backend_manager.hpp"
 #include "filesystem/filesystem.hpp"
-#include "renderer/window_info.hpp"
 #include "things/thing_factory.hpp"
 #include "things/actors/light.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/collider.hpp"
-#include "theatre_parser/theatre_data.hpp"
+#include "theatre/parser/theatre_data.hpp"
+#include "application/application.hpp"
+#include "application/window.hpp"
 #ifdef DEBUGGING
 #   include "managers/physics_manager.hpp"
-#   include "theatre_parser/theatre_parser.hpp"
+#   include "theatre/parser/theatre_parser.hpp"
 #endif // DEBUGGING
 
 #include <glm/glm.hpp>
@@ -192,16 +190,6 @@ void imgui_Debugger::StopTheatreTiming(bool loading)
         { log.unload_time.Stop(); }
 }
 
-static void s_WindowInfo(const WindowInfo& info, const char* title)
-{
-    Text("%s\n\t\t- name: %s\n\t\t- position: [%d, %d]\n\t\t- size: [%d, %d]\n\t\t- framebuffer size: [%d, %d]",
-        title,
-        info.name.data(),
-        info.position.x, info.position.y,
-        info.size.width, info.size.height,
-        info.framebuffer_size.width, info.framebuffer_size.height);
-}
-
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
@@ -212,7 +200,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Frame#", &g_PrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &g_PrintTickNumbers);
-        if(Settings::Engine::GraphicsBackend == BackendIDs::gOpenGL)
+        /*if(Settings::Engine::GraphicsBackend == BackendIDs::gOpenGL)
         {
             SeparatorText("OpenGL");
             Text("Severity Levels");
@@ -221,7 +209,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
             Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
             Checkbox("Notification", &g_EnableDebugMsgNotif);
-        }
+        }*/
         SeparatorText("Jolt Physics");
         SeparatorText("Contact");
         Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
@@ -236,7 +224,7 @@ static void s_GeneralDebuggingWindow()
     if(CollapsingHeader("Rendering"))
     {
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-        Text("Shader Output");
+        /*Text("Shader Output");
         Separator();
         static int s_Selected = Shader_ALL;
         static const char* s_SelectableNames[4] =
@@ -252,35 +240,53 @@ static void s_GeneralDebuggingWindow()
             if(Checkbox(s_SelectableNames[i], &l_Selected))
                 { s_Selected = i; }
         }
-        g_ShaderDebugOuptut = s_Selected;
+        g_ShaderDebugOuptut = s_Selected;*/
     }
     if(CollapsingHeader("Engine"))
     {
         DragInt("Tick Rate", &Settings::Engine::TickRate);
         Text("Tick Interval: %f", Settings::Engine::TickInterval());
-        Text("Graphics Backend: %s", Settings::Engine::GraphicsBackend.c_name());
-        Text("Windowing Backend: %s", Settings::Engine::WindowingBackend.c_name());
     }
     if(CollapsingHeader("Window"))
     {
         if(TreeNode("Window Info"))
         {
-            s_WindowInfo(Settings::Window::WindowedInfo(), "sWindowedInfo");
-            s_WindowInfo(Settings::Window::FullscreenInfo(), "sFullscreenInfo");
+            Text("Title: %s\nPosition: [%d, %d]Size: [%d, %d]",
+                g_pApplication->GetWindow().GetTitle(),
+                g_pApplication->GetWindow().GetXPosition(),
+                g_pApplication->GetWindow().GetYPosition(),
+                g_pApplication->GetWindow().GetWidth(),
+                g_pApplication->GetWindow().GetHeight());
             TreePop();
         }
-        bool fullscreen{Settings::Window::Fullscreen()};
+        bool fullscreen{g_pApplication->GetWindow().IsFullscreen()};
         if(Checkbox("Fullscreen", &fullscreen))
-            { Settings::Window::ToggleFullscreen(); }
+        {
+            g_pApplication->GetWindow().SetWindowMode((fullscreen)
+                ? IWindow::WINDOW_MODE_WINDOWED
+                : IWindow::WINDOW_MODE_FULLSCREEN);
+        }
 
-        auto position{Settings::Window::Position()};
-        if(DragInt2("Position", &position.x, &position.y))
-            { Settings::Window::setPosition(position); }
+#       ifndef WAYLAND_DISPLAY
+            auto position{g_pApplication->GetWindow().GetPosition()};
+            if(DragInt2("Position", &position.x, &position.y))
+                { g_pApplication->GetWindow().SetPosition(position); }
 
-        auto size{Settings::Window::Size()};
-        if(DragInt2("Size", &size.width, &size.height))
-            { Settings::Window::setSize(size); }
-        NewLine();
+            int scale[2] {
+                (int)g_pApplication->GetWindow().GetScale().width, // Evil c-style cast
+                (int)g_pApplication->GetWindow().GetScale().height, // Evil c-style cast
+            };
+            if(DragInt2("Size", scale))
+                { g_pApplication->GetWindow().SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
+            NewLine();
+#       else
+            Text("Position: [%d, %d]",
+                g_pApplication->GetWindow().GetXPosition(),
+                g_pApplication->GetWindow().GetYPosition());
+            Text("Size: [%d, %d]",
+                g_pApplication->GetWindow().GetWidth(),
+                g_pApplication->GetWindow().GetHeight());
+#       endif // WAYLAND_DISPLAY
     }
     if(CollapsingHeader("Player"))
     {
@@ -291,8 +297,9 @@ static void s_GeneralDebuggingWindow()
         SeparatorText("Movement");
         SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
         SeparatorText("Mouse");
+#pragma message("TODO: re-implement raw mouse motion")
         if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))
-            { g_pBackendManager->Windowing()->SetRawMouseMotion(Settings::Player::RawMouseMotion); }
+            { print_debug("Raw mouse motion toggle not yet implemented"); }
         SliderFloat("Mouse Sensitivity", &Settings::Player::MouseSensitivity, 0.0f, 5.0f);
         SliderFloat("Mouse Sensitivity Multiplier", &Settings::Player::MouseSensitivityScale, 0.0f, 1.0f);
     }
@@ -482,9 +489,9 @@ static void s_ResourceInfo(ID uid, const char* tree_name)
         s_NameAndUID(thing);
         TreePop();
     }
-    else if(UniqueIDs::IsReserved(uid) && TreeNode(tree_name))
+    else if(UniqueID::IsReserved(uid) && TreeNode(tree_name))
     {
-        Text("Name - %s", UniqueIDs::Reserved::EmbeddedResourceNames.at(uid).data());
+        Text("Name - %s", UniqueID::Reserved::EmbeddedResourceNames.at(uid).data());
         Text("UID  - %u", static_cast<id_t>(uid));
         TreePop();
     }

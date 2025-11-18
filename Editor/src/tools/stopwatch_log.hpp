@@ -1,7 +1,7 @@
 #ifndef STOPWATCH_LOG_H
 #define STOPWATCH_LOG_H
 
-#include "editor/tools/fwd.hpp"
+#include "fwd.hpp"
 
 #include <string>
 

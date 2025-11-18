@@ -3,9 +3,9 @@
 
 #include "fwd.hpp"
 
-#include "common/ids.hpp"
 #include "thing_data.hpp"
-#include "common/safe_return.hpp"
+#include "core/id.hpp"
+#include "core/safe_return.hpp"
 
 struct TheatreData
 {

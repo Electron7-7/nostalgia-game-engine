@@ -1,5 +1,4 @@
 #include "texture.hpp"
-#include "managers/backend_manager.hpp"
 
 void Texture::SetVariables(const ThingData& data)
 {
@@ -16,7 +15,7 @@ void Texture::SetVariables(const ThingData& data)
     data.GetVariable(base_layer, "Base Array Layer");
     data.GetVariable(bound_to_framebuffer, "Bound to Framebuffer");
 
-    g_pBackendManager->Graphics()->BufferTexture(mFileData, mUID);
+    // g_pBackendManager->Graphics()->BufferTexture(mFileData, mUID);
 }
 
 ThingData Texture::GetVariables() const

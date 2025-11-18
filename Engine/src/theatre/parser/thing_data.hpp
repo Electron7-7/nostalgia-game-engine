@@ -3,12 +3,12 @@
 
 #include "thing_variable.hpp"
 #include "things/types.hpp"
+#include "core/safe_return.hpp"
 #include "common/string_concepts.hpp"
 #include "common/string_to_num.hpp"
-#include "common/safe_return.hpp"
 #include "frozen/map.h"
 #include "physics/enums.hpp"
-#include "renderer/common.hpp"
+#include "rendering/common.hpp"
 #include "thirdparty/va_args_count.h"
 
 #include <type_traits>
@@ -36,7 +36,7 @@ PENUM_LOOKUP(gPrettyEnumLookup,
     constexpr frozen::map<const char*, int, VA_ARGS_COUNT(__VA_ARGS__)/2> NAME = { __VA_ARGS__ }
 
 ENUM_LOOKUP(gEnumLookup,
-    ADD_PENUM("DATA_FORMAT_NONE", RenderingCommons::DATA_FORMAT_NONE)
+    ADD_PENUM("DATA_FORMAT_NONE", RendererCommon::DATA_FORMAT_NONE)
 );
 
 #undef ADD_ENUM

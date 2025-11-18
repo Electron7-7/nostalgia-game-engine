@@ -1,5 +1,4 @@
 #include "world.hpp"
-#include "backends/backend.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -19,14 +18,3 @@ const glm::vec3& World::Right()
 
 const glm::vec3& World::Front()
 { return sOrientationFront; }
-
-bool World::UpdateOrientation(const ID& id)
-{
-    switch((uint)id)
-    {
-    case BackendIDs::gOpenGL():
-        return true; // Orientation is set to OpenGL standard by default
-    default:
-        return false;
-    }
-}

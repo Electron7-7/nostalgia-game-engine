@@ -1,8 +1,8 @@
 #ifndef THING_VARIABLE_H
 #define THING_VARIABLE_H
 
-#include "common/penum_t.hpp"
-#include "common/ids.hpp"
+#include "core/penum_t.hpp"
+#include "core/id.hpp"
 #include "math/glm_concepts.hpp"
 #include "math/glm_format.hpp" // IWYU pragma: keep // used by one of the constructors
 

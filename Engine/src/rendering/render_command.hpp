@@ -2,8 +2,8 @@
 #define RENDER_COMMAND_H
 
 #include "things/fwd.hpp"
-#include "common/ids.hpp"
-#include "shader_interfaces/shader_interface.hpp"
+#include "core/id.hpp"
+#include "shader_interface.hpp"
 
 #include <glm/glm.hpp>
 #include <memory>

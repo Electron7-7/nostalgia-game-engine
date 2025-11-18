@@ -1,5 +1,7 @@
-#include "editor/app/nostalgia_goggles.hpp"
-#include "common/printing.hpp"
+#include "app/nostalgia_goggles.hpp"
+#include "application/application.hpp"
+#include "managers/manager.hpp"
+#include "core/printing.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -7,19 +9,19 @@
 #include <shellapi.h>
 #endif // _WIN32
 
+NostalgiaGoggles nostalgia_goggles{};
+
 int DedicatedMain(int argc, char** argv)
 {
-    print_app_debug("DedicatedMain - Creating & Initializing Application");
-    g_pApplication->Create();
-    g_pApplication->PreInit();
-
+    print_app_debug("DedicatedMain - Initializing Managers");
+    IManager::InitAllManagers();
     print_app_debug("DedicatedMain - Running Application");
     int return_value = g_pApplication->Main();
-
-    print_app_debug("DedicatedMain - Shutting Down Application");
-    g_pApplication->PostShutdown();
-
-    print_app_debug("DedicatedMain - Exiting ({})", return_value);
+    print_app_debug("DedicatedMain - Shutting Down All Managers");
+    IManager::ShutdownAllManagers();
+    print_app_debug("DedicatedMain - Removing All Managers");
+    IManager::RemoveAll();
+    print_app_debug("DedicatedMain - Exiting (status:{})", return_value);
     return return_value;
 }
 

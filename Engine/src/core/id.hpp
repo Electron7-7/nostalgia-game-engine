@@ -224,7 +224,7 @@ namespace BindingID
     constexpr bool IsBinding(const ID& BindingI)
     { return IsKey(BindingI) || IsMouseButton(BindingI); }
 
-    constexpr void GetAllBindingIs(std::vector<ID>& outVector)
+    constexpr void GetAllBindingIDs(std::vector<ID>& outVector)
     {
         outVector.reserve(KeyIDsCount + MouseButtonIDsCount);
         std::merge(BindingID::KeyIDs.cbegin(), BindingID::KeyIDs.cend(),

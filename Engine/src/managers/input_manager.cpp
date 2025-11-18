@@ -1,9 +1,10 @@
 #include "input_manager.hpp"
-#include "backend_manager.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "input/binding.hpp"
 #include "input/demo_controller.hpp"
+#include "application/application.hpp"
+#include "application/window.hpp"
 
 #include <thread>
 
@@ -24,7 +25,7 @@ bool InputManager::Init()
 {
     print_debug("InputManager::Init");
     std::vector<ID> binding_ids{};
-    BindingIDs::GetAllBindingIDs(binding_ids);
+    BindingID::GetAllBindingIDs(binding_ids);
     for(const ID& id : binding_ids)
         { mBindings[id] = InputBinding{id}; }
     return true;
@@ -44,14 +45,13 @@ void InputManager::Tick()
 void InputManager::PollInputs(InputEvent& event)
 {
     glm::vec2 last_mouse_position{mMousePosition};
-    auto window = g_pBackendManager->Windowing();
-    window->GetMousePosition(mMousePosition);
-    window->PollEvents();
+    // g_pApplication->GetWindow().GetMousePosition(mMousePosition);
+    // g_pApplication->GetWindow().PollEvents();
     event.UpdateMouseMotion(mMousePosition, last_mouse_position);
     for(auto& [id, binding] : mBindings)
     {
-        if(window->UpdateBinding(binding))
-            { event.add(binding); }
+        // if(g_pApplication->GetWindow().UpdateBinding(binding))
+            // { event.add(binding); }
     }
 }
 

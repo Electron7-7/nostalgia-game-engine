@@ -1,6 +1,6 @@
 #include "collider.hpp"
 #include "math/conversion.hpp"
-#include "theatre_parser/thing_data.hpp"
+#include "theatre/parser/thing_data.hpp"
 #include "managers/physics_manager.hpp"
 
 using namespace JPH;

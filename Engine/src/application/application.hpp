@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "fwd.hpp"
+#include "window.hpp"
 
 #include <memory>
 

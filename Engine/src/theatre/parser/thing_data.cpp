@@ -1,14 +1,14 @@
 #include "thing_data.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
-#include "common/globals.hpp"
-#include "common/printing.hpp"
+#include "core/globals.hpp"
+#include "core/printing.hpp"
 #include "common/colors.hpp"
 
 const ThingData ThingData::PlayerDefaults(
     "Default Player",
     ThingType::NostalgiaPlayer,
-    UniqueIDs::Reserved::Player,
+    UniqueID::Reserved::Player,
     {
         ThingVar{glm::vec3(0.0f), "Rotation"},
         ThingVar{glm::vec3(0.0f), "Origin"},

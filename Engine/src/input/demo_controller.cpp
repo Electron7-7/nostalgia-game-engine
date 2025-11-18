@@ -3,8 +3,8 @@
 #include "managers/theatre_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
-#include "theatre_parser/theatre_parser.hpp"
-#include "common/printing.hpp"
+#include "theatre/parser/theatre_parser.hpp"
+#include "core/printing.hpp"
 #include "common/string_to_num.hpp"
 #include "common/string_transform.hpp"
 

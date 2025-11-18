@@ -1,4 +1,5 @@
 #include "glfw_window.hpp"
+#include "application/application.hpp"
 #include "application/monitor.hpp"
 #include "core/printing.hpp"
 // #include "math/glm_format.hpp" // IWYU pragma: keep
@@ -10,7 +11,7 @@
 #include <glad/glad.h>
 // #include <glm/vec2.hpp>
 
-std::vector<std::unique_ptr<Monitor>> m_sMonitors{};
+static std::vector<std::unique_ptr<Monitor>> m_sMonitors{};
 
 static void sMonitorCallback(GLFWmonitor* inMonitor, int inEvent)
 {
@@ -74,6 +75,9 @@ void WindowGLFW::Update()
 {
     glfwPollEvents();
     // mGraphicsContext->SwapBuffers();
+#pragma message("this shit is for debugging until input handling is back online")
+    if(glfwGetKey(m_pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        { g_pApplication->Stop(); }
 }
 
 Error WindowGLFW::SetVsync(Vsync)
@@ -135,6 +139,32 @@ const std::unique_ptr<Monitor>& WindowGLFW::GetPrimaryMonitor() const
     if(found_it == m_sMonitors.end())
         { found_it = m_sMonitors.begin(); }
     return *found_it;
+}
+
+uint WindowGLFW::GetFullscreenMonitorIndex()
+{
+    assert(m_sMonitors.size() > 0 && "WindowGLFW::m_sMonitors.size() <= 0");
+    if(mFullscreenMonitorIndex >= m_sMonitors.size())
+        { mFullscreenMonitorIndex = 0; }
+    return mFullscreenMonitorIndex;
+}
+
+const std::unique_ptr<Monitor>& WindowGLFW::GetFullscreenMonitor()
+{ return m_sMonitors.at(GetFullscreenMonitorIndex()); }
+
+Error WindowGLFW::SetFullscreenMonitor(uint MonitorIndex)
+{
+    if(MonitorIndex < m_sMonitors.size())
+    {
+        mFullscreenMonitorIndex = MonitorIndex;
+        if(IsFullscreen())
+        {
+            mData.window_mode = WINDOW_MODE_WINDOWED;
+            SetWindowMode(WINDOW_MODE_FULLSCREEN);
+        }
+        return OK;
+    }
+    return ERR_INDEX_OUT_OF_BOUNDS;
 }
 
 #define DO_NOT_BUILD

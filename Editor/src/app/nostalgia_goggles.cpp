@@ -12,8 +12,8 @@ static SafeStatus sInputEventHandler(const InputEvent& event)
 {
     if(event.IsActionPressed(gToggleFullscreen))
     {
-        g_pApplication->GetWindow()->SetWindowMode(
-            (g_pApplication->GetWindow()->GetWindowMode() == IWindow::WINDOW_MODE_WINDOWED)
+        g_pApplication->GetWindow().SetWindowMode(
+            (g_pApplication->GetWindow().GetWindowMode() == IWindow::WINDOW_MODE_WINDOWED)
                 ? IWindow::WINDOW_MODE_FULLSCREEN
                 : IWindow::WINDOW_MODE_WINDOWED);
     }
@@ -23,11 +23,7 @@ static SafeStatus sInputEventHandler(const InputEvent& event)
 }
 
 void NostalgiaGoggles::Stop()
-{
-    IManager::Stop();
-    IManager::ShutdownAllManagers();
-    IManager::RemoveAll();
-}
+{ IManager::Stop(); }
 
 int NostalgiaGoggles::Main()
 {

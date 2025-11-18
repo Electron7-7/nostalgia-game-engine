@@ -1,11 +1,9 @@
 #include "main_window.hpp"
-#include "editor/app/nostalgia_goggles.hpp"
+#include "app/nostalgia_goggles.hpp"
 #include "input/event.hpp"
-#include "managers/backend_manager.hpp"
 #include "managers/theatre_manager.hpp"
-#include "settings/window.hpp"
-#include "renderer/viewport.hpp"
-#include "theatre_parser/thing_data.hpp"
+#include "rendering/viewport.hpp"
+#include "theatre/parser/thing_data.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 
 #define DISABLED_IF(IS_TRUE, CODE) if(IS_TRUE) { BeginDisabled(); } CODE if(IS_TRUE) { EndDisabled(); }
@@ -39,7 +37,7 @@ struct std::formatter<ImVec2> : public std::formatter<float[2]>
 bool MainWindow::Init()
 {
     print_debug("MainWindow::Init");
-    return g_pBackendManager->Graphics()->UseViewport(ViewportIDs::Editor3DViewport1);
+    return true; // return g_pBackendManager->Graphics()->UseViewport(ViewportIDs::Editor3DViewport1);
 }
 
 void MainWindow::TheatreStateChanged(bool is_startup)
@@ -54,19 +52,19 @@ void MainWindow::TheatreStateChanged(bool is_startup)
     sSpawnLocationMaterialID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_Material",
         ThingType::Material,
-        UniqueIDs::Generate(),
+        UniqueID::Generate(),
         {{true, "NoTexture"}, {glm::vec3(1.0f, 0.0f, 0.0f), "Color"}, {true, "mat_fullbright"}}
     });
     sSpawnLocationMeshInstanceID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_MeshInstance",
         ThingType::MeshInstance,
-        UniqueIDs::Generate(),
-        {{UniqueIDs::Reserved::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
+        UniqueID::Generate(),
+        {{UniqueID::Reserved::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
     });
     sSpawnLocationID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation",
         ThingType::Actor,
-        UniqueIDs::Generate(),
+        UniqueID::Generate(),
         {{sSpawnLocationMeshInstanceID, "MeshInstance"}, {glm::vec3(1.0f), "Scale"}, {true, "Wireframe"}}
     });
 }
@@ -75,17 +73,17 @@ void MainWindow::Input(const InputEvent& event)
 {
     if(g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard)
     {
-        if(event.IsKeyPressed(BindingIDs::KeyESC))
+        if(event.IsKeyPressed(BindingID::KeyESC))
         {
-            g_pBackendManager->Windowing()->SetMouseMode(MouseMode::Normal);
+            // g_pBackendManager->Windowing()->SetMouseMode(MouseMode::Normal);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = false;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = false;
         }
         return;
     }
-    else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyD))
+    else if(event.IsKeyDown(BindingID::KeyLEFTCONTROL) && event.IsKeyPressed(BindingID::KeyD))
         { gShowDebugWindow = !gShowDebugWindow; }
-    else if(event.IsKeyDown(BindingIDs::KeyLEFTCONTROL) && event.IsKeyPressed(BindingIDs::KeyG))
+    else if(event.IsKeyDown(BindingID::KeyLEFTCONTROL) && event.IsKeyPressed(BindingID::KeyG))
         { sShowDemoWindow  = !sShowDemoWindow; }
 }
 
@@ -112,8 +110,8 @@ void MainWindow::Update()
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-    float window_width  = Settings::Window::Size().width;
-    float window_height = Settings::Window::Size().height;
+    float window_width  = g_pApplication->GetWindow().GetWidth();
+    float window_height = g_pApplication->GetWindow().GetHeight();
     SetNextWindowSize({window_width, window_height});
     SetNextWindowPos({0, 0});
     if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus))
@@ -127,7 +125,7 @@ void MainWindow::Update()
                 else if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
                     { sShowDemoWindow = true; }
                 else if(MenuItem("Quit", "CTRL+Q"))
-                    { g_pApplication->Shutdown(); }
+                    { g_pApplication->Stop(); }
                 EndMenu();
             }
             EndMenuBar();
@@ -139,17 +137,20 @@ void MainWindow::Update()
         PopStyleVar();
         if(IsItemClicked())
         {
-            g_pBackendManager->Windowing()->ToggleMouseMode(MouseMode::Disabled);
+            g_pApplication->GetWindow().SetMouseMode(
+                (g_pApplication->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
+                    ? IWindow::MOUSE_MODE_DISABLED
+                    : IWindow::MOUSE_MODE_VISIBLE);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
         }
         sEditorViewport.scale = (GetItemRectMax() - GetItemRectMin()) - ImVec2{0,16};
         sEditorViewport.position.x = static_cast<int>(GetItemRectMin().x);
         sEditorViewport.position.y = window_height - static_cast<int>(GetItemRectMax().y);
-        if(g_pBackendManager->Graphics()->GetViewport(ViewportIDs::Editor3DViewport1) != sEditorViewport)
-            { g_pBackendManager->Graphics()->SetViewport(ViewportIDs::Editor3DViewport1, sEditorViewport); }
-        TextF("Editor Viewport Size: {}", sEditorViewport.scale);
-        TextF("Editor Viewport Pos: {}", sEditorViewport.position);
+        // if(g_pBackendManager->Graphics()->GetViewport(ViewportIDs::Editor3DViewport1) != sEditorViewport)
+            // { g_pBackendManager->Graphics()->SetViewport(ViewportIDs::Editor3DViewport1, sEditorViewport); }
+        // TextF("Editor Viewport Size: {}", sEditorViewport.scale);
+        // TextF("Editor Viewport Pos: {}", sEditorViewport.position);
         EndChild(); SameLine();
         BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
             s_ThingAdder();
@@ -193,7 +194,7 @@ void s_ThingAdder()
     DragFloat("Spawn Location Scale Min", &sSpawnLocationScaleMin, 0.1f, 0.0f, 0.0f, "%.2f");
     if(Button("Spawn Thing"))
     {
-        sThingData = {sNewThingName, ID{sTypeNames[sCurrentType]}, UniqueIDs::Generate()};
+        sThingData = {sNewThingName, ID{sTypeNames[sCurrentType]}, UniqueID::Generate()};
         sThingData.AddVariable(sSpawnLocation, "Origin");
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
         g_pTheatreManager->CreateThing(sThingData);

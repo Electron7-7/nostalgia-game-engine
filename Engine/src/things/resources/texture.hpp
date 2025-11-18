@@ -1,7 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "renderer/common.hpp"
+#include "rendering/common.hpp"
 #include "resource.hpp"
 
 enum TextureType
@@ -29,7 +29,7 @@ enum TextureSamples {
 
 struct TextureFormat
 {
-    RenderingCommons::DataFormat format{RenderingCommons::DATA_FORMAT_NONE};
+    RendererCommon::DataFormat format{RendererCommon::DATA_FORMAT_NONE};
     uint width{1};
     uint height{1};
     uint depth{1};
@@ -37,7 +37,7 @@ struct TextureFormat
     uint mipmaps{1};
     TextureType type{TEXTURE_TYPE_2D};
     TextureSamples samples{TEXTURE_SAMPLES_1};
-    std::vector<RenderingCommons::DataFormat> shareable_formats{};
+    std::vector<RendererCommon::DataFormat> shareable_formats{};
 
     constexpr bool operator==(const TextureFormat& tf) const
     {

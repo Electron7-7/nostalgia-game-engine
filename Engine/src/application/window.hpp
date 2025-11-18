@@ -2,9 +2,11 @@
 #define WINDOW_H
 
 #include "fwd.hpp"
+
 #include "common/sanity.hpp"
 #include "core/game_loop.hpp"
 #include "core/error.hpp"
+#include "math/containers.hpp"
 
 #include <cassert>
 #include <string>
@@ -76,47 +78,32 @@ public:
 
     virtual void Update() = 0;
 
-    virtual Error UpdateAllProperties() = 0;
+#ifndef WAYLAND_DISPLAY
+    virtual Error SetPosition(const position_t&) { return NOT_IMPLEMENTED; }
+    virtual Error SetScale(const scale_t&)       { return NOT_IMPLEMENTED; }
+#endif // WAYLAND_DISPLAY
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;
     virtual void* GetNativeWindow() const = 0;
     virtual NativeWindowType GetNativeWindowType() const = 0; // Probably not necessary
     virtual const std::unique_ptr<Monitor>& GetPrimaryMonitor() const = 0;
+    virtual uint GetFullscreenMonitorIndex() = 0;
+    virtual const std::unique_ptr<Monitor>& GetFullscreenMonitor() = 0;
+    virtual Error SetFullscreenMonitor(uint MonitorIndex) = 0;
 
     const char* GetTitle()     const { return mData.title.data(); }
     uint GetWidth()            const { return mData.width; }
     uint GetHeight()           const { return mData.height; }
+    scale_t GetScale()         const { return {mData.width, mData.height}; }
     int GetXPosition()         const { return mData.x_pos; }
     int GetYPosition()         const { return mData.y_pos; }
+    position_t GetPosition()   const { return {(int)mData.x_pos, (int)mData.y_pos}; } // Evil C-style casting
     Vsync GetVsync()           const { return mData.vsync; }
     MouseMode GetMouseMode()   const { return mData.mouse_mode; }
     WindowMode GetWindowMode() const { return mData.window_mode; }
     bool IsFullscreen()        const { return GetWindowMode() == WINDOW_MODE_FULLSCREEN; }
     Error GetInitStatus()      const { return mInitStatus; }
-
-    uint GetFullscreenMonitorIndex()
-    {
-        assert(m_sMonitors.size() > 0 && "IWindow::m_sMonitors.size() <= 0");
-        if(mFullscreenMonitorIndex >= m_sMonitors.size())
-            { mFullscreenMonitorIndex = 0; }
-        return mFullscreenMonitorIndex;
-    }
-
-    const std::unique_ptr<Monitor>& GetFullscreenMonitor()
-    { return m_sMonitors.at(GetFullscreenMonitorIndex()); }
-
-    Error SetFullscreenMonitor(uint MonitorIndex)
-    {
-        if(MonitorIndex < m_sMonitors.size())
-        {
-            mFullscreenMonitorIndex = MonitorIndex;
-            if(IsFullscreen())
-                { UpdateAllProperties(); }
-            return OK;
-        }
-        return ERR_INDEX_OUT_OF_BOUNDS;
-    }
 
     template<typename T>
         requires std::derived_from<T,IWindow>
@@ -133,8 +120,6 @@ protected:
     uint mFullscreenMonitorIndex{0};
 
     virtual Error InitializeCallbacks() = 0;
-
-    static std::vector<std::unique_ptr<Monitor>> m_sMonitors;
 };
 
 #endif // WINDOW_H

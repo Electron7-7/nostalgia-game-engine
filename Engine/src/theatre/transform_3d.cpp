@@ -1,6 +1,6 @@
 #include "transform_3d.hpp"
 #include "settings/world.hpp"
-#include "theatre_parser/thing_data.hpp"
+#include "parser/thing_data.hpp"
 
 void Transform3D::SetTransformVariables(const ThingData& data)
 {

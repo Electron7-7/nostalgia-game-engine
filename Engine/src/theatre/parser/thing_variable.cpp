@@ -1,7 +1,7 @@
 #include "thing_variable.hpp"
 #include "managers/theatre_manager.hpp"
+#include "core/globals.hpp"
 #include "common/colors.hpp"
-#include "common/globals.hpp"
 
 ThingVar::ThingVar(const std::string& string, const std::string& _name)
     : name{_name}, value{string}, type{eString} {}
@@ -9,7 +9,7 @@ ThingVar::ThingVar(const std::string& string, const std::string& _name)
 ThingVar::ThingVar(const ID& id, const std::string& _name)
     : name{_name}, value{""}, type{eReference}, reference_id{id}
     {
-        if(!UniqueIDs::GetReservedName(id, value))
+        if(!UniqueID::GetReservedName(id, value))
             { value = g_pTheatreManager->GetThing(id)->name(); }
     }
 
