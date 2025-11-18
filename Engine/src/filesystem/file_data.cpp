@@ -1,5 +1,6 @@
 #include "file_data.hpp"
 #include "filesystem.hpp"
+#include "core/printing.hpp"
 
 #include <map>
 
@@ -50,7 +51,7 @@ Error FileData::LoadFile(const std::string& path, FileType type)
     {
         print_warning("FileData::LoadFile - Failed to load file '{}'", path);
         m_Status = DataStatus::FAILED;
-        return Status::FileDataFAILED_TO_PROCESS_FILE;
+        return ERR_FILE_LOAD;
     }
 
     fseek(image_file, 0, SEEK_END);
@@ -70,7 +71,7 @@ Error FileData::LoadFile(const std::string& path, FileType type)
     m_Path = path;
     m_ReleaseData = true;
     m_Status = DataStatus::SUCCESSFUL;
-    return Status::NO_ERR;
+    return OK;
 }
 
 void FileData::LoadData(const unsigned char* data, int size, FileType type)

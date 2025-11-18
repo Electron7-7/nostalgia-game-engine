@@ -15,6 +15,7 @@ enum Error
     ERR_FILE_READ,
     ERR_FILE_WRITE,
     ERR_FILE_READ_WRITE,
+    ERR_FILE_LOAD, // FileData::LoadFile error
     ERR_FILE_OTHER, // Generic file-related error
 };
 
