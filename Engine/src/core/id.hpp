@@ -1,10 +1,10 @@
-#ifndef IDS_H
-#define IDS_H
+#ifndef ID_H
+#define ID_H
 
 #include "embedded/names.hpp"
+#include "common/hash.hpp"
 #include "frozen/set.h"
 #include "frozen/map.h"
-#include "common/hash.hpp"
 
 #include <string>
 #include <format>
@@ -86,7 +86,7 @@ struct std::formatter<ID> : std::formatter<std::string>
     { return std::formatter<std::string>::format(id.log(), ctx); }
 };
 
-namespace UniqueIDs
+namespace UniqueID
 {
     extern id_t Generate();
     extern bool PopLast();
@@ -140,7 +140,7 @@ namespace UniqueIDs
     constexpr ID back  = (ID::Invalid);
 };
 
-namespace BindingIDs
+namespace BindingID
 {
     constexpr ID KeyZERO         {"0"};
     constexpr ID KeyONE          {"1"};
@@ -215,28 +215,28 @@ namespace BindingIDs
         MouseLEFT, MouseRIGHT, MouseMIDDLE,
     };
 
-    constexpr bool IsKey(const ID& BindingID)
-    { return KeyIDs.contains(BindingID); }
+    constexpr bool IsKey(const ID& BindingI)
+    { return KeyIDs.contains(BindingI); }
 
-    constexpr bool IsMouseButton(const ID& BindingID)
-    { return MouseButtonIDs.contains(BindingID); }
+    constexpr bool IsMouseButton(const ID& BindingI)
+    { return MouseButtonIDs.contains(BindingI); }
 
-    constexpr bool IsBinding(const ID& BindingID)
-    { return IsKey(BindingID) || IsMouseButton(BindingID); }
+    constexpr bool IsBinding(const ID& BindingI)
+    { return IsKey(BindingI) || IsMouseButton(BindingI); }
 
-    constexpr void GetAllBindingIDs(std::vector<ID>& outVector)
+    constexpr void GetAllBindingIs(std::vector<ID>& outVector)
     {
         outVector.reserve(KeyIDsCount + MouseButtonIDsCount);
-        std::merge(BindingIDs::KeyIDs.cbegin(), BindingIDs::KeyIDs.cend(),
-            BindingIDs::MouseButtonIDs.cbegin(), BindingIDs::MouseButtonIDs.cend(),
+        std::merge(BindingID::KeyIDs.cbegin(), BindingID::KeyIDs.cend(),
+            BindingID::MouseButtonIDs.cbegin(), BindingID::MouseButtonIDs.cend(),
             std::inserter(outVector, outVector.begin()));
     }
 };
 
-namespace ViewportIDs
+namespace ViewportID
 {
     const ID Window{"Window"};
     const ID Editor3DViewport1{"Editor 3D Viewport 1"};
 }
 
-#endif // IDS_H
+#endif // ID_H

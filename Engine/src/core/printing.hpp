@@ -1,6 +1,8 @@
 #ifndef PRINTING_H
 #define PRINTING_H
 
+// NOTE: The `bool` return is a way of returning Error::OK/Error::FAILED without including the header file.
+
 #include <print>
 
 template<class... Args>

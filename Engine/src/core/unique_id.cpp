@@ -1,14 +1,14 @@
-#include "common/ids.hpp"
-#include "common/printing.hpp"
+#include "core/id.hpp"
+#include "core/printing.hpp"
 
 #include <random>
 #include <set>
 
 static std::random_device sRandomSeed;
 static std::mt19937 sIdEngine(sRandomSeed());
-static std::uniform_int_distribution<id_t> sIdDistribution{(id_t)UniqueIDs::front, (id_t)UniqueIDs::back};
+static std::uniform_int_distribution<id_t> sIdDistribution{(id_t)UniqueID::front, (id_t)UniqueID::back};
 static std::set<ID> sExistingIDs{};
-static constexpr unsigned int cMaxUniqueIDs{(id_t)UniqueIDs::back - (id_t)UniqueIDs::Reserved::back}; // Probably one less than the real max but it shouldn't matter
+static constexpr unsigned int cMaxUniqueID{(id_t)UniqueID::back - (id_t)UniqueID::Reserved::back}; // Probably one less than the real max but it shouldn't matter
 
 id_t ID::Generate()
 {
@@ -16,11 +16,11 @@ id_t ID::Generate()
     return sIdDistribution(sIdEngine);
 }
 
-id_t UniqueIDs::Generate()
+id_t UniqueID::Generate()
 {
-    if(sExistingIDs.size() == cMaxUniqueIDs)
+    if(sExistingIDs.size() == cMaxUniqueID)
     {
-        print_warning("UniqueIDs::Generate - Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUniqueIDs);
+        print_warning("UniqueID::Generate - Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUniqueID);
         sExistingIDs.clear();
     }
     id_t new_id{ID::Generate()};
@@ -28,29 +28,29 @@ id_t UniqueIDs::Generate()
     return new_id;
 }
 
-void UniqueIDs::Clear()
+void UniqueID::Clear()
 { sExistingIDs.clear(); }
 
-bool UniqueIDs::Push(const ID& id)
+bool UniqueID::Push(const ID& id)
 { return sExistingIDs.insert(id).second; }
 
-bool UniqueIDs::Erase(const ID& id)
+bool UniqueID::Erase(const ID& id)
 { return (sExistingIDs.erase(id) != 0); }
 
-bool UniqueIDs::Contains(const ID& id)
+bool UniqueID::Contains(const ID& id)
 { return sExistingIDs.contains(id); }
 
-bool UniqueIDs::IsReserved(const ID& id)
+bool UniqueID::IsReserved(const ID& id)
 { return id < front; }
 
-bool UniqueIDs::GetReservedID(const std::string& in_name, ID& out)
+bool UniqueID::GetReservedID(const std::string& in_name, ID& out)
 {
     for(auto [uid, name] : Reserved::EmbeddedResourceNames)
         { if(!name.compare(in_name)) { out = uid; return true; } }
     return false;
 }
 
-bool UniqueIDs::GetReservedName(const ID& in, std::string& out)
+bool UniqueID::GetReservedName(const ID& in, std::string& out)
 {
     if(!Reserved::EmbeddedResourceNames.contains(in))
         { return false; }
