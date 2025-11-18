@@ -722,3 +722,15 @@ This 'Window' class will be Nostalgia's version of Hazel's 'Window' and Godot's 
 
 [11/14/25]
 I'm gonna switch my focus to the entire engine and take a "top-down" approach. Basically, instead of starting with a platform-specific implementation of an interface and working my way up, I'll start at the very top and work down. For instance: what about starting with a simple "DrawWorld" function and going down from there?
+
+Okay, starting first with the window class: I'm gonna stick to GLFW for the forseeable future, so that will be the only implementation; I'll probably split it between Linux and Windows, as well as between X11 and Wayland if necessary.
+
+Okay, so I'm ripping a lot of Hazel's code, but only for the renderer. After that's done, I'll move on (finally) to other things and hopefully not have to think too hard about the renderer.
+
+[11/17/25]
+Okay, let's finish this shit.
+
+I think I need to learn Uniform buffers, too.
+
+The new WindowManager is just a passthrough to the main window for now, but in the future I'd like to have multiple windows that are interfaced with via the WindowManager. The WindowManager should be updated separately and ALWAYS after every other manager is updated.
+
