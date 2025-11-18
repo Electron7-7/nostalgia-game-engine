@@ -1,16 +1,16 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include <string>
+#include "core/error.hpp"
 
-#include "common/safe_return.hpp"
+#include <string>
 
 struct FileSystem
 {
     static std::string GetProgramDirectory();
     static std::string GetCurrentDirectory();
 
-    static SafeStatus try_WriteFileFromString(const std::string& Path, const std::string& Data);
+    static Error try_WriteFileFromString(const std::string& Path, const std::string& Data);
     static bool try_ReadFileToString(const std::string& Path, std::string& Output);
     static bool try_GetFileSize(const std::string& Path, size_t& Output);
 

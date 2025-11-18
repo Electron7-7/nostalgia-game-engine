@@ -1,7 +1,7 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
-#include "common/safe_return.hpp"
+#include "core/error.hpp"
 
 #include <string>
 
@@ -45,7 +45,7 @@ public:
 
     void Clear();
 
-    SafeStatus LoadFile(const std::string& Path, FileType Type = FileType::Unknown);
+    Error LoadFile(const std::string& Path, FileType Type = FileType::Unknown);
     void LoadData(const unsigned char* Data, int Size, FileType Type);
 
     std::string String() const;

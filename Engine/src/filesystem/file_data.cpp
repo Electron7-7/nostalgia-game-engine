@@ -36,7 +36,7 @@ FileData::FileData(const std::string& path, FileType type)
 FileData::~FileData()
 { Clear(); }
 
-SafeStatus FileData::LoadFile(const std::string& path, FileType type)
+Error FileData::LoadFile(const std::string& path, FileType type)
 {
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }

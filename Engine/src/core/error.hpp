@@ -12,6 +12,10 @@ enum Error
     ERR_SWITCH_DEFAULT, // A switch statement's `default` case was met (and is considered an error)
     ERR_INDEX_OUT_OF_BOUNDS,
     ERR_NOT_FOUND, // Search failure
+    ERR_FILE_READ,
+    ERR_FILE_WRITE,
+    ERR_FILE_READ_WRITE,
+    ERR_FILE_OTHER, // Generic file-related error
 };
 
 #endif // ERROR_H

@@ -9,7 +9,7 @@
 namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
-#ifdef COMPILING_WINDOWS
+#ifdef NOSTALGIA_WINDOWS
 #   include <windows.h>
 #   include <libloaderapi.h>
 #   pragma message("FIXME: Improve this (it's from GraphX)")
@@ -35,15 +35,15 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
             new_buffer += buffer[i];
         return new_buffer + "\\";
     }
-#else  // !COMPILING_WINDOWS
+#else  // !NOSTALGIA_WINDOWS
     std::string FileSystem::GetProgramDirectory()
     { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string(); }
-#endif // COMPILING_WINDOWS
+#endif // NOSTALGIA_WINDOWS
 
 std::string FileSystem::GetCurrentDirectory()
 { return fs::current_path().string(); }
 
-SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
+Error FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
 {
     std::string absolute_path = GetAbsolute(path);
     if(FileSystem::Exists(path))
@@ -51,10 +51,10 @@ SafeStatus FileSystem::try_WriteFileFromString(const std::string& path, const st
 
     std::ofstream file(absolute_path);
     if(!file.is_open())
-        { return Status::FileSystemFAILED_TO_WRITE_FILE; }
+        { return ERR_FILE_WRITE; }
     file.write(data.data(), data.size());
     file.close();
-    return Status::NO_ERR;
+    return OK;
 }
 
 bool FileSystem::try_ReadFileToString(const std::string& string_path, std::string& output)
