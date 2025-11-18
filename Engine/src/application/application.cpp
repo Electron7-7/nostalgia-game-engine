@@ -5,6 +5,8 @@
 #include "managers/render_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/ui_manager.hpp"
+#include "window.hpp"
+#include "backends/glfw/glfw_window.hpp" // GLFW is the main windowing solution for now (possibly permanent)
 
 #include <cassert>
 
@@ -19,4 +21,5 @@ IApplication::IApplication()
     IManager::Add(g_pRenderManager);
     IManager::Add(g_pInputManager);
     IManager::Add(g_pUIManager);
+    mMainWindow = IWindow::CreateWindow<WindowGLFW>(); // WindowProperties default constructor
 }
