@@ -734,3 +734,7 @@ I think I need to learn Uniform buffers, too.
 
 The new WindowManager is just a passthrough to the main window for now, but in the future I'd like to have multiple windows that are interfaced with via the WindowManager. The WindowManager should be updated separately and ALWAYS after every other manager is updated.
 
+[11/18/25]
+No Half Life 3 today, but the hopium is still strong. Anyways, back to the engine.
+
+I worked on the Window and Application classes a bit more, but turned my attention to fixing the build system and all the various errors. There is now a working build of the engine and editor which will make continued work on these new systems much easier.
