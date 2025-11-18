@@ -1,7 +1,5 @@
-#include "window.hpp"
-#include "managers/backend_manager.hpp"
-
-#pragma message("FIXME: Make this work with Wayland/other tiling managers")
+#define DO_NOT_COMPILE
+#ifndef DO_NOT_COMPILE
 
 using namespace Settings;
 
@@ -85,3 +83,5 @@ void Window::setFramebufferSize(const scale_t& size)
 
 void Window::setFramebufferPosition(const position_t& position)
 { s_Info().framebuffer_position = position; s_UpdateWindow(); }
+
+#endif // DO_NOT_COMPILE
