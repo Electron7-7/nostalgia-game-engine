@@ -2,9 +2,9 @@
 #define THEATRE_MANAGER_H
 
 #include "things/fwd.hpp"
-#include "theatre_parser/fwd.hpp"
+#include "theatre/parser/fwd.hpp"
 
-#include "common/safe_return.hpp"
+#include "core/safe_return.hpp"
 #include "manager.hpp"
 #include "input/event.hpp"
 #include "things/thing_factory.hpp"
@@ -16,7 +16,7 @@
 class TheatreManager : public Manager
 {
 public:
-    constexpr const char* DebugName() { return "TheatreManager"; }
+    consteval const char* DebugName() { return "TheatreManager"; }
     bool Init();
     void Update();
     void Tick();

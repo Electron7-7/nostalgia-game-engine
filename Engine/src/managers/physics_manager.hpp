@@ -3,7 +3,7 @@
 
 #include "things/fwd.hpp"
 #include "manager.hpp"
-#include "common/ids.hpp"
+#include "core/id.hpp"
 #include "Jolt/Jolt.h" // IWYU pragma: keep
 #include "Jolt/Physics/PhysicsSystem.h"
 
@@ -17,7 +17,7 @@ extern bool gEnableMsg_BodyDeactivated;
 class PhysicsManager : public Manager
 {
 public:
-    constexpr const char* DebugName() { return "PhysicsManager"; }
+    consteval const char* DebugName() { return "PhysicsManager"; }
     bool Init();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     void Shutdown();

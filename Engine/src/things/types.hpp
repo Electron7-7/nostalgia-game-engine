@@ -1,7 +1,7 @@
 #ifndef THING_TYPES_H
 #define THING_TYPES_H
 
-#include "common/ids.hpp"
+#include "core/id.hpp"
 
 namespace ThingType
 {

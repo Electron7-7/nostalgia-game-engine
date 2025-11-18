@@ -6,8 +6,8 @@
 #include "manager.hpp"
 #include "input/binding.hpp"
 #include "input/actions.hpp"
-#include "common/safe_return.hpp"
-#include "common/ids.hpp"
+#include "core/safe_return.hpp"
+#include "core/id.hpp"
 
 #include <glm/vec2.hpp>
 #include <string>
@@ -18,7 +18,7 @@ typedef SafeStatus (*InputEventCallbackFunction)(const InputEvent&);
 class InputManager : public Manager
 {
 public:
-    constexpr const char* DebugName() { return "InputManager"; }
+    consteval const char* DebugName() { return "InputManager"; }
     bool Init();
     void Tick();
 

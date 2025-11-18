@@ -7,7 +7,7 @@
 class UIManager : public Manager
 {
 public:
-    constexpr const char* DebugName() { return "UIManager"; }
+    consteval const char* DebugName() { return "UIManager"; }
     bool Init();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     void Update();

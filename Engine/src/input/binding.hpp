@@ -3,7 +3,7 @@
 
 #include "enums.hpp"
 #include "actions.hpp"
-#include "common/ids.hpp"
+#include "core/id.hpp"
 
 #include <string>
 

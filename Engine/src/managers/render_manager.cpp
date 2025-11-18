@@ -1,7 +1,7 @@
 #include "render_manager.hpp"
-#include "theatre_manager.hpp"
-#include "ui_manager.hpp"
-#include "backend_manager.hpp"
+// #include "theatre_manager.hpp"
+// #include "ui_manager.hpp"
+#include "core/printing.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -34,4 +34,6 @@ void RenderManager::Update()
     //     { g_pBackendManager->Graphics()->RenderStoredCommands(); }
     // g_pBackendManager->ImGuiRender();
     // g_pBackendManager->Windowing()->SwapBuffers();
+
+
 }

@@ -1,7 +1,7 @@
 #include "manager.hpp"
 #include "settings/engine.hpp"
-#include "common/time.hpp"
-#include "common/printing.hpp"
+#include "core/time.hpp"
+#include "core/printing.hpp"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -24,18 +24,18 @@ bool IManager::m_sTheatreShutdownRequested = false;
 ManagerEnums::TheatreState_t IManager::theatre_state = NOT_IN_LEVEL;
 std::vector<IManager*> IManager::m_sGameManagers = {};
 
-void IManager::Add(IManager* newImanager)
+void IManager::Add(IManager* newManager)
 {
     assert(!m_sIsRunning);
-    m_sGameManagers.push_back(newImanager);
+    m_sGameManagers.push_back(newManager);
 }
 
-void IManager::Remove(IManager* oldImanager)
+void IManager::Remove(IManager* oldManager)
 {
     assert(!m_sIsRunning);
     for(int i = 0 ; i < m_sGameManagers.size() ; ++i)
     {
-        if(m_sGameManagers.at(i) == oldImanager)
+        if(m_sGameManagers.at(i) == oldManager)
             { m_sGameManagers.erase(m_sGameManagers.begin() + i); }
     }
 }

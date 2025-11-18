@@ -2,7 +2,7 @@
 #define THING_H
 
 #include "input/fwd.hpp"
-#include "theatre_parser/fwd.hpp"
+#include "theatre/parser/fwd.hpp"
 
 #include "types.hpp"
 

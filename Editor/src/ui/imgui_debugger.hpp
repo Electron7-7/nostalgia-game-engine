@@ -2,7 +2,7 @@
 #define IMGUI_DEBUGGER_H
 
 #include "user_interface/imgui_object.hpp"
-#include "editor/tools/fwd.hpp"
+#include "tools/fwd.hpp"
 
 #include <string>
 
