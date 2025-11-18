@@ -30,8 +30,8 @@ EDITR_LD_FLAGS_LINUX    := -lglfw -lfreetype -l$(NAME_BASE)
 EDITR_LD_FLAGS_WINDOWS  := -lstdc++exp -lglfw -lfreetype -l$(NAME_BASE)
 
 # Archives & Libraries
-ARCHIVES_DIR_LINUX       := src/static_libraries/linux
-ARCHIVES_DIR_WINDOWS     := src/static_libraries/windows
+ARCHIVES_DIR_LINUX       := Engine/src/static_libraries/linux
+ARCHIVES_DIR_WINDOWS     := Engine/src/static_libraries/windows
 DYNAMIC_LIBRARIES        := -lglfw -lfreetype
 DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
@@ -131,22 +131,22 @@ ENGINE_SRC := Engine/src
 EDITR_SRC  := Editor/src
 
 ENGINE_SRC_DIRS :=                             \
+    $(ENGINE_SRC)/application                  \
     $(ENGINE_SRC)/backends                     \
     $(ENGINE_SRC)/backends/glfw                \
     $(ENGINE_SRC)/backends/opengl              \
-    $(ENGINE_SRC)/commands                     \
     $(ENGINE_SRC)/common                       \
+    $(ENGINE_SRC)/core                         \
     $(ENGINE_SRC)/embedded                     \
     $(ENGINE_SRC)/filesystem                   \
     $(ENGINE_SRC)/input                        \
-    $(ENGINE_SRC)/interfaces                   \
     $(ENGINE_SRC)/managers                     \
     $(ENGINE_SRC)/math                         \
     $(ENGINE_SRC)/physics                      \
     $(ENGINE_SRC)/rendering                    \
-    $(ENGINE_SRC)/rendering/shader_interfaces  \
     $(ENGINE_SRC)/settings                     \
-    $(ENGINE_SRC)/theatre_parser               \
+    $(ENGINE_SRC)/theatre                      \
+    $(ENGINE_SRC)/theatre/parser               \
     $(ENGINE_SRC)/things                       \
     $(ENGINE_SRC)/things/actors                \
     $(ENGINE_SRC)/things/resources             \
@@ -160,10 +160,10 @@ THIRDPARTY_SRC_DIRS :=                  \
 	$(ENGINE_SRC)/thirdparty/glad
 
 EDITR_SRC_DIRS :=               \
-    $(EDITR_SRC)/editor/app    \
-    $(EDITR_SRC)/editor/system \
-    $(EDITR_SRC)/editor/tools  \
-    $(EDITR_SRC)/editor/ui
+    $(EDITR_SRC)/app    \
+    $(EDITR_SRC)/system \
+    $(EDITR_SRC)/tools  \
+    $(EDITR_SRC)/ui
 
 DIRTY_SRC_DIRS := \
 	thirdparty
