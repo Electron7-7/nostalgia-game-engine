@@ -1,10 +1,10 @@
 #include "gl_shader.hpp"
-#include "common/printing.hpp"
+#include "core/printing.hpp"
 #include "common/colors.hpp"
-#include "glad/glad.h"
 
-#include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
 
 bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {

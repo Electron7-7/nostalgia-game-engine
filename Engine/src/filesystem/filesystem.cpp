@@ -1,4 +1,5 @@
 #include "filesystem.hpp"
+#include "core/printing.hpp"
 
 #include <fstream>
 #include <filesystem>

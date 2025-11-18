@@ -1,7 +1,7 @@
 #ifndef SHADER_INTERFACE_H
 #define SHADER_INTERFACE_H
 
-#include "common/ids.hpp"
+#include "core/id.hpp"
 
 #include <string>
 #include <glm/glm.hpp>

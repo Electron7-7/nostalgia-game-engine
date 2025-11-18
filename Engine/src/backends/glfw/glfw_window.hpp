@@ -26,7 +26,6 @@ public:
     Error SetVsync(Vsync) override;
     Error SetMouseMode(MouseMode) override;
     Error SetWindowMode(WindowMode) override;
-    Error SetFullscreenMonitor(uint) override;
 
 private:
     static constinit const frozen::map<ID, GLFWInputID, s_cBindingIDCount> s_mGLFWKeyLookup;

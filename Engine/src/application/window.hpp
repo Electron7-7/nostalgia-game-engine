@@ -119,7 +119,7 @@ public:
     }
 
     template<typename T>
-        requires std::derived_from<T,IWindow> && std::is_constructible_v<T,WindowProperties>
+        requires std::derived_from<T,IWindow>
     static std::unique_ptr<IWindow> CreateWindow(const WindowProperties& inProperties = {})
     { return std::make_unique<T>(inProperties); }
 
