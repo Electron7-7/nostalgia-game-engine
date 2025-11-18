@@ -46,8 +46,8 @@ WindowGLFW::~WindowGLFW()
 
 Error WindowGLFW::Init(const WindowProperties& inProperties)
 {
+    print_debug("WindowGLFW::Init");
     mData = inProperties;
-
     if(!glfwInit())
     {
         print_error("WindowGLFW::Init - `glfwInit()` failed");
@@ -130,6 +130,7 @@ Error WindowGLFW::SetWindowMode(WindowMode inMode)
 
 const std::unique_ptr<Monitor>& WindowGLFW::GetPrimaryMonitor() const
 {
+    // Pun intended
     auto found_it{std::find(m_sMonitors.begin(), m_sMonitors.end(), Monitor{glfwGetPrimaryMonitor()})};
     if(found_it == m_sMonitors.end())
         { found_it = m_sMonitors.begin(); }
