@@ -1,3 +1,5 @@
+#define DO_NOT_COMPILE
+#ifndef DO_NOT_COMPILE
 #include "opengl.hpp"
 #include "embedded/shaders.hpp" // IWYU pragma: keep // see the `clangd` target in the Makefile
 #include "managers/theatre_manager.hpp"
@@ -395,3 +397,4 @@ static void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLu
     print_debug("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);;
 }
 #endif // DEBUGGING
+#endif // DO_NOT_COMPILE

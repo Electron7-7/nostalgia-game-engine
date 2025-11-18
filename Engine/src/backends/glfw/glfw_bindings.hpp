@@ -1,11 +1,14 @@
-// 'frozen' maps for converting various values between different windowing libraries and Nostalgia
+#ifndef GLFW_BINDINGS_H
+#define GLFW_BINDINGS_H
 
-#include "glfw_window.hpp"
+#include "core/id.hpp"
+
+#include <GLFW/glfw3.h>
 
 using namespace BindingID;
 
-constexpr frozen::map<ID, unsigned int, GLFW_Window::s_cBindingIDCount>
-GLFW_Window::s_mGLFWKeyLookup =
+constexpr frozen::map<ID, uint, BindingID::KeyIDsCount + BindingID::MouseButtonIDsCount - 1>
+s_mGLFWKeyLookup =
 {
     { KeyZERO,         GLFW_KEY_0               },
     { KeyONE,          GLFW_KEY_1               },
@@ -58,5 +61,7 @@ GLFW_Window::s_mGLFWKeyLookup =
     { KeyESC,          GLFW_KEY_ESCAPE          },
     { MouseLEFT,       GLFW_MOUSE_BUTTON_LEFT   },
     { MouseRIGHT,      GLFW_MOUSE_BUTTON_RIGHT  },
-    { MouseMIDDLE,     GLFW_MOUSE_BUTTON_MIDDLE }
+    { MouseMIDDLE,     GLFW_MOUSE_BUTTON_MIDDLE },
 };
+
+#endif // GLFW_BINDINGS_H
