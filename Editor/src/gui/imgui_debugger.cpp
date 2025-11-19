@@ -6,6 +6,7 @@
 #include "settings/graphics.hpp"
 #include "input/demo_controller.hpp"
 #include "managers/manager.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/thing_factory.hpp"
@@ -197,6 +198,7 @@ static void s_GeneralDebuggingWindow()
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
+            Checkbox("Print Input Events", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
             Checkbox("Print Frame#", &g_PrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &g_PrintTickNumbers);

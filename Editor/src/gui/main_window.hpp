@@ -1,7 +1,7 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-#include "user_interface/imgui_object.hpp"
+#include "ui/imgui_object.hpp"
 
 class MainWindow : public ImGui_Object
 {

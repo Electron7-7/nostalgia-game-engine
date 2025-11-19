@@ -1,7 +1,7 @@
 #ifndef IMGUI_DEBUGGER_H
 #define IMGUI_DEBUGGER_H
 
-#include "user_interface/imgui_object.hpp"
+#include "ui/imgui_object.hpp"
 #include "tools/fwd.hpp"
 
 #include <string>

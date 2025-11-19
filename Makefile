@@ -152,7 +152,7 @@ ENGINE_SRC_DIRS :=                             \
     $(ENGINE_SRC)/things/resources             \
     $(ENGINE_SRC)/things/devices               \
     $(ENGINE_SRC)/things/thinkers              \
-	$(ENGINE_SRC)/user_interface               \
+	$(ENGINE_SRC)/ui                           \
 
 THIRDPARTY_SRC_DIRS :=                  \
 	$(ENGINE_SRC)/thirdparty/DearImGui  \
@@ -163,7 +163,7 @@ EDITR_SRC_DIRS :=               \
     $(EDITR_SRC)/app    \
     $(EDITR_SRC)/system \
     $(EDITR_SRC)/tools  \
-    $(EDITR_SRC)/ui
+    $(EDITR_SRC)/gui
 
 DIRTY_SRC_DIRS := \
 	thirdparty
