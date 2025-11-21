@@ -9,6 +9,11 @@
 #include <string>
 #include <format>
 
+// Forward Declarations
+struct ID;
+namespace UniqueID
+{ extern bool Erase(const ID&); }
+
 struct ID
 {
 public:
@@ -51,6 +56,16 @@ public:
     {
         id_ = Other;
         return *this;
+    }
+
+    constexpr id_t clear(bool do_unique_id_check_and_clear = true)
+    {
+        if(do_unique_id_check_and_clear)
+            { UniqueID::Erase(id_); }
+        id_t cleared_id{id_};
+        id_ = ID::Invalid;
+        name_.clear();
+        return cleared_id;
     }
 
     constexpr bool invalid() const
