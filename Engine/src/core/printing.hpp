@@ -38,15 +38,15 @@ template<class... Args>
     }
 
 #define print_verbose(Verbosity, Format, Args...) \
-    __print_verbose(true, Verbosity, Format, std::source_location::current(), __no_label, ## Args);
+    __print_verbose(true, Verbosity, Format, std::source_location::current(), __no_label, ## Args)
 
 // Always returns false. Use with: bad behaviour that leads to a crash/failure
 #define print_error(Format, Args...) \
-    __print_verbose(false, VERBOSE3, fmt, std::source_location::current(), __error_label, ## Args);
+    __print_verbose(false, VERBOSE3, Format, std::source_location::current(), __error_label, ## Args)
 
 // Always returns true. Use with: bad behaviour that doesn't lead to a crash/failure (not great, not terrible)
 #define print_warning(Format, Args...) \
-    __print_verbose(true, VERBOSE2, fmt, std::source_location::current(), __warning_label, ## Args);
+    __print_verbose(true, VERBOSE2, Format, std::source_location::current(), __warning_label, ## Args)
 
 // Debug printouts are only enabled in the Debug build
 #ifdef DEBUGGING
@@ -63,7 +63,8 @@ template<class... Args>
         __print_verbose(true, verbosity, fmt, std::source_location::current(), __debug_label, ## args)
 
 //  When `DEBUGGING` is undefined this will be empty, keeping debug string literals out of the release binary
-#   define debug_print(fmt, args...) std::println(fmt, ## args);
+#   define debug_print(fmt, args...) \
+        std::println(fmt, ## args)
 
 //  Debug message that starts with the '[APPLICATION]' label
 #   define print_app(fmt, args...) \
@@ -83,16 +84,19 @@ template<class... Args>
 
 #else  // !DEBUGGING
     consteval bool __print_function_disabled(bool ret = true) { return ret; }
-#   define print_debug(...)  __print_function_disabled();
-#   define print_debugv(...) __print_function_disabled();
-#   define debug_print(...)  // See line 63
-#   define print_app(...)    __print_function_disabled();
-#   define print_appv(...)   __print_function_disabled();
-#   define print_jolt(...)   __print_function_disabled();
-#   define print_joltv(...)  __print_function_disabled();
+#   define print_debug(...)  __print_function_disabled()
+#   define print_debugv(...) __print_function_disabled()
+#   define debug_print(...)  __print_function_disabled()
+#   define print_app(...)    __print_function_disabled()
+#   define print_appv(...)   __print_function_disabled()
+#   define print_jolt(...)   __print_function_disabled()
+#   define print_joltv(...)  __print_function_disabled()
 #endif // DEBUGGING
 
-inline Error print_error_enum(Error error, bool unimplemented_returns_ok = true, const std::source_location location = std::source_location::current())
+#define print_func(CONTEXT...) \
+    print_debug(#CONTEXT "{}", __FUNCTION__)
+
+inline Error print_error_enum(Error error, VERBOSITY verbosity = VERBOSE3, bool unimplemented_returns_ok = true, const std::source_location location = std::source_location::current())
 {
 #   define Case(ERROR, MESSAGE, OTHER...) case ERROR: err_msg = #ERROR" (" MESSAGE ")"; OTHER break;
     std::string err_msg{""};
@@ -113,7 +117,7 @@ inline Error print_error_enum(Error error, bool unimplemented_returns_ok = true,
     Case(ERR_FILE_WRITE, "file write error")
     Case(ERR_FILE_READ_WRITE, "file read/write error")
     }
-    __print_verbose(false, VERBOSE3, "{}", location,
+    __print_verbose(false, verbosity, "{}", location,
         (error == UNIMPLEMENTED && unimplemented_returns_ok) ? __warning_label : __error_label,
         err_msg);
     return (error == UNIMPLEMENTED && unimplemented_returns_ok) ? OK : error;
