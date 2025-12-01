@@ -2,6 +2,7 @@
 #define PRINTING_H
 
 #include "error.hpp"
+#include "frozen/string.h"
 
 #include <print>
 #include <source_location>
@@ -44,15 +45,27 @@ template<class... Args>
 #define print_error(Format, Args...) \
     __print_verbose(false, VERBOSE3, Format, std::source_location::current(), __error_label, ## Args)
 
-// Always returns true. Use with: bad behaviour that doesn't lead to a crash/failure (not great, not terrible)
+// Version of `print_error` that lets you control the verbosity
+#define print_errorv(Verbosity, Format, Args...) \
+    __print_verbose(false, Verbosity, Format, std::source_location::current(), __error_label, ## Args)
+
+// Always returns false. Use with: bad behaviour that doesn't lead to a crash/failure (not great, not terrible)
 #define print_warning(Format, Args...) \
     __print_verbose(true, VERBOSE2, Format, std::source_location::current(), __warning_label, ## Args)
 
+// Version of `print_warning` that always returns false
+#define print_warningf(Format, Args...) \
+    __print_verbose(false, VERBOSE2, Format, std::source_location::current(), __warning_label, ## Args)
+
+// Version of `print_warning` that lets you control the verbosity
+#define print_warningv(Verbosity, Format, Args...) \
+    __print_verbose(true, Verbosity, Format, std::source_location::current(), __warning_label, ## Args)
+
 // Debug printouts are only enabled in the Debug build
 #ifdef DEBUGGING
-    inline constinit const char* __debug_label{"\x1b[1;36m[DEBUG] "};
-    inline constinit const char* __app_label{"\x1b[1;35m[APPLICATION] "};
-    inline constinit const char* __jolt_label{"\x1b[1;32m[JOLT] "};
+    inline constinit const char* __debug_label{"\x1b[36m[DEBUG] "};
+    inline constinit const char* __app_label{"\x1b[35m[APPLICATION] "};
+    inline constinit const char* __jolt_label{"\x1b[32m[JOLT] "};
 
 //  Debug message that starts with the '[DEBUG]' label
 #   define print_debug(fmt, args...) \
@@ -93,8 +106,8 @@ template<class... Args>
 #   define print_joltv(...)  __print_function_disabled()
 #endif // DEBUGGING
 
-#define print_func(CONTEXT...) \
-    print_debug(#CONTEXT "{}", __FUNCTION__)
+#define PRINT_PRETTY_FUNCTION \
+    __print_verbose(true, VERBOSE0, "{}", std::source_location::current(), "\x1b[34m(FUNCTION) ", __PRETTY_FUNCTION__)
 
 inline Error print_error_enum(Error error, VERBOSITY verbosity = VERBOSE3, bool unimplemented_returns_ok = true, const std::source_location location = std::source_location::current())
 {
