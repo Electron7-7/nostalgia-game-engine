@@ -18,11 +18,12 @@ class TheatreManager : public Manager
 public:
     consteval const char* DebugName() { return "TheatreManager"; }
     bool Init();
-    void Update();
-    void Tick();
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
+    void Update();
+    void Tick();
 
+    void DrawTheatre();
     void ReadyThings();
     bool ThingExists(const ID& UID);
     ID GetType(const ID& ObjectID);

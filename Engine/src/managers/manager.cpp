@@ -181,7 +181,7 @@ void IManager::Start()
     {
         UpdateTheatreStateMachine();
         InvokeMethod(&IManager::Update);
-        g_pApplication->GetWindow().Update();
+        MainWindow().Update();
         ++m_sFrameNumber;
     }
 

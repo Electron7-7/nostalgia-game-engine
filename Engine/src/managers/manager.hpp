@@ -1,6 +1,8 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
+#include "components/game_loop.hpp"
+
 #include <vector>
 
 namespace ManagerEnums
@@ -22,14 +24,12 @@ namespace ManagerEnums
 }
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
-class IManager
+class IManager : public OnUpdate, public OnTick
 {
 public:
     virtual consteval const char* DebugName() = 0;
     virtual bool Init() = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
-    virtual void Update() = 0;
-    virtual void Tick()   = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
     virtual void Shutdown() = 0;
 
@@ -103,15 +103,15 @@ public:
     virtual ~Manager();
 
     // Managers are expected to implement these methods.
-    virtual consteval const char* DebugName() { return "Manager"; };
-    virtual bool Init() { return true; }
-    virtual ManagerEnums::TheatreReturnValue_t TheatreInit( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
-    virtual void Update() {}
-    virtual void Tick() {}
-    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown( bool IsFirstCall ) { return ManagerEnums::FINISHED; }
-    virtual void Shutdown() {}
-    virtual void OnSave() {}
-    virtual void OnRestore() {}
+    virtual consteval const char* DebugName() override { return "Manager"; };
+    virtual bool Init()      override { return true; }
+    virtual void Update()    override {}
+    virtual void Tick()      override {}
+    virtual void Shutdown()  override {}
+    virtual void OnSave()    override {}
+    virtual void OnRestore() override {}
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall)     override { return ManagerEnums::FINISHED; }
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) override { return ManagerEnums::FINISHED; }
 };
 
 // Automatically remove the game manager if it gets deleted

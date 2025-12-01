@@ -1,22 +1,29 @@
 #ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
 
+#include "rendering/fwd.hpp"
+
 #include "manager.hpp"
+#include "core/type_helpers.hpp"
 
 #include <sys/types.h>
 
 class RenderManager : public Manager
 {
 public:
-    consteval const char* DebugName() { return "RenderManager"; }
+    consteval const char* DebugName() final { return "RenderManager"; }
 
-    bool Init();
-    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    void Update();
-    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
-    void Shutdown();
+    bool Init() final;
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) final;
+    void Update() final;
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) final;
+    void Shutdown() final;
 
-    void WindowResized(uint Width, uint Height);
+    void SetAutomaticWindowClear(bool);
+
+private:
+    Unique<IRendererAPI> mRendererAPI{nullptr};
+    bool mCanClearWindow{true};
 };
 
 // Singleton accessor

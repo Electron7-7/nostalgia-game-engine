@@ -138,26 +138,26 @@ public:
     virtual ValidateResult OnContactValidate(const Body& in_body_1, const Body& in_body_2, RVec3Arg in_base_offset, const CollideShapeResult& in_collision_result) override
     {
         if(gEnableMsg_ContactValidate)
-            { print_jolt_debug("Contact validate callback"); }
+            { print_jolt("Contact validate callback"); }
         return ValidateResult::AcceptAllContactsForThisBodyPair;
     }
 
     virtual void OnContactAdded(const Body& body1, const Body& body2, const ContactManifold& manifold, ContactSettings& io_settings) override
     {
         if(gEnableMsg_ContactAdded)
-            { print_jolt_debug("A contact was added"); }
+            { print_jolt("A contact was added"); }
     }
 
     virtual void OnContactPersisted(const Body& body1, const Body& body2, const ContactManifold& manifold, ContactSettings& io_settings) override
     {
         if(gEnableMsg_ContactPersisted)
-            { print_jolt_debug("A contact was persisted"); }
+            { print_jolt("A contact was persisted"); }
     }
 
     virtual void OnContactRemoved(const SubShapeIDPair& sub_shape_pair) override
     {
         if(gEnableMsg_ContactRemoved)
-            { print_jolt_debug("A contact was removed"); }
+            { print_jolt("A contact was removed"); }
     }
 };
 
@@ -167,13 +167,13 @@ public:
     virtual void OnBodyActivated(const BodyID& body_id, uint64 body_user_data) override
     {
         if(gEnableMsg_BodyActivated)
-            { print_jolt_debug("A body was activated [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body was activated [index: {}]", body_id.GetIndex()); }
     }
 
     virtual void OnBodyDeactivated(const BodyID& body_id, uint64 body_user_data) override
     {
         if(gEnableMsg_BodyDeactivated)
-            { print_jolt_debug("A body went to sleep [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body went to sleep [index: {}]", body_id.GetIndex()); }
     }
 };
 
@@ -184,7 +184,7 @@ static void sJoltTraceImpl(const char* inFMT, ...)
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), inFMT, list);
     va_end(list);
-    print_jolt_debug("{}", buffer);
+    print_jolt("{}", buffer);
 }
 
 #ifdef JPH_ENABLE_ASSERTS
@@ -218,7 +218,7 @@ PhysicsManager* g_pPhysicsManager = &sPhysicsManager;
 // TODO: Read JoltPhysics `HelloWorld.cpp` and make the necessary changes as you implement more of the engine
 bool PhysicsManager::Init()
 {
-    print_debug("PhysicsManager::Init");
+    PRINT_PRETTY_FUNCTION;
     RegisterDefaultAllocator();
 
     Trace = sJoltTraceImpl;
@@ -298,7 +298,7 @@ bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
         { return false; }
     GetBodyInterface().RemoveBody(sBodyIDMap.at(uid));
     GetBodyInterface().DestroyBody(sBodyIDMap.at(uid));
-    print_jolt_debug("Body Destroyed - Shape: {}, Motion: {}",
+    print_jolt("Body Destroyed - Shape: {}, Motion: {}",
         collider->Shape(),
         collider->Motion());
     sBodyIDMap.erase(uid);
@@ -370,7 +370,7 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
             layer);
         break;
     default:
-        print_error("PhysicsManager::CreatePhysicsBody - invalid physics body type '{}' from {}#{}",
+        print_error("invalid physics body type '{}' from {}#{}",
             collider->Shape(),
             g_pThingFactory->GetTypeName(collider->type()),
             uid);
@@ -378,7 +378,7 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
     }
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
     sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
-    print_jolt_debug("Body Created - Shape: {}, Motion: {}",
+    print_jolt("Body Created - Shape: {}, Motion: {}",
         collider->Shape(),
         collider->Motion());
     return !sBodyIDMap.at(uid).IsInvalid();
@@ -387,10 +387,10 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
 bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> output, bool check_body_id)
 {
     if(!mSystem)
-        { return print_error("PhysicsManager::ValidateColliderUID - Jolt physics system is nullptr!"); }
+        { return print_error("Jolt physics system is nullptr!"); }
     else if(check_body_id && (!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid()))
-        { return print_error("PhysicsManager::ValidateColliderUID - No valid BodyID paired with UID {}", uid); }
+        { return print_error("No valid BodyID paired with UID {}", uid); }
     else if(!output && !g_pTheatreManager->GetThing<Collider>(uid, output).PrintCheck())
-        { return print_error("PhysicsManager::ValidateColliderUID - No Collider with UID {}", uid); }
+        { return print_error("No Collider with UID {}", uid); }
     return true;
 }

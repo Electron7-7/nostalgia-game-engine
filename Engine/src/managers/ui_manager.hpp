@@ -1,27 +1,23 @@
 #ifndef UI_MANAGER_H
 #define UI_MANAGER_H
 
+#include "ui/fwd.hpp"
+
 #include "manager.hpp"
-#include "user_interface/imgui_object.hpp"
 
 class UIManager : public Manager
 {
 public:
-    consteval const char* DebugName() { return "UIManager"; }
-    bool Init();
-    ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall);
-    void Update();
-    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
-    void Shutdown();
-    void DelegateInputEvent(const InputEvent&);
+    consteval const char* DebugName() final { return "UIManager"; }
+    bool Init() final;
+    ManagerEnums::TheatreReturnValue_t TheatreInit(bool isFirstCall) final;
+    ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool isFirstCall) final;
+    void Shutdown() final;
 
-    ImGui_Object* AddImGuiObject(ImGui_Object* NewImGuiObject);
-    bool RemoveImGuiObject(ImGui_Object* OldImGuiObject);
     void DrawUI();
-    void DrawImGuiUI();
 
 private:
-    std::vector<ImGui_Object*> imgui_objects;
+    std::vector<IUISolution*> mSolutionObjects{};
 };
 
 extern UIManager* g_pUIManager;
