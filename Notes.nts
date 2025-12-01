@@ -26,7 +26,7 @@ I also added a shitty little "press enter to exit" type function & thread so the
 [05/28/25]
 Today, I wanna work a bit on the input manager. At least see if I can get some ideas down in Milanote.
 
-Notes from Milanote: "The input manager will interface with some sort of "input system", which is always running and always processing inputs. I'm thinking that I could implement some object that stores a giant list of all valid inputs and whether or not they're currently down. Maybe a custom type/struct".
+# Notes from Milanote: "The input manager will interface with some sort of "input system", which is always running and always processing inputs. I'm thinking that I could implement some object that stores a giant list of all valid inputs and whether or not they're currently down. Maybe a custom type/struct".
 
 While working on app systems, I've realized that I should abstract all API calls (and library calls related to API like GLFW) to a "window manager" class that is interfaced with via simple functions. This way I can account for any number of APIs and libraries, as well as add/remove support for them, without having to worry about how it will affect the rest of the engine.
 
@@ -57,7 +57,7 @@ Okay, now what? I think I want to try and dig into Source's rendering pipeline, 
 
 I might also want to work on the whole "console commmands" pipeline, too, but that might be a bit too high level rn.
 
-Okay, here's the structure for the render manager: one (or a few) main functions for rendering that will ALWAYS return and will NEVER crash the engine, and various smaller functions for more specific tasks (generating buffers, interfacing with shaders, etc). Those functions will interface with the backend manager which will interface with the backend classes which will do the direct API calls.
+# Okay, here's the structure for the render manager: one (or a few) main functions for rendering that will ALWAYS return and will NEVER crash the engine, and various smaller functions for more specific tasks (generating buffers, interfacing with shaders, etc). Those functions will interface with the backend manager which will interface with the backend classes which will do the direct API calls.
 
 Okay, I finished a basic framework for the render commands system, as well as the "camera property" system for the main "camera". I'm fucking tired, lmfao, but it works and I'm committing and pushing this shit.
 
@@ -82,11 +82,11 @@ UGH I'M SO STUPID LMFAO. Keep it simple, stupid: give the responsibility of keep
 Aight, I implemented a way for the windowing backends to check their compatibility with any of the graphics backends. All the functional code is contained in the 'WindowingBackend' base class, so the only code that needs to be written for any new derived windowing backends is a simple one-line definition of the 'compatible_graphics_ids' set in the 'Init' function (see 'src/engine/backends/windowing/glfw.cpp' for an example).
 
 [06/06/25]
-Fixed up the makefile a bit and started working on some rendering-related code. I fixed that issue with address sanitizer: the makefile works fine on my laptop, but had some issues on my PC that I addressed and fixed.
+Fixed up the makefile a bit and started working on some rendering-related code. I fixed that issue with address sanitizer; the makefile works fine on my laptop, but had some issues on my PC that I addressed and fixed.
 
 I created a 'Vertex' struct, a 'Mesh' struct, and gave 'RenderContext' a Mesh variable & function preemptively.
 
-NOTE: Interfaces can be classes/structs that other classes/structs implement (via multiple inheritance).
+# NOTE: Interfaces can be classes/structs that other classes/structs implement (via multiple inheritance).
 
 Hmm, how am I gonna store and reference Mesh objects? Maybe either the render manager or another class can store all relevant resources! Probably the render manager.
 
@@ -102,11 +102,11 @@ I've overhauled the key id system to include codepoints; it works, but now it's 
 Honestly, the character callback isn't too useful aside from typing to the screen.
 
 [06/10/25]
-I had an idea: finish up a rough draft of Levitate, and include it in Nostalgia (as a library) to act as the default UI text editor!
+# I had an idea: finish up a rough draft of Levitate, and include it in Nostalgia (as a library) to act as the default UI text editor!
 
 Levitate is going to take a fucking SECOND and a half to finish.
 
-I have an idea: "TheToyMaker" will be the name for the editor window/app and the engine will have it's own!
+# I have an idea: "TheToyMaker" will be the name for the editor window/app and the engine will have it's own!
 
 [06/11/25]
 I started off by changing the Makefile to spit out two executables: one for the engine and one for the editor. Then, I realized that the engine doesn't need a window, or application-related code and that it really needs to be a library. The rest of my time was spent in the Makefile, doing just that, and I'm happy to say it's a success! The engine now compiles to a static library and the application properly uses it when linking. While this works, I still need to decide what to do about the project structure. I'm thinking of moving all the application-related code to a separate repository/branch that's just for the editor/game(s), and changing the Makefile to build a library instead of a binary. Then, when making the editor/game(s), I just need to go build the game engine library in its own repo and add the resulting files to my other project.
@@ -114,7 +114,7 @@ I started off by changing the Makefile to spit out two executables: one for the 
 Finally!!! This repository now contains only the engine-related code and the Makefile only creates a library (static and dynamic). I still need to make sure that compiling a .dll works, but the static library does and I'm fairly certain the dynamic linux library does as well. I've already tested linking this library to an app executable and it works! Hell yeah!
 
 [06/13/25]
-Note for later today: that video on Doom 3's source code discussed the event queue and I want to emulate it for many reasons but especially for the logs.
+# Note for later today: that video on Doom 3's source code discussed the event queue and I want to emulate it for many reasons but especially for the logs.
 
 [06/17/25]
 I had to fiddle with the Makefile a bit to get the editor build system to work nicely, but now I want to start working on maybe implementing some rendering?
@@ -188,10 +188,10 @@ i need a couple minutes to calm down and re-motivate myself.
 
 
 Thanks to Sublime Merge, I found some of the deleted commit messages:
------START COMMIT MESSAGES-----
-build: Updated Makefile to match my new "standard" and cleaned up a lot of nasty shit"
+:::GitCommit
+build: Updated Makefile to match my new "standard" and cleaned up a lot of nasty shit
 
-build: Complete overhaul of the "resources" Makefile. I'd say it's 95% perfect and that's good enough for me/
+build: Complete overhaul of the "resources" Makefile. I'd say it's 95% perfect and that's good enough for me
 
 build/chores: cleanup & re-ordering the targets that `all` calls, just in case
 
@@ -204,7 +204,7 @@ build(resources): Implemented better printouts and `clean` targets from `Levitat
 docs(notes)
 
 refactor: Deleted 'command_line' files, moved 'command' files to 'src/events/', moved the `Key` struct into its own 'key.hpp' file, renamed 'input_id_conversion_maps.cpp' to 'key_id_lookup_tables.cpp'
------END COMMIT MESSAGES-----
+:::
 
 These should help me keep track of what I did.
 
@@ -287,7 +287,7 @@ Okay, I wanna do a lot today. Let's get cracking on rendering.
 
 I need to make Theatres before I can make the rendering code. To do this, I have to decide on a syntax. While I like the plain-text syntax, I think that making the final Theatre file be a compiled C++ object will be better.
 
-Holy shit, I can just generate text files using these techniques:
+# Holy shit, I can just generate text files using these techniques:
   - Plain text: (https://stackoverflow.com/a/37532722)
   - Hex data: (https://www.geeksforgeeks.org/cpp/readwrite-class-objects-fromto-file-c)
   - Hex data (again): (https://cplusplus.com/forum/beginner/32200)
@@ -387,7 +387,7 @@ Finally got everything committed!
 
 [09/05/25]
 I've gotten compilation of the static libraries (freetype + friends) *and* cross-compilation of the static libraries figured out (I hope). Here are some notes:
-
+:::Notes
 cross compiling windows brotli static library
 Use the CMake application to load a toolchain file for mingw-w64, configure, and generate makefiles
 Then, inside the output directory, run:
@@ -406,8 +406,10 @@ Then, inside the output directory, run:
 cmake --build .
 compiling the linux bzip2 static library is almost exactly the same as cross-compiling it
 compiling the linux & windows static libraries for zlib & libpng are just as simple and easy as bzip2
+:::
 
 And here's what to put in the mingw-w64 CMake toolchain file:
+:::CMake
 # toolchain-mingw64.cmake
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
@@ -425,6 +427,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 # for libraries and headers in the target directories
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+:::
 
 Hell yeah! Time to test this shit!
 
@@ -634,14 +637,14 @@ Holy shit, so after the weekend, I tried to implement Jolt and I was mostly succ
 I want to change the Theatre debug menu; I want only Actors to be selectable, and their meshes/materials/colliders/etc to be accessible from their menu.
 
 Improved the Theatre debug menu a lot. Here's my notes from my Discord channel:
----
+:::Discord
 You can actually create Theatres with physics. Any Actor can now have a Collider assigned to them. Colliders derive Transform3D so they get Origin, Quaternion/Rotation, and Scale variables as well as Shape and Motion variables. Shape and Motion are "engine references" and are delimited by square brackets ([/]). Valid shapes are: [Box], [Sphere], [Cylinder], and [Capsule]. Valid "motion" are: [Dynamic], [Kinematic], and [Static]. The shapes are pretty self explanatory; their sizes are determined by the Collider's Scale property, but will be more fine-tuneable in the future. The "motions" are like the Collider's "body type". Dynamic makes it a "rigid body collider", Kinematic makes it a "kinematic body collider", and Static makes it a "static body collider". Basically, if you want it to respond to gravity and other objects, make it dynamic; if you want it to be movable, make it kinematic; and if you want it to be stationary, make it static. If an Actor is assigned a Collider, it'll use the Collider's transform values; even if you assigned some already. This just means that the Collider's position, scale, and rotation will override the Actor's. This is still a very basic system; once I implement a more dynamic parent/children system, these kinds of things won't be so hard-coded. Also, the debugger got a pretty big overhaul. In the Theatre debugger, you can only select Actors; this is because Resource and Device things are almost always children of an Actor or Device. The menu instead displays their information in a series of little sub-menus. This helps keep things cleaner and makes more sense, seeing as you can't change any variables in a Resource after the Theatre is loaded, and most Devices are just containers for one or more Resources. Collider and own section (if the Actor has one) with its changeable options. Material will get a similar section next to Collider in the future
----
+:::
 
 The only things left are camera controls and player physics. Quoting my Discord messages:
----
+:::Discord
 Nostalgia now officially has all of GraphX's features (and then some) (these features are, of course, implemented much better). The only thing missing is player camera controls and player physics; the camera controls should hopefully be easy to implement with my input event system. The physics should also be easy; in fact, you can interact with physics bodies if you give the player a collider, although gravity is missing (and the collider might not work entirely properly with the current controls implementation). I just want to try and make player physics not a hardcoded implementation (e.g: i want you to be able to customize, control, or even not use it).
----
+:::
 
 Currently there's a crash when trying to destroy bodies before exiting a Theatre.
 
@@ -712,7 +715,9 @@ Okay, I think I might just follow that abstraction image very closely when model
 This marks the start of the rendering backend overhaul.
 
 [11/13/25]
-Okay, okay, I'm going to be using Hazel as another guide for structuring my code. As a note: `src/backends/` for me is going to be like `Hazel/src/Platform/` in Hazel. The abstract/interface classes will be in their own separate directories (e.g: renderer/, window/, etc.) and the platform-specific implementations will be in the backends directory.
+Okay, okay, I'm going to be using Hazel as another guide for structuring my code.
+# As a note: `src/backends/` for me is going to be like `Hazel/src/Platform/` in Hazel.
+The abstract/interface classes will be in their own separate directories (e.g: renderer/, window/, etc.) and the platform-specific implementations will be in the backends directory.
 
 Okay, so, the 'backend' class will be for initializing backends (like GLFW), and each backend will have implementations of various classes (like Window, Renderer, Framebuffer, etc).
 
@@ -738,3 +743,52 @@ The new WindowManager is just a passthrough to the main window for now, but in t
 No Half Life 3 today, but the hopium is still strong. Anyways, back to the engine.
 
 I worked on the Window and Application classes a bit more, but turned my attention to fixing the build system and all the various errors. There is now a working build of the engine and editor which will make continued work on these new systems much easier.
+
+Okay, what's next? I think the input system, most likely.
+
+Welp, that was shockingly easy to re-implement. I'm almost impressed by my own work. Okay, now time to shamelessly copy Hazel's codebase again. This time the ImGui-related stuff.
+
+[11/19/25]
+Updated the Notes syntax. Now gonna finish up the UI stuff. I'm gonna try to enforce using the implementor macro by making a virtual function that always fails via `static_assert`, which the macro would override with an empty function.
+
+[11/20/25]
+I might just give up on the whole dynamic aspect of the implementors & solutions.
+
+NEVER MIND IT FUCKING WORKS NOW!!
+
+[11/21/25]
+Yeah, I don't know how it works but it does, lol. Anyways, time to commit and continue.
+
+[11/24/25]
+Okay, I want to try and get the GUI rendering; if I can't do that before finishing the renderer, I'll do that first.
+
+[11/25/25]
+I'm almost done stealing from Hazel. I'll want to change all the code I've stolen to be more of my own, just because I want it to be more original and I have some design ideas, but seeing as how Hazel's 3D renderer is so rudimentary, it's actually a really great starting point and I shouldn't have to re-write a lot of code.
+
+Okay, so I got pretty far with copying some of Hazel's mechanics before I realized something about the way I handle input events.
+
+>>> THEY DON'T NEED TO BE LOCKED OFF AND LIMITED TO A FRAME-BY-FRAME BASIS <<<
+
+Because... **YOU CAN ONLY QUERY INPUTS DURING A SINGLE FRAME!** Meaning, you could just replay the input events with a new system similar to Godot/Unity and it would *still* work the way it's supposed to.
+
+So, I tried overhauling the input system and gave up. Time not wasted as long as I try to learn from my mistakes.
+# My Mistakes: not stopping to remind myself why I built something a certain way before trying to completely fucking change every single aspect of it.
+
+[11/26/25]
+I want to improve the input system; specifically, I'd like to work on `InputBinding` and `InputEvent`, and try to streamline them a bit.
+
+Hmmm, okay, I'm thinking rq and there's something I want to try. Basically, create a new class (or use InputManager) that "handles" input events by storing their information in an way that's more easily accessible in a group (as opposed to something like a vector of events). I think I want to make that.
+
+Some of the features this new 'InputPresenter' should have/be able to do:
+    - query inputs by id, name, or action
+    - query mouse movement
+    - query input states (i.e: down, up, pressed, released, etc)
+
+I think that input events should be both physical IDs (i.e: keys, buttons, etc) *and* the current idea of "actions" (identifiable labels); input actions should be changed to be like Godot's input actions, where they are names that represent one or more input states (i.e: :Shift+G, :Space, :Ctrl+Alt+D, etc). Godot only lets you combine modifier keys and one normal key, but maybe I could allow you to combine any keys you want (so an action would only fire if :Ctrl+A+H+9 are pressed).
+
+I think I'm gonna model Godot's input system more; every frame, all inputs are updated and any changes are stored as an `InputEvent` inside of a queue. Then, each event in that queue is sent to all `Input` functions, one by one, until there are no more events. Events can be single inputs, input combos, named inputs/combos, or mouse movement. I think that named events without ties to inputs (i.e: window closing, monitor changed, etc) should be handled separately.
+
+I'm gonna remove `InputBinding` and move `BindingID` from 'id.hpp' to some file inside 'src/input/'.
+
+[12/01/25]
+I've got an idea! I'm gonna rename `InputManager` to `EventManager` and have it manage all events, including inputs.
