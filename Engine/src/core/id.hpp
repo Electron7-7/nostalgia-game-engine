@@ -65,27 +65,27 @@ struct ID final : public base_id
 
     ID(id_t inID, const std::string& inName = ""):
         base_id{inID}
-    { sNameLookup[id_] = inName; }
+    { m_pName = new std::string{inName}; }
 
     ID(const std::string& inHashable) noexcept:
         base_id{inHashable}
-    { sNameLookup[id_] = inHashable; }
+    { m_pName = new std::string{inHashable}; }
 
     ID(const char* inHashable) noexcept:
         base_id{inHashable}
-    { sNameLookup[id_] = inHashable; }
+    { m_pName = new std::string{inHashable}; }
 
     ~ID() noexcept
-    { sNameLookup.erase(id_); }
+    { delete m_pName; }
 
-    const std::string&   name() const final { return sNameLookup[id_];        }
-    const char*        c_name() const final { return sNameLookup[id_].data(); }
+    const std::string&   name() const final { return *m_pName;        }
+    const char*        c_name() const final { return m_pName->data(); }
 
     template<typename T> requires is_similar<T, ID>
-        ID operator+(const T& Other) const { return ID{id_ + Other, sNameLookup[id_]}; }
+        ID operator+(const T& Other) const { return ID{id_ + Other, *m_pName}; }
 
 private:
-    inline static std::map<uint, std::string> sNameLookup{};
+    std::string m_pName{nullptr};
 };
 
 #define ID_FORMATTER(TYPE, FORMATTER, RETURN) \
