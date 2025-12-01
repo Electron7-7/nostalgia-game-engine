@@ -53,8 +53,8 @@ namespace Status
     constexpr SafeStatus ERROR_FILE_READ_ERROR                  { 0x07, "ERROR_FILE_READ_ERROR"                  };
     constexpr SafeStatus WindowingBackendWINDOW_CREATION_FAILED { 0x08, "WindowingBackendWINDOW_CREATION_FAILED" };
     constexpr SafeStatus WindowingBackendGRAPHICS_INIT_FAILED   { 0x09, "WindowingBackendGRAPHICS_INIT_FAILED"   };
-    constexpr SafeStatus InputManagerKEY_NOT_FOUND              { 0x0A, "InputManagerKEY_NOT_FOUND"              };
-    constexpr SafeStatus InputManagerKEY_IS_LOCKED              { 0x0B, "InputManagerKEY_IS_LOCKED"              };
+    constexpr SafeStatus EventManagerKEY_NOT_FOUND              { 0x0A, "EventManagerKEY_NOT_FOUND"              };
+    constexpr SafeStatus EventManagerKEY_IS_LOCKED              { 0x0B, "EventManagerKEY_IS_LOCKED"              };
     constexpr SafeStatus CommandLineINVALID_COMMAND             { 0x0C, "CommandLineINVALID_COMMAND"             };
     constexpr SafeStatus KeyBindsKEY_HAS_NO_BINDS               { 0x0D, "KeyBindsKEY_HAS_NO_BINDS"               };
     constexpr SafeStatus SettingsINVALID_SETTING_NAME           { 0x0E, "SettingsINVALID_SETTING_NAME"           };

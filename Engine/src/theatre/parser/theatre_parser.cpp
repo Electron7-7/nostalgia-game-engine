@@ -92,7 +92,7 @@ enum class Parsing
 
 bool TheatreParser::ParseTheatreFile(const std::string& path, TheatreData& output)
 {
-    if(m_sTheatreFile.LoadFile(path) && ReadTheatre(output))
+    if(m_sTheatreFile.LoadFile(path) == OK && ReadTheatre(output))
         { output.file_path = path; return true; }
     return false;
 }
@@ -111,7 +111,7 @@ SafeReturn<std::string> TheatreParser::WriteTheatre(const TheatreData& data, con
 
 bool TheatreParser::ReadTheatre(TheatreData& output)
 {
-#   pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
+#pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
 
     ThingData temp_data;
     ThingData temp_data_swap;

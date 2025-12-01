@@ -90,7 +90,7 @@ int PointLight::GetCount()
 
 bool PointLight::IncrementIndex()
 {
-    if(light_t::sPointCount >= MAX_POINT)
+    if(!mEnabled || light_t::sPointCount >= MAX_POINT)
         { return false; }
     mIndex = light_t::sPointCount++;
     return true;
@@ -120,7 +120,7 @@ ThingData SpotLight::GetVariables() const
 
 bool SpotLight::IncrementIndex()
 {
-    if(light_t::sSpotCount >= MAX_SPOT)
+    if(!mEnabled || light_t::sSpotCount >= MAX_SPOT)
         { return false; }
     mIndex = light_t::sSpotCount++;
     return true;
@@ -145,7 +145,7 @@ ThingData DirectionalLight::GetVariables() const
 
 bool DirectionalLight::IncrementIndex()
 {
-    if(light_t::sDirectionalCount >= MAX_DIRECTIONAL)
+    if(!mEnabled || light_t::sDirectionalCount >= MAX_DIRECTIONAL)
         { return false; }
     mIndex = light_t::sDirectionalCount++;
     return true;

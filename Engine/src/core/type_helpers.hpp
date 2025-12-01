@@ -24,7 +24,7 @@ template<typename T>
     using Shared = std::shared_ptr<T>;
 
 template<typename T, class ...Args>
-    constexpr Unique<T> MakeShared(Args&&... args)
+    constexpr Shared<T> MakeShared(Args&&... args)
     { return std::make_shared<T>(std::forward<Args>(args)...); }
 
 #endif // TYPE_HELPERS_H

@@ -47,7 +47,7 @@ Error FileSystem::try_WriteFileFromString(const std::string& path, const std::st
 {
     std::string absolute_path = GetAbsolute(path);
     if(FileSystem::Exists(path))
-        { print_warning("FileSystem::try_WriteFileFromString - Overwriting file '{}'!", path); }
+        { print_warning("Overwriting file '{}'!", path); }
 
     std::ofstream file(absolute_path);
     if(!file.is_open())

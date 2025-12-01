@@ -20,7 +20,7 @@ ThingData::ThingData(const std::string& _name, const std::string& type_name)
 : name{_name}, type_{ConstexprHash(type_name)}
 {
     if(!g_pThingFactory->IsThing(type_))
-        { print_error("ThingData::ThingData({}, {}, std::vector<ThingVar>) - Type #{} is an invalid type!", name, type_name, type_); }
+        { print_error("{} is an invalid type!", type_); }
 }
 
 ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vector<ThingVar>& _variables)
@@ -28,8 +28,8 @@ ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vect
 {
     if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaults triggers the error message bc of when it's constructed
         { return; }
-    if(!g_pThingFactory->IsThing(type_))
-        { print_error("ThingData::ThingData({}, {}, {}, std::vector<ThingVar>) - Type '{}' is an invalid type!", name, type_, uid, g_pThingFactory->GetTypeName(type_)); }
+    else if(!g_pThingFactory->IsThing(type_))
+        { print_error("'{}' is an invalid type!", g_pThingFactory->GetTypeName(type_)); }
 }
 
 ThingData::ThingData(const std::string& _name, ID _type, const std::vector<ThingVar>& _variables)
@@ -85,7 +85,7 @@ bool ThingData::set_type(ID type)
     type_ = type;
     if(!g_pThingFactory->IsThing(type))
     {
-        print_warning("ThingData::set_type - The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", g_pThingFactory->GetTypeName(type), name);
+        print_warning("The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", g_pThingFactory->GetTypeName(type), name);
         return false;
     }
     return true;

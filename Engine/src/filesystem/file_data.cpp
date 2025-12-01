@@ -49,7 +49,7 @@ Error FileData::LoadFile(const std::string& path, FileType type)
 
     if(!image_file)
     {
-        print_warning("FileData::LoadFile - Failed to load file '{}'", path);
+        print_warning("Failed to load file '{}'", path);
         m_Status = DataStatus::FAILED;
         return ERR_FILE_LOAD;
     }
