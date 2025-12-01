@@ -1,12 +1,13 @@
 #include "imgui_debugger.hpp"
-#include "main_window.hpp"
+#include "imgui_editor.hpp"
+#include "rendering/renderer_api.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "input/demo_controller.hpp"
 #include "managers/manager.hpp"
-#include "managers/input_manager.hpp"
+#include "managers/event_manager"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/thing_factory.hpp"
@@ -17,10 +18,12 @@
 #include "theatre/parser/theatre_data.hpp"
 #include "application/application.hpp"
 #include "application/window.hpp"
+#include "DearImGui/imgui.h"
+#include "DearImGui/imgui_stdlib.h"
 #ifdef DEBUGGING
 #   include "managers/physics_manager.hpp"
 #   include "theatre/parser/theatre_parser.hpp"
-#endif // DEBUGGING
+#endif
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -51,10 +54,25 @@ static void s_ManualStopwatchWindow(float);
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
-static imgui_Debugger sDebugger;
-imgui_Debugger* g_pDebugger = &sDebugger;
+Error ImGui_Debugger::Init()
+{
+    PRINT_PRETTY_FUNCTION;
+    return OK;
+}
 
-void imgui_Debugger::Update()
+void ImGui_Debugger::Shutdown()
+{ PRINT_PRETTY_FUNCTION; }
+
+void ImGui_Debugger::Input(FARG(InputEvent))
+{}
+
+void ImGui_Debugger::OnTheatreEntered()
+{}
+
+void ImGui_Debugger::OnTheatreExited()
+{}
+
+void ImGui_Debugger::Update()
 {
     static bool sPopOutStopwatches{false};
     if(sTheatreInspectorActive)
@@ -129,29 +147,29 @@ void s_HandleAutomaticStopwatchToggle()
     }
 }
 
-StopwatchLog& imgui_Debugger::StartStopwatch(const std::string& message)
+StopwatchLog& ImGui_Debugger::StartStopwatch(const std::string& message)
 {
     if(!sAutoStopwatchEnabled)
         { return StopwatchLog::Invalid; }
     return m_StartStopwatch(message);
 }
 
-bool imgui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
+bool ImGui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 {
     if(!sAutoStopwatchEnabled)
         { return false; }
     return m_StopStopwatch(stopwatch);
 }
 
-StopwatchLog& imgui_Debugger::m_StartStopwatch(const std::string& message)
+StopwatchLog& ImGui_Debugger::m_StartStopwatch(const std::string& message)
 {
-    #pragma message("TODO: Make this thread safe")
+#pragma message("TODO: Make this thread safe")
     StopwatchLog& stopwatch = sStopwatchLogs.emplace_back();
     stopwatch.Start(message);
     return stopwatch;
 }
 
-bool imgui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
+bool ImGui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
 {
     if(stopwatch == StopwatchLog::Invalid || !stopwatch.Running())
         { return false; }
@@ -161,7 +179,7 @@ bool imgui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
 }
 
 
-void imgui_Debugger::StartTheatreTiming(bool loading)
+void ImGui_Debugger::StartTheatreTiming(bool loading)
 {
     if(loading)
     {
@@ -180,7 +198,7 @@ void imgui_Debugger::StartTheatreTiming(bool loading)
     }
 }
 
-void imgui_Debugger::StopTheatreTiming(bool loading)
+void ImGui_Debugger::StopTheatreTiming(bool loading)
 {
     if(sTheatreLogs.empty())
         { return; }
@@ -195,23 +213,32 @@ static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
 #ifdef DEBUGGING
+    if(CollapsingHeader("UI Implementors"))
+    {
+        for(auto& implementor : IUIImplementor::GetInstances())
+        {
+            SeparatorText(implementor->GetID().c_name());
+            TextF("\tState: {}", IUIImplementor::StateString(implementor->GetState()));
+            NewLine();
+        }
+    }
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
-            Checkbox("Print Input Events", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
+            Checkbox("Print Input Events", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
             Checkbox("Print Frame#", &g_PrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &g_PrintTickNumbers);
-        /*if(Settings::Engine::GraphicsBackend == BackendIDs::gOpenGL)
+        if(IRendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
             Text("Severity Levels");
             Separator();
-            Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
-            Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
-            Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
-            Checkbox("Notification", &g_EnableDebugMsgNotif);
-        }*/
+            // Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
+            // Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
+            // Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
+            // Checkbox("Notification", &g_EnableDebugMsgNotif);
+        }
         SeparatorText("Jolt Physics");
         SeparatorText("Contact");
         Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
@@ -254,40 +281,40 @@ static void s_GeneralDebuggingWindow()
         if(TreeNode("Window Info"))
         {
             Text("Title: %s\nPosition: [%d, %d]Size: [%d, %d]",
-                g_pApplication->GetWindow().GetTitle(),
-                g_pApplication->GetWindow().GetXPosition(),
-                g_pApplication->GetWindow().GetYPosition(),
-                g_pApplication->GetWindow().GetWidth(),
-                g_pApplication->GetWindow().GetHeight());
+                Application()->GetWindow().GetTitle(),
+                Application()->GetWindow().GetXPosition(),
+                Application()->GetWindow().GetYPosition(),
+                Application()->GetWindow().GetWidth(),
+                Application()->GetWindow().GetHeight());
             TreePop();
         }
-        bool fullscreen{g_pApplication->GetWindow().IsFullscreen()};
+        bool fullscreen{Application()->GetWindow().IsFullscreen()};
         if(Checkbox("Fullscreen", &fullscreen))
         {
-            g_pApplication->GetWindow().SetWindowMode((fullscreen)
+            Application()->GetWindow().SetWindowMode((fullscreen)
                 ? IWindow::WINDOW_MODE_WINDOWED
                 : IWindow::WINDOW_MODE_FULLSCREEN);
         }
 
 #       ifndef WAYLAND_DISPLAY
-            auto position{g_pApplication->GetWindow().GetPosition()};
+            auto position{Application()->GetWindow().GetPosition()};
             if(DragInt2("Position", &position.x, &position.y))
-                { g_pApplication->GetWindow().SetPosition(position); }
+                { Application()->GetWindow().SetPosition(position); }
 
             int scale[2] {
-                (int)g_pApplication->GetWindow().GetScale().width, // Evil c-style cast
-                (int)g_pApplication->GetWindow().GetScale().height, // Evil c-style cast
+                (int)Application()->GetWindow().GetScale().width, // Evil c-style cast
+                (int)Application()->GetWindow().GetScale().height, // Evil c-style cast
             };
             if(DragInt2("Size", scale))
-                { g_pApplication->GetWindow().SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
+                { Application()->GetWindow().SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
             NewLine();
 #       else
             Text("Position: [%d, %d]",
-                g_pApplication->GetWindow().GetXPosition(),
-                g_pApplication->GetWindow().GetYPosition());
+                Application()->GetWindow().GetXPosition(),
+                Application()->GetWindow().GetYPosition());
             Text("Size: [%d, %d]",
-                g_pApplication->GetWindow().GetWidth(),
-                g_pApplication->GetWindow().GetHeight());
+                Application()->GetWindow().GetWidth(),
+                Application()->GetWindow().GetHeight());
 #       endif // WAYLAND_DISPLAY
     }
     if(CollapsingHeader("Player"))
@@ -499,7 +526,7 @@ static void s_ResourceInfo(ID uid, const char* tree_name)
     }
 }
 
-void imgui_Debugger::s_InspectTheatreWindow(bool* is_active)
+void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
     static std::shared_ptr<Actor> sActor = nullptr;
     static int s_MaxPerRow = 3;

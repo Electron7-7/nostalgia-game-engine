@@ -9,19 +9,18 @@
 #include <shellapi.h>
 #endif // _WIN32
 
-NostalgiaGoggles nostalgia_goggles{};
+static NostalgiaGoggles sNostalgiaGoggles{};
 
 int DedicatedMain(int argc, char** argv)
 {
-    print_app_debug("DedicatedMain - Initializing Managers");
+    print_app("Initializing Managers");
     IManager::InitAllManagers();
-    print_app_debug("DedicatedMain - Running Application");
-    int return_value = g_pApplication->Main();
-    print_app_debug("DedicatedMain - Shutting Down All Managers");
+    print_app("Running Application");
+    int return_value = Application()->Main();
+    print_app("Shutting Down All Managers");
     IManager::ShutdownAllManagers();
-    print_app_debug("DedicatedMain - Removing All Managers");
+    print_app("Removing All Managers");
     IManager::RemoveAll();
-    print_app_debug("DedicatedMain - Exiting (status:{})", return_value);
     return return_value;
 }
 
@@ -29,19 +28,23 @@ int DedicatedMain(int argc, char** argv)
 #ifdef _WIN32
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    int argc,win_return = -1;
+    print_app("WinMain Start (Windows main)");
+    int argc,windows_return = -1;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
 
-    win_return = DedicatedMain(argc, (char**)argv);
+    print_app("Entering DedicatedMain");
+    windows_return = DedicatedMain(argc, (char**)argv);
     GlobalFree(argv);
-    print_app_debug("WinMain - Exiting");
-    return win_return;
+    print_app("Exiting WinMain (status:{})", windows_return);
+    return windows_return;
 }
 #else // end of _WIN32, start of LINUX
 int main(int argc, char* argv[])
 {
+    print_app("main Start (Linux main)");
+    print_app("Entering DedicatedMain");
     int linux_return = DedicatedMain(argc, argv);
-    print_app_debug("main - Exiting");
+    print_app("Exiting main (status:{})", linux_return);
     return linux_return;
 }
 #endif // end of LINUX

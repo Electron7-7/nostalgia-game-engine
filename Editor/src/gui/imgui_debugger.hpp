@@ -1,15 +1,26 @@
 #ifndef IMGUI_DEBUGGER_H
 #define IMGUI_DEBUGGER_H
 
-#include "ui/imgui_object.hpp"
 #include "tools/fwd.hpp"
+
+#include "ui/solution.hpp"
+#include "backends/imgui/imgui_implementor.hpp"
 
 #include <string>
 
-class imgui_Debugger : public ImGui_Object
+class ImGui_Debugger : public UI_Solution<ImGui_Implementor>
 {
+    UI_SOLUTION_CONSTRUCTOR(ImGui_Debugger, ImGui_Implementor)
+    UI_SOLUTION_INSTANCE(ImGui_Debugger)
+    UI_SOLUTION_ACTIVATE(ImGui_Debugger)
+    UI_SOLUTION_DEACTIVATE(ImGui_Debugger)
 public:
-    void Update();
+    Error Init()                  final;
+    void  Shutdown()              final;
+    void  Update()                final;
+    void  Input(FARG(InputEvent)) final;
+    void  OnTheatreEntered()      final;
+    void  OnTheatreExited()       final;
 
     StopwatchLog& StartStopwatch(const std::string& Message = "No Message");
     bool StopStopwatch(StopwatchLog& Stopwatch);
@@ -22,7 +33,5 @@ private:
     StopwatchLog& m_StartStopwatch(const std::string& Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);
 };
-
-extern imgui_Debugger* g_pDebugger;
 
 #endif // IMGUI_DEBUGGER_H
