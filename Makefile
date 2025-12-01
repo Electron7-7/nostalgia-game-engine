@@ -140,7 +140,7 @@ ENGINE_SRC_DIRS :=                             \
     $(ENGINE_SRC)/core                         \
     $(ENGINE_SRC)/embedded                     \
     $(ENGINE_SRC)/filesystem                   \
-    $(ENGINE_SRC)/input                        \
+    $(ENGINE_SRC)/events                       \
     $(ENGINE_SRC)/managers                     \
     $(ENGINE_SRC)/math                         \
     $(ENGINE_SRC)/physics                      \
