@@ -1,19 +1,19 @@
 #include "glfw_window.hpp"
 #include "application/application.hpp"
 #include "application/monitor.hpp"
+#include "managers/event_manager"
+#include "input/event.hpp"
+#include "input/event_queue.hpp"
+#include "rendering/graphics_context.hpp"
 #include "core/printing.hpp"
-// #include "math/glm_format.hpp" // IWYU pragma: keep
-// #include "input/binding.hpp"
-// #include "settings/window.hpp"
-// #include "settings/player.hpp"
 
 #include <vector>
 #include <glad/glad.h>
-// #include <glm/vec2.hpp>
+#include <glm/vec2.hpp>
 
-static std::vector<std::unique_ptr<Monitor>> m_sMonitors{};
+static std::vector<Unique<Monitor>> m_sMonitors{};
 
-static void sMonitorCallback(GLFWmonitor* inMonitor, int inEvent)
+void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonitor, int inEvent)
 {
     if(inEvent == GLFW_CONNECTED)
     {
@@ -32,10 +32,70 @@ static void sMonitorCallback(GLFWmonitor* inMonitor, int inEvent)
     else if(inEvent == GLFW_DISCONNECTED)
     {
         // Pun intended
-        auto found_it{std::find(m_sMonitors.begin(), m_sMonitors.end(), Monitor{inMonitor})};
-        if(found_it == m_sMonitors.end())
-            { return; }
-        m_sMonitors.erase(found_it);
+        if(auto found_it{std::find(m_sMonitors.begin(), m_sMonitors.end(), Monitor{inMonitor})};
+            found_it != m_sMonitors.end())
+            { m_sMonitors.erase(found_it); }
+    }
+}
+
+#pragma message("TODO: add an 'are you sure?' message or something similar for closing the window")
+void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow*)
+{ Application()->Stop(); }
+
+#pragma message("TODO: send out a 'window resize' event (i'll need to implement the non-input event system)")
+void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWindow, int inWidth, int inHeight)
+{
+    auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
+    pWindow->mData.width  = inWidth;
+    pWindow->mData.height = inHeight;
+}
+
+void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindow, int inX, int inY)
+{
+    auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
+    pWindow->mData.x_pos = inX;
+    pWindow->mData.y_pos = inY;
+}
+
+void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindow, double inX, double inY)
+{
+    auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
+    pWindow->mMouseLast = pWindow->mMouseCurrent;
+    pWindow->mMouseCurrent.x = inX;
+    pWindow->mMouseCurrent.y = inY;
+}
+
+Key::Modifiers sGetModifierKeys(int mods)
+{
+    Key::Modifiers out_mods{};
+    if(mods & GLFW_MOD_SHIFT)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_SHIFT] = true; }
+    if(mods & GLFW_MOD_CONTROL)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_CONTROL] = true; }
+    if(mods & GLFW_MOD_ALT)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_ALT] = true; }
+    if(mods & GLFW_MOD_SUPER)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_SUPER] = true; }
+    if(mods & GLFW_MOD_CAPS_LOCK)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_CAPS_LOCK] = true; }
+    if(mods & GLFW_MOD_NUM_LOCK)
+        { out_mods.mods[(ushort)Key::Modifier::MOD_NUM_LOCK] = true; }
+    return out_mods;
+}
+
+void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
+    int key, int scancode, int action, int mods)
+{
+    if(key == GLFW_KEY_UNKNOWN)
+        { return; }
+    else if(auto found_it{s_cGLFWInputLookup.find(key)};
+        found_it != s_cGLFWInputLookup.end())
+    {
+        g_pEventManager->GetListeningInputEventQueue()
+            ->add<InputEventBinding>(found_it->second,
+                sGetModifierKeys(mods),
+                action != GLFW_RELEASE,
+                action == GLFW_REPEAT);
     }
 }
 
@@ -47,21 +107,29 @@ WindowGLFW::~WindowGLFW()
 
 Error WindowGLFW::Init(const WindowProperties& inProperties)
 {
-    print_debug("WindowGLFW::Init");
+    PRINT_PRETTY_FUNCTION;
     mData = inProperties;
     if(!glfwInit())
-    {
-        print_error("WindowGLFW::Init - `glfwInit()` failed");
-        return ERR_INIT_FAILED;
-    }
-    m_pWindow = glfwCreateWindow((int)mData.width, (int)mData.height, mData.title.data(), nullptr, nullptr);
-    return InitializeCallbacks();
+        { return print_error_enum(ERR_INIT_FAILED); }
+    m_pWindow = glfwCreateWindow(
+        static_cast<int>(mData.width),
+        static_cast<int>(mData.height),
+        mData.title.data(),
+        nullptr, nullptr);
+    mGraphicsContext = IGraphicsContext::CreateContext(m_pWindow);
+    glfwSetWindowUserPointer(m_pWindow, this);
+    print_error_enum(mGraphicsContext->Init());
+    return print_error_enum(InitializeCallbacks());
 }
 
 Error WindowGLFW::InitializeCallbacks()
 {
-    glfwSetMonitorCallback(sMonitorCallback);
-
+    glfwSetMonitorCallback(&CallbackHandler::sMonitorCallbackFunction);
+    glfwSetWindowCloseCallback(m_pWindow, &CallbackHandler::sWindowCloseCallbackFunction);
+    glfwSetWindowSizeCallback(m_pWindow, &CallbackHandler::sWindowSizeCallbackFunction);
+    glfwSetWindowPosCallback(m_pWindow, &CallbackHandler::sWindowPosCallbackFunction);
+    glfwSetCursorPosCallback(m_pWindow, &CallbackHandler::sCursorPosCallbackFunction);
+    glfwSetKeyCallback(m_pWindow, &CallbackHandler::sKeyCallbackFunction);
     return OK;
 }
 
@@ -74,14 +142,23 @@ void WindowGLFW::Shutdown()
 void WindowGLFW::Update()
 {
     glfwPollEvents();
-    // mGraphicsContext->SwapBuffers();
-#pragma message("this shit is for debugging until input handling is back online")
-    if(glfwGetKey(m_pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        { g_pApplication->Stop(); }
+    mGraphicsContext->SwapBuffers();
+}
+
+WINDOW_SET_POSITION_DEFINITION(WindowGLFW, inPosition)
+{
+    glfwSetWindowPos(m_pWindow, static_cast<int>(inPosition.x), static_cast<int>(inPosition.y));
+    return OK;
+}
+
+WINDOW_SET_SCALE_DEFINITION(WindowGLFW, inScale)
+{
+    glfwSetWindowSize(m_pWindow, inScale.width, inScale.height);
+    return OK;
 }
 
 Error WindowGLFW::SetVsync(Vsync)
-{ return NOT_IMPLEMENTED; }
+{ return UNIMPLEMENTED; }
 
 Error WindowGLFW::SetMouseMode(MouseMode inMode)
 {
@@ -124,7 +201,7 @@ Error WindowGLFW::SetWindowMode(WindowMode inMode)
         break;
     case WINDOW_MODE_BORDERLESS:
         // glfwSetWindowMonitor(...) -> as above, but with saved/queried monitor properties
-        return NOT_IMPLEMENTED;
+        return UNIMPLEMENTED;
     default:
         return ERR_SWITCH_DEFAULT;
     }
@@ -132,7 +209,7 @@ Error WindowGLFW::SetWindowMode(WindowMode inMode)
     return OK;
 }
 
-const std::unique_ptr<Monitor>& WindowGLFW::GetPrimaryMonitor() const
+const Unique<Monitor>& WindowGLFW::GetPrimaryMonitor() const
 {
     // Pun intended
     auto found_it{std::find(m_sMonitors.begin(), m_sMonitors.end(), Monitor{glfwGetPrimaryMonitor()})};
@@ -149,7 +226,7 @@ uint WindowGLFW::GetFullscreenMonitorIndex()
     return mFullscreenMonitorIndex;
 }
 
-const std::unique_ptr<Monitor>& WindowGLFW::GetFullscreenMonitor()
+const Unique<Monitor>& WindowGLFW::GetFullscreenMonitor()
 { return m_sMonitors.at(GetFullscreenMonitorIndex()); }
 
 Error WindowGLFW::SetFullscreenMonitor(uint MonitorIndex)
@@ -167,14 +244,20 @@ Error WindowGLFW::SetFullscreenMonitor(uint MonitorIndex)
     return ERR_INDEX_OUT_OF_BOUNDS;
 }
 
-#define DO_NOT_BUILD
-#ifndef DO_NOT_BUILD
+Position WindowGLFW::GetMousePosition()
+{ return mMouseCurrent; }
+
+Position WindowGLFW::GetLastMousePosition()
+{ return mMouseLast; }
+
+#                                                  define DO_NOT_BUILD
+#                                                  ifndef DO_NOT_BUILD
 
 using namespace Settings;
 
 bool WindowGLFW::Init()
 {
-    print_debug("WindowGLFW::Init");
+    PRINT_PRETTY_FUNCTION;
     glfwInit();
     if(auto window_status = CreateMainWindow(); window_status != Status::NO_ERR)
     {
@@ -192,7 +275,7 @@ bool WindowGLFW::InitImGui()
     {
     case (uint)BackendIDs::gOpenGL:
         if(!ImGui_ImplGlfw_InitForOpenGL(mMainWindow, true))
-            { return print_error("WindowGLFW::InitImGui - ImGui_ImplGlfw_InitForOpenGL returned false!"); }
+            { return print_error("ImGui_ImplGlfw_InitForOpenGL returned false!"); }
         break;
     }
     return true;

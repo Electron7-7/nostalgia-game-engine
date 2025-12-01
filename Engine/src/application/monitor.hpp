@@ -41,11 +41,11 @@ struct Monitor
     void* native_monitor{nullptr};
 
     Monitor() = default;
-    Monitor(void* inNativeMonitor, FARG(std::string, inTitle) = "Untitled"):
+    Monitor(void* inNativeMonitor, FARG(std::string) inTitle = "Untitled"):
         title{inTitle}, native_monitor{inNativeMonitor} {}
 
     // Used by `std::find` in 'Engine/src/backends/glfw/glfw_window.cpp:34'
-    constexpr bool operator==(FARG(std::unique_ptr<Monitor>, other)) const
+    constexpr bool operator==(FARG(std::unique_ptr<Monitor>) other) const
     { return native_monitor == other->native_monitor; }
 };
 

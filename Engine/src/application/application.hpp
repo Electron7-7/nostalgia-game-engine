@@ -5,13 +5,12 @@
 
 #include <memory>
 
-
 class IApplication
 {
 public:
-    virtual int  Main() = 0;
-    virtual void Stop() = 0;
-    virtual const char* GetAppName() { return "Untitled Application"; }
+    virtual int  Main() { return 1; }
+    virtual void Stop() {}
+    virtual const char* Name() { return "IApplication"; }
 
     IApplication();
     virtual ~IApplication() = default;
@@ -22,6 +21,7 @@ protected:
     std::unique_ptr<IWindow> mMainWindow{nullptr};
 };
 
-extern IApplication* g_pApplication;
+IApplication* Application();
+IWindow& MainWindow();
 
 #endif // APPLICATION_H

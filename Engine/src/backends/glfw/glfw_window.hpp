@@ -1,19 +1,19 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
+#include "rendering/fwd.hpp"
+
 #include "application/window.hpp"
-#include "core/id.hpp"
+#include "input/bindings.hpp"
 #include "frozen/map.h"
 
 #include <GLFW/glfw3.h>
 
-typedef uint GLFWInputID;
+typedef int GLFWInputID;
 
 class WindowGLFW : public IWindow
 {
 public:
-    static constexpr uint s_cBindingIDCount{BindingID::KeyIDsCount + BindingID::MouseButtonIDsCount - 1};
-
     WindowGLFW(const WindowProperties&);
     virtual ~WindowGLFW();
 
@@ -21,24 +21,46 @@ public:
 
     void* GetNativeWindow() const override { return static_cast<GLFWwindow*>(m_pWindow); }
     NativeWindowType GetNativeWindowType() const override { return NATIVE_GLFW_WINDOW; }
+
     const std::unique_ptr<Monitor>& GetPrimaryMonitor() const override;
     uint GetFullscreenMonitorIndex() override;
     const std::unique_ptr<Monitor>& GetFullscreenMonitor() override;
     Error SetFullscreenMonitor(uint) override;
+    Position GetMousePosition() override;
+    Position GetLastMousePosition() override;
+    bool UpdateBinding(KeyID& outInputBinding) override;
 
+    WINDOW_SET_POSITION_DECLARATION
+    WINDOW_SET_SCALE_DECLARATION
 
     Error SetVsync(Vsync) override;
     Error SetMouseMode(MouseMode) override;
     Error SetWindowMode(WindowMode) override;
 
 private:
-    static constinit const frozen::map<ID, GLFWInputID, s_cBindingIDCount> s_mGLFWKeyLookup;
+    struct CallbackHandler
+    {
+        static void sMonitorCallbackFunction(GLFWmonitor*,int);
+        static void sWindowCloseCallbackFunction(GLFWwindow*);
+        static void sWindowSizeCallbackFunction(GLFWwindow*,int,int);
+        static void sWindowPosCallbackFunction(GLFWwindow*,int,int);
+        static void sCursorPosCallbackFunction(GLFWwindow*,double,double);
+        static void sKeyCallbackFunction(GLFWwindow*,int,int,int,int);
+
+        inline static WindowGLFW* s_pWindow{nullptr};
+    };
+    friend struct CallbackHandler;
 
     GLFWwindow* m_pWindow{nullptr};
+    Unique<IGraphicsContext> mGraphicsContext{nullptr};
+    Position mMouseCurrent{};
+    Position mMouseLast{};
 
     Error InitializeCallbacks() override;
     Error Init(const WindowProperties&);
     void Shutdown();
+
+    static constinit frozen::map<GLFWInputID, id_t, Input::KeysCount> s_cGLFWInputLookup;
 
     static uint GetMonitorIndex(GLFWmonitor*);
 };
