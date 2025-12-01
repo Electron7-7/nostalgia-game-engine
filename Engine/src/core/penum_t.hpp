@@ -14,7 +14,7 @@ struct penum_t
     { name_ = name; id_ = id; }
 
     constexpr ushort id() const { return id_; }
-    constexpr const char* name()  const { return name_; }
+    constexpr const char* name() const { return name_.data(); }
 
     constexpr operator ushort() const { return id_; }
 
@@ -23,14 +23,14 @@ struct penum_t
 
 private:
     ushort id_{static_cast<ushort>(-1)};
-    const char* name_{""};
+    std::string name_{""};
 };
 
 template<>
-struct std::formatter<penum_t> : std::formatter<const char*>
+struct std::formatter<penum_t> : std::formatter<std::string>
 {
     auto format(const penum_t& data, std::format_context& ctx) const
-    { return std::formatter<const char*>::format(data.name(), ctx); };
+    { return std::formatter<std::string>::format(data.name(), ctx); };
 };
 
 #endif // PENUM_T_H
