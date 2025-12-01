@@ -1,60 +1,77 @@
 #include "event.hpp"
-#include "binding.hpp"
-#include "application/application.hpp"
-#include "application/window.hpp"
+#include "bindings.hpp"
 
-#include <math/glm_format.hpp>
-#include <format>
+///////////////////////////
+// InputEventMouseMotion //
+///////////////////////////
+constexpr InputEventMouseMotion::InputEventMouseMotion() = default;
+constexpr InputEventMouseMotion::InputEventMouseMotion(FARG(Position) inCurrentPos, FARG(Position) inLastPos):
+    mMousePosition{inCurrentPos},
+    mLastMousePosition{inLastPos} {}
 
-void InputEvent::UpdateMouseMotion(const glm::vec2& current, const glm::vec2& last)
-{
-    mCurMousePos  = current;
-    mLastMousePos = last;
-}
+constexpr bool InputEventMouseMotion::IsMouseMotion() const
+{ return true; }
 
-const glm::vec2& InputEvent::CurrentMousePosition() const
-{ return mCurMousePos; }
+FARG(Position) InputEventMouseMotion::MousePosition() const
+{ return mMousePosition; }
 
-const glm::vec2& InputEvent::LastMousePosition() const
-{ return mLastMousePos; }
+FARG(Position) InputEventMouseMotion::LastMousePosition() const
+{ return mLastMousePosition; }
 
-glm::vec2 InputEvent::MouseMotion() const
-{ return mCurMousePos - mLastMousePos; }
+FARG(Motion) InputEventMouseMotion::MouseMotion() const
+{ return mMouseMotion; }
 
-InputStatus InputEvent::StateOf(const ID& id) const
-{
-    return (mInputs.contains(id))
-        ? mInputs.find(id)->status()
-        : InputStatus::Inactive;
-}
+//////////////////////
+// InputEventAction //
+//////////////////////
+constexpr InputEventAction::InputEventAction(FARG(std::string) inAction, bool isActive, bool isJustChanged):
+    mAction{inAction},
+    mActive{isActive},
+    mJustChanged{isJustChanged} {}
 
-bool InputEvent::IsKeyDown(const ID& id) const
-{ return QueryInput(id, &InputBinding::Active); }
+constexpr bool InputEventAction::IsAction(FARG(std::string) inAction) const
+{ return !mAction.compare(inAction); }
 
-bool InputEvent::IsKeyUp(const ID& id) const
-{ return QueryInput(id, &InputBinding::Inactive); }
+constexpr bool InputEventAction::IsActive(FARG(std::string) inAction) const
+{ return mActive && IsAction(inAction); }
 
-bool InputEvent::IsKeyPressed(const ID& id) const
-{ return QueryInput(id, &InputBinding::JustActivated); }
+constexpr bool InputEventAction::IsJustChanged(FARG(std::string) inAction) const
+{ return mJustChanged && IsAction(inAction); }
 
-bool InputEvent::IsKeyReleased(const ID& id) const
-{ return QueryInput(id, &InputBinding::JustDeactivated); }
+///////////////////////
+// InputEventBinding //
+///////////////////////
+constexpr InputEventBinding::InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
+    mID{inBindingID},
+    mModifiers{inModifiers},
+    mPressed{isPressed},
+    mRepeated{isRepeated},
+    mJustChanged{isJustChanged} {}
 
-#pragma message("FIXME: This should probably not be such an engine-level check(?)")
-bool InputEvent::IsMouseCaptured() const
-{ return g_pApplication->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED; }
+constexpr const Key::Modifiers& InputEventBinding::GetModifiers() const
+{ return mModifiers; }
 
-bool InputEvent::empty() const
-{ return mInputs.empty(); }
+constexpr bool InputEventBinding::IsBinding(KeyArg inID) const
+{ return mID == inID; }
 
-bool InputEvent::add(const InputBinding& binding)
-{ return mInputs.insert(binding).second; }
+constexpr bool InputEventBinding::IsPressed(KeyArg inID) const
+{ return mPressed && IsBinding(inID); }
 
-bool InputEvent::erase(const InputBinding& binding)
-{ return mInputs.erase(binding) != 0; }
+constexpr bool InputEventBinding::IsRepeated(KeyArg inID) const
+{ return mRepeated && IsBinding(inID); }
 
-void InputEvent::clear()
-{ mInputs.clear(); }
+constexpr bool InputEventBinding::IsReleased(KeyArg inID) const
+{ return !mPressed && IsBinding(inID); }
+
+constexpr bool InputEventBinding::IsJustPressed(KeyArg inID) const
+{ return mJustChanged && IsPressed(inID); }
+
+constexpr bool InputEventBinding::IsJustReleased(KeyArg inID) const
+{ return mJustChanged && IsReleased(inID); }
+
+
+#define DO_NOT_COMPILE
+#ifndef DO_NOT_COMPILE
 
 std::string InputEvent::Log() const
 {
@@ -93,9 +110,4 @@ std::string InputEvent::DemoString() const
     return output;
 }
 
-bool InputEvent::QueryInput(const ID& id, InputQueryFunction function) const
-{
-    return (mInputs.contains(id))
-        ? ((*mInputs.find(id)).*function)()
-        : false;
-}
+#endif // DO_NOT_COMPILE

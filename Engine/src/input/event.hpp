@@ -1,103 +1,105 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef INPUT_EVENT_H
+#define INPUT_EVENT_H
 
-#include "input/fwd.hpp"
+#include "fwd.hpp"
 
-#include "binding.hpp"
-#include "managers/manager.hpp"
+#include "bindings.hpp"
+#include "core/printing.hpp"
+#include "core/type_helpers.hpp"
+#include "math/containers.hpp"
 
-#include <glm/vec2.hpp>
+struct MouseMotionData
+{
+    Position mouse_current{};
+    Position mouse_last{};
+    Motion   mouse_motion{};
+};
 
 class InputEvent
 {
 public:
-    void UpdateMouseMotion(const glm::vec2& CurrentMouse, const glm::vec2& LastMouse);
+    virtual ~InputEvent() = default;
 
-    const glm::vec2& CurrentMousePosition() const;
-    const glm::vec2& LastMousePosition() const;
-    glm::vec2 MouseMotion() const;
+    // InputEventMouseMotion
+    virtual constexpr bool IsMouseMotion()                   const { return false; }
+    virtual FARG(Position) MousePosition()                   const { sPrintMouseWarning("MousePosition");     return sDefaultMouseData.mouse_current; }
+    virtual FARG(Position) LastMousePosition()               const { sPrintMouseWarning("LastMousePosition"); return sDefaultMouseData.mouse_last;    }
+    virtual FARG(Motion)   MouseMotion()                     const { sPrintMouseWarning("MouseMotion");       return sDefaultMouseData.mouse_motion;  }
+    // InputEventAction
+    virtual constexpr bool IsAction(FARG(std::string))       const { return false; }
+    virtual constexpr bool IsActive(FARG(std::string))       const { return false; }
+    virtual constexpr bool IsJustChanged(FARG(std::string))  const { return false; }
+    // InputEventBinding
+    virtual constexpr bool IsBinding(KeyArg)                 const { return false; }
+    virtual constexpr bool IsRepeated(KeyArg)                const { return false; }
+    virtual constexpr bool IsPressed(KeyArg)                 const { return false; }
+    virtual constexpr bool IsReleased(KeyArg)                const { return false; }
+    virtual constexpr bool IsJustPressed(KeyArg)             const { return false; }
+    virtual constexpr bool IsJustReleased(KeyArg)            const { return false; }
+    virtual constexpr const Key::Modifiers& GetModifiers()   const { return EmptyModifiers; }
 
-    InputStatus StateOf(const ID&) const;
-    bool IsKeyDown(const ID&) const;
-    bool IsKeyUp(const ID&) const;
-    bool IsKeyPressed(const ID&) const;
-    bool IsKeyReleased(const ID&) const;
-    bool IsMouseCaptured() const;
-
-    template<IDType... IDArgs>
-        bool AreKeysDown(IDArgs... KeyIDs) const
-        {
-            for(auto id : {KeyIDs...})
-                { if(!IsKeyDown(id)) { return false; } }
-            return true;
-        }
-    template<IDType... IDArgs>
-        bool AreKeysUp(IDArgs... KeyIDs) const
-        {
-            for(auto id : {KeyIDs...})
-                { if(!IsKeyUp(id)) { return false; } }
-            return true;
-        }
-    template<IDType... IDArgs>
-        bool AreKeysPressed(IDArgs... KeyIDs) const
-        {
-            for(auto id : {KeyIDs...})
-                { if(!IsKeyPressed(id)) { return false; } }
-            return true;
-        }
-    template<IDType... IDArgs>
-        bool AreKeysReleased(IDArgs... KeyIDs) const
-        {
-            for(auto id : {KeyIDs...})
-                { if(!IsKeyReleased(id)) { return false; } }
-            return true;
-        }
-
-    template<StringType... StringArgs>
-        bool IsActionDown(StringArgs... Actions) const
-        {
-            for(const auto& input : mInputs)
-                { if(input.IsAction(std::string{Actions}...) && input.Active()) { return true; } }
-            return false;
-        }
-    template<StringType... StringArgs>
-        bool IsActionUp(StringArgs... Actions) const
-        {
-            for(const auto& input : mInputs)
-                { if(input.IsAction(std::string{Actions}...) && input.Inactive()) { return true; } }
-            return false;
-        }
-    template<StringType... StringArgs>
-        bool IsActionPressed(StringArgs... Actions) const
-        {
-            for(const auto& input : mInputs)
-                { if(input.IsAction(std::string{Actions}...) && input.JustActivated()) { return true; } }
-            return false;
-        }
-    template<StringType... StringArgs>
-        bool IsActionReleased(StringArgs... Actions) const
-        {
-            for(const auto& input : mInputs)
-                { if(input.IsAction(std::string{Actions}...) && input.JustDeactivated()) { return true; } }
-            return false;
-        }
-
-    bool empty() const;
-    bool add(const InputBinding&);
-    bool erase(const InputBinding&);
-    void clear();
-
-    std::string Log() const;
-    std::string DemoString() const;
+protected:
+    inline static MouseMotionData sDefaultMouseData{};
+    inline static void sPrintMouseWarning(const char* inFunction)
+    { print_warningv(VERBOSE0, "\x1b[1m`InputEvent::{}`:\x1b[22m this \x1b[1mInputEvent\x1b[22m is \x1b[1mNOT\x1b[22m mouse motion!", inFunction); }
 
 private:
-    long mTick{IManager::TickNumber()};
-    std::set<InputBinding> mInputs{};
-    glm::vec2 mCurMousePos{0.0f};
-    glm::vec2 mLastMousePos{0.0f};
-
-    typedef bool (InputBinding::*InputQueryFunction)() const;
-    bool QueryInput(const ID&, InputQueryFunction) const;
+    inline static const Key::Modifiers EmptyModifiers{};
 };
 
-#endif // EVENT_H
+class InputEventMouseMotion : InputEvent
+{
+public:
+    constexpr InputEventMouseMotion();
+    constexpr InputEventMouseMotion(FARG(Position) inCurrentPos, FARG(Position) inLastPos);
+
+    constexpr bool IsMouseMotion() const final;
+    FARG(Position) MousePosition() const final;
+    FARG(Position) LastMousePosition() const final;
+    FARG(Motion) MouseMotion() const final;
+
+private:
+    Position mMousePosition{};
+    Position mLastMousePosition{};
+    Motion   mMouseMotion{mMousePosition - mLastMousePosition};
+};
+
+class InputEventAction : public InputEvent
+{
+public:
+    constexpr InputEventAction(FARG(std::string), bool isActive, bool isJustChanged = false);
+
+    constexpr bool IsAction(FARG(std::string)) const final;
+    constexpr bool IsActive(FARG(std::string)) const final;
+    constexpr bool IsJustChanged(FARG(std::string)) const final;
+
+private:
+    std::string mAction{""};
+    bool mActive{true};
+    bool mJustChanged{false};
+};
+
+class InputEventBinding : public InputEvent
+{
+public:
+    constexpr InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated = false, bool isJustChanged = false);
+
+    constexpr bool IsBinding(KeyArg)      const final;
+    constexpr bool IsPressed(KeyArg)      const final;
+    constexpr bool IsRepeated(KeyArg)     const final;
+    constexpr bool IsReleased(KeyArg)     const final;
+    constexpr bool IsJustPressed(KeyArg)  const final;
+    constexpr bool IsJustReleased(KeyArg) const final;
+
+    constexpr const Key::Modifiers& GetModifiers() const final;
+
+private:
+    friend class InputEventQueue;
+    KeyID mID{};
+    Key::Modifiers mModifiers{};
+    bool mPressed{true};
+    bool mRepeated{false};
+    bool mJustChanged{false};
+};
+
+#endif // INPUT_EVENT_H
