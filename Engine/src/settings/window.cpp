@@ -51,7 +51,7 @@ const char* Window::c_Name()
 bool Window::Fullscreen()
 { return sIsFullscreen; }
 
-const position_t& Window::Position()
+const Position& Window::Position()
 { return Info().position; }
 
 const scale_t& Window::Size()
@@ -60,7 +60,7 @@ const scale_t& Window::Size()
 const scale_t& Window::FramebufferSize()
 { return Info().framebuffer_size; }
 
-const position_t& Window::FramebufferPosition()
+const Position& Window::FramebufferPosition()
 { return Info().framebuffer_position; }
 
 bool Window::ToggleFullscreen()
@@ -72,7 +72,7 @@ void Window::setFullscreen(bool fullscreen)
 void Window::setName(const std::string& name)
 { sName = sFullscreenInfo.name = sWindowedInfo.name = name; s_UpdateWindow(); }
 
-void Window::setPosition(const position_t& position)
+void Window::setPosition(const Position& position)
 { s_Info().position = position; s_UpdateWindow(); }
 
 void Window::setSize(const scale_t& size)
@@ -81,7 +81,7 @@ void Window::setSize(const scale_t& size)
 void Window::setFramebufferSize(const scale_t& size)
 { s_Info().framebuffer_size = size; s_UpdateWindow(); }
 
-void Window::setFramebufferPosition(const position_t& position)
+void Window::setFramebufferPosition(const Position& position)
 { s_Info().framebuffer_position = position; s_UpdateWindow(); }
 
 #endif // DO_NOT_COMPILE
