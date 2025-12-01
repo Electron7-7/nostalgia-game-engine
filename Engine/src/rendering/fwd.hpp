@@ -4,8 +4,8 @@
 struct RenderCommand;
 struct Vertex;
 class ShaderInterface;
-struct WindowInfo;
-struct scale_t;
-struct position_t;
+class IRendererAPI;
+class RendererCommon;
+class IGraphicsContext;
 
 #endif // RENDERING_FWD_H

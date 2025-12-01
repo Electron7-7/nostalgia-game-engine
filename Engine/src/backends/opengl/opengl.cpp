@@ -30,7 +30,7 @@ static uint sIBO{0};
 
 bool OpenGL_Backend::Init()
 {
-    print_debug("OpenGL_Backend::Init");
+    PRINT_PRETTY_FUNCTION;
     print_debug("OpenGL Version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
     glGenVertexArrays(VAOS_AMOUNT, mVAOs.data());
@@ -55,7 +55,7 @@ bool OpenGL_Backend::Init()
 bool OpenGL_Backend::InitImGui()
 {
     if(!ImGui_ImplOpenGL3_Init())
-        { return print_error("GLFW_Backend::InitImGui - ImGui_ImplOpenGL3_Init returned false!"); }
+        { return print_error("ImGui_ImplOpenGL3_Init returned false!"); }
     return true;
 }
 
@@ -77,7 +77,7 @@ void OpenGL_Backend::BufferMesh(const FileData& data, const ID& id)
 
 void OpenGL_Backend::BufferTexture(const FileData& data, const ID& texture_id)
 {
-    #pragma message("TODO: Only flip images that need to be flipped")
+#pragma message("TODO: Only flip images that need to be flipped")
     stbi_set_flip_vertically_on_load(true);
 
     uint id{0};
@@ -88,13 +88,13 @@ void OpenGL_Backend::BufferTexture(const FileData& data, const ID& texture_id)
 
     if(!l_Data)
     {
-        print_error("OpenGL_Backend::BufferTexture - Failed to load Texture");
+        print_error("Failed to load Texture");
         glDeleteTextures(1, &id);
         return;
     }
 
     // glTextureStorage2D(id, 1, GL_RGB, l_Width, l_Height);
-    #pragma message("FIXME: I don't know how to properly use 'glTextureSubImage2D' yet")
+#pragma message("FIXME: I don't know how to properly use 'glTextureSubImage2D' yet")
     glBindTexture(GL_TEXTURE_2D, id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, l_Width, l_Height , 0, GL_RGB, GL_UNSIGNED_BYTE, l_Data);
     glGenerateTextureMipmap(id);
@@ -173,7 +173,7 @@ bool OpenGL_Backend::BindShader(const ID& shader)
 {
     if(!mShaders.contains(shader))
     {
-        print_warning("OpenGL_Backend::BindShader - invalid shader label! Returning false");
+        print_warning("invalid shader label! Returning false");
         return false;
     }
     glUseProgram(static_cast<uint>(mShaders.at(shader).id()));
@@ -196,7 +196,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(const ID& shader_selection) con
     ID selected_shader{shader_selection};
     if(!mShaders.contains(shader_selection))
     {
-        print_error("OpenGL_Backend::GetShader - Invalid shader ID: '{}'. Returning the safety shader", shader_selection);
+        print_error("Invalid shader ID: '{}'. Returning the safety shader", shader_selection);
         selected_shader = Shaders::BlinnPhong;
     }
     return &mShaders.at(shader_selection);
@@ -204,7 +204,7 @@ const ShaderInterface* OpenGL_Backend::GetShader(const ID& shader_selection) con
 
 void OpenGL_Backend::SetLight(light_t* light, const ID& shader)
 {
-    #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
+#pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
     std::string l_Light = std::format("_lights[{}].", light->Index());
     switch(light->Type())
     {
@@ -279,7 +279,7 @@ void OpenGL_Backend::RenderSingleCommand(const RenderCommand& rendercmd)
 
     UpdateViewport(CurrentViewport());
     if(!BindShader(shader))
-        { print_error("OpenGL_Backend::RenderSingleCommand - failed to bind shader '{}' ({})", shader.name(), (uint)shader); return; }
+        { print_error("failed to bind shader '{}' ({})", shader.name(), (uint)shader); return; }
 
     OpenGL_MeshData* data = GetMeshData(mesh_instance->GetMeshID());
     glDrawElementsBaseVertex(GL_TRIANGLES, data->indices_count, GL_UNSIGNED_INT, (void*)(sizeof(uint) * data->base_index), data->base_vertex);

@@ -1,27 +1,26 @@
 #ifndef GL_SHADER_H
 #define GL_SHADER_H
 
-#include "rendering/shader_interface.hpp"
+#include "rendering/shader.hpp"
 
-class GLShader : public ShaderInterface
+class GLShader : public IShader
 {
 public:
     virtual ~GLShader() = default;
 
-    bool CompileShader(const std::string& VertexShaderCode, const std::string& FragmentShaderCode);
-    bool IsValid() const final;
+    bool CompileShader(FARG(std::string) VertexShaderCode, FARG(std::string) FragmentShaderCode);
 
-    void SetUniform(const std::string& Name, int Value) const final;
-    void SetUniform(const std::string& Name, float Value) const final;
-    void SetUniform(const std::string& Name, glm::vec2 Value) const final;
-    void SetUniform(const std::string& Name, glm::vec3 Value) const final;
-    void SetUniform(const std::string& Name, glm::vec4 Value) const final;
-    void SetUniform(const std::string& Name, glm::mat3 Value) const final;
-    void SetUniform(const std::string& Name, glm::mat4 Value) const final;
+    void SetUniform(FARG(std::string), FARG(int))       const final;
+    void SetUniform(FARG(std::string), FARG(float))     const final;
+    void SetUniform(FARG(std::string), FARG(glm::vec2)) const final;
+    void SetUniform(FARG(std::string), FARG(glm::vec3)) const final;
+    void SetUniform(FARG(std::string), FARG(glm::vec4)) const final;
+    void SetUniform(FARG(std::string), FARG(glm::mat3)) const final;
+    void SetUniform(FARG(std::string), FARG(glm::mat4)) const final;
 
 private:
-    bool GLShaderErrorHandler(const ID& ID, bool IsLinkingInsteadOfCompiling = false) const;
-    bool GLShaderClear(const ID& ID);
+    bool GLShaderErrorHandler(FARG(ID), bool IsLinkingInsteadOfCompiling = false) const;
+    bool GLShaderClear(FARG(ID));
 };
 
 #endif // GL_SHADER_H

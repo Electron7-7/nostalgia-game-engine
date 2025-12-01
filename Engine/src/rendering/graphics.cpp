@@ -49,7 +49,7 @@ const Viewport& GraphicsBackend::GetViewport(const ID& id)
 {
     if(!IsViewportAt(id))
     {
-        print_warning("GraphicsBackend::GetViewport - invalid id {}, the window viewport will be returned instead", id);
+        print_warning("invalid id {}, the window viewport will be returned instead", id);
         return WindowViewport();
     }
     return mViewports.at(id);
@@ -62,7 +62,7 @@ const Viewport& GraphicsBackend::CurrentViewport()
 {
     if(!IsViewportAt(mCurrentViewport))
     {
-        print_warning("GraphicsBackend::GetCurrentViewport - current viewport id {} is invalid; setting it to the window viewport", mCurrentViewport);
+        print_warning("current viewport id {} is invalid; setting it to the window viewport", mCurrentViewport);
         mCurrentViewport = ViewportIDs::Window;
     }
     return mViewports[mCurrentViewport];
@@ -71,7 +71,7 @@ const Viewport& GraphicsBackend::CurrentViewport()
 bool GraphicsBackend::SetViewport(const ID& id, const Viewport& viewport)
 {
     if(id == ViewportIDs::Window)
-        { return print_warning("GraphicsBackend::SetViewport - cannot change the window viewport with this function, please use `GraphicsBackend::SetWindowViewport` instead"); }
+        { return print_warning("cannot change the window viewport with this function, please use `GraphicsBackend::SetWindowViewport` instead"); }
     else if(!IsViewportAt(id))
         { return false; }
     mViewports[id] = viewport;
@@ -98,7 +98,7 @@ id_t GraphicsBackend::PushViewport(const Viewport& viewport)
 bool GraphicsBackend::PopViewport(const ID& id)
 {
     if(id == ViewportIDs::Window)
-        { return print_error("GraphicsBackend::PopViewport - cannot remove the window viewport"); }
+        { return print_error("cannot remove the window viewport"); }
     return mViewports.erase(id) > 0;
 }
 
@@ -114,7 +114,7 @@ bool GraphicsBackend::CreateMeshData(std::vector<float>& vertices, std::vector<u
         break;
     case FileType::Unknown:
     default:
-        print_warning("GraphicsBackend::CreateMeshData - Data of unknown file-type cannot be buffered");
+        print_warning("Data of unknown file-type cannot be buffered");
         return false;
     }
     return true;
@@ -129,11 +129,11 @@ bool s_CreateOBJMesh(std::vector<float>& vertices, std::vector<unsigned int>& in
     if(!reader.ParseFromString(data.String(), "", reader_config))
     {
         if(!reader.Error().empty())
-            { return print_error("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Error: '{}'", reader.Error()); }
+            { return print_error("TinyObjReader Error: '{}'", reader.Error()); }
     }
 
     if(!reader.Warning().empty())
-        { print_warning("GraphicsBackend::try_CreateOBJMesh - TinyObjReader Warning: '{}'", reader.Warning()); }
+        { print_warning("TinyObjReader Warning: '{}'", reader.Warning()); }
 
     auto& attrib = reader.GetAttrib();
     auto& shapes = reader.GetShapes();

@@ -5,9 +5,9 @@
 
 struct Viewport
 {
-    Viewport(const scale_t& = {1, 1}, const position_t& = {0, 0});
+    Viewport(const scale_t& = {1, 1}, const Position& = {0, 0});
 
-    position_t position{};
+    Position position{};
     scale_t scale{};
 
     bool operator==(const Viewport&) const;

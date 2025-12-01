@@ -3,7 +3,7 @@
 
 #include "things/fwd.hpp"
 #include "core/id.hpp"
-#include "shader_interface.hpp"
+#include "shader.hpp"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -11,7 +11,7 @@
 struct RenderCommand
 {
 public:
-    RenderCommand(std::shared_ptr<Actor>, const ID& ShaderID = Shaders::BlinnPhong);
+    RenderCommand(std::shared_ptr<Actor>, FARG(ID) ShaderID = Shaders::BlinnPhong);
 
     ID shader{Shaders::BlinnPhong};
     ID mesh_instance{ID::Invalid};
