@@ -1,8 +1,14 @@
 #ifndef INPUT_FWD_H
 #define INPUT_FWD_H
 
-class InputBinding;
-class InputEvent;
-struct InputActions;
+struct InputBindingID;
+
+class  InputAction;
+class  InputEvent;
+class  InputEventQueue;
+struct KeyID;
+
+typedef const KeyID& KeyArg;
+typedef void (*InputEventCallback)(InputEvent*);
 
 #endif // INPUT_FWD_H
