@@ -3,8 +3,28 @@
 
 #include "string_concepts.hpp"
 #include "string_transform.hpp"
+#include "frozen/string.h"
+#include "core/globals.hpp"
 
-#include <format>
+#include <algorithm>
+
+#define FROZEN const frozen::string& Frozen
+#define STRING const    std::string& String
+
+constexpr bool operator==(FROZEN, STRING)
+{ return !String.compare(Frozen.data()); }
+
+constexpr bool operator!=(FROZEN, STRING)
+{ return !(Frozen == String); }
+
+constexpr bool operator< (FROZEN, STRING)
+{ return std::lexicographical_compare(Frozen.begin(), Frozen.end(), String.cbegin(), String.cend()); }
+
+constexpr bool operator< (STRING, FROZEN)
+{ return std::lexicographical_compare(String.cbegin(), String.cend(), Frozen.begin(), Frozen.end()); }
+
+#undef FROZEN
+#undef STRING
 
 constexpr bool gCompareCStrings(const char* Left, const char* Right)
 {
@@ -23,7 +43,7 @@ constexpr bool gCompareCStrings(const char* Left, const char* Right)
 
 template<StringType T>
 constexpr bool gCompareToBool(const T& inString, bool CompareTo)
-{ return !gGetLowercase(inString).compare(std::format("{}", CompareTo)); }
+{ return !gGetLowercase(inString).compare((CompareTo) ? gTrue : gFalse); }
 
 template<StringContainer T>
 constexpr bool gIsBool(const T& inString)
