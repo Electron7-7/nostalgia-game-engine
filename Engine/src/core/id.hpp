@@ -2,104 +2,105 @@
 #define ID_H
 
 #include "embedded/names.hpp"
+#include "common/concepts.hpp"
 #include "common/hash.hpp"
-#include "frozen/set.h"
 #include "frozen/map.h"
 
+#include <map>
 #include <string>
 #include <format>
 
-// Forward Declarations
-struct ID;
-namespace UniqueID
-{ extern bool Erase(const ID&); }
+#define ConstexprID constexpr ConstexprID_t
 
-struct ID
+struct base_id
 {
 public:
-    constexpr ID() = default;
+    constexpr base_id() noexcept = default;
+    constexpr base_id(id_t inID)                     noexcept: id_{inID}                      {}
+    constexpr base_id(const char* inHashable)        noexcept: id_{ConstexprHash(inHashable)} {}
+    constexpr base_id(const std::string& inHashable) noexcept: id_{ConstexprHash(inHashable)} {}
 
-    constexpr ID(id_t id):
-        id_{id} {}
+    constexpr ~base_id() noexcept {}
 
-    constexpr ID(const std::string& name):
-        id_{ConstexprHash(name.data())}, name_{name} {}
+    constexpr id_t operator()() const { return id_; }
+    constexpr operator id_t()   const { return id_; }
+    constexpr bool  invalid()   const { return id_ == Invalid; }
 
-    // Used primarily by 'constexpr' IDs in switch statements
-    consteval id_t v() const
-    { return id_; }
-    constexpr id_t operator()() const
-    { return id_; }
-    explicit constexpr operator id_t() const
-    { return id_; }
+    virtual const std::string& name() const { return s_cEmpty;        }
+    virtual const char*      c_name() const { return s_cEmpty.data(); }
 
-    constexpr const std::string& name() const
-    { return name_; }
-    constexpr const char* c_name() const
-    { return name_.data(); }
-    constexpr bool operator<(const ID& Other) const
-    { return id_ < Other.id_; }
-    constexpr ID operator+(int Other) const
-    { return ID{id_ + Other, name_}; }
-    constexpr bool operator==(const ID& Other) const
-    { return id_ == Other.id_; }
-    constexpr bool operator!=(const ID& Other) const
-    { return id_ != Other.id_; }
-    constexpr ID operator=(const ID& Other)
-    {
-        id_ = Other.id_;
-        if(!Other.name_.empty())
-            { name_ = Other.name_; }
-        return *this;
-    }
-    constexpr ID operator=(id_t Other)
-    {
-        id_ = Other;
-        return *this;
-    }
+    std::string log() const noexcept
+    { return std::format("id {}#{}", (id_ == Invalid) ? "Invalid" : name(), id_); }
 
-    constexpr id_t clear(bool do_unique_id_check_and_clear = true)
-    {
-        if(do_unique_id_check_and_clear)
-            { UniqueID::Erase(id_); }
-        id_t cleared_id{id_};
-        id_ = ID::Invalid;
-        name_.clear();
-        return cleared_id;
-    }
-
-    constexpr bool invalid() const
-    { return id_ == ID::Invalid; }
-
-    constexpr std::string log() const
-    {
-        if(name_.empty())
-            { return (id_ == ID::Invalid) ? std::format("id #{}", id_) : std::format("id 'Invalid' [{}]", id_); }
-        return std::format("id '{}' [{}]", name_, id_);
-    }
-
-    static constexpr id_t Invalid {static_cast<unsigned int>(-1)}; // Same as `UINT_MAX`
+    static constexpr id_t Invalid {static_cast<id_t>(-1)}; // Same as `UINT_MAX`
     static constexpr id_t front   {0};
     static constexpr id_t back    {Invalid - 1};
 
     static id_t Generate();
 
+protected:
+    id_t id_{Invalid};
+
 private:
-    constexpr ID(id_t id, const std::string& str):
-        id_{id}, name_{str} {}
-    id_t id_{ID::Invalid};
-    std::string name_{""};
+    inline static const std::string s_cEmpty{""};
 };
 
-template<typename T>
-    concept IDType = std::is_same_v<ID,T> || std::is_constructible_v<ID,T> || std::is_convertible_v<ID,T>;
-
-template<>
-struct std::formatter<ID> : std::formatter<std::string>
+struct ConstexprID_t : public base_id
 {
-    auto format(ID id, std::format_context& ctx) const
-    { return std::formatter<std::string>::format(id.log(), ctx); }
+public:
+    consteval ConstexprID_t() noexcept = default;
+    consteval ConstexprID_t(id_t inID)                     noexcept: base_id{inID}                      {}
+    consteval ConstexprID_t(const char* inHashable)        noexcept: base_id{ConstexprHash(inHashable)} {}
+    consteval ConstexprID_t(const std::string& inHashable) noexcept: base_id{ConstexprHash(inHashable)} {}
+
+    constexpr ~ConstexprID_t() noexcept {}
+
+    template<typename T> requires is_similar<T, ConstexprID_t>
+        consteval ConstexprID_t operator+(const T& Other) const { return ConstexprID_t{id_ + Other}; }
 };
+
+struct ID final : public base_id
+{
+    ID() noexcept = default;
+
+    ID(id_t inID, const std::string& inName = ""):
+        base_id{inID}
+    { sNameLookup[id_] = inName; }
+
+    ID(const std::string& inHashable) noexcept:
+        base_id{inHashable}
+    { sNameLookup[id_] = inHashable; }
+
+    ID(const char* inHashable) noexcept:
+        base_id{inHashable}
+    { sNameLookup[id_] = inHashable; }
+
+    ~ID() noexcept
+    { sNameLookup.erase(id_); }
+
+    const std::string&   name() const final { return sNameLookup[id_];        }
+    const char*        c_name() const final { return sNameLookup[id_].data(); }
+
+    template<typename T> requires is_similar<T, ID>
+        ID operator+(const T& Other) const { return ID{id_ + Other, sNameLookup[id_]}; }
+
+private:
+    inline static std::map<uint, std::string> sNameLookup{};
+};
+
+#define ID_FORMATTER(TYPE, FORMATTER, RETURN) \
+template<> \
+struct std::formatter<TYPE> : std::formatter<FORMATTER> \
+{ \
+    auto format(TYPE id, std::format_context& ctx) const \
+    { return std::formatter<FORMATTER>::format(RETURN, ctx); } \
+};
+
+ID_FORMATTER(base_id*, std::string, id->log())
+ID_FORMATTER(ID, base_id*, &id)
+ID_FORMATTER(ConstexprID_t, base_id*, &id)
+
+#undef ID_FORMATTER
 
 namespace UniqueID
 {
@@ -116,25 +117,25 @@ namespace UniqueID
     // Reserved UIDs
     namespace Reserved
     {
-        constexpr ID Player = 0x1;
+        ConstexprID Player{0x1};
         // Images
-        constexpr ID i_Missing    = 0x2;
-        constexpr ID i_LightDebug = 0x3;
-        constexpr ID i_COMP04_5   = 0x4;
-        constexpr ID i_LolBit     = 0x5;
+        ConstexprID i_Missing{0x2};
+        ConstexprID i_LightDebug{0x3};
+        ConstexprID i_COMP04_5{0x4};
+        ConstexprID i_LolBit{0x5};
         // Models
-        constexpr ID m_Error  = 0x6;
-        constexpr ID m_Cube   = 0x7;
-        constexpr ID m_Ramiel = 0x8;
+        ConstexprID m_Error{0x6};
+        ConstexprID m_Cube{0x7};
+        ConstexprID m_Ramiel{0x8};
         // Fonts
-        constexpr ID f_Verdana    = 0x9;
-        constexpr ID f_DejaVuSans = 0xA;
-        constexpr ID f_Audiowide  = 0xB;
+        ConstexprID f_Verdana{0x9};
+        ConstexprID f_DejaVuSans{0xA};
+        ConstexprID f_Audiowide{0xB};
         // Boundaries
-        constexpr ID front = Player;
-        constexpr ID back  = f_Audiowide;
+        ConstexprID back{f_Audiowide};
+        ConstexprID front{Player};
 
-        constexpr frozen::map<ID, std::string, 10>
+        constexpr frozen::map<ConstexprID_t, std::string, 10>
         EmbeddedResourceNames =
         {
             {     i_Missing, Images::Name::Missing    },
@@ -151,101 +152,8 @@ namespace UniqueID
     };
 
     // Boundaries
-    constexpr ID front = (Reserved::back + 1);
-    constexpr ID back  = (ID::Invalid);
-};
-
-namespace BindingID
-{
-    constexpr ID KeyZERO         {"0"};
-    constexpr ID KeyONE          {"1"};
-    constexpr ID KeyTWO          {"2"};
-    constexpr ID KeyTHREE        {"3"};
-    constexpr ID KeyFOUR         {"4"};
-    constexpr ID KeyFIVE         {"5"};
-    constexpr ID KeySIX          {"6"};
-    constexpr ID KeySEVEN        {"7"};
-    constexpr ID KeyEIGHT        {"8"};
-    constexpr ID KeyNINE         {"9"};
-    constexpr ID KeyA            {"A"};
-    constexpr ID KeyB            {"B"};
-    constexpr ID KeyC            {"C"};
-    constexpr ID KeyD            {"D"};
-    constexpr ID KeyE            {"E"};
-    constexpr ID KeyF            {"F"};
-    constexpr ID KeyG            {"G"};
-    constexpr ID KeyH            {"H"};
-    constexpr ID KeyI            {"I"};
-    constexpr ID KeyJ            {"J"};
-    constexpr ID KeyK            {"K"};
-    constexpr ID KeyL            {"L"};
-    constexpr ID KeyM            {"M"};
-    constexpr ID KeyN            {"N"};
-    constexpr ID KeyO            {"O"};
-    constexpr ID KeyP            {"P"};
-    constexpr ID KeyQ            {"Q"};
-    constexpr ID KeyR            {"R"};
-    constexpr ID KeyS            {"S"};
-    constexpr ID KeyT            {"T"};
-    constexpr ID KeyU            {"U"};
-    constexpr ID KeyV            {"V"};
-    constexpr ID KeyW            {"W"};
-    constexpr ID KeyX            {"X"};
-    constexpr ID KeyY            {"Y"};
-    constexpr ID KeyZ            {"Z"};
-    constexpr ID KeyLEFTSHIFT    {"LShift"};
-    constexpr ID KeyRIGHTSHIFT   {"RShift"};
-    constexpr ID KeyLEFTCONTROL  {"LCtrl"};
-    constexpr ID KeyRIGHTCONTROL {"RCtrl"};
-    constexpr ID KeyLEFTALT      {"LAlt"};
-    constexpr ID KeyRIGHTALT     {"RAlt"};
-    constexpr ID KeyFUNCTION     {"Fn"};
-    constexpr ID KeyLEFTSUPER    {"LSuper"};
-    constexpr ID KeyRIGHTSUPER   {"RSuper"};
-    constexpr ID KeyENTER        {"Enter"};
-    constexpr ID KeyBACKSPACE    {"Backspace"};
-    constexpr ID KeyTAB          {"Tab"};
-    constexpr ID KeySPACE        {"Space"};
-    constexpr ID KeyESC          {"Escape"};
-    constexpr ID MouseLEFT       {"LeftMouse"};
-    constexpr ID MouseRIGHT      {"RightMouse"};
-    constexpr ID MouseMIDDLE     {"MiddleMouse"};
-
-    constexpr uint KeyIDsCount{50};
-    constexpr uint MouseButtonIDsCount{3};
-
-    // TODO: Expand this list
-    constexpr frozen::set<ID, KeyIDsCount>
-    KeyIDs {
-        KeyZERO, KeyONE, KeyTWO, KeyTHREE, KeyFOUR, KeyFIVE, KeySIX, KeySEVEN, KeyEIGHT, KeyNINE,
-        KeyLEFTSHIFT, KeyRIGHTSHIFT, KeyLEFTCONTROL,  KeyLEFTALT,  KeyFUNCTION,  KeyENTER, KeyESC,
-        KeyLEFTSUPER, KeyRIGHTSUPER, KeyRIGHTCONTROL, KeyRIGHTALT, KeyBACKSPACE, KeySPACE, KeyTAB,
-        KeyA, KeyB, KeyC, KeyD, KeyE, KeyF, KeyG, KeyH, KeyI, KeyJ, KeyK, KeyL, KeyM,
-        KeyN, KeyO, KeyP, KeyQ, KeyR, KeyS, KeyT, KeyU, KeyV, KeyW, KeyX, KeyY, KeyZ,
-    };
-
-    // TODO: Expand this list
-    constexpr frozen::set<ID, MouseButtonIDsCount>
-    MouseButtonIDs {
-        MouseLEFT, MouseRIGHT, MouseMIDDLE,
-    };
-
-    constexpr bool IsKey(const ID& BindingI)
-    { return KeyIDs.contains(BindingI); }
-
-    constexpr bool IsMouseButton(const ID& BindingI)
-    { return MouseButtonIDs.contains(BindingI); }
-
-    constexpr bool IsBinding(const ID& BindingI)
-    { return IsKey(BindingI) || IsMouseButton(BindingI); }
-
-    constexpr void GetAllBindingIDs(std::vector<ID>& outVector)
-    {
-        outVector.reserve(KeyIDsCount + MouseButtonIDsCount);
-        std::merge(BindingID::KeyIDs.cbegin(), BindingID::KeyIDs.cend(),
-            BindingID::MouseButtonIDs.cbegin(), BindingID::MouseButtonIDs.cend(),
-            std::inserter(outVector, outVector.begin()));
-    }
+    ConstexprID back{ID::Invalid};
+    ConstexprID front{Reserved::back + 1};
 };
 
 namespace ViewportID
