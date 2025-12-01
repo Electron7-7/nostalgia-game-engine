@@ -1,6 +1,6 @@
 #include "nostalgia_player.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "input/event.hpp"
+#include "events/event.hpp"
 #include "settings/player.hpp"
 #include "math/glm_operators.hpp"
 

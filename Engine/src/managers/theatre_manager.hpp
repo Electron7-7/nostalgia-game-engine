@@ -6,7 +6,7 @@
 
 #include "core/safe_return.hpp"
 #include "manager.hpp"
-#include "input/event.hpp"
+#include "events/event.hpp"
 #include "things/thing_factory.hpp"
 
 #include <memory>

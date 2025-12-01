@@ -5,7 +5,7 @@
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
-#include "input/demo_controller.hpp"
+#include "events/demo_controller.hpp"
 #include "managers/manager.hpp"
 #include "managers/event_manager"
 #include "managers/theatre_manager.hpp"

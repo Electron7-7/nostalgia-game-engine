@@ -2,7 +2,7 @@
 #define UI_IMPLEMENTOR_H
 
 #include "fwd.hpp"
-#include "input/fwd.hpp"
+#include "events/fwd.hpp"
 
 #include "core/id.hpp"
 #include "core/type_helpers.hpp"

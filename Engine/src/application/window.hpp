@@ -2,7 +2,7 @@
 #define WINDOW_H
 
 #include "fwd.hpp"
-#include "input/fwd.hpp"
+#include "events/fwd.hpp"
 
 #include "core/type_helpers.hpp"
 #include "core/error.hpp"

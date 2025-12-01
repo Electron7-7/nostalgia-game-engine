@@ -1,7 +1,7 @@
 #ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
-#include "input/fwd.hpp"
+#include "events/fwd.hpp"
 
 #include "manager.hpp"
 #include "core/id.hpp"

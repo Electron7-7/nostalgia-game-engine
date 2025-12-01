@@ -1,6 +1,6 @@
 #include "nostalgia_goggles.hpp"
 #include "application/window.hpp"
-#include "input/event.hpp"
+#include "events/event.hpp"
 #include "managers/event_manager"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"

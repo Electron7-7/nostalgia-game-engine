@@ -3,7 +3,7 @@
 #include "physics_manager.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "theatre/parser/theatre_parser.hpp"
-#include "input/demo_controller.hpp"
+#include "events/demo_controller.hpp"
 #include "things/thing.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"

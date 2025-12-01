@@ -1,6 +1,6 @@
 #include "imgui_editor.hpp"
 #include "application/application.hpp"
-#include "input/event.hpp"
+#include "events/event.hpp"
 #include "managers/theatre_manager.hpp"
 #include "rendering/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"

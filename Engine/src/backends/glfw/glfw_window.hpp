@@ -4,7 +4,7 @@
 #include "rendering/fwd.hpp"
 
 #include "application/window.hpp"
-#include "input/bindings.hpp"
+#include "events/bindings.hpp"
 #include "frozen/map.h"
 
 #include <GLFW/glfw3.h>

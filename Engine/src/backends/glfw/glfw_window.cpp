@@ -2,8 +2,8 @@
 #include "application/application.hpp"
 #include "application/monitor.hpp"
 #include "managers/event_manager"
-#include "input/event.hpp"
-#include "input/event_queue.hpp"
+#include "events/event.hpp"
+#include "events/event_queue.hpp"
 #include "rendering/graphics_context.hpp"
 #include "core/printing.hpp"
 

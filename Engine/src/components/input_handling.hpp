@@ -1,7 +1,7 @@
 #ifndef INPUT_HANDLING_COMPONENTS_H
 #define INPUT_HANDLING_COMPONENTS_H
 
-#include "input/fwd.hpp"
+#include "events/fwd.hpp"
 
 #include <vector>
 #include <algorithm>

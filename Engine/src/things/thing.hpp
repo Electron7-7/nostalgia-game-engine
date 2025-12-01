@@ -1,7 +1,7 @@
 #ifndef THING_H
 #define THING_H
 
-#include "input/fwd.hpp"
+#include "events/fwd.hpp"
 #include "theatre/parser/fwd.hpp"
 
 #include "types.hpp"
