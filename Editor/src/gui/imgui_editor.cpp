@@ -1,17 +1,16 @@
-#include "main_window.hpp"
-#include "app/nostalgia_goggles.hpp"
+#include "imgui_editor.hpp"
+#include "application/application.hpp"
 #include "input/event.hpp"
 #include "managers/theatre_manager.hpp"
 #include "rendering/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
+#include "DearImGui/imgui.h"
+#include "DearImGui/imgui_stdlib.h"
 
 #define DISABLED_IF(IS_TRUE, CODE) if(IS_TRUE) { BeginDisabled(); } CODE if(IS_TRUE) { EndDisabled(); }
 
 using namespace ImGui;
-
-static MainWindow sMainWindow{};
-MainWindow* g_pMainWindow{&sMainWindow};
 
 bool gShowDebugWindow{false};
 
@@ -34,21 +33,17 @@ struct std::formatter<ImVec2> : public std::formatter<float[2]>
     { return std::formatter<float[2]>::format({vec2.x, vec2.y}, ctx); }
 };
 
-bool MainWindow::Init()
+Error ImGui_Editor::Init()
 {
-    print_debug("MainWindow::Init");
-    return true; // return g_pBackendManager->Graphics()->UseViewport(ViewportIDs::Editor3DViewport1);
+    PRINT_PRETTY_FUNCTION;
+    return OK; // return g_pBackendManager->Graphics()->UseViewport(ViewportIDs::Editor3DViewport1);
 }
 
-void MainWindow::TheatreStateChanged(bool is_startup)
+void ImGui_Editor::Shutdown()
+{ PRINT_PRETTY_FUNCTION; }
+
+void ImGui_Editor::OnTheatreEntered()
 {
-    if(!is_startup)
-    {
-        sSpawnLocationMaterialID = ID::Invalid;
-        sSpawnLocationMeshInstanceID = ID::Invalid;
-        sSpawnLocationID = ID::Invalid;
-        return;
-    }
     sSpawnLocationMaterialID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_Material",
         ThingType::Material,
@@ -69,7 +64,14 @@ void MainWindow::TheatreStateChanged(bool is_startup)
     });
 }
 
-void MainWindow::Input(const InputEvent& event)
+void ImGui_Editor::OnTheatreExited()
+{
+    sSpawnLocationMaterialID.clear();
+    sSpawnLocationMeshInstanceID.clear();
+    sSpawnLocationID.clear();
+}
+
+void ImGui_Editor::Input(const InputEvent& event)
 {
     if(g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard)
     {
@@ -89,29 +91,28 @@ void MainWindow::Input(const InputEvent& event)
 
 enum ScaleDir
 {
-    UP = 1,
-    DOWN = -1
+    SCALE_DIRECTION_UP   = 1,
+    SCALE_DIRECTION_DOWN = -1
 };
+static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
 
-static ScaleDir sScaleDirection{DOWN};
-
-void MainWindow::Update()
+void ImGui_Editor::Update()
 {
     if(!sSpawnLocationID.invalid())
     {
         auto thingy = g_pTheatreManager->GetThing<Actor>(sSpawnLocationID);
         if(thingy->Scale().y > sSpawnLocationScaleMax)
-            { sScaleDirection = DOWN; }
+            { sScaleDirection = SCALE_DIRECTION_DOWN; }
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
-            { sScaleDirection = UP; }
+            { sScaleDirection = SCALE_DIRECTION_UP; }
         sSpawnLocationScaleSpeed = (int)sScaleDirection * sSpawnLocationScaleSpeedStore;
         thingy->SetEuler(thingy->Euler(true) + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f}, true);
         thingy->SetScale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-    float window_width  = g_pApplication->GetWindow().GetWidth();
-    float window_height = g_pApplication->GetWindow().GetHeight();
+    float window_width  = Application()->GetWindow().GetWidth();
+    float window_height = Application()->GetWindow().GetHeight();
     SetNextWindowSize({window_width, window_height});
     SetNextWindowPos({0, 0});
     if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus))
@@ -125,7 +126,7 @@ void MainWindow::Update()
                 else if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
                     { sShowDemoWindow = true; }
                 else if(MenuItem("Quit", "CTRL+Q"))
-                    { g_pApplication->Stop(); }
+                    { Application()->Stop(); }
                 EndMenu();
             }
             EndMenuBar();
@@ -137,8 +138,8 @@ void MainWindow::Update()
         PopStyleVar();
         if(IsItemClicked())
         {
-            g_pApplication->GetWindow().SetMouseMode(
-                (g_pApplication->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
+            Application()->GetWindow().SetMouseMode(
+                (Application()->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
                     ? IWindow::MOUSE_MODE_DISABLED
                     : IWindow::MOUSE_MODE_VISIBLE);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
