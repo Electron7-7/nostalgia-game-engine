@@ -135,6 +135,7 @@ ENGINE_SRC_DIRS :=                             \
     $(ENGINE_SRC)/backends                     \
     $(ENGINE_SRC)/backends/glfw                \
     $(ENGINE_SRC)/backends/opengl              \
+    $(ENGINE_SRC)/backends/imgui               \
     $(ENGINE_SRC)/common                       \
     $(ENGINE_SRC)/core                         \
     $(ENGINE_SRC)/embedded                     \
