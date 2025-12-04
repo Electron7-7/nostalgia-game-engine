@@ -1,14 +1,15 @@
 #include "event_queue.hpp"
-#include "event.hpp"
 #include "components/input_handling.hpp"
+#include "components/event_handling.hpp"
 
-void InputEventQueue::PushInputEvents()
+void InputEventQueue::DispatchEvents()
 {
     do {} while(mQueueIsBusy);
 
     mQueueIsBusy = true;
     for(auto& event : mEvents)
     {
+        print_debug("InputEvent: {}", event->GetDebugLog());
         OnInputUI::HandleInput(event.get());
         OnInput::HandleInput(event.get());
     }
@@ -24,6 +25,17 @@ void InputEventQueue::clear()
     mQueueIsBusy = false;
 }
 
-template<typename T,class... Args> requires std::derived_from<T,InputEvent> && std::is_constructible_v<T,Args...>
-void InputEventQueue::add(Args&&... inArgs)
-{ mEvents.push_back(MakeUnique<T>(std::forward<Args>(inArgs)...)); }
+void AppEventQueue::add(FARG(AppEvent) inEvent)
+{ mEvents.push_back(inEvent); }
+
+void AppEventQueue::clear()
+{ mEvents.clear(); }
+
+void AppEventQueue::DispatchEvents()
+{
+    do {} while(mQueueIsBusy);
+    mQueueIsBusy = true;
+    for(auto& event : mEvents)
+        { OnAppEvent::HandleEvent(&event); }
+    mQueueIsBusy = false;
+}

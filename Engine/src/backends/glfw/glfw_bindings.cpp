@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#define CONVERT(KeyID, GLFW_KEY) { KeyID, GLFW_KEY },
+#define CONVERT(GLFW_KEY, KeyID) { GLFW_KEY, KeyID() },
 
 constinit frozen::map<GLFWInputID, id_t, Input::KeysCount>
 WindowGLFW::s_cGLFWInputLookup

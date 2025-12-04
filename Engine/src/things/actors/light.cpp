@@ -38,8 +38,8 @@ void light_t::SetVariables(const ThingData& data)
     data.GetVariable(mEnabled, "Enabled");
     if(data.GetVariable(mEnabled, "Disabled"))
     if(mMeshInstanceID == ID::Invalid) { // the debug mesh/material shouldn't override a manually specificed one
-        { mEnabled = !mEnabled; }
-        ID mat_id = g_pTheatreManager->CreateThing({
+        mEnabled = !mEnabled;
+        ID mat_id = g_pTheatreManager->CreateThing(ThingData{
             mName + "_DebugMaterial",
             ThingType::Material,
             UniqueID::Generate(),
@@ -48,7 +48,7 @@ void light_t::SetVariables(const ThingData& data)
                 {true, "FullBright"},
             }
         });
-        mMeshInstanceID = g_pTheatreManager->CreateThing({
+        mMeshInstanceID = g_pTheatreManager->CreateThing(ThingData{
             mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
             UniqueID::Generate(),

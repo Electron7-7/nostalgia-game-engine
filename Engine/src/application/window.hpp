@@ -3,12 +3,12 @@
 
 #include "fwd.hpp"
 #include "events/fwd.hpp"
+#include "math/fwd.hpp"
 
 #include "core/type_helpers.hpp"
 #include "core/error.hpp"
 #include "components/game_loop.hpp"
 #include "common/sanity.hpp"
-#include "math/containers.hpp"
 
 #include <cassert>
 #include <string>
@@ -19,13 +19,13 @@
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION
 #   define WINDOW_SET_SCALE_DECLARATION
-#   define WINDOW_SET_POSITION_DEFINITION(VAR_NAME) static Error __removed(const Position& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Scale& VAR_NAME)
+#   define WINDOW_SET_POSITION_DEFINITION(VAR_NAME) static Error __removed(const Position2D& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Scale2D& VAR_NAME)
 #else  // !WAYLAND_DISPLAY
-#   define WINDOW_SET_POSITION_DECLARATION          Error SetPosition(const Position&) override;
-#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Scale&) override;
-#   define WINDOW_SET_POSITION_DEFINITION(CLASS, VAR_NAME) Error CLASS::SetPosition(const Position& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Scale& VAR_NAME)
+#   define WINDOW_SET_POSITION_DECLARATION          Error SetPosition(const Position2D&) override;
+#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Scale2D&) override;
+#   define WINDOW_SET_POSITION_DEFINITION(CLASS, VAR_NAME) Error CLASS::SetPosition(const Position2D& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Scale2D& VAR_NAME)
 #endif // WAYLAND_DISPLAY
 
 enum NativeWindowType
@@ -95,20 +95,19 @@ public:
     virtual void Update() override = 0;
 
 #ifdef WAYLAND_DISPLAY
-    virtual Error SetPosition(const Position&) { return UNIMPLEMENTED; }
-    virtual Error SetScale(const Scale&)       { return UNIMPLEMENTED; }
+    virtual Error SetPosition(const Position2D&) { return UNIMPLEMENTED; }
+    virtual Error SetScale(const Scale2D&)       { return UNIMPLEMENTED; }
 #else // !WAYLAND_DISPLAY
-    virtual Error SetPosition(const Position&) = 0;
-    virtual Error SetScale(const Scale&)     = 0;
+    virtual Error SetPosition(const Position2D&) = 0;
+    virtual Error SetScale(const Scale2D&)     = 0;
 #endif // WAYLAND_DISPLAY
 
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;
 
-    virtual Position GetMousePosition() = 0;
-    virtual Position GetLastMousePosition() = 0;
-    virtual bool UpdateBinding(KeyID& outInputBinding) = 0;
+    virtual Position2D GetMousePosition() = 0;
+    virtual Position2D GetLastMousePosition() = 0;
     virtual void* GetNativeWindow() const = 0;
     virtual NativeWindowType GetNativeWindowType() const = 0; // Probably not necessary
     virtual const std::unique_ptr<Monitor>& GetPrimaryMonitor() const = 0;
@@ -117,12 +116,12 @@ public:
     virtual Error SetFullscreenMonitor(uint MonitorIndex) = 0;
 
     const char* GetTitle()     const { return mData.title.data(); }
+    Scale2D GetScale()         const;
+    Position2D GetPosition()   const;
     uint GetWidth()            const { return mData.width; }
     uint GetHeight()           const { return mData.height; }
-    Scale GetScale()           const { return {mData.width, mData.height}; }
     int GetXPosition()         const { return mData.x_pos; }
     int GetYPosition()         const { return mData.y_pos; }
-    Position GetPosition()     const { return Position{mData.x_pos, mData.y_pos}; }
     Vsync GetVsync()           const { return mData.vsync; }
     MouseMode GetMouseMode()   const { return mData.mouse_mode; }
     WindowMode GetWindowMode() const { return mData.window_mode; }

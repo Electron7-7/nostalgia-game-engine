@@ -1,6 +1,6 @@
 #include "viewport.hpp"
 
-Viewport::Viewport(const scale_t& _scale, const Position& _position)
+Viewport::Viewport(const Scale2D& _scale, const Position2D& _position)
 :   position{_position}, scale{_scale} {}
 
 bool Viewport::operator==(const Viewport& other) const

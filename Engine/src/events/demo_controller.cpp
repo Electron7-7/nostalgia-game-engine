@@ -1,7 +1,10 @@
+#define DO_NOT_COMPILE
+#ifndef DO_NOT_COMPILE
+
 #include "demo_controller.hpp"
-#include "binding.hpp"
+#include "bindings.hpp"
 #include "managers/theatre_manager.hpp"
-#include "managers/event_manager"
+#include "managers/event_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "theatre/parser/theatre_parser.hpp"
 #include "core/printing.hpp"
@@ -257,3 +260,5 @@ SafeStatus DemoController::ParseLine(const std::string& line, InputEvent& event,
     }
     return Status::DemoControllerLINE_FAILED;
 }
+
+#endif // DO_NOT_COMPILE

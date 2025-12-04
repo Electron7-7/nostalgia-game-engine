@@ -3,7 +3,7 @@
 #include "physics_manager.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "theatre/parser/theatre_parser.hpp"
-#include "events/demo_controller.hpp"
+// #include "events/demo_controller.hpp"
 #include "things/thing.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
@@ -76,7 +76,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     if(!is_first_call)
         { return FINISHED; }
 
-    g_pDemoController->NotifyOfTheatreChange();
+    // g_pDemoController->NotifyOfTheatreChange();
 
     sReadyToRender = false;
 
@@ -94,8 +94,8 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     if(!is_first_call)
         { return FINISHED; }
 
-    g_pDemoController->StopRecording();
-    g_pDemoController->Save();
+    // g_pDemoController->StopRecording();
+    // g_pDemoController->Save();
     sReadyToRender = false;
     DestroyThings();
     // g_pBackendManager->Graphics()->DestroyRenderingData();
@@ -113,7 +113,7 @@ bool TheatreManager::ThingExists(const ID& uid)
 { return mThings.contains(uid); }
 
 ID TheatreManager::GetType(const ID& uid)
-{ return (ThingExists(uid)) ? GetThing(uid)->type() : ID::Invalid; }
+{ return (ThingExists(uid)) ? GetThing(uid)->type() : static_cast<ID>(ID::Invalid); }
 
 void TheatreManager::LoadTheatreData(const TheatreData& data)
 {
@@ -157,13 +157,6 @@ std::vector<ID> TheatreManager::GetThingIDs()
 {
     auto keys = std::views::keys(mThings);
     return {keys.begin(), keys.end()};
-}
-
-void TheatreManager::DelegateInputEvent(const InputEvent& event)
-{
-    sLocalPlayer->Input(event);
-    for(const auto& [id, thing] : mThings)
-        { thing->Input(event); }
 }
 
 const ID& TheatreManager::CreateThing(const ThingData& cData)

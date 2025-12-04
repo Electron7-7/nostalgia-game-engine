@@ -1,8 +1,6 @@
 #ifndef CONTAINERS_H
 #define CONTAINERS_H
 
-#include "fwd.hpp"
-
 #include "concepts.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 
@@ -10,14 +8,31 @@
 #include <sys/types.h>
 #include <glm/fwd.hpp>
 
+#ifdef _MSC_VER
+#   define NO_UNIQUE_ADDRESS [[msvc::no_unique_address]]
+#else // !_MSC_VER
+#   define NO_UNIQUE_ADDRESS [[no_unique_address]]
+#endif // _MSC_VER
+
+#define DEFINE_IF(VECTOR_TYPE) \
+    NO_UNIQUE_ADDRESS std::conditional_t<std::is_same_v<M,VECTOR_TYPE>,T&,__empty>
+
+namespace { struct __empty { template<Number T> constexpr __empty(T) noexcept {} }; }
+
+struct __vector_members_t {};
+namespace VectorMembers
+{
+    struct None : __vector_members_t {};
+    struct XYZ  : __vector_members_t {};
+    struct WHL  : __vector_members_t {};
+    struct RGBA : __vector_members_t {};
+    using RGB = RGBA;
+    using WH  = WHL;
+    using XY  = XYZ;
+}
+
 #define Derived std::derived_from
 #define Same std::is_same_v
-#define __INDEX_ACCESSOR(NAME, VM, INDEX, IS_CONST...) \
-    IS_CONST T& NAME() IS_CONST requires Same<M,VectorMembers::VM> { return array_[INDEX]; }
-#define INDEX_ACCESSOR(NAME, VM, INDEX) \
-    __INDEX_ACCESSOR(NAME, VM, INDEX) \
-    __INDEX_ACCESSOR(NAME, VM, INDEX, const)
-#define NO_OVERFLOW(INDEX) (Length > INDEX) ? INDEX : (Length - 1)
 
 template<ushort Length, Number T, class M>
         requires (Length > 1) && Derived<M,__vector_members_t> && (!Same<M,__vector_members_t>)
@@ -49,27 +64,35 @@ template<ushort Length, Number T, class M>
         constexpr vector(const ImVec2& inImVec2) noexcept:
             array_{static_cast<T>(inImVec2[0]), static_cast<T>(inImVec2[1])} {}
 
+        constexpr vector& operator=(const vector& inVec) noexcept
+        {
+            ushort max_size{(Length < inVec.count()) ? Length : inVec.count()};
+                for(ushort i{0}; i < max_size; ++i)
+                    { array_[i] = inVec[i]; }
+            return *this;
+        }
+
         constexpr vector& operator=(ImVec2& inVec2) noexcept
         { array_[0] = inVec2[0]; array_[1] = inVec2[1]; return *this; }
 
         constexpr operator ImVec2() const noexcept
         { return ImVec2{static_cast<float>(array_[0]), static_cast<float>(array_[1])}; }
 
-        INDEX_ACCESSOR(x, XYZ, 0)
-        INDEX_ACCESSOR(y, XYZ, 1)
-        INDEX_ACCESSOR(z, XYZ, NO_OVERFLOW(2))
+        DEFINE_IF(VectorMembers::XYZ) x{array_[0]};
+        DEFINE_IF(VectorMembers::XYZ) y{array_[1]};
+        DEFINE_IF(VectorMembers::XYZ) z{array_[(Length > 2) ? 2 : 0]};
 
-        INDEX_ACCESSOR(w, WHL, 0)
-        INDEX_ACCESSOR(h, WHL, 1)
-        INDEX_ACCESSOR(l, WHL, NO_OVERFLOW(2))
-        INDEX_ACCESSOR(width, WHL, 0)
-        INDEX_ACCESSOR(height, WHL, 1)
-        INDEX_ACCESSOR(length, WHL, NO_OVERFLOW(2))
+        DEFINE_IF(VectorMembers::WHL) w{array_[0]};
+        DEFINE_IF(VectorMembers::WHL) h{array_[1]};
+        DEFINE_IF(VectorMembers::WHL) l{array_[(Length > 2) ? 2 : 0]};
+        DEFINE_IF(VectorMembers::WHL) width{array_[0]};
+        DEFINE_IF(VectorMembers::WHL) height{array_[1]};
+        DEFINE_IF(VectorMembers::WHL) length{array_[(Length > 2) ? 2 : 0]};
 
-        INDEX_ACCESSOR(r, RGBA, 0)
-        INDEX_ACCESSOR(g, RGBA, 1)
-        INDEX_ACCESSOR(b, RGBA, NO_OVERFLOW(2))
-        INDEX_ACCESSOR(a, RGBA, NO_OVERFLOW(3))
+        DEFINE_IF(VectorMembers::RGBA) r{array_[0]};
+        DEFINE_IF(VectorMembers::RGBA) g{array_[1]};
+        DEFINE_IF(VectorMembers::RGBA) b{array_[(Length > 2) ? 2 : 0]};
+        DEFINE_IF(VectorMembers::RGBA) a{array_[(Length > 3) ? 3 : 0]};
 
         template<glm::length_t L, typename U>
             constexpr operator glm::vec<L,U>() noexcept
@@ -159,23 +182,15 @@ template<ushort Length, Number T, class M>
         { return vector{*this} += other; }
     };
 
-typedef vector<2,double,VectorMembers::XYZ>  Position2D;
-typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
-typedef vector<2,int,VectorMembers::WHL>     Scale2D;
-typedef vector<3,double,VectorMembers::XYZ>  Position3D;
-typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
-typedef vector<3,int,VectorMembers::WHL>     Scale3D;
+struct Position2D : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
+struct Motion2D   : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
+struct Scale2D    : public vector<2,int,VectorMembers::WHL>    { using vector::vector; };
 
-// struct Position2D : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Motion2D   : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Scale2D    : public vector<2,int,VectorMembers::WHL>    { using vector::vector; };
-// struct Position3D : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Motion3D   : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Scale3D    : public vector<3,int,VectorMembers::WHL>    { using vector::vector; };
+struct Position3D : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
+struct Motion3D   : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
+struct Scale3D    : public vector<3,int,VectorMembers::WHL>    { using vector::vector; };
 
+#undef DEFINE_IF
 #undef Derived
 #undef Same
-#undef __INDEX_ACCESSOR
-#undef INDEX_ACCESSOR
-#undef NO_OVERFLOW
 #endif // CONTAINERS_H

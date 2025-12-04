@@ -1,7 +1,7 @@
 #include "glfw_window.hpp"
 #include "application/application.hpp"
 #include "application/monitor.hpp"
-#include "managers/event_manager"
+#include "managers/event_manager.hpp"
 #include "events/event.hpp"
 #include "events/event_queue.hpp"
 #include "rendering/graphics_context.hpp"
@@ -61,25 +61,25 @@ void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindo
 {
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mMouseLast = pWindow->mMouseCurrent;
-    pWindow->mMouseCurrent.x = inX;
-    pWindow->mMouseCurrent.y = inY;
+    pWindow->mMouseCurrent.x() = inX;
+    pWindow->mMouseCurrent.y() = inY;
 }
 
 Key::Modifiers sGetModifierKeys(int mods)
 {
     Key::Modifiers out_mods{};
     if(mods & GLFW_MOD_SHIFT)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_SHIFT] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::Shift] = true; }
     if(mods & GLFW_MOD_CONTROL)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_CONTROL] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::Control] = true; }
     if(mods & GLFW_MOD_ALT)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_ALT] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::Alt] = true; }
     if(mods & GLFW_MOD_SUPER)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_SUPER] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::Super] = true; }
     if(mods & GLFW_MOD_CAPS_LOCK)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_CAPS_LOCK] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::CapsLock] = true; }
     if(mods & GLFW_MOD_NUM_LOCK)
-        { out_mods.mods[(ushort)Key::Modifier::MOD_NUM_LOCK] = true; }
+        { out_mods.mods[(ushort)Key::Modifier::NumLock] = true; }
     return out_mods;
 }
 
@@ -88,14 +88,15 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
 {
     if(key == GLFW_KEY_UNKNOWN)
         { return; }
-    else if(auto found_it{s_cGLFWInputLookup.find(key)};
+    else if(const auto& found_it{s_cGLFWInputLookup.find(key)};
         found_it != s_cGLFWInputLookup.end())
     {
         g_pEventManager->GetListeningInputEventQueue()
             ->add<InputEventBinding>(found_it->second,
                 sGetModifierKeys(mods),
                 action != GLFW_RELEASE,
-                action == GLFW_REPEAT);
+                action == GLFW_REPEAT,
+                g_pEventManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
     }
 }
 
@@ -147,13 +148,13 @@ void WindowGLFW::Update()
 
 WINDOW_SET_POSITION_DEFINITION(WindowGLFW, inPosition)
 {
-    glfwSetWindowPos(m_pWindow, static_cast<int>(inPosition.x), static_cast<int>(inPosition.y));
+    glfwSetWindowPos(m_pWindow, inPosition.x(), inPosition.y());
     return OK;
 }
 
 WINDOW_SET_SCALE_DEFINITION(WindowGLFW, inScale)
 {
-    glfwSetWindowSize(m_pWindow, inScale.width, inScale.height);
+    glfwSetWindowSize(m_pWindow, inScale.width(), inScale.height());
     return OK;
 }
 
@@ -244,203 +245,8 @@ Error WindowGLFW::SetFullscreenMonitor(uint MonitorIndex)
     return ERR_INDEX_OUT_OF_BOUNDS;
 }
 
-Position WindowGLFW::GetMousePosition()
+Position2D WindowGLFW::GetMousePosition()
 { return mMouseCurrent; }
 
-Position WindowGLFW::GetLastMousePosition()
+Position2D WindowGLFW::GetLastMousePosition()
 { return mMouseLast; }
-
-#                                                  define DO_NOT_BUILD
-#                                                  ifndef DO_NOT_BUILD
-
-using namespace Settings;
-
-bool WindowGLFW::Init()
-{
-    PRINT_PRETTY_FUNCTION;
-    glfwInit();
-    if(auto window_status = CreateMainWindow(); window_status != Status::NO_ERR)
-    {
-        glfwTerminate();
-        return print_error("{}", window_status.Printout());
-    }
-    SetRawMouseMotion(Settings::Player::RawMouseMotion);
-    mCompatibleGraphicsBackends = { BackendIDs::gOpenGL };
-    return true;
-}
-
-bool WindowGLFW::InitImGui()
-{
-    switch((uint)g_pBackendManager->Graphics()->GetID())
-    {
-    case (uint)BackendIDs::gOpenGL:
-        if(!ImGui_ImplGlfw_InitForOpenGL(mMainWindow, true))
-            { return print_error("ImGui_ImplGlfw_InitForOpenGL returned false!"); }
-        break;
-    }
-    return true;
-}
-
-void WindowGLFW::Shutdown()
-{
-    glfwDestroyWindow(mMainWindow);
-    glfwTerminate();
-}
-
-void WindowGLFW::ShutdownImGui()
-{ ImGui_ImplGlfw_Shutdown(); }
-
-void WindowGLFW::ImGuiNewFrame()
-{ ImGui_ImplGlfw_NewFrame(); }
-
-#pragma message("TODO: Implement a way to dynamically clear the depth bit if 3D is enabled")
-// https://gamedev.stackexchange.com/a/150215
-void WindowGLFW::ClearBuffer(const glm::vec4& color)
-{
-    glClearColor(color.x, color.y, color.z, color.w);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-SafeStatus WindowGLFW::CreateMainWindow()
-{
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWmonitor* monitor = (Window::Fullscreen())
-        ? glfwGetPrimaryMonitor()
-        : nullptr;
-
-    mMainWindow = glfwCreateWindow(Window::Size().width, Window::Size().height, Window::c_Name(), monitor, nullptr);
-
-    if(!mMainWindow)
-        { return Status::WindowingBackendWINDOW_CREATION_FAILED; }
-
-    glfwMakeContextCurrent(mMainWindow);
-
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        print_debug("Failed to initialize GLAD!");
-        return Status::WindowingBackendGRAPHICS_INIT_FAILED;
-    }
-    else if(!Window::Fullscreen())
-    {
-        int monitor_position_x{0}, monitor_position_y{0};
-        glfwGetMonitorPos(glfwGetPrimaryMonitor(), &monitor_position_x, &monitor_position_y);
-
-        int window_position_x{((glfwGetVideoMode(glfwGetPrimaryMonitor())->width  - Window::Size().width)  / 2) + monitor_position_x};
-        int window_position_y{((glfwGetVideoMode(glfwGetPrimaryMonitor())->height - Window::Size().height) / 2) + monitor_position_y};
-        glfwSetWindowPos(mMainWindow, window_position_x, window_position_y);
-    }
-
-    glfwSetWindowPosCallback(mMainWindow, WindowGLFW::m_sWindowPositionCallbackFunction);
-    glfwSetWindowSizeCallback(mMainWindow, WindowGLFW::m_sWindowSizeCallbackFunction);
-    glfwSetFramebufferSizeCallback(mMainWindow, WindowGLFW::m_sFrameBufferSizeCallbackFunction);
-
-    mLastFullscreenedMonitor = glfwGetPrimaryMonitor();
-    return Status::NO_ERR;
-}
-
-void WindowGLFW::ToggleRawMouseMotion()
-{ SetRawMouseMotion(!Settings::Player::RawMouseMotion); }
-
-MouseMode WindowGLFW::ToggleMouseMode(MouseMode secondary, MouseMode primary)
-{
-    if(mMouseMode == primary)
-        { SetMouseMode(secondary); }
-    else
-        { SetMouseMode(primary); }
-    return mMouseMode;
-}
-
-void WindowGLFW::SetRawMouseMotion(bool toggle)
-{
-    Settings::Player::RawMouseMotion = toggle;
-    if(glfwRawMouseMotionSupported() && Settings::Player::RawMouseMotion)
-        { glfwSetInputMode(mMainWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE); }
-}
-
-bool WindowGLFW::SetMouseMode(MouseMode mode)
-{
-    int glfw_mode;
-    switch(mode)
-    {
-    case MouseMode::Captured:
-        glfw_mode = GLFW_CURSOR_CAPTURED;
-        break;
-    case MouseMode::Disabled:
-        glfw_mode = GLFW_CURSOR_DISABLED;
-        break;
-    case MouseMode::Hidden:
-        glfw_mode = GLFW_CURSOR_HIDDEN;
-        break;
-    case MouseMode::Normal:
-        glfw_mode = GLFW_CURSOR_NORMAL;
-        break;
-    }
-    mMouseMode = mode;
-    glfwSetInputMode(mMainWindow, GLFW_CURSOR, glfw_mode);
-    return true;
-}
-
-MouseMode WindowGLFW::GetMouseMode()
-{ return mMouseMode; }
-
-void WindowGLFW::GetMousePosition(glm::vec2& output)
-{
-    double l_Position[2] = {0.0, 0.0};
-    glfwGetCursorPos(mMainWindow, &l_Position[0], &l_Position[1]);
-    output = glm::vec2{l_Position[0], l_Position[1]};
-}
-
-bool WindowGLFW::UpdateBinding(InputBinding& binding)
-{
-    if(!m_sInputIdToGlfw.contains(binding.id()))
-        { return false; }
-    switch(glfwGetKey(mMainWindow, m_sInputIdToGlfw.at(binding.id())))
-    {
-    case GLFW_PRESS:
-        binding.Press();
-        return true;
-    case GLFW_RELEASE:
-        return binding.Release();
-    }
-    return false;
-}
-
-void WindowGLFW::SwapBuffers()
-{ glfwSwapBuffers(mMainWindow); }
-
-void WindowGLFW::PollEvents()
-{ glfwPollEvents(); }
-
-void WindowGLFW::UpdateState()
-{
-    glfwSetWindowTitle(mMainWindow, Window::c_Name());
-    if((glfwGetWindowMonitor(mMainWindow) != nullptr) == Window::Fullscreen())
-    { // Fullscreen status hasn't changed
-        glfwSetWindowPos(mMainWindow, Window::Position().x, Window::Position().y);
-        glfwSetWindowSize(mMainWindow, Window::Size().width, Window::Size().height);
-        return;
-    }
-    glfwSetWindowMonitor(mMainWindow,
-        (Window::Fullscreen()) ? mLastFullscreenedMonitor : nullptr,
-        Window::Position().x,
-        Window::Position().y,
-        Window::Size().width,
-        Window::Size().height,
-        GLFW_DONT_CARE);
-}
-
-void WindowGLFW::m_sWindowPositionCallbackFunction(GLFWwindow* window, int x, int y)
-{ s_vInfo().position = {x, y}; }
-
-void WindowGLFW::m_sWindowSizeCallbackFunction(GLFWwindow* window, int width, int height)
-{ s_vInfo().size = {width, height}; }
-
-void WindowGLFW::m_sFrameBufferSizeCallbackFunction(GLFWwindow* window, int width, int height)
-{
-    s_vInfo().framebuffer_size = {width, height};
-    g_pBackendManager->Graphics()->SetWindowViewport(Viewport{Window::FramebufferSize(), Window::FramebufferPosition()});
-}
-#endif // DO_NOT_BUILD

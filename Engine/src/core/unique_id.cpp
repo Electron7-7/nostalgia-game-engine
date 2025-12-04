@@ -1,5 +1,6 @@
 #include "core/id.hpp"
 #include "core/printing.hpp"
+#include "core/type_helpers.hpp"
 
 #include <random>
 #include <set>
@@ -7,10 +8,10 @@
 static std::random_device sRandomSeed;
 static std::mt19937 sIdEngine(sRandomSeed());
 static std::uniform_int_distribution<id_t> sIdDistribution{(id_t)UniqueID::front, (id_t)UniqueID::back};
-static std::set<ID> sExistingIDs{};
+static std::set<id_t> sExistingIDs{};
 static constexpr unsigned int cMaxUniqueID{(id_t)UniqueID::back - (id_t)UniqueID::Reserved::back}; // Probably one less than the real max but it shouldn't matter
 
-id_t ID::Generate()
+id_t base_id::Generate()
 {
     sIdEngine.seed(sRandomSeed());
     return sIdDistribution(sIdEngine);
@@ -31,29 +32,29 @@ id_t UniqueID::Generate()
 void UniqueID::Clear()
 { sExistingIDs.clear(); }
 
-bool UniqueID::Push(const ID& id)
-{ return sExistingIDs.insert(id).second; }
+bool UniqueID::Push(FARG(ID) id)
+{ return sExistingIDs.insert(id()).second; }
 
-bool UniqueID::Erase(const ID& id)
-{ return (sExistingIDs.erase(id) != 0); }
+bool UniqueID::Erase(FARG(ID) id)
+{ return (sExistingIDs.erase(id()) != 0); }
 
-bool UniqueID::Contains(const ID& id)
-{ return sExistingIDs.contains(id); }
+bool UniqueID::Contains(FARG(ID) id)
+{ return sExistingIDs.contains(id()); }
 
-bool UniqueID::IsReserved(const ID& id)
+bool UniqueID::IsReserved(FARG(ID) id)
 { return id < front; }
 
-bool UniqueID::GetReservedID(const std::string& in_name, ID& out)
+bool UniqueID::GetReservedID(FARG(std::string) in_name, ID& out)
 {
-    for(auto [uid, name] : Reserved::EmbeddedResourceNames)
-        { if(!name.compare(in_name)) { out = uid; return true; } }
+    for(const auto& [uid, name] : Reserved::EmbeddedResourceNames)
+        { if(!name.compare(in_name)) { out = static_cast<id_t>(uid); return true; } }
     return false;
 }
 
-bool UniqueID::GetReservedName(const ID& in, std::string& out)
+bool UniqueID::GetReservedName(FARG(ID) in, std::string& out)
 {
-    if(!Reserved::EmbeddedResourceNames.contains(in))
-        { return false; }
-    out = Reserved::EmbeddedResourceNames.at(in);
-    return true;
+    if(const auto& found_it{Reserved::EmbeddedResourceNames.find(static_cast<id_t>(in))};
+        found_it != Reserved::EmbeddedResourceNames.end())
+    { out = found_it->second; return true; }
+    return false;
 }

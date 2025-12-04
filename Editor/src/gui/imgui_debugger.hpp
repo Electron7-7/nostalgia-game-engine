@@ -15,12 +15,12 @@ class ImGui_Debugger : public UI_Solution<ImGui_Implementor>
     UI_SOLUTION_ACTIVATE(ImGui_Debugger)
     UI_SOLUTION_DEACTIVATE(ImGui_Debugger)
 public:
-    Error Init()                  final;
-    void  Shutdown()              final;
-    void  Update()                final;
-    void  Input(FARG(InputEvent)) final;
-    void  OnTheatreEntered()      final;
-    void  OnTheatreExited()       final;
+    Error Init()             final;
+    void  Shutdown()         final;
+    void  Update()           final;
+    void  Input(InputEvent*) final;
+    void  OnTheatreEntered() final;
+    void  OnTheatreExited()  final;
 
     StopwatchLog& StartStopwatch(const std::string& Message = "No Message");
     bool StopStopwatch(StopwatchLog& Stopwatch);

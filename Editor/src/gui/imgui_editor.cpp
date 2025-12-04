@@ -66,16 +66,16 @@ void ImGui_Editor::OnTheatreEntered()
 
 void ImGui_Editor::OnTheatreExited()
 {
-    sSpawnLocationMaterialID.clear();
-    sSpawnLocationMeshInstanceID.clear();
-    sSpawnLocationID.clear();
+    sSpawnLocationMaterialID = ID{};
+    sSpawnLocationMeshInstanceID = ID{};
+    sSpawnLocationID = ID{};
 }
 
-void ImGui_Editor::Input(const InputEvent& event)
+void ImGui_Editor::Input(InputEvent* event)
 {
     if(g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard)
     {
-        if(event.IsKeyPressed(BindingID::KeyESC))
+        if(event->IsJustPressed(Key::Escape))
         {
             // g_pBackendManager->Windowing()->SetMouseMode(MouseMode::Normal);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = false;
@@ -83,9 +83,9 @@ void ImGui_Editor::Input(const InputEvent& event)
         }
         return;
     }
-    else if(event.IsKeyDown(BindingID::KeyLEFTCONTROL) && event.IsKeyPressed(BindingID::KeyD))
+    else if(event->IsJustPressed(Key::D) && event->IsModifierActive(Key::Modifier::Control))
         { gShowDebugWindow = !gShowDebugWindow; }
-    else if(event.IsKeyDown(BindingID::KeyLEFTCONTROL) && event.IsKeyPressed(BindingID::KeyG))
+    else if(event->IsJustPressed(Key::G) && event->IsModifierActive(Key::Modifier::Control))
         { sShowDemoWindow  = !sShowDemoWindow; }
 }
 
@@ -145,9 +145,9 @@ void ImGui_Editor::Update()
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
         }
-        sEditorViewport.scale = (GetItemRectMax() - GetItemRectMin()) - ImVec2{0,16};
-        sEditorViewport.position.x = static_cast<int>(GetItemRectMin().x);
-        sEditorViewport.position.y = window_height - static_cast<int>(GetItemRectMax().y);
+        sEditorViewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
+        sEditorViewport.position.x() = GetItemRectMin().x;
+        sEditorViewport.position.y() = window_height - GetItemRectMax().y;
         // if(g_pBackendManager->Graphics()->GetViewport(ViewportIDs::Editor3DViewport1) != sEditorViewport)
             // { g_pBackendManager->Graphics()->SetViewport(ViewportIDs::Editor3DViewport1, sEditorViewport); }
         // TextF("Editor Viewport Size: {}", sEditorViewport.scale);

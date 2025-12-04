@@ -5,10 +5,10 @@
 
 struct Viewport
 {
-    Viewport(const scale_t& = {1, 1}, const Position& = {0, 0});
+    Viewport(const Scale2D& = {1, 1}, const Position2D& = {0, 0});
 
-    Position position{};
-    scale_t scale{};
+    Position2D position{};
+    Scale2D scale{};
 
     bool operator==(const Viewport&) const;
     bool operator!=(const Viewport&) const;

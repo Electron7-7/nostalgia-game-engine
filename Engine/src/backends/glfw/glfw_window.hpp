@@ -5,6 +5,7 @@
 
 #include "application/window.hpp"
 #include "events/bindings.hpp"
+#include "math/containers.hpp"
 #include "frozen/map.h"
 
 #include <GLFW/glfw3.h>
@@ -22,13 +23,12 @@ public:
     void* GetNativeWindow() const override { return static_cast<GLFWwindow*>(m_pWindow); }
     NativeWindowType GetNativeWindowType() const override { return NATIVE_GLFW_WINDOW; }
 
-    const std::unique_ptr<Monitor>& GetPrimaryMonitor() const override;
+    const Unique<Monitor>& GetPrimaryMonitor() const override;
     uint GetFullscreenMonitorIndex() override;
-    const std::unique_ptr<Monitor>& GetFullscreenMonitor() override;
+    const Unique<Monitor>& GetFullscreenMonitor() override;
     Error SetFullscreenMonitor(uint) override;
-    Position GetMousePosition() override;
-    Position GetLastMousePosition() override;
-    bool UpdateBinding(KeyID& outInputBinding) override;
+    Position2D GetMousePosition() override;
+    Position2D GetLastMousePosition() override;
 
     WINDOW_SET_POSITION_DECLARATION
     WINDOW_SET_SCALE_DECLARATION
@@ -53,8 +53,8 @@ private:
 
     GLFWwindow* m_pWindow{nullptr};
     Unique<IGraphicsContext> mGraphicsContext{nullptr};
-    Position mMouseCurrent{};
-    Position mMouseLast{};
+    Position2D mMouseCurrent{};
+    Position2D mMouseLast{};
 
     Error InitializeCallbacks() override;
     Error Init(const WindowProperties&);

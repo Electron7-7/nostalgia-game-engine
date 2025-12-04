@@ -1,19 +1,21 @@
 #include "event_manager.hpp"
 #include "events/event_queue.hpp"
+#include "events/action.hpp"
 #include "events/bindings.hpp"
-#include "events/demo_controller.hpp"
-#include "application/application.hpp"
-#include "application/window.hpp"
-#include "components/input_handling.hpp"
 
 static EventManager sEventManager;
 EventManager* g_pEventManager = &sEventManager;
 
-std::array<InputEventQueue,2> EventManager::sInputQueueBuffers{InputEventQueue{},InputEventQueue{}};
+std::unordered_map<KeyID, bool> EventManager::sInputStateBuffer{};
+std::unordered_map<KeyID, std::vector<std::string>> EventManager::sInputActionBindingsLookup{};
+std::array<InputEventQueue, 2> EventManager::sInputEventQueueBuffers{InputEventQueue{}, InputEventQueue{}};
+AppEventQueue EventManager::sAppEventQueue{};
 
 bool EventManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
+    for(const auto& key : Key::keys)
+        { sInputStateBuffer[key] = false; sInputActionBindingsLookup[key] = {}; }
     return true;
 }
 
@@ -32,72 +34,63 @@ void EventManager::Update()
     //         event.Log());
     // }
 
-    // do stuff...
-    sPreviousInputQueueIndex = sCurrentInputQueueIndex;
-    sCurrentInputQueueIndex  = 1 - sCurrentInputQueueIndex;
+    mPreviousInputEventQueueIndex = mCurrentInputEventQueueIndex;
+    mCurrentInputEventQueueIndex  = 1 - mCurrentInputEventQueueIndex;
+    sAppEventQueue.DispatchEvents();
+    sAppEventQueue.clear();
+    sInputEventQueueBuffers[mCurrentInputEventQueueIndex].DispatchEvents();
+    sInputEventQueueBuffers[mCurrentInputEventQueueIndex].clear();
+    for(auto [name, action] : mInputActions)
+        { action.UpdateStatus(); }
+}
 
+bool EventManager::UpdateKeyState(FARG(KeyID) inKeyID, bool inCurrentState)
+{
+    bool was_just_pressed{sInputStateBuffer[inKeyID] != inCurrentState};
+    sInputStateBuffer[inKeyID] = inCurrentState;
+    for(const auto& name : sInputActionBindingsLookup[inKeyID])
+    {
+        auto& action{mInputActions.at(name)};
+        action.UpdateStatus(inKeyID, inCurrentState);
+        if(action.Status() || action.StatusChanged())
+            { sInputEventQueueBuffers[mPreviousInputEventQueueIndex].add<InputEventAction>(action); }
+    }
+    return was_just_pressed;
 }
 
 InputEventQueue* EventManager::GetListeningInputEventQueue()
-{ return &sInputQueueBuffers[sPreviousInputQueueIndex]; }
+{ return &sInputEventQueueBuffers[mPreviousInputEventQueueIndex]; }
 
-void EventManager::AddAction(FARG(InputAction) inAction)
-{}
+void EventManager::PushAppEvent(FARG(AppEvent) inAppEvent)
+{ sAppEventQueue.add(inAppEvent); }
 
-InputEventCallbackFunction EventManager::SetInputEventCallback(InputEventCallbackFunction callback)
+InputEventCallback EventManager::SetInputEventCallback(InputEventCallback callback)
 { return (m_pInputEventCallback = callback); }
 
-bool EventManager::BindingExists(const ID& id)
-{ return mBindings.contains(id); }
-
-bool EventManager::BindingExists(const std::string& name)
-{ return BindingExists(ID{name}); }
-
-InputBinding& EventManager::GetBinding(const ID& id)
+Error EventManager::AddAction(FARG(InputAction) inAction)
 {
-    static InputBinding l_InvalidBinding{};
-    return (BindingExists(id)) ? mBindings.at(id) : l_InvalidBinding;
+    if(mInputActions.contains(inAction.Name()))
+        { print_error("InputAction '{}' already exists", inAction.Name()); return ERR_ALREADY_EXISTS; }
+    PRINT_PRETTY_FUNCTION;
+    mInputActions.emplace(inAction.Name(), inAction);
+    return OK;
 }
 
-InputBinding& EventManager::GetBinding(const std::string& name)
-{ return GetBinding(ID{name}); }
-
-bool EventManager::AddAction(const std::string& action)
-{ return mAllActions.add(action); }
-
-bool EventManager::AssignAction(const std::string& action, const ID& id)
+void EventManager::SetAction(FARG(InputAction) inAction)
 {
-    AddAction(action); // Failsafe
-    if(action.at(0) == '+' && action.size() > 1)
-        { AddAction("-" + action.substr(1)); }
-    if(InputBinding& binding = GetBinding(id); binding.IsValid())
-        { return binding.mActions.add(action); }
-    return false;
+    if(mInputActions.contains(inAction.Name()))
+        { print_warning("InputAction '{}' already exists and will be replaced", inAction.Name()); }
+    PRINT_PRETTY_FUNCTION;
+    mInputActions.insert_or_assign(inAction.Name(), inAction);
 }
 
-bool EventManager::AssignAction(const std::string& action, const std::string& name)
-{ return AssignAction(action, ID{name}); }
-
-bool EventManager::DeleteAction(const std::string& action)
+Error EventManager::DeleteAction(FARG(std::string) inActionName)
 {
-    mAllActions.erase(action);
-    bool return_value{false};
-    for(auto& [id, binding] : mBindings)
-        { return_value = (binding.mActions.erase(action)) ? true : return_value; }
-    return return_value;
-}
-
-bool EventManager::ClearActions(const std::string& name)
-{ return ClearActions(ID{name}); }
-
-bool EventManager::ClearActions(const ID& id)
-{
-    if(!BindingExists(id))
-        { return false; }
-    InputActions actions = mBindings.at(id).mActions;
-    mBindings.at(id).mActions.clear();
-    return mAllActions.erase(actions);
+    if(auto found_it{mInputActions.find(inActionName)}; found_it != mInputActions.end())
+        { PRINT_PRETTY_FUNCTION; mInputActions.erase(found_it); return OK; }
+    return ERR_NOT_FOUND;
 }
 
 void EventManager::ClearAllActions()
-{ mAllActions.clear(); }
+{ PRINT_PRETTY_FUNCTION; mInputActions.clear(); }
+

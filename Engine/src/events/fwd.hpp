@@ -2,11 +2,16 @@
 #define INPUT_FWD_H
 
 struct InputBindingID;
-
-class  InputAction;
-class  InputEvent;
-class  InputEventQueue;
 struct KeyID;
+
+class InputEvent;
+class InputAction;
+class InputEventQueue;
+class TriggerEvent;
+class AppEvent;
+class EngineEvent;
+class AppEventQueue;
+class EngineEventQueue;
 
 typedef const KeyID& KeyArg;
 typedef void (*InputEventCallback)(InputEvent*);

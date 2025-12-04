@@ -6,7 +6,6 @@
 #include "common/hash.hpp"
 #include "frozen/map.h"
 
-#include <map>
 #include <string>
 #include <format>
 
@@ -22,15 +21,26 @@ public:
 
     constexpr ~base_id() noexcept {}
 
-    constexpr id_t operator()() const { return id_; }
-    constexpr operator id_t()   const { return id_; }
-    constexpr bool  invalid()   const { return id_ == Invalid; }
+    constexpr id_t operator()()        const { return id_; }
+    constexpr explicit operator id_t() const { return id_; }
+    constexpr bool  invalid()          const { return id_ == Invalid; }
 
     virtual const std::string& name() const { return s_cEmpty;        }
     virtual const char*      c_name() const { return s_cEmpty.data(); }
 
     std::string log() const noexcept
     { return std::format("id {}#{}", (id_ == Invalid) ? "Invalid" : name(), id_); }
+
+    constexpr bool operator<(const base_id& other) const noexcept
+    { return id_ < other.id_; }
+    constexpr bool operator==(const base_id& other) const noexcept
+    { return id_ == other.id_; }
+    constexpr bool operator!=(const base_id& other) const noexcept
+    { return id_ != other.id_; }
+    constexpr bool operator==(id_t id) const noexcept
+    { return id_ == id; }
+    constexpr bool operator!=(id_t id) const noexcept
+    { return id_ != id; }
 
     static constexpr id_t Invalid {static_cast<id_t>(-1)}; // Same as `UINT_MAX`
     static constexpr id_t front   {0};
@@ -49,7 +59,7 @@ struct ConstexprID_t : public base_id
 {
 public:
     consteval ConstexprID_t() noexcept = default;
-    consteval ConstexprID_t(id_t inID)                     noexcept: base_id{inID}                      {}
+    constexpr ConstexprID_t(id_t inID)                     noexcept: base_id{inID}                      {}
     consteval ConstexprID_t(const char* inHashable)        noexcept: base_id{ConstexprHash(inHashable)} {}
     consteval ConstexprID_t(const std::string& inHashable) noexcept: base_id{ConstexprHash(inHashable)} {}
 
@@ -59,33 +69,42 @@ public:
         consteval ConstexprID_t operator+(const T& Other) const { return ConstexprID_t{id_ + Other}; }
 };
 
+// START FORWARD DECLARATIONS
+struct ID;
+namespace UniqueID { extern bool Erase(const ID&); }
+// END FORWARD DECLARATIONS
+
+
 struct ID final : public base_id
 {
     ID() noexcept = default;
 
+    ID(const ConstexprID_t inCID):
+        base_id{static_cast<id_t>(inCID)} {}
+
     ID(id_t inID, const std::string& inName = ""):
-        base_id{inID}
-    { m_pName = new std::string{inName}; }
+        base_id{inID}, m_pName{inName}
+    {}
 
     ID(const std::string& inHashable) noexcept:
-        base_id{inHashable}
-    { m_pName = new std::string{inHashable}; }
+        base_id{inHashable}, m_pName{inHashable}
+    { m_pName = inHashable; }
 
     ID(const char* inHashable) noexcept:
-        base_id{inHashable}
-    { m_pName = new std::string{inHashable}; }
+        base_id{inHashable}, m_pName{inHashable}
+    { m_pName = inHashable; }
 
     ~ID() noexcept
-    { delete m_pName; }
+    { UniqueID::Erase(*this); }
 
-    const std::string&   name() const final { return *m_pName;        }
-    const char*        c_name() const final { return m_pName->data(); }
+    const std::string&   name() const final { return m_pName; }
+    const char*        c_name() const final { return m_pName.data(); }
 
     template<typename T> requires is_similar<T, ID>
-        ID operator+(const T& Other) const { return ID{id_ + Other, *m_pName}; }
+        ID operator+(const T& Other) const { return ID{id_ + Other, m_pName}; }
 
 private:
-    std::string m_pName{nullptr};
+    std::string m_pName{""};
 };
 
 #define ID_FORMATTER(TYPE, FORMATTER, RETURN) \
@@ -136,7 +155,7 @@ namespace UniqueID
         ConstexprID front{Player};
 
         constexpr frozen::map<ConstexprID_t, std::string, 10>
-        EmbeddedResourceNames =
+        EmbeddedResourceNames
         {
             {     i_Missing, Images::Name::Missing    },
             {  i_LightDebug, Images::Name::LightDebug },

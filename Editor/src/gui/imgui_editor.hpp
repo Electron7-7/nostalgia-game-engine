@@ -11,12 +11,12 @@ class ImGui_Editor : public UI_Solution<ImGui_Implementor>
     UI_SOLUTION_ACTIVATE(ImGui_Editor)
     UI_SOLUTION_DEACTIVATE(ImGui_Editor)
 public:
-    Error Init()                  final;
-    void  Shutdown()              final;
-    void  Update()                final;
-    void  Input(FARG(InputEvent)) final;
-    void  OnTheatreEntered()      final;
-    void  OnTheatreExited()       final;
+    Error Init()             final;
+    void  Shutdown()         final;
+    void  Update()           final;
+    void  Input(InputEvent*) final;
+    void  OnTheatreEntered() final;
+    void  OnTheatreExited()  final;
 };
 
 extern bool gShowDebugWindow;

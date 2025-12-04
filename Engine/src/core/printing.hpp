@@ -63,6 +63,10 @@ template<class... Args>
 
 // Debug printouts are only enabled in the Debug build
 #ifdef DEBUGGING
+//  Prints the name of the function that this macro is called in (using `__PRETTY_FUNCTION__`)
+#   define PRINT_PRETTY_FUNCTION \
+        __print_verbose(true, VERBOSE0, "{}", std::source_location::current(), "\x1b[34m(FUNCTION) ", __PRETTY_FUNCTION__)
+
     inline constinit const char* __debug_label{"\x1b[36m[DEBUG] "};
     inline constinit const char* __app_label{"\x1b[35m[APPLICATION] "};
     inline constinit const char* __jolt_label{"\x1b[32m[JOLT] "};
@@ -97,6 +101,7 @@ template<class... Args>
 
 #else  // !DEBUGGING
     consteval bool __print_function_disabled(bool ret = true) { return ret; }
+#   define PRINT_PRETTY_FUNCTION __print_function_disabled()
 #   define print_debug(...)  __print_function_disabled()
 #   define print_debugv(...) __print_function_disabled()
 #   define debug_print(...)  __print_function_disabled()
@@ -105,9 +110,6 @@ template<class... Args>
 #   define print_jolt(...)   __print_function_disabled()
 #   define print_joltv(...)  __print_function_disabled()
 #endif // DEBUGGING
-
-#define PRINT_PRETTY_FUNCTION \
-    __print_verbose(true, VERBOSE0, "{}", std::source_location::current(), "\x1b[34m(FUNCTION) ", __PRETTY_FUNCTION__)
 
 inline Error print_error_enum(Error error, VERBOSITY verbosity = VERBOSE3, bool unimplemented_returns_ok = true, const std::source_location location = std::source_location::current())
 {

@@ -3,7 +3,7 @@
 #include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/render_manager.hpp"
-#include "managers/event_manager"
+#include "managers/event_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "window.hpp"
 #include "backends/glfw/glfw_window.hpp" // GLFW is the main windowing solution for now (possibly permanent)

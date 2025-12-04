@@ -59,7 +59,7 @@ public:
     virtual Error Init()             override { return UNIMPLEMENTED; }
     virtual void  Shutdown()         override {}
     virtual void  Update()           override {}
-    virtual void  Input(Event*)      override {}
+    virtual void  Input(InputEvent*) override {}
     virtual void  OnTheatreEntered() override {}
     virtual void  OnTheatreExited()  override {}
 };

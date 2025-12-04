@@ -1,6 +1,30 @@
 #include "action.hpp"
 
-template<KeyID_t... KeyIDs> requires (sizeof...(KeyIDs) <= INPUT_ACTION_MAX_KEYS)
-    InputAction::InputAction(KeyIDs&&... inKeyIDs):
-        mKeyIDs{new KeyID[sizeof...(KeyIDs)]{std::forward<KeyIDs>(inKeyIDs)...}}
-    {}
+FARG(std::string) InputAction::Name() const
+{ return mName; }
+
+void InputAction::UpdateStatus(FARG(KeyID) inKeyID, bool isActive)
+{
+    mLastStatus = mCurrentStatus;
+    mCurrentStatus = isActive;
+    for(auto [id, state] : mKeyIDs)
+    {
+        if(inKeyID == id)
+            { state = isActive; }
+        if(!state)
+            { mCurrentStatus = false; }
+    }
+}
+
+void InputAction::UpdateStatus()
+{
+    mLastStatus = mCurrentStatus;
+    for(auto [id, state] : mKeyIDs)
+        { if(!state) { mCurrentStatus = false; } }
+}
+
+bool InputAction::Status() const
+{ return mCurrentStatus; }
+
+bool InputAction::StatusChanged() const
+{ return mCurrentStatus != mLastStatus; }

@@ -1,72 +1,85 @@
 #include "event.hpp"
+#include "action.hpp"
 #include "bindings.hpp"
 
 ///////////////////////////
 // InputEventMouseMotion //
 ///////////////////////////
-constexpr InputEventMouseMotion::InputEventMouseMotion() = default;
-constexpr InputEventMouseMotion::InputEventMouseMotion(FARG(Position) inCurrentPos, FARG(Position) inLastPos):
+InputEventMouseMotion::InputEventMouseMotion() = default;
+InputEventMouseMotion::InputEventMouseMotion(FARG(Position2D) inCurrentPos, FARG(Position2D) inLastPos):
     mMousePosition{inCurrentPos},
     mLastMousePosition{inLastPos} {}
 
-constexpr bool InputEventMouseMotion::IsMouseMotion() const
+size_t InputEventMouseMotion::GetHash() const
+{ return ConstexprHash("InputEventMouseMotion"); }
+
+bool InputEventMouseMotion::IsMouseMotion() const
 { return true; }
 
-FARG(Position) InputEventMouseMotion::MousePosition() const
+FARG(Position2D) InputEventMouseMotion::MousePosition() const
 { return mMousePosition; }
 
-FARG(Position) InputEventMouseMotion::LastMousePosition() const
+FARG(Position2D) InputEventMouseMotion::LastMousePosition() const
 { return mLastMousePosition; }
 
-FARG(Motion) InputEventMouseMotion::MouseMotion() const
+FARG(Motion2D) InputEventMouseMotion::MouseMotion() const
 { return mMouseMotion; }
 
 //////////////////////
 // InputEventAction //
 //////////////////////
-constexpr InputEventAction::InputEventAction(FARG(std::string) inAction, bool isActive, bool isJustChanged):
-    mAction{inAction},
-    mActive{isActive},
-    mJustChanged{isJustChanged} {}
+InputEventAction::InputEventAction(FARG(InputAction) inAction):
+    mAction{inAction.Name()},
+    mActive{inAction.Status()},
+    mJustChanged{inAction.StatusChanged()} {}
 
-constexpr bool InputEventAction::IsAction(FARG(std::string) inAction) const
+size_t InputEventAction::GetHash() const
+{ return ConstexprHash(mAction); }
+
+bool InputEventAction::IsAction(FARG(std::string) inAction) const
 { return !mAction.compare(inAction); }
 
-constexpr bool InputEventAction::IsActive(FARG(std::string) inAction) const
+bool InputEventAction::IsActive(FARG(std::string) inAction) const
 { return mActive && IsAction(inAction); }
 
-constexpr bool InputEventAction::IsJustChanged(FARG(std::string) inAction) const
+bool InputEventAction::IsJustChanged(FARG(std::string) inAction) const
 { return mJustChanged && IsAction(inAction); }
 
 ///////////////////////
 // InputEventBinding //
 ///////////////////////
-constexpr InputEventBinding::InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
+InputEventBinding::InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
     mID{inBindingID},
     mModifiers{inModifiers},
     mPressed{isPressed},
     mRepeated{isRepeated},
     mJustChanged{isJustChanged} {}
 
-constexpr const Key::Modifiers& InputEventBinding::GetModifiers() const
+size_t InputEventBinding::GetHash() const
+{ return static_cast<size_t>(mID()); }
+
+bool InputEventBinding::IsModifierActive(Key::Modifier inMod) const
+{ return mModifiers.IsActive(inMod); }
+
+const Key::Modifiers& InputEventBinding::GetModifiers() const
 { return mModifiers; }
 
-constexpr bool InputEventBinding::IsBinding(KeyArg inID) const
+bool InputEventBinding::IsBinding(KeyArg inID) const
 { return mID == inID; }
 
-constexpr bool InputEventBinding::IsPressed(KeyArg inID) const
+bool InputEventBinding::IsPressed(KeyArg inID) const
 { return mPressed && IsBinding(inID); }
 
-constexpr bool InputEventBinding::IsRepeated(KeyArg inID) const
+bool InputEventBinding::IsRepeated(KeyArg inID) const
 { return mRepeated && IsBinding(inID); }
 
-constexpr bool InputEventBinding::IsReleased(KeyArg inID) const
+bool InputEventBinding::IsReleased(KeyArg inID) const
 { return !mPressed && IsBinding(inID); }
 
-constexpr bool InputEventBinding::IsJustPressed(KeyArg inID) const
+bool InputEventBinding::IsJustPressed(KeyArg inID) const
 { return mJustChanged && IsPressed(inID); }
 
-constexpr bool InputEventBinding::IsJustReleased(KeyArg inID) const
+bool InputEventBinding::IsJustReleased(KeyArg inID) const
 { return mJustChanged && IsReleased(inID); }
 
 

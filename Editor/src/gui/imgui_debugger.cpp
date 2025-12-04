@@ -5,9 +5,9 @@
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
-#include "events/demo_controller.hpp"
+#include "math/containers.hpp"
 #include "managers/manager.hpp"
-#include "managers/event_manager"
+#include "managers/event_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/thing_factory.hpp"
@@ -63,7 +63,7 @@ Error ImGui_Debugger::Init()
 void ImGui_Debugger::Shutdown()
 { PRINT_PRETTY_FUNCTION; }
 
-void ImGui_Debugger::Input(FARG(InputEvent))
+void ImGui_Debugger::Input(InputEvent*)
 {}
 
 void ImGui_Debugger::OnTheatreEntered()
@@ -122,14 +122,14 @@ void ImGui_Debugger::Update()
                 }
             }
             EndTabBar();
-            InputText("Demo File Output", &sDemoFileOut);
-            if(Button("Start Recording Demo"))
-                { g_pDemoController->Record(); }
-            if(Button("Stop Recording Demo"))
-                { g_pDemoController->StopRecording(); g_pDemoController->Save(sDemoFileOut); }
-            InputText("Demo File Input", &sDemoFileIn);
-            if(Button("Play Demo File"))
-                { g_pDemoController->Play(sDemoFileIn); }
+            // InputText("Demo File Output", &sDemoFileOut);
+            // if(Button("Start Recording Demo"))
+                // { g_pDemoController->Record(); }
+            // if(Button("Stop Recording Demo"))
+                // { g_pDemoController->StopRecording(); g_pDemoController->Save(sDemoFileOut); }
+            // InputText("Demo File Input", &sDemoFileIn);
+            // if(Button("Play Demo File"))
+                // { g_pDemoController->Play(sDemoFileIn); }
         }
         End();
     }
@@ -297,13 +297,13 @@ static void s_GeneralDebuggingWindow()
         }
 
 #       ifndef WAYLAND_DISPLAY
-            auto position{Application()->GetWindow().GetPosition()};
-            if(DragInt2("Position", &position.x, &position.y))
+            vector<2,int,VectorMembers::XYZ> position{Application()->GetWindow().GetPosition()};
+            if(DragInt2("Position", &position.x(), &position.y()))
                 { Application()->GetWindow().SetPosition(position); }
 
             int scale[2] {
-                (int)Application()->GetWindow().GetScale().width, // Evil c-style cast
-                (int)Application()->GetWindow().GetScale().height, // Evil c-style cast
+                static_cast<int>(Application()->GetWindow().GetScale().width()),
+                static_cast<int>(Application()->GetWindow().GetScale().height()),
             };
             if(DragInt2("Size", scale))
                 { Application()->GetWindow().SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
@@ -520,7 +520,7 @@ static void s_ResourceInfo(ID uid, const char* tree_name)
     }
     else if(UniqueID::IsReserved(uid) && TreeNode(tree_name))
     {
-        Text("Name - %s", UniqueID::Reserved::EmbeddedResourceNames.at(uid).data());
+        Text("Name - %s", UniqueID::Reserved::EmbeddedResourceNames.at(uid()).data());
         Text("UID  - %u", static_cast<id_t>(uid));
         TreePop();
     }

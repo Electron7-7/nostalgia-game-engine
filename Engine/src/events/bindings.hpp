@@ -1,7 +1,6 @@
 #ifndef INPUT_BINDINGS_H
 #define INPUT_BINDINGS_H
 
-#include "core/type_helpers.hpp"
 #include "core/id.hpp"
 #include "common/string_concepts.hpp"
 #include "frozen/set.h"
@@ -19,7 +18,12 @@
 struct KeyID final : public ConstexprID_t
 { using ConstexprID_t::ConstexprID_t; };
 
-typedef FARG(KeyID) KeyArg;
+template<>
+struct std::hash<KeyID>
+{
+    size_t operator()(const KeyID& other) const noexcept
+    { return std::hash<uint>{}(other()); }
+};
 
 template<class T>
     concept KeyID_t = is_similar<T, KeyID>;
@@ -48,12 +52,12 @@ struct Key
     )
 
     enum class Modifier : ushort {
-        MOD_SHIFT     = 0,
-        MOD_CONTROL   = 1,
-        MOD_ALT       = 2,
-        MOD_SUPER     = 3,
-        MOD_CAPS_LOCK = 4,
-        MOD_NUM_LOCK  = 5,
+        Shift    = 0,
+        Control  = 1,
+        Alt      = 2,
+        Super    = 3,
+        CapsLock = 4,
+        NumLock  = 5,
     };
 
     struct Modifiers
@@ -69,6 +73,8 @@ struct Key
 
         bool IsActive(Modifier inMod) const
         { return mods[static_cast<ushort>(inMod)]; }
+
+        static const Modifiers empty;
     };
 
     template<typename T>
@@ -92,6 +98,8 @@ struct Key
         LeftShift,LeftControl,LeftAlt,LeftSuper,RightShift,RightControl,RightAlt,RightSuper,
         Enter,Backspace,Tab,Space,Escape,MouseLeft,MouseRight,MouseMiddle)
 };
+
+inline const Key::Modifiers Key::Modifiers::empty{};
 
 namespace Input
 {

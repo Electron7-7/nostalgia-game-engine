@@ -10,7 +10,7 @@ public:
     virtual void Ready();
     virtual void Tick();
     virtual void Update() {}
-    virtual void Input(const InputEvent&) {}
+    virtual void Input(InputEvent*) {}
     virtual void SetVariables(const ThingData&);
     virtual ThingData GetVariables() const;
 

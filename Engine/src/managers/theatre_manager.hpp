@@ -4,9 +4,8 @@
 #include "things/fwd.hpp"
 #include "theatre/parser/fwd.hpp"
 
-#include "core/safe_return.hpp"
 #include "manager.hpp"
-#include "events/event.hpp"
+#include "core/safe_return.hpp"
 #include "things/thing_factory.hpp"
 
 #include <memory>
@@ -36,7 +35,6 @@ public:
     TheatreData GetCurrentState();
     std::vector<ID> GetThingIDs();
 
-    void DelegateInputEvent(const InputEvent& InputEvent);
     const ID& CreateThing(const ThingData& ThingData);
     std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
     bool DestroyThing(const ID&);

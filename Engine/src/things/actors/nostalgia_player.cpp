@@ -2,7 +2,7 @@
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
-#include "math/glm_operators.hpp"
+// #include "math/glm_operators.hpp"
 
 void NostalgiaPlayer::SetVariables(const ThingData& data)
 {
@@ -20,13 +20,13 @@ ThingData NostalgiaPlayer::GetVariables() const
     return data;
 }
 
-void NostalgiaPlayer::Input(const InputEvent& event)
+void NostalgiaPlayer::Input(InputEvent* event)
 {
     Move({
-        mCaptureKeyboard * (event.IsActionDown("+right")   - event.IsActionDown("+left")),
-        mCaptureKeyboard * (event.IsActionDown("+forward") - event.IsActionDown("+backward"))
+        mCaptureKeyboard * (event->IsAction("+right")   - event->IsAction("+left")),
+        mCaptureKeyboard * (event->IsAction("+forward") - event->IsAction("+backward"))
     });
-    Look(mCaptureMouse * event.MouseMotion());
+    Look(event->MouseMotion() * mCaptureMouse);
 }
 
 void NostalgiaPlayer::Tick()

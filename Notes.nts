@@ -792,3 +792,22 @@ I'm gonna remove `InputBinding` and move `BindingID` from 'id.hpp' to some file 
 
 [12/01/25]
 I've got an idea! I'm gonna rename `InputManager` to `EventManager` and have it manage all events, including inputs.
+
+Input events will be polled by the window and placed into a queue by the event manager; with each input event, the manager will also go through a list of input actions and filter out any actions with keys that weren't pressed. One idea for how to do this is to have `InputAction` keep track of whether or not all of its `KeyID`s are active with some "check" and "reset" functions.
+
+[12/02/25]
+Fiddling with my vector template while trying to get this thing to compile so I can get my bearings.
+
+Spent pretty much all of my time working on the vector class, but I'm super fucking proud of it. It's decently robust, takes any numerical type, is decently compatible with `glm::vec`, and has a really cool implementation of named member variables depending on a given "enum" (empty structs in a namespace).
+
+[12/03/25]
+Hopefully able to get this shit to not crash after launching and then I can continue my overhaul.
+
+FUCKING FINALLY!!!! GRAAAAAAAAAHHHH!!! Changed member variables to functions and everything is fixed (for now).
+
+Time to finish inputs, hopefully.
+
+Ugh..... I've been looking at input events all wrong. They're not mandatory, they're just a nice way to handle inputs on demand instead of checking every frame. The ability to call a global 'is_key_down' type of function should be implemented (alongside the many other ones in that same vein). I'm getting kinda burnt out so I might call it quits, idk; I'm gonna eat for a lil bit and chill out.
+
+[12/04/25]
+Happy birthday to me! Okie, time to completely redo the input/event system(s).

@@ -1,5 +1,5 @@
-#ifndef INPUT_HANDLING_COMPONENTS_H
-#define INPUT_HANDLING_COMPONENTS_H
+#ifndef INPUT_HANDLING_COMPONENT_H
+#define INPUT_HANDLING_COMPONENT_H
 
 #include "events/fwd.hpp"
 
@@ -12,10 +12,10 @@ namespace
         class IGetInputEvents
         {
         public:
-            IGetInputEvents()
+            IGetInputEvents() noexcept
             { m_sInstances.push_back(this); }
 
-            virtual ~IGetInputEvents()
+            virtual ~IGetInputEvents() noexcept
             {
                 if(const auto& found_it{std::find(m_sInstances.begin(), m_sInstances.end(), this)};
                     found_it != m_sInstances.end())
@@ -35,4 +35,4 @@ namespace
 class OnInput   : public IGetInputEvents<false> {}; // isUI == false
 class OnInputUI : public IGetInputEvents<true>  {}; // isUI == true
 
-#endif // INPUT_HANDLING_COMPONENTS_H
+#endif // INPUT_HANDLING_COMPONENT_H
