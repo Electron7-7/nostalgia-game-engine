@@ -841,3 +841,5 @@ Okay, so the current problem is that inheriting from `OnAppEvent` and the like d
 Fixed! It was me using `m_sInstances` instead of `IGetEvents::m_sInstances` for some reason (at least, that's what fixed it).
 
 And that marks the redesign of the event/input system. Now time to finish the rendering system...
+
+Ugh, that's so much work and I'm kinda burnt out on this project rn. I think I might take a small break.
