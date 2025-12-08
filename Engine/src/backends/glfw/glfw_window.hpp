@@ -60,7 +60,7 @@ private:
     Error Init(const WindowProperties&);
     void Shutdown();
 
-    static constinit frozen::map<GLFWInputID, id_t, Input::KeysCount> s_cGLFWInputLookup;
+    static constinit frozen::map<GLFWInputID, id_t, Key::KeysCount> s_cGLFWInputLookup;
 
     static uint GetMonitorIndex(GLFWmonitor*);
 };

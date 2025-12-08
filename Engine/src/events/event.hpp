@@ -8,43 +8,107 @@
 #include "core/type_helpers.hpp"
 #include "math/containers.hpp"
 
+/**
+ * `Highest, Lowest`: What they say on the tins.
+ *
+ * `P0, P1, P2, ...`: The higher the number, the lower the priority (`P0` is one step below `Highest`).
+**/
+enum class EventPriority : unsigned int
+{
+    Highest = 0,
+    P0, P1, P2,
+    Lowest
+};
+
+enum class EventType : unsigned int
+{
+    InputEvent,
+    AppEvent,
+    EngineEvent,
+};
+
+#ifdef DEBUGGING
+constexpr const char* gDebugEventTypeStr(EventType inType) noexcept
+{
+    switch(inType)
+    {
+    case EventType::InputEvent:
+        return "InputEvent";
+    case EventType::AppEvent:
+        return "AppEvent";
+    case EventType::EngineEvent:
+        return "EngineEvent";
+    }
+}
+#else
+constexpr const char* gDebugEventTypeStr(EventType) noexcept { return ""; }
+#endif // DEBUGGING
+
+#define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }
+#define EVENT_LOG  constexpr std::string DebugLog() const noexcept
+
 class IEvent
 {
 public:
     virtual ~IEvent() noexcept = default;
+
+    static constexpr EventPriority Priority() noexcept { return EventPriority::Lowest; }
+    virtual constexpr EventType Type() const noexcept = 0;
+    virtual constexpr std::string DebugLog() const noexcept { return "[NO LOG]"; }
 };
 
-namespace EventNames
-{
-    inline constinit const char* WindowClose{"window_close"};
-}
+template<EventPriority _Priority = EventPriority::Lowest>
+    class CEvent : public IEvent
+    {
+    public:
+        static constexpr EventPriority Priority() noexcept { return _Priority; }
+    };
 
-class AppEvent : public IEvent
+class AppEvent : public CEvent<EventPriority::Highest>
 {
 public:
     constexpr AppEvent(FARG(std::string) inName): mName{inName} {}
+    EVENT_TYPE(EventType::AppEvent)
+    EVENT_LOG final { return "AppEvent: " + mName; }
+
+    constexpr FARG(std::string) Name() const noexcept
+    { return mName; }
+
+    constexpr bool IsEvent(FARG(std::string) inEventName) const noexcept
+    { return !mName.compare(inEventName); }
 
 protected:
     std::string mName{"Untitled AppEvent"};
 };
 
-class InputEvent : public IEvent
+class EngineEvent : public CEvent<EventPriority::P1>
 {
 public:
+    EVENT_TYPE(EventType::EngineEvent)
+};
+
+class InputEvent : public CEvent<EventPriority::P0>
+{
+public:
+    EVENT_TYPE(EventType::InputEvent)
+    EVENT_LOG override { return GetDebugLog(); }
+
     // All
     virtual size_t GetHash() const { return 0; }
     virtual std::string GetDebugLog() const { return "InputEvent Base Class"; }
 
     // InputEventMouseMotion
     virtual bool IsMouseMotion()                  const { return false; }
-    virtual FARG(Position2D) MousePosition()      const { sPrintMouseWarning("MousePosition");     return empty_position; }
-    virtual FARG(Position2D) LastMousePosition()  const { sPrintMouseWarning("LastMousePosition"); return empty_position; }
-    virtual FARG(Motion2D)   MouseMotion()        const { sPrintMouseWarning("MouseMotion");       return empty_motion;   }
+    virtual FARG(Position2D) MousePosition()      const { return empty_position; }
+    virtual FARG(Position2D) LastMousePosition()  const { return empty_position; }
+    virtual FARG(Motion2D)   MouseMotion()        const { return empty_motion;   }
     // InputEventAction
+    virtual bool IsInputAction()                  const { return false; }
     virtual bool IsAction(FARG(std::string))      const { return false; }
     virtual bool IsActive(FARG(std::string))      const { return false; }
     virtual bool IsJustChanged(FARG(std::string)) const { return false; }
     // InputEventBinding
+    virtual bool IsInputBinding()                 const { return false; }
     virtual bool IsBinding(KeyArg)                const { return false; }
     virtual bool IsRepeated(KeyArg)               const { return false; }
     virtual bool IsPressed(KeyArg)                const { return false; }
@@ -52,7 +116,7 @@ public:
     virtual bool IsJustPressed(KeyArg)            const { return false; }
     virtual bool IsJustReleased(KeyArg)           const { return false; }
     virtual bool IsModifierActive(Key::Modifier)  const { return false; }
-    virtual const Key::Modifiers& GetModifiers()  const { return Key::Modifiers::empty; }
+    virtual Key::Modifiers GetModifiers()         const { return Key::Modifiers{}; }
 
 protected:
     inline static void sPrintMouseWarning(const char* inFunction)
@@ -88,6 +152,7 @@ public:
 
     size_t GetHash() const final;
     std::string GetDebugLog() const final { return std::format("InputEventAction - action: {}, active: {}, changed: {}", mAction, mActive, mJustChanged); }
+    bool IsInputAction() const final { return true; }
     bool IsAction(FARG(std::string)) const final;
     bool IsActive(FARG(std::string)) const final;
     bool IsJustChanged(FARG(std::string)) const final;
@@ -102,10 +167,11 @@ private:
 class InputEventBinding final : public InputEvent
 {
 public:
-    InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated = false, bool isJustChanged = false);
+    InputEventBinding(uint inBindingID, Key::Modifiers inModifiers, bool isPressed, bool isRepeated = false, bool isJustChanged = false);
 
     size_t GetHash()            const final;
     std::string GetDebugLog()   const final { return std::format("InputEventBinding - binding: {}, pressed: {}, changed: {}", mID(), mPressed, mJustChanged); }
+    bool IsInputBinding()       const final { return true; }
     bool IsBinding(KeyArg)      const final;
     bool IsPressed(KeyArg)      const final;
     bool IsRepeated(KeyArg)     const final;
@@ -114,7 +180,7 @@ public:
     bool IsJustReleased(KeyArg) const final;
 
     bool IsModifierActive(Key::Modifier) const final;
-    const Key::Modifiers& GetModifiers() const final;
+    virtual Key::Modifiers GetModifiers() const final;
 
 private:
     friend class InputEventQueue;
@@ -125,4 +191,19 @@ private:
     bool mJustChanged{false};
 };
 
+#define APP_EVENT(NAME) \
+    inline constinit const char* NAME{#NAME};
+
+namespace AppEvents
+{
+    APP_EVENT(WindowClose)
+    APP_EVENT(WindowResize)
+}
+
+template<typename T>
+    concept is_event = std::derived_from<T,IEvent> && !(std::is_same_v<T,IEvent>);
+
+#undef APP_EVENT
+#undef EVENT_TYPE
+#undef EVENT_LOG
 #endif // INPUT_EVENT_H

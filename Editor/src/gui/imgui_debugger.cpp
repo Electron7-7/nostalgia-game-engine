@@ -1,5 +1,6 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
+#include "managers/event_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "settings/player.hpp"
@@ -7,7 +8,7 @@
 #include "settings/graphics.hpp"
 #include "math/containers.hpp"
 #include "managers/manager.hpp"
-#include "managers/event_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/thing_factory.hpp"
@@ -225,10 +226,11 @@ static void s_GeneralDebuggingWindow()
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
-            Checkbox("Print Input Events", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
-            Checkbox("Print Frame#", &g_PrintFrameNumbers);
+            Checkbox("Print Event Logs", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
+            Checkbox("Print Input Logs", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
+            Checkbox("Print Frame#", &gDebugPrintFrameNumbers);
             SameLine();
-            Checkbox("Print Tick#", &g_PrintTickNumbers);
+            Checkbox("Print Tick#", &gDebugPrintTickNumbers);
         if(IRendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
@@ -436,8 +438,8 @@ static void s_TheatreDebuggingWindow()
 #ifdef DEBUGGING
     Text("Theatre File Parser Breakpoint:");
     PushItemWidth(82.0f);
-    InputInt("Line", &g_BreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-    InputInt("Column", &g_BreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    InputInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    InputInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     PushItemWidth(0.0f);
     Separator();
 #endif // DEBUGGING

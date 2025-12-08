@@ -4,7 +4,7 @@
 
 #define CONVERT(GLFW_KEY, KeyID) { GLFW_KEY, KeyID() },
 
-constinit frozen::map<GLFWInputID, id_t, Input::KeysCount>
+constinit frozen::map<GLFWInputID, id_t, Key::KeysCount>
 WindowGLFW::s_cGLFWInputLookup
 {
     CONVERT(GLFW_KEY_0, Key::Zero)

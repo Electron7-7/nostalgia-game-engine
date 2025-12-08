@@ -4,7 +4,7 @@
 #include "demo_controller.hpp"
 #include "bindings.hpp"
 #include "managers/theatre_manager.hpp"
-#include "managers/event_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "theatre/parser/theatre_parser.hpp"
 #include "core/printing.hpp"
@@ -246,7 +246,7 @@ SafeStatus DemoController::ParseLine(const std::string& line, InputEvent& event,
     int just_changed{-1};
 
     if(!id.invalid() &&
-        g_pEventManager->BindingExists(id) &&
+        g_pInputManager->BindingExists(id) &&
         StringToNum(status, status_buffer) &&
         StringToNum(just_changed, just_changed_buffer))
     {

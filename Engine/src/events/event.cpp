@@ -30,8 +30,8 @@ FARG(Motion2D) InputEventMouseMotion::MouseMotion() const
 //////////////////////
 InputEventAction::InputEventAction(FARG(InputAction) inAction):
     mAction{inAction.Name()},
-    mActive{inAction.Status()},
-    mJustChanged{inAction.StatusChanged()} {}
+    mActive{inAction.State()},
+    mJustChanged{inAction.StateJustChanged()} {}
 
 size_t InputEventAction::GetHash() const
 { return ConstexprHash(mAction); }
@@ -48,7 +48,7 @@ bool InputEventAction::IsJustChanged(FARG(std::string) inAction) const
 ///////////////////////
 // InputEventBinding //
 ///////////////////////
-InputEventBinding::InputEventBinding(KeyArg inBindingID, FARG(Key::Modifiers) inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
+InputEventBinding::InputEventBinding(uint inBindingID, Key::Modifiers inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
     mID{inBindingID},
     mModifiers{inModifiers},
     mPressed{isPressed},
@@ -59,9 +59,9 @@ size_t InputEventBinding::GetHash() const
 { return static_cast<size_t>(mID()); }
 
 bool InputEventBinding::IsModifierActive(Key::Modifier inMod) const
-{ return mModifiers.IsActive(inMod); }
+{ return mModifiers.has(inMod); }
 
-const Key::Modifiers& InputEventBinding::GetModifiers() const
+Key::Modifiers InputEventBinding::GetModifiers() const
 { return mModifiers; }
 
 bool InputEventBinding::IsBinding(KeyArg inID) const

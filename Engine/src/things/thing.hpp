@@ -6,7 +6,7 @@
 #include "types.hpp"
 #include "theatre/parser/fwd.hpp"
 #include "components/game_loop.hpp"
-#include "components/input_handling.hpp"
+#include "components/event_handling.hpp"
 
 class Thing : public OnInput, public OnTick, public OnUpdate
 {

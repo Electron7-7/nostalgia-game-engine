@@ -28,11 +28,4 @@ typedef vector<3,double,VectorMembers::XYZ>  Position3D;
 typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
 typedef vector<3,int,VectorMembers::WHL>     Scale3D;
 
-// struct Position2D;
-// struct Motion2D;
-// struct Scale2D;
-// struct Position3D;
-// struct Motion3D;
-// struct Scale3D;
-
 #endif // MATH_FWD_H

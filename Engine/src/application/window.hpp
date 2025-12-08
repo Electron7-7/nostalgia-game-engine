@@ -129,8 +129,6 @@ public:
     Error GetInitStatus()      const { return mInitStatus; }
     FARG(WindowProperties) GetProperties() const { return mData; }
 
-    void SetInputEventCallback(InputEventCallback);
-
     template<typename T> requires std::derived_from<T,IWindow>
         static std::unique_ptr<IWindow> CreateWindow(const WindowProperties& inProperties = {})
         { return std::make_unique<T>(inProperties); }

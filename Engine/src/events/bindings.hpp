@@ -4,12 +4,10 @@
 #include "core/id.hpp"
 #include "common/string_concepts.hpp"
 #include "frozen/set.h"
-#include "for_each_macro.hpp"
 #include "math/concepts.hpp"
+#include "for_each_macro.hpp"
 #include "va_args_count.h"
 
-#define ENUM(ENUM_DEFINITION) static constexpr KeyID ENUM_DEFINITION;
-#define ENUMS(ENUMS...) FOR_EACH(ENUM, ENUMS)
 #define ENUM_LOOKUP(NAME, COUNT_NAME, ENUMS...) \
     inline static constinit const uint COUNT_NAME{VA_ARGS_COUNT(ENUMS)}; \
     inline static constinit const frozen::set<KeyID, COUNT_NAME> NAME{FOR_EACH(ADD_COMMA,ENUMS)};
@@ -18,20 +16,62 @@
 struct KeyID final : public ConstexprID_t
 { using ConstexprID_t::ConstexprID_t; };
 
-template<>
-struct std::hash<KeyID>
-{
-    size_t operator()(const KeyID& other) const noexcept
-    { return std::hash<uint>{}(other()); }
-};
-
-template<class T>
-    concept KeyID_t = is_similar<T, KeyID>;
-
 struct Key
 {
-    ENUMS
-    (
+    struct Modifier
+    {
+    public:
+        constexpr Modifier() noexcept = default;
+
+        ushort id{0b000000};
+
+        static constexpr ushort max{6};
+
+        constexpr operator ushort() const noexcept { return id; }
+
+    private:
+        friend struct Key;
+        constexpr Modifier(ushort inID) noexcept: id{inID} {}
+    };
+
+    struct Modifiers
+    {
+    public:
+        constexpr Modifiers() noexcept = default;
+        template<std::same_as<Modifier>... Mods> requires (sizeof...(Mods) <= Modifier::max)
+            constexpr Modifiers(Mods... inMods) noexcept
+            { for(const Modifier& mod : {inMods...}) {mods_ |= static_cast<ushort>(mod);} }
+
+        void set(Modifier inModifier, bool isActive)
+        {
+            if(isActive) { mods_ |=  static_cast<ushort>(inModifier); }
+            else         { mods_ &= ~static_cast<ushort>(inModifier); }
+        }
+
+        void enable(Modifier inModifier)
+        { set(inModifier, true); }
+
+        void disable(Modifier inModifier)
+        { set(inModifier, false); }
+
+        bool has(Modifier inMod) const
+        { return mods_ == (mods_ | inMod); }
+
+    private:
+        ushort mods_{0};
+    };
+
+    static constinit const Modifier
+        Mod_Shift,
+        Mod_Control,
+        Mod_Alt,
+        Mod_Super,
+        Mod_CapsLock,
+        Mod_NumLock,
+        Mods_None,
+        Mods_All;
+
+    static constexpr KeyID
         // Numbers
         Zero{"0"}, One{"1"}, Two{"2"},   Three{"3"}, Four{"4"},
         Five{"5"}, Six{"6"}, Seven{"7"}, Eight{"8"}, Nine{"9"},
@@ -48,34 +88,7 @@ struct Key
         // Other
         Escape{"Esc"},
         // Mouse Buttons
-        MouseLeft{"LMouse"}, MouseRight{"RMouse"}, MouseMiddle{"Mouse3"}
-    )
-
-    enum class Modifier : ushort {
-        Shift    = 0,
-        Control  = 1,
-        Alt      = 2,
-        Super    = 3,
-        CapsLock = 4,
-        NumLock  = 5,
-    };
-
-    struct Modifiers
-    {
-        std::array<bool,6> mods{false, false, false, false, false, false};
-
-        bool AnyActive() const
-        {
-            for(const auto& mod : mods)
-                { if(!mod) { return false; } }
-            return true;
-        }
-
-        bool IsActive(Modifier inMod) const
-        { return mods[static_cast<ushort>(inMod)]; }
-
-        static const Modifiers empty;
-    };
+        MouseLeft{"LMouse"}, MouseRight{"RMouse"}, MouseMiddle{"Mouse3"};
 
     template<typename T>
         static constexpr bool IsKey(const T& inUnknownArg) noexcept
@@ -93,24 +106,21 @@ struct Key
         static constexpr bool IsKey(const T& inKeyNameArg) noexcept
         { return keys.contains(ConstexprHash(inKeyNameArg)); }
 
-    ENUM_LOOKUP(keys, keys_count,
+    ENUM_LOOKUP(keys, KeysCount,
         Zero,One,Two,Three,Four,Five,Six,Seven,Eight,Nine,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
         LeftShift,LeftControl,LeftAlt,LeftSuper,RightShift,RightControl,RightAlt,RightSuper,
         Enter,Backspace,Tab,Space,Escape,MouseLeft,MouseRight,MouseMiddle)
 };
 
-inline const Key::Modifiers Key::Modifiers::empty{};
+inline constinit const Key::Modifier Key::Mod_Shift    {0b000001};
+inline constinit const Key::Modifier Key::Mod_Control  {0b000010};
+inline constinit const Key::Modifier Key::Mod_Alt      {0b000100};
+inline constinit const Key::Modifier Key::Mod_Super    {0b001000};
+inline constinit const Key::Modifier Key::Mod_CapsLock {0b010000};
+inline constinit const Key::Modifier Key::Mod_NumLock  {0b100000};
+inline constinit const Key::Modifier Key::Mods_None    {0b000000};
+inline constinit const Key::Modifier Key::Mods_All     {0b111111};
 
-namespace Input
-{
-    template<typename T>
-        constexpr bool IsKey(const T& inArg) noexcept { return Key::IsKey(inArg); }
-
-    constexpr uint KeysCount{Key::keys_count};
-}
-
-#undef ENUM
-#undef ENUMS
 #undef ENUM_LOOKUP
 #undef ADD_COMMA
 #endif // INPUT_BINDINGS_H

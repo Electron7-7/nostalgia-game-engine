@@ -8,23 +8,11 @@
 
 // TODO: make a separate project for Theatre file syntax and include error/warning generation?
 
-// Yes, this is stupid. Too bad!"
-#ifdef DEBUGGING
-    int g_BreakOnColumn = -1;
-    int g_BreakOnLine   = -1;
+int gBreakOnColumn {-1};
+int gBreakOnLine   {-1};
 
-    size_t g_Column = 1;
-    size_t g_Line   = 1;
-
-#   define COLUMN   g_Column
-#   define LINE     g_Line
-#else  // !DEBUGGING
-    static size_t s_Column = 1;
-    static size_t s_Line   = 1;
-
-#   define COLUMN   s_Column
-#   define LINE     s_Line
-#endif // DEBUGGING
+size_t gColumn {1};
+size_t gLine   {1};
 
 /*static const std::set<std::string> c_NostalgiaExtensions =
 {
@@ -117,8 +105,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
     ThingData temp_data_swap;
     output.clear();
 
-    COLUMN = 1;
-    LINE   = 1;
+    gColumn = 1;
+    gLine   = 1;
 
     char character = '\0';
     std::string buffer = "";
@@ -144,20 +132,18 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
 
     const unsigned char* data = m_sTheatreFile.Data();
     int data_size = m_sTheatreFile.Size();
-    for(int iterator = 0 ; iterator < data_size ; ++iterator,++COLUMN)
+    for(int iterator = 0 ; iterator < data_size ; ++iterator,++gColumn)
     {
         if(set_new_line)
         {
-            ++LINE;
-            COLUMN = 1;
+            ++gLine;
+            gColumn = 1;
         }
         set_new_line = false;
         character = data[iterator];
 
-#ifdef DEBUGGING
-        if(LINE == g_BreakOnLine && COLUMN == g_BreakOnColumn)
-            { print_debug("Breakpoint opportunity at line {}, column {}", LINE, COLUMN); }
-#endif // DEBUGGING
+    if(gLine == gBreakOnLine && gColumn == gBreakOnColumn)
+        { if(false) { print_debug("Breakpoint opportunity at line {}, column {}", gLine, gColumn); } }
 
 #pragma message("TODO: Make this shit less bad")
         // TODO: Expanding on the message above, figure out how to remove this secondary switch statement (yes, it comes first but it's still secondary)

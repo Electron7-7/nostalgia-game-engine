@@ -811,3 +811,33 @@ Ugh..... I've been looking at input events all wrong. They're not mandatory, the
 
 [12/04/25]
 Happy birthday to me! Okie, time to completely redo the input/event system(s).
+
+All right, so here's some notes from Milanote:
+:::Milanote
+Inputs & Events
+
+Inputs
+processed on-demand via functions like Input::IsKeyDown or Input::IsActionJustPressed
+
+InputEvents
+processed directly via inheriting the Input(InputEvent)  function from another class
+
+AppEvents
+processed by the current Application implementation only
+
+Input Process
+1. the IWindow implementation is responsible for catching inputs as they happen (e.g: WindowGLFW defines a "key callback function" to pass to the GLFW window)
+2. when inputs happen, the InputManager updates the state of the binding that was changed
+3. the updated binding is passed to the EventManager as an InputEventBinding if it is either active or was just deactivated
+4. at any point, the Input:: functions may be called to query the current state of an input binding, action, etc
+5. if the IWindow implementation detects mouse movement (or joystick movement) instead, that information is directly passed to the InputManager to update its relative stored values, and the EventManager to queue an InputEventMouseMotion
+:::
+
+I touched-up `InputAction` a lot; it now uses bitmasks instead of booleans for its states, which makes it so simple as a class that it's all contained in the header!
+
+[12/08/25]
+Okay, so the current problem is that inheriting from `OnAppEvent` and the like doesn't add that class to the "instances" vector. Why? Also, the WiFi is down, so I get to try and solve this all on my own.
+
+Fixed! It was me using `m_sInstances` instead of `IGetEvents::m_sInstances` for some reason (at least, that's what fixed it).
+
+And that marks the redesign of the event/input system. Now time to finish the rendering system...

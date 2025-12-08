@@ -55,6 +55,9 @@ private:
     inline static const std::string s_cEmpty{""};
 };
 
+template<typename T>
+    concept ID_t = std::unsigned_integral<T> || std::convertible_to<T, uint> || std::convertible_to<T, base_id>;
+
 struct ConstexprID_t : public base_id
 {
 public:
@@ -65,7 +68,7 @@ public:
 
     constexpr ~ConstexprID_t() noexcept {}
 
-    template<typename T> requires is_similar<T, ConstexprID_t>
+    template<typename T> requires can_become<T, ConstexprID_t>
         consteval ConstexprID_t operator+(const T& Other) const { return ConstexprID_t{id_ + Other}; }
 };
 
@@ -100,7 +103,7 @@ struct ID final : public base_id
     const std::string&   name() const final { return m_pName; }
     const char*        c_name() const final { return m_pName.data(); }
 
-    template<typename T> requires is_similar<T, ID>
+    template<typename T> requires can_become<T, ID>
         ID operator+(const T& Other) const { return ID{id_ + Other, m_pName}; }
 
 private:

@@ -9,10 +9,8 @@
 #include <cassert>
 #include <thread>
 
-#ifdef DEBUGGING
-    bool g_PrintFrameNumbers = false;
-    bool g_PrintTickNumbers  = false;
-#endif // DEBUGGING
+bool gDebugPrintFrameNumbers {false};
+bool gDebugPrintTickNumbers  {false};
 
 using namespace ManagerEnums;
 
@@ -183,6 +181,7 @@ void IManager::Start()
         InvokeMethod(&IManager::Update);
         MainWindow().Update();
         ++m_sFrameNumber;
+        if(gDebugPrintFrameNumbers) { print_debug("Frame #{}", m_sFrameNumber); }
     }
 
     tick_thread.join();
@@ -205,8 +204,9 @@ void IManager::TickLoop()
         while(current_tick_length >= 1.0)
         {
             --current_tick_length;
-            ++m_sTickNumber;
             InvokeMethod(&IManager::Tick);
+            ++m_sTickNumber;
+            if(gDebugPrintTickNumbers) { print_debug("Tick #{}", m_sTickNumber); }
         }
     }
 }

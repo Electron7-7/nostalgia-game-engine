@@ -166,13 +166,6 @@ typedef vector<3,double,VectorMembers::XYZ>  Position3D;
 typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
 typedef vector<3,int,VectorMembers::WHL>     Scale3D;
 
-// struct Position2D : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Motion2D   : public vector<2,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Scale2D    : public vector<2,int,VectorMembers::WHL>    { using vector::vector; };
-// struct Position3D : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Motion3D   : public vector<3,double,VectorMembers::XYZ> { using vector::vector; };
-// struct Scale3D    : public vector<3,int,VectorMembers::WHL>    { using vector::vector; };
-
 #undef Derived
 #undef Same
 #undef __INDEX_ACCESSOR

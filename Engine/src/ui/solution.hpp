@@ -8,9 +8,9 @@
 #include "core/printing.hpp"
 #include "core/type_helpers.hpp"
 #include "components/game_loop.hpp"
-#include "components/input_handling.hpp"
+#include "components/event_handling.hpp"
 
-class IUISolution : public OnUpdate, public OnInputUI, public OnTheatreChanged
+class IUISolution : public OnUpdate, public OnInput, public OnTheatreChanged
 {
 public:
     IUISolution(const std::string& inDebugName = "IUISolution"): mID{inDebugName}
@@ -23,7 +23,7 @@ public:
     virtual void  Shutdown() = 0;
 
     using OnUpdate::Update;
-    using OnInputUI::Input;
+    using OnInput::Input;
     using OnTheatreChanged::OnTheatreEntered;
     using OnTheatreChanged::OnTheatreExited;
 

@@ -118,9 +118,7 @@ public:
 inline Manager::~Manager()
 { IManager::Remove(this); }
 
-#ifdef DEBUGGING
-    extern bool g_PrintFrameNumbers;
-    extern bool g_PrintTickNumbers;
-#endif // DEBUGGING
+extern bool gDebugPrintFrameNumbers;
+extern bool gDebugPrintTickNumbers;
 
 #endif // MANAGER_H

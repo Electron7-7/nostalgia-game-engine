@@ -1,9 +1,9 @@
 #include "glfw_window.hpp"
-#include "application/application.hpp"
 #include "application/monitor.hpp"
-#include "managers/event_manager.hpp"
 #include "events/event.hpp"
 #include "events/event_queue.hpp"
+#include "managers/event_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "rendering/graphics_context.hpp"
 #include "core/printing.hpp"
 
@@ -38,16 +38,15 @@ void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonito
     }
 }
 
-#pragma message("TODO: add an 'are you sure?' message or something similar for closing the window")
 void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow*)
-{ Application()->Stop(); }
+{ EventManager::Queue()->add<AppEvent>(AppEvents::WindowClose); }
 
-#pragma message("TODO: send out a 'window resize' event (i'll need to implement the non-input event system)")
 void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWindow, int inWidth, int inHeight)
 {
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mData.width  = inWidth;
     pWindow->mData.height = inHeight;
+    EventManager::Queue()->add<AppEvent>(AppEvents::WindowResize);
 }
 
 void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindow, int inX, int inY)
@@ -65,21 +64,15 @@ void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindo
     pWindow->mMouseCurrent.y() = inY;
 }
 
-Key::Modifiers sGetModifierKeys(int mods)
+Key::Modifiers sConvertModifierKeys(int mods)
 {
     Key::Modifiers out_mods{};
-    if(mods & GLFW_MOD_SHIFT)
-        { out_mods.mods[(ushort)Key::Modifier::Shift] = true; }
-    if(mods & GLFW_MOD_CONTROL)
-        { out_mods.mods[(ushort)Key::Modifier::Control] = true; }
-    if(mods & GLFW_MOD_ALT)
-        { out_mods.mods[(ushort)Key::Modifier::Alt] = true; }
-    if(mods & GLFW_MOD_SUPER)
-        { out_mods.mods[(ushort)Key::Modifier::Super] = true; }
-    if(mods & GLFW_MOD_CAPS_LOCK)
-        { out_mods.mods[(ushort)Key::Modifier::CapsLock] = true; }
-    if(mods & GLFW_MOD_NUM_LOCK)
-        { out_mods.mods[(ushort)Key::Modifier::NumLock] = true; }
+    out_mods.set(Key::Mod_Shift,    mods & GLFW_MOD_SHIFT);
+    out_mods.set(Key::Mod_Control,  mods & GLFW_MOD_CONTROL);
+    out_mods.set(Key::Mod_Alt,      mods & GLFW_MOD_ALT);
+    out_mods.set(Key::Mod_Super,    mods & GLFW_MOD_SUPER);
+    out_mods.set(Key::Mod_CapsLock, mods & GLFW_MOD_CAPS_LOCK);
+    out_mods.set(Key::Mod_NumLock,  mods & GLFW_MOD_NUM_LOCK);
     return out_mods;
 }
 
@@ -91,12 +84,11 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
     else if(const auto& found_it{s_cGLFWInputLookup.find(key)};
         found_it != s_cGLFWInputLookup.end())
     {
-        g_pEventManager->GetListeningInputEventQueue()
-            ->add<InputEventBinding>(found_it->second,
-                sGetModifierKeys(mods),
+        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second,
+                sConvertModifierKeys(mods),
                 action != GLFW_RELEASE,
                 action == GLFW_REPEAT,
-                g_pEventManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
+                g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
     }
 }
 

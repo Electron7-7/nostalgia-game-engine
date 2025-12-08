@@ -1,13 +1,13 @@
 #include "nostalgia_goggles.hpp"
 #include "application/window.hpp"
 #include "events/event.hpp"
-#include "managers/event_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
 
 std::string gToggleFullscreen{"ToggleFullscreen"};
 
-static void sInputEventHandler(InputEvent* event)
+void NostalgiaGoggles::Input(InputEvent* event)
 {
     if(event->IsActive(gToggleFullscreen))
     {
@@ -15,7 +15,7 @@ static void sInputEventHandler(InputEvent* event)
             ? IWindow::WINDOW_MODE_FULLSCREEN
             : IWindow::WINDOW_MODE_WINDOWED);
     }
-    else if(event->IsJustPressed(Key::Q) && event->IsModifierActive(Key::Modifier::Control))
+    else if(event->IsJustPressed(Key::Q) && event->IsModifierActive(Key::Mod_Control))
         { Application()->Stop(); }
 }
 
@@ -27,12 +27,12 @@ int NostalgiaGoggles::Main()
     ImGui_Editor::Activate();
     ImGui_Debugger::Activate();
 
-    g_pEventManager->SetInputEventCallback(sInputEventHandler);
-    g_pEventManager->SetAction(InputAction{gToggleFullscreen, Key::F});
-    g_pEventManager->SetAction(InputAction{"+forward",  Key::W});
-    g_pEventManager->SetAction(InputAction{"+backward", Key::S});
-    g_pEventManager->SetAction(InputAction{"+left",     Key::A});
-    g_pEventManager->SetAction(InputAction{"+right",    Key::D});
+    // g_pInputManager->SetInputEventCallback(sInputEventHandler);
+    g_pInputManager->SetAction(InputAction{gToggleFullscreen, Key::F});
+    g_pInputManager->SetAction(InputAction{"+forward",  Key::W});
+    g_pInputManager->SetAction(InputAction{"+backward", Key::S});
+    g_pInputManager->SetAction(InputAction{"+left",     Key::A});
+    g_pInputManager->SetAction(InputAction{"+right",    Key::D});
 
     IManager::Start(); // gameloop
 
@@ -40,4 +40,11 @@ int NostalgiaGoggles::Main()
     ImGui_Editor::Deactivate();
 
     return 0;
+}
+
+void NostalgiaGoggles::Event(AppEvent* inEvent)
+{
+    print_debug("AppEvent");
+    if(inEvent->IsEvent(AppEvents::WindowClose))
+        { print_debug("WindowClose"); Stop(); }
 }

@@ -4,10 +4,7 @@
 #include <concepts>
 #include <type_traits>
 
-template<typename T, typename Desired>
-    concept is_similar = std::is_same_v<T, Desired> ||
-        std::is_convertible_v<T, Desired> ||
-        std::is_constructible_v<Desired, T> ||
-        std::derived_from<Desired, T>;
+template<typename From, typename To>
+    concept can_become = std::derived_from<From,To> || std::is_convertible_v<From,To>;
 
 #endif // CONCEPTS_H

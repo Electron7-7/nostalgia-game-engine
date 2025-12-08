@@ -1,30 +1,50 @@
 #include "action.hpp"
 
-FARG(std::string) InputAction::Name() const
+bool InputAction::UpdateState(uint inKeyID, bool inKeyState)
+{
+    if(auto it{mBitMasks.find(inKeyID)}; it != mBitMasks.end())
+    {
+        mPreviousField = mBitField;
+        if(inKeyState) { mBitField |=  it->second; return true; }
+        else           { mBitField &= ~it->second; return mPreviousField != mBitField; }
+    }
+    return false;
+}
+
+Error InputAction::Erase(uint inKeyID)
+{
+    if(mBitMasks.empty())
+        { return ERR_EMPTY; }
+    else if(auto it{mBitMasks.find(inKeyID)}; it != mBitMasks.end())
+    {
+        mBitMaskIter = (it->second != 0b1)
+            ? it->second >> 1
+            : it->second;
+        it = mBitMasks.erase(it);
+        while(it != mBitMasks.end())
+        {
+            it->second = mBitMaskIter <<= 1;
+            ++it;
+        }
+        return OK;
+    }
+    return ERR_NOT_FOUND;
+}
+
+Error InputAction::Add(uint inKeyID)
+{
+    if(Full())
+        { return ERR_FULL; }
+    else if(auto it{mBitMasks.find(inKeyID)}; it == mBitMasks.end())
+        { mBitMasks[inKeyID] = mBitMaskIter <<= 1; return OK; }
+    return ERR_ALREADY_EXISTS;
+}
+
+const std::string& InputAction::Name() const
 { return mName; }
 
-void InputAction::UpdateStatus(FARG(KeyID) inKeyID, bool isActive)
-{
-    mLastStatus = mCurrentStatus;
-    mCurrentStatus = isActive;
-    for(auto [id, state] : mKeyIDs)
-    {
-        if(inKeyID == id)
-            { state = isActive; }
-        if(!state)
-            { mCurrentStatus = false; }
-    }
-}
+bool InputAction::State() const
+{ return mTrueState == mBitField; }
 
-void InputAction::UpdateStatus()
-{
-    mLastStatus = mCurrentStatus;
-    for(auto [id, state] : mKeyIDs)
-        { if(!state) { mCurrentStatus = false; } }
-}
-
-bool InputAction::Status() const
-{ return mCurrentStatus; }
-
-bool InputAction::StatusChanged() const
-{ return mCurrentStatus != mLastStatus; }
+bool InputAction::StateJustChanged() const
+{ return mBitField == mPreviousField; }

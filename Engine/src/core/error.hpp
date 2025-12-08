@@ -12,7 +12,9 @@ enum Error {
     ERR_SWITCH_DEFAULT, // A switch statement's `default` case was met (and is considered an error)
     ERR_INDEX_OUT_OF_BOUNDS,
     ERR_NOT_FOUND, // Generic search failure
-    ERR_ALREADY_EXISTS, // Example use: EventManager::AddAction returns this if the given "action name" already exists in the unordered map
+    ERR_ALREADY_EXISTS, // Example use: InputManager::AddAction returns this if the given "action name" already exists in the unordered map
+    ERR_EMPTY, // Some container is empty
+    ERR_FULL, // Some container is full
     ERR_FILE, // Generic file error
     ERR_FILE_LOAD, // Specifically, a `FileData::LoadFile` error
     ERR_FILE_READ,

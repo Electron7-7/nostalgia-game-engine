@@ -83,9 +83,9 @@ void ImGui_Editor::Input(InputEvent* event)
         }
         return;
     }
-    else if(event->IsJustPressed(Key::D) && event->IsModifierActive(Key::Modifier::Control))
+    else if(event->IsJustPressed(Key::D) && event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
-    else if(event->IsJustPressed(Key::G) && event->IsModifierActive(Key::Modifier::Control))
+    else if(event->IsJustPressed(Key::G) && event->IsModifierActive(Key::Mod_Control))
         { sShowDemoWindow  = !sShowDemoWindow; }
 }
 

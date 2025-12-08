@@ -2,15 +2,17 @@
 #define APPLICATION_H
 
 #include "window.hpp"
+#include "components/event_handling.hpp"
 
 #include <memory>
 
-class IApplication
+class IApplication : public OnAppEvent
 {
 public:
     virtual int  Main() { return 1; }
     virtual void Stop() {}
     virtual const char* Name() { return "IApplication"; }
+    virtual void Event(AppEvent*) override {}
 
     IApplication();
     virtual ~IApplication() = default;

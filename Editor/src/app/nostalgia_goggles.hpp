@@ -5,12 +5,14 @@
 
 #include <string>
 
-class NostalgiaGoggles : public IApplication
+class NostalgiaGoggles : public IApplication, public OnInput
 {
 public:
     int Main() override;
     void Stop() override;
     const char* Name() override { return "Nostalgia Goggles"; }
+    void Event(AppEvent*) override;
+    void Input(InputEvent*) override;
 };
 
 extern std::string gToggleFullscreen;

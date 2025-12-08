@@ -3,6 +3,7 @@
 #include "managers/physics_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/render_manager.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/event_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "window.hpp"
@@ -25,7 +26,8 @@ IApplication::IApplication()
     IManager::Add(g_pPhysicsManager);
     IManager::Add(g_pTheatreManager);
     IManager::Add(g_pRenderManager);
+    IManager::Add(g_pInputManager);
     IManager::Add(g_pEventManager);
     IManager::Add(g_pUIManager);
-    mMainWindow = IWindow::CreateWindow<WindowGLFW>(); // Using the `WindowProperties` default constructor
+    mMainWindow = IWindow::CreateWindow<WindowGLFW>(); // Using the default `WindowProperties` constructor
 }
