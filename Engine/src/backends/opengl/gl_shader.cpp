@@ -6,6 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 
+GLShader::GLShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
+{ CompileShader(vertex_shader_code, fragment_shader_code); }
+
 bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {
     const char* v_shader_code{vertex_shader_code.data()};
@@ -44,6 +47,12 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glDeleteShader(fragment);
     return mIsCompiled = true;
 }
+
+void GLShader::Bind() const
+{ glUseProgram(mID()); }
+
+void GLShader::Unbind() const
+{ glUseProgram(0); }
 
 void GLShader::SetUniform(FARG(std::string) name, FARG(int) value) const
 { glProgramUniform1i(mID(), glGetUniformLocation(mID(), name.data()), value); }

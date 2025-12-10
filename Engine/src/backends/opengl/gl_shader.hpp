@@ -8,7 +8,13 @@ class GLShader : public IShader
 public:
     virtual ~GLShader() = default;
 
+    GLShader() = default;
+    GLShader(FARG(std::string) VertexShaderCode, FARG(std::string) FragmentShaderCode);
+
     bool CompileShader(FARG(std::string) VertexShaderCode, FARG(std::string) FragmentShaderCode);
+
+    void Bind()   const final;
+    void Unbind() const final;
 
     void SetUniform(FARG(std::string), FARG(int))       const final;
     void SetUniform(FARG(std::string), FARG(float))     const final;
