@@ -31,6 +31,13 @@ void OpenGLVertexBuffer::SetData(const void* inData, uint inSize)
     glBufferSubData(GL_ARRAY_BUFFER, 0, inSize, inData);
 }
 
+FARG(IBuffer::Layout) OpenGLVertexBuffer::GetLayout() const
+{ return mLayout; }
+
+void OpenGLVertexBuffer::SetLayout(FARG(Layout) inLayout)
+{ mLayout = inLayout; }
+
+
 OpenGLIndexBuffer::OpenGLIndexBuffer(uint* inIndices, uint inCount):
     mCount{inCount}
 {
@@ -49,3 +56,6 @@ void OpenGLIndexBuffer::Bind()
 
 void OpenGLIndexBuffer::Unbind()
 { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+
+uint OpenGLIndexBuffer::GetCount() const
+{ return mCount; }
