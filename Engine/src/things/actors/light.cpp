@@ -79,8 +79,8 @@ Shared<ThingData> light_t::GetVariables() const
     data->AddVariable(mEnabled, "Enabled");
     data->AddVariable(mVisible, "Visible");
 #ifndef DEBUGGING // See above pragma message
-    data.RemoveVariable("Mesh");
-    data.RemoveVariable("Material");
+    data->RemoveVariable("Mesh");
+    data->RemoveVariable("Material");
 #endif
 
     return data;

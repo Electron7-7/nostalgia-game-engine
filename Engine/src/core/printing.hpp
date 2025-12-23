@@ -119,6 +119,8 @@ template<class... Args>
 #   define PRINT_PRETTY_FUNCTION    __print_function_disabled()
 #   define PRINT_PRETTY_CONSTRUCTOR __print_function_disabled()
 #   define PRINT_PRETTY_DESTRUCTOR  __print_function_disabled()
+#   define PRINT_PRETTY_CONSTRUCTOR_EXT(...) __print_function_disabled()
+#   define PRINT_PRETTY_DESTRUCTOR_EXT(...)  __print_function_disabled()
 #   define print_debug(...)         __print_function_disabled()
 #   define print_debugv(...)        __print_function_disabled()
 #   define debug_print(...)         __print_function_disabled()
