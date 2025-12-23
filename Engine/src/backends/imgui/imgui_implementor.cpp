@@ -1,22 +1,25 @@
 #include "imgui_implementor.hpp"
+#include "core/printing.hpp"
 #include "application/window.hpp"
-#include "rendering/renderer_api.hpp"
 #include "application/application.hpp"
-
+#include "rendering/renderer_api.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_impl_glfw.h"
 #include "DearImGui/imgui_impl_opengl3.h"
 #include "DearImGui/imgui_impl_opengl3_loader.h"
 
-#define ErrorGraphicsAPI() print_error("invalid/unknown window handler detected!"); return
-#define ErrorWindowingLibrary() print_error("invalid/unknown graphics API detected!"); return
-#define ReturnIf(BAD_CONDITION, RETURN_VALUE...) if(BAD_CONDITION) { return RETURN_VALUE; }
+#define ErrorGraphicsAPI print_error("invalid/unknown window handler detected!"); return
+#define ErrorWindowingLibrary print_error("invalid/unknown graphics API detected!"); return
+#define ReturnIf(CONDITION, RETURN_VALUE...) if(CONDITION) { return RETURN_VALUE; }
 #define BadPrint(FUNC, COND, MSG) FUNC("Fail condition met: '" #COND "'. " MSG);
-#define WarnIf(BAD_CONDITION, MESSAGE...) if(BAD_CONDITION) { BadPrint(print_warning, BAD_CONDITION, ## MESSAGE); }
-#define ErrorIf(BAD_CONDITION, MESSAGE...) if(BAD_CONDITION) { BadPrint(print_error, BAD_CONDITION, ## MESSAGE); }
+#define WarnIf(CONDITION, MESSAGE...)  if(CONDITION) { BadPrint(print_warning, CONDITION, ## MESSAGE); }
+#define ErrorIf(CONDITION, MESSAGE...) if(CONDITION) { BadPrint(print_error, CONDITION, ## MESSAGE); }
 
-static GraphicsAPI sGraphicsAPI() { return IRendererAPI::GetAPI(); }
-static NativeWindowType sWindowType() { return MainWindow().GetNativeWindowType(); }
+static GraphicsAPI sGraphicsAPI() { return RendererAPI::GetAPI(); }
+static NativeWindowType sWindowType() { return MainWindow()->GetNativeWindowType(); }
+
+static ImGui_Implementor sImGuiImplementor{};
+ImGui_Implementor* g_pImGuiImplementor{&sImGuiImplementor};
 
 void ImGui_Implementor::Attach()
 {
@@ -33,16 +36,16 @@ void ImGui_Implementor::Attach()
         switch(sWindowType())
         {
         case NATIVE_GLFW_WINDOW:
-            ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(MainWindow().GetNativeWindow()), true);
+            ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(MainWindow()->GetNativeWindow()), true);
             break;
         default:
-            ErrorGraphicsAPI();
+            ErrorGraphicsAPI;
         }
 #pragma message("TODO: store the GLSL version in a global variable")
         ImGui_ImplOpenGL3_Init("#version 430");
         break;
     default:
-        ErrorWindowingLibrary();
+        ErrorWindowingLibrary;
     }
     mAttached = true;
     mState = STATE_IDLE;
@@ -62,11 +65,11 @@ void ImGui_Implementor::Detach()
             ImGui_ImplGlfw_Shutdown();
             break;
         default:
-            ErrorGraphicsAPI();
+            ErrorGraphicsAPI;
         }
         break;
     default:
-        ErrorWindowingLibrary();
+        ErrorWindowingLibrary;
     }
     ImGui::DestroyContext();
     mAttached = false;
@@ -83,7 +86,7 @@ void ImGui_Implementor::Begin()
         ImGui_ImplOpenGL3_NewFrame();
         break;
     default:
-        ErrorGraphicsAPI();
+        ErrorGraphicsAPI;
     }
 
     switch(sWindowType())
@@ -92,7 +95,7 @@ void ImGui_Implementor::Begin()
         ImGui_ImplGlfw_NewFrame();
         break;
     default:
-        ErrorWindowingLibrary();
+        ErrorWindowingLibrary;
     }
 
     ImGui::NewFrame();
@@ -104,7 +107,7 @@ void ImGui_Implementor::End()
     ErrorIf(!mAttached)
     mState = STATE_ENDING_FRAME;
     ImGuiIO& io{ImGui::GetIO()};
-    io.DisplaySize = ImVec2{static_cast<float>(MainWindow().GetWidth()), static_cast<float>(MainWindow().GetHeight())};
+    io.DisplaySize = ImVec2{static_cast<float>(MainWindow()->GetWidth()), static_cast<float>(MainWindow()->GetHeight())};
 
     ImGui::Render();
     switch(sGraphicsAPI())
@@ -113,7 +116,7 @@ void ImGui_Implementor::End()
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         break;
     default:
-        ErrorGraphicsAPI();
+        ErrorGraphicsAPI;
     }
 #pragma message("TODO: decide if I'm using ImGui's docking branch for multi-viewport support (multiple imgui windows)")
     /*if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

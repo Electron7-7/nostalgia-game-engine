@@ -1,4 +1,6 @@
-#ifndef THINKER_H
+#ifdef FWD_DCL
+    class Thinker;
+#elif !defined THINKER_H
 #define THINKER_H
 
 #include "../thing.hpp"
@@ -6,11 +8,8 @@
 class Thinker : public Thing
 {
 public:
-    virtual void SetupVariables(const ThingData&) {}
-    // virtual ThingData GetVariables() const;
-
-    virtual bool Initialize() { return true; }
-    virtual void Destroy() {}
+    // virtual void SetVariables(Farg<ThingData>) override;
+    // virtual Shared<ThingData> GetVariables() const override;
 };
 
 #endif // THINKER_H

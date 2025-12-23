@@ -1,24 +1,26 @@
 #include "physics_manager.hpp"
-#include "managers/theatre_manager.hpp"
-#include "things/thing_factory.hpp"
+#include "theatre_manager.hpp"
+#include "core/printing.hpp"
+#include "core/enum_prettifier.hpp"
+#include "theatre/variable_registry.hpp"
 #include "things/devices/collider.hpp"
 #include "settings/engine.hpp"
-#include "core/printing.hpp"
 #include "math/conversion.hpp"
-#include "physics/enums.hpp"
 
-#include "Jolt/RegisterTypes.h"
-#include "Jolt/Physics/PhysicsSettings.h"
-#include "Jolt/Core/JobSystemThreadPool.h"
-#include "Jolt/Physics/Body/BodyCreationSettings.h"
-#include "Jolt/Physics/Collision/Shape/BoxShape.h"
-#include "Jolt/Physics/Collision/Shape/SphereShape.h"
-#include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
-#include "Jolt/Physics/Collision/Shape/CylinderShape.h"
-#include "Jolt/Physics/Collision/ObjectLayer.h"
-#include "Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h"
-#include "Jolt/Physics/Collision/ContactListener.h"
-#include "Jolt/Physics/Body/BodyActivationListener.h"
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
 
 #include <cstdarg>
 
@@ -33,9 +35,9 @@ bool gEnableMsg_ContactRemoved   = false;
 bool gEnableMsg_BodyActivated    = false;
 bool gEnableMsg_BodyDeactivated  = false;
 
-//
-// BEGIN JOLT BOILERPLATE
-//
+////////////////////////////
+// BEGIN JOLT BOILERPLATE //
+////////////////////////////
 
 // You can add as many layers as you want
 namespace Layers
@@ -199,9 +201,9 @@ static bool sJoltAssertFailed(const char* in_expression, const char* in_message,
 }
 #endif // JPH_ENABLE_ASSERTS
 
-//
-// END JOLT BOILERPLATE
-//
+//////////////////////////
+// END JOLT BOILERPLATE //
+//////////////////////////
 
 #pragma message("TODO: Implement custom job system and replace `JobSystemThreadPool`")
 Jolt_BPLayerInterface       sBroadPhaseLayerInterface;
@@ -213,7 +215,7 @@ Jolt_ContactListener        sContactListener;
 static std::map<ID, BodyID> sBodyIDMap{};
 
 static PhysicsManager sPhysicsManager;
-PhysicsManager* g_pPhysicsManager = &sPhysicsManager;
+PhysicsManager* g_pPhysicsManager{&sPhysicsManager};
 
 // TODO: Read JoltPhysics `HelloWorld.cpp` and make the necessary changes as you implement more of the engine
 bool PhysicsManager::Init()
@@ -224,8 +226,18 @@ bool PhysicsManager::Init()
     Trace = sJoltTraceImpl;
     JPH_IF_ENABLE_ASSERTS(AssertFailed = sJoltAssertFailed;)
 
-    mTempAllocator = new TempAllocatorImpl(10 * 1024 * 1024);
-    mJobSystem     = new JobSystemThreadPool(cMaxPhysicsJobs, cMaxPhysicsBarriers);
+    mTempAllocator = new TempAllocatorImpl{10 * 1024 * 1024};
+    mJobSystem     = new JobSystemThreadPool{cMaxPhysicsJobs, cMaxPhysicsBarriers};
+
+#ifdef DEBUGGING
+    EnumPrettifier::Set("Box",       PhysicsBodyShape::Box,        "PhysicsBodyShape");
+    EnumPrettifier::Set("Sphere",    PhysicsBodyShape::Sphere,     "PhysicsBodyShape");
+    EnumPrettifier::Set("Capsule",   PhysicsBodyShape::Capsule,    "PhysicsBodyShape");
+    EnumPrettifier::Set("Cylinder",  PhysicsBodyShape::Cylinder,   "PhysicsBodyShape");
+    EnumPrettifier::Set("Dynamic",   PhysicsBodyMotion::Dynamic,   "PhysicsBodyMotion");
+    EnumPrettifier::Set("Kinematic", PhysicsBodyMotion::Kinematic, "PhysicsBodyMotion");
+    EnumPrettifier::Set("Static",    PhysicsBodyMotion::Static,    "PhysicsBodyMotion");
+#endif // DEBUGGING
 
     return true;
 }
@@ -299,8 +311,8 @@ bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
     GetBodyInterface().RemoveBody(sBodyIDMap.at(uid));
     GetBodyInterface().DestroyBody(sBodyIDMap.at(uid));
     print_jolt("Body Destroyed - Shape: {}, Motion: {}",
-        collider->Shape(),
-        collider->Motion());
+        EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
+        EnumPrettifier::Get(collider->Motion(), EnumSet::PhysicsBodyMotion));
     sBodyIDMap.erase(uid);
     return true;
 }
@@ -370,17 +382,17 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
             layer);
         break;
     default:
-        print_error("invalid physics body type '{}' from {}#{}",
-            collider->Shape(),
-            g_pThingFactory->GetTypeName(collider->type()),
-            uid);
+        print_error("invalid physics body type '{}' from {} w/ uid#{}",
+            EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
+            collider->type().name(),
+            uid[]);
         return false;
     }
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
     sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
     print_jolt("Body Created - Shape: {}, Motion: {}",
-        collider->Shape(),
-        collider->Motion());
+        EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
+        EnumPrettifier::Get(collider->Motion(), EnumSet::PhysicsBodyMotion));
     return !sBodyIDMap.at(uid).IsInvalid();
 }
 
@@ -389,8 +401,8 @@ bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> outpu
     if(!mSystem)
         { return print_error("Jolt physics system is nullptr!"); }
     else if(check_body_id && (!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid()))
-        { return print_error("No valid BodyID paired with UID {}", uid); }
-    else if(!output && !g_pTheatreManager->GetThing<Collider>(uid, output).PrintCheck())
-        { return print_error("No Collider with UID {}", uid); }
+        { return print_error("No valid BodyID paired with UID {}", uid[]); }
+    else if(!output && !print_error_enum(g_pTheatreManager->GetThing<Collider>(uid, output)))
+        { return print_error("No Collider with UID#{}", uid[]); }
     return true;
 }

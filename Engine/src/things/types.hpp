@@ -3,23 +3,26 @@
 
 #include "core/id.hpp"
 
+// struct TTID : public PID { using PID::PID; };
+using TTID = PID;
+
 namespace ThingType
 {
-    const ID Thing            {"Thing"};
-    const ID Thinker          {"Thinker"};
-    const ID Resource         {"Resource"};
-    const ID Mesh             {"Mesh"};
-    const ID Texture          {"Texture"};
-    const ID Font             {"Font"};
-    const ID Device           {"Device"};
-    const ID Collider         {"Collider"};
-    const ID Material         {"Material"};
-    const ID MeshInstance     {"MeshInstance"};
-    const ID Actor            {"Actor"};
-    const ID PointLight       {"PointLight"};
-    const ID SpotLight        {"SpotLight"};
-    const ID DirectionalLight {"DirectionalLight"};
-    const ID NostalgiaPlayer  {"NostalgiaPlayer"};
+    const TTID Thing            {"Thing"};
+    const TTID Thinker          {"Thinker"};
+    const TTID Resource         {"Resource"};
+    const TTID Mesh             {"Mesh"};
+    const TTID Texture          {"Texture"};
+    const TTID Font             {"Font"};
+    const TTID Device           {"Device"};
+    const TTID Collider         {"Collider"};
+    const TTID Material         {"Material"};
+    const TTID MeshInstance     {"MeshInstance"};
+    const TTID Actor            {"Actor"};
+    const TTID PointLight       {"PointLight"};
+    const TTID SpotLight        {"SpotLight"};
+    const TTID DirectionalLight {"DirectionalLight"};
+    const TTID NostalgiaPlayer  {"NostalgiaPlayer"};
 }
 
 #endif // THING_TYPES_H

@@ -102,6 +102,8 @@ Things
             Mesh = <DefaultCube>
             Material = <RedMaterial>
         }
+        Position = [3, -5, -3]
+        Scale = [20, 2, 20]
     }
 
     Collider DoomCollider

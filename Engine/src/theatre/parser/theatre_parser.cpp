@@ -1,10 +1,15 @@
 #include "theatre_parser.hpp"
+#include "core/printing.hpp"
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
-#include "common/string_to_num.hpp"
-#include "common/string_compare.hpp"
 
 #include <string>
+
+#define SYNTAX_MESSAGE(TYPE, FMT, ARGS...) \
+    print_##TYPE##v(VERBOSE0, "file {}({}:{})`{}`", FMT, m_sTheatreFile.Path(), gLine, gColumn, ## ARGS);
+
+#define SYNTAX_WARNING(warning, FMT, ARGS...) SYNTAX_MESSAGE(FMT, ## ARGS)
+#define SYNTAX_ERROR(error, FMT, ARGS...) SYNTAX_MESSAGE(FMT, ## ARGS)
 
 // TODO: make a separate project for Theatre file syntax and include error/warning generation?
 
@@ -93,46 +98,46 @@ bool TheatreParser::ParseTheatreFileFromMemory(const FileData& data, TheatreData
 
 SafeReturn<std::string> TheatreParser::WriteTheatre(const TheatreData& data, const std::string& file_path)
 {
-    std::string final_path = (FileSystem::HasStem(file_path)) ? file_path : FileSystem::Directory(file_path) + FileSystem::ReplaceExtension(".nt", data.name);
+    std::string final_path{(FileSystem::HasStem(file_path))
+        ? file_path
+        : FileSystem::Directory(file_path) + FileSystem::ReplaceExtension(".nt", data.name)};
     return SafeReturn(final_path, FileSystem::try_WriteFileFromString(final_path, data.formatted()));
 }
 
+#pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
 bool TheatreParser::ReadTheatre(TheatreData& output)
 {
-#pragma message("TODO: If/when I decide to make Theatres an object and allow for multiple Theatres to be loaded, I need a way of storing/clearing *only* that Theatre's IDs (probably as a range?)")
-
-    ThingData temp_data;
-    ThingData temp_data_swap;
     output.clear();
+    gColumn = gLine = 1;
 
-    gColumn = 1;
-    gLine   = 1;
+    char character{'\0'};
 
-    char character = '\0';
-    std::string buffer = "";
+    Location location {Location::TopLevel};
+    Defining defining {Defining::Name};
+    Parsing  parsing  {Parsing::Nothing};
+    Context  context  {Context::None};
 
-    Location location = Location::TopLevel;
-    Defining defining = Defining::Name;
-    Parsing  parsing  = Parsing::Nothing;
-    Context  context  = Context::None;
+    bool inside_comment{false},
+        inside_string{false},
+        invalid_context{false},
+        set_new_line{false};
 
-    bool inside_comment   = false;
-    bool inside_string    = false;
-    bool invalid_context  = false;
-    bool set_new_line     = false;
+    std::string buffer{},
+        theatre_name{},
+        theatre_index{},
+        variable_name{},
+        variable_value{},
+        sandwich_variable_name{};
 
-    std::string theatre_name  = "";
-    std::string theatre_index = "";
+    ThingData temp_data{},
+        temp_data_swap{};
 
-    std::string  variable_name  = "";
-    std::string  variable_value = "";
-    penum_t      variable_type  = ThingVar::eNothing;
+    ThingVar::Type variable_type{ThingVar::Type::None};
 
-    std::string sandwich_variable_name = "";
+    const unsigned char* data{m_sTheatreFile.Data()};
+    int data_size{m_sTheatreFile.Size()};
 
-    const unsigned char* data = m_sTheatreFile.Data();
-    int data_size = m_sTheatreFile.Size();
-    for(int iterator = 0 ; iterator < data_size ; ++iterator,++gColumn)
+    for(int i{0} ; i < data_size ; ++i,++gColumn)
     {
         if(set_new_line)
         {
@@ -140,7 +145,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             gColumn = 1;
         }
         set_new_line = false;
-        character = data[iterator];
+        character = data[i];
 
     if(gLine == gBreakOnLine && gColumn == gBreakOnColumn)
         { if(false) { print_debug("Breakpoint opportunity at line {}, column {}", gLine, gColumn); } }
@@ -157,7 +162,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                 { break; }
             inside_string = !inside_string;
             if(inside_string)
-                { variable_type = ThingVar::eString; }
+                { variable_type = ThingVar::Type::String; }
             break;
         }
 
@@ -173,7 +178,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         switch(character)
         {
         case comment_delimiter:
-            if(iterator > 0 && (data[iterator - 1] == comment_delimiter))
+            if(i > 0 && (data[i - 1] == comment_delimiter))
                 { inside_comment = true; }
             continue;
         case name_delimiter:
@@ -233,31 +238,35 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             continue;
         }
         case enter_enum:
-            variable_type = ThingVar::eEnum;
+            variable_type = ThingVar::Type::Enum;
             continue;
         case enter_reference:
-            variable_type = ThingVar::eReference;
+            variable_type = ThingVar::Type::Reference;
             continue;
         case enter_numeric:
-            variable_type = ThingVar::eNumber;
+            variable_type = ThingVar::Type::Number;
             continue;
         case enter_exit_string:
             if(inside_string)
                 { continue; }
             if(context == Context::Resources)
                 { variable_name = "File"; }
+            [[fallthrough]];
         case exit_numeric:
-            if(variable_type == ThingVar::eNumber && gIsBool(buffer))
+            if(variable_type == ThingVar::Type::Number)
             {
-                variable_type = ThingVar::eBool;
-                gSetLowercase(buffer);
+                // https://stackoverflow.com/a/313990
+                std::transform(buffer.begin(), buffer.end(), buffer.begin(),
+                    [](unsigned char character){ return std::tolower(character); });
+                if(!buffer.compare("false") || !buffer.compare("true"))
+                    { variable_type = ThingVar::Type::Bool; }
             }
             [[fallthrough]];
         case exit_enum:
         case exit_reference:
             variable_value = buffer;
-            buffer.clear();
             temp_data.AddVariable(variable_name, variable_value, variable_type);
+            buffer.clear();
             if(context != Context::Resources)
                 { parsing = Parsing::VariableName; }
             else
@@ -339,7 +348,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
 
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::eReference);
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::Type::Reference);
 
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();

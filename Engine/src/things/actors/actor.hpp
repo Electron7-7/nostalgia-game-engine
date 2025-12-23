@@ -1,18 +1,20 @@
-#ifndef ACTOR_H
+#ifdef FWD_DCL
+    class Actor;
+#elif !defined ACTOR_H
 #define ACTOR_H
 
-#include "../thing.hpp"
+#include "things/thing.hpp"
 #include "theatre/transform_3d.hpp"
 
 class Actor : public Thing, public Transform3D
 {
 public:
-    virtual void Ready();
-    virtual void Tick();
-    virtual void Update() {}
-    virtual void Input(InputEvent*) {}
-    virtual void SetVariables(const ThingData&);
-    virtual ThingData GetVariables() const;
+    virtual void Ready() override;
+    virtual void Tick() override;
+    virtual void Update() override {}
+    virtual void Input(InputEvent*) override {}
+    virtual void SetVariables(Farg<ThingData>) override;
+    virtual Shared<ThingData> GetVariables() const override;
 
     ID MeshInstanceID() const;
     void MeshInstanceID(ID MeshInstanceID);

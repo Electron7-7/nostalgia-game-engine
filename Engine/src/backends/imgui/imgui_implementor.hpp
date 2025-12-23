@@ -5,16 +5,13 @@
 
 class ImGui_Implementor : public UI_Implementor
 {
-    UI_IMPLEMENTOR_CONSTRUCTOR(ImGui_Implementor)
-    UI_IMPLEMENTOR_ACTIVATE(ImGui_Implementor)
-    UI_IMPLEMENTOR_DEACTIVATE(ImGui_Implementor)
-    UI_IMPLEMENTOR_INSTANCE(ImGui_Implementor)
-
 public:
     void Attach() final;
     void Detach() final;
     void Begin()  final;
     void End()    final;
 };
+
+extern ImGui_Implementor* g_pImGuiImplementor;
 
 #endif // IMGUI_IMPLEMENTOR_H

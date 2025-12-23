@@ -1,29 +1,29 @@
-#ifndef APPLICATION_H
+#ifdef FWD_DCL
+    class IApplication;
+    IApplication* Application();
+    Unique<IWindow>& MainWindow();
+#elif !defined APPLICATION_H
 #define APPLICATION_H
 
 #include "window.hpp"
-#include "components/event_handling.hpp"
 
-#include <memory>
-
-class IApplication : public OnAppEvent
+class IApplication
 {
 public:
     virtual int  Main() { return 1; }
     virtual void Stop() {}
     virtual const char* Name() { return "IApplication"; }
-    virtual void Event(AppEvent*) override {}
 
     IApplication();
-    virtual ~IApplication() = default;
+    virtual ~IApplication();
 
-    IWindow& GetWindow() const { return *mMainWindow; }
+    Unique<IWindow>& GetWindow();
 
 protected:
-    std::unique_ptr<IWindow> mMainWindow{nullptr};
+    Unique<IWindow> mMainWindow{nullptr};
 };
 
 IApplication* Application();
-IWindow& MainWindow();
+Unique<IWindow>& MainWindow();
 
 #endif // APPLICATION_H

@@ -2,20 +2,19 @@
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
-// #include "math/glm_operators.hpp"
 
-void NostalgiaPlayer::SetVariables(const ThingData& data)
+void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 {
     Actor::SetVariables(data);
 
     data.GetVariable(mViewPosition, "ViewPosition");
 }
 
-ThingData NostalgiaPlayer::GetVariables() const
+Shared<ThingData> NostalgiaPlayer::GetVariables() const
 {
-    ThingData data{Actor::GetVariables()};
+    Shared<ThingData> data{Actor::GetVariables()};
 
-    data.AddVariable(mViewPosition, "ViewPosition");
+    data->AddVariable(mViewPosition, "ViewPosition");
 
     return data;
 }

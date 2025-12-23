@@ -3,12 +3,14 @@
 #include "theatre/parser/thing_data.hpp"
 #include "managers/physics_manager.hpp"
 
+#include <Jolt/Physics/Body/BodyInterface.h>
+
 using namespace JPH;
 
-Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const penum_t& shape):
+Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, PhysicsBodyShape shape):
     Collider(pos, rot, glm::vec3(1.0f), shape) {}
 
-Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale, const penum_t& shape):
+Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale, PhysicsBodyShape shape):
     mShape(shape)
 {
     mOrigin = pos;
@@ -16,7 +18,7 @@ Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& 
     mScale  = scale;
 }
 
-void Collider::SetVariables(const ThingData& data)
+void Collider::SetVariables(Farg<ThingData> data)
 {
     Device::SetVariables(data);
     SetTransformVariables(data);
@@ -29,13 +31,13 @@ void Collider::SetVariables(const ThingData& data)
     GlmToJolt(mQuaternion, mInitialRotation);
 }
 
-ThingData Collider::GetVariables() const
+Shared<ThingData> Collider::GetVariables() const
 {
-    ThingData data{Device::GetVariables()};
+    Shared<ThingData> data{Device::GetVariables()};
     GetTransformVariables(data);
-    data.AddVariable(mShape, "Shape");
-    data.AddVariable(mMotion, "Motion");
-    data.AddVariable(mInitialImpulse, "InitialImpulse");
+    data->AddVariable(mShape, "Shape");
+    data->AddVariable(mMotion, "Motion");
+    data->AddVariable(mInitialImpulse, "InitialImpulse");
     return data;
 }
 
@@ -43,21 +45,17 @@ void Collider::Tick()
 {
     if(BodyIDInvalid())
         { return; }
-    JoltToGlm(
-        g_pPhysicsManager->GetBodyInterface().GetRotation(BodyID()),
-        mQuaternion);
-    JoltToGlm(
-        g_pPhysicsManager->GetBodyInterface().GetCenterOfMassPosition(BodyID()),
-        mOrigin);
+    JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetRotation(BodyID()), mQuaternion);
+    JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetCenterOfMassPosition(BodyID()), mOrigin);
 }
 
 bool Collider::Active() const
 { return g_pPhysicsManager->GetBodyInterface().IsActive(BodyID()); }
 
-const penum_t& Collider::Shape() const
+PhysicsBodyShape Collider::Shape() const
 { return mShape; }
 
-const penum_t& Collider::Motion() const
+PhysicsBodyMotion Collider::Motion() const
 { return mMotion; }
 
 void Collider::ResetTransform(bool activate) const
@@ -68,8 +66,8 @@ void Collider::ResetTransform(bool activate) const
         BodyID(),
         mInitialPosition,
         mInitialRotation,
-        JPH::Vec3(0, 0, 0),
-        JPH::Vec3(0, 0, 0));
+        JPH::Vec3{0,0,0},
+        JPH::Vec3{0,0,0});
     if(activate)
         { Activate(); }
 }

@@ -1,11 +1,10 @@
-#ifndef THEATRE_DATA_H
+#ifdef FWD_DCL
+    struct TheatreData;
+#elif !defined THEATRE_DATA_H
 #define THEATRE_DATA_H
 
-#include "fwd.hpp"
-
 #include "thing_data.hpp"
-#include "core/id.hpp"
-#include "core/safe_return.hpp"
+#include "core/error.hpp"
 
 struct TheatreData
 {
@@ -14,22 +13,22 @@ struct TheatreData
     std::vector<ThingData> things_data{};
     std::string name{"UntitledTheatre"};
     std::string file_path{""};
-    id_t index{ID::Invalid};
+    uint index{ID::Invalid};
 
     void SetupUIDsAndPriorities();
 
-    SafeStatus AddData(const ThingData& Data);
+    Error AddData(Farg<ThingData> Data);
 
     std::string formatted() const;
     ID id() const;
     void clear();
     void debug_PrintData();
 
-    constexpr bool operator==(const TheatreData& Other) const
+    constexpr bool operator==(Farg<TheatreData> Other) const
     { return (id_ == Other.id_); }
 
 private:
-    ID id_ = ID::Invalid;
+    ID id_{};
 };
 
 #endif // THEATRE_DATA_H

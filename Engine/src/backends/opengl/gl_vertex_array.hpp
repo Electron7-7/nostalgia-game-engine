@@ -11,10 +11,11 @@ public:
 
     void Bind()   const final;
     void Unbind() const final;
-    void AddVertexBuffer(FARG(Shared<VertexBuffer>)) final;
-    void SetIndexBuffer(FARG(Shared<IndexBuffer>)) final;
-    FARG(std::vector<Shared<VertexBuffer>>) GetVertexBuffers() const final;
-    FARG(Shared<IndexBuffer>) GetIndexBuffer() const final;
+
+    void AddVertexBuffer(Shared<VertexBuffer>) final;
+    void SetIndexBuffer(Shared<IndexBuffer>) final;
+    Farg<std::vector<Shared<VertexBuffer>>> GetVertexBuffers() const final;
+    Shared<IndexBuffer> GetIndexBuffer() const final;
 
 private:
     uint mObjectID{};

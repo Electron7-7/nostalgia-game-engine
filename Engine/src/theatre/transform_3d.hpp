@@ -1,7 +1,12 @@
 #ifndef TRANSFORM_3D_H
 #define TRANSFORM_3D_H
 
-#include "theatre/parser/fwd.hpp"
+#define FWD_DCL
+#   include "theatre/parser/thing_data.hpp"
+#undef  FWD_DCL
+
+#include "core/farg.hpp"
+#include "core/smart_pointers.hpp"
 
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -10,18 +15,18 @@
 class Transform3D
 {
 public:
-    virtual void SetTransformVariables(const ThingData&);
-    virtual void GetTransformVariables(ThingData&) const;
+    virtual void SetTransformVariables(Farg<ThingData>);
+    virtual void GetTransformVariables(Shared<ThingData>) const;
 
-    virtual const glm::vec3& Origin() const;
-    virtual const glm::vec3& Scale() const;
-    virtual const glm::quat& Quaternion() const;
+    virtual Farg<glm::vec3> Origin() const;
+    virtual Farg<glm::vec3> Scale() const;
+    virtual Farg<glm::quat> Quaternion() const;
     virtual glm::vec3 Euler(bool Degrees = false) const;
 
-    virtual void SetOrigin(const glm::vec3& NewOrigin);
-    virtual void SetScale(const glm::vec3& NewScale);
-    virtual void SetQuaternion(const glm::quat& NewQuaternion);
-    virtual void SetEuler(const glm::vec3& NewEuler, bool Degrees = false);
+    virtual void SetOrigin(Farg<glm::vec3> NewOrigin);
+    virtual void SetScale(Farg<glm::vec3> NewScale);
+    virtual void SetQuaternion(Farg<glm::quat> NewQuaternion);
+    virtual void SetEuler(Farg<glm::vec3> NewEuler, bool Degrees = false);
 
     virtual glm::vec3 Front() const;
     virtual glm::vec3 Right() const;

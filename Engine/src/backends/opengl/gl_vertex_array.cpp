@@ -1,5 +1,6 @@
 #include "gl_vertex_array.hpp"
 #include "core/printing.hpp"
+#include "application/application.hpp"
 
 #include <glad/glad.h>
 
@@ -30,7 +31,7 @@ static GLenum sElementTypeToOpenGLType(IBuffer::Element::Type inType)
 }
 
 OpenGLVertexArray::OpenGLVertexArray()
-{ glCreateVertexArrays(1, &mObjectID); }
+{ glGenVertexArrays(1, &mObjectID); }
 
 OpenGLVertexArray::~OpenGLVertexArray()
 { glDeleteVertexArrays(1, &mObjectID); }
@@ -41,7 +42,7 @@ void OpenGLVertexArray::Bind() const
 void OpenGLVertexArray::Unbind() const
 { glBindVertexArray(0); }
 
-void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffer)
+void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
 {
     if(inVertexBuffer->GetLayout().GetElements().size() == 0)
     {
@@ -52,7 +53,7 @@ void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffe
     Bind();
     inVertexBuffer->Bind();
 
-    const auto& layout = inVertexBuffer->GetLayout();
+    const auto& layout{inVertexBuffer->GetLayout()};
     for(const auto& element : layout)
     {
         switch(element.type)
@@ -61,13 +62,13 @@ void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffe
         case IBuffer::Element::Type::Float2:
         case IBuffer::Element::Type::Float3:
         case IBuffer::Element::Type::Float4:
-            glEnableVertexAttribArray(mVertexBufferIndex);
             glVertexAttribPointer(mVertexBufferIndex,
                 element.GetCount(),
                 sElementTypeToOpenGLType(element.type),
                 element.normalized ? GL_TRUE : GL_FALSE,
                 layout.GetStride(),
-                reinterpret_cast<const void*>(element.offset));
+                (void*)(element.offset));
+            glEnableVertexAttribArray(mVertexBufferIndex);
             ++mVertexBufferIndex;
             break;
         case IBuffer::Element::Type::Int:
@@ -75,12 +76,12 @@ void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffe
         case IBuffer::Element::Type::Int3:
         case IBuffer::Element::Type::Int4:
         case IBuffer::Element::Type::Bool:
-            glEnableVertexAttribArray(mVertexBufferIndex);
             glVertexAttribIPointer(mVertexBufferIndex,
                 element.GetCount(),
                 sElementTypeToOpenGLType(element.type),
                 layout.GetStride(),
-                reinterpret_cast<const void*>(element.offset));
+                (void*)(element.offset));
+            glEnableVertexAttribArray(mVertexBufferIndex);
             ++mVertexBufferIndex;
             break;
         case IBuffer::Element::Type::Mat3:
@@ -89,13 +90,14 @@ void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffe
             uint count{element.GetCount()};
             for(uint i{0}; i < count; ++i)
             {
-                glEnableVertexAttribArray(mVertexBufferIndex);
-                glVertexAttribPointer(mVertexBufferIndex, count,
+                glVertexAttribPointer(mVertexBufferIndex,
+                    count,
                     sElementTypeToOpenGLType(element.type),
                     element.normalized ? GL_TRUE : GL_FALSE,
                     layout.GetStride(),
-                    reinterpret_cast<const void*>(element.offset + sizeof(float) * count * i));
+                    (void*)(element.offset + sizeof(float) * count * i));
                 glVertexAttribDivisor(mVertexBufferIndex, 1);
+                glEnableVertexAttribArray(mVertexBufferIndex);
                 ++mVertexBufferIndex;
             }
             break;
@@ -106,18 +108,23 @@ void OpenGLVertexArray::AddVertexBuffer(FARG(Shared<VertexBuffer>) inVertexBuffe
             return;
         }
     }
+
     mVertexBuffers.push_back(inVertexBuffer);
+    inVertexBuffer->Unbind();
+    Unbind();
 }
 
-void OpenGLVertexArray::SetIndexBuffer(FARG(Shared<IndexBuffer>) inIndexBuffer)
+
+void OpenGLVertexArray::SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer)
 {
     Bind();
     inIndexBuffer->Bind();
     mIndexBuffer = inIndexBuffer;
+    Unbind();
 }
 
-FARG(std::vector<Shared<VertexBuffer>>) OpenGLVertexArray::GetVertexBuffers() const
+Farg<std::vector<Shared<VertexBuffer>>> OpenGLVertexArray::GetVertexBuffers() const
 { return mVertexBuffers; }
 
-FARG(Shared<IndexBuffer>) OpenGLVertexArray::GetIndexBuffer() const
+Shared<IndexBuffer> OpenGLVertexArray::GetIndexBuffer() const
 { return mIndexBuffer; }

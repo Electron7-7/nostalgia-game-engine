@@ -1,71 +1,96 @@
 #include "thing_data.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
+#include "core/uid.hpp"
 #include "core/globals.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
 
-const ThingData ThingData::PlayerDefaults(
+const ThingData ThingData::PlayerDefaultData{
     "Default Player",
     ThingType::NostalgiaPlayer,
-    UniqueID::Reserved::Player,
+    UID::a_Player,
     {
         ThingVar{glm::vec3(0.0f), "Rotation"},
         ThingVar{glm::vec3(0.0f), "Origin"},
-    });
+    }};
 
 ThingData::ThingData() = default;
 
-ThingData::ThingData(const std::string& _name, const std::string& type_name)
-: name{_name}, type_{ConstexprHash(type_name)}
+ThingData::ThingData(Sarg inName, Sarg inTypeName):
+    name{inName},
+    type_{ConstexprHash(inTypeName)}
 {
     if(!g_pThingFactory->IsThing(type_))
-        { print_error("{} is an invalid type!", type_); }
+        { print_warningv(VERBOSE1, "{} is an invalid type!", type_.log()); }
 }
 
-ThingData::ThingData(const std::string& _name, ID _type, ID _id, const std::vector<ThingVar>& _variables)
-: name{_name}, uid{_id}, variables(_variables), type_{_type}
+ThingData::ThingData(Sarg inName, Farg<TTID> inType, ID inID, Farg<std::vector<ThingVar>> inVariables):
+    uid{inID},
+    name{inName},
+    variables(inVariables),
+    type_{inType}
 {
-    if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaults triggers the error message bc of when it's constructed
+    if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaultData triggers the error message bc of when it's constructed
         { return; }
     else if(!g_pThingFactory->IsThing(type_))
-        { print_error("'{}' is an invalid type!", g_pThingFactory->GetTypeName(type_)); }
+        { print_error("'{}' is an invalid type!", type_.name()); }
 }
 
-ThingData::ThingData(const std::string& _name, ID _type, const std::vector<ThingVar>& _variables)
-: name{_name}, variables(_variables), type_{_type} {}
+ThingData::ThingData(Sarg inName, Farg<TTID> inType, Farg<std::vector<ThingVar>> inVariables):
+    name{inName},
+    variables(inVariables),
+    type_{inType} {}
 
-bool ThingData::RemoveVariable(const std::string& _name)
+bool ThingData::RemoveVariable(Sarg inName)
 {
-    if(auto iter = std::find(variables.cbegin(), variables.cend(), _name);
+    if(auto iter = std::find(variables.cbegin(), variables.cend(), inName);
         iter != variables.cend())
     { variables.erase(iter); return true; }
     return false;
 }
 
-void ThingData::AddVariable(const ThingVar& variable, const std::string& _name)
+ThingVar& ThingData::AddVariable(Farg<ThingVar> inVariable, Sarg inName)
 {
-    RemoveVariable(_name);
-    variables.push_back(variable); variables.back().name = _name;
+    RemoveVariable(inName);
+    variables.push_back(inVariable);
+    variables.back().name = inName;
+    return variables.back();
 }
 
-void ThingData::AddVariable(const std::string& _name, const std::string& value_as_string, const penum_t& type)
+ThingVar& ThingData::AddVariable(Sarg inName, Sarg inValue, ThingVar::Type inType)
 {
-    RemoveVariable(_name);
+    RemoveVariable(inName);
     variables.emplace_back();
-    variables.back().name  = _name;
-    variables.back().value = value_as_string;
-    variables.back().type  = type;
+    variables.back().name  = inName;
+    variables.back().value = inValue;
+    variables.back().type  = inType;
+    return variables.back();
 }
 
 std::string ThingData::log(bool colored, bool indent) const
 {
     std::string log;
     if(colored)
-        { log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n", Sty::Reset, Sty::Bold + Fg::Yellow, Sty::Bold + Fg::Green, g_pThingFactory->GetTypeName(type_), name, (uid.invalid()) ? "ID::Invalid" : std::to_string((uint)uid)); }
+    {
+        log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n",
+            Sty::Reset,
+            Sty::Bold + Fg::Yellow,
+            Sty::Bold + Fg::Green,
+            type_.name(),
+            name,
+            (uid.invalid())
+                ? "ID::Invalid"
+                : std::to_string(uid[]));
+    }
     else
-        {  log = std::format("({}) {} [{}]\n", g_pThingFactory->GetTypeName(type_), name, uid);  }
-    for(const auto& var : variables)
+    {
+        log = std::format("({}) {} [{}]\n",
+            type_.name(),
+            name,
+            uid[]);
+    }
+    for(FARG(auto) var : variables)
     {
         if(indent)
             { log.push_back('\t'); }
@@ -74,19 +99,20 @@ std::string ThingData::log(bool colored, bool indent) const
     return log;
 }
 
-ID ThingData::type() const
+Farg<TTID> ThingData::type() const
 { return type_; }
 
-bool ThingData::set_type(const std::string& type_name)
-{ return set_type(ConstexprHash(type_name)); }
+bool ThingData::set_type(Sarg inTypeName)
+{ return set_type(ConstexprHash(inTypeName)); }
 
-bool ThingData::set_type(ID type)
+bool ThingData::set_type(Farg<TTID> inType)
 {
-    type_ = type;
-    if(!g_pThingFactory->IsThing(type))
+    type_ = inType;
+    if(!g_pThingFactory->IsThing(inType))
     {
-        print_warning("The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)", g_pThingFactory->GetTypeName(type), name);
-        return false;
+        return !print_warning("The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)",
+            inType.name(),
+            name);
     }
     return true;
 }
@@ -94,43 +120,29 @@ bool ThingData::set_type(ID type)
 void ThingData::clear()
 { *this = ThingData(); }
 
-bool ThingData::GetReference(ID& output, const std::string& _name) const
+bool ThingData::GetBoolean(bool& outBool, Sarg inName) const
 {
-    if(auto assert_var = AssertVariable(_name, ThingVar::eReference); assert_var.Check())
-        { output = assert_var.Data()->reference_id; return true; }
-    return false;
-}
-
-bool ThingData::GetBoolean(bool& output, const std::string& _name) const
-{
-    if(auto assert_var = AssertVariable(_name, ThingVar::eBool); assert_var.Check())
+    if(auto assert_var{AssertVariable(inName, ThingVar::Type::Bool)}; assert_var != variables.cend())
     {
-        if(!assert_var.Data()->value.compare(gTrue))
-            { return output = true; }
-        else if(!assert_var.Data()->value.compare(gFalse))
-            { return !(output = false); }
+        if(!assert_var->value.compare(StringConstant::True))
+            { return outBool = true; }
+        else if(!assert_var->value.compare(StringConstant::False))
+            { return !(outBool = false); }
     }
     return false;
 }
 
-bool ThingData::GetString(std::string& output, const std::string& _name) const
+bool ThingData::GetString(std::string& outString, Sarg inName) const
 {
-    auto assert_var = AssertVariable(_name, {ThingVar::eString});
-    if(!assert_var.Check() || assert_var.Data()->value.empty())
-        { return false; }
-    output = assert_var.Data()->value;
-    return true;
+    if(auto assert_var{AssertVariable(inName, ThingVar::Type::String)}; assert_var != variables.cend())
+        { outString = assert_var->value; return true; }
+    return false;
 }
 
-SafeReturn<ThingData::VarIter_t> ThingData::AssertVariable(const std::string& _name, const penum_t& type) const
+ThingData::VarIter_t ThingData::AssertVariable(Sarg inName, ThingVar::Type inType) const
 {
-    auto iter = std::find(variables.cbegin(), variables.cend(), _name);
-    auto status = Status::NO_ERR;
-    if(iter == variables.cend())
-        { status = Status::ThingDataINVALID_VARIABLE_NAME; }
-    else if(iter->type != type)
-        { status = Status::ThingDataINVALID_VARIABLE_TYPE; }
-    else if(iter->value.empty())
-        { status = Status::ThingDataVARIABLE_VALUE_EMPTY; }
-    return {iter, status};
+    auto iter{std::find(variables.cbegin(), variables.cend(), inName)};
+    if(iter == variables.cend() || iter->type != inType || iter->value.empty())
+        { return variables.cend(); }
+    return iter;
 }

@@ -12,63 +12,53 @@
 #include "resources/font.hpp"
 #include "resources/texture.hpp"
 #include "resources/mesh.hpp"
+#include "core/printing.hpp"
 
 static ThingFactory sThingFactory;
 ThingFactory* g_pThingFactory = &sThingFactory;
-
-template<typename T> requires(std::derived_from<T,Thing>)
-std::shared_ptr<Thing> gThingMakerTemplate()
-{ return std::make_shared<T>(); }
 
 bool ThingFactory::Init()
 {
     if(mIsInitialized)
         { return true; }
 
-    AddThing( &gThingMakerTemplate<Mesh>,                  "Mesh",                  cDefaultPriority - 2 );
-    AddThing( &gThingMakerTemplate<Texture>,               "Texture",               cDefaultPriority - 2 );
-    AddThing( &gThingMakerTemplate<Font>,                  "Font",                  cDefaultPriority - 2 );
-    AddThing( &gThingMakerTemplate<Material>,              "Material",              cDefaultPriority - 1 );
-    AddThing( &gThingMakerTemplate<MeshInstance>,          "MeshInstance",          cDefaultPriority - 1 );
-    AddThing( &gThingMakerTemplate<NostalgiaPlayer>,       "NostalgiaPlayer",       cDefaultPriority     );
-    AddThing( &gThingMakerTemplate<PointLight>,            "PointLight",            cDefaultPriority     );
-    AddThing( &gThingMakerTemplate<SpotLight>,             "SpotLight",             cDefaultPriority     );
-    AddThing( &gThingMakerTemplate<DirectionalLight>,      "DirectionalLight",      cDefaultPriority     );
-    AddThing( &gThingMakerTemplate<Device>,                "Device",                cDefaultPriority + 1 );
-    AddThing( &gThingMakerTemplate<Collider>,              "Collider",              cDefaultPriority + 1 );
-    AddThing( &gThingMakerTemplate<Resource>,              "Resource",              cDefaultPriority + 1 );
-    AddThing( &gThingMakerTemplate<Actor>,                 "Actor",                 cDefaultPriority + 1 );
-    AddThing( &gThingMakerTemplate<Thinker>,               "Thinker",               cDefaultPriority + 1 );
-    AddThing( &gThingMakerTemplate<Thing>,                 "Thing",                 cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Mesh>,                  "Mesh",                  cDefaultPriority - 2 );
+    AddThing( &ThingMakerTemplate<Texture>,               "Texture",               cDefaultPriority - 2 );
+    AddThing( &ThingMakerTemplate<Font>,                  "Font",                  cDefaultPriority - 2 );
+    AddThing( &ThingMakerTemplate<Material>,              "Material",              cDefaultPriority - 1 );
+    AddThing( &ThingMakerTemplate<MeshInstance>,          "MeshInstance",          cDefaultPriority - 1 );
+    AddThing( &ThingMakerTemplate<NostalgiaPlayer>,       "NostalgiaPlayer",       cDefaultPriority     );
+    AddThing( &ThingMakerTemplate<PointLight>,            "PointLight",            cDefaultPriority     );
+    AddThing( &ThingMakerTemplate<SpotLight>,             "SpotLight",             cDefaultPriority     );
+    AddThing( &ThingMakerTemplate<DirectionalLight>,      "DirectionalLight",      cDefaultPriority     );
+    AddThing( &ThingMakerTemplate<Device>,                "Device",                cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Collider>,              "Collider",              cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Resource>,              "Resource",              cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Actor>,                 "Actor",                 cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Thinker>,               "Thinker",               cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Thing>,                 "Thing",                 cDefaultPriority + 1 );
 
     return mIsInitialized = true;
 }
 
-bool ThingFactory::AddThing(pThingMaker_t maker_ptr, const std::string& type_name, int priority)
+bool ThingFactory::AddThing(pThingMakerTemplate_t maker_ptr, Farg<std::string> type_name, int priority)
 {
-    ID type_id = ConstexprHash(type_name);
-    if(mThingMakers.contains(type_id))
-    {
-        print_warning("'{}' already added", type_name);
-        return false;
-    }
-    mThingMakers[type_id] = maker_ptr;
-    mTypeNames[type_id] = type_name;
-    mTypePriorities[type_id] = priority;
+    if(auto found_it{mThingMakers.find(type_name)}; found_it != mThingMakers.end())
+        { return !print_warning("Thing type '{}' already added", type_name); }
+    mThingMakers[type_name]    = maker_ptr;
+    mTypePriorities[type_name] = priority;
     return true;
 }
 
-pThingMaker_t ThingFactory::MakeThing(ID type)
+ThingFactory::pThingMakerTemplate_t ThingFactory::MakeThing(Farg<TTID> type)
 {
-    if(!mThingMakers.contains(type))
-    {
-        print_warning("Type '{}' is an invalid type! An empty Thing will be returned", GetTypeName(type));
-        return gThingMakerTemplate<Thing>;
-    }
-    return mThingMakers.at(type);
+    if(auto found_it{mThingMakers.find(type)}; found_it != mThingMakers.end())
+        { return found_it->second; }
+    print_warning("Type '{}' is an invalid type! An empty Thing will be returned", type.name());
+    return ThingMakerTemplate<Thing>;
 }
 
-bool ThingFactory::SetPriority(ID type, int priority)
+bool ThingFactory::SetPriority(Farg<TTID> type, int priority)
 {
     if(!IsThing(type))
         { return false; }
@@ -76,26 +66,18 @@ bool ThingFactory::SetPriority(ID type, int priority)
     return true;
 }
 
-int ThingFactory::GetPriority(ID type) const
+int ThingFactory::GetPriority(Farg<TTID> type) const
 {
-    if(!mTypePriorities.contains(type))
-        { return 9999; }
-    return mTypePriorities.at(type);
+    if(auto found_it{mTypePriorities.find(type)}; found_it != mTypePriorities.end())
+        { return mTypePriorities.at(type); }
+    return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
-const std::string& ThingFactory::GetTypeName(ID type) const
-{
-    static std::string l_sInvalidTypeName = "Invalid";
-    if(!mTypeNames.contains(type))
-        { return l_sInvalidTypeName; }
-    return mTypeNames.at(type);
-}
-
-bool ThingFactory::IsThing(ID type) const
+bool ThingFactory::IsThing(Farg<TTID> type) const
 { return mThingMakers.contains(type); }
 
-bool ThingFactory::IsResource(ID type) const
+bool ThingFactory::IsResource(Farg<TTID> type) const
 { return IsDerivedFrom<Resource>(type); }
 
-bool ThingFactory::IsDevice(ID type) const
+bool ThingFactory::IsDevice(Farg<TTID> type) const
 { return IsDerivedFrom<Device>(type); }

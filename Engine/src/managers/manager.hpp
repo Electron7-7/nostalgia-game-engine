@@ -2,6 +2,7 @@
 #define MANAGER_H
 
 #include "components/game_loop.hpp"
+#include "components/event_handling.hpp"
 
 #include <vector>
 
@@ -24,7 +25,7 @@ namespace ManagerEnums
 }
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
-class IManager : public OnUpdate, public OnTick
+class IManager : public OnUpdate, public OnTick, public OnEngineEvent, public OnAppEvent
 {
 public:
     virtual consteval const char* DebugName() = 0;
@@ -107,6 +108,8 @@ public:
     virtual bool Init()      override { return true; }
     virtual void Update()    override {}
     virtual void Tick()      override {}
+    virtual void Event(EngineEvent*) override {}
+    virtual void Event(AppEvent*)    override {}
     virtual void Shutdown()  override {}
     virtual void OnSave()    override {}
     virtual void OnRestore() override {}

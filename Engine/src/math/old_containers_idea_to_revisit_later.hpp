@@ -140,7 +140,7 @@ template<ushort Length, Number T, class M>
         template<Number N> constexpr vector operator-(N inScalar) const noexcept
             { return vector{*this} -= inScalar; }
 
-        template<NumberOrBool N>
+        template<Number N>
             constexpr vector& operator*=(N inScalar) noexcept
             {
                 for(ushort i{0}; i < Length; ++i)
@@ -148,7 +148,7 @@ template<ushort Length, Number T, class M>
                 return *this;
             }
 
-        template<NumberOrBool N> constexpr vector operator*(N inScalar) const noexcept
+        template<Number N> constexpr vector operator*(N inScalar) const noexcept
             { return vector{*this} *= inScalar; }
 
         constexpr bool operator==(const vector& other) const noexcept

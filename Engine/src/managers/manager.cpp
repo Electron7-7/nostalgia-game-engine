@@ -1,9 +1,10 @@
 #include "manager.hpp"
+#include "core/time.hpp"
+#include "core/printing.hpp"
 #include "application/application.hpp"
 #include "application/window.hpp"
 #include "settings/engine.hpp"
-#include "core/time.hpp"
-#include "core/printing.hpp"
+#include "theatre/variable_registry.hpp"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -103,6 +104,7 @@ bool IManager::InitAllManagers()
     m_sFrameNumber = 0;
     if(!InvokeMethod(&IManager::Init))
         { return false; }
+    g_pVariableRegistry->Init();
     m_sIsInitialized = true;
     return true;
 }
@@ -179,9 +181,16 @@ void IManager::Start()
     {
         UpdateTheatreStateMachine();
         InvokeMethod(&IManager::Update);
-        MainWindow().Update();
+        MainWindow()->Update();
         ++m_sFrameNumber;
-        if(gDebugPrintFrameNumbers) { print_debug("Frame #{}", m_sFrameNumber); }
+        if(gDebugPrintFrameNumbers)
+            { print_debug("Frame #{}", m_sFrameNumber); }
+    }
+
+    if(theatre_state != TheatreState_t::NOT_IN_LEVEL)
+    {
+        ShutdownTheatre();
+        UpdateTheatreStateMachine();
     }
 
     tick_thread.join();
@@ -206,7 +215,8 @@ void IManager::TickLoop()
             --current_tick_length;
             InvokeMethod(&IManager::Tick);
             ++m_sTickNumber;
-            if(gDebugPrintTickNumbers) { print_debug("Tick #{}", m_sTickNumber); }
+            if(gDebugPrintTickNumbers)
+                { print_debug("Tick #{}", m_sTickNumber); }
         }
     }
 }

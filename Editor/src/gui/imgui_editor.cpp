@@ -1,8 +1,12 @@
 #include "imgui_editor.hpp"
+#include "core/time.hpp"
+#include "core/uid.hpp"
 #include "application/application.hpp"
 #include "events/event.hpp"
+#include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "rendering/viewport.hpp"
+#include "rendering/renderer_api.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
@@ -12,14 +16,18 @@
 
 using namespace ImGui;
 
+static ImGui_Editor sImGuiEditor{};
+ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
+
 bool gShowDebugWindow{false};
 
-static Viewport sEditorViewport{{256, 144}};
 static bool sShowDemoWindow{false};
 static void s_ThingAdder();
-static ID sSpawnLocationMaterialID;
-static ID sSpawnLocationMeshInstanceID;
-static ID sSpawnLocationID;
+static ID sSpawnLocationMaterialID{};
+static ID sSpawnLocationMeshInstanceID{};
+static ID sSpawnLocationID{};
+static ID sEditorViewportID{Viewport::IDs::MainWindow};
+// static ID sEditorFramebufferID{};
 static float sSpawnLocationRotationSpeed{1.0f};
 static float sSpawnLocationScaleSpeedStore{0.0085f};
 static float sSpawnLocationScaleSpeed{sSpawnLocationScaleSpeedStore};
@@ -36,30 +44,39 @@ struct std::formatter<ImVec2> : public std::formatter<float[2]>
 Error ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    return OK; // return g_pBackendManager->Graphics()->UseViewport(ViewportIDs::Editor3DViewport1);
+    // sEditorViewportID = g_pRenderManager->GetAPI()->AddViewport({200, 200});
+    // sEditorFramebufferID = g_pRenderManager->GetAPI()->GenerateFrameBuffer();
+    mTextureBuffer = TextureBuffer::Create();
+    mTextureBuffer->GenerateTexture(TextureFormat{TEXTURE_TYPE_2D, 500, 500});
+    // g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)->SetOutputTexture(mTextureBuffer);
+    return OK;
 }
 
 void ImGui_Editor::Shutdown()
-{ PRINT_PRETTY_FUNCTION; }
+{ mTextureBuffer.reset(); }
 
 void ImGui_Editor::OnTheatreEntered()
 {
-    sSpawnLocationMaterialID = g_pTheatreManager->CreateThing({
+    sSpawnLocationMaterialID = g_pTheatreManager->CreateThing(ThingData{
         "ThingAdderSpawnLocation_Material",
         ThingType::Material,
-        UniqueID::Generate(),
-        {{true, "NoTexture"}, {glm::vec3(1.0f, 0.0f, 0.0f), "Color"}, {true, "mat_fullbright"}}
+        UID::Generate(),
+        {
+            ThingVar{true, "NoTexture"},
+            ThingVar{glm::vec3(1.0f, 0.0f, 0.0f), "Color"},
+            ThingVar{true, "mat_fullbright"}
+        }
     });
     sSpawnLocationMeshInstanceID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_MeshInstance",
         ThingType::MeshInstance,
-        UniqueID::Generate(),
-        {{UniqueID::Reserved::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
+        UID::Generate(),
+        {{ID{UID::m_Ramiel}, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
     });
     sSpawnLocationID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation",
         ThingType::Actor,
-        UniqueID::Generate(),
+        UID::Generate(),
         {{sSpawnLocationMeshInstanceID, "MeshInstance"}, {glm::vec3(1.0f), "Scale"}, {true, "Wireframe"}}
     });
 }
@@ -77,15 +94,14 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
-            // g_pBackendManager->Windowing()->SetMouseMode(MouseMode::Normal);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = false;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = false;
         }
         return;
     }
-    else if(event->IsJustPressed(Key::D) && event->IsModifierActive(Key::Mod_Control))
+    else if(event->IsJustPressed(Key::Tab) or (event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control)))
         { gShowDebugWindow = !gShowDebugWindow; }
-    else if(event->IsJustPressed(Key::G) && event->IsModifierActive(Key::Mod_Control))
+    else if(event->IsJustPressed(Key::G) and event->IsModifierActive(Key::Mod_Control))
         { sShowDemoWindow  = !sShowDemoWindow; }
 }
 
@@ -111,11 +127,11 @@ void ImGui_Editor::Update()
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-    float window_width  = Application()->GetWindow().GetWidth();
-    float window_height = Application()->GetWindow().GetHeight();
+    float window_width  = MainWindow()->GetWidth();
+    float window_height = MainWindow()->GetHeight();
     SetNextWindowSize({window_width, window_height});
     SetNextWindowPos({0, 0});
-    if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus))
+    if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         if(BeginMenuBar())
         {
@@ -138,25 +154,31 @@ void ImGui_Editor::Update()
         PopStyleVar();
         if(IsItemClicked())
         {
-            Application()->GetWindow().SetMouseMode(
-                (Application()->GetWindow().GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
+            MainWindow()->SetMouseMode(
+                (MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
                     ? IWindow::MOUSE_MODE_DISABLED
                     : IWindow::MOUSE_MODE_VISIBLE);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
         }
-        sEditorViewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
-        sEditorViewport.position.x() = GetItemRectMin().x;
-        sEditorViewport.position.y() = window_height - GetItemRectMax().y;
-        // if(g_pBackendManager->Graphics()->GetViewport(ViewportIDs::Editor3DViewport1) != sEditorViewport)
-            // { g_pBackendManager->Graphics()->SetViewport(ViewportIDs::Editor3DViewport1, sEditorViewport); }
-        // TextF("Editor Viewport Size: {}", sEditorViewport.scale);
-        // TextF("Editor Viewport Pos: {}", sEditorViewport.position);
+        auto& editor_viewport = g_pRenderManager->GetAPI()->GetViewport(sEditorViewportID);
+        editor_viewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
+        editor_viewport.position.x() = GetItemRectMin().x;
+        editor_viewport.position.y() = window_height - GetItemRectMax().y;
+        TextF("Editor Viewport Size: {}", editor_viewport.scale.data_log());
+        TextF("Editor Viewport Pos: {}", editor_viewport.position.data_log());
         EndChild(); SameLine();
         BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
             s_ThingAdder();
         EndChild();
     }
+    End();
+    SetNextWindowSize({122, 52});
+    SetNextWindowPos({0, 0});
+    if(Begin("Time::Current",
+        nullptr,
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
+        { TextF("{}", Time::Current()); }
     End();
 }
 
@@ -195,7 +217,7 @@ void s_ThingAdder()
     DragFloat("Spawn Location Scale Min", &sSpawnLocationScaleMin, 0.1f, 0.0f, 0.0f, "%.2f");
     if(Button("Spawn Thing"))
     {
-        sThingData = {sNewThingName, ID{sTypeNames[sCurrentType]}, UniqueID::Generate()};
+        sThingData = {sNewThingName, sTypeNames[sCurrentType], UID::Generate()};
         sThingData.AddVariable(sSpawnLocation, "Origin");
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
         g_pTheatreManager->CreateThing(sThingData);

@@ -1,7 +1,9 @@
 #include "render_manager.hpp"
-#include "core/printing.hpp"
-#include "ui_manager.hpp"
 #include "theatre_manager.hpp"
+#include "ui_manager.hpp"
+#include "core/printing.hpp"
+#include "events/event.hpp"
+#include "application/application.hpp"
 #include "rendering/renderer_api.hpp"
 
 #include <glm/glm.hpp>
@@ -11,19 +13,17 @@
 using namespace ManagerEnums;
 
 static RenderManager sRenderManager;
-RenderManager* g_pRenderManager = &sRenderManager;
-
+RenderManager* g_pRenderManager{&sRenderManager};
 
 bool RenderManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    mRendererAPI = IRendererAPI::Activate();
-    mRendererAPI->Init();
-    return true;
+    mRendererAPI = RendererAPI::Activate();
+    return mRendererAPI->Init();
 }
 
 void RenderManager::Shutdown()
-{}
+{ mRendererAPI->Shutdown(); }
 
 ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 { return FINISHED; }
@@ -42,5 +42,14 @@ void RenderManager::Update()
     g_pUIManager->DrawUI();
 }
 
+void RenderManager::Event(AppEvent* inEvent)
+{
+    if(inEvent->IsEvent(AppEvent::WindowResize))
+        { mRendererAPI->GetViewport(Viewport::IDs::MainWindow).scale = MainWindow()->GetScale(); }
+}
+
 void RenderManager::SetAutomaticWindowClear(bool inEnableClear)
 { mCanClearWindow = inEnableClear; }
+
+Farg<Unique<RendererAPI>> RenderManager::GetAPI() const
+{ return mRendererAPI; }

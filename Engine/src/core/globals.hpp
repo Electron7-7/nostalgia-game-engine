@@ -1,7 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-constexpr const char* gTrue{"true"};
-constexpr const char* gFalse{"false"};
+namespace StringConstant
+{
+    constexpr const char* True{"true"};
+    constexpr const char* False{"false"};
+}
 
 #endif // GLOBALS_H

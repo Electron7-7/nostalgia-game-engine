@@ -1,0 +1,41 @@
+#ifndef GL_MESH_DATA_H
+#define GL_MESH_DATA_H
+
+#include "rendering/mesh_buffers.hpp"
+
+class OpenGLVertexBuffer final : public VertexBuffer
+{
+public:
+    OpenGLVertexBuffer(size_t);
+    OpenGLVertexBuffer(float*, size_t);
+    virtual ~OpenGLVertexBuffer();
+
+    void Bind() const final;
+    void Unbind() const final;
+    void SetData(const void*, size_t) final;
+    uint GetID() const final;
+    Farg<Layout> GetLayout() const final;
+    void SetLayout(Farg<Layout>) final;
+
+private:
+    uint   mBufferID{};
+    Layout mLayout{};
+};
+
+class OpenGLIndexBuffer final : public IndexBuffer
+{
+public:
+    OpenGLIndexBuffer(uint*, size_t);
+    virtual ~OpenGLIndexBuffer();
+
+    void Bind() const final;
+    void Unbind() const final;
+    uint GetCount() const final;
+    uint GetID() const final;
+
+private:
+    uint mBufferID{};
+    uint mCount{0};
+};
+
+#endif // GL_MESH_DATA_H

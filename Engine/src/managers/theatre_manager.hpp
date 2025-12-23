@@ -1,16 +1,28 @@
-#ifndef THEATRE_MANAGER_H
+#ifdef FWD_DCL
+    class TheatreManager;
+    extern TheatreManager* g_pTheatreManager;
+    extern bool gPrintLoadedTheatreData;
+#elif !defined THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#include "things/fwd.hpp"
-#include "theatre/parser/fwd.hpp"
+#define FWD_DCL
+#   include "things/thing.hpp"
+#   include "things/thing_factory.hpp"
+#   include "things/actors/nostalgia_player.hpp"
+#   include "theatre/parser/theatre_data.hpp"
+#   include "theatre/parser/thing_data.hpp"
+#   include "filesystem/file_data.hpp"
+#   include "rendering/vertex_array.hpp"
+#   include "rendering/texture_buffer.hpp"
+#undef FWD_DCL
 
 #include "manager.hpp"
-#include "core/safe_return.hpp"
-#include "things/thing_factory.hpp"
+#include "core/error.hpp"
+#include "things/types.hpp"
+#include "rendering/mesh_buffers.hpp"
 
-#include <memory>
-#include <map>
-#include <glm/glm.hpp>
+#include <unordered_map>
+#include <string>
 
 class TheatreManager : public Manager
 {
@@ -24,49 +36,65 @@ public:
 
     void DrawTheatre();
     void ReadyThings();
-    bool ThingExists(const ID& UID);
-    ID GetType(const ID& ObjectID);
+    bool ThingExists(ID UID);
+    Farg<TTID> GetType(ID ObjectID);
 
-    void LoadTheatreData(const TheatreData&);
-    bool LoadTheatreFromMemory(const std::string& Data);
-    bool LoadTheatreFromFile(const std::string& Path);
+    void LoadTheatreData(Farg<TheatreData>);
+    bool LoadTheatreFromMemory(Farg<std::string> Data);
+    bool LoadTheatreFromFile(Farg<std::string> Path);
 
     const TheatreData& GetInitialState();
     TheatreData GetCurrentState();
     std::vector<ID> GetThingIDs();
 
-    const ID& CreateThing(const ThingData& ThingData);
-    std::shared_ptr<NostalgiaPlayer> GetLocalPlayer();
-    bool DestroyThing(const ID&);
+    uint CreateThing(Farg<ThingData> ThingData);
+    Shared<NostalgiaPlayer> GetLocalPlayer();
+    bool DestroyThing(ID);
 
-    std::shared_ptr<Thing> GetThing(const ID& ObjectID)
-    { return (mThings.contains(ObjectID)) ? mThings.at(ObjectID) : std::make_shared<Thing>(); }
+    Shared<Thing> GetThing(ID ObjectID);
 
-    template<ThingDerived T>
-    std::shared_ptr<T> GetThing(const ID& ObjectID)
-    {
-        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
-            { return thing; }
-        return std::make_shared<T>();
-    }
+    template<typename T> requires std::derived_from<T,Thing>
+        Shared<T> GetThing(ID ObjectID)
+        {
+            if(auto thing{DCast<T>(GetThing(ObjectID))})
+                { return thing; }
+            return MakeShared<T>();
+        }
 
     // More efficient when breaking on an invalid UID is preferred. See `PhysicsManager::CreateBody` for an example.
-    template<ThingDerived T>
-    SafeStatus GetThing(const ID& ObjectID, std::shared_ptr<T>& Output)
-    {
-        if(std::shared_ptr<T> thing = dynamic_pointer_cast<T>(GetThing(ObjectID)))
-            { Output = thing; return Status::NO_ERR; }
-        return (ThingExists(ObjectID)) ? Status::ERROR_INVALID_ID : Status::ERROR_INVALID_TYPE;
-    }
+    template<typename T> requires std::derived_from<T,Thing>
+        Error GetThing(ID ObjectID, Shared<T> Output)
+        {
+            if(auto thing{DCast<T>(GetThing(ObjectID))})
+            {
+                Output = thing;
+                return OK;
+            }
+            return (ThingExists(ObjectID))
+                ? ERR_INVALID_ID
+                : ERR_INVALID_TYPE;
+        }
 
 private:
-    std::map<ID, std::shared_ptr<Thing>> mThings{};
+    std::unordered_map<ID, Shared<Thing>> mThings{};
+    std::unordered_map<ID, Shared<VertexArray>> mTheatreVAOs{};
+    std::unordered_map<ID, Shared<TextureBuffer>> mTheatreTextures{};
+
     bool mCreatingThings{false};
     bool mDestroyingThings{false};
 
     void CreateThings();
     void DestroyThings();
+
+    Error BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::Layout> inLayout);
+    Error BufferTexture(Farg<FileData> inData, ID inID);
+    void  BufferEmbeddedResources();
+
+    Shared<TextureBuffer>& GetTextureBuffer(ID inID);
+    Shared<VertexArray>& GetVertexArray(ID inID);
 };
+
+inline bool gPrintLoadedTheatreData{false};
 
 extern TheatreManager* g_pTheatreManager;
 

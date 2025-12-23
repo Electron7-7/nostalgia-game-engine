@@ -1,7 +1,12 @@
-#ifndef UI_MANAGER_H
+#ifdef FWD_DCL
+    class UIManager;
+    extern UIManager* g_pUIManager;
+#elif !defined UI_MANAGER_H
 #define UI_MANAGER_H
 
-#include "ui/fwd.hpp"
+#define FWD_DCL
+#   include "ui/solution.hpp"
+#undef  FWD_DCL
 
 #include "manager.hpp"
 
@@ -15,9 +20,6 @@ public:
     void Shutdown() final;
 
     void DrawUI();
-
-private:
-    std::vector<IUISolution*> mSolutionObjects{};
 };
 
 extern UIManager* g_pUIManager;

@@ -1,4 +1,5 @@
 #include "light.hpp"
+#include "core/uid.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef DEBUGGING
@@ -18,7 +19,7 @@ void light_t::ClearCounts()
     light_t::sDirectionalCount = 0;
 }
 
-void light_t::SetVariables(const ThingData& data)
+void light_t::SetVariables(Farg<ThingData> data)
 {
     mScale = glm::vec3(0.1f);
 
@@ -37,43 +38,46 @@ void light_t::SetVariables(const ThingData& data)
     data.GetVariable(mEnabled, "LightVisible");
     data.GetVariable(mEnabled, "Enabled");
     if(data.GetVariable(mEnabled, "Disabled"))
-    if(mMeshInstanceID == ID::Invalid) { // the debug mesh/material shouldn't override a manually specificed one
-        mEnabled = !mEnabled;
-        ID mat_id = g_pTheatreManager->CreateThing(ThingData{
+        { mEnabled = !mEnabled; }
+
+    // the debug mesh/material shouldn't override a manually specificed one
+    if(mMeshInstanceID.invalid())
+    {
+        ID material_id{g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",
             ThingType::Material,
-            UniqueID::Generate(),
+            UID::Generate(),
             {
-                {UniqueID::Reserved::i_LightDebug, "DiffuseTexture"},
-                {true, "FullBright"},
+                {UID::i_LightDebug, "DiffuseTexture"},
+                {true, "FullBright"}
             }
-        });
-        mMeshInstanceID = g_pTheatreManager->CreateThing(ThingData{
+        })};
+        mMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
-            UniqueID::Generate(),
+            UID::Generate(),
             {
-                {UniqueID::Reserved::m_Cube, "Mesh"},
-                {mat_id, "Material"}
+                {UID::m_Cube, "Mesh"},
+                {material_id, "Material", mName + "_DebugMaterial"}
             }
         });
     }
 }
 
-ThingData light_t::GetVariables() const
+Shared<ThingData> light_t::GetVariables() const
 {
-    ThingData data{Actor::GetVariables()};
+    Shared<ThingData> data{Actor::GetVariables()};
 
-    data.AddVariable(mColor, "Color");
-    data.AddVariable(mEnergy, "Energy");
-    data.AddVariable(mSpecularStrength, "SpecularStrength");
-    data.AddVariable(mAmbientStrength, "AmbientStrength");
-    data.AddVariable(mAttenuation, "FadeIntensity");
-    data.AddVariable(mAttenuation, "Attenuation");
-    data.AddVariable(mRange, "Range");
-    data.AddVariable(mEnabled, "LightVisible");
-    data.AddVariable(mEnabled, "Enabled");
-    data.AddVariable(mVisible, "Visible");
+    data->AddVariable(mColor, "Color");
+    data->AddVariable(mEnergy, "Energy");
+    data->AddVariable(mSpecularStrength, "SpecularStrength");
+    data->AddVariable(mAmbientStrength, "AmbientStrength");
+    data->AddVariable(mAttenuation, "FadeIntensity");
+    data->AddVariable(mAttenuation, "Attenuation");
+    data->AddVariable(mRange, "Range");
+    data->AddVariable(mEnabled, "LightVisible");
+    data->AddVariable(mEnabled, "Enabled");
+    data->AddVariable(mVisible, "Visible");
 #ifndef DEBUGGING // See above pragma message
     data.RemoveVariable("Mesh");
     data.RemoveVariable("Material");
@@ -99,7 +103,7 @@ bool PointLight::IncrementIndex()
 int SpotLight::GetCount()
 { return light_t::sSpotCount;}
 
-void SpotLight::SetVariables(const ThingData& data)
+void SpotLight::SetVariables(Farg<ThingData> data)
 {
     light_t::SetVariables(data);
     data.GetVariable(mSpotAngle, "Angle");
@@ -108,13 +112,13 @@ void SpotLight::SetVariables(const ThingData& data)
     data.GetVariable(mSpotAngleFade, "SpotAngleFade");
 }
 
-ThingData SpotLight::GetVariables() const
+Shared<ThingData> SpotLight::GetVariables() const
 {
-    ThingData data{light_t::GetVariables()};
-    data.AddVariable(mSpotAngle, "Angle");
-    data.AddVariable(mSpotAngle, "SpotAngle");
-    data.AddVariable(mSpotAngleFade, "AngleFade");
-    data.AddVariable(mSpotAngleFade, "SpotAngleFade");
+    Shared<ThingData> data{light_t::GetVariables()};
+    data->AddVariable(mSpotAngle, "Angle");
+    data->AddVariable(mSpotAngle, "SpotAngle");
+    data->AddVariable(mSpotAngleFade, "AngleFade");
+    data->AddVariable(mSpotAngleFade, "SpotAngleFade");
     return data;
 }
 
@@ -129,17 +133,17 @@ bool SpotLight::IncrementIndex()
 int DirectionalLight::GetCount()
 { return light_t::sDirectionalCount;}
 
-void DirectionalLight::SetVariables(const ThingData& data)
+void DirectionalLight::SetVariables(Farg<ThingData> data)
 {
     SetEuler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
     light_t::SetVariables(data);
     mVisible = false;
 }
 
-ThingData DirectionalLight::GetVariables() const
+Shared<ThingData> DirectionalLight::GetVariables() const
 {
-    ThingData data{light_t::GetVariables()};
-    data.AddVariable(false, "Visible");
+    Shared<ThingData> data{light_t::GetVariables()};
+    data->AddVariable(false, "Visible");
     return data;
 }
 

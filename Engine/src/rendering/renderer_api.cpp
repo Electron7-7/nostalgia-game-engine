@@ -4,7 +4,7 @@
 // Implementations
 #include "backends/opengl/gl_renderer_api.hpp"
 
-std::unique_ptr<IRendererAPI> IRendererAPI::Activate()
+Unique<RendererAPI> RendererAPI::Activate()
 {
 #pragma message("TODO: When I implement different APIs, also implement a way to switch them")
     sAPI = GraphicsAPI::OpenGL;

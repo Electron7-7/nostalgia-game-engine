@@ -1,20 +1,25 @@
-#ifndef MESH_INSTANCE_H
+#ifdef FWD_DCL
+    class MeshInstance;
+#elif !defined MESH_INSTANCE_H
 #define MESH_INSTANCE_H
 
 #include "device.hpp"
+#include "rendering/render_layers.hpp"
 
 class MeshInstance : public Device
 {
 public:
-    virtual void SetVariables(const ThingData&);
-    virtual ThingData GetVariables() const;
+    RenderLayers mRenderLayers{};
+
+    virtual void SetVariables(Farg<ThingData>) override;
+    virtual Shared<ThingData> GetVariables() const override;
 
     ID GetMeshID() const;
     ID GetMaterialID() const;
 
-private:
-    ID mMeshID     = ID::Invalid;
-    ID mMaterialID = ID::Invalid;
+protected:
+    ID mMeshID{};
+    ID mMaterialID{};
 };
 
 #endif // MESH_INSTANCE_H

@@ -1,7 +1,12 @@
-#ifndef EVENT_MANAGER_H
+#ifdef FWD_DCL
+    class EventManager;
+    extern EventManager* g_pEventManager;
+#elif !defined EVENT_MANAGER_H
 #define EVENT_MANAGER_H
 
-#include "events/fwd.hpp"
+#define FWD_DCL
+#   include "events/event_queue.hpp"
+#undef  FWD_DCL
 
 #include "manager.hpp"
 
@@ -15,9 +20,6 @@ public:
     bool mDebugPrintEverySingleEventToTheConsole{false};
 
     static EventQueue* Queue();
-
-private:
-    static EventQueue m_sEventQueue;
 };
 
 extern EventManager* g_pEventManager;

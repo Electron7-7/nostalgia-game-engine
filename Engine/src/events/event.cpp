@@ -1,12 +1,45 @@
 #include "event.hpp"
 #include "action.hpp"
-#include "bindings.hpp"
+#include "core/printing.hpp"
+
+////////////////
+// InputEvent //
+////////////////
+size_t           InputEvent::GetHash()                        const { return ID::Invalid;             }
+std::string      InputEvent::GetDebugLog()                    const { return "InputEvent Base Class"; }
+bool             InputEvent::IsMouseMotion()                  const { return false;                   }
+Farg<Position2D> InputEvent::MousePosition()                  const { return empty_position;          }
+Farg<Position2D> InputEvent::LastMousePosition()              const { return empty_position;          }
+Farg<Motion2D>   InputEvent::MouseMotion()                    const { return empty_motion;            }
+bool             InputEvent::IsInputAction()                  const { return false;                   }
+bool             InputEvent::IsAction(Farg<std::string>)      const { return false;                   }
+bool             InputEvent::IsActive(Farg<std::string>)      const { return false;                   }
+bool             InputEvent::IsJustChanged(Farg<std::string>) const { return false;                   }
+bool             InputEvent::IsInputBinding()                 const { return false;                   }
+bool             InputEvent::IsBinding(KeyID)                 const { return false;                   }
+bool             InputEvent::IsRepeated(KeyID)                const { return false;                   }
+bool             InputEvent::IsPressed(KeyID)                 const { return false;                   }
+bool             InputEvent::IsReleased(KeyID)                const { return false;                   }
+bool             InputEvent::IsJustPressed(KeyID)             const { return false;                   }
+bool             InputEvent::IsJustReleased(KeyID)            const { return false;                   }
+bool             InputEvent::IsModifierActive(Key::Modifier)  const { return false;                   }
+Key::Modifiers   InputEvent::GetModifiers()                   const { return Key::Modifiers{};        }
+
+void InputEvent::sPrintMouseWarning(const char* inFunction)
+{
+    print_warningv(VERBOSE0,
+        "\x1b[1m`InputEvent::{}`:\x1b[22m this \x1b[1mInputEvent\x1b[22m is \x1b[1mNOT\x1b[22m mouse motion!",
+        inFunction);
+}
+
+Position2D InputEvent::empty_position{};
+Motion2D   InputEvent::empty_motion{};
 
 ///////////////////////////
 // InputEventMouseMotion //
 ///////////////////////////
 InputEventMouseMotion::InputEventMouseMotion() = default;
-InputEventMouseMotion::InputEventMouseMotion(FARG(Position2D) inCurrentPos, FARG(Position2D) inLastPos):
+InputEventMouseMotion::InputEventMouseMotion(Farg<Position2D> inCurrentPos, Farg<Position2D> inLastPos):
     mMousePosition{inCurrentPos},
     mLastMousePosition{inLastPos} {}
 
@@ -16,19 +49,19 @@ size_t InputEventMouseMotion::GetHash() const
 bool InputEventMouseMotion::IsMouseMotion() const
 { return true; }
 
-FARG(Position2D) InputEventMouseMotion::MousePosition() const
+Farg<Position2D> InputEventMouseMotion::MousePosition() const
 { return mMousePosition; }
 
-FARG(Position2D) InputEventMouseMotion::LastMousePosition() const
+Farg<Position2D> InputEventMouseMotion::LastMousePosition() const
 { return mLastMousePosition; }
 
-FARG(Motion2D) InputEventMouseMotion::MouseMotion() const
+Farg<Motion2D> InputEventMouseMotion::MouseMotion() const
 { return mMouseMotion; }
 
 //////////////////////
 // InputEventAction //
 //////////////////////
-InputEventAction::InputEventAction(FARG(InputAction) inAction):
+InputEventAction::InputEventAction(Farg<InputAction> inAction):
     mAction{inAction.Name()},
     mActive{inAction.State()},
     mJustChanged{inAction.StateJustChanged()} {}
@@ -36,27 +69,31 @@ InputEventAction::InputEventAction(FARG(InputAction) inAction):
 size_t InputEventAction::GetHash() const
 { return ConstexprHash(mAction); }
 
-bool InputEventAction::IsAction(FARG(std::string) inAction) const
+bool InputEventAction::IsAction(Farg<std::string> inAction) const
 { return !mAction.compare(inAction); }
 
-bool InputEventAction::IsActive(FARG(std::string) inAction) const
+bool InputEventAction::IsActive(Farg<std::string> inAction) const
 { return mActive && IsAction(inAction); }
 
-bool InputEventAction::IsJustChanged(FARG(std::string) inAction) const
+bool InputEventAction::IsJustChanged(Farg<std::string> inAction) const
 { return mJustChanged && IsAction(inAction); }
 
 ///////////////////////
 // InputEventBinding //
 ///////////////////////
-InputEventBinding::InputEventBinding(uint inBindingID, Key::Modifiers inModifiers, bool isPressed, bool isRepeated, bool isJustChanged):
-    mID{inBindingID},
-    mModifiers{inModifiers},
-    mPressed{isPressed},
-    mRepeated{isRepeated},
-    mJustChanged{isJustChanged} {}
+InputEventBinding::InputEventBinding(KeyID inBindingID,
+    Key::Modifiers inModifiers,
+    bool isPressed,
+    bool isRepeated,
+    bool isJustChanged):
+        mID{inBindingID},
+        mModifiers{inModifiers},
+        mPressed{isPressed},
+        mRepeated{isRepeated},
+        mJustChanged{isJustChanged} {}
 
 size_t InputEventBinding::GetHash() const
-{ return static_cast<size_t>(mID()); }
+{ return static_cast<size_t>(mID[]); }
 
 bool InputEventBinding::IsModifierActive(Key::Modifier inMod) const
 { return mModifiers.has(inMod); }
@@ -64,63 +101,20 @@ bool InputEventBinding::IsModifierActive(Key::Modifier inMod) const
 Key::Modifiers InputEventBinding::GetModifiers() const
 { return mModifiers; }
 
-bool InputEventBinding::IsBinding(KeyArg inID) const
+bool InputEventBinding::IsBinding(KeyID inID) const
 { return mID == inID; }
 
-bool InputEventBinding::IsPressed(KeyArg inID) const
+bool InputEventBinding::IsPressed(KeyID inID) const
 { return mPressed && IsBinding(inID); }
 
-bool InputEventBinding::IsRepeated(KeyArg inID) const
+bool InputEventBinding::IsRepeated(KeyID inID) const
 { return mRepeated && IsBinding(inID); }
 
-bool InputEventBinding::IsReleased(KeyArg inID) const
+bool InputEventBinding::IsReleased(KeyID inID) const
 { return !mPressed && IsBinding(inID); }
 
-bool InputEventBinding::IsJustPressed(KeyArg inID) const
+bool InputEventBinding::IsJustPressed(KeyID inID) const
 { return mJustChanged && IsPressed(inID); }
 
-bool InputEventBinding::IsJustReleased(KeyArg inID) const
+bool InputEventBinding::IsJustReleased(KeyID inID) const
 { return mJustChanged && IsReleased(inID); }
-
-
-#define DO_NOT_COMPILE
-#ifndef DO_NOT_COMPILE
-
-std::string InputEvent::Log() const
-{
-    std::string log{std::format("InputEvent Log [Tick#{}] (CurrentMousePosition:{}) (LastMousePosition:{})",
-        mTick,
-        mCurMousePos,
-        mLastMousePos)};
-    for(auto input : mInputs)
-    {
-        log += std::format("\n\t<Input{{{}}}:State{{{}}}:Timing{{{}}}:Actions{{{}}}>",
-            input.id().name(),
-            ((bool)input.status()) ? "Active" : "Inactive",
-            ((bool)input.just_changed()) ? "Just Changed" : "Stagnant",
-            input.mActions);
-    }
-    return log;
-}
-
-std::string InputEvent::DemoString() const
-{
-    std::string output{std::format("({:0.3f},{:0.3f}) ({:0.3f},{:0.3f})",
-        mCurMousePos.x,
-        mCurMousePos.y,
-        mLastMousePos.x,
-        mLastMousePos.y)};
-    for(const auto& input : mInputs)
-    {
-        output +=
-            std::format("\n\t<{}:{}:{}:{}>",
-                input.id().name(),
-                static_cast<int>(input.status()),
-                static_cast<int>(input.just_changed()),
-                input.mActions
-            );
-    }
-    return output;
-}
-
-#endif // DO_NOT_COMPILE

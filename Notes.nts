@@ -843,3 +843,129 @@ Fixed! It was me using `m_sInstances` instead of `IGetEvents::m_sInstances` for 
 And that marks the redesign of the event/input system. Now time to finish the rendering system...
 
 Ugh, that's so much work and I'm kinda burnt out on this project rn. I think I might take a small break.
+
+[12/09/25]
+All right, let's finish the renderer.
+
+I'm gonna take a few ideas from Hazel, but make my own stuff from them. Basically, I like the idea of creating objects for storing mesh data (e.g: `VertexArray`, `VertexBuffer`, `IndexBuffer`), and I like having separate functions for rendering that take those objects. I can separate rendering the world, 2D objects, etc by simply using the right `VertexArray`, `VertexBuffer`, etc. when calling specific draw functions.
+
+Ugh,,,, almost there. Got it compiling, but running into some errors. Tempted to just go back to my old system... but whatever. I'll give it another day.
+
+[12/10/25]
+Hmm, I think I want to combine this system with my old system and make some changes. I want `RenderManager` to control *all* the renderer-related code, and accessing the renderer (e.g: `TheatreManager` buffering & rendering Theatre meshes) will either be done by queueing some render command in the render manager, or just interfacing with the render manager directly.
+
+Okay, I've redesigned everything slightly so now the theatre manager creates a static `VertexArray` specially made for packed mesh data, and implemented a function in the renderer for specifically rendering packed mesh data.
+
+Now it's crashing due to what looks like string errors when creating the shaders, so I'll have to fix that.
+
+Aight, now it's just graphics problems; mainly buffer issues. I might want to throw out the hazel code and just write some more simple classes but idk. That's for later.
+
+[12/11/25]
+I think it might be time to work towards just getting the engine in a state where I can make *something*. Let's just get the damn thing out the door.
+
+OMG WAIT!! Rendering is working, it's just... the data is bugged again. Always this problem whenever I redesign the rendering backend. However, this means that it's just the data being passed around wrong, which is a better problem than "it crashed for no reason (pointers)".
+
+Getting closer! I've decided to forgo combining every mesh into one VAO and just make separate VAO/VBO/IBOs for all meshes (for now, at least).
+
+Okay, NSight is telling me that the 'Data in index buffer is insufficient for the specified index count and offset', so I'm pretty sure that the problem is that my index offset/count is wrong.
+
+[12/12/25]
+Forgot to write down that yesterday I got the models rendering and the textures sometimes working. I'm gonna try to nail down the textures and I might revive the render command system.
+
+I think I need to re-think how resources work.
+
+Yeah, I need to totally redesign resources.
+
+The crash is due to a double free from IUIImplementor's `OnInput` destructor being called twice.
+
+[12/15/25]
+Actually, I think it's due to a race condition where the vector iterators get invalidated by one `OnInput` object erasing itself while another is iterating. My solution will be to use an index for loop, instead of a range-based for loop (which isn't great but isn't terrible, either).
+
+Oh my fucking god... it was because the static application instance variable is a shared pointer to an already existing object and it was trying to free that pointer improperly (because the pointer wasn't malloc-ed). At least, I think that's it.
+
+Yup, that was it.
+
+Well, not entirely; there's still a crash if either `IApplication` or `NostalgiaGoggles` inherits from any of the event handler components, but I think that's to do with the application class destroying too quickly or the way I create the application object in the main file. Either way, using a separate class for handling events works perfectly fine so I'll do that and maybe fix this weird bug in the future.
+
+[12/16/25]
+There was a strange problem with clangd/clang where it would eat up all my RAM and CPU when compiling/indexing the project. I eventually found the source of the problem: in 'events/bindings.hpp', the `FOR_EACH` macro had a couple arguments too many for either this laptop or clang in general. Either way, I decided to just bite the bullet and just add all the key IDs to the `frozen::map` manually; honestly, it's not that big of a deal, especially since they're all constexpr anyways.
+
+I also changed how forward declarations are done; now, each header file will put its forward declarations at the top of the file using these preprocessor directives:
+:::C++
+#ifdef FWD_DCL
+    // Forward Declarations...
+#elif !defined THIS_HEADER_FILE_H
+#define THIS_HEADER_FILE_H
+//...
+#endif // THIS_HEADER_FILE_H
+:::
+Which, in turn, let you include *only* the header's forward declarations by doing something like this:
+:::C++
+#define FWD_DCL
+#   include "this_header_file.hpp"
+#undef  FWD_DCL
+:::
+I also wrote a Sublime Text snippet for the '#define/#undef FWD_DCL' portion.
+
+This makes forward declarations easier to use, make, and maintain.
+
+I also revamped how verbosity works in `__print_verbose`, so instead of levels they're bit flags for all three types of message prefix.
+
+[12/17/25]
+Got straight to work on uprooting `penum_t`. I created the `EnumPrettifier` namespace and have some ideas for Theatre files. What if I wrapped all the classes up into one big class that also had functions for registering new variables and shit?
+
+Holy shit, I just spent all night absolutely gutting `penum_t` along with overhauling a bunch of random shit, and guess what? It worked on nearly the first fucking try! A few things are off, specifically the colliders don't seem to be doing anything. That's probably due to me changing around the containers I used to store their data.
+
+Aw, the problem is that the enums aren't getting set properly, which is one of the things I overhauled. However, it's not totally joever; just a small fix... famous last words.
+
+FUCK YES!! IT ALL WORKS!!! EVEN THE TEXTURES!!!
+
+Okay, only problems left for now are:
+    1. lights have no debug mesh/show up using the error mesh
+    2. the "spawner" thingy also uses the wrong mesh
+
+Those are probably due to the ID system changing and me not accomodating those IDs. Simple as. I think, at least.
+
+[12/18/25]
+I want to stop fiddling with minor tweaks/changes and start making major improvements and adding new features! Sooooo, let's get the new renderer up to speed and then start moving forward.
+
+I don't know if this is the reason for the thing spawner problem, but why are all Theatre variables one class? I think it's time to templatize them.
+
+Ugh, I removed `PEnum` and then just rediscovered why I actually needed it: collisions with registered enum values in the variable registry. Time to re-create `PEnum`, again.
+
+Got an error when trying to fill a static unordered map from the constructor of a global variable. See this link for info: (https://en.cppreference.com/w/cpp/language/siof)
+
+Oh wait... what if I moved the reference IDs from the variable registry into `UID` and replace its unique ids map with those? That makes more sense, especially since I can add/remove IDs in the `Thing` constructor.
+
+AAAAAND WE'RE BACK!!!!!
+
+AND I GOT THE DEBUG LIGHT MESHES WOORKING!!
+
+Now all that's left is to re-implement Viewports and it'll be right back to where it was before, but better this time!
+
+[12/20/25]
+The heap-use-after-free error is because the vectors for the `OnInput`, `OnAppEvent`, and `OnEngineEvent` classes are static and when the `__run_exit_handlers` function gets called, it deletes all the pointers... which is after they've already been freed by the destructors.
+
+Hmm, I think that if I have a static, global container and I exit the app, `__run_exit_handlers` seems to delete all the memory in these containers before or while they're being accessed.
+
+No, wait, it looks like the app is just closing too quickly; it needs to wait for all the jobs to be finished.
+
+[12/22/25]
+Fixing/tidying up the ANSI code... code and then I'm going to overhaul the Theatre parser with some ideas I wrote down in my notes.
+
+Okay, finished with the ANSI stuff, here's my notes on the Theatre parser:
+:::Notes
+Make a 'ThingVar' wrapper class template that stores the actual variable data, the delimiter as two characters, and functions/function templates for converting between a string and the data. You could change the delimiter and the pointers live.
+:::
+
+I'm also gonna be making the parser loop more like the demo file parser loop. I also might make a theatre parser class that allows for live updates to the file format like adding/removing parts of the syntax (e.g: variable types/delimiters) or changing how they're parsed by using function pointers in the main parsing loop.
+
+I think I'll start with the parser first and just change the main loop from a single switch statement that does everything to a system more like the demo file parser.
+
+Uhoh, hold on, there's a segfault when quitting while a Theatre is loaded; probably just a nullptr exception from some destructor getting called too early/late is my guess.
+
+Technically, I was right; it's `glfwTerminate()` getting called and shutting down OpenGL (or something to that effect), which makes all the 'gl-' function pointers nullptr, and since the map of VAOs is a static global variable it gets destroyed *after* opengl is shut down and the VAO pointer in the iterator (or something like that) tries to call its destructor which tries to call `glDeleteVertexArrays` which causes a nullptr exception.
+
+Okay, I solved the problem by making the unordered maps not global static variables. This is probably the best solution, because anything that relates to the rendering API should not be able to be constructed or destructed outside of the API's initialization and termination windows.
+
+Now, on to the stuff I wanted to do, lmfao.

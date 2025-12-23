@@ -3,16 +3,15 @@
 
 namespace Models
 {
-    constexpr unsigned char Error[] =
-    {
+    constexpr unsigned char Error[]{
         #embed "models/Error.obj"
     };
-    constexpr unsigned char Ramiel[] =
-    {
+
+    constexpr unsigned char Ramiel[]{
         #embed "models/Ramiel.obj"
     };
-    constexpr unsigned char Cube[] =
-    {
+
+    constexpr unsigned char Cube[]{
         #embed "models/Cube.obj"
     };
 }

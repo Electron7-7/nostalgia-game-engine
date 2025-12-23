@@ -6,12 +6,13 @@
 using namespace ManagerEnums;
 
 static UIManager s_UIManager;
-UIManager* g_pUIManager = &s_UIManager;
+UIManager* g_pUIManager{&s_UIManager};
 
 bool UIManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    IUIImplementor::AttachAll();
+    UI_Implementor::AttachAll();
+    UI_Implementor::InvokeMethod(&UI_Solution::Init);
     return true;
 }
 
@@ -19,27 +20,28 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool first_call)
 {
     if(!first_call)
         { return FINISHED; }
-    IUIImplementor::InvokeMethod(&IUISolution::OnTheatreEntered);
+    UI_Implementor::InvokeMethod(&UI_Solution::OnTheatreEntered);
     return FINISHED;
 }
 
 void UIManager::DrawUI()
 {
-    IUIImplementor::InvokeMethod(&IUIImplementor::Begin);
-    IUIImplementor::InvokeMethod(&IUISolution::Update);
-    IUIImplementor::InvokeMethod(&IUIImplementor::End);
+    UI_Implementor::InvokeMethod(&UI_Implementor::Begin);
+    UI_Implementor::InvokeMethod(&UI_Solution::Update);
+    UI_Implementor::InvokeMethod(&UI_Implementor::End);
 }
 
 ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool first_call)
 {
     if(!first_call)
         { return FINISHED; }
-    IUIImplementor::InvokeMethod(&IUISolution::OnTheatreExited);
+    UI_Implementor::InvokeMethod(&UI_Solution::OnTheatreExited);
     return FINISHED;
 }
 
 void UIManager::Shutdown()
 {
     PRINT_PRETTY_FUNCTION;
-    IUIImplementor::DetachAll();
+    UI_Implementor::InvokeMethod(&UI_Solution::Shutdown);
+    UI_Implementor::DetachAll();
 }

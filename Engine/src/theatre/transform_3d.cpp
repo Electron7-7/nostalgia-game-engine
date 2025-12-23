@@ -1,8 +1,8 @@
 #include "transform_3d.hpp"
 #include "settings/world.hpp"
-#include "parser/thing_data.hpp"
+#include "theatre/parser/thing_data.hpp"
 
-void Transform3D::SetTransformVariables(const ThingData& data)
+void Transform3D::SetTransformVariables(Farg<ThingData> data)
 {
     data.GetVariable(mOrigin, "Origin", "Position");
     data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
@@ -15,40 +15,42 @@ void Transform3D::SetTransformVariables(const ThingData& data)
     }
 }
 
-void Transform3D::GetTransformVariables(ThingData& data) const
+void Transform3D::GetTransformVariables(Shared<ThingData> data) const
 {
-    data.AddVariable(mOrigin, "Origin");
-    data.AddVariable(mScale, "Scale");
-    data.AddVariable(mQuaternion, "Quaternion");
+    data->AddVariable(mOrigin, "Origin");
+    data->AddVariable(mScale, "Scale");
+    data->AddVariable(mQuaternion, "Quaternion");
 }
 
-const glm::vec3& Transform3D::Origin() const
+Farg<glm::vec3> Transform3D::Origin() const
 { return mOrigin; }
 
-const glm::vec3& Transform3D::Scale() const
+Farg<glm::vec3> Transform3D::Scale() const
 { return mScale; }
 
-const glm::quat& Transform3D::Quaternion() const
+Farg<glm::quat> Transform3D::Quaternion() const
 { return mQuaternion; }
 
 glm::vec3 Transform3D::Euler(bool degrees) const
 { return (degrees) ? glm::degrees(mEuler) : mEuler; }
 
-void Transform3D::SetOrigin(const glm::vec3& origin)
+void Transform3D::SetOrigin(Farg<glm::vec3> origin)
 { mOrigin = origin; }
 
-void Transform3D::SetScale(const glm::vec3& scale)
+void Transform3D::SetScale(Farg<glm::vec3> scale)
 { mScale = scale; }
 
-void Transform3D::SetQuaternion(const glm::quat& quaternion)
+void Transform3D::SetQuaternion(Farg<glm::quat> quaternion)
 {
     mQuaternion = quaternion;
     mEuler = glm::eulerAngles(mQuaternion);
 }
 
-void Transform3D::SetEuler(const glm::vec3& euler, bool degrees)
+void Transform3D::SetEuler(Farg<glm::vec3> euler, bool degrees)
 {
-    mEuler = (degrees) ? glm::radians(euler) : euler;
+    mEuler = (degrees)
+        ? glm::radians(euler)
+        : euler;
     mQuaternion = glm::quat(mEuler);
 }
 

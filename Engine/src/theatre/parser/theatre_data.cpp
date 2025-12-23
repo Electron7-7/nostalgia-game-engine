@@ -1,6 +1,8 @@
 #include "theatre_data.hpp"
 #include "things/thing_factory.hpp"
-#include "common/colors.hpp" // IWYU pragma: keep
+#include "core/uid.hpp"
+#include "core/printing.hpp"
+#include "common/colors.hpp"
 
 #include <map>
 
@@ -47,43 +49,41 @@ void TheatreData::SetupUIDsAndPriorities()
     s_DataQuickSort(things_data, 0, things_data.size() - 1);
 
     std::map<std::string, ID> name_id_map{};
-    UniqueID::Clear();
+    UID::Clear();
+    g_pVariableRegistry->ClearIDs();
 
     // I wanted to combine these two `for` loops, but it's safer to separate them, since I can't guarantee that
     // referenced things will have defined UIDs even after sorting by priority. Perhaps in the future I can change
     // this, but for now it's fine to have two for loops (even if I personally hate it).
     for(ThingData& data : things_data)
-        { name_id_map[data.name] = data.uid = UniqueID::Generate(); }
+    {
+        data.uid = UID::Generate();
+        g_pVariableRegistry->RegisterID(data.name, data.uid[]);
+    }
     for(ThingData& data : things_data)
     {
         for(ThingVar& variable : data.variables)
         {
-            switch(variable.type)
+            if(variable.type == ThingVar::Type::Reference)
             {
-            case ThingVar::eEnum:
-                variable.enum_name = variable.value;
-                if(gPrettyEnumLookup.contains(variable.value))
-                    { variable.enum_value = gPrettyEnumLookup.at(variable.value); }
-                else if(gEnumLookup.contains(variable.value.data()))
-                    { variable.enum_value = gEnumLookup.at(variable.value.data()); }
-                break;
-            case ThingVar::eReference:
-                if(!UniqueID::GetReservedID(variable.value, variable.reference_id) && name_id_map.contains(variable.value))
-                    { variable.reference_id = name_id_map.at(variable.value); }
-                break;
-            default:
-                break;
+                if(uint id; g_pVariableRegistry->try_GetID(variable.value, id))
+                    { variable.id_or_enum = id; }
             }
+            // Note: this uses an inaccurate and bad function in `VariableRegistry` that's only for
+            // debugging purposes, as `ThingVar::id_or_enum` isn't used when calling `ThingData::GetVariable`
+            // for an enum variable.
+            else if(variable.type == ThingVar::Type::Enum)
+                { g_pVariableRegistry->try_GetEnum(variable.value, variable.id_or_enum); }
         }
     }
 }
 
-SafeStatus TheatreData::AddData(const ThingData& data)
+Error TheatreData::AddData(Farg<ThingData> data)
 {
     if(!g_pThingFactory->IsThing(data.type()))
-        { return Status::TheatreDataINVALID_TYPE; }
+        { return ERR_INVALID_TYPE; }
     things_data.push_back(data);
-    return Status::NO_ERR;
+    return OK;
 }
 
 std::string TheatreData::formatted() const
@@ -93,11 +93,11 @@ std::string TheatreData::formatted() const
     for(const ThingData& thing_data : things_data)
     {
         if(g_pThingFactory->IsResource(thing_data.type()) && !thing_data.variables.empty())
-            { resources += std::format("\t{} {} = {};\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name, thing_data.variables.at(0).formatted_value()); }
+            { resources += std::format("\t{} {} = {};\n", thing_data.type().name(), thing_data.name, thing_data.variables.at(0).formatted_value()); }
         else
         {
-            things += std::format("\t{} {}\n\t{{\n", g_pThingFactory->GetTypeName(thing_data.type()), thing_data.name);
-            for(const ThingVar& variable : thing_data.variables)
+            things += std::format("\t{} {}\n\t{{\n", thing_data.type().name(), thing_data.name);
+            for(Farg<ThingVar> variable : thing_data.variables)
             {
                 if(auto format_var = variable.formatted(); !format_var.empty())
                     { things += std::format("\t\t{}\n", format_var); }
@@ -114,8 +114,6 @@ void TheatreData::clear()
 void TheatreData::debug_PrintData()
 {
     print_debug("Theatre Data Printout:", Sty::Bold + Fg::Cyan, Sty::Reset);
-#ifdef DEBUGGING
     for(const ThingData& thing_data : things_data)
         { println("{}", thing_data.log(true, true)); }
-#endif
 }

@@ -1,77 +1,60 @@
 #include "implementor.hpp"
-#include "solution.hpp" // IWYU pragma: keep
+#include "solution.hpp"
 
-std::vector<Unique<IUIImplementor>> IUIImplementor::m_sInstances{};
-
-// Constructors/Destructors
-IUIImplementor::IUIImplementor(FARG(std::string) inName):
-    mID{inName}
-{ PRINT_PRETTY_FUNCTION; }
-
-IUIImplementor::~IUIImplementor()
-{ PRINT_PRETTY_FUNCTION; }
-
-UI_Implementor::UI_Implementor(FARG(std::string) inName):
-    IUIImplementor{inName}
-{ PRINT_PRETTY_FUNCTION; }
+UI_Implementor::~UI_Implementor() = default;
 
 // Non-static functions
-const ID& IUIImplementor::GetID() const
-{ return mID; }
-
-IUIImplementor::InstanceState IUIImplementor::GetState() const
+UI_Implementor::InstanceState UI_Implementor::GetState() const
 { return mState; }
 
-std::vector<Unique<IUISolution>>& IUIImplementor::GetObjects()
-{ return mObjects; }
-
-void UI_Implementor::StopHandlingEvents(bool inStopHandlingEvents)
-{ mGlobalCanHandleEvents = !inStopHandlingEvents; }
-
 // Static functions
-const std::vector<Unique<IUIImplementor>>& IUIImplementor::GetInstances()
-{ return m_sInstances; }
+void UI_Implementor::AttachAll()
+{ InvokeMethod(&UI_Implementor::Attach); }
 
-void IUIImplementor::AttachAll()
-{ InvokeMethod(&IUIImplementor::Attach); }
+void UI_Implementor::DetachAll()
+{ InvokeMethod(&UI_Implementor::Detach); }
 
-void IUIImplementor::DetachAll()
-{ InvokeMethod(&IUIImplementor::Detach); }
+void UI_Implementor::BeginAll()
+{ InvokeMethod(&UI_Implementor::Begin); }
 
-void IUIImplementor::BeginAll()
-{ InvokeMethod(&IUIImplementor::Begin); }
+void UI_Implementor::EndAll()
+{ InvokeMethod(&UI_Implementor::End); }
 
-void IUIImplementor::EndAll()
+void UI_Implementor::InvokeMethod(ImplementorFunctionPtr inFunctionPtr)
 {
-    InvokeMethod(&IUIImplementor::End);
-    for(auto& instance : m_sInstances)
-        { instance->DeactivateOpportunity(); }
+    for(auto& [index, instance] : m_sInstances)
+        { if(!instance) { continue; } (instance.get()->*inFunctionPtr)(); }
 }
 
-void IUIImplementor::InvokeMethod(ImplementorFunctionPtr inFunctionPtr)
+void UI_Implementor::InvokeMethod(SolutionFunction_ptr inFunctionPtr)
 {
-    for(auto& instance : m_sInstances)
-        { (instance.get()->*inFunctionPtr)(); }
-}
-
-void IUIImplementor::InvokeMethod(SolutionFunction_ptr inFunctionPtr)
-{
-    for(std::unique_ptr<IUIImplementor>& instance : m_sInstances)
+    for(auto& [index, instance] : m_sInstances)
     {
         if(!instance->mAttached)
             { continue; }
-        for(auto& object : instance->mObjects)
-            { (object.get()->*inFunctionPtr)(); }
+        for(auto& [index, object] : instance->mObjects)
+            { if(!object) { continue; } (object.get()->*inFunctionPtr)(); }
     }
 }
 
-void IUIImplementor::InvokeMethod(SolutionInputEventFunction_ptr inFunctionPtr, FARG(InputEvent) inEvent)
+void UI_Implementor::InvokeMethod(SolutionInit_ptr inInitPtr)
 {
-    for(std::unique_ptr<IUIImplementor>& instance : m_sInstances)
+    for(auto& [index, instance] : m_sInstances)
     {
         if(!instance->mAttached)
             { continue; }
-        for(auto& object : instance->mObjects)
-            { (object.get()->*inFunctionPtr)(inEvent); }
+        for(auto& [index, object] : instance->mObjects)
+            { if(!object) { continue; } (object.get()->*inInitPtr)(); }
+    }
+}
+
+void UI_Implementor::InvokeMethod(SolutionInputEventFunction_ptr inFunctionPtr, Farg<InputEvent> inEvent)
+{
+    for(auto& [index, instance] : m_sInstances)
+    {
+        if(!instance->mAttached)
+            { continue; }
+        for(auto& [index, object] : instance->mObjects)
+            { if(!object) { continue; } (object.get()->*inFunctionPtr)(inEvent); }
     }
 }

@@ -11,6 +11,7 @@
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
 
+static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
 static std::vector<Unique<Monitor>> m_sMonitors{};
 
 void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonitor, int inEvent)
@@ -39,14 +40,14 @@ void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonito
 }
 
 void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow*)
-{ EventManager::Queue()->add<AppEvent>(AppEvents::WindowClose); }
+{ EventManager::Queue()->add<AppEvent>(AppEvent::WindowClose); }
 
 void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWindow, int inWidth, int inHeight)
 {
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mData.width  = inWidth;
     pWindow->mData.height = inHeight;
-    EventManager::Queue()->add<AppEvent>(AppEvents::WindowResize);
+    EventManager::Queue()->add<AppEvent>(AppEvent::WindowResize);
 }
 
 void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindow, int inX, int inY)
@@ -54,6 +55,7 @@ void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindo
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mData.x_pos = inX;
     pWindow->mData.y_pos = inY;
+    EventManager::Queue()->add<AppEvent>(AppEvent::WindowMoved);
 }
 
 void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindow, double inX, double inY)
@@ -84,23 +86,28 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
     else if(const auto& found_it{s_cGLFWInputLookup.find(key)};
         found_it != s_cGLFWInputLookup.end())
     {
-        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second,
+        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second[],
                 sConvertModifierKeys(mods),
                 action != GLFW_RELEASE,
                 action == GLFW_REPEAT,
-                g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
+                g_pInputManager->UpdateKeyState(found_it->second[], action != GLFW_RELEASE));
     }
 }
 
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
-{ mInitStatus = Init(inProperties); }
+{
+    mInitStatus = Init(inProperties);
+    PRINT_PRETTY_CONSTRUCTOR_EXT("# of windows: {}", sShittyWindowTrackerPleaseMakeSomethingBetter);
+}
 
 WindowGLFW::~WindowGLFW()
-{ Shutdown(); }
+{
+    Shutdown();
+    PRINT_PRETTY_DESTRUCTOR_EXT("# of windows: {}", sShittyWindowTrackerPleaseMakeSomethingBetter);
+}
 
 Error WindowGLFW::Init(const WindowProperties& inProperties)
 {
-    PRINT_PRETTY_FUNCTION;
     mData = inProperties;
     if(!glfwInit())
         { return print_error_enum(ERR_INIT_FAILED); }
@@ -111,8 +118,10 @@ Error WindowGLFW::Init(const WindowProperties& inProperties)
         nullptr, nullptr);
     mGraphicsContext = IGraphicsContext::CreateContext(m_pWindow);
     glfwSetWindowUserPointer(m_pWindow, this);
-    print_error_enum(mGraphicsContext->Init());
-    return print_error_enum(InitializeCallbacks());
+    if(!print_error_enum(mGraphicsContext->Init()) or !print_error_enum(InitializeCallbacks()))
+        { return ERR_INIT_FAILED; }
+    ++sShittyWindowTrackerPleaseMakeSomethingBetter;
+    return OK;
 }
 
 Error WindowGLFW::InitializeCallbacks()
@@ -129,7 +138,8 @@ Error WindowGLFW::InitializeCallbacks()
 void WindowGLFW::Shutdown()
 {
     glfwDestroyWindow(m_pWindow);
-    glfwTerminate();
+    if(--sShittyWindowTrackerPleaseMakeSomethingBetter <= 0)
+        { glfwTerminate(); }
 }
 
 void WindowGLFW::Update()

@@ -1,20 +1,17 @@
-#ifndef WINDOW_H
+#ifdef FWD_DCL
+    class IWindow;
+#elif !defined WINDOW_H
 #define WINDOW_H
 
-#include "fwd.hpp"
-#include "events/fwd.hpp"
-#include "math/fwd.hpp"
+#define FWD_DCL
+#   include "math/containers.hpp"
+#   include "monitor.hpp"
+#undef  FWD_DCL
 
-#include "core/type_helpers.hpp"
+#include "core/farg.hpp"
+#include "core/smart_pointers.hpp"
 #include "core/error.hpp"
 #include "components/game_loop.hpp"
-#include "common/sanity.hpp"
-
-#include <cassert>
-#include <string>
-#include <memory>
-#include <vector>
-#include <glm/fwd.hpp>
 
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION
@@ -79,14 +76,14 @@ public:
                    mouse_mode == other.mouse_mode;
         }
 
-        WindowProperties(StringArg inTitle = {"Nostalgia Engine"},
+        WindowProperties(const std::string& inTitle = {"Nostalgia Engine"},
             uint inWidth = 1280,  uint inHeight = 720,
             int inXPosition = 0,  int inYPosition = 0):
                 title{inTitle},
                 width{inWidth}, height{inHeight},
                 x_pos{inXPosition}, y_pos{inYPosition},
                 vsync{VSYNC_OFF}, window_mode{WINDOW_MODE_WINDOWED}, mouse_mode{MOUSE_MODE_VISIBLE}
-                {}
+            {}
     };
     typedef WindowProperties Properties;
 
@@ -94,14 +91,8 @@ public:
 
     virtual void Update() override = 0;
 
-#ifdef WAYLAND_DISPLAY
-    virtual Error SetPosition(const Position2D&) { return UNIMPLEMENTED; }
-    virtual Error SetScale(const Scale2D&)       { return UNIMPLEMENTED; }
-#else // !WAYLAND_DISPLAY
-    virtual Error SetPosition(const Position2D&) = 0;
-    virtual Error SetScale(const Scale2D&)     = 0;
-#endif // WAYLAND_DISPLAY
-
+    virtual Error SetPosition(Farg<Position2D>) { return UNIMPLEMENTED; }
+    virtual Error SetScale(Farg<Scale2D>)       { return UNIMPLEMENTED; }
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;
@@ -110,9 +101,9 @@ public:
     virtual Position2D GetLastMousePosition() = 0;
     virtual void* GetNativeWindow() const = 0;
     virtual NativeWindowType GetNativeWindowType() const = 0; // Probably not necessary
-    virtual const std::unique_ptr<Monitor>& GetPrimaryMonitor() const = 0;
+    virtual const Unique<Monitor>& GetPrimaryMonitor() const = 0;
     virtual uint GetFullscreenMonitorIndex() = 0;
-    virtual const std::unique_ptr<Monitor>& GetFullscreenMonitor() = 0;
+    virtual const Unique<Monitor>& GetFullscreenMonitor() = 0;
     virtual Error SetFullscreenMonitor(uint MonitorIndex) = 0;
 
     const char* GetTitle()     const { return mData.title.data(); }
@@ -127,11 +118,11 @@ public:
     WindowMode GetWindowMode() const { return mData.window_mode; }
     bool IsFullscreen()        const { return GetWindowMode() == WINDOW_MODE_FULLSCREEN; }
     Error GetInitStatus()      const { return mInitStatus; }
-    FARG(WindowProperties) GetProperties() const { return mData; }
+    Farg<WindowProperties> GetProperties() const { return mData; }
 
     template<typename T> requires std::derived_from<T,IWindow>
-        static std::unique_ptr<IWindow> CreateWindow(const WindowProperties& inProperties = {})
-        { return std::make_unique<T>(inProperties); }
+        static Unique<IWindow> CreateWindow(Farg<WindowProperties> inProperties = {})
+        { return MakeUnique<T>(inProperties); }
 
     static std::vector<Monitor> GetMonitors();
 

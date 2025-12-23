@@ -1,5 +1,9 @@
-#ifndef VERTEX_H
+#ifdef FWD_DCL
+    struct Vertex;
+#elif !defined VERTEX_H
 #define VERTEX_H
+
+#include "core/macros.hpp"
 
 #include <glm/glm.hpp>
 #include <array>
@@ -7,6 +11,7 @@
 
 // IMPORTANT: Vertex data will be packed in this order: Position, Normal, Color, UV
 
+#pragma message("TODO: Totally overhaul Vertex, conforming to things like the new mesh buffers")
 struct Vertex
 {
 public:
@@ -14,10 +19,10 @@ public:
     Vertex(glm::vec3 Position): Vertex(Position, glm::vec3(1.0f, 0.1f, 0.9f), glm::vec3(0.0f), glm::vec2(0.0f)) {}
     Vertex(): Vertex(glm::vec3(0.0f)) {}
 
-    glm::vec3 Position() const { return _position; }
-    glm::vec3 Normal()   const { return _normal; }
-    glm::vec3 Color()    const { return _color; }
-    glm::vec2 UV()       const { return _uv; }
+    Farg<glm::vec3> Position() const { return _position; }
+    Farg<glm::vec3> Normal()   const { return _normal; }
+    Farg<glm::vec3> Color()    const { return _color; }
+    Farg<glm::vec2> UV()       const { return _uv; }
 
     void SetPosition(glm::vec3 Position) { _position = Position; }
     void SetColor(glm::vec3 Color)       { _color = Color; }
@@ -26,7 +31,7 @@ public:
 
     static constexpr unsigned int Stride = 11;
 
-    constexpr std::array<float, Stride> VertexData() const
+    std::array<float, Stride> VertexData() const
     {
         return
         {
@@ -37,7 +42,7 @@ public:
         };
     }
 
-    constexpr void GetVertexData(std::vector<float>& Output) const
+    void GetVertexData(std::vector<float>& Output) const
     {
         Output.push_back(_position.x);
         Output.push_back(_position.y);

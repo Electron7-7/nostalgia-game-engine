@@ -1,4 +1,6 @@
-#ifndef INPUT_ACTION_H
+#ifdef FWD_DCL
+    class InputAction;
+#elif !defined INPUT_ACTION_H
 #define INPUT_ACTION_H
 
 #include "core/error.hpp"
@@ -20,13 +22,13 @@ private:
 
 public:
     template<ID_t... KeyIDs> requires (sizeof...(KeyIDs) <= BITMASK_CAP)
-        InputAction(const std::string& inName, KeyIDs&... inKeyIDs):
+        InputAction(Farg<std::string> inName, KeyIDs&... inKeyIDs):
             mName{inName}
         {
             mBitMasks.reserve(sizeof...(inKeyIDs));
-            for(const auto& id : {inKeyIDs...})
+            for(FARG(auto) id : {inKeyIDs...})
             {
-                mTrueState |= mBitMasks[id()] = mBitMaskIter;
+                mTrueState |= mBitMasks[id[]] = mBitMaskIter;
                 mBitMaskIter <<= 1;
             }
             if(mBitMaskIter != 0b1) { mBitMaskIter >>= 1; }
@@ -38,15 +40,15 @@ public:
     bool UpdateState(uint inKeyID, bool inKeyState);
     Error Erase(uint inKeyID);
     Error Add(uint inKeyID);
-    const std::string& Name() const;
+    Farg<std::string> Name() const;
     bool State() const;
     bool StateJustChanged() const;
 
-    constexpr bool operator==(const std::string& inName) const noexcept
+    constexpr bool operator==(Farg<std::string> inName) const noexcept
     { return !mName.compare(inName); }
-    constexpr bool operator==(const InputAction& inAction) const noexcept
+    constexpr bool operator==(Farg<InputAction> inAction) const noexcept
     { return !mName.compare(inAction.mName); }
-    constexpr bool operator< (const InputAction& inAction) const noexcept
+    constexpr bool operator< (Farg<InputAction> inAction) const noexcept
     { return mName < inAction.mName; }
 };
 

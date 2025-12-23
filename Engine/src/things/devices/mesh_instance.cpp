@@ -1,22 +1,27 @@
 #include "mesh_instance.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-void MeshInstance::SetVariables(const ThingData& data)
+void MeshInstance::SetVariables(Farg<ThingData> data)
 {
     Device::SetVariables(data);
 
+    int render_layers{mRenderLayers.get()};
+
     data.GetVariable(mMeshID, "Mesh");
     data.GetVariable(mMaterialID, "Material");
+    if(data.GetVariable(render_layers, "RenderLayers", "Layers"))
+        { mRenderLayers.set(render_layers); }
 }
 
-ThingData MeshInstance::GetVariables() const
+Shared<ThingData> MeshInstance::GetVariables() const
 {
-    ThingData thing_data{Device::GetVariables()};
+    auto data{Device::GetVariables()};
 
-    thing_data.AddVariable(mMeshID, "Mesh");
-    thing_data.AddVariable(mMaterialID, "Material");
+    data->AddVariable(mMeshID, "Mesh");
+    data->AddVariable(mMaterialID, "Material");
+    data->AddVariable(mRenderLayers.get(), "RenderLayers");
 
-    return thing_data;
+    return data;
 }
 
 ID MeshInstance::GetMeshID() const

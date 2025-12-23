@@ -1,17 +1,22 @@
-#ifndef INPUT_MANAGER_H
+#ifdef FWD_DCL
+    class InputManager;
+    extern InputManager* g_pInputManager;
+#elif !defined INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
-#include "events/fwd.hpp"
-#include "math/fwd.hpp"
+#define FWD_DCL
+#   include "events/event.hpp"
+#   include "events/event_queue.hpp"
+#   include "math/containers.hpp"
+#   include "events/action.hpp"
+#   include "events/bindings.hpp"
+#undef FWD_DCL
 
 #include "manager.hpp"
-#include "events/action.hpp"
-#include "core/type_helpers.hpp"
+#include "core/farg.hpp"
 #include "core/error.hpp"
 
-#include <glm/vec2.hpp>
 #include <unordered_map>
-#include <string>
 
 class InputManager : public Manager
 {
@@ -24,21 +29,21 @@ public:
 
     EventQueue* Queue();
 
-    bool UpdateKeyState(FARG(KeyID) inKeyID, bool inCurrentState);
-    void SetAction(FARG(InputAction) inAction);
-    Error AddAction(FARG(InputAction) inAction);
-    Error DeleteAction(FARG(std::string) inActionName);
+    bool UpdateKeyState(KeyID inKeyID, bool inCurrentState);
+    void SetAction(Farg<InputAction> inAction);
+    Error AddAction(Farg<InputAction> inAction);
+    Error DeleteAction(Farg<std::string> inActionName);
     void ClearAllActions();
 
-    static bool IsKeyDown(const KeyID& inKey) noexcept;
-    static bool IsKeyUp(const KeyID& inKey) noexcept;
-    static bool IsKeyPressed(const KeyID& inKey) noexcept;
-    static bool IsKeyReleased(const KeyID& inKey) noexcept;
+    static bool IsKeyDown(KeyID inKeyID) noexcept;
+    static bool IsKeyUp(KeyID inKeyID) noexcept;
+    static bool IsKeyPressed(KeyID inKeyID) noexcept;
+    static bool IsKeyReleased(KeyID inKeyID) noexcept;
 
-    static bool IsActionDown(const std::string& inName) noexcept;
-    static bool IsActionUp(const std::string& inName) noexcept;
-    static bool IsActionPressed(const std::string& inName) noexcept;
-    static bool IsActionReleased(const std::string& inName) noexcept;
+    static bool IsActionDown(Farg<std::string> inName) noexcept;
+    static bool IsActionUp(Farg<std::string> inName) noexcept;
+    static bool IsActionPressed(Farg<std::string> inName) noexcept;
+    static bool IsActionReleased(Farg<std::string> inName) noexcept;
 
     static Position2D MousePosition() noexcept;
     static Position2D LastMousePosition() noexcept;
@@ -63,10 +68,7 @@ private:
         { return !active && just_changed; }
     };
 
-    static std::unordered_map<std::string, InputAction> m_sInputActions;
-    static EventQueue m_sInputEventQueue;
-    static std::unordered_map<uint, InputState> m_sInputStateBuffer;
-    static std::unordered_map<uint, std::vector<std::string>> m_sInputActionBindingsLookup;
+    static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
 };
 
 extern InputManager* g_pInputManager;

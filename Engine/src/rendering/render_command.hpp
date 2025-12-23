@@ -1,17 +1,21 @@
-#ifndef RENDER_COMMAND_H
+#ifdef FWD_DCL
+    struct RenderCommand;
+#elif !defined RENDER_COMMAND_H
 #define RENDER_COMMAND_H
 
-#include "things/fwd.hpp"
+#define FWD_DCL
+#   include "things/actors/actor.hpp"
+#undef  FWD_DCL
+
 #include "core/id.hpp"
 #include "shader.hpp"
 
 #include <glm/glm.hpp>
-#include <memory>
 
 struct RenderCommand
 {
 public:
-    RenderCommand(std::shared_ptr<Actor>, FARG(ID) ShaderID = Shaders::BlinnPhong);
+    RenderCommand(Shared<Actor>, ID ShaderID = Shaders::BlinnPhong);
 
     ID shader{Shaders::BlinnPhong};
     ID mesh_instance{ID::Invalid};

@@ -3,20 +3,19 @@
 
 namespace Images
 {
-    constexpr unsigned char COMP04_5[] =
-    {
-        #embed "images/COMP04_5.png"
-    };
-    constexpr unsigned char Missing[] =
-    {
+    constexpr unsigned char Missing[]{
         #embed "images/Missing.jpg"
     };
-    constexpr unsigned char LolBit[] =
-    {
+
+    constexpr unsigned char COMP04_5[]{
+        #embed "images/COMP04_5.png"
+    };
+
+    constexpr unsigned char LolBit[]{
         #embed "images/lolbit.png"
     };
-    constexpr unsigned char LightDebug[] =
-    {
+
+    constexpr unsigned char LightDebug[]{
         #embed "images/LIGHT_DEBUGGING.jpg"
     };
 }

@@ -1,27 +1,82 @@
-#ifndef CONTAINERS_H
+#ifdef FWD_DCL
+#   ifndef MATH_FWD_DCL
+#   define MATH_FWD_DCL
+#   include "common/concepts.hpp"
+
+enum class VectorMembers : unsigned short
+{
+    None, XYZ, WHL, RGBA,
+    RGB = RGBA, WH = WHL, XY = XYZ,
+};
+
+static constexpr std::string s_GetVectorMemberString(VectorMembers inVM) noexcept
+{
+    switch(inVM)
+    {
+    case VectorMembers::None:
+        return "VectorMembers::None";
+    case VectorMembers::XYZ:
+        return "VectorMembers::XYZ (or XY)";
+    case VectorMembers::WHL:
+        return "VectorMembers::WHL (or WH)";
+    case VectorMembers::RGBA:
+        return "VectorMembers::RGBA (or RGB)";
+    }
+}
+
+template<unsigned short Length, Number T, VectorMembers M = VectorMembers::None>
+        requires (Length > 1)
+    struct vector;
+
+typedef vector<2,double,VectorMembers::XYZ>  Position2D;
+typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
+typedef vector<2,int,VectorMembers::WHL>     Scale2D;
+typedef vector<3,double,VectorMembers::XYZ>  Position3D;
+typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
+typedef vector<3,int,VectorMembers::WHL>     Scale3D;
+
+#   endif // MATH_FWD_DCL
+#elif !defined CONTAINERS_H
 #define CONTAINERS_H
 
-#include "fwd.hpp"
+#define FWD_DCL
+#   include "containers.hpp"
+#undef  FWD_DCL
 
-#include "concepts.hpp"
+#include "common/concepts.hpp"
 #include "thirdparty/DearImGui/imgui.h"
-
-#include <concepts>
-#include <sys/types.h>
-#include <glm/fwd.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <cxxabi.h>
+#include <string>
+#include <memory>
+#include <cstdlib>
 
 #define Derived std::derived_from
 #define Same std::is_same_v
+#define ONLY_IF(VECTOR_MEMBER) requires (M == VectorMembers::VECTOR_MEMBER)
 #define __INDEX_ACCESSOR(NAME, VM, INDEX, IS_CONST...) \
-    IS_CONST T& NAME() IS_CONST requires Same<M,VectorMembers::VM> { return array_[INDEX]; }
+    IS_CONST T& NAME() IS_CONST ONLY_IF(VM) { return array_[INDEX]; }
 #define INDEX_ACCESSOR(NAME, VM, INDEX) \
     __INDEX_ACCESSOR(NAME, VM, INDEX) \
     __INDEX_ACCESSOR(NAME, VM, INDEX, const)
 #define NO_OVERFLOW(INDEX) (Length > INDEX) ? INDEX : (Length - 1)
 
-template<ushort Length, Number T, class M>
-        requires (Length > 1) && Derived<M,__vector_members_t> && (!Same<M,__vector_members_t>)
-    struct vector
+// https://stackoverflow.com/a/12877598
+template<typename T>
+    static constexpr std::string s_DemangleTypeName()
+    {
+        int status;
+        std::unique_ptr<char[], void (*)(void*)> result(
+            abi::__cxa_demangle(typeid(T).name(), 0, 0, &status), std::free);
+        return result.get() ? std::string(result.get()) : "N/A";
+    }
+
+struct __vector_base {};
+
+template<ushort Length, Number T, VectorMembers M>
+        requires (Length > 1)
+    struct vector : __vector_base
     {
     private:
         T array_[Length]{};
@@ -37,8 +92,8 @@ template<ushort Length, Number T, class M>
             constexpr vector(Args... inArgs) noexcept:
                 array_{static_cast<T>(inArgs)...} {}
 
-        template<ushort Length2, Number T2, class M2 = VectorMembers::None>
-                requires (Length2 > 1) && Derived<M2,__vector_members_t> && (!Same<M2,__vector_members_t>)
+        template<ushort Length2, Number T2, VectorMembers M2 = VectorMembers::None>
+                requires (Length2 > 1)
             constexpr vector(const vector<Length2,T2,M2>& inVec) noexcept
                 {
                     ushort max_size{(Length < Length2) ? Length : Length2};
@@ -49,11 +104,38 @@ template<ushort Length, Number T, class M>
         constexpr vector(const ImVec2& inImVec2) noexcept:
             array_{static_cast<T>(inImVec2[0]), static_cast<T>(inImVec2[1])} {}
 
-        constexpr vector& operator=(ImVec2& inVec2) noexcept
-        { array_[0] = inVec2[0]; array_[1] = inVec2[1]; return *this; }
-
-        constexpr operator ImVec2() const noexcept
+        explicit constexpr operator ImVec2() const noexcept
         { return ImVec2{static_cast<float>(array_[0]), static_cast<float>(array_[1])}; }
+
+        constexpr vector(const glm::vec2& inVec2) noexcept:
+            array_{static_cast<T>(inVec2[0]), static_cast<T>(inVec2[1])} {}
+
+        explicit constexpr operator glm::vec2() const noexcept
+        { return glm::vec2{static_cast<float>(array_[0]), static_cast<float>(array_[1])}; }
+
+        constexpr vector(const glm::vec3& inVec3) noexcept:
+            array_{static_cast<T>(inVec3[0]), static_cast<T>(inVec3[1]), static_cast<T>(inVec3[2])} {}
+
+        constexpr operator glm::vec3() const noexcept
+        {
+            return glm::vec3{static_cast<float>(array_[0]),
+                static_cast<float>(array_[1]),
+                static_cast<float>(array_[2])};
+        }
+
+        constexpr std::string type_log() const noexcept
+        {
+            return std::format("vector<{}, {}, {}>",
+                Length,
+                s_DemangleTypeName<T>(),
+                s_GetVectorMemberString(M));
+        }
+
+        std::string data_log() const noexcept
+        { return std::format("{}", array_); }
+
+        std::string full_log() const noexcept
+        { return std::format("{}{}", type_log(), data_log()); }
 
         INDEX_ACCESSOR(x, XYZ, 0)
         INDEX_ACCESSOR(y, XYZ, 1)
@@ -70,6 +152,9 @@ template<ushort Length, Number T, class M>
         INDEX_ACCESSOR(g, RGBA, 1)
         INDEX_ACCESSOR(b, RGBA, NO_OVERFLOW(2))
         INDEX_ACCESSOR(a, RGBA, NO_OVERFLOW(3))
+
+        double AspectRatio() const noexcept ONLY_IF(WHL)
+        { return static_cast<double>(w()) / h(); }
 
         template<glm::length_t L, typename U>
             constexpr operator glm::vec<L,U>() noexcept
@@ -95,7 +180,7 @@ template<ushort Length, Number T, class M>
         constexpr const T* cdata() const noexcept
         { return array_; }
 
-        template<Number N>
+        template<NumberOrBool N>
             constexpr vector& operator+=(N inScalar) noexcept
             {
                 for(ushort i{0}; i < Length; ++i)
@@ -103,10 +188,10 @@ template<ushort Length, Number T, class M>
                 return *this;
             }
 
-        template<Number N> constexpr vector operator+(N inScalar) const noexcept
+        template<NumberOrBool N> constexpr vector operator+(N inScalar) const noexcept
             { return vector{*this} += inScalar; }
 
-        template<Number N>
+        template<NumberOrBool N>
             constexpr vector& operator-=(N inScalar) noexcept
             {
                 for(ushort i{0}; i < Length; ++i)
@@ -114,7 +199,7 @@ template<ushort Length, Number T, class M>
                 return *this;
             }
 
-        template<Number N> constexpr vector operator-(N inScalar) const noexcept
+        template<NumberOrBool N> constexpr vector operator-(N inScalar) const noexcept
             { return vector{*this} -= inScalar; }
 
         template<NumberOrBool N>
@@ -159,6 +244,9 @@ template<ushort Length, Number T, class M>
         { return vector{*this} += other; }
     };
 
+template<typename T>
+    concept IsVector = std::derived_from<T, __vector_base>;
+
 typedef vector<2,double,VectorMembers::XYZ>  Position2D;
 typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
 typedef vector<2,int,VectorMembers::WHL>     Scale2D;
@@ -168,6 +256,7 @@ typedef vector<3,int,VectorMembers::WHL>     Scale3D;
 
 #undef Derived
 #undef Same
+#undef ONLY_IF
 #undef __INDEX_ACCESSOR
 #undef INDEX_ACCESSOR
 #undef NO_OVERFLOW

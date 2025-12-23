@@ -4,8 +4,8 @@
 
 #include <map>
 
-static std::map<std::string, FileType> s_FileTypesByExtension =
-{
+static std::map<std::string, FileType>
+s_FileTypesByExtension{
     { ".otf",  FileType::font_OTF  },
     { ".ttf",  FileType::font_TTF  },
     { ".png",  FileType::image_PNG },
@@ -16,7 +16,7 @@ static std::map<std::string, FileType> s_FileTypesByExtension =
     { ".vert", FileType::glsl_VERT },
 };
 
-FileType FileData::s_DetectFileType(const std::string& path)
+FileType FileData::s_DetectFileType(Farg<std::string> path)
 {
     std::string extension = FileSystem::GetExtension(path);
     if(!s_FileTypesByExtension.contains(extension))
@@ -26,40 +26,46 @@ FileType FileData::s_DetectFileType(const std::string& path)
 
 FileData::FileData() = default;
 
-FileData::FileData(const unsigned char* data, int size, FileType type)
-: m_Data(data), m_Size(size), m_Type(type), m_Status(DataStatus::SUCCESSFUL), m_ReleaseData(false)
-{}
+FileData::FileData(const unsigned char* data, int size, FileType type):
+    m_Data{data},
+    m_Size{size},
+    m_Type{type},
+    m_Status{DataStatus::SUCCESSFUL}{}
 
-FileData::FileData(const std::string& path, FileType type)
-: m_Path(path), m_Data(nullptr), m_Size(0), m_Type(type), m_Status(DataStatus::UNLOADED), m_ReleaseData(false)
+FileData::FileData(Farg<std::string> path, FileType type):
+    m_Path{path},
+    m_Data{nullptr},
+    m_Size{0},
+    m_Type{type},
+    m_Status{DataStatus::UNLOADED}
 { LoadFile(path, type); }
 
 FileData::~FileData()
 { Clear(); }
 
-Error FileData::LoadFile(const std::string& path, FileType type)
+Error FileData::LoadFile(Farg<std::string> path, FileType type)
 {
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }
 
-    std::string file_path = FileSystem::GetAbsolute(path);
+    std::string file_path{FileSystem::GetAbsolute(path)};
 
     // https://stackoverflow.com/a/22131201
-    FILE* image_file = fopen(file_path.c_str(), "r+");
+    FILE* image_file{fopen(file_path.c_str(), "r+")};
 
     if(!image_file)
     {
-        print_warning("Failed to load file '{}'", path);
+        print_error("Failed to load file '{}'", path);
         m_Status = DataStatus::FAILED;
         return ERR_FILE_LOAD;
     }
 
     fseek(image_file, 0, SEEK_END);
-    int size = ftell(image_file);
+    long size{ftell(image_file)};
     fclose(image_file);
 
     image_file = fopen(file_path.c_str(), "r+");
-    unsigned char* data = new unsigned char[size];
+    unsigned char* data{new unsigned char[size]};
 
     fread(data, sizeof(unsigned char), size, image_file);
     fclose(image_file);
@@ -89,7 +95,7 @@ DataStatus FileData::Status() const
 FileType FileData::Type() const
 { return m_Type; }
 
-const std::string& FileData::Path() const
+Farg<std::string> FileData::Path() const
 { return m_Path; }
 
 bool FileData::HasPath() const
@@ -99,12 +105,12 @@ void FileData::Clear()
 {
     if(m_ReleaseData)
         { delete [] m_Data; }
+    m_ReleaseData = false;
     m_Data = nullptr;
     m_Size = 0;
     m_Path = "";
     m_Type = FileType::Unknown;
     m_Status = DataStatus::UNLOADED;
-    m_ReleaseData = false;
 }
 
 std::string FileData::String() const

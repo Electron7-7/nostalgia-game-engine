@@ -2,14 +2,11 @@
 #define EDITOR_WINDOW_H
 
 #include "ui/solution.hpp"
-#include "backends/imgui/imgui_implementor.hpp"
+#include "rendering/frame_buffer.hpp"
+#include "rendering/texture_buffer.hpp"
 
-class ImGui_Editor : public UI_Solution<ImGui_Implementor>
+class ImGui_Editor : public UI_Solution
 {
-    UI_SOLUTION_CONSTRUCTOR(ImGui_Editor, ImGui_Implementor)
-    UI_SOLUTION_INSTANCE(ImGui_Editor)
-    UI_SOLUTION_ACTIVATE(ImGui_Editor)
-    UI_SOLUTION_DEACTIVATE(ImGui_Editor)
 public:
     Error Init()             final;
     void  Shutdown()         final;
@@ -17,8 +14,13 @@ public:
     void  Input(InputEvent*) final;
     void  OnTheatreEntered() final;
     void  OnTheatreExited()  final;
+
+private:
+    Shared<TextureBuffer> mTextureBuffer{nullptr};
 };
 
 extern bool gShowDebugWindow;
+
+extern ImGui_Editor* g_pImGuiEditor;
 
 #endif // EDITOR_WINDOW_H

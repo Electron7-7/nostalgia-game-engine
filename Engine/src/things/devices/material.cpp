@@ -1,7 +1,8 @@
 #include "material.hpp"
+#include "core/printing.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-void Material::SetVariables(const ThingData& data)
+void Material::SetVariables(Farg<ThingData> data)
 {
     Device::SetVariables(data);
 
@@ -19,20 +20,20 @@ void Material::SetVariables(const ThingData& data)
     data.GetVariable(mFullBright, "FullBright", "mat_fullbright");
 }
 
-ThingData Material::GetVariables() const
+Shared<ThingData> Material::GetVariables() const
 {
-    ThingData data{Device::GetVariables()};
+    Shared<ThingData> data{Device::GetVariables()};
 
-    data.AddVariable(mDiffuseTextureID, "DiffuseTexture");
-    data.AddVariable(mSpecularTextureID, "SpecularTexture");
-    data.AddVariable(mColor, "Color");
-    data.AddVariable(mAlpha, "Alpha");
-    data.AddVariable(mSpecularSharpness, "SpecularSharpness");
-    data.AddVariable(mSpecularStrength, "SpecularStrength");
-    data.AddVariable(mDontUseTexture, "UseVertexColors");
-    data.AddVariable(mDontUseTexture, "OnlyUseVertexColors");
-    data.AddVariable(mDontUseTexture, "NoTexture");
-    data.AddVariable(mFullBright, "FullBright");
+    data->AddVariable(mDiffuseTextureID, "DiffuseTexture");
+    data->AddVariable(mSpecularTextureID, "SpecularTexture");
+    data->AddVariable(mColor, "Color");
+    data->AddVariable(mAlpha, "Alpha");
+    data->AddVariable(mSpecularSharpness, "SpecularSharpness");
+    data->AddVariable(mSpecularStrength, "SpecularStrength");
+    data->AddVariable(mDontUseTexture, "UseVertexColors");
+    data->AddVariable(mDontUseTexture, "OnlyUseVertexColors");
+    data->AddVariable(mDontUseTexture, "NoTexture");
+    data->AddVariable(mFullBright, "FullBright");
 
     return data;
 }

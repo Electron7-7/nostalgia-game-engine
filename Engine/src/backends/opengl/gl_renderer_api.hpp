@@ -3,18 +3,46 @@
 
 #include "rendering/renderer_api.hpp"
 
-class OpenGLRendererAPI : public IRendererAPI
+#include <unordered_map>
+
+class OpenGLRendererAPI final : public RendererAPI
 {
 public:
-    virtual void Init() override;
-    virtual void SetViewport(uint XPosition, uint YPosition, uint Width, uint Height) override;
-    virtual void SetClearColor(float Red, float Green, float Blue, float Alpha) override;
-    virtual void SetClearColor(const glm::vec4& Color) override;
-    virtual void Clear() override;
+    bool Init() final;
+    void Shutdown() final;
 
-    // virtual void DrawIndexed(const VertexArray&, uint IndexCount = 0, int BaseIndex = -1);
-    // virtual void DrawLines(const VertexArray&, uint VertexCount = 0);
-    virtual void SetLineWidth(float Width) override;
+    void SetViewport(uint, uint, uint, uint) final;
+    void SetClearColor(float, float, float, float) final;
+    void SetClearColor(Farg<glm::vec4>) final;
+    void SetLineWidth(float) override;
+    void SetFramebufferSRGB(bool) const final;
+    void SetWireframe(bool inValue) const final;
+
+    void SetLight_TempBlinnPhongSolution(light_t*) final;
+
+    ID AddShader(Shared<Shader>, ID) final;
+    Shared<Shader> GetShader(ID) final;
+    ID AddViewport(Farg<Viewport>, ID) final;
+    Viewport& GetViewport(ID) final;
+    Error RemoveViewport(ID) final;
+    ID GenerateFrameBuffer(ID inID) final;
+    Shared<FrameBuffer>& GetFrameBuffer(ID inID) final;
+    Error RemoveFrameBuffer(ID inID) final;
+
+    void DrawIndexed(Shared<VertexArray>, uint, RenderLayers) final;
+    void DrawLines(Shared<VertexArray>, uint, RenderLayers) final;
+    void Clear() final;
+
+    Farg<std::unordered_map<ID, Viewport>> GetViewports() const noexcept { return mViewports; }
+
+private:
+    std::unordered_map<ID, Shared<Shader>> mShaders{};
+    std::unordered_map<ID, Viewport> mViewports{};
+    std::unordered_map<ID, Shared<FrameBuffer>> mFramebuffers{};
 };
+
+extern bool gGLViewportUseDirectFromViewport;
+extern bool gPrintDrawLogs;
+extern bool gPrintViewportAddedLogs;
 
 #endif // OPENGL_RENDERER_H

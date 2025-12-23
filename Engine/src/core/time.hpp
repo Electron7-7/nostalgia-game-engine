@@ -17,9 +17,15 @@ namespace Time
     inline void Wait(bool& WhileTrue, double OrMsPasses = 0.0)
     {
         double start_time{Current()};
-        if(OrMsPasses == 0.0)
-            { OrMsPasses = DBL_MAX; }
+        OrMsPasses = (!OrMsPasses)
+            ? DBL_MAX
+            : OrMsPasses * 0.001;
         while(WhileTrue && (Current() - start_time) < OrMsPasses) {}
+    }
+    inline void Wait(double TimeInMs = 0.0)
+    {
+        bool throwaway{true};
+        Wait(throwaway, TimeInMs);
     }
 }
 

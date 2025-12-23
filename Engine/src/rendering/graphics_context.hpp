@@ -1,8 +1,10 @@
-#ifndef GRAPHICS_CONTEXT_H
+#ifdef FWD_DCL
+    class IGraphicsContext;
+#elif !defined GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
 #include "core/error.hpp"
-#include "core/type_helpers.hpp"
+#include "core/smart_pointers.hpp"
 
 class IGraphicsContext
 {

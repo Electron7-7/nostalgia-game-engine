@@ -1,61 +1,63 @@
-#ifndef THING_VARIABLE_H
+#ifdef FWD_DCL
+    struct ThingVar;
+#elif !defined THING_VARIABLE_H
 #define THING_VARIABLE_H
 
-#include "core/penum_t.hpp"
+#include "number_parser.hpp"
 #include "core/id.hpp"
-#include "math/glm_concepts.hpp"
-#include "math/glm_format.hpp" // IWYU pragma: keep // used by one of the constructors
+#include "core/printing.hpp"
+#include "theatre/variable_registry.hpp"
 
 #include <string>
-#include <format>
-
-template<typename T>
-    concept IsNumber = !std::is_same_v<bool, std::decay_t<T>> && (std::is_arithmetic_v<T> || GLMContainer<T>);
-
-template<typename T>
-    concept IsEnum = std::is_enum_v<T>;
 
 struct ThingVar
 {
-    constexpr ThingVar() = default;
-    template<IsNumber T>
-        ThingVar(const T& Number, const std::string& Name = "")
-            : name{Name}, value{std::format("{}", Number)}, type{eNumber} {}
-    template<IsEnum T>
-        ThingVar(T Enum, const std::string& EnumName, const std::string& Name = "")
-            : name{Name}, type{eEnum}, enum_name{EnumName}, enum_value{Enum} {}
-    ThingVar(const std::string& String, const std::string& Name = "");
-    ThingVar(const ID& ReferenceID, const std::string& Name = "");
-    ThingVar(const penum_t& PrettyEnum, const std::string& Name = "");
-    ThingVar(bool Boolean, const std::string& Name = "");
+    enum class Type : ushort
+    {
+        Reference,
+        Enum,
+        Number,
+        Bool,
+        String,
+        None,
+    };
 
-    std::string name{"Untitled ThingVar"};
-    std::string value{""};
-    penum_t     type{eNothing};
-    ID          reference_id{ID::Invalid};
-    std::string enum_name{""};
-    int         enum_value{0};
+    Type type{Type::None};
+    std::string name{};
+    std::string value{};
+    long id_or_enum{ID::Invalid};
+    size_t enum_type_hash{0};
+
+    ThingVar() noexcept;
+    ThingVar(Type inParsedType, Sarg inParsedName, Sarg inParsedValue, uint inParsedID = ID::Invalid) noexcept;
+    ThingVar(Sarg inString, Sarg inName = "") noexcept;
+    ThingVar(ID inThingID, Sarg inName = "", Sarg inThingNameOverride = "") noexcept;
+    ThingVar(bool inBoolean, Sarg inName = "") noexcept;
+
+    template<NumberOrGLM T>
+        ThingVar(Farg<T> inNumber, Sarg inName = "") noexcept:
+            ThingVar{Type::Number, inName, NumToString(inNumber)} {}
+
+    template<IsEnum T>
+        ThingVar(T inEnum, Sarg inName = "") noexcept:
+            type{Type::Enum},
+            name{inName}
+        {
+            if(!g_pVariableRegistry->try_GetEnumName(inEnum, value))
+            {
+                print_warningv(VERBOSE1 | VERBOSE3, "Invalid enum passed [IsEnum T = {}]", typeid(T).name());
+                return;
+            }
+            id_or_enum = static_cast<long>(inEnum);
+            enum_type_hash = typeid(T).hash_code();
+        }
 
     std::string formatted() const;
     std::string formatted_value() const;
-    std::string log(bool colored = false) const;
+    std::string log(bool useColors = false) const;
 
-    constexpr bool operator==(const std::string& VarName) const
-    { return !name.compare(VarName); }
-
-    static constexpr penum_t eNothing    { 0, "Nothing"    };
-    static constexpr penum_t eReference  { 1, "Reference"  };
-    static constexpr penum_t eEnum       { 2, "Enum"       };
-    static constexpr penum_t eNumber     { 3, "Number"     };
-    static constexpr penum_t eBool       { 4, "Bool"       };
-    static constexpr penum_t eString     { 5, "String"     };
-};
-
-template<>
-struct std::formatter<ThingVar> : std::formatter<std::string>
-{
-    auto format(const ThingVar& thing_var, std::format_context& ctx) const
-    { return std::formatter<std::string>::format(thing_var.log(), ctx); }
+    constexpr bool operator==(Sarg inVarName) const
+    { return !name.compare(inVarName); }
 };
 
 #endif // THING_VARIABLE_H

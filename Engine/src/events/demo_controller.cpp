@@ -3,13 +3,12 @@
 
 #include "demo_controller.hpp"
 #include "bindings.hpp"
+#include "core/printing.hpp"
+#include "theatre/parser/number_parser.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "theatre/parser/theatre_parser.hpp"
-#include "core/printing.hpp"
-#include "common/string_to_num.hpp"
-#include "common/string_transform.hpp"
 
 #include <sstream>
 
@@ -131,7 +130,11 @@ bool DemoController::ParseDemo(const std::string& path, std::vector<InputEvent>&
     std::string file_data("");
     if(!FileSystem::try_ReadFileToString(path, file_data) &&
         !FileSystem::try_ReadFileToString(FileSystem::ReplaceExtension(sExtension, path), file_data))
-        { return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}'\n", gTruncateString(path, true, 68)); }
+    {
+        return print_error("DemoController::LoadDemoFromFile - failed to load gen1 demo '{}{}'\n",
+            path.substr(0, 68),
+            (path.size() <= 68) ? "" : "...");
+    }
     InputEvent event;
     bool l_AtLeastOneLineParsed = false;
     std::stringstream demo_data{file_data};

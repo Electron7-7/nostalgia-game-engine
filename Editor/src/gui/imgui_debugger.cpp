@@ -1,8 +1,13 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
+#include "core/uid.hpp"
+#include "core/enum_prettifier.hpp"
+#include "backends/opengl/gl_renderer_api.hpp"
+#include "managers/render_manager.hpp"
+#include "tools/stopwatch_log.hpp"
+#include "events/event.hpp"
 #include "managers/event_manager.hpp"
 #include "rendering/renderer_api.hpp"
-#include "tools/stopwatch_log.hpp"
 #include "settings/player.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
@@ -38,6 +43,9 @@
 
 using namespace ImGui;
 
+static ImGui_Debugger sImGuiDebugger;
+ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
+
 static bool sTheatreInspectorActive{false};
 static bool sAutoStopwatchEnabled{true};
 
@@ -64,8 +72,21 @@ Error ImGui_Debugger::Init()
 void ImGui_Debugger::Shutdown()
 { PRINT_PRETTY_FUNCTION; }
 
-void ImGui_Debugger::Input(InputEvent*)
-{}
+void ImGui_Debugger::Input(InputEvent* event)
+{
+    if(event->IsJustPressed(Key::F5) or
+        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
+    {
+        sLastAttemptedTheatreFilePath = sTheatreFilePath;
+        g_pTheatreManager->LoadTheatreFromFile(sTheatreFilePath);
+        print_debug("LoadTheatreFromFile called from {}", __PRETTY_FUNCTION__);
+    }
+    else if(event->IsJustPressed(Key::F4) or
+        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
+        { IManager::ShutdownTheatre(); }
+    else if(event->IsJustPressed(Key::F3))
+        { sTheatreInspectorActive = !sTheatreInspectorActive; }
+}
 
 void ImGui_Debugger::OnTheatreEntered()
 {}
@@ -214,24 +235,34 @@ static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
 #ifdef DEBUGGING
-    if(CollapsingHeader("UI Implementors"))
-    {
-        for(auto& implementor : IUIImplementor::GetInstances())
-        {
-            SeparatorText(implementor->GetID().c_name());
-            TextF("\tState: {}", IUIImplementor::StateString(implementor->GetState()));
-            NewLine();
-        }
-    }
     if(CollapsingHeader("Messages"))
     {
+        SeparatorText("Labels");
+            ushort i{0};
+            for(auto label : __all_labels_for_debugging)
+            {
+                Checkbox(std::format("ANSI Codes##{}", i++).data(),
+                    &label->enable_ansi_sequence);
+                SetNextItemWidth(500.0f);
+                SameLine();
+                InputText(label->name(),
+                    &label->label(),
+                    ImGuiInputTextFlags_AutoSelectAll      |
+                    ImGuiInputTextFlags_EnterReturnsTrue   |
+                    ImGuiInputTextFlags_ElideLeft);
+            }
         SeparatorText("General");
             Checkbox("Print Event Logs", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
             Checkbox("Print Input Logs", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
             Checkbox("Print Frame#", &gDebugPrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &gDebugPrintTickNumbers);
-        if(IRendererAPI::GetAPI() == GraphicsAPI::OpenGL)
+        SeparatorText("Theatre");
+            Checkbox("Print Theatre Parser Log", &gPrintLoadedTheatreData);
+        SeparatorText("Rendering");
+            Checkbox("Draw Command", &gPrintDrawLogs);
+            Checkbox("Viewport Added", &gPrintViewportAddedLogs);
+        if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
             Text("Severity Levels");
@@ -254,7 +285,17 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
+        SeparatorText("OpenGLRenderingAPI::mViewports");
+        FAUTO viewports{((OpenGLRendererAPI*)g_pRenderManager->GetAPI().get())->GetViewports()};
+        for(FAUTO [id, viewport] : viewports)
+        {
+            TextF("Viewport [ID#{}]", id[]);
+            TextF("\tPosition: {}", viewport.position.data_log());
+            TextF("\tScale: {}", viewport.scale.data_log());
+            TextF("\tRenderLayers: {:#b}", viewport.layers.get());
+        }
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
+        Checkbox("glViewport Get Values Directly From Viewport Struct", &gGLViewportUseDirectFromViewport);
         /*Text("Shader Output");
         Separator();
         static int s_Selected = Shader_ALL;
@@ -283,40 +324,40 @@ static void s_GeneralDebuggingWindow()
         if(TreeNode("Window Info"))
         {
             Text("Title: %s\nPosition: [%d, %d]Size: [%d, %d]",
-                Application()->GetWindow().GetTitle(),
-                Application()->GetWindow().GetXPosition(),
-                Application()->GetWindow().GetYPosition(),
-                Application()->GetWindow().GetWidth(),
-                Application()->GetWindow().GetHeight());
+                MainWindow()->GetTitle(),
+                MainWindow()->GetXPosition(),
+                MainWindow()->GetYPosition(),
+                MainWindow()->GetWidth(),
+                MainWindow()->GetHeight());
             TreePop();
         }
-        bool fullscreen{Application()->GetWindow().IsFullscreen()};
+        bool fullscreen{MainWindow()->IsFullscreen()};
         if(Checkbox("Fullscreen", &fullscreen))
         {
-            Application()->GetWindow().SetWindowMode((fullscreen)
+            MainWindow()->SetWindowMode((fullscreen)
                 ? IWindow::WINDOW_MODE_WINDOWED
                 : IWindow::WINDOW_MODE_FULLSCREEN);
         }
 
 #       ifndef WAYLAND_DISPLAY
-            vector<2,int,VectorMembers::XYZ> position{Application()->GetWindow().GetPosition()};
+            vector<2,int,VectorMembers::XYZ> position{MainWindow()->GetPosition()};
             if(DragInt2("Position", &position.x(), &position.y()))
-                { Application()->GetWindow().SetPosition(position); }
+                { MainWindow()->SetPosition(position); }
 
             int scale[2] {
-                static_cast<int>(Application()->GetWindow().GetScale().width()),
-                static_cast<int>(Application()->GetWindow().GetScale().height()),
+                static_cast<int>(MainWindow()->GetScale().width()),
+                static_cast<int>(MainWindow()->GetScale().height()),
             };
             if(DragInt2("Size", scale))
-                { Application()->GetWindow().SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
+                { MainWindow()->SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
             NewLine();
 #       else
             Text("Position: [%d, %d]",
-                Application()->GetWindow().GetXPosition(),
-                Application()->GetWindow().GetYPosition());
+                MainWindow()->GetXPosition(),
+                MainWindow()->GetYPosition());
             Text("Size: [%d, %d]",
-                Application()->GetWindow().GetWidth(),
-                Application()->GetWindow().GetHeight());
+                MainWindow()->GetWidth(),
+                MainWindow()->GetHeight());
 #       endif // WAYLAND_DISPLAY
     }
     if(CollapsingHeader("Player"))
@@ -443,6 +484,7 @@ static void s_TheatreDebuggingWindow()
     PushItemWidth(0.0f);
     Separator();
 #endif // DEBUGGING
+    Checkbox("Debug Theatre File Load Printout", &gPrintLoadedTheatreData);
 
     InputText("Theatre File", &sTheatreFilePath);
 
@@ -452,6 +494,7 @@ static void s_TheatreDebuggingWindow()
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadTheatreFromFile(sTheatreFilePath);
+        print_debug("LoadTheatreFromFile called from {}", __PRETTY_FUNCTION__);
     }
     if(IManager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
@@ -506,33 +549,33 @@ static void s_TheatreDebuggingWindow()
 static void s_NameAndUID(const auto& thing)
 {
     Text("Name - %s", thing->c_name());
-    if(thing->uid() != ID::Invalid)
-        { Text("UID  - %u", (id_t)thing->uid()); }
-    else
-        { Text("UID  - ID::Invalid"); }
+    Text("UID  - %d", thing->uid()[]);
 }
 
 static void s_ResourceInfo(ID uid, const char* tree_name)
 {
+    static uint id{0};
+    static std::string name{""};
     if(g_pTheatreManager->ThingExists(uid) && TreeNode(tree_name))
     {
         auto thing = g_pTheatreManager->GetThing(uid);
         s_NameAndUID(thing);
         TreePop();
     }
-    else if(UniqueID::IsReserved(uid) && TreeNode(tree_name))
+    else if(UID::try_GetDataValues(id, name) && TreeNode(tree_name))
     {
-        Text("Name - %s", UniqueID::Reserved::EmbeddedResourceNames.at(uid()).data());
-        Text("UID  - %u", static_cast<id_t>(uid));
+        Text("Name - %s", name.data());
+        Text("UID  - %u", id);
         TreePop();
     }
 }
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
-    static std::shared_ptr<Actor> sActor = nullptr;
-    static int s_MaxPerRow = 3;
-    static bool sActivateOnReset = false;
+    static Shared<Actor> sActor{nullptr};
+    static int s_MaxPerRow{3};
+    static bool sActivateOnReset{false};
+
     if(Begin("Theatre Inspector", is_active))
     {
         if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
@@ -547,13 +590,14 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             {
                 if(!g_pThingFactory->IsDerivedFrom<Actor>(g_pTheatreManager->GetType(uid)))
                     { continue; }
-                std::shared_ptr<Actor> actor{g_pTheatreManager->GetThing<Actor>(uid)};
-                ImU32 push_color = IM_COL32(100, 103, 48, 255);
-                ImGuiCol_ push_col = (std::dynamic_pointer_cast<light_t>(actor))
+                Shared<Actor> actor{g_pTheatreManager->GetThing<Actor>(uid)};
+                ImU32 push_color{IM_COL32(100, 103, 48, 255)};
+                ImGuiCol_ push_col{(std::dynamic_pointer_cast<light_t>(actor))
                     ? ImGuiCol_Button
-                    : ImGuiCol_TextDisabled;
+                    : ImGuiCol_TextDisabled};
                 PushStyleColor(push_col, push_color);
-                if(Button(actor->c_name(), {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
+                const char* button_name{(actor->name().empty()) ? "N/A" : actor->c_name()};
+                if(Button(button_name, {(GetWindowWidth() / s_MaxPerRow) - 5.0f, 0.0f}))
                     { sActor = g_pTheatreManager->GetThing<Actor>(uid); sActivateOnReset = false; }
                 actor->mDebugHighlight.a = IsItemHovered();
                 PopStyleColor();
@@ -572,7 +616,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 
             SeparatorText("Immutable Properties");
             s_NameAndUID(sActor);
-            Text("Type - %s", g_pThingFactory->GetTypeName(sActor->type()).data());
+            Text("Type - %s", sActor->type().c_name());
             Text("Quaternion - (%f, %f, %f, %f)", sActor->Quaternion().w, sActor->Quaternion().x, sActor->Quaternion().y, sActor->Quaternion().z);
             if(IsItemHovered())
                 { SetTooltip("%s", "(w, x, y, z)"); }
@@ -637,8 +681,8 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     SeparatorText("Collider");
                     auto collider = g_pTheatreManager->GetThing<Collider>(sActor->ColliderID());
                     s_NameAndUID(collider);
-                    Text("Motion: %s", collider->Motion().name());
-                    Text("Shape: %s", collider->Shape().name());
+                    Text("Motion: %s", EnumPrettifier::Get(collider->Motion(), EnumSet::PhysicsBodyMotion).data());
+                    Text("Shape: %s", EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape).data());
                     bool active{collider->Active()};
                     Text("Is Active: %s", _fmtBool(active));
                     if(!active)

@@ -1,36 +1,28 @@
-#ifndef RESOURCE_H
+#ifdef FWD_DCL
+    class Resource;
+#elif !defined RESOURCE_H
 #define RESOURCE_H
 
-#include "../thing.hpp"
-#include "filesystem/file_data.hpp"
-#include "theatre/parser/thing_data.hpp"
+#define FWD_DCL
+#   include "theatre/parser/thing_data.hpp"
+#   include "filesystem/file_data.hpp"
+#undef  FWD_DCL
+
+#include "things/thing.hpp"
 
 class Resource : public Thing
 {
 public:
-    Resource() = default;
-    Resource(const FileData& Data): mFileData(Data) {}
+    Resource();
+    Resource(Shared<FileData> inData);
 
-    virtual void SetVariables(const ThingData& data)
-    {
-        Thing::SetVariables(data);
-        std::string path = "";
-        if(data.GetVariable(path, "File", "Data", "FilePath"))
-            { mFileData.LoadFile(path); }
-    }
+    virtual void SetVariables(Farg<ThingData> inData) override;
+    virtual Shared<ThingData> GetVariables() const override;
 
-    virtual ThingData GetVariables() const
-    {
-        ThingData data{Thing::GetVariables()};
-        data.AddVariable(mFileData.Path(), "File");
-        return data;
-    }
-
-    FileData& Data()
-        { return mFileData; }
+    Shared<FileData> Data();
 
 protected:
-    FileData mFileData;
+    Shared<FileData> m_pFileData{nullptr};
 };
 
 #endif // RESOURCE_H

@@ -1,7 +1,9 @@
 #include "viewport.hpp"
 
-Viewport::Viewport(const Scale2D& _scale, const Position2D& _position)
-:   position{_position}, scale{_scale} {}
+Viewport::Viewport(Farg<Scale2D> inScale, Farg<Position2D> inPosition, RenderLayers inLayers) noexcept:
+    position{inPosition},
+    scale{inScale},
+    layers{inLayers} {}
 
 bool Viewport::operator==(const Viewport& other) const
 { return position == other.position && scale == other.scale; }

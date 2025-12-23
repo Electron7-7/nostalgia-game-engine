@@ -1,187 +1,92 @@
-#ifndef ID_H
+#ifdef FWD_DCL
+    struct ID;
+    constexpr unsigned int g_cInvalidID{static_cast<unsigned int>(-1)};
+#elif !defined ID_H
 #define ID_H
 
-#include "embedded/names.hpp"
-#include "common/concepts.hpp"
-#include "common/hash.hpp"
-#include "frozen/map.h"
+#include "farg.hpp"
+#include "common/string_hash.hpp"
 
-#include <string>
-#include <format>
-
-#define ConstexprID constexpr ConstexprID_t
-
-struct base_id
+struct ID
 {
 public:
-    constexpr base_id() noexcept = default;
-    constexpr base_id(id_t inID)                     noexcept: id_{inID}                      {}
-    constexpr base_id(const char* inHashable)        noexcept: id_{ConstexprHash(inHashable)} {}
-    constexpr base_id(const std::string& inHashable) noexcept: id_{ConstexprHash(inHashable)} {}
+    constexpr ID() noexcept = default;
 
-    constexpr ~base_id() noexcept {}
+    constexpr ID(Farg<ID> inID) noexcept:
+        id_{inID.id_} {}
 
-    constexpr id_t operator()()        const { return id_; }
-    constexpr explicit operator id_t() const { return id_; }
-    constexpr bool  invalid()          const { return id_ == Invalid; }
+    constexpr ID(uint inID, Farg<std::string> inName = "") noexcept:
+        id_{inID} {}
 
-    virtual const std::string& name() const { return s_cEmpty;        }
-    virtual const char*      c_name() const { return s_cEmpty.data(); }
+    constexpr ID(Farg<std::string> inHashable) noexcept:
+        id_{ConstexprHash(inHashable)} {}
 
-    std::string log() const noexcept
-    { return std::format("id {}#{}", (id_ == Invalid) ? "Invalid" : name(), id_); }
+    constexpr ID(const char* inHashable) noexcept:
+        id_{ConstexprHash(inHashable)} {}
 
-    constexpr bool operator<(const base_id& other) const noexcept
+    constexpr ~ID() noexcept = default;
+
+    constexpr explicit operator uint() const { return id_; }
+
+    constexpr uint operator[]() const { return id_;            }
+    constexpr bool    invalid() const { return id_ == Invalid; }
+    constexpr uint         id() const { return id_;            }
+
+    constexpr bool operator<(Farg<ID> other) const noexcept
     { return id_ < other.id_; }
-    constexpr bool operator==(const base_id& other) const noexcept
+    constexpr bool operator==(Farg<ID> other) const noexcept
     { return id_ == other.id_; }
-    constexpr bool operator!=(const base_id& other) const noexcept
+    constexpr bool operator!=(Farg<ID> other) const noexcept
     { return id_ != other.id_; }
-    constexpr bool operator==(id_t id) const noexcept
+    constexpr bool operator==(uint id) const noexcept
     { return id_ == id; }
-    constexpr bool operator!=(id_t id) const noexcept
+    constexpr bool operator!=(uint id) const noexcept
     { return id_ != id; }
 
-    static constexpr id_t Invalid {static_cast<id_t>(-1)}; // Same as `UINT_MAX`
-    static constexpr id_t front   {0};
-    static constexpr id_t back    {Invalid - 1};
+    static constexpr uint Invalid {static_cast<uint>(-1)}; // Same as `UINT_MAX`
+    static constexpr uint front   {0};
+    static constexpr uint back    {Invalid - 1};
 
-    static id_t Generate();
+    static uint Generate();
 
 protected:
-    id_t id_{Invalid};
+    uint id_{Invalid};
+};
 
-private:
-    inline static const std::string s_cEmpty{""};
+// Pretty-ID: stores a string name that can be accessed via functions.
+struct PID : public ID
+{
+public:
+    PID() noexcept;
+    PID(uint inID, Farg<std::string> inName = "N/A") noexcept;
+    PID(Farg<std::string> inHashable) noexcept;
+    PID(const char* inHashable) noexcept;
+
+    virtual ~PID() noexcept;
+
+    virtual Farg<std::string> name() const;
+    virtual const char*     c_name() const;
+    virtual std::string        log() const;
+
+protected:
+    std::string name_{"N/A"};
 };
 
 template<typename T>
-    concept ID_t = std::unsigned_integral<T> || std::convertible_to<T, uint> || std::convertible_to<T, base_id>;
+    concept ID_t = std::derived_from<T, ID>;
 
-struct ConstexprID_t : public base_id
-{
-public:
-    consteval ConstexprID_t() noexcept = default;
-    constexpr ConstexprID_t(id_t inID)                     noexcept: base_id{inID}                      {}
-    consteval ConstexprID_t(const char* inHashable)        noexcept: base_id{ConstexprHash(inHashable)} {}
-    consteval ConstexprID_t(const std::string& inHashable) noexcept: base_id{ConstexprHash(inHashable)} {}
+template<typename T>
+    concept ID_Adjacent = ID_t<T> || std::constructible_from<ID,T>;
 
-    constexpr ~ConstexprID_t() noexcept {}
+template<ID_t T>
+    constexpr bool operator==(uint lhs, Farg<T> rhs) noexcept
+    { return rhs == lhs; }
 
-    template<typename T> requires can_become<T, ConstexprID_t>
-        consteval ConstexprID_t operator+(const T& Other) const { return ConstexprID_t{id_ + Other}; }
-};
-
-// START FORWARD DECLARATIONS
-struct ID;
-namespace UniqueID { extern bool Erase(const ID&); }
-// END FORWARD DECLARATIONS
-
-
-struct ID final : public base_id
-{
-    ID() noexcept = default;
-
-    ID(const ConstexprID_t inCID):
-        base_id{static_cast<id_t>(inCID)} {}
-
-    ID(id_t inID, const std::string& inName = ""):
-        base_id{inID}, m_pName{inName}
-    {}
-
-    ID(const std::string& inHashable) noexcept:
-        base_id{inHashable}, m_pName{inHashable}
-    { m_pName = inHashable; }
-
-    ID(const char* inHashable) noexcept:
-        base_id{inHashable}, m_pName{inHashable}
-    { m_pName = inHashable; }
-
-    ~ID() noexcept
-    { UniqueID::Erase(*this); }
-
-    const std::string&   name() const final { return m_pName; }
-    const char*        c_name() const final { return m_pName.data(); }
-
-    template<typename T> requires can_become<T, ID>
-        ID operator+(const T& Other) const { return ID{id_ + Other, m_pName}; }
-
-private:
-    std::string m_pName{""};
-};
-
-#define ID_FORMATTER(TYPE, FORMATTER, RETURN) \
-template<> \
-struct std::formatter<TYPE> : std::formatter<FORMATTER> \
-{ \
-    auto format(TYPE id, std::format_context& ctx) const \
-    { return std::formatter<FORMATTER>::format(RETURN, ctx); } \
-};
-
-ID_FORMATTER(base_id*, std::string, id->log())
-ID_FORMATTER(ID, base_id*, &id)
-ID_FORMATTER(ConstexprID_t, base_id*, &id)
-
-#undef ID_FORMATTER
-
-namespace UniqueID
-{
-    extern id_t Generate();
-    extern bool PopLast();
-    extern bool Contains(const ID&);
-    extern bool Erase(const ID&);
-    extern bool Push(const ID&);
-    extern void Clear();
-    extern bool IsReserved(const ID&);
-    extern bool GetReservedID(const std::string& inName, ID& outUID);
-    extern bool GetReservedName(const ID& inUID, std::string& outName);
-
-    // Reserved UIDs
-    namespace Reserved
+template<ID_t T>
+    struct std::hash<T>
     {
-        ConstexprID Player{0x1};
-        // Images
-        ConstexprID i_Missing{0x2};
-        ConstexprID i_LightDebug{0x3};
-        ConstexprID i_COMP04_5{0x4};
-        ConstexprID i_LolBit{0x5};
-        // Models
-        ConstexprID m_Error{0x6};
-        ConstexprID m_Cube{0x7};
-        ConstexprID m_Ramiel{0x8};
-        // Fonts
-        ConstexprID f_Verdana{0x9};
-        ConstexprID f_DejaVuSans{0xA};
-        ConstexprID f_Audiowide{0xB};
-        // Boundaries
-        ConstexprID back{f_Audiowide};
-        ConstexprID front{Player};
-
-        constexpr frozen::map<ConstexprID_t, std::string, 10>
-        EmbeddedResourceNames
-        {
-            {     i_Missing, Images::Name::Missing    },
-            {  i_LightDebug, Images::Name::LightDebug },
-            {    i_COMP04_5, Images::Name::COMP04_5   },
-            {      i_LolBit, Images::Name::LolBit     },
-            {       m_Error, Models::Name::Error      },
-            {        m_Cube, Models::Name::Cube       },
-            {      m_Ramiel, Models::Name::Ramiel     },
-            {   f_Audiowide, Fonts::Name::Audiowide   },
-            {  f_DejaVuSans, Fonts::Name::DejaVuSans  },
-            {     f_Verdana, Fonts::Name::Verdana     },
-        };
+        size_t operator()(Farg<T> inID) const noexcept
+        { return static_cast<size_t>(inID[]); }
     };
-
-    // Boundaries
-    ConstexprID back{ID::Invalid};
-    ConstexprID front{Reserved::back + 1};
-};
-
-namespace ViewportID
-{
-    const ID Window{"Window"};
-    const ID Editor3DViewport1{"Editor 3D Viewport 1"};
-}
 
 #endif // ID_H

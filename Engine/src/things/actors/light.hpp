@@ -1,4 +1,10 @@
-#ifndef LIGHT_H
+#ifdef FWD_DCL
+    enum class LightType;
+    class light_t;
+    class PointLight;
+    class SpotLight;
+    class DirectionalLight;
+#elif !defined LIGHT_H
 #define LIGHT_H
 
 #include "actor.hpp"
@@ -18,8 +24,8 @@ public:
     virtual bool IncrementIndex()  = 0;
     virtual LightType Type() const = 0;
 
-    virtual void SetVariables(const ThingData&);
-    virtual ThingData GetVariables() const;
+    virtual void SetVariables(Farg<ThingData>) override;
+    virtual Shared<ThingData> GetVariables() const override;
 
     int Index() const;
 
@@ -57,8 +63,8 @@ class SpotLight : public light_t
 {
 public:
     static int GetCount();
-    void SetVariables(const ThingData&);
-    ThingData GetVariables() const;
+    void SetVariables(Farg<ThingData>) override;
+    Shared<ThingData> GetVariables() const override;
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::SPOT; }
 };
@@ -67,8 +73,8 @@ class DirectionalLight : public light_t
 {
 public:
     static int GetCount();
-    void SetVariables(const ThingData&);
-    ThingData GetVariables() const;
+    void SetVariables(Farg<ThingData>) override;
+    Shared<ThingData> GetVariables() const override;
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::DIRECTIONAL; }
 };

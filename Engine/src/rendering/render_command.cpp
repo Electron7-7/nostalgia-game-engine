@@ -6,24 +6,24 @@
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 
-RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, const ID& shader_id):
+RenderCommand::RenderCommand(std::shared_ptr<Actor> actor, ID shader_id):
     shader{shader_id},
     mesh_instance(actor->MeshInstanceID()),
     is_wireframe(actor->mWireframe),
     debug_highlight(actor->mDebugHighlight)
 {
-    if(dynamic_pointer_cast<light_t>(actor))
+    if(auto light{dynamic_pointer_cast<light_t>(actor)})
     {
         g_pTheatreManager->GetThing<Material>(
             g_pTheatreManager->GetThing<MeshInstance>(
-                actor->MeshInstanceID()
+                light->MeshInstanceID()
                 )->GetMaterialID()
-            )->mColor = dynamic_pointer_cast<light_t>(actor)->mColor;
+            )->mColor = light->mColor;
     }
 
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), actor->Scale());
-    glm::mat4 rotMat   = glm::mat4_cast(actor->Quaternion());
-    glm::mat4 transMat = glm::translate(glm::mat4(1.0f), actor->Origin());
+    glm::mat4 scaleMat {glm::scale(glm::mat4{1.0f}, actor->Scale())};
+    glm::mat4 rotMat   {glm::mat4_cast(actor->Quaternion())};
+    glm::mat4 transMat {glm::translate(glm::mat4{1.0f}, actor->Origin())};
     model_matrix = transMat * rotMat * scaleMat;
 }

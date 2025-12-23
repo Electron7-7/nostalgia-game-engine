@@ -1,26 +1,27 @@
 #include "thing.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-Thing::~Thing()
-{}
+Thing::Thing() noexcept {}
 
-void Thing::SetVariables(const ThingData& data)
+Thing::~Thing() noexcept {}
+
+void Thing::SetVariables(Farg<ThingData> data)
 {
     mUID  = data.uid;
     mName = data.name;
     mType = data.type();
 }
 
-ThingData Thing::GetVariables() const
-{ return ThingData{mName, mType, mUID}; }
+Shared<ThingData> Thing::GetVariables() const
+{ return MakeShared<ThingData>(mName, mType, mUID); }
 
-const ID& Thing::uid() const
+ID Thing::uid() const
 { return mUID; }
 
-const ID& Thing::type() const
+Farg<TTID> Thing::type() const
 { return mType; }
 
-const std::string& Thing::name() const
+Farg<std::string> Thing::name() const
 { return mName; }
 
 const char* const Thing::c_name() const

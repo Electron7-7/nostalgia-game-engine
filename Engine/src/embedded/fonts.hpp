@@ -3,16 +3,15 @@
 
 namespace Fonts
 {
-    constexpr unsigned char Audiowide[] =
-    {
+    constexpr unsigned char Audiowide[]{
         #embed "fonts/Audiowide-Regular.ttf"
     };
-    constexpr unsigned char DejaVuSans[] =
-    {
+
+    constexpr unsigned char DejaVuSans[]{
         #embed "fonts/DejaVuSansMono.ttf"
     };
-    constexpr unsigned char Verdana[] =
-    {
+
+    constexpr unsigned char Verdana[]{
         #embed "fonts/Verdana.ttf"
     };
 }

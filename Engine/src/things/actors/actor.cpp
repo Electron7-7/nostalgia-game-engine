@@ -3,7 +3,7 @@
 #include "things/devices/collider.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-void Actor::SetVariables(const ThingData& data)
+void Actor::SetVariables(Farg<ThingData> data)
 {
     Thing::SetVariables(data);
     SetTransformVariables(data);
@@ -16,16 +16,16 @@ void Actor::SetVariables(const ThingData& data)
     data.GetVariable(mDebugHighlight, "DebugHighlight");
 }
 
-ThingData Actor::GetVariables() const
+Shared<ThingData> Actor::GetVariables() const
 {
-    ThingData data{Thing::GetVariables()};
+    Shared<ThingData> data{Thing::GetVariables()};
     GetTransformVariables(data);
 
-    data.AddVariable(mMeshInstanceID, "MeshInstance");
-    data.AddVariable(mColliderID, "Collider");
-    data.AddVariable(mVisible, "Visible");
-    data.AddVariable(mWireframe, "Wireframe");
-    data.AddVariable(mDebugHighlight, "DebugHighlight");
+    data->AddVariable(mMeshInstanceID, "MeshInstance");
+    data->AddVariable(mColliderID, "Collider");
+    data->AddVariable(mVisible, "Visible");
+    data->AddVariable(mWireframe, "Wireframe");
+    data->AddVariable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }

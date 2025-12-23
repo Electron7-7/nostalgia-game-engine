@@ -1,19 +1,16 @@
 #ifndef IMGUI_DEBUGGER_H
 #define IMGUI_DEBUGGER_H
 
-#include "tools/fwd.hpp"
+#define FWD_DCL
+#   include "tools/stopwatch_log.hpp"
+#undef  FWD_DCL
 
 #include "ui/solution.hpp"
-#include "backends/imgui/imgui_implementor.hpp"
 
 #include <string>
 
-class ImGui_Debugger : public UI_Solution<ImGui_Implementor>
+class ImGui_Debugger : public UI_Solution
 {
-    UI_SOLUTION_CONSTRUCTOR(ImGui_Debugger, ImGui_Implementor)
-    UI_SOLUTION_INSTANCE(ImGui_Debugger)
-    UI_SOLUTION_ACTIVATE(ImGui_Debugger)
-    UI_SOLUTION_DEACTIVATE(ImGui_Debugger)
 public:
     Error Init()             final;
     void  Shutdown()         final;
@@ -33,5 +30,7 @@ private:
     StopwatchLog& m_StartStopwatch(const std::string& Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);
 };
+
+extern ImGui_Debugger* g_pImGuiDebugger;
 
 #endif // IMGUI_DEBUGGER_H

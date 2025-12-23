@@ -8,13 +8,13 @@
 Shared<VertexArray> VertexArray::Create()
 {
     std::string error_api_name{"GraphicsAPI::None"};
-    switch(IRendererAPI::GetAPI())
+    switch(RendererAPI::GetAPI())
     {
     default:
         error_api_name = "Invalid";
         [[fallthrough]];
     case GraphicsAPI::None:
-        print_warning("IRendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
+        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
         return MakeShared<OpenGLVertexArray>();

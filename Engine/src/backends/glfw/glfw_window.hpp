@@ -1,10 +1,12 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
-#include "rendering/fwd.hpp"
+#define FWD_DCL
+#   include "rendering/graphics_context.hpp"
+#undef  FWD_DCL
 
-#include "application/window.hpp"
 #include "events/bindings.hpp"
+#include "application/window.hpp"
 #include "math/containers.hpp"
 #include "frozen/map.h"
 
@@ -60,7 +62,7 @@ private:
     Error Init(const WindowProperties&);
     void Shutdown();
 
-    static constinit frozen::map<GLFWInputID, id_t, Key::KeysCount> s_cGLFWInputLookup;
+    static constinit frozen::map<GLFWInputID, KeyID, Key::KeysCount> s_cGLFWInputLookup;
 
     static uint GetMonitorIndex(GLFWmonitor*);
 };
