@@ -5,6 +5,7 @@ class FrameBuffer;
 
 #define FWD_DCL
 #   include "filesystem/file_data.hpp"
+#   include "texture_buffer.hpp"
 #undef  FWD_DCL
 
 #include "core/id.hpp"
@@ -12,31 +13,27 @@ class FrameBuffer;
 #include "core/smart_pointers.hpp"
 #include "math/containers.hpp"
 
-#define FWD_DCL
-#   include "rendering/texture_buffer.hpp"
-#undef  FWD_DCL
-
 class FrameBuffer
 {
 public:
-    struct IDs
-    {
-        static constexpr uint Default{0};
-    };
-
     virtual ~FrameBuffer() = default;
 
-    virtual uint Generate() = 0;
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
-    virtual uint GetID() const = 0;
-    virtual Farg<Scale2D> GetScale() const = 0;
-    virtual Error SetOutputTexture(Shared<TextureBuffer> inTextureBuffer, ID inID = ID::Invalid) = 0;
-    virtual ID GetOutputTextureID() const = 0;
-    // virtual Error SetOutputRenderBuffer() = 0;
-    // virtual ID GetOutputRenderBufferID() const = 0;
+    virtual uint ID() const = 0;
+
+    virtual Error Status() const = 0;
+
+    virtual uint RenderBufferID() const = 0;
+    virtual uint TextureID() const = 0;
+    virtual Scale2D TextureSize() const = 0;
+    virtual Shared<TextureBuffer> Texture() const = 0;
+
+    // virtual void ClearColor(std::array<float,4> inColor) const = 0;
+    // virtual void ClearDepth(float inDepth) const = 0;
 
     static Shared<FrameBuffer> Create();
+    static Shared<FrameBuffer> Create(Farg<Scale2D> inSize);
 };
 
 #endif // FRAME_BUFFER_H

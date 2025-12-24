@@ -8,24 +8,26 @@ class OpenGLFrameBuffer;
 class OpenGLFrameBuffer : public FrameBuffer
 {
 public:
+    OpenGLFrameBuffer() noexcept;
+    OpenGLFrameBuffer(Farg<Scale2D>) noexcept;
     ~OpenGLFrameBuffer() noexcept;
 
-    uint Generate() final;
     void Bind() const final;
     void Unbind() const final;
-    uint GetID() const final;
-    Error SetOutputTexture(Shared<TextureBuffer> inTexture, ID inID) final;
-    ID GetOutputTextureID() const final;
-    Farg<Scale2D> GetScale() const final;
-    // Error SetOutputRenderBuffer(ID inID) final;
-    // ID GetOutputRenderBufferID() const final;
+    uint ID() const final;
+
+    Error Status() const final;
+
+    uint RenderBufferID() const final;
+    uint TextureID() const final;
+    Scale2D TextureSize() const final;
+    Shared<TextureBuffer> Texture() const final;
 
 private:
-    uint mFrameBufferID{0};
-    uint mTextureID{0};
-    ID mTextureBufferID{};
-    Scale2D mTextureScale{};
-    // ID mRenderBufferID{};
+    uint mBufferID{0};
+    uint mRenderBufferID{0};
+    Shared<TextureBuffer> mTextureBuffer{nullptr};
+    Error mStatus{FAILED};
 };
 
 #endif // GL_FRAME_BUFFER_H

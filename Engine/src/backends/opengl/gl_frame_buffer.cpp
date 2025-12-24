@@ -1,50 +1,86 @@
 #include "gl_frame_buffer.hpp"
 #include "core/printing.hpp"
 #include "rendering/texture_buffer.hpp"
+#include "application/application.hpp"
 #include <glad/glad.h>
+#include <GL/glext.h>
 
-OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
-{ glDeleteFramebuffers(1, &mFrameBufferID); }
+OpenGLFrameBuffer::OpenGLFrameBuffer() noexcept:
+    OpenGLFrameBuffer{MainWindow()->GetScale()} {}
 
-uint OpenGLFrameBuffer::Generate()
+OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Scale2D> inSize) noexcept:
+    mStatus{OK}
 {
-    glGenFramebuffers(1, &mFrameBufferID);
-    return mFrameBufferID;
-}
+    glGenFramebuffers(1, &mBufferID);
+    glBindFramebuffer(GL_FRAMEBUFFER, mBufferID);
 
-Error OpenGLFrameBuffer::SetOutputTexture(Shared<TextureBuffer> inTexture, ID inID)
-{
-    Error status{OK};
-    mTextureBufferID = inID;
-    mTextureID = inTexture->GetID();
-    Bind();
-    switch(inTexture->GetFormat().type)
+    mTextureBuffer = TextureBuffer::Create({inSize.w(), inSize.h(), DATA_FORMAT_SRGB_ALPHA});
+
+    glGenRenderbuffers(1, &mRenderBufferID);
+    glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, inSize.w(), inSize.h());
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
+    glNamedFramebufferTexture(mBufferID, GL_COLOR_ATTACHMENT0, mTextureBuffer->ID(), 0);
+
+    switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))
     {
-    case TEXTURE_TYPE_2D:
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTextureID, 0);
+    case GL_FRAMEBUFFER_COMPLETE:
+        print_debug("Successfully created FrameBuffer#{}", mBufferID);
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT): Attachment is NOT complete.", mBufferID);
+        mStatus = FAILED;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT): No image is attached to FBO.", mBufferID);
+        mStatus = FAILED;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER): Draw buffer.", mBufferID);
+        mStatus = FAILED;
+        break;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER): Read buffer.", mBufferID);
+        mStatus = FAILED;
+        break;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_UNSUPPORTED): Unsupported by FBO implementation.", mBufferID);
+        mStatus = FAILED;
         break;
     default:
-        print_warning("Texture types other than GL_TEXTURE_2D not implemented for OpenGLFrameBuffer");
-        status = UNIMPLEMENTED;
-        mTextureID = 0;
-        mTextureBufferID = ID::Invalid;
+        print_warning("FrameBuffer#{} incomplete: Unknown error.", mBufferID);
+        mStatus = FAILED;
         break;
     }
-    Unbind();
-    return status;
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-ID OpenGLFrameBuffer::GetOutputTextureID() const
-{ return mTextureID; }
+OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
+{ glDeleteFramebuffers(1, &mBufferID); }
 
-Farg<Scale2D> OpenGLFrameBuffer::GetScale() const
-{ return mTextureScale; }
+uint OpenGLFrameBuffer::TextureID() const
+{ return mTextureBuffer->ID(); }
+
+Scale2D OpenGLFrameBuffer::TextureSize() const
+{ return {mTextureBuffer->Format().width, mTextureBuffer->Format().height}; }
+
+Shared<TextureBuffer> OpenGLFrameBuffer::Texture() const
+{ return mTextureBuffer; }
+
+uint OpenGLFrameBuffer::RenderBufferID() const
+{ return mRenderBufferID; }
 
 void OpenGLFrameBuffer::Bind() const
-{ glBindFramebuffer(GL_FRAMEBUFFER, mFrameBufferID); }
+{ glBindFramebuffer(GL_FRAMEBUFFER, mBufferID); }
 
 void OpenGLFrameBuffer::Unbind() const
 { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
-uint OpenGLFrameBuffer::GetID() const
-{ return mFrameBufferID; }
+uint OpenGLFrameBuffer::ID() const
+{ return mBufferID; }
+
+Error OpenGLFrameBuffer::Status() const
+{ return mStatus; }
