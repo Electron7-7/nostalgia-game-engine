@@ -13,33 +13,10 @@
 enum DataFormat
 {
     DATA_FORMAT_NONE,
-};
-
-enum SamplerFilter
-{
-    SAMPLER_FILTER_NEAREST,
-    SAMPLER_FILTER_LINEAR,
-};
-
-enum SamplerRepeatMode
-{
-    SAMPLER_REPEAT_MODE_REPEAT,
-    SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,
-    SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE,
-};
-
-struct SamplerState
-{
-    SamplerFilter mag_filter{SAMPLER_FILTER_NEAREST};
-    SamplerFilter min_filter{SAMPLER_FILTER_NEAREST};
-    SamplerFilter mip_filter{SAMPLER_FILTER_NEAREST};
-    SamplerRepeatMode repeat_u{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE};
-    SamplerRepeatMode repeat_v{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE};
-    SamplerRepeatMode repeat_w{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE};
-    bool use_anisotropy{false};
-    float anisotropy_max{1.0f};
+    DATA_FORMAT_RGB,
+    DATA_FORMAT_RGBA,
+    DATA_FORMAT_RGBA8,
+    DATA_FORMAT_SRGB_ALPHA,
 };
 
 enum ShaderLanguage
