@@ -969,3 +969,9 @@ Technically, I was right; it's `glfwTerminate()` getting called and shutting dow
 Okay, I solved the problem by making the unordered maps not global static variables. This is probably the best solution, because anything that relates to the rendering API should not be able to be constructed or destructed outside of the API's initialization and termination windows.
 
 Now, on to the stuff I wanted to do, lmfao.
+
+[12/23/25]
+I made the giant, terrible commit. Now, I want to take a break from the frame buffer stuff to quickly try and find out if there's a way for me to query the state of OpenGL (to avoid those function pointer crashes).
+
+[12/24/25]
+I'm sick, again. Anyways, I've finished up the `FrameBuffer` implementation and also improved `TextureBuffer` creation a bit. You can now specify things like the sampler filter types (e.g: linear, nearest, linear + mipmap linear, etc) and even the data format of the image. I've also learned how to inject custom render callbacks into ImGui, which allows me to enable SRGB colors in OpenGL while the framebuffer image is being rendered via ImGui.
