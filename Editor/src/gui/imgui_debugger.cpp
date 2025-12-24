@@ -261,7 +261,6 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Theatre Parser Log", &gPrintLoadedTheatreData);
         SeparatorText("Rendering");
             Checkbox("Draw Command", &gPrintDrawLogs);
-            Checkbox("Viewport Added", &gPrintViewportAddedLogs);
         if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
@@ -285,17 +284,7 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
-        SeparatorText("OpenGLRenderingAPI::mViewports");
-        FAUTO viewports{((OpenGLRendererAPI*)g_pRenderManager->GetAPI().get())->GetViewports()};
-        for(FAUTO [id, viewport] : viewports)
-        {
-            TextF("Viewport [ID#{}]", id[]);
-            TextF("\tPosition: {}", viewport.position.data_log());
-            TextF("\tScale: {}", viewport.scale.data_log());
-            TextF("\tRenderLayers: {:#b}", viewport.layers.get());
-        }
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-        Checkbox("glViewport Get Values Directly From Viewport Struct", &gGLViewportUseDirectFromViewport);
         /*Text("Shader Output");
         Separator();
         static int s_Selected = Shader_ALL;

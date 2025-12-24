@@ -1,5 +1,5 @@
 #include "imgui_editor.hpp"
-#include "core/time.hpp"
+#include "backends/opengl/gl_renderer_api.hpp"
 #include "core/uid.hpp"
 #include "application/application.hpp"
 #include "events/event.hpp"
@@ -12,8 +12,6 @@
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
 
-#define DISABLED_IF(IS_TRUE, CODE) if(IS_TRUE) { BeginDisabled(); } CODE if(IS_TRUE) { EndDisabled(); }
-
 using namespace ImGui;
 
 static ImGui_Editor sImGuiEditor{};
@@ -22,33 +20,28 @@ ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 bool gShowDebugWindow{false};
 
 static bool sShowDemoWindow{false};
+static bool sShowFramebufferImage{false};
 static void s_ThingAdder();
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
 static ID sSpawnLocationID{};
-static ID sEditorViewportID{Viewport::IDs::MainWindow};
-// static ID sEditorFramebufferID{};
+static ID sEditorFramebufferID{};
 static float sSpawnLocationRotationSpeed{1.0f};
 static float sSpawnLocationScaleSpeedStore{0.0085f};
 static float sSpawnLocationScaleSpeed{sSpawnLocationScaleSpeedStore};
 static float sSpawnLocationScaleMax{1.0f};
 static float sSpawnLocationScaleMin{0.6f};
 
-template<>
-struct std::formatter<ImVec2> : public std::formatter<float[2]>
-{
-    auto format(const ImVec2& vec2, std::format_context& ctx) const
-    { return std::formatter<float[2]>::format({vec2.x, vec2.y}, ctx); }
-};
+void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
+{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(true); }
+
+void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
+{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
 
 Error ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    // sEditorViewportID = g_pRenderManager->GetAPI()->AddViewport({200, 200});
-    // sEditorFramebufferID = g_pRenderManager->GetAPI()->GenerateFrameBuffer();
-    mTextureBuffer = TextureBuffer::Create();
-    mTextureBuffer->GenerateTexture(TextureFormat{TEXTURE_TYPE_2D, 500, 500});
-    // g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)->SetOutputTexture(mTextureBuffer);
+    sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create());
     return OK;
 }
 
@@ -103,6 +96,8 @@ void ImGui_Editor::Input(InputEvent* event)
         { gShowDebugWindow = !gShowDebugWindow; }
     else if(event->IsJustPressed(Key::G) and event->IsModifierActive(Key::Mod_Control))
         { sShowDemoWindow  = !sShowDemoWindow; }
+    else if(event->IsJustPressed(Key::F2) or (event->IsJustPressed(Key::F) and event->IsModifierActive(Key::Mod_Control)))
+        { sShowFramebufferImage = !sShowFramebufferImage; }
 }
 
 enum ScaleDir
@@ -148,37 +143,44 @@ void ImGui_Editor::Update()
             EndMenuBar();
         }
         static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY | ImGuiChildFlags_ResizeX};
-        PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
-        BeginChild("Viewport", {720, 690}, sResizableChildWithBorder);
-        BeginChild("ViewportObject", {200, 200}, sResizableChildWithBorder, ImGuiWindowFlags_NoBackground); EndChild();
-        PopStyleVar();
-        if(IsItemClicked())
+        // PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
+        if(sShowFramebufferImage)
         {
-            MainWindow()->SetMouseMode(
-                (MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
-                    ? IWindow::MOUSE_MODE_DISABLED
-                    : IWindow::MOUSE_MODE_VISIBLE);
-            g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
-            g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
+            BeginChild("FrameBuffer", {720, 690}, sResizableChildWithBorder);
+                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+                Image((ImTextureID)g_pRenderManager->GetAPI()
+                    ->GetFrameBuffer(sEditorFramebufferID)
+                        ->TextureID(),
+                    static_cast<ImVec2>(g_pRenderManager->GetAPI()
+                        ->GetFrameBuffer(sEditorFramebufferID)
+                            ->TextureSize()),
+                    {0, 1},
+                    {1, 0});
+                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+                TextF("FrameBuffer Size: {}", g_pRenderManager->GetAPI()
+                        ->GetFrameBuffer(sEditorFramebufferID)
+                            ->TextureSize().data_log());
+            // if(IsItemClicked())
+            // {
+            //     MainWindow()->SetMouseMode(
+            //         (MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
+            //             ? IWindow::MOUSE_MODE_DISABLED
+            //             : IWindow::MOUSE_MODE_VISIBLE);
+            //     g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
+            //     g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
+            // }
+            // auto& editor_viewport = g_pRenderManager->GetAPI()->GetViewport(sEditorViewportID);
+            // editor_viewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
+            // editor_viewport.position.x() = GetItemRectMin().x;
+            // editor_viewport.position.y() = window_height - GetItemRectMax().y;
+            // TextF("Editor Viewport Size: {}", editor_viewport.scale.data_log());
+            // TextF("Editor Viewport Pos: {}", editor_viewport.position.data_log());
+            EndChild(); SameLine();
+            // BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
+                // s_ThingAdder();
+            // EndChild();
         }
-        auto& editor_viewport = g_pRenderManager->GetAPI()->GetViewport(sEditorViewportID);
-        editor_viewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
-        editor_viewport.position.x() = GetItemRectMin().x;
-        editor_viewport.position.y() = window_height - GetItemRectMax().y;
-        TextF("Editor Viewport Size: {}", editor_viewport.scale.data_log());
-        TextF("Editor Viewport Pos: {}", editor_viewport.position.data_log());
-        EndChild(); SameLine();
-        BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
-            s_ThingAdder();
-        EndChild();
     }
-    End();
-    SetNextWindowSize({122, 52});
-    SetNextWindowPos({0, 0});
-    if(Begin("Time::Current",
-        nullptr,
-        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
-        { TextF("{}", Time::Current()); }
     End();
 }
 
