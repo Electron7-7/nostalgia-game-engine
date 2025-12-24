@@ -118,8 +118,9 @@ Error WindowGLFW::Init(const WindowProperties& inProperties)
         nullptr, nullptr);
     mGraphicsContext = IGraphicsContext::CreateContext(m_pWindow);
     glfwSetWindowUserPointer(m_pWindow, this);
-    if(!print_error_enum(mGraphicsContext->Init()) or !print_error_enum(InitializeCallbacks()))
-        { return ERR_INIT_FAILED; }
+    if(!print_error_enum(mGraphicsContext->Init()))
+        { glfwTerminate(); return ERR_INIT_FAILED; }
+    print_error_enum(InitializeCallbacks());
     ++sShittyWindowTrackerPleaseMakeSomethingBetter;
     return OK;
 }
