@@ -72,6 +72,7 @@ void ApplicationEventsHandler::Input(InputEvent* event)
             ? IWindow::WINDOW_MODE_FULLSCREEN
             : IWindow::WINDOW_MODE_WINDOWED);
     }
-    else if(event->IsJustPressed(Key::Q) && event->IsModifierActive(Key::Mod_Control))
+    else if((event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
+        or event->IsJustPressed(Key::F8))
         { EventManager::Queue()->add<AppEvent>(AppEvent::WindowClose); }
 }
