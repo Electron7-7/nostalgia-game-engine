@@ -66,14 +66,18 @@ Error TheatreManager::BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::L
     return OK;
 }
 
-Error TheatreManager::BufferTexture(Farg<FileData> inData, ID inID)
+Error TheatreManager::BufferTexture(Farg<FileData> inData, ID inID, Farg<TextureFormat> inFormat = {})
 {
     if(mTheatreTextures.contains(inID))
         { return ERR_ALREADY_EXISTS; }
-    mTheatreTextures[inID] = TextureBuffer::Create();
-    if(!mTheatreTextures.at(inID)->GenerateTexture(inData))
-        { print_error("Failed to prep texture"); mTheatreTextures.erase(inID); return FAILED; }
-    return OK;
+    mTheatreTextures[inID] = TextureBuffer::Create(inFormat, SamplerState::JuliansPreferredDefaults, &inData);
+    Error status{mTheatreTextures.at(inID)->Status()};
+    if(!status)
+    {
+        print_error("Failed to buffer texture (ID#{})", inID[]);
+        mTheatreTextures.erase(inID);
+    }
+    return status;
 }
 
 Shared<TextureBuffer>& TheatreManager::GetTextureBuffer(ID ID)
@@ -181,8 +185,8 @@ void TheatreManager::DrawTheatre()
             glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
             glm::mat4 model_matrix {transMat * rotMat * scaleMat};
 
-            GetTextureBuffer(material->GetDiffuseTexture()[])->BindUnit(0);
-            GetTextureBuffer(material->GetSpecularTexture()[])->BindUnit(1);
+            GetTextureBuffer(material->GetDiffuseTexture()[])->Bind(0);
+            GetTextureBuffer(material->GetSpecularTexture()[])->Bind(1);
 
             renderer_api->GetShader(shader)->SetUniform("model_matrix", model_matrix);
             renderer_api->GetShader(shader)->SetUniform("normal_matrix", glm::mat3(glm::transpose(glm::inverse(model_matrix))));

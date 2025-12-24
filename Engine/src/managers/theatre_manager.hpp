@@ -87,7 +87,7 @@ private:
     void DestroyThings();
 
     Error BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::Layout> inLayout);
-    Error BufferTexture(Farg<FileData> inData, ID inID);
+    Error BufferTexture(Farg<FileData> inData, ID inID, Farg<TextureFormat> inFormat);
     void  BufferEmbeddedResources();
 
     Shared<TextureBuffer>& GetTextureBuffer(ID inID);
