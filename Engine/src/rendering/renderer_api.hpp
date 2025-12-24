@@ -47,6 +47,8 @@ public:
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;
     virtual Shared<Shader> GetShader(ID inID) = 0;
+    virtual Error RemoveShader(ID inID) = 0;
+    virtual ID AddFrameBuffer(Shared<FrameBuffer> inFrameBuffer, ID inID = ID::Invalid) = 0;
     virtual Shared<FrameBuffer> GetFrameBuffer(ID inID) = 0;
     virtual Error RemoveFrameBuffer(ID inID) = 0;
 

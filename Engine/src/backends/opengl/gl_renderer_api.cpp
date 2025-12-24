@@ -2,12 +2,14 @@
 #include "gl_shader.hpp"        // IWYU pragma: keep
 #include "embedded/shaders.hpp" // IWYU pragma: keep
 #include "core/printing.hpp"
+#include "rendering/graphics_context.hpp"
 #include "rendering/vertex_array.hpp"
 #include "rendering/frame_buffer.hpp"
 #include "things/actors/light.hpp"
 #include "application/application.hpp"
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -83,9 +85,13 @@ Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
     return mShaders.at(Shaders::BlinnPhong);
 }
 
+Error OpenGLRendererAPI::RemoveShader(ID inID)
 {
+    return (mShaders.erase(inID))
         ? OK
-        : ERR_NOT_FOUND;
+        : (mShaders.empty())
+            ? ERR_EMPTY
+            : ERR_NOT_FOUND;
 }
 
 ID OpenGLRendererAPI::AddFrameBuffer(Shared<FrameBuffer> inFrameBuffer, ID inID)

@@ -23,6 +23,8 @@ public:
 
     ID AddShader(Shared<Shader>, ID) final;
     Shared<Shader> GetShader(ID) final;
+    Error RemoveShader(ID) final;
+
     ID AddFrameBuffer(Shared<FrameBuffer>, ID) final;
     Shared<FrameBuffer> GetFrameBuffer(ID) final;
     Error RemoveFrameBuffer(ID inID) final;
