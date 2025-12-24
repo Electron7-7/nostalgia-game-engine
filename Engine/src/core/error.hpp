@@ -25,6 +25,7 @@ enum Error {
     ERR_FILE_READ,
     ERR_FILE_WRITE,
     ERR_FILE_READ_WRITE,
+    ERR_DATA_LOAD, // Example use: OpenGLTextureBuffer's constructor sets `mStatus` to this if `stbi_load_from_memory` fails
 };
 
 constexpr bool operator!(const Error& inError) noexcept
