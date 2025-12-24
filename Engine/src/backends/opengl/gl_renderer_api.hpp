@@ -11,7 +11,8 @@ public:
     bool Init() final;
     void Shutdown() final;
 
-    void SetViewport(uint, uint, uint, uint) final;
+    void SetViewport(Farg<Position2D>, Farg<Scale2D>) final;
+    void SetViewport(int, int, int, int) final;
     void SetClearColor(float, float, float, float) final;
     void SetClearColor(Farg<glm::vec4>) final;
     void SetLineWidth(float) override;
@@ -22,27 +23,22 @@ public:
 
     ID AddShader(Shared<Shader>, ID) final;
     Shared<Shader> GetShader(ID) final;
-    ID AddViewport(Farg<Viewport>, ID) final;
-    Viewport& GetViewport(ID) final;
-    Error RemoveViewport(ID) final;
-    ID GenerateFrameBuffer(ID inID) final;
-    Shared<FrameBuffer>& GetFrameBuffer(ID inID) final;
+    ID AddFrameBuffer(Shared<FrameBuffer>, ID) final;
+    Shared<FrameBuffer> GetFrameBuffer(ID) final;
     Error RemoveFrameBuffer(ID inID) final;
 
     void DrawIndexed(Shared<VertexArray>, uint, RenderLayers) final;
     void DrawLines(Shared<VertexArray>, uint, RenderLayers) final;
     void Clear() final;
 
-    Farg<std::unordered_map<ID, Viewport>> GetViewports() const noexcept { return mViewports; }
-
 private:
     std::unordered_map<ID, Shared<Shader>> mShaders{};
-    std::unordered_map<ID, Viewport> mViewports{};
     std::unordered_map<ID, Shared<FrameBuffer>> mFramebuffers{};
+    std::array<float, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
+    Position2D mViewportPosition{0, 0};
+    Scale2D    mViewportSize{1280, 720};
 };
 
-extern bool gGLViewportUseDirectFromViewport;
 extern bool gPrintDrawLogs;
-extern bool gPrintViewportAddedLogs;
 
 #endif // OPENGL_RENDERER_H

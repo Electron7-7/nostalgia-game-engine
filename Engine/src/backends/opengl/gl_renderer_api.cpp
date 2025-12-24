@@ -11,9 +11,7 @@
 #include <glm/vec4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-bool gGLViewportUseDirectFromViewport{false};
 bool gPrintDrawLogs{false};
-bool gPrintViewportAddedLogs{false};
 
 bool OpenGLRendererAPI::Init()
 {
@@ -25,9 +23,9 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::BlinnPhong] = Shader::Create();
     mShaders[Shaders::Fullbright] = Shader::Create();
 
-    mViewports[Viewport::IDs::MainWindow] = Viewport{MainWindow()->GetScale(), MainWindow()->GetPosition(), 31};
+    SetViewport({0, 0}, MainWindow()->GetScale());
 
-    mFramebuffers[FrameBuffer::IDs::Default] = FrameBuffer::Create();
+    // mViewports[Viewport::IDs::MainWindow] = Viewport{MainWindow()->GetScale(), MainWindow()->GetPosition(), 31};
 
 #ifndef CLANGD_KEEPS_CRASHING_HERE
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
@@ -39,17 +37,33 @@ bool OpenGLRendererAPI::Init()
 void OpenGLRendererAPI::Shutdown()
 { mFramebuffers.clear(); }
 
-void OpenGLRendererAPI::SetViewport(uint XPosition, uint YPosition, uint Width, uint Height)
-{ glViewport(XPosition, YPosition, Width, Height); }
+void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
+{ SetViewport({XPosition, YPosition}, {Width, Height}); }
+
+void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Scale2D> inSize)
+{
+    mViewportSize = inSize;
+    mViewportPosition = inPos;
+    glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h());
+}
 
 void OpenGLRendererAPI::SetClearColor(float Red, float Green, float Blue, float Alpha)
-{ glClearColor(Red, Green, Blue, Alpha); }
+{ mClearColor = {Red, Green, Blue, Alpha}; }
 
 void OpenGLRendererAPI::SetClearColor(const glm::vec4& Color)
-{ glClearColor(Color.r, Color.g, Color.b, Color.a); }
+{ mClearColor = {Color.r, Color.g, Color.b, Color.a}; }
 
 void OpenGLRendererAPI::Clear()
-{ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+{
+    glClearColor(mClearColor[0],mClearColor[1],mClearColor[2],mClearColor[3]);
+    for(auto& [id, framebuffer] : mFramebuffers)
+    {
+        framebuffer->Bind();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        framebuffer->Unbind();
+    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
 void OpenGLRendererAPI::SetLineWidth(float Width)
 { glLineWidth(Width); }
@@ -69,57 +83,34 @@ Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
     return mShaders.at(Shaders::BlinnPhong);
 }
 
-ID OpenGLRendererAPI::AddViewport(Farg<Viewport> inViewport, ID inID)
 {
-    while(inID.invalid() or mViewports.contains(inID))
-        { inID = ID::Generate(); }
-    mViewports[inID] = inViewport;
-    if(gPrintViewportAddedLogs)
-        { print_debug("Added new Viewport with ID#{}", inID[]); }
-    return inID;
-}
-
-Viewport& OpenGLRendererAPI::GetViewport(ID inID)
-{
-    if(auto found_it{mViewports.find(inID)}; found_it != mViewports.end())
-        { return found_it->second; }
-    return mViewports.at(Viewport::IDs::MainWindow);
-}
-
-Error OpenGLRendererAPI::RemoveViewport(ID inID)
-{
-    if(inID == Viewport::IDs::MainWindow)
-        { return ERR_NOT_ALLOWED; }
-    return (mViewports.erase(inID))
         ? OK
         : ERR_NOT_FOUND;
 }
 
-ID OpenGLRendererAPI::GenerateFrameBuffer(ID inID)
+ID OpenGLRendererAPI::AddFrameBuffer(Shared<FrameBuffer> inFrameBuffer, ID inID)
 {
     while(inID.invalid() or mFramebuffers.contains(inID))
         { inID = ID::Generate(); }
-    mFramebuffers[inID] = FrameBuffer::Create();
-    mFramebuffers[inID]->Generate();
-    if(gPrintViewportAddedLogs)
-        { print_debug("Added new FrameBuffer with ID#{}", inID[]); }
+    mFramebuffers[inID] = inFrameBuffer;
     return inID;
 }
 
-Shared<FrameBuffer>& OpenGLRendererAPI::GetFrameBuffer(ID inID)
+Shared<FrameBuffer> OpenGLRendererAPI::GetFrameBuffer(ID inID)
 {
     if(auto found_it{mFramebuffers.find(inID)}; found_it != mFramebuffers.end())
         { return found_it->second; }
-    return mFramebuffers[FrameBuffer::IDs::Default];
+    print_warning("Unable to find FrameBuffer#{}", inID[]);
+    return FrameBuffer::Create({});
 }
 
 Error OpenGLRendererAPI::RemoveFrameBuffer(ID inID)
 {
-    if(inID == FrameBuffer::IDs::Default)
-        { return ERR_NOT_ALLOWED; }
     return (mFramebuffers.erase(inID))
         ? OK
-        : ERR_NOT_FOUND;
+        : (mFramebuffers.empty())
+            ? ERR_EMPTY
+            : ERR_NOT_FOUND;
 }
 
 void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(light_t* inLight)
@@ -172,33 +163,27 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVertexArray, uint inIn
     inVertexArray->Bind();
     inVertexArray->GetIndexBuffer()->Bind();
     uint count{(inIndexCount) ? inIndexCount : inVertexArray->GetIndexBuffer()->GetCount()};
-    for(FAUTO [id, viewport] : mViewports)
-    {
-        if(viewport.layers.contains(inLayers))
-        {
-            glViewport(static_cast<int>(viewport.position.x()),
-                static_cast<int>(viewport.position.y()),
-                static_cast<int>(viewport.scale.w()),
-                static_cast<int>(viewport.scale.h()));
-            glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-            if(gPrintDrawLogs)
-            {
-                print_debug("glDrawElements called w/ Viewport#{} (pos: {}, scale: {}, layers: {:#b})",
-                    id[],
-                    viewport.position.data_log(),
-                    viewport.scale.data_log(),
-                    viewport.layers.get());
-            }
-        }
-    }
+
     for(FAUTO [id, framebuffer] : mFramebuffers)
     {
         framebuffer->Bind();
-        glViewport(0,0,
-            static_cast<int>(framebuffer->GetScale().w()),
-            static_cast<int>(framebuffer->GetScale().h()));
+        glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
         framebuffer->Unbind();
+        if(gPrintDrawLogs)
+        {
+            print_debug("glDrawElements called w/ FrameBuffer#{} (size: {})",
+                id[],
+                framebuffer->TextureSize().data_log());
+        }
+    }
+    SetViewport(mViewportPosition, mViewportSize);
+    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+    if(gPrintDrawLogs)
+    {
+        print_debug("glDrawElements called (viewport size: {}, viewport position: {})",
+            mViewportSize.data_log(),
+            mViewportPosition.data_log());
     }
 }
 
@@ -208,29 +193,22 @@ void OpenGLRendererAPI::DrawLines(Shared<VertexArray> inVertexArray, uint inVert
     for(FAUTO [id, framebuffer] : mFramebuffers)
     {
         framebuffer->Bind();
-        glViewport(0,0,
-            static_cast<int>(framebuffer->GetScale().w()),
-            static_cast<int>(framebuffer->GetScale().h()));
+        glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
         glDrawArrays(GL_LINES, 0, inVertexCount);
         framebuffer->Unbind();
-    }
-    for(FAUTO [id, viewport] : mViewports)
-    {
-        if(viewport.layers.contains(inLayers))
+        if(gPrintDrawLogs)
         {
-            glViewport(static_cast<int>(viewport.position.x()),
-                static_cast<int>(viewport.position.y()),
-                static_cast<int>(viewport.scale.w()),
-                static_cast<int>(viewport.scale.h()));
-            glDrawArrays(GL_LINES, 0, inVertexCount);
-            if(gPrintDrawLogs)
-            {
-                print_debug("glDrawElements called w/ Viewport#{} (pos: {}, scale: {}, layers: {:#b})",
-                    id[],
-                    viewport.position.data_log(),
-                    viewport.scale.data_log(),
-                    viewport.layers.get());
-            }
+            print_debug("glDrawArrays called w/ FrameBuffer#{} (size: {})",
+                id[],
+                framebuffer->TextureSize().data_log());
         }
+    }
+    SetViewport(mViewportPosition, mViewportSize);
+    glDrawArrays(GL_LINES, 0, inVertexCount);
+    if(gPrintDrawLogs)
+    {
+        print_debug("glDrawArrays called (viewport size: {}, viewport position: {})",
+            mViewportSize.data_log(),
+            mViewportPosition.data_log());
     }
 }

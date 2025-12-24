@@ -35,7 +35,8 @@ public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
 
-    virtual void SetViewport(uint XPosition, uint YPosition, uint Width, uint Height) = 0;
+    virtual void SetViewport(Farg<Position2D> inPosition, Farg<Scale2D> inSize) = 0;
+    virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
     virtual void SetClearColor(float Red, float Green, float Blue, float Alpha) = 0;
     virtual void SetClearColor(const glm::vec4& Color) = 0;
     virtual void SetLineWidth(float Width) = 0;
@@ -46,11 +47,7 @@ public:
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;
     virtual Shared<Shader> GetShader(ID inID) = 0;
-    virtual ID AddViewport(Farg<Viewport> inViewport, ID inID = ID::Invalid) = 0;
-    virtual Viewport& GetViewport(ID inID) = 0;
-    virtual Error RemoveViewport(ID inID) = 0;
-    virtual ID GenerateFrameBuffer(ID inID = ID::Invalid) = 0;
-    virtual Shared<FrameBuffer>& GetFrameBuffer(ID inID) = 0;
+    virtual Shared<FrameBuffer> GetFrameBuffer(ID inID) = 0;
     virtual Error RemoveFrameBuffer(ID inID) = 0;
 
     virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0, RenderLayers = {}) = 0;

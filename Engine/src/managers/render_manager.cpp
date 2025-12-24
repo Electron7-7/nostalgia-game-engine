@@ -45,7 +45,7 @@ void RenderManager::Update()
 void RenderManager::Event(AppEvent* inEvent)
 {
     if(inEvent->IsEvent(AppEvent::WindowResize))
-        { mRendererAPI->GetViewport(Viewport::IDs::MainWindow).scale = MainWindow()->GetScale(); }
+        { mRendererAPI->SetViewport({0, 0}, MainWindow()->GetScale()); }
 }
 
 void RenderManager::SetAutomaticWindowClear(bool inEnableClear)
