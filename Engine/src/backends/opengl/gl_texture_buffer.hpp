@@ -6,24 +6,25 @@
 class OpenGLTextureBuffer final : public TextureBuffer
 {
 public:
-    OpenGLTextureBuffer();
+    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, const FileData*);
     ~OpenGLTextureBuffer();
 
-    virtual void Bind() const final;
-    virtual void Unbind() const final;
+    void Bind() final;
+    void Bind(uint) final;
+    void Unbind() final;
 
-    void BindUnit(uint) final;
-    void UnbindUnit() const final;
+    Error Status() const final;
 
-    uint GetID() const final;
-    Farg<TextureFormat> GetFormat() const final;
-
-    Error GenerateTexture(Farg<TextureFormat>) final;
-    Error GenerateTexture(Farg<FileData>, Farg<TextureFormat>) final;
+    uint ID() const final;
+    Farg<TextureFormat> Format() const final;
+    Farg<SamplerState>  Sampler() const final;
 
 private:
-    uint mTextureID{0}, mTextureUnit{0};
-    TextureFormat mTextureFormat{};
+    bool mIsBound{false};
+    uint mBufferID{0};
+    TextureFormat mFormat{};
+    SamplerState  mSampler{};
+    Error mStatus{FAILED};
 };
 
 #endif // GL_TEXTURE_BUFFER_H

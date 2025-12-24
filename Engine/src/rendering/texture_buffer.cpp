@@ -5,7 +5,10 @@
 // Implementations
 #include "backends/opengl/gl_texture_buffer.hpp"
 
-Shared<TextureBuffer> TextureBuffer::Create()
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, const FileData* inData)
+{ return Create(inFormat, {}, inData); }
+
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<SamplerState> inSamplerState, const FileData* inData)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -17,6 +20,6 @@ Shared<TextureBuffer> TextureBuffer::Create()
         print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLTextureBuffer>();
+        return MakeShared<OpenGLTextureBuffer>(inFormat, inSamplerState, inData);
     }
 }

@@ -1,6 +1,6 @@
 #ifdef FWD_DCL
-    enum TextureType : unsigned short;
     class TextureBuffer;
+    struct TextureFormat;
 #elif !defined TEXTURE_BUFFER_H
 #define TEXTURE_BUFFER_H
 
@@ -8,58 +8,75 @@
 #   include "filesystem/file_data.hpp"
 #undef  FWD_DCL
 
-#include "core/farg.hpp"
+#include "common.hpp"
 #include "core/error.hpp"
+#include "core/farg.hpp"
 #include "core/smart_pointers.hpp"
 
-enum TextureType : ushort
+enum TextureType
 {
-    TEXTURE_TYPE_1D,
-    TEXTURE_TYPE_2D,
-    TEXTURE_TYPE_3D,
-    TEXTURE_TYPE_CUBE,
-    TEXTURE_TYPE_1D_ARRAY,
-    TEXTURE_TYPE_2D_ARRAY,
-    TEXTURE_TYPE_3D_ARRAY,
-    TEXTURE_TYPE_CUBE_ARRAY,
-    TEXTURE_TYPE_NONE,
+    TEXTURE_TYPE_1D,       TEXTURE_TYPE_2D,       TEXTURE_TYPE_3D,
+    TEXTURE_TYPE_1D_ARRAY, TEXTURE_TYPE_2D_ARRAY, TEXTURE_TYPE_3D_ARRAY,
+    TEXTURE_TYPE_CUBE,     TEXTURE_TYPE_CUBE_ARRAY,
+    TEXTURE_TYPE_NONE
+};
+
+enum SamplerFilter
+{ SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_NONE };
+
+enum SamplerRepeat
+{
+    SAMPLER_REPEAT_MODE_REPEAT,
+    SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,
+    SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE,
+};
+
+struct SamplerState
+{
+    SamplerFilter min_filter{SAMPLER_FILTER_LINEAR},
+        mip_filter_min{SAMPLER_FILTER_NONE},
+        mag_filter{SAMPLER_FILTER_LINEAR},
+        mip_filter_mag{SAMPLER_FILTER_NONE};
+    SamplerRepeat repeat_u{SAMPLER_REPEAT_MODE_REPEAT},
+        repeat_v{SAMPLER_REPEAT_MODE_REPEAT},
+        repeat_w{SAMPLER_REPEAT_MODE_REPEAT};
+    bool use_anisotropy{false};
+    float anisotropy_max{1.0f};
+
+    static constinit const SamplerState JuliansPreferredDefaults;
+};
+
+inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
+    SAMPLER_FILTER_LINEAR,  SAMPLER_FILTER_LINEAR,
+    SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE, SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE, SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    true, 16.0f
 };
 
 struct TextureFormat
 {
-    TextureFormat() noexcept = default;
-    TextureFormat(TextureType inType,
-        int inWidth,
-        int inHeight,
-        int inChannels = 1,
-        uint inDepth = 1,
-        uint inLayers = 1,
-        uint inMipmaps = 1):
-        type{inType},
+    constexpr TextureFormat() noexcept = default;
+    constexpr TextureFormat(int inWidth, int inHeight, DataFormat inDataFormat = DATA_FORMAT_SRGB_ALPHA):
+        data_format{inDataFormat},
         width{inWidth},
-        height{inHeight},
-        channels{inChannels},
-        depth{inDepth},
-        array_layers{inLayers},
-        mipmaps{inMipmaps} {}
+        height{inHeight} {}
 
     TextureType type{TEXTURE_TYPE_2D};
-    int  width{1};
-    int  height{1};
-    int  channels{1};
-    uint depth{1};
-    uint array_layers{1};
-    uint mipmaps{1};
+    DataFormat data_format{DATA_FORMAT_SRGB_ALPHA};
+    int  width{1}, height{1};
+    uint depth{1}, array_layers{1}, mipmaps{1};
 
-    constexpr bool operator==(const TextureFormat& tf) const
+    constexpr bool operator==(Farg<TextureFormat> tf) const
     {
-        return
-            width   == tf.width             &&
-            height  == tf.height            &&
-            depth   == tf.depth             &&
-            mipmaps == tf.mipmaps           &&
-            type    == tf.type              &&
-            array_layers == tf.array_layers;
+        return type == tf.type and
+            data_format == tf.data_format and
+            width == tf.width and
+            height == tf.height and
+            depth == tf.depth and
+            array_layers == tf.array_layers and
+            mipmaps == tf.mipmaps;
     }
 };
 
@@ -68,19 +85,18 @@ class TextureBuffer
 public:
     virtual ~TextureBuffer() = default;
 
-    virtual void Bind() const = 0;
-    virtual void Unbind() const = 0;
+    virtual void Bind() = 0;
+    virtual void Bind(uint inTextureUnit) = 0;
+    virtual void Unbind() = 0;
 
-    virtual void BindUnit(uint inTextureUnit) = 0;
-    virtual void UnbindUnit() const = 0;
+    virtual Error Status() const = 0;
 
-    virtual uint GetID() const = 0;
-    virtual Farg<TextureFormat> GetFormat() const = 0;
+    virtual uint ID() const = 0;
+    virtual Farg<TextureFormat> Format() const = 0;
+    virtual Farg<SamplerState>  Sampler() const = 0;
 
-    virtual Error GenerateTexture(Farg<TextureFormat> = {}) = 0;
-    virtual Error GenerateTexture(Farg<FileData>, Farg<TextureFormat> = {}) = 0;
-
-    static Shared<TextureBuffer> Create();
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>, const FileData* = nullptr);
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState>, const FileData* = nullptr);
 };
 
 #endif // TEXTURE_BUFFER_H
