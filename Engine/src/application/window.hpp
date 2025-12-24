@@ -4,6 +4,7 @@
 #define WINDOW_H
 
 #define FWD_DCL
+#   include "rendering/graphics_context.hpp"
 #   include "math/containers.hpp"
 #   include "monitor.hpp"
 #undef  FWD_DCL
@@ -105,6 +106,8 @@ public:
     virtual uint GetFullscreenMonitorIndex() = 0;
     virtual const Unique<Monitor>& GetFullscreenMonitor() = 0;
     virtual Error SetFullscreenMonitor(uint MonitorIndex) = 0;
+    virtual Unique<IGraphicsContext>& GetContext() = 0;
+    // virtual void SetContext(Farg<IGraphicsContext> inContext) = 0;
 
     const char* GetTitle()     const { return mData.title.data(); }
     Scale2D GetScale()         const;

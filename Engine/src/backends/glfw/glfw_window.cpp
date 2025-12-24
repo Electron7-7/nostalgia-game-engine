@@ -252,3 +252,6 @@ Position2D WindowGLFW::GetMousePosition()
 
 Position2D WindowGLFW::GetLastMousePosition()
 { return mMouseLast; }
+
+Unique<IGraphicsContext>& WindowGLFW::GetContext()
+{ return mGraphicsContext; }

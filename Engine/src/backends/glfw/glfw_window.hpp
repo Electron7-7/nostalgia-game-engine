@@ -31,6 +31,7 @@ public:
     Error SetFullscreenMonitor(uint) override;
     Position2D GetMousePosition() override;
     Position2D GetLastMousePosition() override;
+    Unique<IGraphicsContext>& GetContext() override;
 
     WINDOW_SET_POSITION_DECLARATION
     WINDOW_SET_SCALE_DECLARATION
