@@ -1,5 +1,4 @@
 #include "event_handling.hpp"
-#include "core/printing.hpp"
 #include "events/event.hpp"
 
 #include <vector>
@@ -7,7 +6,7 @@
 Unique<EventHandler> EventHandler::m_sInstance{nullptr};
 
 EventHandler::EventHandler() noexcept
-{ assert(!m_sInstance && "Only one EventHandler instance allowed!"); }
+{ assert(!m_sInstance and "Only one EventHandler instance allowed!"); }
 
 EventHandler::~EventHandler() noexcept
 {

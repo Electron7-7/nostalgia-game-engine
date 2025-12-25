@@ -75,16 +75,16 @@ void ImGui_Debugger::Shutdown()
 
 void ImGui_Debugger::Input(InputEvent* event)
 {
-    if(event->IsJustPressed(Key::F5) or
+    if(event->IsJustPressed(Key::F4) or
+        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
+        { IManager::ShutdownTheatre(); }
+    else if(event->IsJustPressed(Key::F5) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadTheatreFromFile(sTheatreFilePath);
         print_debug("LoadTheatreFromFile called from {}", __PRETTY_FUNCTION__);
     }
-    else if(event->IsJustPressed(Key::F4) or
-        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
-        { IManager::ShutdownTheatre(); }
     else if(event->IsJustPressed(Key::F3))
         { sTheatreInspectorActive = !sTheatreInspectorActive; }
 }
