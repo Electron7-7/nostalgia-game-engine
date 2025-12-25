@@ -20,7 +20,6 @@ ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 bool gShowDebugWindow{false};
 
 static bool sShowDemoWindow{false};
-static bool sShowFramebufferImage{false};
 static void s_ThingAdder();
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
@@ -41,7 +40,7 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 Error ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create());
+    sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create({1920, 1080}));
     return OK;
 }
 
@@ -87,17 +86,16 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
+            MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = false;
             g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = false;
         }
         return;
     }
-    else if(event->IsJustPressed(Key::Tab) or (event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control)))
+    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
     else if(event->IsJustPressed(Key::G) and event->IsModifierActive(Key::Mod_Control))
         { sShowDemoWindow  = !sShowDemoWindow; }
-    else if(event->IsJustPressed(Key::F2) or (event->IsJustPressed(Key::F) and event->IsModifierActive(Key::Mod_Control)))
-        { sShowFramebufferImage = !sShowFramebufferImage; }
 }
 
 enum ScaleDir
@@ -126,7 +124,12 @@ void ImGui_Editor::Update()
     float window_height = MainWindow()->GetHeight();
     SetNextWindowSize({window_width, window_height});
     SetNextWindowPos({0, 0});
-    if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus))
+    if(Begin("Nostalgia Editor",
+        nullptr,
+        ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus))
     {
         if(BeginMenuBar())
         {
@@ -143,43 +146,32 @@ void ImGui_Editor::Update()
             EndMenuBar();
         }
         static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY | ImGuiChildFlags_ResizeX};
-        // PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
-        if(sShowFramebufferImage)
+        PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
+        if(BeginChild("Viewport",
+            {720, 690},
+            sResizableChildWithBorder,
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
         {
-            BeginChild("FrameBuffer", {720, 690}, sResizableChildWithBorder);
-                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-                Image((ImTextureID)g_pRenderManager->GetAPI()
-                    ->GetFrameBuffer(sEditorFramebufferID)
-                        ->TextureID(),
-                    static_cast<ImVec2>(g_pRenderManager->GetAPI()
-                        ->GetFrameBuffer(sEditorFramebufferID)
-                            ->TextureSize()),
-                    {0, 1},
-                    {1, 0});
-                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-                TextF("FrameBuffer Size: {}", g_pRenderManager->GetAPI()
-                        ->GetFrameBuffer(sEditorFramebufferID)
-                            ->TextureSize().data_log());
-            // if(IsItemClicked())
-            // {
-            //     MainWindow()->SetMouseMode(
-            //         (MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_CAPTURED)
-            //             ? IWindow::MOUSE_MODE_DISABLED
-            //             : IWindow::MOUSE_MODE_VISIBLE);
-            //     g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
-            //     g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
-            // }
-            // auto& editor_viewport = g_pRenderManager->GetAPI()->GetViewport(sEditorViewportID);
-            // editor_viewport.scale = (GetItemRectMax() - GetItemRectMin() - ImVec2{0,16});
-            // editor_viewport.position.x() = GetItemRectMin().x;
-            // editor_viewport.position.y() = window_height - GetItemRectMax().y;
-            // TextF("Editor Viewport Size: {}", editor_viewport.scale.data_log());
-            // TextF("Editor Viewport Pos: {}", editor_viewport.position.data_log());
-            EndChild(); SameLine();
-            // BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
-                // s_ThingAdder();
-            // EndChild();
+            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+            Image((ImTextureID)g_pRenderManager->GetAPI()
+                ->GetFrameBuffer(sEditorFramebufferID)
+                    ->TextureID(),
+                static_cast<ImVec2>(MainWindow()->GetScale()), {0, 1}, {1, 0}); /*g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)->TextureSize() * 0.5f*/
+            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+            if(IsItemClicked())
+            {
+                MainWindow()->SetMouseMode(
+                    (MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_DISABLED)
+                        ? IWindow::MOUSE_MODE_DISABLED
+                        : IWindow::MOUSE_MODE_VISIBLE);
+                g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
+                g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
+            }
         }
+        EndChild();
+        if(BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder))
+            { s_ThingAdder(); }
+        EndChild(); PopStyleVar();
     }
     End();
 }

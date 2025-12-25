@@ -3,6 +3,7 @@
 #include "core/uid.hpp"
 #include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
+#include "backends/glfw/glfw_window.hpp"
 #include "managers/render_manager.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
@@ -144,14 +145,6 @@ void ImGui_Debugger::Update()
                 }
             }
             EndTabBar();
-            // InputText("Demo File Output", &sDemoFileOut);
-            // if(Button("Start Recording Demo"))
-                // { g_pDemoController->Record(); }
-            // if(Button("Stop Recording Demo"))
-                // { g_pDemoController->StopRecording(); g_pDemoController->Save(sDemoFileOut); }
-            // InputText("Demo File Input", &sDemoFileIn);
-            // if(Button("Play Demo File"))
-                // { g_pDemoController->Play(sDemoFileIn); }
         }
         End();
     }
@@ -235,22 +228,25 @@ static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
 #ifdef DEBUGGING
+    if(CollapsingHeader("Message Labels"))
+    {
+        ushort i{0};
+        for(auto label : __all_labels_for_debugging)
+        {
+            if(TreeNode(label->name()))
+            {
+                Checkbox(std::format("Use ANSI Codes##{}",i).data(), &label->enable_ansi_sequence);
+                SetNextItemWidth((label->label().size() * 7) + 8);
+                InputText(std::format("Label##{}",i).data(), &label->label(),
+                    ImGuiInputTextFlags_AutoSelectAll |
+                    ImGuiInputTextFlags_NoHorizontalScroll);
+                TreePop();
+            }
+            ++i;
+        }
+    }
     if(CollapsingHeader("Messages"))
     {
-        SeparatorText("Labels");
-            ushort i{0};
-            for(auto label : __all_labels_for_debugging)
-            {
-                Checkbox(std::format("ANSI Codes##{}", i++).data(),
-                    &label->enable_ansi_sequence);
-                SetNextItemWidth(500.0f);
-                SameLine();
-                InputText(label->name(),
-                    &label->label(),
-                    ImGuiInputTextFlags_AutoSelectAll      |
-                    ImGuiInputTextFlags_EnterReturnsTrue   |
-                    ImGuiInputTextFlags_ElideLeft);
-            }
         SeparatorText("General");
             Checkbox("Print Event Logs", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
             Checkbox("Print Input Logs", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
@@ -264,44 +260,27 @@ static void s_GeneralDebuggingWindow()
         if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
-            Text("Severity Levels");
-            Separator();
-            // Checkbox("High", &g_EnableDebugMsgHigh); SameLine();
-            // Checkbox("Medium", &g_EnableDebugMsgMedium); SameLine();
-            // Checkbox("Low", &g_EnableDebugMsgLow); SameLine();
-            // Checkbox("Notification", &g_EnableDebugMsgNotif);
+            const char* gl_debug_severities{"None\0Notification\0Low\0Medium\0High\0"};
+            static int gl_debug_selection{0};
+            if(Combo("Message Minimum Severity", &gl_debug_selection, gl_debug_severities))
+                { gOpenGLMessageFilter = static_cast<DebugMessageSeverityFilter>(gl_debug_selection); }
         }
         SeparatorText("Jolt Physics");
-        SeparatorText("Contact");
-        Checkbox("Validate", &gEnableMsg_ContactValidate); SameLine();
-        Checkbox("Added", &gEnableMsg_ContactAdded); SameLine();
-        Checkbox("Persisted", &gEnableMsg_ContactPersisted); SameLine();
-        Checkbox("Removed", &gEnableMsg_ContactRemoved);
-        SeparatorText("Body");
-        Checkbox("Activated", &gEnableMsg_BodyActivated); SameLine();
-        Checkbox("Deactivated", &gEnableMsg_BodyDeactivated);
+            Checkbox("Contact Validate", &gEnableMsg_ContactValidate); SameLine();
+            Checkbox("Contact Added", &gEnableMsg_ContactAdded); SameLine();
+            Checkbox("Contact Persisted", &gEnableMsg_ContactPersisted); SameLine();
+            Checkbox("Contact Removed", &gEnableMsg_ContactRemoved);
+            Checkbox("Body Activated", &gEnableMsg_BodyActivated); SameLine();
+            Checkbox("Body Deactivated", &gEnableMsg_BodyDeactivated);
     }
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
-        /*Text("Shader Output");
-        Separator();
-        static int s_Selected = Shader_ALL;
-        static const char* s_SelectableNames[4] =
-        {
-            "Default",
-            "Vertex Colors",
-            "Vertex Normals",
-            "Vertex UVs"
-        };
-        for(int i = 0 ; i < 4 ; ++i)
-        {
-            bool l_Selected = (s_Selected == i);
-            if(Checkbox(s_SelectableNames[i], &l_Selected))
-                { s_Selected = i; }
-        }
-        g_ShaderDebugOuptut = s_Selected;*/
+        static int sSelected{0};
+        static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
+        if(Combo("Shader Output", &sSelected, sSelectableNames))
+            { gShaderDebugOuptut = static_cast<ushort>(sSelected); }
     }
     if(CollapsingHeader("Engine"))
     {
@@ -332,7 +311,6 @@ static void s_GeneralDebuggingWindow()
             vector<2,int,VectorMembers::XYZ> position{MainWindow()->GetPosition()};
             if(DragInt2("Position", &position.x(), &position.y()))
                 { MainWindow()->SetPosition(position); }
-
             int scale[2] {
                 static_cast<int>(MainWindow()->GetScale().width()),
                 static_cast<int>(MainWindow()->GetScale().height()),
