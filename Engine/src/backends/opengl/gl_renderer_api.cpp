@@ -27,8 +27,6 @@ bool OpenGLRendererAPI::Init()
 
     SetViewport({0, 0}, MainWindow()->GetScale());
 
-    // mViewports[Viewport::IDs::MainWindow] = Viewport{MainWindow()->GetScale(), MainWindow()->GetPosition(), 31};
-
 #ifndef CLANGD_KEEPS_CRASHING_HERE
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
     mShaders[Shaders::Fullbright]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);

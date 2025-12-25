@@ -96,45 +96,12 @@ static GLenum s_GLWrap(SamplerRepeat inRepeat)
     }
 }
 
-/*
-Error OpenGLTextureBuffer::GenerateTexture(Farg<TextureFormat> inTextureFormat)
-{
-    GLenum gl_type{s_GLType(mTextureFormat.type)};
-    glCreateTextures(gl_type, 1, &mBufferID);
-    glBindTexture(gl_type, mBufferID);
-    switch(gl_type)
-    {
-    case GL_TEXTURE_2D:
-        glTexImage2D(gl_type,
-            0,
-            GL_RGBA8,
-            mTextureFormat.width,
-            mTextureFormat.height,
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            nullptr);
-        break;
-    default:
-        glDeleteTextures(1, &mBufferID);
-        print_error("Unimplemented OpenGL texture format");
-        return UNIMPLEMENTED;
-    }
-    glTexParameteri(gl_type, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(gl_type, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(gl_type, 0);
-    return OK;
-}
-*/
-
 OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat,
     Farg<SamplerState> inSampler,
     const FileData* inData):
         mFormat{inFormat}, mSampler{inSampler}, mStatus{OK}
 {
     GLenum gl_type{s_GLType(mFormat.type)};
-    GLenum gl_format{s_GLFormat(mFormat.data_format)};
-    GLint  gl_internal_format{s_GLInternalFormat(mFormat.data_format)};
     unsigned char* image_data{nullptr};
 
     glGenTextures(1, &mBufferID);
@@ -159,22 +126,17 @@ OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat,
 
     switch(gl_type)
     {
-#pragma message("TODO: implement all texture types and image format types")
+#pragma message("TODO: implement all texture and image formats")
     case GL_TEXTURE_2D:
         glTexImage2D(GL_TEXTURE_2D,
             0,
-            gl_internal_format,
+            s_GLInternalFormat(mFormat.data_format),
             mFormat.width,
             mFormat.height,
             0,
-            gl_format,
+            s_GLFormat(mFormat.data_format),
             GL_UNSIGNED_BYTE,
             image_data);
-        print_debug("glTexImage2D(GL_TEXTURE_2D, 0, {}, {}, {}, 0, {}, GL_UNSIGNED_BYTE, image_data",
-            gl_internal_format,
-            mFormat.width,
-            mFormat.height,
-            gl_format);
         break;
     default:
         print_warning("The requested OpenGL texture format is unimplemented, sorry");

@@ -1,11 +1,12 @@
 #include "glfw_window.hpp"
 #include "application/monitor.hpp"
+#include "core/printing.hpp"
+#include "core/enum_prettifier.hpp"
 #include "events/event.hpp"
 #include "events/event_queue.hpp"
 #include "managers/event_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "rendering/graphics_context.hpp"
-#include "core/printing.hpp"
 
 #include <vector>
 #include <glad/glad.h>
@@ -13,6 +14,8 @@
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
 static std::vector<Unique<Monitor>> m_sMonitors{};
+
+bool gDebugPrintStateChanges{false};
 
 void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonitor, int inEvent)
 {
@@ -97,13 +100,31 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
-    PRINT_PRETTY_CONSTRUCTOR_EXT("# of windows: {}", sShittyWindowTrackerPleaseMakeSomethingBetter);
+    PRETTIFY_ENUM(MOUSE_MODE_VISIBLE,  MouseMode);
+    PRETTIFY_ENUM(MOUSE_MODE_CAPTURED, MouseMode);
+    PRETTIFY_ENUM(MOUSE_MODE_HIDDEN,   MouseMode);
+    PRETTIFY_ENUM(MOUSE_MODE_DISABLED, MouseMode);
+    PRINT_PRETTY_CONSTRUCTOR_EXT("{}# of windows: {}",
+        ANSI_Sequence{ANSI::begin,
+            ANSI::foreground,
+            ANSI::default_color,
+            ANSI::next,
+            ANSI::set_underline,
+            ANSI::end}.get(),
+        sShittyWindowTrackerPleaseMakeSomethingBetter);
 }
 
 WindowGLFW::~WindowGLFW()
 {
     Shutdown();
-    PRINT_PRETTY_DESTRUCTOR_EXT("# of windows: {}", sShittyWindowTrackerPleaseMakeSomethingBetter);
+    PRINT_PRETTY_DESTRUCTOR_EXT("{}# of windows: {}",
+        ANSI_Sequence{ANSI::begin,
+            ANSI::foreground,
+            ANSI::default_color,
+            ANSI::next,
+            ANSI::set_underline,
+            ANSI::end}.get(),
+        sShittyWindowTrackerPleaseMakeSomethingBetter);
 }
 
 Error WindowGLFW::Init(const WindowProperties& inProperties)
@@ -167,7 +188,11 @@ Error WindowGLFW::SetVsync(Vsync)
 Error WindowGLFW::SetMouseMode(MouseMode inMode)
 {
     if(inMode == mData.mouse_mode)
-        { return OK; }
+    {
+        if(gDebugPrintStateChanges)
+            { print_debug("Mouse mode set to current mouse mode (no changes made)"); }
+        return OK;
+    }
     int cursor_mode{-1};
     switch(inMode)
     {
@@ -186,8 +211,14 @@ Error WindowGLFW::SetMouseMode(MouseMode inMode)
     default:
         return ERR_SWITCH_DEFAULT;
     }
-    mData.mouse_mode = inMode;
     glfwSetInputMode(m_pWindow, GLFW_CURSOR, cursor_mode);
+    if(gDebugPrintStateChanges)
+    {
+        print_debug("Mouse mode set: {} (from: {})",
+            GET_PRETTY_ENUM(inMode, MouseMode),
+            GET_PRETTY_ENUM(mData.mouse_mode, MouseMode));
+    }
+    mData.mouse_mode = inMode;
     return OK;
 }
 

@@ -68,4 +68,6 @@ private:
     static uint GetMonitorIndex(GLFWmonitor*);
 };
 
+extern bool gDebugPrintStateChanges;
+
 #endif // GLFW_BACKEND_H

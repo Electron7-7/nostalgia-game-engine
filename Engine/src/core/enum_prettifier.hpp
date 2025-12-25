@@ -24,8 +24,8 @@
 #define ENUM_SET(NAME) inline static constinit const char* NAME{#NAME};
 
 // Used by the lazy
-#define PRETTIFY_ENUM(ENUM, ENUM_SET) Add(#ENUM, ENUM_SET::ENUM, #ENUM_SET);
-#define GET_PRETTY_ENUM(ENUM, ENUM_SET) Get(ENUM, #ENUM_SET);
+#define PRETTIFY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Add(#ENUM, ENUM_SET::ENUM, #ENUM_SET)
+#define GET_PRETTY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Get(ENUM, #ENUM_SET)
 
 struct EnumSet
 {
