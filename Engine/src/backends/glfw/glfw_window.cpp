@@ -64,9 +64,7 @@ void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindo
 void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindow, double inX, double inY)
 {
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
-    pWindow->mMouseLast = pWindow->mMouseCurrent;
-    pWindow->mMouseCurrent.x() = inX;
-    pWindow->mMouseCurrent.y() = inY;
+    g_pInputManager->Queue()->add<InputEventMouseMotion>(Position2D{inX, inY}, pWindow->mMouseCurrent);
 }
 
 Key::Modifiers sConvertModifierKeys(int mods)
@@ -154,6 +152,8 @@ void WindowGLFW::Update()
 {
     glfwPollEvents();
     mGraphicsContext->SwapBuffers();
+    mMouseLast = mMouseCurrent;
+    glfwGetCursorPos(m_pWindow, &mMouseCurrent[0], &mMouseCurrent[1]);
 }
 
 WINDOW_SET_POSITION_DEFINITION(WindowGLFW, inPosition)

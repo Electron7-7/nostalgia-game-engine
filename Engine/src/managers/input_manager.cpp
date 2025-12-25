@@ -29,9 +29,8 @@ void InputManager::Update()
 bool InputManager::UpdateKeyState(KeyID inKeyID, bool inCurrentState)
 {
     m_sInputStateBuffer[inKeyID[]].set(inCurrentState);
-    for(const auto& name : sInputActionBindingsLookup[inKeyID])
+    for(auto& [name, action] : sInputActions)
     {
-        auto& action{sInputActions.at(name)};
         if(action.UpdateState(inKeyID[], inCurrentState))
             { sInputEventQueue.add<InputEventAction>(action); }
     }
@@ -45,8 +44,8 @@ Error InputManager::AddAction(Farg<InputAction> inAction)
 {
     if(sInputActions.contains(inAction.Name()))
         { print_error("InputAction '{}' already exists", inAction.Name()); return ERR_ALREADY_EXISTS; }
-    PRINT_PRETTY_FUNCTION;
     sInputActions.emplace(inAction.Name(), inAction);
+    PRINT_PRETTY_FUNCTION_EXT(" - {}", inAction.Name());
     return OK;
 }
 
@@ -54,15 +53,20 @@ void InputManager::SetAction(Farg<InputAction> inAction)
 {
     if(sInputActions.contains(inAction.Name()))
         { print_warning("InputAction '{}' already exists and will be replaced", inAction.Name()); }
-    PRINT_PRETTY_FUNCTION;
+    PRINT_PRETTY_FUNCTION_EXT(" - {}", inAction.Name());
     sInputActions.insert_or_assign(inAction.Name(), inAction);
 }
 
 Error InputManager::DeleteAction(Farg<std::string> inActionName)
 {
-    if(auto found_it{sInputActions.find(inActionName)}; found_it != sInputActions.end())
-        { PRINT_PRETTY_FUNCTION; sInputActions.erase(found_it); return OK; }
-    return ERR_NOT_FOUND;
+    if(sInputActions.erase(inActionName))
+    {
+        PRINT_PRETTY_FUNCTION_EXT(" - {}", inActionName);
+        return OK;
+    }
+    return (sInputActions.empty())
+        ? ERR_EMPTY
+        : ERR_NOT_FOUND;
 }
 
 void InputManager::ClearAllActions()
@@ -113,4 +117,4 @@ Position2D InputManager::LastMousePosition() noexcept
 { return MainWindow()->GetLastMousePosition(); }
 
 Motion2D InputManager::MouseMotion() noexcept
-{ return MainWindow()->GetLastMousePosition() - MainWindow()->GetMousePosition(); }
+{ return MainWindow()->GetMousePosition() - MainWindow()->GetLastMousePosition(); }

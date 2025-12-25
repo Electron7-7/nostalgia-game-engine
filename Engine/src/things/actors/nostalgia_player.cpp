@@ -2,6 +2,7 @@
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
+#include "managers/input_manager.hpp"
 
 void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 {
@@ -20,16 +21,16 @@ Shared<ThingData> NostalgiaPlayer::GetVariables() const
 }
 
 void NostalgiaPlayer::Input(InputEvent* event)
-{
-    Move({
-        mCaptureKeyboard * (event->IsAction("+right")   - event->IsAction("+left")),
-        mCaptureKeyboard * (event->IsAction("+forward") - event->IsAction("+backward"))
-    });
-    Look(event->MouseMotion() * mCaptureMouse);
-}
+{}
 
 void NostalgiaPlayer::Tick()
 {
+    Move({
+        mCaptureKeyboard * (InputManager::IsActionDown("+right")   - InputManager::IsActionDown("+left")),
+        mCaptureKeyboard * (InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward"))
+    });
+    Look(InputManager::MouseMotion() * mCaptureMouse);
+
     glm::vec3 l_FrontBackVelocity = glm::vec3(Front()[0], 0.0f, Front()[2]) * (mMovementDirection[1] * Settings::Player::MovementSpeed);
     glm::vec3 l_LeftRightVelocity = Right() * (mMovementDirection[0] * Settings::Player::MovementSpeed);
     mVelocity = (l_FrontBackVelocity + l_LeftRightVelocity);
