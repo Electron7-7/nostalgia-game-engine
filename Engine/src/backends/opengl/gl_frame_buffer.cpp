@@ -5,6 +5,34 @@
 #include <glad/glad.h>
 #include <GL/glext.h>
 
+static Error s_CheckFramebufferStatus(uint inID)
+{
+    switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))
+    {
+    case GL_FRAMEBUFFER_COMPLETE:
+        print_debug("Successfully created FrameBuffer#{}", inID);
+        return OK;
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT): Attachment is NOT complete.", inID);
+        return FAILED;
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT): No image is attached to FBO.", inID);
+        return FAILED;
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER): Draw buffer.", inID);
+        return FAILED;
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER): Read buffer.", inID);
+        return FAILED;
+    case GL_FRAMEBUFFER_UNSUPPORTED:
+        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_UNSUPPORTED): Unsupported by FBO implementation.", inID);
+        return FAILED;
+    default:
+        print_warning("FrameBuffer#{} incomplete: Unknown error.", inID);
+        return FAILED;
+    }
+}
+
 OpenGLFrameBuffer::OpenGLFrameBuffer() noexcept:
     OpenGLFrameBuffer{MainWindow()->GetScale()} {}
 
@@ -22,36 +50,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Scale2D> inSize) noexcept:
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBufferID);
     glNamedFramebufferTexture(mBufferID, GL_COLOR_ATTACHMENT0, mTextureBuffer->ID(), 0);
 
-    switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))
-    {
-    case GL_FRAMEBUFFER_COMPLETE:
-        print_debug("Successfully created FrameBuffer#{}", mBufferID);
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT): Attachment is NOT complete.", mBufferID);
-        mStatus = FAILED;
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT): No image is attached to FBO.", mBufferID);
-        mStatus = FAILED;
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER): Draw buffer.", mBufferID);
-        mStatus = FAILED;
-        break;
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER): Read buffer.", mBufferID);
-        mStatus = FAILED;
-        break;
-    case GL_FRAMEBUFFER_UNSUPPORTED:
-        print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_UNSUPPORTED): Unsupported by FBO implementation.", mBufferID);
-        mStatus = FAILED;
-        break;
-    default:
-        print_warning("FrameBuffer#{} incomplete: Unknown error.", mBufferID);
-        mStatus = FAILED;
-        break;
-    }
+    mStatus = s_CheckFramebufferStatus(mBufferID);
 
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
