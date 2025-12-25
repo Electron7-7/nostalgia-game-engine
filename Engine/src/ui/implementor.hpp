@@ -77,21 +77,6 @@ public:
     void StopHandlingEvents(bool inStopHandlingEvents)
     { mGlobalCanHandleEvents = !inStopHandlingEvents; }
 
-    /*template<IsUiSolution T>
-        void AddSolution(T* inSolution)
-        {
-            mObjects[typeid(T)] = inSolution;
-            inSolution->mImplementorIndex = mIndex;
-            inSolution->mImplementorIndex = typeid(T);
-        }
-
-    template<typename T> requires std::derived_from<T, UI_Implementor>
-        static void AddImplementor(T* inImplementor)
-        {
-            m_sInstances[typeid(T)] = inImplementor;
-            inImplementor->mIndex = typeid(T);
-        }*/
-
     template<IsUiSolution T>
         Unique<UI_Solution>& CreateSolution()
         {
@@ -108,16 +93,6 @@ public:
             m_sInstances[typeid(T)]->mIndex = typeid(T);
             return m_sInstances[typeid(T)];
         }
-
-    template<typename T> requires std::derived_from<T, UI_Implementor>
-        static Unique<UI_Implementor>& GetInstance() noexcept
-        {
-#pragma message("FIXME")
-            return m_sInstances[typeid(T)];
-        }
-
-    static Unique<UI_Implementor>& GetInstance(Farg<std::type_index> inIndex) noexcept
-    { return m_sInstances[inIndex]; }
 
 protected:
     std::type_index mIndex{typeid(UI_Implementor)};

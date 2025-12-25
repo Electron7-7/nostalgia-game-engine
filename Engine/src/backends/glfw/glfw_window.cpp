@@ -93,7 +93,7 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
                 sConvertModifierKeys(mods),
                 action != GLFW_RELEASE,
                 action == GLFW_REPEAT,
-                g_pInputManager->UpdateKeyState(found_it->second[], action != GLFW_RELEASE));
+                g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
     }
 }
 
@@ -104,27 +104,13 @@ WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
     PRETTIFY_ENUM(MOUSE_MODE_CAPTURED, MouseMode);
     PRETTIFY_ENUM(MOUSE_MODE_HIDDEN,   MouseMode);
     PRETTIFY_ENUM(MOUSE_MODE_DISABLED, MouseMode);
-    PRINT_PRETTY_CONSTRUCTOR_EXT("{}# of windows: {}",
-        ANSI_Sequence{ANSI::begin,
-            ANSI::foreground,
-            ANSI::default_color,
-            ANSI::next,
-            ANSI::set_underline,
-            ANSI::end}.get(),
-        sShittyWindowTrackerPleaseMakeSomethingBetter);
+    PRINT_PRETTY_CONSTRUCTOR;
 }
 
 WindowGLFW::~WindowGLFW()
 {
     Shutdown();
-    PRINT_PRETTY_DESTRUCTOR_EXT("{}# of windows: {}",
-        ANSI_Sequence{ANSI::begin,
-            ANSI::foreground,
-            ANSI::default_color,
-            ANSI::next,
-            ANSI::set_underline,
-            ANSI::end}.get(),
-        sShittyWindowTrackerPleaseMakeSomethingBetter);
+    PRINT_PRETTY_DESTRUCTOR;
 }
 
 Error WindowGLFW::Init(const WindowProperties& inProperties)

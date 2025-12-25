@@ -41,7 +41,8 @@ Motion2D   InputEvent::empty_motion{};
 InputEventMouseMotion::InputEventMouseMotion() = default;
 InputEventMouseMotion::InputEventMouseMotion(Farg<Position2D> inCurrentPos, Farg<Position2D> inLastPos):
     mMousePosition{inCurrentPos},
-    mLastMousePosition{inLastPos} {}
+    mLastMousePosition{inLastPos},
+    mMouseMotion{mMousePosition - mLastMousePosition} {}
 
 size_t InputEventMouseMotion::GetHash() const
 { return ConstexprHash("InputEventMouseMotion"); }

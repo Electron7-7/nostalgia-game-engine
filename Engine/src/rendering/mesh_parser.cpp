@@ -40,7 +40,7 @@ bool MeshParser::CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& i
     auto& attrib{reader.GetAttrib()};
     auto& shapes{reader.GetShapes()};
 
-    uint vertex_count{0};
+    uint   vertex_count{0};
     Vertex temp_vertex{};
 
     // This looping code is from https://github.com/tinyobjloader/tinyobjloader

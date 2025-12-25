@@ -43,11 +43,11 @@ int NostalgiaGoggles::Main()
 
     ApplicationEventsHandler* handler{new ApplicationEventsHandler};
 
-    g_pInputManager->SetAction(InputAction{gToggleFullscreen, Key::F});
-    g_pInputManager->SetAction(InputAction{"+forward",  Key::W});
-    g_pInputManager->SetAction(InputAction{"+backward", Key::S});
-    g_pInputManager->SetAction(InputAction{"+left",     Key::A});
-    g_pInputManager->SetAction(InputAction{"+right",    Key::D});
+    g_pInputManager->SetAction({gToggleFullscreen, Key::F});
+    g_pInputManager->SetAction({"+forward",  Key::W});
+    g_pInputManager->SetAction({"+backward", Key::S});
+    g_pInputManager->SetAction({"+left",     Key::A});
+    g_pInputManager->SetAction({"+right",    Key::D});
 
     IManager::Start(); // gameloop
     IManager::ShutdownAllManagers();

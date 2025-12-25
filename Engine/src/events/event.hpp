@@ -127,7 +127,7 @@ protected:
     static Motion2D   empty_motion;
 };
 
-class InputEventMouseMotion final : InputEvent
+class InputEventMouseMotion final : public InputEvent
 {
 public:
     InputEventMouseMotion();
