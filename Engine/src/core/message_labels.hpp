@@ -11,6 +11,8 @@ public:
 
     bool enable_ansi_sequence{true};
 
+    void set_ansi_sequence(const ANSI_Sequence& inSequence);
+
     const char*     name() noexcept;
     std::string&   label() noexcept;
     ANSI_Sequence& color() noexcept;

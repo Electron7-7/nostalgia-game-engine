@@ -63,6 +63,9 @@ MessageLabel::MessageLabel() noexcept = default;
 MessageLabel::MessageLabel(Sarg inLabel, const ANSI_Sequence& inColorCode, const char* inDebugName) noexcept:
     name_{inDebugName}, label_{inLabel}, color_{inColorCode} {}
 
+void MessageLabel::set_ansi_sequence(const ANSI_Sequence& inSequence)
+{ color_ = inSequence; }
+
 const char* MessageLabel::name() noexcept
 { return name_;  }
 
