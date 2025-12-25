@@ -975,3 +975,5 @@ I made the giant, terrible commit. Now, I want to take a break from the frame bu
 
 [12/24/25]
 I'm sick, again. Anyways, I've finished up the `FrameBuffer` implementation and also improved `TextureBuffer` creation a bit. You can now specify things like the sampler filter types (e.g: linear, nearest, linear + mipmap linear, etc) and even the data format of the image. I've also learned how to inject custom render callbacks into ImGui, which allows me to enable SRGB colors in OpenGL while the framebuffer image is being rendered via ImGui.
+
+Okay, I think I want to make it so that you pass a camera or something to the renderer api and basically, each layer in `RenderLayers` will be assigned to a frame buffer and the renderer will then render things depending on those layers. So, for instance, the editor camera might have the editor viewport frame buffer enabled in its `RenderLayers`, but not the default frame buffer (0), which means that the renderer will not render to the main frame buffer but only to the one that the editor viewport uses.
