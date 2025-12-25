@@ -41,6 +41,16 @@ private:
     Scale2D    mViewportSize{1280, 720};
 };
 
+enum class DebugMessageSeverityFilter
+{
+    None = 0,
+    Notification,
+    Low,
+    Medium,
+    High,
+};
+
 extern bool gPrintDrawLogs;
+extern DebugMessageSeverityFilter gOpenGLMessageFilter;
 
 #endif // OPENGL_RENDERER_H
