@@ -58,6 +58,8 @@ private:
     Unique<IGraphicsContext> mGraphicsContext{nullptr};
     Position2D mMouseCurrent{};
     Position2D mMouseLast{};
+    int mFramesWithNoMouseMovement{0};
+    static constexpr int mFrameLimitForNoMouseMovement{2};
 
     Error InitializeCallbacks() override;
     Error Init(const WindowProperties&);
