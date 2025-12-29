@@ -17,7 +17,7 @@ private:
     static bool ReadTheatre(TheatreData&);
 };
 
-extern size_t gColumn,
+extern uint gColumn,
     gLine,
     gBreakOnColumn,
     gBreakOnLine;

@@ -5,7 +5,6 @@
 #include "events/event_queue.hpp"
 #include "events/action.hpp"
 #include "events/bindings.hpp"
-#include "ui/implementor.hpp"
 #include "math/containers.hpp"
 
 static std::unordered_map<std::string, InputAction> sInputActions{};
@@ -14,6 +13,7 @@ static EventQueue sInputEventQueue{};
 static InputManager sInputManager{};
 
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sInputStateBuffer{};
+bool gPrintInputLogs{false};
 
 InputManager* g_pInputManager{&sInputManager};
 
@@ -37,9 +37,14 @@ void InputManager::Update()
             Application()->Input(input_event.get());
             for(auto callback : mCallbacks)
                 { callback(input_event.get()); }
-            if(mDebugPrintEverySingleEventToTheConsole)
+            if(gPrintInputLogs)
             {
-                std::println("{}\x1b[22m{}", MessageLabel{"<INPUT_EVENT>", ANSI_Sequence{ANSI::begin, ANSI::bold_foreground, ANSI::yellow, ANSI::end}}.full(), input_event->DebugLog());
+                __print_verbose(true,
+                    VERBOSE0,
+                    "{}",
+                    std::source_location::current(),
+                    {"<INPUT_EVENT>",{ANSI::yellow,true,true}},
+                    input_event->DebugLog());
             }
         }
     }

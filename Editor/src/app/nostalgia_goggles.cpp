@@ -9,7 +9,6 @@
 #include "managers/event_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "ui/implementor.hpp"
-#include "ui/solution.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
 #include "backends/glfw/glfw_window.hpp" // GLFW is the main windowing solution (most likely permanently)

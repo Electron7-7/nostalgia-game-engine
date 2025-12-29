@@ -63,8 +63,11 @@ public:
         }
     }
 
-    void StopHandlingEvents(bool inStopHandlingEvents)
-    { mGlobalCanHandleEvents = !inStopHandlingEvents; }
+    bool CanHandleEvents() const
+    { return mCanHandleEvents; }
+
+    void CanHandleEvents(bool inCanHandleEvents)
+    { mCanHandleEvents = inCanHandleEvents; }
 
     template<typename T> requires std::derived_from<T, UI_Solution>
         Unique<UI_Solution>& CreateSolution()
@@ -84,7 +87,7 @@ public:
 
 protected:
     std::type_index mIndex{typeid(UI_Implementor)};
-    bool mGlobalCanHandleEvents{true};
+    bool mCanHandleEvents{true};
     bool mAttached{false};
     InstanceState mState{STATE_INACTIVE};
 

@@ -34,6 +34,8 @@
 
 using namespace ManagerEnums;
 
+bool gPrintLoadedTheatreData{false};
+
 static TheatreManager sTheatreManager;
 TheatreManager* g_pTheatreManager{&sTheatreManager};
 

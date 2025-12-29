@@ -11,11 +11,10 @@
 
 // TODO: make a separate project for Theatre file syntax and include error/warning generation?
 
-size_t gBreakOnColumn {static_cast<size_t>(-1)};
-size_t gBreakOnLine   {static_cast<size_t>(-1)};
-
-size_t gColumn {1};
-size_t gLine   {1};
+uint gBreakOnColumn {static_cast<uint>(-1)},
+    gBreakOnLine    {static_cast<uint>(-1)},
+    gColumn {1},
+    gLine   {1};
 
 /*static const std::set<std::string> c_NostalgiaExtensions =
 {

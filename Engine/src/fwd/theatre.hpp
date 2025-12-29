@@ -12,7 +12,7 @@ struct ThingVar;
 struct ThingData;
 
 struct TheatreParser;
-extern unsigned long gColumn,
+extern unsigned int gColumn,
     gLine,
     gBreakOnColumn,
     gBreakOnLine;

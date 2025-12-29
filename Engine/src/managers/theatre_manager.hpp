@@ -84,7 +84,7 @@ private:
     Shared<VertexArray>& GetVertexArray(ID inID);
 };
 
-inline bool gPrintLoadedTheatreData{false};
+extern bool gPrintLoadedTheatreData;
 
 extern TheatreManager* g_pTheatreManager;
 

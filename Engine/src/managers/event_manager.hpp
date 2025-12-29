@@ -11,11 +11,10 @@ public:
     bool Init()   override;
     void Update() override;
 
-    bool mDebugPrintEverySingleEventToTheConsole{false};
-
     static EventQueue* Queue();
 };
 
+extern bool gPrintEventLogs;
 extern EventManager* g_pEventManager;
 
 #endif // EVENT_MANAGER_H

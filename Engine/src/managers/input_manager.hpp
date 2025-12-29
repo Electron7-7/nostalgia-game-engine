@@ -18,8 +18,6 @@ public:
     bool Init()   override;
     void Update() override;
 
-    bool mDebugPrintEverySingleEventToTheConsole{false};
-
     EventQueue* Queue();
 
     bool UpdateKeyState(KeyID inKeyID, bool inCurrentState);
@@ -68,6 +66,7 @@ private:
     static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
 };
 
+extern bool gPrintInputLogs;
 extern InputManager* g_pInputManager;
 
 #endif // INPUT_MANAGER_H

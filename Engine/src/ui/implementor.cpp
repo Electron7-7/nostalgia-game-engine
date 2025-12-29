@@ -4,6 +4,7 @@
 UI_Implementor::Instances UI_Implementor::m_sInstances{};
 std::recursive_mutex UI_Implementor::m_sInstancesMutex{};
 
+UI_Implementor::UI_Implementor()  = default;
 UI_Implementor::~UI_Implementor() = default;
 
 // Non-static functions

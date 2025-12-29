@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // can't be fucked to find the max width of `uint` and, tbh, you don't really need more than 20 keys in an action
-constinit const ushort MaxActions{20};
+inline constinit const ushort MaxActions{20};
 
 class InputAction
 {
