@@ -54,14 +54,13 @@ private:
     Position2D mMouseCurrent{};
     Position2D mMouseLast{};
     int mFramesWithNoMouseMovement{0};
-    static constexpr int mFrameLimitForNoMouseMovement{2};
 
     Error InitializeCallbacks() override;
     Error Init(const WindowProperties&);
     void Shutdown();
 
+    static constexpr int mFrameLimitForNoMouseMovement{2};
     static constinit frozen::map<GLFWInputID, KeyID, Key::KeysCount> s_cGLFWInputLookup;
-
     static uint GetMonitorIndex(GLFWmonitor*);
 };
 
