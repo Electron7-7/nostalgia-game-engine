@@ -224,6 +224,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
 {
     if(!is_first_call)
         { return FINISHED; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     sReadyToRender = false;
     mTheatreVAOs.clear();
     mTheatreTextures.clear();
@@ -238,6 +239,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 {
     if(!is_first_call)
         { return FINISHED; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     sReadyToRender = false;
     DestroyThings();
     mTheatreVAOs.clear();
@@ -247,6 +249,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
 
 void TheatreManager::ReadyThings()
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     for(const auto& [id, thing] : mThings)
     {
         thing->Ready();
@@ -258,11 +261,15 @@ void TheatreManager::ReadyThings()
 }
 
 bool TheatreManager::ThingExists(ID uid)
-{ return mThings.contains(uid); }
+{
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    return mThings.contains(uid);
+}
 
 Farg<TTID> TheatreManager::GetType(ID uid)
 {
     static TTID invalid{ID::Invalid};
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(uid)}; found_it != mThings.end())
         { return found_it->second->type(); }
     return invalid;
@@ -299,6 +306,7 @@ const TheatreData& TheatreManager::GetInitialState()
 
 TheatreData TheatreManager::GetCurrentState()
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     TheatreData data{sCurrentTheatreData};
     data.clear();
     for(const auto& [id, thing] : mThings)
@@ -308,12 +316,14 @@ TheatreData TheatreManager::GetCurrentState()
 
 std::vector<ID> TheatreManager::GetThingIDs()
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     auto keys{std::views::keys(mThings)};
     return {keys.begin(), keys.end()};
 }
 
 uint TheatreManager::CreateThing(Farg<ThingData> inData)
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     Shared<Thing> thing;
     ThingData data{inData};
 
@@ -346,6 +356,7 @@ Shared<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
 
 bool TheatreManager::DestroyThing(ID id)
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     if(!mThings.contains(id))
     {
         print_warning("No Thing with uid#{} exists", id[]);
@@ -372,8 +383,7 @@ bool TheatreManager::DestroyThing(ID id)
 
 void TheatreManager::CreateThings()
 {
-    Time::Wait(mDestroyingThings);
-    mCreatingThings = true;
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     sReadyToRender = false;
 
     sCurrentTheatreData.SetupUIDsAndPriorities();
@@ -384,13 +394,11 @@ void TheatreManager::CreateThings()
         { CreateThing(data); }
 
     sReadyToRender = true;
-    mCreatingThings = false;
 }
 
 void TheatreManager::DestroyThings()
 {
-    Time::Wait(mCreatingThings);
-    mDestroyingThings = true;
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
 #pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
     for(const auto& [id, thing] : mThings)
     {
@@ -399,5 +407,4 @@ void TheatreManager::DestroyThings()
     }
     UID::Clear();
     mThings.clear();
-    mDestroyingThings = false;
 }
