@@ -315,77 +315,101 @@ bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
     return true;
 }
 
+static bool s_MakeSimpleBodySettings(BodyCreationSettings& outSettings, Shared<Collider> inCollider, EMotionType inMotion, ObjectLayer inLayer)
+{
+    RVec3 scale{GlmToJolt<Vec3>(inCollider->Scale())};
+    RVec3 position{GlmToJolt<Vec3>(inCollider->Origin())};
+    Quat rotation{JPH::Quat::sEulerAngles(GlmToJolt<Vec3>(inCollider->Euler()))};
+
+    switch(inCollider->Shape())
+    {
+    case PhysicsBodyShape::Box:
+        outSettings = BodyCreationSettings(
+            new BoxShapeSettings(scale),
+            position,
+            rotation,
+            inMotion,
+            inLayer);
+        break;
+    case PhysicsBodyShape::Sphere:
+        outSettings = BodyCreationSettings(
+            new SphereShapeSettings(scale.GetX() / 2.0f),
+            position,
+            rotation,
+            inMotion,
+            inLayer);
+        break;
+    case PhysicsBodyShape::Cylinder:
+        outSettings = BodyCreationSettings(
+            new CylinderShapeSettings(scale.GetZ() / 2.0f, scale.GetX() / 2.0f),
+            position,
+            rotation,
+            inMotion,
+            inLayer);
+        break;
+    case PhysicsBodyShape::Capsule:
+        outSettings = BodyCreationSettings(
+            new CapsuleShapeSettings(scale.GetZ() / 2.0f, scale.GetX() / 2.0f),
+            position,
+            rotation,
+            inMotion,
+            inLayer);
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+
+static EMotionType s_GetMotion(PhysicsBodyMotion inMotion)
+{
+    switch(inMotion)
+    {
+    case PhysicsBodyMotion::Dynamic:
+        return EMotionType::Dynamic;
+    case PhysicsBodyMotion::Kinematic:
+        return EMotionType::Kinematic;
+    case PhysicsBodyMotion::None:
+    default:
+        print_warning("Invalid motion type detected; defaulting to `EMotionType::Static`");
+    case PhysicsBodyMotion::Static:
+        return EMotionType::Static;
+    }
+}
+
+static ObjectLayer s_GetLayer(PhysicsBodyMotion inMotion)
+{
+    switch(inMotion)
+    {
+    case PhysicsBodyMotion::Dynamic:
+        return Layers::MOVING;
+    case PhysicsBodyMotion::Kinematic:
+        return Layers::MOVING;
+    case PhysicsBodyMotion::None:
+    default:
+        print_warning("Invalid motion type detected; defaulting to `Layers::NON_MOVING`");
+    case PhysicsBodyMotion::Static:
+        return Layers::NON_MOVING;
+    }
+}
+
 bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
 {
     if(!ValidateColliderUID(uid, collider, false))
         { return false; }
 
     BodyCreationSettings settings;
-    EMotionType motion_type;
-    ObjectLayer layer;
+    EMotionType motion_type{s_GetMotion(collider->Motion())};
+    ObjectLayer layer{s_GetLayer(collider->Motion())};
 
-    switch(collider->Motion())
+    if(!s_MakeSimpleBodySettings(settings, collider, motion_type, layer))
     {
-    case PhysicsBodyMotion::Dynamic:
-        motion_type = EMotionType::Dynamic;
-        layer = Layers::MOVING;
-        break;
-    case PhysicsBodyMotion::Kinematic:
-        motion_type = EMotionType::Kinematic;
-        layer = Layers::MOVING;
-        break;
-    case PhysicsBodyMotion::Static:
-    default:
-        motion_type = EMotionType::Static;
-        layer = Layers::NON_MOVING;
-        break;
-    }
-
-    RVec3 scale{GlmToJolt<Vec3>(collider->Scale())};
-    RVec3 position{GlmToJolt<Vec3>(collider->Origin())};
-    Quat rotation{JPH::Quat::sEulerAngles(GlmToJolt<Vec3>(collider->Euler()))};
-
-    switch(collider->Shape())
-    {
-    case PhysicsBodyShape::Box:
-        settings = BodyCreationSettings(
-            new BoxShapeSettings(scale),
-            position,
-            rotation,
-            motion_type,
-            layer);
-        break;
-    case PhysicsBodyShape::Sphere:
-        settings = BodyCreationSettings(
-            new SphereShapeSettings(scale.GetX() / 2.0f),
-            position,
-            rotation,
-            motion_type,
-            layer);
-        break;
-    case PhysicsBodyShape::Cylinder:
-        settings = BodyCreationSettings(
-            new CylinderShapeSettings(scale.GetZ() / 2.0f, scale.GetX() / 2.0f),
-            position,
-            rotation,
-            motion_type,
-            layer);
-        break;
-    case PhysicsBodyShape::Capsule:
-        settings = BodyCreationSettings(
-            new CapsuleShapeSettings(scale.GetZ() / 2.0f, scale.GetX() / 2.0f),
-            position,
-            rotation,
-            motion_type,
-            layer);
-        break;
-    default:
-        print_error("invalid physics body type '{}' from {} w/ uid#{}",
+        return print_error("invalid physics body type '{}' from Collider [{}, {}]",
             EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
             collider->type().name(),
             uid[]);
-        return false;
     }
+
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
     sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
     print_jolt("Body Created - Shape: {}, Motion: {}",
