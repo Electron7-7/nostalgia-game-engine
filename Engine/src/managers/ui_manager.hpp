@@ -18,6 +18,7 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool isFirstCall) final;
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool isFirstCall) final;
     void Shutdown() final;
+    void Input(InputEvent*) final;
 
     void DrawUI();
 };
