@@ -55,7 +55,7 @@ struct PID : public ID
 {
 public:
     PID() noexcept;
-    PID(uint inID, Farg<std::string> inName = "N/A") noexcept;
+    PID(uint inID, Farg<std::string> inName) noexcept;
     PID(Farg<std::string> inHashable) noexcept;
     PID(const char* inHashable) noexcept;
 

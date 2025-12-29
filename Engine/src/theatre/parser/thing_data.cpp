@@ -18,7 +18,7 @@ ThingData::ThingData() = default;
 
 ThingData::ThingData(Sarg inName, Sarg inTypeName):
     name{inName},
-    type_{ConstexprHash(inTypeName)}
+    type_{inTypeName}
 {
     if(!g_pThingFactory->IsThing(type_))
         { print_warningv(VERBOSE1, "{} is an invalid type!", type_.log()); }
@@ -100,9 +100,6 @@ std::string ThingData::log(bool colored, bool indent) const
 
 Farg<TTID> ThingData::type() const
 { return type_; }
-
-bool ThingData::set_type(Sarg inTypeName)
-{ return set_type(ConstexprHash(inTypeName)); }
 
 bool ThingData::set_type(Farg<TTID> inType)
 {

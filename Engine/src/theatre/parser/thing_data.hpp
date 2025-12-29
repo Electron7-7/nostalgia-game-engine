@@ -77,7 +77,6 @@ public:
 
     std::string log(bool colored = false, bool indent_items = false) const;
     Farg<TTID> type() const;
-    bool set_type(const std::string& TypeName);
     bool set_type(Farg<TTID> Type);
     void clear();
 

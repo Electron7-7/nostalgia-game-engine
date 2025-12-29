@@ -28,12 +28,12 @@ public:
     virtual Shared<ThingData> GetVariables() const;
 
     ID uid() const;
-    Farg<TTID> type() const;
     Sarg name() const;
     const char* const c_name() const;
 
     bool uid(ID inID);
     void name(Sarg inName);
+    Farg<TTID> type() const;
 
 protected:
     ID mUID{};
