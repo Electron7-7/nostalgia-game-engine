@@ -23,6 +23,7 @@
 
 #include <unordered_map>
 #include <string>
+#include <mutex>
 
 class TheatreManager : public Manager
 {
@@ -33,6 +34,7 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall);
     void Update();
     void Tick();
+    void Input(InputEvent*);
 
     void DrawTheatre();
     void ReadyThings();
@@ -80,8 +82,7 @@ private:
     std::unordered_map<ID, Shared<VertexArray>> mTheatreVAOs{};
     std::unordered_map<ID, Shared<TextureBuffer>> mTheatreTextures{};
 
-    bool mCreatingThings{false};
-    bool mDestroyingThings{false};
+    std::recursive_mutex mThingsMutex{};
 
     void CreateThings();
     void DestroyThings();

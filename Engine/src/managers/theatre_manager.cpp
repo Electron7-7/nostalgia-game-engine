@@ -1,7 +1,6 @@
 #include "theatre_manager.hpp"
 #include "render_manager.hpp"
 #include "physics_manager.hpp"
-#include "core/time.hpp"
 #include "core/uid.hpp"
 #include "common/colors.hpp"
 #include "math/containers.hpp"
@@ -115,6 +114,7 @@ void TheatreManager::Update()
 {
     if(GetTheatreState() != IN_LEVEL)
         { return; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     sLocalPlayer->Update();
     for(auto& [id, thing] : mThings)
         { thing->Update(); }
@@ -124,13 +124,25 @@ void TheatreManager::Tick()
 {
     if(GetTheatreState() != IN_LEVEL)
         { return; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     sLocalPlayer->Tick();
     for(auto& [id, thing] : mThings)
         { thing->Tick(); }
 }
 
+void TheatreManager::Input(InputEvent* inInput)
+{
+    if(GetTheatreState() != IN_LEVEL)
+        { return; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    sLocalPlayer->Input(inInput);
+    for(auto& [id, thing] : mThings)
+        { thing->Input(inInput); }
+}
+
 Shared<Thing> TheatreManager::GetThing(ID inID)
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     return (mThings.contains(inID) && GetTheatreState() == IN_LEVEL)
         ? mThings.at(inID)
         : MakeShared<Thing>();
@@ -140,6 +152,7 @@ void TheatreManager::DrawTheatre()
 {
     if(!sReadyToRender || GetTheatreState() != IN_LEVEL)
         { return; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     light_t::ClearCounts();
 #pragma message("TODO: I have to loop through everything twice since I've removed the render command, so fix that...")
     for(auto& [id, thing] : mThings)
