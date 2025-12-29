@@ -220,13 +220,6 @@ static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
 #ifdef DEBUGGING
-    TextF("InputManager::MousePosition - {}", InputManager::MousePosition().data_log());
-    TextF("InputManager::LastMousePosition - {}", InputManager::LastMousePosition().data_log());
-    TextF("InputManager::MouseMotion - {}", InputManager::MouseMotion().data_log());
-    TextF("MainWindow()->GetMousePosition - {}", MainWindow()->GetMousePosition().data_log());
-    TextF("MainWindow()->GetLastMousePosition - {}", MainWindow()->GetLastMousePosition().data_log());
-    TextF("MainWindow()->MouseMotion - {}",
-        Position2D{MainWindow()->GetMousePosition() - MainWindow()->GetLastMousePosition()}.data_log());
     if(CollapsingHeader("Message Labels"))
     {
         ushort i{0};
