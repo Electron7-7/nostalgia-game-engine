@@ -1,39 +1,28 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
+#include "fwd/managers.hpp"
+#include "fwd/theatre.hpp"
+#include "fwd/settings.hpp"
 #include "core/uid.hpp"
-#include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
-#include "backends/glfw/glfw_window.hpp"
 #include "managers/render_manager.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
-#include "managers/event_manager.hpp"
 #include "rendering/renderer_api.hpp"
-#include "settings/player.hpp"
-#include "settings/engine.hpp"
-#include "settings/graphics.hpp"
 #include "math/containers.hpp"
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
-#include "things/thing_factory.hpp"
 #include "things/actors/light.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/collider.hpp"
-#include "things/resources/mesh.hpp"
-#include "things/resources/texture.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "application/application.hpp"
 #include "application/window.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
-#ifdef DEBUGGING
-#   include "managers/physics_manager.hpp"
-#   include "theatre/parser/theatre_parser.hpp"
-#endif
-
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -85,7 +74,11 @@ void ImGui_Debugger::Input(InputEvent* event)
         print_debug("LoadTheatreFromFile called from {}", __PRETTY_FUNCTION__);
     }
     else if(event->IsJustPressed(Key::F3))
-        { sTheatreInspectorActive = !sTheatreInspectorActive; }
+    {
+        sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+            ? !sTheatreInspectorActive
+            : false;
+    }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -254,8 +247,8 @@ static void s_GeneralDebuggingWindow()
     if(CollapsingHeader("Messages"))
     {
         SeparatorText("General");
-            Checkbox("Print Event Logs", &g_pEventManager->mDebugPrintEverySingleEventToTheConsole);
-            Checkbox("Print Input Logs", &g_pInputManager->mDebugPrintEverySingleEventToTheConsole);
+            Checkbox("Print Event Logs", &gPrintEventLogs);
+            Checkbox("Print Input Logs", &gPrintInputLogs);
             Checkbox("Print Frame#", &gDebugPrintFrameNumbers);
             SameLine();
             Checkbox("Print Tick#", &gDebugPrintTickNumbers);
@@ -452,8 +445,8 @@ static void s_TheatreDebuggingWindow()
 #ifdef DEBUGGING
     Text("Theatre File Parser Breakpoint:");
     PushItemWidth(82.0f);
-    InputInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-    InputInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    InputUInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    InputUInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     PushItemWidth(0.0f);
     Separator();
 #endif // DEBUGGING
@@ -483,7 +476,7 @@ static void s_TheatreDebuggingWindow()
     if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         { EndDisabled(); }
 
-    bool not_in_level = (IManager::GetTheatreState() == ManagerEnums::NOT_IN_LEVEL);
+    bool not_in_level = (IManager::GetTheatreState() != ManagerEnums::IN_LEVEL);
 
     if(not_in_level)
     {
@@ -577,33 +570,35 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             PushItemFlag(ImGuiItemFlags_NoNavDefaultFocus, true);
             InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
             PopItemFlag();
-            BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
-            auto uids{g_pTheatreManager->GetThingIDs()};
-            int i{0};
-            for(ID uid : uids)
+            if(BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY))
             {
-                auto thing{g_pTheatreManager->GetThing(uid)};
-                auto actor{DCast<Actor>(thing)};
-                if(actor)
+                auto uids{g_pTheatreManager->GetThingIDs()};
+                int i{0};
+                for(ID uid : uids)
                 {
-                    ImU32 push_color{IM_COL32(100, 103, 48, 255)};
-                    ImGuiCol_ push_col{(DCast<light_t>(actor))
-                        ? ImGuiCol_Button
-                        : ImGuiCol_TextDisabled};
-                    PushStyleColor(push_col, push_color);
+                    auto thing{g_pTheatreManager->GetThing(uid)};
+                    auto actor{DCast<Actor>(thing)};
+                    if(actor)
+                    {
+                        ImU32 push_color{IM_COL32(100, 103, 48, 255)};
+                        ImGuiCol_ push_col{(DCast<light_t>(actor))
+                            ? ImGuiCol_Button
+                            : ImGuiCol_TextDisabled};
+                        PushStyleColor(push_col, push_color);
+                    }
+                    const char* button_name{(thing->name().empty()) ? "N/A" : thing->c_name()};
+                    if(Button(button_name, {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
+                        { selected = thing_data_buffer{thing}; }
+                    if(actor)
+                    {
+                        actor->mDebugHighlight.a = IsItemHovered();
+                        PopStyleColor();
+                    }
+                    if(++i < sMaxPerRow) { SameLine(); }
+                    else { i = 0; }
                 }
-                const char* button_name{(thing->name().empty()) ? "N/A" : thing->c_name()};
-                if(Button(button_name, {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
-                    { selected = thing_data_buffer{thing}; }
-                if(actor)
-                {
-                    actor->mDebugHighlight.a = IsItemHovered();
-                    PopStyleColor();
-                }
-                if(++i < sMaxPerRow) { SameLine(); }
-                else { i = 0; }
+                EndChild();
             }
-            EndChild();
         }
 
         if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
@@ -728,9 +723,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
                     if(Combo("Motion", &selected.motion, motion_names))
-                        { collider->Motion(static_cast<PhysicsBodyMotion>(selected.motion)); }
+                        { print_debug("You can't change a Collider's motion, yet"); }
                     if(Combo("Shape", &selected.shape, shape_names))
-                        { collider->Shape(static_cast<PhysicsBodyShape>(selected.shape)); }
+                        { print_debug("You can't change a Collider's shape, yet"); }
                     bool is_active{collider->Active()};
                     TextF("Active: {}", is_active);
                     if(!is_active and Button("Activate"))
