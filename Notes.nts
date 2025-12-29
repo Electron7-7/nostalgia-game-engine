@@ -977,3 +977,11 @@ I made the giant, terrible commit. Now, I want to take a break from the frame bu
 I'm sick, again. Anyways, I've finished up the `FrameBuffer` implementation and also improved `TextureBuffer` creation a bit. You can now specify things like the sampler filter types (e.g: linear, nearest, linear + mipmap linear, etc) and even the data format of the image. I've also learned how to inject custom render callbacks into ImGui, which allows me to enable SRGB colors in OpenGL while the framebuffer image is being rendered via ImGui.
 
 Okay, I think I want to make it so that you pass a camera or something to the renderer api and basically, each layer in `RenderLayers` will be assigned to a frame buffer and the renderer will then render things depending on those layers. So, for instance, the editor camera might have the editor viewport frame buffer enabled in its `RenderLayers`, but not the default frame buffer (0), which means that the renderer will not render to the main frame buffer but only to the one that the editor viewport uses.
+
+[12/26/25]
+Don't feel as bad today but still definitely sick. Started working on the Thing spawning and Theatre debug panels; I've implemented more thorough interactions but I'll definitely want to implement a "children" container of sorts for `Thing`. I also made some more general refactors, specifically gutting the whole "event handler" functionality from the event components and just implementing event/input handling manually. This keeps control tighter and avoids those crashes. Besides, I only really need to call these functions on a couple managers in order to propogate the calls down to everything else (e.g: `TheatreManager`, `UIManager`, etc). I also implemented mutexes in some of the classes (specifically, `InputManager` and `EventQueue`) and learned that if I want to lock the same mutex in multiple functions, I'll want to use a `recursive_mutex` since that still (if I'm correct) stops other threads from accessing the mutex but doesn't stop the same thread (which was happening while using normal mutexes).
+
+[12/28/25]
+Finally almost fully better. I'll be working on my PC tonight, so first things first: gotta compile the project and see if it runs.
+
+NOTE: I can just combine the enum prettifier into the theatre variables registry.
