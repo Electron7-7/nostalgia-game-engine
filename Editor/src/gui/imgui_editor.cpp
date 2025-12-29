@@ -17,7 +17,7 @@ using namespace ImGui;
 static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
-bool gShowDebugWindow{false};
+bool gShowDebugWindow{true};
 
 static bool sShowDemoWindow{false};
 static void s_ThingAdder();
@@ -39,7 +39,7 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 
 void ImGui_Editor::Init()
 {
-    PRINT_PRETTY_FUNCTION;
+    // PRINT_PRETTY_FUNCTION;
     sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create({1920, 1080}));
 }
 
@@ -175,6 +175,14 @@ void ImGui_Editor::Update()
     End();
 }
 
+static std::string s_GetComboString(std::string* inArray, int inSize)
+{
+    std::string output{};
+    for(int i{0}; i < inSize; ++i)
+        { output += inArray[i] + '\0'; }
+    return output;
+}
+
 void s_ThingAdder()
 {
     static ThingData sThingData{};
@@ -183,7 +191,7 @@ void s_ThingAdder()
     static std::string sNameBuffer{};
     static glm::vec3 sSpawnLocation{0.0f};
     static int sCurrentType{0};
-    static const char* sTypeNames[]
+    static std::string sTypeNames[]
     {
         ThingType::Thing.c_name(),
         ThingType::Actor.c_name(),
@@ -193,23 +201,27 @@ void s_ThingAdder()
         ThingType::Device.c_name(),
         ThingType::Collider.c_name(),
         ThingType::Material.c_name(),
-        ThingType::MeshInstance.c_name(),
+        ThingType::MeshInstance.c_name()
     };
     BeginChild("MakeNewThing");
+    if(CollapsingHeader("Thing Spawner Widget"))
+    {
+        DragFloat("Spawn Location Rotation Speed", &sSpawnLocationRotationSpeed, 0.001f, 0.0f, 0.0f, "%.2f");
+        DragFloat("Spawn Location Scale Speed", &sSpawnLocationScaleSpeedStore, 0.1f, 0.0f, 0.0f, "%.2f");
+        DragFloat("Spawn Location Scale Max", &sSpawnLocationScaleMax, 0.1f, 0.0f, 0.0f, "%.2f");
+        DragFloat("Spawn Location Scale Min", &sSpawnLocationScaleMin, 0.1f, 0.0f, 0.0f, "%.2f");
+    }
     SeparatorText("Thing Spawner");
     InputTextWithHint("Name", "UntitledThing", &sNameBuffer);
-    ListBox("Type", &sCurrentType, sTypeNames, 9);
+    Combo("Type", &sCurrentType, s_GetComboString(sTypeNames, 9).data());
     if(DragGLMv3("Spawn Location", &sSpawnLocation, 0.01f, 0.0f, 0.0f, "%.2f"))
         { g_pTheatreManager->GetThing<Actor>(sSpawnLocationID)->SetOrigin(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
         { sSpawnLocation = glm::vec3(0.0f); }
-    DragFloat("Spawn Location Rotation Speed", &sSpawnLocationRotationSpeed, 0.001f, 0.0f, 0.0f, "%.2f");
-    DragFloat("Spawn Location Scale Speed", &sSpawnLocationScaleSpeedStore, 0.1f, 0.0f, 0.0f, "%.2f");
-    DragFloat("Spawn Location Scale Max", &sSpawnLocationScaleMax, 0.1f, 0.0f, 0.0f, "%.2f");
-    DragFloat("Spawn Location Scale Min", &sSpawnLocationScaleMin, 0.1f, 0.0f, 0.0f, "%.2f");
     if(Button("Spawn Thing"))
     {
+        sNewThingName = sNameBuffer;
         sThingData = {sNewThingName, sTypeNames[sCurrentType], UID::Generate()};
         sThingData.AddVariable(sSpawnLocation, "Origin");
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
