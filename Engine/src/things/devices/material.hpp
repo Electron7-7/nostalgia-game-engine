@@ -10,11 +10,11 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    ID GetDiffuseTexture() const;
-    void SetDiffuseTexture(ID TextureID);
+    ID DiffuseTextureID() const;
+    void DiffuseTextureID(ID TextureID);
 
-    ID GetSpecularTexture() const;
-    void SetSpecularTexture(ID TextureID);
+    ID SpecularTextureID() const;
+    void SpecularTextureID(ID TextureID);
 
     glm::vec3 mColor{1.0f};
     float     mAlpha{1.0f};
