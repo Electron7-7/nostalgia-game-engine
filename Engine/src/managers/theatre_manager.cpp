@@ -321,6 +321,21 @@ std::vector<ID> TheatreManager::GetThingIDs()
     return {keys.begin(), keys.end()};
 }
 
+Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    if(!mThings.contains(inOldID[]))
+        { print_debug("ERR_NOT_FOUND"); return ERR_NOT_FOUND; }
+    else if(UID::Contains(inNewID[]))
+        { print_debug("ERR_ALREADY_EXISTS"); return ERR_ALREADY_EXISTS; }
+    auto found_it{mThings.extract(inOldID)};
+    found_it.mapped()->uid(inNewID);
+    found_it.key() = inNewID;
+    mThings.insert(std::move(found_it));
+    print_debug("OK");
+    return OK;
+}
+
 uint TheatreManager::CreateThing(Farg<ThingData> inData)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};

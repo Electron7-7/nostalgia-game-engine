@@ -37,6 +37,7 @@ public:
     TheatreData GetCurrentState();
     std::vector<ID> GetThingIDs();
 
+    Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
     Shared<NostalgiaPlayer> GetLocalPlayer();
     bool DestroyThing(ID);
@@ -53,7 +54,7 @@ public:
 
     // More efficient when breaking on an invalid UID is preferred. See `PhysicsManager::CreateBody` for an example.
     template<typename T> requires std::derived_from<T,Thing>
-        Error GetThing(ID ObjectID, Shared<T> Output)
+        Error GetThing(ID ObjectID, Shared<T>& Output)
         {
             if(auto thing{DCast<T>(GetThing(ObjectID))})
             {
