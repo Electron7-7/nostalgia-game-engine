@@ -566,7 +566,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             if(BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY))
             {
                 auto uids{g_pTheatreManager->GetThingIDs()};
-                int i{0};
+                int i{0}, j{0};
                 for(ID uid : uids)
                 {
                     auto thing{g_pTheatreManager->GetThing(uid)};
@@ -579,8 +579,8 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             : ImGuiCol_TextDisabled};
                         PushStyleColor(push_col, push_color);
                     }
-                    const char* button_name{(thing->name().empty()) ? "N/A" : thing->c_name()};
-                    if(Button(button_name, {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
+                    std::string button_name{(thing->name().empty()) ? std::format("N/A##{}",++j) : thing->name()};
+                    if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
                         { selected = thing_data_buffer{thing}; }
                     if(actor)
                     {
@@ -597,13 +597,13 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
         if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         {
             selected = thing_data_buffer{};
-            EndChild(); End(); return;
+            End(); return;
         }
 
         // THINGS
-        if(selected.ptr and IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+        if(selected.ptr and IManager::GetTheatreState() == ManagerEnums::IN_LEVEL
+            and BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border))
         {
-            BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
             SeparatorText("Properties");
             if(UID::IsReserved(selected.id))
             {
@@ -612,7 +612,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             }
             else
             {
-                static Error id_change_status{OK};
+                static Error id_change_status{FAILED};
                 InputUInt("UID", &selected.id, 1, 5);
                 if(IsItemDeactivatedAfterEdit())
                 {
@@ -646,7 +646,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     { selected.ptr->name(selected.name); }
             }
             Text("Type - %s", selected.ptr->type().c_name());
-
             // ACTORS
             if(auto actor{DCast<Actor>(selected.ptr)})
             {
