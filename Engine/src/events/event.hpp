@@ -85,6 +85,7 @@ public:
 
     // InputEventMouseMotion
     virtual bool IsMouseMotion() const;
+    virtual bool IsStoppedMouseMotion() const;
     virtual Farg<Position2D> MousePosition() const;
     virtual Farg<Position2D> LastMousePosition() const;
     virtual Farg<Motion2D>   MouseMotion() const;
@@ -121,6 +122,7 @@ public:
     size_t GetHash() const final;
     std::string GetDebugLog() const final { return std::format("InputEventMouseMotion - mouse pos: [{}, {}], last pos: [{}, {}], motion: [{}, {}]", mMousePosition.x(), mMousePosition.y(), mLastMousePosition.x(), mLastMousePosition.y(), mMouseMotion.x(), mMouseMotion.y()); }
     bool IsMouseMotion() const final;
+    bool IsStoppedMouseMotion() const final;
     Farg<Position2D> MousePosition() const final;
     Farg<Position2D> LastMousePosition() const final;
     Farg<Motion2D> MouseMotion() const final;

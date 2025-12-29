@@ -8,6 +8,7 @@
 size_t           InputEvent::GetHash()                        const { return ID::Invalid;             }
 std::string      InputEvent::GetDebugLog()                    const { return "InputEvent Base Class"; }
 bool             InputEvent::IsMouseMotion()                  const { return false;                   }
+bool             InputEvent::IsStoppedMouseMotion()           const { return false;                   }
 Farg<Position2D> InputEvent::MousePosition()                  const { return empty_position;          }
 Farg<Position2D> InputEvent::LastMousePosition()              const { return empty_position;          }
 Farg<Motion2D>   InputEvent::MouseMotion()                    const { return empty_motion;            }
@@ -49,6 +50,9 @@ size_t InputEventMouseMotion::GetHash() const
 
 bool InputEventMouseMotion::IsMouseMotion() const
 { return true; }
+
+bool InputEventMouseMotion::IsStoppedMouseMotion() const
+{ return mMouseMotion.is_zero_approx(); }
 
 Farg<Position2D> InputEventMouseMotion::MousePosition() const
 { return mMousePosition; }
