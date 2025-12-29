@@ -9,11 +9,11 @@ class UI_Implementor;
 
 #include "solution.hpp"
 #include "core/id.hpp"
-#include "core/error.hpp"
 #include "core/smart_pointers.hpp"
 
 #include <map>
 #include <typeindex>
+#include <mutex>
 
 #define STATE_STRING(STATE) case STATE: return #STATE;
 
@@ -47,13 +47,10 @@ public:
 
     typedef void (UI_Implementor::*ImplementorFunctionPtr)();
     typedef void (UI_Solution::*SolutionFunction_ptr)();
-    typedef Error (UI_Solution::*SolutionInit_ptr)();
-    typedef void (UI_Solution::*SolutionInputEventFunction_ptr)(Farg<InputEvent>);
 
     static void InvokeMethod(ImplementorFunctionPtr);
     static void InvokeMethod(SolutionFunction_ptr);
-    static void InvokeMethod(SolutionInit_ptr);
-    static void InvokeMethod(SolutionInputEventFunction_ptr, Farg<InputEvent>);
+    static void InvokeInput(InputEvent*);
 
     static void AttachAll();
     static void DetachAll();
@@ -82,7 +79,7 @@ public:
         {
             mObjects[typeid(T)] = MakeUnique<T>();
             mObjects[typeid(T)]->mImplementorIndex = mIndex;
-            mObjects[typeid(T)]->mImplementorIndex = typeid(T);
+            // mObjects[typeid(T)]->mImplementorIndex = typeid(T);
             return mObjects[typeid(T)];
         }
 
@@ -101,7 +98,8 @@ protected:
     InstanceState mState{STATE_INACTIVE};
 
     Solutions mObjects{};
-    inline static Instances m_sInstances{};
+    static Instances m_sInstances;
+    static std::recursive_mutex m_sInstancesMutex;
 };
 
 template<typename T>

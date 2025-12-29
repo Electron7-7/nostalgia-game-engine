@@ -1,6 +1,6 @@
 #ifdef FWD_DCL
-    class InputManager;
-    extern InputManager* g_pInputManager;
+class InputManager;
+extern InputManager* g_pInputManager;
 #elif !defined INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
@@ -17,6 +17,9 @@
 #include "core/error.hpp"
 
 #include <unordered_map>
+#include <mutex>
+
+typedef void (*pInputCallback_f)(InputEvent*);
 
 class InputManager : public Manager
 {
@@ -34,6 +37,8 @@ public:
     Error AddAction(Farg<InputAction> inAction);
     Error DeleteAction(Farg<std::string> inActionName);
     void ClearAllActions();
+    void AddCallback(pInputCallback_f);
+    void EraseCallback(pInputCallback_f);
 
     static bool IsKeyDown(KeyID inKeyID) noexcept;
     static bool IsKeyUp(KeyID inKeyID) noexcept;
@@ -68,6 +73,8 @@ private:
         { return !active && just_changed; }
     };
 
+    std::vector<pInputCallback_f> mCallbacks{};
+    std::recursive_mutex mCallbacksMutex{};
     static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
 };
 

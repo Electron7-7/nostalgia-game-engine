@@ -12,6 +12,4 @@ public:
     void End()    final;
 };
 
-extern ImGui_Implementor* g_pImGuiImplementor;
-
 #endif // IMGUI_IMPLEMENTOR_H

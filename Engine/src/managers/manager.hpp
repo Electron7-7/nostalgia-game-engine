@@ -8,7 +8,7 @@
 
 namespace ManagerEnums
 {
-    enum TheatreState_t
+    enum TheatreState_t : int
     {
         NOT_IN_LEVEL,
         LOADING_LEVEL,
@@ -16,7 +16,7 @@ namespace ManagerEnums
         SHUTTING_DOWN_LEVEL,
     };
 
-    enum TheatreReturnValue_t
+    enum TheatreReturnValue_t : int
     {
         FUCKED,
         MORE_WORK,
@@ -25,7 +25,7 @@ namespace ManagerEnums
 }
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
-class IManager : public OnUpdate, public OnTick, public OnEngineEvent, public OnAppEvent
+class IManager : public OnUpdate, public OnTick, public OnInput, public OnEngineEvent, public OnAppEvent
 {
 public:
     virtual consteval const char* DebugName() = 0;
@@ -33,10 +33,14 @@ public:
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
     virtual void Shutdown() = 0;
-
-    // Called during game save/restore
     virtual void OnSave() = 0;
     virtual void OnRestore() = 0;
+
+    virtual void Update() override = 0;
+    virtual void Tick()   override = 0;
+    virtual void Input(InputEvent*)  override = 0;
+    virtual void Event(AppEvent*)    override = 0;
+    virtual void Event(EngineEvent*) override = 0;
 
     // Add/Remove managers
     static void Add(IManager* ManagerToAdd);
@@ -106,13 +110,15 @@ public:
     // Managers are expected to implement these methods.
     virtual consteval const char* DebugName() override { return "Manager"; };
     virtual bool Init()      override { return true; }
-    virtual void Update()    override {}
-    virtual void Tick()      override {}
-    virtual void Event(EngineEvent*) override {}
-    virtual void Event(AppEvent*)    override {}
     virtual void Shutdown()  override {}
     virtual void OnSave()    override {}
     virtual void OnRestore() override {}
+
+    virtual void Update()    override {}
+    virtual void Tick()      override {}
+    virtual void Input(InputEvent*)  override {}
+    virtual void Event(EngineEvent*) override {}
+
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall)     override { return ManagerEnums::FINISHED; }
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) override { return ManagerEnums::FINISHED; }
 };

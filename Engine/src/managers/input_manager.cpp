@@ -1,9 +1,11 @@
 #include "input_manager.hpp"
+#include "ui_manager.hpp"
 #include "core/printing.hpp"
 #include "application/application.hpp"
 #include "events/event_queue.hpp"
 #include "events/action.hpp"
 #include "events/bindings.hpp"
+#include "ui/implementor.hpp"
 #include "math/containers.hpp"
 
 static std::unordered_map<std::string, InputAction> sInputActions{};
@@ -24,7 +26,25 @@ bool InputManager::Init()
 }
 
 void InputManager::Update()
-{ sInputEventQueue.DispatchEvents(mDebugPrintEverySingleEventToTheConsole); }
+{
+    const std::lock_guard<std::recursive_mutex> lock{sInputEventQueue.get_mutex()};
+    auto events{sInputEventQueue.get()};
+    for(Shared<IEvent> event : events)
+    {
+        if(Shared<InputEvent> input_event{DCast<InputEvent>(event)})
+        {
+            g_pUIManager->Input(input_event.get());
+            Application()->Input(input_event.get());
+            for(auto callback : mCallbacks)
+                { callback(input_event.get()); }
+            if(mDebugPrintEverySingleEventToTheConsole)
+            {
+                std::println("{}\x1b[22m{}", MessageLabel{"<INPUT_EVENT>", ANSI_Sequence{ANSI::begin, ANSI::bold_foreground, ANSI::yellow, ANSI::end}}.full(), input_event->DebugLog());
+            }
+        }
+    }
+    sInputEventQueue.clear();
+}
 
 bool InputManager::UpdateKeyState(KeyID inKeyID, bool inCurrentState)
 {
@@ -71,6 +91,22 @@ Error InputManager::DeleteAction(Farg<std::string> inActionName)
 
 void InputManager::ClearAllActions()
 { PRINT_PRETTY_FUNCTION; sInputActions.clear(); }
+
+void InputManager::AddCallback(pInputCallback_f inCallback)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mCallbacksMutex};
+    if(auto found_it{std::find(mCallbacks.begin(), mCallbacks.end(), inCallback)};
+        found_it == mCallbacks.end())
+    { mCallbacks.emplace_back(inCallback); }
+}
+
+void InputManager::EraseCallback(pInputCallback_f inCallback)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mCallbacksMutex};
+    if(auto found_it{std::find(mCallbacks.begin(), mCallbacks.end(), inCallback)};
+        found_it != mCallbacks.end())
+    { mCallbacks.erase(found_it); }
+}
 
 bool InputManager::IsKeyDown(KeyID inKey) noexcept
 { return m_sInputStateBuffer.at(inKey[]).active; }

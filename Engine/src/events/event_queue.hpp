@@ -5,20 +5,22 @@
 
 #include "event.hpp"
 #include "core/smart_pointers.hpp"
+#include <mutex>
+
+using event_queue_t = std::vector<Shared<IEvent>>;
 
 class EventQueue
 {
 public:
-    Farg<std::vector<Shared<IEvent>>> get() const noexcept;
-    bool empty() const noexcept;
-    void clear();
-    void DispatchEvents(bool debugPrintEventLog = false);
+    event_queue_t& get() noexcept;
+    std::recursive_mutex& get_mutex() noexcept;
+    bool empty() noexcept;
+    void clear() noexcept;
 
     template<is_event T, class... Args> requires std::is_constructible_v<T, Args...>
         void add(Args... inArgs)
         {
-            do{} while(mQueueingEvents || mProcessingQueue);
-            mQueueingEvents = true;
+            const std::lock_guard<std::recursive_mutex> lock{mEventsMutex};
             if(!mEvents.empty())
             {
                 for(auto it{mEvents.cbegin()}; it != mEvents.cend(); ++it)
@@ -28,15 +30,13 @@ public:
                 }
             }
             else
-                { mEvents.push_back(MakeShared<T>(std::forward<Args>(inArgs)...)); }
-            mQueueingEvents = false;
+                { mEvents.emplace_back(MakeShared<T>(std::forward<Args>(inArgs)...)); }
         }
 
     template<is_event T>
         void erase(Farg<T> inEvent, bool beThoroughButAlsoSlow = false) noexcept
         {
-            do{} while(mQueueingEvents || mProcessingQueue);
-            mQueueingEvents = true;
+            const std::lock_guard<std::recursive_mutex> lock{mEventsMutex};
             for(auto it{mEvents.begin()}; it != mEvents.end();)
             {
                 if(auto event_ptr{DCast<T>(it->get())}; event_ptr && *event_ptr == inEvent)
@@ -48,14 +48,11 @@ public:
                 }
                 ++it;
             }
-            mQueueingEvents = false;
         }
 
 private:
-    bool mProcessingQueue{false};
-    bool mQueueingEvents{false};
-
-    std::vector<Shared<IEvent>> mEvents{};
+    event_queue_t mEvents{};
+    std::recursive_mutex mEventsMutex{};
 };
 
 #endif // EVENT_QUEUE_H

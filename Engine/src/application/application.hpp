@@ -6,8 +6,9 @@
 #define APPLICATION_H
 
 #include "window.hpp"
+#include "components/event_handling.hpp"
 
-class IApplication
+class IApplication : public OnInput, public OnAppEvent
 {
 public:
     virtual int  Main() { return 1; }

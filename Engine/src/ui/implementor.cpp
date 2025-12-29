@@ -1,6 +1,9 @@
 #include "implementor.hpp"
 #include "solution.hpp"
 
+UI_Implementor::Instances UI_Implementor::m_sInstances{};
+std::recursive_mutex UI_Implementor::m_sInstancesMutex{};
+
 UI_Implementor::~UI_Implementor() = default;
 
 // Non-static functions
@@ -22,39 +25,41 @@ void UI_Implementor::EndAll()
 
 void UI_Implementor::InvokeMethod(ImplementorFunctionPtr inFunctionPtr)
 {
+    const std::lock_guard<std::recursive_mutex> lock{m_sInstancesMutex};
     for(auto& [index, instance] : m_sInstances)
-        { if(!instance) { continue; } (instance.get()->*inFunctionPtr)(); }
+    {
+        if(instance)
+            { (instance.get()->*inFunctionPtr)(); }
+    }
 }
 
 void UI_Implementor::InvokeMethod(SolutionFunction_ptr inFunctionPtr)
 {
+    const std::lock_guard<std::recursive_mutex> lock{m_sInstancesMutex};
     for(auto& [index, instance] : m_sInstances)
     {
         if(!instance->mAttached)
             { continue; }
         for(auto& [index, object] : instance->mObjects)
-            { if(!object) { continue; } (object.get()->*inFunctionPtr)(); }
+        {
+            if(object)
+                { (object.get()->*inFunctionPtr)(); }
+        }
     }
 }
 
-void UI_Implementor::InvokeMethod(SolutionInit_ptr inInitPtr)
+void UI_Implementor::InvokeInput(InputEvent* inEvent)
 {
+    const std::lock_guard<std::recursive_mutex> lock{m_sInstancesMutex};
     for(auto& [index, instance] : m_sInstances)
     {
         if(!instance->mAttached)
             { continue; }
         for(auto& [index, object] : instance->mObjects)
-            { if(!object) { continue; } (object.get()->*inInitPtr)(); }
+        {
+            if(object)
+                { object->Input(inEvent); }
+        }
     }
 }
 
-void UI_Implementor::InvokeMethod(SolutionInputEventFunction_ptr inFunctionPtr, Farg<InputEvent> inEvent)
-{
-    for(auto& [index, instance] : m_sInstances)
-    {
-        if(!instance->mAttached)
-            { continue; }
-        for(auto& [index, object] : instance->mObjects)
-            { if(!object) { continue; } (object.get()->*inFunctionPtr)(inEvent); }
-    }
-}

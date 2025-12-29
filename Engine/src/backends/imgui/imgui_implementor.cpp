@@ -18,11 +18,9 @@
 static GraphicsAPI sGraphicsAPI() { return RendererAPI::GetAPI(); }
 static NativeWindowType sWindowType() { return MainWindow()->GetNativeWindowType(); }
 
-static ImGui_Implementor sImGuiImplementor{};
-ImGui_Implementor* g_pImGuiImplementor{&sImGuiImplementor};
-
 void ImGui_Implementor::Attach()
 {
+    PRINT_PRETTY_FUNCTION;
     ReturnIf(mAttached)
     mState = STATE_ATTACHING;
     IMGUI_CHECKVERSION();

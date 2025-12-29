@@ -14,7 +14,6 @@
 #include "gui/imgui_debugger.hpp"
 #include "backends/glfw/glfw_window.hpp" // GLFW is the main windowing solution (most likely permanently)
 #include "backends/imgui/imgui_implementor.hpp"
-#include <thread>
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};
@@ -41,8 +40,6 @@ int NostalgiaGoggles::Main()
 
     IManager::InitAllManagers();
 
-    ApplicationEventsHandler* handler{new ApplicationEventsHandler};
-
     g_pInputManager->SetAction({gToggleFullscreen, Key::F});
     g_pInputManager->SetAction({"+forward",  Key::W});
     g_pInputManager->SetAction({"+backward", Key::S});
@@ -53,18 +50,16 @@ int NostalgiaGoggles::Main()
     IManager::ShutdownAllManagers();
     IManager::RemoveAll();
 
-    delete handler;
-
     return 0;
 }
 
-void ApplicationEventsHandler::Event(AppEvent* inEvent)
+void NostalgiaGoggles::Event(AppEvent* inEvent)
 {
     if(inEvent->IsEvent(AppEvent::WindowClose))
         { Application()->Stop(); }
 }
 
-void ApplicationEventsHandler::Input(InputEvent* event)
+void NostalgiaGoggles::Input(InputEvent* event)
 {
     if(event->IsActive(gToggleFullscreen))
     {
