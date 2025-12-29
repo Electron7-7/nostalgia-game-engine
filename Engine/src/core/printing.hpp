@@ -83,13 +83,13 @@ template<class... Args>
 
 //  Same as `PRINT_PRETTY_FUNCTION` but unique to constructors
 #   define PRINT_PRETTY_CONSTRUCTOR \
-        PRINT_PRETTY_CONSTRUCTOR_EXT("(this == \x1b[39m{}\x1b[32m)", static_cast<void*>(this))
+        PRINT_PRETTY_CONSTRUCTOR_EXT("(this == \x1b[39m{}\x1b[35m)", static_cast<void*>(this))
 #   define PRINT_PRETTY_CONSTRUCTOR_EXT(FMT, ARGS...) \
         __print_verbose(true, VERBOSE0, "{} " FMT, std::source_location::current(), ConstructorLabel, __PRETTY_FUNCTION__, ## ARGS)
 
 //  Same as `PRINT_PRETTY_FUNCTION` but unique to destructors
 #   define PRINT_PRETTY_DESTRUCTOR \
-        PRINT_PRETTY_DESTRUCTOR_EXT("(this == \x1b[39m{}\x1b[32m)", static_cast<void*>(this))
+        PRINT_PRETTY_DESTRUCTOR_EXT("(this == \x1b[39m{}\x1b[35m)", static_cast<void*>(this))
 #   define PRINT_PRETTY_DESTRUCTOR_EXT(FMT, ARGS...) \
         __print_verbose(true, VERBOSE0, "{} " FMT, std::source_location::current(), DestructorLabel, __PRETTY_FUNCTION__, ## ARGS)
 
