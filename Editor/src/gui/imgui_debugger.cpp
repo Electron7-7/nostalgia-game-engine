@@ -64,11 +64,8 @@ static void s_ManualStopwatchWindow(float);
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
-Error ImGui_Debugger::Init()
-{
-    PRINT_PRETTY_FUNCTION;
-    return OK;
-}
+void ImGui_Debugger::Init()
+{ PRINT_PRETTY_FUNCTION; }
 
 void ImGui_Debugger::Shutdown()
 { PRINT_PRETTY_FUNCTION; }
@@ -89,10 +86,10 @@ void ImGui_Debugger::Input(InputEvent* event)
         { sTheatreInspectorActive = !sTheatreInspectorActive; }
 }
 
-void ImGui_Debugger::OnTheatreEntered()
+void ImGui_Debugger::TheatreEntered()
 {}
 
-void ImGui_Debugger::OnTheatreExited()
+void ImGui_Debugger::TheatreExited()
 {}
 
 void ImGui_Debugger::Update()

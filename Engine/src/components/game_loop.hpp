@@ -16,8 +16,8 @@ public:
 class OnTheatreChanged
 {
 public:
-    virtual void OnTheatreEntered() = 0;
-    virtual void OnTheatreExited()  = 0;
+    virtual void TheatreEntered() = 0;
+    virtual void TheatreExited()  = 0;
 };
 
 #endif // GAME_LOOP_COMPONENTS_H

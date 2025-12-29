@@ -37,17 +37,16 @@ void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
 void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 { g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
 
-Error ImGui_Editor::Init()
+void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
     sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create({1920, 1080}));
-    return OK;
 }
 
 void ImGui_Editor::Shutdown()
 { mTextureBuffer.reset(); }
 
-void ImGui_Editor::OnTheatreEntered()
+void ImGui_Editor::TheatreEntered()
 {
     sSpawnLocationMaterialID = g_pTheatreManager->CreateThing(ThingData{
         "ThingAdderSpawnLocation_Material",
@@ -73,7 +72,7 @@ void ImGui_Editor::OnTheatreEntered()
     });
 }
 
-void ImGui_Editor::OnTheatreExited()
+void ImGui_Editor::TheatreExited()
 {
     sSpawnLocationMaterialID = ID{};
     sSpawnLocationMeshInstanceID = ID{};

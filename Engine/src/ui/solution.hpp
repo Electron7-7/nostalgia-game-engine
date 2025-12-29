@@ -24,8 +24,8 @@ public:
 
     virtual void  Update()           override {}
     virtual void  Input(InputEvent*) override {}
-    virtual void  OnTheatreEntered() override {}
-    virtual void  OnTheatreExited()  override {}
+    virtual void  TheatreEntered()   override {}
+    virtual void  TheatreExited()    override {}
 
     void StopHandlingEvents(bool inStopHandlingEvents = true)
     { mCanHandleEvents = !inStopHandlingEvents; }

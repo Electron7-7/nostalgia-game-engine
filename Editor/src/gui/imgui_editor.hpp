@@ -8,12 +8,12 @@
 class ImGui_Editor : public UI_Solution
 {
 public:
-    Error Init()             final;
-    void  Shutdown()         final;
-    void  Update()           final;
-    void  Input(InputEvent*) final;
-    void  OnTheatreEntered() final;
-    void  OnTheatreExited()  final;
+    void Init()             final;
+    void Shutdown()         final;
+    void Update()           final;
+    void Input(InputEvent*) final;
+    void TheatreEntered() final;
+    void TheatreExited()  final;
 
 private:
     Shared<TextureBuffer> mTextureBuffer{nullptr};
