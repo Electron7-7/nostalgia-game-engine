@@ -150,8 +150,8 @@ void WindowGLFW::Shutdown()
 
 void WindowGLFW::Update()
 {
-    glfwPollEvents();
     mGraphicsContext->SwapBuffers();
+    glfwPollEvents();
     mMouseLast = mMouseCurrent;
     glfwGetCursorPos(m_pWindow, &mMouseCurrent[0], &mMouseCurrent[1]);
     if(mMouseCurrent != mMouseLast or ++mFramesWithNoMouseMovement < mFrameLimitForNoMouseMovement)
