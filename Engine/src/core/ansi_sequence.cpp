@@ -17,6 +17,56 @@ ANSI_Sequence::ANSI_Sequence(ansi_t inColor, bool isForeground, bool isBold) noe
         ANSI::end});
 }
 
+ANSI_Sequence::ANSI_Sequence(const ansi_sequence_t& inSequence) noexcept:
+    codes_{inSequence} {}
+
+ANSI_Sequence::ANSI_Sequence(const std::string& inString) noexcept
+{
+    ansi_code_t buffer{};
+    for(size_t i{0}; i < inString.size(); ++i)
+    {
+        int is_start{0};
+        char character{inString[i]};
+        if(character == '\\' and (i+3 < inString.size() and (
+            !inString.substr(1, 4).compare("\x1b") or
+            !inString.substr(1, 4).compare("\x1B") or
+            !inString.substr(1, 4).compare("\033"))))
+            { is_start = 3; }
+        else if((i+5 < inString.size() and !inString.substr(i, 6).compare("\u001b")))
+            { is_start = 5; }
+        else if(character == '^' and i+1 < inString.size() and inString[i+1] == '[')
+            { is_start = 1; }
+        if(is_start > 0)
+        {
+            i += (is_start != 1 and i+(is_start+1) < inString.size() and inString[i+(is_start+1)] == '[')
+                ? is_start+1
+                : is_start;
+            buffer.emplace_back(ANSI::begin);
+            continue;
+        }
+
+        switch(character)
+        {
+        case ';':
+            buffer.emplace_back(ANSI::next);
+            continue;
+        case 'm':
+            buffer.emplace_back(ANSI::end);
+            codes_.emplace_back(buffer);
+            buffer.clear();
+            continue;
+        default:
+            short code{ANSI::invalid};
+            try
+                { code = std::stoi(std::string{character}); }
+            catch(std::invalid_argument const&)
+                { code = ANSI::invalid; } // just in case...
+            codes_.emplace_back(code);
+            continue;
+        }
+    }
+}
+
 // My cheap trick to keeping the template constructor's definition out of the header file
 void ANSI_Sequence::setup_codes(std::initializer_list<ansi_t> inCodes) noexcept
 {
