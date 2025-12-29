@@ -19,27 +19,8 @@ void light_t::ClearCounts()
     light_t::sDirectionalCount = 0;
 }
 
-void light_t::SetVariables(Farg<ThingData> data)
+void light_t::Ready()
 {
-    mScale = glm::vec3(0.1f);
-
-    // The light's debug mesh should only be visible by default on debug builds
-    TRUE_IF_DEBUGGING(mVisible);
-
-    Actor::SetVariables(data);
-
-    data.GetVariable(mColor, "Color");
-    data.GetVariable(mEnergy, "Energy");
-    data.GetVariable(mSpecularStrength, "SpecularStrength");
-    data.GetVariable(mAmbientStrength, "AmbientStrength");
-    data.GetVariable(mAttenuation, "FadeIntensity");
-    data.GetVariable(mAttenuation, "Attenuation");
-    data.GetVariable(mRange, "Range");
-    data.GetVariable(mEnabled, "LightVisible");
-    data.GetVariable(mEnabled, "Enabled");
-    if(data.GetVariable(mEnabled, "Disabled"))
-        { mEnabled = !mEnabled; }
-
     // the debug mesh/material shouldn't override a manually specificed one
     if(mMeshInstanceID.invalid())
     {
@@ -62,6 +43,28 @@ void light_t::SetVariables(Farg<ThingData> data)
             }
         });
     }
+}
+
+void light_t::SetVariables(Farg<ThingData> data)
+{
+    mScale = glm::vec3(0.1f);
+
+    // The light's debug mesh should only be visible by default on debug builds
+    TRUE_IF_DEBUGGING(mVisible);
+
+    Actor::SetVariables(data);
+
+    data.GetVariable(mColor, "Color");
+    data.GetVariable(mEnergy, "Energy");
+    data.GetVariable(mSpecularStrength, "SpecularStrength");
+    data.GetVariable(mAmbientStrength, "AmbientStrength");
+    data.GetVariable(mAttenuation, "FadeIntensity");
+    data.GetVariable(mAttenuation, "Attenuation");
+    data.GetVariable(mRange, "Range");
+    data.GetVariable(mEnabled, "LightVisible");
+    data.GetVariable(mEnabled, "Enabled");
+    if(data.GetVariable(mEnabled, "Disabled"))
+        { mEnabled = !mEnabled; }
 }
 
 Shared<ThingData> light_t::GetVariables() const

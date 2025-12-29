@@ -18,6 +18,7 @@ public:
     virtual bool IncrementIndex()  = 0;
     virtual LightType Type() const = 0;
 
+    virtual void Ready() override;
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 

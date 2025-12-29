@@ -1,12 +1,14 @@
 #ifndef UID_H
 #define UID_H
 
+#include "core/id.hpp"
 #include <sys/types.h>
 
 namespace UID
 {
+    constexpr ID
     // Reserved Actor UIDs
-    constexpr uint a_Player {0},
+        a_Player {(uint)0},
     // Reserved Image UIDs
         i_Missing    {1},
         i_LightDebug {2},
@@ -19,7 +21,8 @@ namespace UID
     // Reserved Font UIDs
         f_Verdana    {8},
         f_DejaVuSans {9},
-        f_Audiowide  {10},
+        f_Audiowide  {10};
+    constexpr uint
     // Reserved UID Boundaries
         reserved_back  {f_Audiowide},
         reserved_front {a_Player},
