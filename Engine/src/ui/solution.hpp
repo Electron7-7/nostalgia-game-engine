@@ -19,8 +19,8 @@ public:
     virtual void  TheatreEntered()   override {}
     virtual void  TheatreExited()    override {}
 
-    void StopHandlingEvents(bool inStopHandlingEvents = true)
-    { mCanHandleEvents = !inStopHandlingEvents; }
+    bool CanHandleEvents() const;
+    void CanHandleEvents(bool inStopHandlingEvents = true);
 
 protected:
     friend class UI_Implementor;
