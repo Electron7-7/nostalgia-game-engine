@@ -42,12 +42,6 @@ void RenderManager::Update()
     g_pUIManager->DrawUI();
 }
 
-void RenderManager::Event(AppEvent* inEvent)
-{
-    if(inEvent->IsEvent(AppEvent::WindowResize))
-        { mRendererAPI->SetViewport({0, 0}, MainWindow()->GetScale()); }
-}
-
 void RenderManager::SetAutomaticWindowClear(bool inEnableClear)
 { mCanClearWindow = inEnableClear; }
 

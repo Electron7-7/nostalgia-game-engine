@@ -31,8 +31,6 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) final;
     void Shutdown() final;
 
-    void Event(AppEvent*) final;
-
     void SetAutomaticWindowClear(bool);
 
     const Unique<RendererAPI>& GetAPI() const;
