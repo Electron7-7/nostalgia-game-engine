@@ -12,8 +12,10 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    ID GetMeshID() const;
-    ID GetMaterialID() const;
+    ID MeshID() const;
+    void MeshID(ID);
+    ID MaterialID() const;
+    void MaterialID(ID);
 
 protected:
     ID mMeshID{};

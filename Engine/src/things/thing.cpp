@@ -27,3 +27,17 @@ Farg<std::string> Thing::name() const
 
 const char* const Thing::c_name() const
 { return mName.data(); }
+
+bool Thing::uid(ID inID)
+{
+    if(inID.invalid())
+        { inID = UID::Generate(); }
+    else if(UID::Contains(inID[]))
+        { return false; }
+    UID::Erase(mUID[]);
+    mUID = inID;
+    return true;
+}
+
+void Thing::name(Sarg inName)
+{ mName = inName; }

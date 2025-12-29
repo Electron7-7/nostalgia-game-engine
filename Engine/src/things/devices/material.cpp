@@ -37,14 +37,14 @@ Shared<ThingData> Material::GetVariables() const
     return data;
 }
 
-ID Material::GetDiffuseTexture() const
+ID Material::DiffuseTextureID() const
 { return mDiffuseTextureID; }
 
-void Material::SetDiffuseTexture(ID texture_id)
+void Material::DiffuseTextureID(ID texture_id)
 { mDiffuseTextureID = texture_id; }
 
-ID Material::GetSpecularTexture() const
+ID Material::SpecularTextureID() const
 { return mSpecularTextureID; }
 
-void Material::SetSpecularTexture(ID texture_id)
+void Material::SpecularTextureID(ID texture_id)
 { mSpecularTextureID = texture_id; }

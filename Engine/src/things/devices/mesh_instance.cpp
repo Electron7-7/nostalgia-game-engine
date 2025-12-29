@@ -24,8 +24,14 @@ Shared<ThingData> MeshInstance::GetVariables() const
     return data;
 }
 
-ID MeshInstance::GetMeshID() const
+ID MeshInstance::MeshID() const
 { return mMeshID; }
 
-ID MeshInstance::GetMaterialID() const
+ID MeshInstance::MaterialID() const
 { return mMaterialID; }
+
+void MeshInstance::MeshID(ID inID)
+{ mMeshID = inID; }
+
+void MeshInstance::MaterialID(ID inID)
+{ mMaterialID = inID; }

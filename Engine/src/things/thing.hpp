@@ -32,6 +32,9 @@ public:
     Sarg name() const;
     const char* const c_name() const;
 
+    bool uid(ID inID);
+    void name(Sarg inName);
+
 protected:
     ID mUID{};
     std::string mName{"Untitled Thing"};

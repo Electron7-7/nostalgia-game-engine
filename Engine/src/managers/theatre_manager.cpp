@@ -163,7 +163,7 @@ void TheatreManager::DrawTheatre()
             auto material{g_pTheatreManager
                 ->GetThing<Material>(g_pTheatreManager
                     ->GetThing<MeshInstance>(light->MeshInstanceID())
-                        ->GetMaterialID())};
+                        ->MaterialID())};
             material->mColor = light->mColor;
             material->mFullBright = true;
         }
@@ -173,15 +173,15 @@ void TheatreManager::DrawTheatre()
         if(auto actor{DCast<Actor>(thing)}; actor and actor->mVisible)
         {
             auto mesh_instance{g_pTheatreManager->GetThing<MeshInstance>(actor->MeshInstanceID())};
-            auto material{g_pTheatreManager->GetThing<Material>(mesh_instance->GetMaterialID())};
+            auto material{g_pTheatreManager->GetThing<Material>(mesh_instance->MaterialID())};
             auto& renderer_api{g_pRenderManager->GetAPI()};
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe || actor->mWireframe);
 
-            GetTextureBuffer(material->GetDiffuseTexture()[])->Bind(0);
-            GetTextureBuffer(material->GetSpecularTexture()[])->Bind(1);
+            GetTextureBuffer(material->DiffuseTextureID()[])->Bind(0);
+            GetTextureBuffer(material->SpecularTextureID()[])->Bind(1);
 
             glm::mat4 projection_matrix{glm::perspective(
                 glm::radians(Settings::Player::FOV),
@@ -214,7 +214,7 @@ void TheatreManager::DrawTheatre()
             shader->SetUniform("current_material.alpha", material->mAlpha);
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
             shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
-            renderer_api->DrawIndexed(GetVertexArray(mesh_instance->GetMeshID()[]));
+            renderer_api->DrawIndexed(GetVertexArray(mesh_instance->MeshID()[]));
             renderer_api->SetFramebufferSRGB(false);
         }
     }
