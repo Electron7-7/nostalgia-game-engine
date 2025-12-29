@@ -1,5 +1,6 @@
 #include "camera_3d.hpp"
 #include "theatre/parser/thing_data.hpp"
+#include "settings/engine.hpp"
 
 //////////////
 // Camera3D //
@@ -9,6 +10,8 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     Actor::SetVariables(data);
 
     data.GetVariable(mCurrent, "Current", "CurrentCamera", "IsCurrent");
+
+    mVisible = mVisible and Settings::Engine::IsEditorHint;
 }
 
 Shared<ThingData> Camera3D::GetVariables() const
@@ -32,14 +35,8 @@ void Camera3D::SetCurrent(bool isCurrent)
 bool Camera3D::IsCurrent() const
 { return mCurrent; }
 
-////////////////////
-// EditorCamera3D //
-////////////////////
-void EditorCamera3D::SetVariables(Farg<ThingData> data)
-{ Camera3D::SetVariables(data); }
+void Camera3D::SetEnabled(bool isEnabled)
+{ mEnabled = isEnabled; }
 
-Shared<ThingData> EditorCamera3D::GetVariables() const
-{
-    Shared<ThingData> data{Camera3D::GetVariables()};
-    return data;
-}
+bool Camera3D::IsEnabled() const
+{ return mEnabled; }

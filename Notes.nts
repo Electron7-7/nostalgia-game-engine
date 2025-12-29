@@ -989,3 +989,6 @@ NOTE: I can just combine the enum prettifier into the theatre variables registry
 All right, I've finished with a giant refactor; basically, created a new `fwd` directory where all forward declarations will go, and tidied up a lot of the header files; I also deleted some unused files & split some header code into source files.
 
 I think that I want to finally commit to making a v1.0 of Nostalgia (or at least flesh out the GitHub some more).
+
+[12/29/25]
+Meds weren't refilled today, so a Bang energy and lots of coping is hopefully gonna keep me kicking. I don't feel that bad, honestly; forcing myself to go on a drive in the morning, do my laundry, and not brain rot was very successfull. I actually get shit done with a fire lit under my ass. Anyways, time for some minor improvements or something like that before going to work. Already fixed the issue with the light meshes. Maybe implementing the editor camera?

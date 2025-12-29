@@ -2,14 +2,21 @@
 #define THING_H
 
 #include "fwd/theatre.hpp"
+#include "fwd/core.hpp"
 #include "things/types.hpp"
 #include "core/smart_pointers.hpp"
 #include "components/game_loop.hpp"
 #include "components/event_handling.hpp"
+#include <mutex>
+#include <unordered_map>
+
+struct ThingChildren;
 
 class Thing : public OnInput, public OnTick, public OnUpdate
 {
 public:
+    using Children = std::unordered_map<Shared<Thing>, std::string>;
+
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
@@ -30,18 +37,51 @@ public:
     ID uid() const;
     Sarg name() const;
     const char* const c_name() const;
+    Children children() const;
 
     bool uid(ID inID);
     void name(Sarg inName);
     Farg<TTID> type() const;
+    Error destroy_child(ID);
+    Error create_child(Farg<ThingData> inData, Sarg inUniqueName = "");
+    Error own_child(ID, Sarg inUniqueName = "");
+    Error disown_child(ID);
+
+
+    constexpr bool operator==(Farg<Thing> inThing)
+    { return mUID == inThing.mUID; }
+
+    constexpr bool operator<(Farg<Thing> inThing)
+    { return mUID < inThing.mUID; }
 
 protected:
+    Thing(ID) noexcept;
+    Thing(Farg<ThingData>) noexcept;
+
     ID mUID{};
     std::string mName{"Untitled Thing"};
     TTID mType{"Thing"};
+
+    Shared<ThingChildren> mChildren{nullptr};
+    std::recursive_mutex mChildrenMutex{};
 };
 
 template<typename T>
     concept ThingDerived = std::derived_from<T, Thing>;
+
+constexpr bool operator==(Farg<Shared<Thing>> inPtrL, Farg<Shared<Thing>> inPtrR)
+{ return inPtrL->uid() == inPtrR->uid(); }
+
+constexpr bool operator<(Farg<Shared<Thing>> inPtrL, Farg<Shared<Thing>> inPtrR)
+{ return inPtrL->uid() < inPtrR->uid(); }
+
+constexpr bool operator==(Farg<Shared<Thing>> inThingPtr, ID inID)
+{ return inThingPtr->uid() == inID; }
+
+constexpr bool operator<(Farg<Shared<Thing>> inThingPtr, ID inID)
+{ return inThingPtr->uid() == inID; }
+
+struct ThingChildren
+{ Thing::Children data{}; };
 
 #endif // THING_H

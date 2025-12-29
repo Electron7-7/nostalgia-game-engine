@@ -19,6 +19,7 @@
 #include "rendering/shader.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "theatre/parser/theatre_parser.hpp"
+#include "things/actors/camera_3d.hpp"
 #include "things/thing_factory.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/texture.hpp"
@@ -155,6 +156,7 @@ void TheatreManager::DrawTheatre()
     if(!sReadyToRender || GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    RenderLayers currentRenderLayers{};
     light_t::ClearCounts();
 #pragma message("TODO: I have to loop through everything twice since I've removed the render command, so fix that...")
     for(auto& [id, thing] : mThings)
@@ -169,6 +171,9 @@ void TheatreManager::DrawTheatre()
             material->mColor = light->mColor;
             material->mFullBright = true;
         }
+        else if(auto camera_3d{DCast<Camera3D>(thing)};
+            camera_3d and camera_3d->IsEnabled() and camera_3d->IsCurrent())
+            { currentRenderLayers = camera_3d->GetRenderLayers(); }
     }
     for(auto& [id, thing] : mThings)
     {
@@ -357,7 +362,7 @@ uint TheatreManager::CreateThing(Farg<ThingData> inData)
         thing->SetVariables(ThingData::PlayerDefaultData);
     }
     else
-    { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
+        { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
 
     thing->SetVariables(data);
     if(auto collider{DCast<Collider>(thing)})

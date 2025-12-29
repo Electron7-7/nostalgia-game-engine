@@ -7,6 +7,7 @@ namespace Settings
     {
         extern int   TickRate;
         extern float TickInterval();
+        extern bool  IsEditorHint;
     }
 }
 

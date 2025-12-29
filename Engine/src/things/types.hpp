@@ -21,6 +21,7 @@ namespace ThingType
         PointLight          {"PointLight"},
         SpotLight           {"SpotLight"},
         DirectionalLight    {"DirectionalLight"},
+        Camera3D            {"Camera3D"},
         NostalgiaPlayer     {"NostalgiaPlayer"};
 }
 

@@ -2,6 +2,7 @@
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
+#include "actors/camera_3d.hpp"
 #include "actors/light.hpp"
 #include "devices/device.hpp"
 #include "devices/collider.hpp"
@@ -27,6 +28,7 @@ bool ThingFactory::Init()
     AddThing( &ThingMakerTemplate<Material>,              "Material",              cDefaultPriority - 1 );
     AddThing( &ThingMakerTemplate<MeshInstance>,          "MeshInstance",          cDefaultPriority - 1 );
     AddThing( &ThingMakerTemplate<NostalgiaPlayer>,       "NostalgiaPlayer",       cDefaultPriority     );
+    AddThing( &ThingMakerTemplate<Camera3D>,              "Camera3D",              cDefaultPriority - 2 );
     AddThing( &ThingMakerTemplate<PointLight>,            "PointLight",            cDefaultPriority     );
     AddThing( &ThingMakerTemplate<SpotLight>,             "SpotLight",             cDefaultPriority     );
     AddThing( &ThingMakerTemplate<DirectionalLight>,      "DirectionalLight",      cDefaultPriority     );

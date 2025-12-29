@@ -8,6 +8,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/event_manager.hpp"
 #include "managers/ui_manager.hpp"
+#include "settings/engine.hpp"
 #include "ui/implementor.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
@@ -24,6 +25,8 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
+    Settings::Engine::IsEditorHint = true;
+
     mMainWindow = IWindow::CreateWindow<WindowGLFW>(); // Using the default `WindowProperties` constructor
 
     auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};

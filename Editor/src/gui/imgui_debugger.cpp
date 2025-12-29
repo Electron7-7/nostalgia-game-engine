@@ -683,29 +683,28 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
                     { actor->SetScale(Scale); }
                 NewLine();
-                if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
-                {
-#pragma message("TODO: this is a good example/reminder of why I need a 'children' container or something similar in 'Thing'")
-                    if(Button("Inspect##1"))
-                    {
-                        EndChild(); End();
-                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.collider_id)};
-                        return;
-                    }
-                    SameLine();
-                    if(InputUInt("Collider UID", &selected.collider_id))
-                        { actor->ColliderID(selected.collider_id); }
+                // if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                // {
+                //     if(Button("Inspect##1"))
+                //     {
+                //         EndChild(); End();
+                //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.collider_id)};
+                //         return;
+                //     }
+                //     SameLine();
+                //     if(InputUInt("Collider UID", &selected.collider_id))
+                //         { actor->ColliderID(selected.collider_id); }
 
-                    if(Button("Inspect##2"))
-                    {
-                        EndChild(); End();
-                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_instance_id)};
-                        return;
-                    }
-                    SameLine();
-                    if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
-                        { actor->MeshInstanceID(selected.mesh_instance_id); }
-                }
+                //     if(Button("Inspect##2"))
+                //     {
+                //         EndChild(); End();
+                //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_instance_id)};
+                //         return;
+                //     }
+                //     SameLine();
+                //     if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
+                //         { actor->MeshInstanceID(selected.mesh_instance_id); }
+                // }
             }
             // DEVICES
             else if(auto device{DCast<Device>(selected.ptr)})
@@ -731,28 +730,28 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
                 else if(auto mesh_instance{DCast<MeshInstance>(selected.ptr)})
                 {
-                    if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
-                    {
-                        if(Button("Inspect##1"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_id)};
-                            return;
-                        }
-                        SameLine();
-                        if(InputUInt("Mesh UID", &selected.mesh_id))
-                            { mesh_instance->MeshID(selected.mesh_id); }
+                    // if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                    // {
+                    //     if(Button("Inspect##1"))
+                    //     {
+                    //         EndChild(); End();
+                    //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_id)};
+                    //         return;
+                    //     }
+                    //     SameLine();
+                    //     if(InputUInt("Mesh UID", &selected.mesh_id))
+                    //         { mesh_instance->MeshID(selected.mesh_id); }
 
-                        if(Button("Inspect##2"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.material_id)};
-                            return;
-                        }
-                        SameLine();
-                        if(InputUInt("Material UID", &selected.material_id))
-                            { mesh_instance->MaterialID(selected.material_id); }
-                    }
+                    //     if(Button("Inspect##2"))
+                    //     {
+                    //         EndChild(); End();
+                    //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.material_id)};
+                    //         return;
+                    //     }
+                    //     SameLine();
+                    //     if(InputUInt("Material UID", &selected.material_id))
+                    //         { mesh_instance->MaterialID(selected.material_id); }
+                    // }
                 }
                 else if(auto material{DCast<Material>(selected.ptr)})
                 {
@@ -766,27 +765,46 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
                     InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
 
-                    if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                    // if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                    // {
+                    //     if(Button("Inspect##1"))
+                    //     {
+                    //         EndChild(); End();
+                    //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture1_id)};
+                    //         return;
+                    //     }
+                    //     SameLine();
+                    //     if(InputUInt("Diffuse Texture UID", &selected.texture1_id))
+                    //         { material->DiffuseTextureID(selected.texture1_id); }
+
+                    //     if(Button("Inspect##2"))
+                    //     {
+                    //         EndChild(); End();
+                    //         selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture2_id)};
+                    //         return;
+                    //     }
+                    //     SameLine();
+                    //     if(InputUInt("Specular Texture UID", &selected.texture2_id))
+                    //         { material->SpecularTextureID(selected.texture2_id); }
+                    // }
+                }
+                if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    int i{-1};
+                    auto children{selected.ptr->children()};
+                    for(auto& child : children)
                     {
-                        if(Button("Inspect##1"))
+                        PushID(++i);
+                        if(Button("Inspect"))
                         {
-                            EndChild(); End();
+                            PopID(); EndChild(); End();
                             selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture1_id)};
                             return;
                         }
                         SameLine();
                         if(InputUInt("Diffuse Texture UID", &selected.texture1_id))
                             { material->DiffuseTextureID(selected.texture1_id); }
-
-                        if(Button("Inspect##2"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture2_id)};
-                            return;
-                        }
-                        SameLine();
-                        if(InputUInt("Specular Texture UID", &selected.texture2_id))
-                            { material->SpecularTextureID(selected.texture2_id); }
+                        PopID();
                     }
                 }
             }

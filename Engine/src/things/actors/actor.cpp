@@ -32,7 +32,13 @@ Shared<ThingData> Actor::GetVariables() const
 
 void Actor::Ready()
 {
-    if(auto collider = g_pTheatreManager->GetThing<Collider>(mColliderID);
+#pragma message("TODO: forgo using hardcoded variables and utilize the `mChildren` container for everything, including Devices")
+    if(!mMeshInstanceID.invalid())
+        { own_child(mMeshInstanceID, "MeshInstance"); }
+    else if(!mColliderID.invalid())
+        { own_child(mColliderID, "MeshInstance"); }
+
+    if(auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
         !collider->BodyIDInvalid())
         { mScale = collider->Scale(); }
 }
