@@ -1,9 +1,7 @@
-#ifdef FWD_DCL
-    class Thinker;
-#elif !defined THINKER_H
+#ifndef THINKER_H
 #define THINKER_H
 
-#include "../thing.hpp"
+#include "things/thing.hpp"
 
 class Thinker : public Thing
 {
