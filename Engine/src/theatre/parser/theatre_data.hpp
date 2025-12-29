@@ -1,10 +1,8 @@
-#ifdef FWD_DCL
-    struct TheatreData;
-#elif !defined THEATRE_DATA_H
+#ifndef THEATRE_DATA_H
 #define THEATRE_DATA_H
 
-#include "thing_data.hpp"
-#include "core/error.hpp"
+#include "fwd/core.hpp"
+#include "theatre/parser/thing_data.hpp"
 
 struct TheatreData
 {

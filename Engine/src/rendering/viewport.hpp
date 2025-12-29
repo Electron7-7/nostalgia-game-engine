@@ -1,9 +1,7 @@
-#ifdef FWD_DCL
-struct Viewport;
-#elif !defined VIEWPORT_H
+#ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-#include "render_layers.hpp"
+#include "rendering/render_layers.hpp"
 #include "core/farg.hpp"
 #include "math/containers.hpp"
 

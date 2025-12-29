@@ -1,66 +1,38 @@
-#ifdef FWD_DCL
-#   ifndef MATH_FWD_DCL
-#   define MATH_FWD_DCL
-#   include "common/concepts.hpp"
-
-enum class VectorMembers : unsigned short
-{
-    None, XYZ, WHL, RGBA,
-    RGB = RGBA, WH = WHL, XY = XYZ,
-};
-
-static constexpr std::string s_GetVectorMemberString(VectorMembers inVM) noexcept
-{
-    switch(inVM)
-    {
-    case VectorMembers::None:
-        return "VectorMembers::None";
-    case VectorMembers::XYZ:
-        return "VectorMembers::XYZ (or XY)";
-    case VectorMembers::WHL:
-        return "VectorMembers::WHL (or WH)";
-    case VectorMembers::RGBA:
-        return "VectorMembers::RGBA (or RGB)";
-    }
-}
-
-template<unsigned short Length, Number T, VectorMembers M = VectorMembers::None>
-        requires (Length > 1)
-    struct vector;
-
-typedef vector<2,double,VectorMembers::XYZ>  Position2D;
-typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
-typedef vector<2,int,VectorMembers::WHL>     Scale2D;
-typedef vector<3,double,VectorMembers::XYZ>  Position3D;
-typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
-typedef vector<3,int,VectorMembers::WHL>     Scale3D;
-
-#   endif // MATH_FWD_DCL
-#elif !defined CONTAINERS_H
+#ifndef CONTAINERS_H
 #define CONTAINERS_H
 
-#define FWD_DCL
-#   include "containers.hpp"
-#undef  FWD_DCL
-
-#include "common/concepts.hpp"
+#include "math/concepts.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <cxxabi.h>
-#include <string>
 #include <memory>
 #include <cstdlib>
 
-#define Derived std::derived_from
-#define Same std::is_same_v
-#define ONLY_IF(VECTOR_MEMBER) requires (M == VectorMembers::VECTOR_MEMBER)
-#define __INDEX_ACCESSOR(NAME, VM, INDEX, IS_CONST...) \
-    IS_CONST T& NAME() IS_CONST ONLY_IF(VM) { return array_[INDEX]; }
+#define ONLY_IF(VM) requires (M == VectorMembers::VM)
 #define INDEX_ACCESSOR(NAME, VM, INDEX) \
-    __INDEX_ACCESSOR(NAME, VM, INDEX) \
-    __INDEX_ACCESSOR(NAME, VM, INDEX, const)
-#define NO_OVERFLOW(INDEX) (Length > INDEX) ? INDEX : (Length - 1)
+    T& NAME()       ONLY_IF(VM) { return array_[INDEX]; } \
+    T  NAME() const ONLY_IF(VM) { return array_[INDEX]; }
+#define NO_OVERFLOW(INDEX) \
+    (Length > INDEX) ? INDEX : (Length - 1)
+
+namespace VectorMembers
+{
+    inline constinit const ushort None {0},
+        XYZ     {1},
+        WHL     {2},
+        RGBA    {3};
+
+    inline constinit const ushort RGB {RGBA},
+        WH     {WHL},
+        XY     {XYZ};
+}
+
+template<typename T, typename Base>
+    concept Derived = std::derived_from<T, Base>;
+
+template<typename T, typename U>
+    concept Same = std::same_as<T, U>;
 
 // https://stackoverflow.com/a/12877598
 template<typename T>
@@ -74,8 +46,8 @@ template<typename T>
 
 struct __vector_base {};
 
-template<ushort Length, Number T, VectorMembers M>
-        requires (Length > 1)
+template<ushort Length, class T, ushort M = VectorMembers::None>
+        requires (Length > 1) and std::is_arithmetic_v<T>
     struct vector : __vector_base
     {
     private:
@@ -92,7 +64,7 @@ template<ushort Length, Number T, VectorMembers M>
             constexpr vector(Args... inArgs) noexcept:
                 array_{static_cast<T>(inArgs)...} {}
 
-        template<ushort Length2, Number T2, VectorMembers M2 = VectorMembers::None>
+        template<ushort Length2, Number T2, ushort M2 = VectorMembers::None>
                 requires (Length2 > 1)
             constexpr vector(const vector<Length2,T2,M2>& inVec) noexcept
                 {
@@ -125,10 +97,27 @@ template<ushort Length, Number T, VectorMembers M>
 
         constexpr std::string type_log() const noexcept
         {
+            std::string vector_member_type{};
+            switch(M)
+            {
+            case VectorMembers::None:
+                vector_member_type = "None"; break;
+            case VectorMembers::XYZ:
+                vector_member_type = "XYZ (or XY)"; break;
+            case VectorMembers::WHL:
+                vector_member_type = "WHL (or WH)"; break;
+            case VectorMembers::RGBA:
+                vector_member_type = "RGBA (or RGB)"; break;
+            }
+            int status;
+            std::unique_ptr<char[], void (*)(void*)> result{
+                abi::__cxa_demangle(typeid(T).name(), 0, 0, &status), std::free};
             return std::format("vector<{}, {}, {}>",
                 Length,
-                s_DemangleTypeName<T>(),
-                s_GetVectorMemberString(M));
+                result.get()
+                    ? std::string{result.get()}
+                    : "N/A",
+                vector_member_type);
         }
 
         std::string data_log() const noexcept
@@ -152,6 +141,27 @@ template<ushort Length, Number T, VectorMembers M>
         INDEX_ACCESSOR(g, RGBA, 1)
         INDEX_ACCESSOR(b, RGBA, NO_OVERFLOW(2))
         INDEX_ACCESSOR(a, RGBA, NO_OVERFLOW(3))
+
+        bool is_zero() const noexcept
+        {
+            bool status{true};
+            for(uint i{0}; i < Length; ++i)
+                { if(array_[i]) { status = false; } }
+            return status;
+        }
+
+        bool is_zero_approx() const noexcept
+        {
+            bool status{true};
+            for(uint i{0}; i < Length; ++i)
+            {
+                if constexpr(!std::integral<T>)
+                    { if(array_[i] > 0.001) { status = false; } }
+                else
+                    { if(array_[i]) { status = false; } }
+            }
+            return status;
+        }
 
         double AspectRatio() const noexcept ONLY_IF(WHL)
         { return static_cast<double>(w()) / h(); }

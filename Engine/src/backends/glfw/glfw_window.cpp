@@ -98,10 +98,10 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
-    PRETTIFY_ENUM(MOUSE_MODE_VISIBLE,  MouseMode);
-    PRETTIFY_ENUM(MOUSE_MODE_CAPTURED, MouseMode);
-    PRETTIFY_ENUM(MOUSE_MODE_HIDDEN,   MouseMode);
-    PRETTIFY_ENUM(MOUSE_MODE_DISABLED, MouseMode);
+    REGISTER_ENUM(MOUSE_MODE_VISIBLE,  MouseMode);
+    REGISTER_ENUM(MOUSE_MODE_CAPTURED, MouseMode);
+    REGISTER_ENUM(MOUSE_MODE_HIDDEN,   MouseMode);
+    REGISTER_ENUM(MOUSE_MODE_DISABLED, MouseMode);
     PRINT_PRETTY_CONSTRUCTOR;
 }
 
@@ -203,8 +203,8 @@ Error WindowGLFW::SetMouseMode(MouseMode inMode)
     if(gDebugPrintStateChanges)
     {
         print_debug("Mouse mode set: {} (from: {})",
-            GET_PRETTY_ENUM(inMode, MouseMode),
-            GET_PRETTY_ENUM(mData.mouse_mode, MouseMode));
+            PRETTIFY_ENUM(inMode, MouseMode),
+            PRETTIFY_ENUM(mData.mouse_mode, MouseMode));
     }
     mData.mouse_mode = inMode;
     return OK;

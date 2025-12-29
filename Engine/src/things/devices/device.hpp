@@ -1,6 +1,4 @@
-#ifdef FWD_DCL
-    class Device;
-#elif !defined DEVICE_H
+#ifndef DEVICE_H
 #define DEVICE_H
 
 #include "things/thing.hpp"

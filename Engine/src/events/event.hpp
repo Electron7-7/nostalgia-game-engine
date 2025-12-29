@@ -1,23 +1,8 @@
-#ifdef FWD_DCL
-    enum class EventPriority : unsigned int;
-    enum class EventType     : unsigned int;
-    class IEvent;
-    template<EventPriority _Priority>
-        class CEvent;
-    class AppEvent;
-    class EngineEvent;
-    class InputEvent;
-    class InputEventMouseMotion;
-    class InputEventAction;
-    class InputEventBinding;
-#elif !defined INPUT_EVENT_H
+#ifndef INPUT_EVENT_H
 #define INPUT_EVENT_H
 
-#define FWD_DCL
-#   include "action.hpp"
-#undef FWD_DCL
-
-#include "bindings.hpp"
+#include "fwd/events.hpp"
+#include "events/bindings.hpp"
 #include "math/containers.hpp"
 
 #define APP_EVENT(NAME) inline static constinit const std::string NAME{#NAME};

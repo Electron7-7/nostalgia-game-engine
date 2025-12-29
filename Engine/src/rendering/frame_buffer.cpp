@@ -2,7 +2,6 @@
 #include "renderer_api.hpp"
 #include "core/printing.hpp"
 #include "application/application.hpp"
-
 // Implementations
 #include "backends/opengl/gl_frame_buffer.hpp"
 

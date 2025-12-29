@@ -1,14 +1,8 @@
-#ifdef FWD_DCL
-    class EventManager;
-    extern EventManager* g_pEventManager;
-#elif !defined EVENT_MANAGER_H
+#ifndef EVENT_MANAGER_H
 #define EVENT_MANAGER_H
 
-#define FWD_DCL
-#   include "events/event_queue.hpp"
-#undef  FWD_DCL
-
-#include "manager.hpp"
+#include "fwd/events.hpp"
+#include "managers/manager.hpp"
 
 class EventManager : public Manager
 {

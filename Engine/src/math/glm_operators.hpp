@@ -1,9 +1,13 @@
 #ifndef GLM_OPERATORS_H
 #define GLM_OPERATORS_H
 
-#include <math/glm_concepts.hpp>
+#include "math/concepts.hpp"
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/quaternion.hpp>
 
-template<typename T> requires std::is_arithmetic_v<T>
+template<typename T> requires Number<T>
 glm::vec3 operator*(const T& lhs, const glm::vec3& rhs)
 {
     return
@@ -14,7 +18,7 @@ glm::vec3 operator*(const T& lhs, const glm::vec3& rhs)
     };
 }
 
-template<typename T> requires std::is_arithmetic_v<T>
+template<typename T> requires Number<T>
 glm::vec2 operator*(const T& lhs, const glm::vec2& rhs)
 {
     return
@@ -24,7 +28,7 @@ glm::vec2 operator*(const T& lhs, const glm::vec2& rhs)
     };
 }
 
-template<typename T> requires std::is_arithmetic_v<T>
+template<typename T> requires Number<T>
 glm::vec2 operator*(const T& lhs, const glm::vec4& rhs)
 {
     return
@@ -36,7 +40,7 @@ glm::vec2 operator*(const T& lhs, const glm::vec4& rhs)
     };
 }
 
-template<typename T> requires std::is_arithmetic_v<T>
+template<typename T> requires Number<T>
 glm::vec2 operator*(const T& lhs, const glm::quat& rhs)
 {
     return

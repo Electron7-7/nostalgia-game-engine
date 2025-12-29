@@ -1,19 +1,13 @@
-#ifdef FWD_DCL
-    class TextureBuffer;
-    struct TextureFormat;
-#elif !defined TEXTURE_BUFFER_H
+#ifndef TEXTURE_BUFFER_H
 #define TEXTURE_BUFFER_H
 
-#define FWD_DCL
-#   include "filesystem/file_data.hpp"
-#undef  FWD_DCL
-
-#include "common.hpp"
+#include "fwd/filesystem.hpp"
+#include "rendering/common.hpp"
 #include "core/error.hpp"
 #include "core/farg.hpp"
 #include "core/smart_pointers.hpp"
 
-enum TextureType
+enum TextureType : int
 {
     TEXTURE_TYPE_1D,       TEXTURE_TYPE_2D,       TEXTURE_TYPE_3D,
     TEXTURE_TYPE_1D_ARRAY, TEXTURE_TYPE_2D_ARRAY, TEXTURE_TYPE_3D_ARRAY,
@@ -21,10 +15,10 @@ enum TextureType
     TEXTURE_TYPE_NONE
 };
 
-enum SamplerFilter
+enum SamplerFilter : int
 { SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_NONE };
 
-enum SamplerRepeat
+enum SamplerRepeat : int
 {
     SAMPLER_REPEAT_MODE_REPEAT,
     SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,

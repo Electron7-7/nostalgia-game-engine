@@ -1,10 +1,7 @@
-#ifdef FWD_DCL
-    class Material;
-#elif !defined MATERIAL_H
+#ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "device.hpp"
-
+#include "things/devices/device.hpp"
 #include <glm/vec3.hpp>
 
 class Material : public Device

@@ -1,4 +1,5 @@
-#include "ansi_codes.hpp"
+#include "ansi_sequence.hpp"
+#include <stdexcept>
 
 ANSI_Sequence::ANSI_Sequence() noexcept = default;
 

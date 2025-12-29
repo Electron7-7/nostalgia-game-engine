@@ -1,18 +1,15 @@
-#ifdef FWD_DCL
-    class Collider;
-#elif !defined COLLIDER_H
+#ifndef COLLIDER_H
 #define COLLIDER_H
 
-#define FWD_DCL
-#   include "managers/physics_manager.hpp"
-#undef  FWD_DCL
-
-#include "device.hpp"
+#include "fwd/physics.hpp"
+#include "things/devices/device.hpp"
 #include "theatre/transform_3d.hpp"
 
-#include <Jolt/Jolt.h>
-#include <Jolt/Math/Vec3.h>
-#include <Jolt/Math/Quat.h>
+enum class PhysicsBodyShape : ushort
+{ Box = 0, Sphere = 1, Capsule = 2, Cylinder = 3, None = 4 };
+
+enum class PhysicsBodyMotion : ushort
+{ Static = 0, Dynamic = 1, Kinematic = 2, None = 3 };
 
 class Collider : public Device, public Transform3D
 {

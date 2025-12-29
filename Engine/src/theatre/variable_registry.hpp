@@ -1,16 +1,9 @@
-#ifdef FWD_DCL
-#elif !defined THEATRE_VARIABLE_REGISTRY
-#define THEATRE_VARIABLE_REGISTRY
+#ifndef THEATRE_VARIABLE_REGISTRY_H
+#define THEATRE_VARIABLE_REGISTRY_H
 
-#define FWD_DCL
-#   include "core/id.hpp"
-#undef  FWD_DCL
-
+#include "math/concepts.hpp"
 #include "core/farg.hpp"
 #include "core/error.hpp"
-#include "common/concepts.hpp"
-
-#include <string>
 #include <map>
 #include <typeindex>
 
@@ -142,4 +135,4 @@ private:
 
 extern VariableRegistry* g_pVariableRegistry;
 
-#endif // THEATRE_VARIABLE_REGISTRY
+#endif // THEATRE_VARIABLE_REGISTRY_H

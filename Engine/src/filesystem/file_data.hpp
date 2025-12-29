@@ -1,13 +1,8 @@
-#ifdef FWD_DCL
-    enum class FileType   : unsigned short;
-    enum class DataStatus : unsigned short;
-    struct FileData;
-#elif !defined FILE_DATA_H
+#ifndef FILE_DATA_H
 #define FILE_DATA_H
 
-#include "core/error.hpp"
+#include "fwd/core.hpp"
 #include "core/farg.hpp"
-
 #include <string>
 
 enum class FileType : ushort

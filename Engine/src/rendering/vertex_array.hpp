@@ -1,12 +1,9 @@
-#ifdef FWD_DCL
-class VertexArray;
-#elif !defined VERTEX_ARRAY_H
+#ifndef VERTEX_ARRAY_H
 #define VERTEX_ARRAY_H
 
 // Stolen from Hazel [https://github.com/TheCherno/Hazel]
 
-#include "mesh_buffers.hpp"
-#include "render_layers.hpp"
+#include "rendering/mesh_buffers.hpp"
 #include "core/smart_pointers.hpp"
 
 class VertexArray

@@ -6,6 +6,6 @@ struct STRUCT_NAME \
 { \
     STRUCT_DEFINITION \
 } OPTIONAL_CSTYLE_VARIABLE; \
-using STRUCT_NAME##Arg = Farg<STRUCT_NAME>;
+using STRUCT_NAME##Arg = const STRUCT_NAME&;
 
 #endif // MACROS_H

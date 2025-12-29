@@ -1,25 +1,19 @@
-#ifdef FWD_DCL
-    class ThingFactory;
-#elif !defined THING_FACTORY_H
+#ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#include "thing.hpp"
+#include "things/thing.hpp"
 #include "core/id.hpp"
 #include "core/smart_pointers.hpp"
-
 #include <map>
 #include <cassert>
 
-using TTID = PID;
+typedef Shared<Thing> (*pThingMakerTemplate_t)();
 
 class ThingFactory
 {
 public:
-    typedef Shared<Thing> (*pThingMakerTemplate_t)();
-
     template<ThingDerived T>
-    static Shared<Thing> ThingMakerTemplate()
-    { return Shared<Thing>(new T{}); }
+        static Shared<Thing> ThingMakerTemplate() { return Shared<Thing>(new T{}); }
 
     static constexpr int cDefaultPriority{1};
 

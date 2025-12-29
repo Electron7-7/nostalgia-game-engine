@@ -1,14 +1,9 @@
-#ifdef FWD_DCL
-    class RenderManager;
-    extern RenderManager* g_pRenderManager;
-#elif !defined RENDER_MANAGER_H
+#ifndef RENDER_MANAGER_H
 #define RENDER_MANAGER_H
 
-#define FWD_DCL
-#   include "rendering/renderer_api.hpp"
-#undef  FWD_DCL
-
-#include "manager.hpp"
+#include "managers/manager.hpp"
+#include "fwd/rendering.hpp"
+#include "core/smart_pointers.hpp"
 
 enum class ShaderDebugOutput : ushort
 {
@@ -18,7 +13,7 @@ enum class ShaderDebugOutput : ushort
     VertexUVs = 3,
 };
 
-inline ushort gShaderDebugOuptut{static_cast<ushort>(ShaderDebugOutput::All)};
+inline ushort gShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
 
 class RenderManager : public Manager
 {

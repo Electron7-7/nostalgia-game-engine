@@ -1,15 +1,10 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
-#define FWD_DCL
-#   include "rendering/graphics_context.hpp"
-#undef  FWD_DCL
-
 #include "events/bindings.hpp"
 #include "application/window.hpp"
 #include "math/containers.hpp"
-#include "frozen/map.h"
-
+#include "thirdparty/frozen/map.h"
 #include <GLFW/glfw3.h>
 
 typedef int GLFWInputID;

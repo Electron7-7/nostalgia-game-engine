@@ -1,11 +1,8 @@
-#ifdef FWD_DCL
-    class IApplication;
-    IApplication* Application();
-    Unique<IWindow>& MainWindow();
-#elif !defined APPLICATION_H
+#ifndef APPLICATION_H
 #define APPLICATION_H
 
 #include "window.hpp"
+#include "core/smart_pointers.hpp"
 #include "components/event_handling.hpp"
 
 class IApplication : public OnInput, public OnAppEvent

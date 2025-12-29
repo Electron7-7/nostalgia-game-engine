@@ -1,6 +1,4 @@
-#ifdef FWD_DCL
-    class IGraphicsContext;
-#elif !defined GRAPHICS_CONTEXT_H
+#ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
 #include "core/error.hpp"

@@ -1,6 +1,5 @@
 #include "event_manager.hpp"
 #include "events/event_queue.hpp"
-#include "components/event_handling.hpp"
 #include "application/application.hpp"
 
 static EventQueue sEventQueue{};
@@ -18,7 +17,7 @@ void EventManager::Update()
         if(auto app_event{DCast<AppEvent>(event)})
             { Application()->Event(app_event.get()); }
         else if(auto engine_event{DCast<EngineEvent>(event)})
-            { IManager::PassEngineEvent(engine_event.get()); }
+            { IManager::InvokeEvent(engine_event.get()); }
     }
 }
 

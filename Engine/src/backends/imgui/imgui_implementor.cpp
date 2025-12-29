@@ -3,10 +3,10 @@
 #include "application/window.hpp"
 #include "application/application.hpp"
 #include "rendering/renderer_api.hpp"
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_impl_glfw.h"
-#include "DearImGui/imgui_impl_opengl3.h"
-#include "DearImGui/imgui_impl_opengl3_loader.h"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_impl_glfw.h"
+#include "thirdparty/DearImGui/imgui_impl_opengl3.h"
+#include "thirdparty/DearImGui/imgui_impl_opengl3_loader.h"
 
 #define ErrorGraphicsAPI print_error("invalid/unknown window handler detected!"); return
 #define ErrorWindowingLibrary print_error("invalid/unknown graphics API detected!"); return

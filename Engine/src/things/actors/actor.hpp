@@ -1,6 +1,4 @@
-#ifdef FWD_DCL
-    class Actor;
-#elif !defined ACTOR_H
+#ifndef ACTOR_H
 #define ACTOR_H
 
 #include "things/thing.hpp"

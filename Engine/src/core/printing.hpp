@@ -2,7 +2,6 @@
 #define PRINTING_H
 
 #include "message_labels.hpp"
-
 #include <print>
 #include <source_location>
 

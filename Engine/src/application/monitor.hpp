@@ -1,11 +1,9 @@
-#ifdef FWD_DCL
-    struct Monitor;
-#elif !defined MONITOR_H
+#ifndef MONITOR_H
 #define MONITOR_H
 
+#include "core/farg.hpp"
 #include "core/macros.hpp"
-
-#include <memory>
+#include "core/smart_pointers.hpp"
 
 struct Monitor
 {
@@ -42,11 +40,11 @@ struct Monitor
     void* native_monitor{nullptr};
 
     Monitor() = default;
-    Monitor(void* inNativeMonitor, Farg<std::string> inTitle = "Untitled"):
+    Monitor(void* inNativeMonitor, Sarg inTitle = "Untitled"):
         title{inTitle}, native_monitor{inNativeMonitor} {}
 
     // Used by `std::find` in 'Engine/src/backends/glfw/glfw_window.cpp:34'
-    constexpr bool operator==(Farg<std::unique_ptr<Monitor>> other) const
+    constexpr bool operator==(Farg<Unique<Monitor>> other) const
     { return native_monitor == other->native_monitor; }
 };
 

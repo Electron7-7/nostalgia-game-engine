@@ -1,13 +1,11 @@
 #include "gl_renderer_api.hpp"
-#include "gl_shader.hpp"        // IWYU pragma: keep
-#include "embedded/shaders.hpp" // IWYU pragma: keep
+#include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
+#include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "core/printing.hpp"
-#include "rendering/graphics_context.hpp"
 #include "rendering/vertex_array.hpp"
 #include "rendering/frame_buffer.hpp"
 #include "things/actors/light.hpp"
 #include "application/application.hpp"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>

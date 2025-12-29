@@ -1,21 +1,21 @@
 #ifndef GLM_CONCEPTS_H
 #define GLM_CONCEPTS_H
 
-#include "glm/glm.hpp" // IWYU pragma: keep
+#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtc/quaternion.hpp" // IWYU pragma: keep
+#include <glm/gtc/quaternion.hpp>
 
 template<typename T>
-    concept GLM_Vec2 = std::is_same_v<std::decay_t<T>,std::decay_t<glm::vec2>>;
+    concept GLM_Vec2 = std::same_as<T,glm::vec2>;
 
 template<typename T>
-    concept GLM_Vec3 = std::is_same_v<std::decay_t<T>,std::decay_t<glm::vec3>>;
+    concept GLM_Vec3 = std::same_as<T,glm::vec3>;
 
 template<typename T>
-    concept GLM_Vec4 = std::is_same_v<std::decay_t<T>,std::decay_t<glm::vec4>>;
+    concept GLM_Vec4 = std::same_as<T,glm::vec4>;
 
 template<typename T>
-    concept GLM_Quat = std::is_same_v<std::decay_t<T>,std::decay_t<glm::quat>>;
+    concept GLM_Quat = std::same_as<T,glm::quat>;
 
 template<typename T>
     concept GLMContainer = GLM_Vec2<T> || GLM_Vec3<T> || GLM_Vec4<T> || GLM_Quat<T>;

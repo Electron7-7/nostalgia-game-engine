@@ -1,16 +1,12 @@
-#ifdef FWD_DCL
-    class InputAction;
-#elif !defined INPUT_ACTION_H
+#ifndef INPUT_ACTION_H
 #define INPUT_ACTION_H
 
-#include "core/error.hpp"
+#include "fwd/core.hpp"
 #include "core/id.hpp"
-
-#include <string>
 #include <unordered_map>
 
 // can't be fucked to find the max width of `uint` and, tbh, you don't really need more than 20 keys in an action
-#define BITMASK_CAP 20
+constinit const ushort MaxActions{20};
 
 class InputAction
 {
@@ -21,7 +17,7 @@ private:
     uint mBitMaskIter{0b1}; // the last-used bitmask value
 
 public:
-    template<ID_t... KeyIDs> requires (sizeof...(KeyIDs) <= BITMASK_CAP)
+    template<ID_t... KeyIDs> requires (sizeof...(KeyIDs) <= MaxActions)
         InputAction(Farg<std::string> inName, KeyIDs&... inKeyIDs):
             mName{inName}
         {
@@ -35,7 +31,7 @@ public:
         }
 
     constexpr bool Full() const noexcept
-    { return mBitMasks.size() >= BITMASK_CAP; }
+    { return mBitMasks.size() >= MaxActions; }
 
     bool UpdateState(uint inKeyID, bool inKeyState);
     Error Erase(uint inKeyID);
@@ -51,6 +47,4 @@ public:
     constexpr bool operator< (Farg<InputAction> inAction) const noexcept
     { return mName < inAction.mName; }
 };
-
-#undef BITMASK_CAP
 #endif // INPUT_ACTION_H

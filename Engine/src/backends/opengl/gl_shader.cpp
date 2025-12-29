@@ -1,7 +1,6 @@
 #include "gl_shader.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
-
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

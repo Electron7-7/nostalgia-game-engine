@@ -1,7 +1,4 @@
-#ifdef FWD_DCL
-    struct ID;
-    constexpr unsigned int g_cInvalidID{static_cast<unsigned int>(-1)};
-#elif !defined ID_H
+#ifndef ID_H
 #define ID_H
 
 #include "farg.hpp"

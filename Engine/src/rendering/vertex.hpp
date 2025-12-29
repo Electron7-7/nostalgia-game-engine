@@ -1,10 +1,7 @@
-#ifdef FWD_DCL
-    struct Vertex;
-#elif !defined VERTEX_H
+#ifndef VERTEX_H
 #define VERTEX_H
 
 #include "core/farg.hpp"
-
 #include <vector>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

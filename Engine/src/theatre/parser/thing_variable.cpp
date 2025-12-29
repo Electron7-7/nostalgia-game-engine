@@ -1,7 +1,5 @@
 #include "thing_variable.hpp"
 #include "common/colors.hpp"
-#include "managers/theatre_manager.hpp"
-#include "things/thing.hpp"
 
 ThingVar::ThingVar() noexcept = default;
 

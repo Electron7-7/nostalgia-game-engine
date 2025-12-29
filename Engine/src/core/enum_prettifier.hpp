@@ -1,38 +1,23 @@
-#ifdef FWD_DCL
-#   define ENUM_SET(NAME) extern constinit const char* NAME;
-    namespace EnumPrettifier
-    {
-        namespace EnumSets
-        {
-            ENUM_SET(Global)
-            ENUM_SET(PhysicsBodyShape)
-            ENUM_SET(PhysicsBodyMotion)
-        }
-    }
-#   undef ENUM_SET
-#elif !defined ENUM_PRETTIFIER_H
-#define ENUM_PRETTIFIER_H
+#ifndef ENUM_PRETTIFIER_H
 
-#include "farg.hpp"
-#include "error.hpp"
-#include "common/concepts.hpp"
+#include "core/farg.hpp"
+#include "core/error.hpp"
 #include "common/string_hash.hpp"
-
-#include <string>
+#include "math/concepts.hpp"
 #include <unordered_map>
 
-#define ENUM_SET(NAME) inline static constinit const char* NAME{#NAME};
+#define ENUM_SET(NAME) inline constinit const char* NAME{#NAME};
 
 // Used by the lazy
-#define PRETTIFY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Add(#ENUM, ENUM_SET::ENUM, #ENUM_SET)
-#define GET_PRETTY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Get(ENUM, #ENUM_SET)
+#define REGISTER_ENUM(ENUM, ENUM_SET) EnumPrettifier::Add(#ENUM, ENUM_SET::ENUM, #ENUM_SET)
+#define PRETTIFY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Get(ENUM, #ENUM_SET)
 
-struct EnumSet
+namespace EnumSet
 {
     ENUM_SET(Global)
     ENUM_SET(PhysicsBodyShape)
     ENUM_SET(PhysicsBodyMotion)
-};
+}
 
 class EnumPrettifier
 {

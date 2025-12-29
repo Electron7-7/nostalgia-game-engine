@@ -2,7 +2,6 @@
 #define STRING_COMPARE_H
 
 #include "frozen/string.h"
-
 #include <string>
 #include <algorithm>
 

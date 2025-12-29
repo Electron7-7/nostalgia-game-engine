@@ -1,7 +1,7 @@
 #include "variable_registry.hpp"
 #include "core/printing.hpp"
 #include "core/uid.hpp"
-#include "managers/physics_manager.hpp"
+#include "things/devices/collider.hpp"
 
 static VariableRegistry sVariableRegistry{};
 VariableRegistry* g_pVariableRegistry{&sVariableRegistry};
@@ -74,16 +74,16 @@ Error VariableRegistry::RemoveID(uint inID)
 void VariableRegistry::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    m_sReferences["MissingTexture"] = UID::i_Missing[];
-    m_sReferences["LightTexture"]   = UID::i_LightDebug[];
-    m_sReferences["DoomTexture"]    = UID::i_COMP04_5[];
-    m_sReferences["LolBitTexture"]  = UID::i_LolBit[];
-    m_sReferences["ErrorModel"]     = UID::m_Error[];
-    m_sReferences["DefaultCube"]    = UID::m_Cube[];
-    m_sReferences["RamielModel"]    = UID::m_Ramiel[];
-    m_sReferences["Audiowide"]      = UID::f_Audiowide[];
-    m_sReferences["DejaVuSans"]     = UID::f_DejaVuSans[];
-    m_sReferences["Verdana"]        = UID::f_Verdana[];
+    m_sReferences["MissingTexture"] = UID::i_Missing;
+    m_sReferences["LightTexture"]   = UID::i_LightDebug;
+    m_sReferences["DoomTexture"]    = UID::i_COMP04_5;
+    m_sReferences["LolBitTexture"]  = UID::i_LolBit;
+    m_sReferences["ErrorModel"]     = UID::m_Error;
+    m_sReferences["DefaultCube"]    = UID::m_Cube;
+    m_sReferences["RamielModel"]    = UID::m_Ramiel;
+    m_sReferences["Audiowide"]      = UID::f_Audiowide;
+    m_sReferences["DejaVuSans"]     = UID::f_DejaVuSans;
+    m_sReferences["Verdana"]        = UID::f_Verdana;
     m_sEnums["Static"]              = PhysicsBodyMotion::Static;
     m_sEnums["Dynamic"]             = PhysicsBodyMotion::Dynamic;
     m_sEnums["Kinematic"]           = PhysicsBodyMotion::Kinematic;

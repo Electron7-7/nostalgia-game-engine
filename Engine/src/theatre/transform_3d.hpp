@@ -1,14 +1,10 @@
 #ifndef TRANSFORM_3D_H
 #define TRANSFORM_3D_H
 
-#define FWD_DCL
-#   include "theatre/parser/thing_data.hpp"
-#undef  FWD_DCL
-
+#include "fwd/theatre.hpp"
 #include "core/farg.hpp"
 #include "core/smart_pointers.hpp"
-
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
 

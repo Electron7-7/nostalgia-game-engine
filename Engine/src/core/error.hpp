@@ -5,7 +5,7 @@
 
 // Modelled after GDScript's `Error` enum:
 // https://docs.godotengine.org/en/stable/classes/class_%40globalscope.html#enum-globalscope-error
-enum Error {
+enum Error : int {
     OK = 0, // Successful
     UNIMPLEMENTED = -1, // Unimplemented code; `TestError` can take an argument which decides if this is an error or not
     FAILED = 1, // Generic/default error

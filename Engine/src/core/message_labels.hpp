@@ -1,7 +1,7 @@
 #ifndef MESSAGE_LABELS_H
 #define MESSAGE_LABELS_H
 
-#include "ansi_codes.hpp"
+#include "ansi_sequence.hpp"
 
 struct MessageLabel
 {

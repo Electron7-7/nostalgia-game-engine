@@ -1,9 +1,7 @@
-#ifdef FWD_DCL
-    class Texture;
-#elif !defined TEXTURE_H
+#ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "resource.hpp"
+#include "things/resources/resource.hpp"
 
 class Texture : public Resource
 {

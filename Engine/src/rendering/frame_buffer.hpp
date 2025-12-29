@@ -1,14 +1,8 @@
-#ifdef FWD_DCL
-class FrameBuffer;
-#elif !defined FRAME_BUFFER_H
+#ifndef FRAME_BUFFER_H
 #define FRAME_BUFFER_H
 
-#define FWD_DCL
-#   include "filesystem/file_data.hpp"
-#   include "texture_buffer.hpp"
-#undef  FWD_DCL
-
-#include "core/id.hpp"
+#include "fwd/rendering.hpp"
+#include "core/farg.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
 #include "math/containers.hpp"

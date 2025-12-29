@@ -3,7 +3,6 @@
 #include "core/uid.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
-
 #include <map>
 
 const TheatreData TheatreData::Missing;

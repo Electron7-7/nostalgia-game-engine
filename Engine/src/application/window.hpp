@@ -1,18 +1,14 @@
-#ifdef FWD_DCL
-    class IWindow;
-#elif !defined WINDOW_H
+#ifndef WINDOW_H
 #define WINDOW_H
 
-#define FWD_DCL
-#   include "rendering/graphics_context.hpp"
-#   include "math/containers.hpp"
-#   include "monitor.hpp"
-#undef  FWD_DCL
-
+#include "fwd/math.hpp"
+#include "fwd/rendering.hpp"
+#include "application/monitor.hpp"
 #include "core/farg.hpp"
 #include "core/smart_pointers.hpp"
 #include "core/error.hpp"
 #include "components/game_loop.hpp"
+#include <vector>
 
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION
@@ -26,7 +22,7 @@
 #   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Scale2D& VAR_NAME)
 #endif // WAYLAND_DISPLAY
 
-enum NativeWindowType
+enum NativeWindowType : int
 {
     NATIVE_GLFW_WINDOW,
 };

@@ -1,14 +1,7 @@
-#ifdef FWD_DCL
-    class UIManager;
-    extern UIManager* g_pUIManager;
-#elif !defined UI_MANAGER_H
+#ifndef UI_MANAGER_H
 #define UI_MANAGER_H
 
-#define FWD_DCL
-#   include "ui/solution.hpp"
-#undef  FWD_DCL
-
-#include "manager.hpp"
+#include "managers/manager.hpp"
 
 class UIManager : public Manager
 {

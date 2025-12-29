@@ -1,13 +1,9 @@
-#ifdef FWD_DCL
-    class Thing;
-#elif !defined THING_H
+#ifndef THING_H
 #define THING_H
 
-#define FWD_DCL
-#   include "theatre/parser/thing_data.hpp"
-#undef  FWD_DCL
-
-#include "types.hpp"
+#include "fwd/theatre.hpp"
+#include "things/types.hpp"
+#include "core/smart_pointers.hpp"
 #include "components/game_loop.hpp"
 #include "components/event_handling.hpp"
 
@@ -33,7 +29,7 @@ public:
 
     ID uid() const;
     Farg<TTID> type() const;
-    Farg<std::string> name() const;
+    Sarg name() const;
     const char* const c_name() const;
 
 protected:

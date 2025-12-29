@@ -1,7 +1,6 @@
 #include "mesh_buffers.hpp"
 #include "core/printing.hpp"
 #include "rendering/renderer_api.hpp"
-
 // Implementations
 #include "backends/opengl/gl_mesh_buffers.hpp"
 

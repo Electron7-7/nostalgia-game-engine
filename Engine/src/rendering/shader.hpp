@@ -1,18 +1,8 @@
-#ifdef FWD_DCL
-    class Shader;
-    namespace Shaders
-    {
-        extern constinit const unsigned int BlinnPhong;
-        extern constinit const unsigned int Fullbright;
-        extern constinit const unsigned int Skybox;
-        extern constinit const unsigned int Fonts;
-    }
-#elif !defined SHADER_H
+#ifndef SHADER_H
 #define SHADER_H
 
 #include "core/id.hpp"
 #include "core/smart_pointers.hpp"
-
 #include <glm/fwd.hpp>
 
 #pragma message("TODO: remove/move namespace 'Shaders'")

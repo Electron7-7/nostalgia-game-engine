@@ -1,7 +1,7 @@
 #include "file_data.hpp"
 #include "filesystem.hpp"
 #include "core/printing.hpp"
-
+#include "core/error.hpp"
 #include <map>
 
 static std::map<std::string, FileType>

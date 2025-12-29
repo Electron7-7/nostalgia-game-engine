@@ -200,7 +200,7 @@ void TheatreManager::DrawTheatre()
             shader->SetUniform("model_matrix", model_matrix);
             shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
             shader->SetUniform("projection_matrix", projection_matrix);
-            shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOuptut));
+            shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
             shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
             shader->SetUniform("point_lights_count", PointLight::GetCount());
             shader->SetUniform("spot_lights_count", SpotLight::GetCount());

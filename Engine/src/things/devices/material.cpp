@@ -1,5 +1,4 @@
 #include "material.hpp"
-#include "core/printing.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Material::SetVariables(Farg<ThingData> data)

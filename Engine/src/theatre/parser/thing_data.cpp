@@ -2,7 +2,6 @@
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
 #include "core/uid.hpp"
-#include "core/globals.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
 
@@ -124,9 +123,9 @@ bool ThingData::GetBoolean(bool& outBool, Sarg inName) const
 {
     if(auto assert_var{AssertVariable(inName, ThingVar::Type::Bool)}; assert_var != variables.cend())
     {
-        if(!assert_var->value.compare(StringConstant::True))
+        if(!assert_var->value.compare(std::format("{}", true)))
             { return outBool = true; }
-        else if(!assert_var->value.compare(StringConstant::False))
+        else if(!assert_var->value.compare(std::format("{}", false)))
             { return !(outBool = false); }
     }
     return false;

@@ -1,9 +1,7 @@
-#ifdef FWD_DCL
-    class MeshInstance;
-#elif !defined MESH_INSTANCE_H
+#ifndef MESH_INSTANCE_H
 #define MESH_INSTANCE_H
 
-#include "device.hpp"
+#include "things/devices/device.hpp"
 #include "rendering/render_layers.hpp"
 
 class MeshInstance : public Device

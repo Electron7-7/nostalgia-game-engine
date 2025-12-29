@@ -1,6 +1,5 @@
 #include "gl_graphics_context.hpp"
 #include "core/printing.hpp"
-
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -8,6 +7,7 @@ OpenGLContext::OpenGLContext(GLFWwindow* inNativeWindow):
     mWindow{inNativeWindow}
 { if(!mWindow) { print_error("mWindow is nullptr!"); } }
 
+#pragma message("TODO: if GLFW is the only windowing solution, this is fine; otherwise, make this agnostic!")
 Error OpenGLContext::Init()
 {
     glfwMakeContextCurrent(mWindow);

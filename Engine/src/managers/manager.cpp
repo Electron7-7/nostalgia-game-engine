@@ -1,12 +1,9 @@
 #include "manager.hpp"
 #include "core/time.hpp"
 #include "core/printing.hpp"
-#include "application/application.hpp"
-#include "application/window.hpp"
 #include "settings/engine.hpp"
+#include "application/application.hpp"
 #include "theatre/variable_registry.hpp"
-
-#include <GLFW/glfw3.h>
 #include <cassert>
 #include <thread>
 
@@ -67,6 +64,12 @@ bool IManager::InvokeMethod(ManagerInitFunc_t function)
             { return false; }
     }
     return true;
+}
+
+void IManager::InvokeEvent(EngineEvent* inEvent)
+{
+    for(size_t i{0}; i < m_sGameManagers.size(); ++i)
+        { m_sGameManagers.at(i)->Event(inEvent); }
 }
 
 ManagerEnums::TheatreReturnValue_t IManager::InvokeTheatreMethod(ManagerTheatreFunction_t function, bool is_first_call)

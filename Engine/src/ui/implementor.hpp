@@ -1,16 +1,8 @@
-#ifdef FWD_DCL
-class UI_Implementor;
-#elif !defined UI_IMPLEMENTOR_H
+#ifndef UI_IMPLEMENTOR_H
 #define UI_IMPLEMENTOR_H
 
-#define FWD_DCL
-#   include "events/event.hpp"
-#undef  FWD_DCL
-
-#include "solution.hpp"
-#include "core/id.hpp"
+#include "ui/solution.hpp"
 #include "core/smart_pointers.hpp"
-
 #include <map>
 #include <typeindex>
 #include <mutex>
@@ -18,7 +10,6 @@ class UI_Implementor;
 #define STATE_STRING(STATE) case STATE: return #STATE;
 
 // Shamelessly stolen from Hazel's 'Layer' system(s) (https://github.com/TheCherno/Hazel)
-// Also, typing 'UI_Implementor' is funny
 class UI_Implementor
 {
 public:
@@ -26,7 +17,7 @@ public:
     using Solutions = std::map<std::type_index, Unique<UI_Solution>>;
 
     // All implementations of `UI_Implementor` must update their `mState` appropriately
-    enum InstanceState {
+    enum InstanceState : int {
         STATE_ATTACHING, // During `Attach`
         STATE_IDLE, // After `Attach` or `End` but before `Begin`
         STATE_BEGINNING_FRAME, // During `Begin`
@@ -36,12 +27,13 @@ public:
         STATE_INACTIVE, // After `Detach` and/or before `Attach`
     };
 
+    UI_Implementor();
     virtual ~UI_Implementor();
 
-    virtual void Attach() {}
-    virtual void Detach() {}
-    virtual void Begin()  {}
-    virtual void End()    {}
+    virtual void Attach() = 0;
+    virtual void Detach() = 0;
+    virtual void Begin()  = 0;
+    virtual void End()    = 0;
 
     InstanceState GetState() const;
 
@@ -74,12 +66,11 @@ public:
     void StopHandlingEvents(bool inStopHandlingEvents)
     { mGlobalCanHandleEvents = !inStopHandlingEvents; }
 
-    template<IsUiSolution T>
+    template<typename T> requires std::derived_from<T, UI_Solution>
         Unique<UI_Solution>& CreateSolution()
         {
             mObjects[typeid(T)] = MakeUnique<T>();
             mObjects[typeid(T)]->mImplementorIndex = mIndex;
-            // mObjects[typeid(T)]->mImplementorIndex = typeid(T);
             return mObjects[typeid(T)];
         }
 
@@ -101,9 +92,6 @@ protected:
     static Instances m_sInstances;
     static std::recursive_mutex m_sInstancesMutex;
 };
-
-template<typename T>
-    concept IsUiImplementor = std::derived_from<T, UI_Implementor>;
 
 #undef STATE_STRING
 #endif // UI_IMPLEMENTOR_H

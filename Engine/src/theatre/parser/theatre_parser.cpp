@@ -1,8 +1,6 @@
 #include "theatre_parser.hpp"
 #include "core/printing.hpp"
 #include "filesystem/filesystem.hpp"
-#include "filesystem/file_data.hpp"
-
 #include <string>
 
 #define SYNTAX_MESSAGE(TYPE, FMT, ARGS...) \
@@ -13,8 +11,8 @@
 
 // TODO: make a separate project for Theatre file syntax and include error/warning generation?
 
-int gBreakOnColumn {-1};
-int gBreakOnLine   {-1};
+size_t gBreakOnColumn {static_cast<size_t>(-1)};
+size_t gBreakOnLine   {static_cast<size_t>(-1)};
 
 size_t gColumn {1};
 size_t gLine   {1};

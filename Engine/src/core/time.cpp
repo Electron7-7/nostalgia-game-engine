@@ -1,5 +1,5 @@
 #include "core/time.hpp"
-
+#include <float.h>
 #include <format>
 #include <chrono>
 
@@ -24,6 +24,20 @@ std::string Time::StartFormatted()
 
 std::string Time::CurrentFormatted()
 { return std::format(cTimeFormat, std::chrono::current_zone()->to_local(SYSTEM_NOW)); }
+
+void Time::Wait(bool& WhileTrue, double OrMsPasses)
+{
+    double start_time{Current()};
+    OrMsPasses = (!OrMsPasses)
+        ? DBL_MAX
+        : OrMsPasses * 0.001;
+    while(WhileTrue && (Current() - start_time) < OrMsPasses) {}
+}
+void Time::Wait(double TimeInMs)
+{
+    bool throwaway{true};
+    Wait(throwaway, TimeInMs);
+}
 
 #undef STEADY_NOW
 #undef SYSTEM_NOW

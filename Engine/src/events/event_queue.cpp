@@ -1,5 +1,4 @@
 #include "event_queue.hpp"
-#include "components/event_handling.hpp"
 
 std::vector<Shared<IEvent>>& EventQueue::get() noexcept
 { return mEvents; }

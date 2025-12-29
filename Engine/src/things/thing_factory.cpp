@@ -1,5 +1,4 @@
 #include "thing_factory.hpp"
-#include "thing.hpp"
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
@@ -50,7 +49,7 @@ bool ThingFactory::AddThing(pThingMakerTemplate_t maker_ptr, Farg<std::string> t
     return true;
 }
 
-ThingFactory::pThingMakerTemplate_t ThingFactory::MakeThing(Farg<TTID> type)
+pThingMakerTemplate_t ThingFactory::MakeThing(Farg<TTID> type)
 {
     if(auto found_it{mThingMakers.find(type)}; found_it != mThingMakers.end())
         { return found_it->second; }

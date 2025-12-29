@@ -1,21 +1,11 @@
-#ifdef FWD_DCL
-class InputManager;
-extern InputManager* g_pInputManager;
-#elif !defined INPUT_MANAGER_H
+#ifndef INPUT_MANAGER_H
 #define INPUT_MANAGER_H
 
-#define FWD_DCL
-#   include "events/event.hpp"
-#   include "events/event_queue.hpp"
-#   include "math/containers.hpp"
-#   include "events/action.hpp"
-#   include "events/bindings.hpp"
-#undef FWD_DCL
-
-#include "manager.hpp"
+#include "managers/manager.hpp"
 #include "core/farg.hpp"
 #include "core/error.hpp"
-
+#include "fwd/math.hpp"
+#include "fwd/events.hpp"
 #include <unordered_map>
 #include <mutex>
 

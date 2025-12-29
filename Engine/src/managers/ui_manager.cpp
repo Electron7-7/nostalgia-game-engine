@@ -20,7 +20,7 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool first_call)
 {
     if(!first_call)
         { return FINISHED; }
-    UI_Implementor::InvokeMethod(&UI_Solution::OnTheatreEntered);
+    UI_Implementor::InvokeMethod(&UI_Solution::TheatreEntered);
     return FINISHED;
 }
 
@@ -38,7 +38,7 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreShutdown(bool first_call)
 {
     if(!first_call)
         { return FINISHED; }
-    UI_Implementor::InvokeMethod(&UI_Solution::OnTheatreExited);
+    UI_Implementor::InvokeMethod(&UI_Solution::TheatreExited);
     return FINISHED;
 }
 

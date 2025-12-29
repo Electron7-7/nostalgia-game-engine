@@ -1,6 +1,4 @@
-#ifdef FWD_DCL
-class OpenGLFrameBuffer;
-#elif !defined GL_FRAME_BUFFER_H
+#ifndef GL_FRAME_BUFFER_H
 #define GL_FRAME_BUFFER_H
 
 #include "rendering/frame_buffer.hpp"

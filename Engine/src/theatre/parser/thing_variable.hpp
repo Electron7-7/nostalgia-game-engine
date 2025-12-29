@@ -1,26 +1,26 @@
-#ifdef FWD_DCL
-    struct ThingVar;
-#elif !defined THING_VARIABLE_H
+#ifndef THING_VARIABLE_H
 #define THING_VARIABLE_H
 
-#include "number_parser.hpp"
+#include "theatre/parser/number_parser.hpp"
+#include "theatre/variable_registry.hpp"
 #include "core/id.hpp"
 #include "core/printing.hpp"
-#include "theatre/variable_registry.hpp"
 
 #include <string>
 
+enum class ThingVarType : ushort
+{
+    Reference,
+    Enum,
+    Number,
+    Bool,
+    String,
+    None,
+};
+
 struct ThingVar
 {
-    enum class Type : ushort
-    {
-        Reference,
-        Enum,
-        Number,
-        Bool,
-        String,
-        None,
-    };
+    using Type = ThingVarType;
 
     Type type{Type::None};
     std::string name{};

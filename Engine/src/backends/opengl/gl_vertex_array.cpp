@@ -1,7 +1,5 @@
 #include "gl_vertex_array.hpp"
 #include "core/printing.hpp"
-#include "application/application.hpp"
-
 #include <glad/glad.h>
 
 // Also stolen from Hazel [https://github.com/TheCherno/Hazel]

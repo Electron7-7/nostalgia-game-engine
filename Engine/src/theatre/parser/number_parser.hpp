@@ -1,10 +1,9 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
-#include "core/globals.hpp"
-#include "common/concepts.hpp"
+#include "math/concepts.hpp"
 #include "math/glm_concepts.hpp"
-
+#include <format>
 #include <stdexcept>
 
 template<GLMContainer T>
@@ -19,18 +18,11 @@ template<GLMContainer T>
         return 1;
     }
 
-template<typename T> requires std::same_as<T, bool>
-    std::string NumToString(T inBool)
-    {
-        return (inBool)
-            ? StringConstant::True
-            : StringConstant::False;
-    }
-
-template<Number T>
+template<NumberOrBool T>
     std::string NumToString(T inNum)
-    { return std::to_string(inNum); }
+    { return std::format("{}", inNum); }
 
+#pragma message("Wait, can't I just use `std::format` for all of these? Unless I want to define my own format, of course")
 template<GLMContainer T, uint size = gGlmSize<T>()>
     std::string NumToString(const T& inVec) noexcept
     {

@@ -2,11 +2,9 @@
 #include "theatre_manager.hpp"
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
-#include "theatre/variable_registry.hpp"
 #include "things/devices/collider.hpp"
 #include "settings/engine.hpp"
 #include "math/conversion.hpp"
-
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
@@ -21,8 +19,8 @@
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
-
 #include <cstdarg>
+#include <map>
 
 using namespace JPH;
 
@@ -396,7 +394,7 @@ bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
     return !sBodyIDMap.at(uid).IsInvalid();
 }
 
-bool PhysicsManager::ValidateColliderUID(ID uid, std::shared_ptr<Collider> output, bool check_body_id)
+bool PhysicsManager::ValidateColliderUID(ID uid, Shared<Collider>& output, bool check_body_id)
 {
     if(!mSystem)
         { return print_error("Jolt physics system is nullptr!"); }

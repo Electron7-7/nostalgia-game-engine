@@ -1,5 +1,6 @@
 #include "thing.hpp"
 #include "theatre/parser/thing_data.hpp"
+#include "core/uid.hpp"
 
 Thing::Thing() noexcept {}
 

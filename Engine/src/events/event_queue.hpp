@@ -1,6 +1,4 @@
-#ifdef FWD_DCL
-    class EventQueue;
-#elif !defined EVENT_QUEUE_H
+#ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
 #include "event.hpp"

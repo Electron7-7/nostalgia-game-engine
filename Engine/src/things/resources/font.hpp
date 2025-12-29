@@ -1,7 +1,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include "resource.hpp"
+#include "things/resources/resource.hpp"
 
 class Font : public Resource
 {

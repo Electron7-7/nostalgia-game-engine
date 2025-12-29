@@ -1,13 +1,11 @@
-#ifdef FWD_DCL
-    struct ThingData;
-#elif !defined THING_DATA_H
+#ifndef THING_DATA_H
 #define THING_DATA_H
 
-#include "thing_variable.hpp"
-#include "number_parser.hpp"
+#include "theatre/parser/thing_variable.hpp"
+#include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
 #include "things/types.hpp"
-#include "common/concepts.hpp"
+#include "core/concepts.hpp"
 
 struct ThingData
 {

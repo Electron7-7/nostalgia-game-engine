@@ -2,7 +2,7 @@
 #define OPENGL_RENDERER_API_H
 
 #include "rendering/renderer_api.hpp"
-
+#include "math/containers.hpp"
 #include <unordered_map>
 
 class OpenGLRendererAPI final : public RendererAPI

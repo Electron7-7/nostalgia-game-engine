@@ -1,13 +1,7 @@
-#ifdef FWD_DCL
-    class NostalgiaPlayer;
-#elif !defined NOSTALGIA_PLAYER_H
+#ifndef NOSTALGIA_PLAYER_H
 #define NOSTALGIA_PLAYER_H
 
-#include "actor.hpp"
-
-#include <glm/glm.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
+#include "things/actors/actor.hpp"
 
 class NostalgiaPlayer : public Actor
 {

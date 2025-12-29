@@ -1,12 +1,4 @@
-#ifdef FWD_DCL
-    struct KeyID;
-    namespace Key
-    {
-        struct Modifier;
-        struct Modifiers;
-        extern constinit const unsigned long KeysCount;
-    }
-#elif !defined INPUT_BINDINGS_H
+#ifndef INPUT_BINDINGS_H
 #define INPUT_BINDINGS_H
 
 #include "core/id.hpp"

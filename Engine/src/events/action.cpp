@@ -1,4 +1,5 @@
 #include "action.hpp"
+#include "core/error.hpp"
 
 bool InputAction::UpdateState(uint inKeyID, bool inKeyState)
 {

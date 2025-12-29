@@ -1,9 +1,7 @@
 #ifndef EVENT_HANDLING_COMPONENTS_H
 #define EVENT_HANDLING_COMPONENTS_H
 
-#define FWD_DCL
-#   include "events/event.hpp"
-#undef  FWD_DCL
+#include "fwd/event_types.hpp"
 
 class OnInput
 {

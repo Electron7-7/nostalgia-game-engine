@@ -1,17 +1,15 @@
-#ifdef FWD_DCL
-struct RenderLayers;
-#elif !defined RENDER_LAYERS_H
+#ifndef RENDER_LAYERS_H
 #define RENDER_LAYERS_H
 
 #include <format>
 
-#define RENDER_LAYERS_COUNT 31 // This is also the max that an `int` can be bitshift to the left
+inline constinit const uint MaxRenderLayers{31}; // This is also the max that an `int` can be bitshift to the left
 
 struct RenderLayers
 {
 public:
     static constexpr uint min{1};
-    static constexpr uint max{RENDER_LAYERS_COUNT};
+    static constexpr uint max{MaxRenderLayers};
     static constexpr int all_enabled  {0b1111111111111111111111111111111};
     static constexpr int all_disabled {0b0000000000000000000000000000000}; // hopefully u get the point
 
@@ -42,5 +40,4 @@ template<>
             { return std::formatter<std::string>::format(inT.log(), ctx); }
     };
 
-#undef RENDER_LAYERS_COUNT
 #endif // RENDER_LAYERS_H

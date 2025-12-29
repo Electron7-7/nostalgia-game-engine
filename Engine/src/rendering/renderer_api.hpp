@@ -1,21 +1,13 @@
-#ifdef FWD_DCL
-enum class GraphicsAPI;
-class RendererAPI;
-#elif !defined RENDERER_API_H
+#ifndef RENDERER_API_H
 #define RENDERER_API_H
 
-#define FWD_DCL
-#   include "shader.hpp"
-#   include "vertex_array.hpp"
-#   include "frame_buffer.hpp"
-#   include "things/actors/light.hpp"
-#undef  FWD_DCL
-
-#include "viewport.hpp"
+#include "fwd/rendering.hpp"
+#include "fwd/things.hpp"
+#include "fwd/math.hpp"
 #include "core/id.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
-
+#include "rendering/render_layers.hpp"
 #include <glm/fwd.hpp>
 
 enum class GraphicsAPI

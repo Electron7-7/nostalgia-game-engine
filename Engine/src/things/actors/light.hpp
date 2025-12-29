@@ -1,13 +1,7 @@
-#ifdef FWD_DCL
-    enum class LightType;
-    class light_t;
-    class PointLight;
-    class SpotLight;
-    class DirectionalLight;
-#elif !defined LIGHT_H
+#ifndef LIGHT_H
 #define LIGHT_H
 
-#include "actor.hpp"
+#include "things/actors/actor.hpp"
 
 enum class LightType
 {

@@ -3,7 +3,6 @@
 #include "rendering/texture_buffer.hpp"
 #include "application/application.hpp"
 #include <glad/glad.h>
-#include <GL/glext.h>
 
 static Error s_CheckFramebufferStatus(uint inID)
 {

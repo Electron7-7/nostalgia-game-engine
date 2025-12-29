@@ -1,10 +1,7 @@
-#ifdef FWD_DCL
-class Camera3D;
-class EditorCamera3D;
-#elif !defined CAMERA_3D_H
+#ifndef CAMERA_3D_H
 #define CAMERA_3D_H
 
-#include "actor.hpp"
+#include "things/actors/actor.hpp"
 #include "rendering/render_layers.hpp"
 
 class Camera3D : public Actor

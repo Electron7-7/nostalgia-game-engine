@@ -1,12 +1,8 @@
 #ifndef MESH_PARSER_H
 #define MESH_PARSER_H
 
-#define FWD_DCL
-#   include "filesystem/file_data.hpp"
-#undef  FWD_DCL
-
+#include "fwd/filesystem.hpp"
 #include "core/farg.hpp"
-
 #include <vector>
 #include <sys/types.h>
 

@@ -1,26 +1,14 @@
-#ifdef FWD_DCL
-    class TheatreManager;
-    extern TheatreManager* g_pTheatreManager;
-    extern bool gPrintLoadedTheatreData;
-#elif !defined THEATRE_MANAGER_H
+#ifndef THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#define FWD_DCL
-#   include "things/thing.hpp"
-#   include "things/thing_factory.hpp"
-#   include "things/actors/nostalgia_player.hpp"
-#   include "theatre/parser/theatre_data.hpp"
-#   include "theatre/parser/thing_data.hpp"
-#   include "filesystem/file_data.hpp"
-#   include "rendering/vertex_array.hpp"
-#   include "rendering/texture_buffer.hpp"
-#undef FWD_DCL
-
-#include "manager.hpp"
+#include "managers/manager.hpp"
+#include "fwd/things.hpp"
+#include "fwd/theatre.hpp"
+#include "fwd/rendering.hpp"
+#include "fwd/filesystem.hpp"
+#include "core/id.hpp"
 #include "core/error.hpp"
-#include "things/types.hpp"
 #include "rendering/mesh_buffers.hpp"
-
 #include <unordered_map>
 #include <string>
 #include <mutex>

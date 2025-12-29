@@ -1,13 +1,8 @@
-#ifdef FWD_DCL
-    class IBuffer;
-    class VertexBuffer;
-    class IndexBuffer;
-#elif !defined MESH_BUFFERS_H
+#ifndef MESH_BUFFERS_H
 #define MESH_BUFFERS_H
 
 #include "core/farg.hpp"
 #include "core/smart_pointers.hpp"
-
 #include <vector>
 
 // Taken from Hazel [https:://github.com/TheCherno/Hazel]
