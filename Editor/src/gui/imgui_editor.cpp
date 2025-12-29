@@ -1,11 +1,9 @@
 #include "imgui_editor.hpp"
-#include "backends/opengl/gl_renderer_api.hpp"
 #include "core/uid.hpp"
 #include "application/application.hpp"
 #include "events/event.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
-#include "rendering/viewport.hpp"
 #include "rendering/renderer_api.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
@@ -39,12 +37,12 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 
 void ImGui_Editor::Init()
 {
-    // PRINT_PRETTY_FUNCTION;
+    PRINT_PRETTY_FUNCTION;
     sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create({1920, 1080}));
 }
 
 void ImGui_Editor::Shutdown()
-{ mTextureBuffer.reset(); }
+{ PRINT_PRETTY_FUNCTION; mTextureBuffer.reset(); }
 
 void ImGui_Editor::TheatreEntered()
 {
