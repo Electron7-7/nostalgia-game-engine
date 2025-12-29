@@ -1,24 +1,13 @@
 #ifndef COMMON_CONCEPTS_H
 #define COMMON_CONCEPTS_H
 
-#include "frozen/string.h"
-
+#include "thirdparty/frozen/string.h"
 #include <string>
 #include <concepts>
 
 // Common Concepts
 template<typename From, typename To>
     concept can_become = std::derived_from<From,To> || std::is_convertible_v<From,To>;
-
-template<typename T>
-    concept IsEnum = std::is_enum_v<T> or std::is_scoped_enum_v<T>;
-
-// Math Concepts
-template<typename T>
-    concept NumberOrBool = std::integral<T> or std::floating_point<T>;
-
-template<typename T>
-    concept Number = NumberOrBool<T> and !(std::same_as<T, bool>);
 
 // String Concepts
 template<typename T>
