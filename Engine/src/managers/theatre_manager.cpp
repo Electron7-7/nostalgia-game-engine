@@ -270,7 +270,7 @@ bool TheatreManager::ThingExists(ID uid)
 
 Farg<TTID> TheatreManager::GetType(ID uid)
 {
-    static TTID invalid{ID::Invalid};
+    static TTID invalid{ID::Invalid, "Invalid"};
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(uid)}; found_it != mThings.end())
         { return found_it->second->type(); }
@@ -326,15 +326,14 @@ std::vector<ID> TheatreManager::GetThingIDs()
 Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    if(!mThings.contains(inOldID[]))
-        { print_debug("ERR_NOT_FOUND"); return ERR_NOT_FOUND; }
-    else if(UID::Contains(inNewID[]))
-        { print_debug("ERR_ALREADY_EXISTS"); return ERR_ALREADY_EXISTS; }
+    if(UID::Contains(inNewID[]))
+        { return ERR_ALREADY_EXISTS; }
+    else if(!mThings.contains(inOldID))
+        { return ERR_NOT_FOUND; }
     auto found_it{mThings.extract(inOldID)};
     found_it.mapped()->uid(inNewID);
     found_it.key() = inNewID;
     mThings.insert(std::move(found_it));
-    print_debug("OK");
     return OK;
 }
 
