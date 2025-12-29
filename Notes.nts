@@ -985,3 +985,5 @@ Don't feel as bad today but still definitely sick. Started working on the Thing 
 Finally almost fully better. I'll be working on my PC tonight, so first things first: gotta compile the project and see if it runs.
 
 NOTE: I can just combine the enum prettifier into the theatre variables registry.
+
+All right, I've finished with a giant refactor; basically, created a new `fwd` directory where all forward declarations will go, and tidied up a lot of the header files; I also deleted some unused files & split some header code into source files.
