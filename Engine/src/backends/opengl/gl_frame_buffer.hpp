@@ -2,6 +2,7 @@
 #define GL_FRAME_BUFFER_H
 
 #include "rendering/frame_buffer.hpp"
+#include "rendering/render_layers.hpp"
 
 class OpenGLFrameBuffer : public FrameBuffer
 {
@@ -20,10 +21,13 @@ public:
     uint TextureID() const final;
     Scale2D TextureSize() const final;
     Shared<TextureBuffer> Texture() const final;
+    RenderLayers Layers() const final;
+    void Layers(RenderLayers) final;
 
 private:
     uint mBufferID{0};
     uint mRenderBufferID{0};
+    RenderLayers mLayers{};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     Error mStatus{FAILED};
 };

@@ -82,3 +82,9 @@ uint OpenGLFrameBuffer::ID() const
 
 Error OpenGLFrameBuffer::Status() const
 { return mStatus; }
+
+RenderLayers OpenGLFrameBuffer::Layers() const
+{ return mLayers; }
+
+void OpenGLFrameBuffer::Layers(RenderLayers inLayers)
+{ inLayers = mLayers; }
