@@ -1,4 +1,8 @@
 #include "nostalgia_player.hpp"
+#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
+#include "core/uid.hpp"
+#include "managers/theatre_manager.hpp"
+#include "settings/engine.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
@@ -9,6 +13,7 @@ void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
     Actor::SetVariables(data);
 
     data.GetVariable(mViewPosition, "ViewPosition");
+    data.GetVariable(mCameraID, "Camera", "CameraID", "Camera3D");
 }
 
 Shared<ThingData> NostalgiaPlayer::GetVariables() const
@@ -16,12 +21,29 @@ Shared<ThingData> NostalgiaPlayer::GetVariables() const
     Shared<ThingData> data{Actor::GetVariables()};
 
     data->AddVariable(mViewPosition, "ViewPosition");
+    data->AddVariable(mCameraID, "Camera");
 
     return data;
 }
 
 void NostalgiaPlayer::Input(InputEvent* event)
 {}
+
+void NostalgiaPlayer::Ready()
+{
+    Actor::Ready();
+    if(mCameraID.invalid())
+    {
+        mCameraID = g_pTheatreManager->CreateThing({"DefaultPlayerCam",
+            ThingType::Camera3D,
+            UID::Generate(),
+            {
+                {mViewPosition, "Origin"},
+                {mQuaternion, "Quaternion"},
+                {!Settings::Engine::IsEditorHint, "Current"},
+            }});
+    }
+}
 
 void NostalgiaPlayer::Tick()
 {
@@ -38,7 +60,9 @@ void NostalgiaPlayer::Tick()
     mOrigin += mVelocity;
     mMovementDirection = glm::vec3(0.0f);
     SetEuler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
-    mViewMatrix = glm::lookAt(mOrigin, mOrigin + Front(), Up());
+    auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
+    camera->SetOrigin(mOrigin + mViewPosition);
+    camera->SetQuaternion(mQuaternion);
 }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)
@@ -50,11 +74,8 @@ void NostalgiaPlayer::Move(const glm::vec2& direction)
 void NostalgiaPlayer::Look(const glm::vec2& motion)
 { mLookWish = motion * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale; }
 
-const glm::vec3& NostalgiaPlayer::ViewPosition() const
-{ return mViewPosition; }
+ID NostalgiaPlayer::CameraID() const
+{ return mCameraID; }
 
-const glm::mat4& NostalgiaPlayer::ViewMatrix() const
-{ return mViewMatrix; }
-
-void NostalgiaPlayer::SetViewPosition(const glm::vec3& view_position)
-{ mViewPosition = view_position; }
+void NostalgiaPlayer::CameraID(ID inID)
+{ mCameraID = inID; }

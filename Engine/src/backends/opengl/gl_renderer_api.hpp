@@ -29,8 +29,8 @@ public:
     Shared<FrameBuffer> GetFrameBuffer(ID) final;
     Error RemoveFrameBuffer(ID inID) final;
 
-    void DrawIndexed(Shared<VertexArray>, uint, RenderLayers) final;
-    void DrawLines(Shared<VertexArray>, uint, RenderLayers) final;
+    void DrawIndexed(Farg<Shared<Camera3D>>, Shared<VertexArray>, uint) final;
+    void DrawLines(Farg<Shared<Camera3D>>, Shared<VertexArray>, uint) final;
     void Clear() final;
 
 private:

@@ -15,7 +15,7 @@ void Material::SetVariables(Farg<ThingData> data)
         { mSpecularStrength = 1.0f; }
     data.GetVariable(mDontUseTexture, "UseVertexColors");
     data.GetVariable(mDontUseTexture, "OnlyUseVertexColors");
-    data.GetVariable(mDontUseTexture, "NoTexture");
+    data.GetVariable(mDontUseTexture, "NoTexture", "NoTextures");
     data.GetVariable(mFullBright, "FullBright", "mat_fullbright");
 }
 

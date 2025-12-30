@@ -1,5 +1,6 @@
 #include "light.hpp"
 #include "core/uid.hpp"
+#include "settings/engine.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef DEBUGGING
@@ -22,7 +23,7 @@ void light_t::ClearCounts()
 void light_t::Ready()
 {
     // the debug mesh/material shouldn't override a manually specificed one
-    if(mMeshInstanceID.invalid())
+    if(mMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
         ID material_id{g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",

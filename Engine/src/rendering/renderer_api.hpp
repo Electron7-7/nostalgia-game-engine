@@ -7,7 +7,6 @@
 #include "core/id.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
-#include "rendering/render_layers.hpp"
 #include <glm/fwd.hpp>
 
 enum class GraphicsAPI
@@ -44,8 +43,8 @@ public:
     virtual Shared<FrameBuffer> GetFrameBuffer(ID inID) = 0;
     virtual Error RemoveFrameBuffer(ID inID) = 0;
 
-    virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0, RenderLayers = {}) = 0;
-    virtual void DrawLines(Shared<VertexArray>, uint VertexCount = 0, RenderLayers = {}) = 0;
+    virtual void DrawIndexed (Farg<Shared<Camera3D>>, Shared<VertexArray>, uint IndexCount  = 0) = 0;
+    virtual void DrawLines   (Farg<Shared<Camera3D>>, Shared<VertexArray>, uint VertexCount = 0) = 0;
     virtual void Clear() = 0;
 
 private:

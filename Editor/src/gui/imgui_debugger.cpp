@@ -15,6 +15,7 @@
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/actors/light.hpp"
+#include "things/actors/camera_3d.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/collider.hpp"
@@ -535,6 +536,11 @@ struct thing_data_buffer
             motion = static_cast<int>(collider->Motion());
             shape  = static_cast<int>(collider->Shape());
         }
+        else if(auto camera3d{DCast<Camera3D>(ptr)})
+        {
+            is_camera_current = camera3d->IsCurrent();
+            camera_render_layers = camera3d->GetRenderLayers();
+        }
     }
 
     Shared<Thing> ptr{nullptr};
@@ -549,6 +555,8 @@ struct thing_data_buffer
     int motion{static_cast<int>(PhysicsBodyMotion::None)},
         shape{static_cast<int>(PhysicsBodyShape::None)};
     bool activate_collider_on_reset{false};
+    bool is_camera_current{false};
+    RenderLayers camera_render_layers{};
 };
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
@@ -598,6 +606,11 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             {
                                 push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
                                 type_symbol = "(L) ";
+                            }
+                            else if(DCast<Camera3D>(thing))
+                            {
+                                push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
+                                type_symbol = "(C) ";
                             }
                             else
                             {
@@ -736,6 +749,23 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         SameLine();
                         if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
                             { actor->MeshInstanceID(selected.mesh_instance_id); }
+                    }
+                    if(auto camera3d{DCast<Camera3D>(selected.ptr)})
+                    {
+                        if(Checkbox("Current", &selected.is_camera_current))
+                            { camera3d->SetCurrent(selected.is_camera_current); }
+                        for(int i{0}; i < MaxRenderLayers; ++i)
+                        {
+                            PushID(i);
+                            if(Selectable("Layer", selected.camera_render_layers.status(i), 0, {20, 20}))
+                            {
+                                selected.camera_render_layers.toggle(i);
+                                camera3d->SetRenderLayers(selected.camera_render_layers);
+                            }
+                            PopID();
+                            if(i % (MaxRenderLayers/4))
+                                { SameLine(); }
+                        }
                     }
                 }
                 // DEVICES

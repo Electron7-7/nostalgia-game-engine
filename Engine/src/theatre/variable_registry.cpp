@@ -81,6 +81,7 @@ void VariableRegistry::Init()
     m_sReferences["ErrorModel"]     = UID::m_Error[];
     m_sReferences["DefaultCube"]    = UID::m_Cube[];
     m_sReferences["RamielModel"]    = UID::m_Ramiel[];
+    m_sReferences["CameraModel"]    = UID::m_Camera3D[];
     m_sReferences["Audiowide"]      = UID::f_Audiowide[];
     m_sReferences["DejaVuSans"]     = UID::f_DejaVuSans[];
     m_sReferences["Verdana"]        = UID::f_Verdana[];

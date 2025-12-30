@@ -193,6 +193,7 @@ void s_ThingAdder()
     {
         ThingType::Thing.c_name(),
         ThingType::Actor.c_name(),
+        ThingType::Camera3D.c_name(),
         ThingType::PointLight.c_name(),
         ThingType::SpotLight.c_name(),
         ThingType::DirectionalLight.c_name(),

@@ -7,6 +7,9 @@
 class Camera3D : public Actor
 {
 public:
+    virtual void Ready() override;
+    virtual void Tick() override;
+
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
@@ -16,15 +19,12 @@ public:
     virtual void SetCurrent(bool isCurrent);
     virtual bool IsCurrent() const;
 
-    virtual void SetEnabled(bool isEnabled);
-    virtual bool IsEnabled() const;
-
-    Farg<glm::mat4> ViewMatrix() const;
+    glm::mat4 ViewMatrix() const;
 
 protected:
     RenderLayers mRenderLayers{};
     bool mCurrent{false};
-    bool mEnabled{false};
+    glm::mat4 mViewMatrix{};
 };
 
 #endif // CAMERA_3D_H

@@ -25,7 +25,6 @@ public:
     void Input(InputEvent*);
 
     void DrawTheatre();
-    void ReadyThings();
     bool ThingExists(ID UID);
     Farg<TTID> GetType(ID ObjectID);
 
@@ -40,6 +39,8 @@ public:
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
     Shared<NostalgiaPlayer> GetLocalPlayer();
+    Shared<Camera3D> GetCurrentCamera();
+    Error SetCurrentCamera(ID);
     bool DestroyThing(ID);
 
     Shared<Thing> GetThing(ID ObjectID);
@@ -75,6 +76,7 @@ private:
 
     void CreateThings();
     void DestroyThings();
+    uint CreateThingNoReady(Farg<ThingData> ThingData);
 
     Error BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::Layout> inLayout);
     Error BufferTexture(Farg<FileData> inData, ID inID, Farg<TextureFormat> inFormat);

@@ -18,6 +18,7 @@ namespace UID
         m_Error      {0x11},
         m_Cube       {0x12},
         m_Ramiel     {0x13},
+        m_Camera3D   {0x14},
     // Reserved Font UIDs
         f_Verdana    {0x21},
         f_DejaVuSans {0x22},

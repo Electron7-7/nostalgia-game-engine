@@ -4,6 +4,7 @@
 #include "core/printing.hpp"
 #include "rendering/vertex_array.hpp"
 #include "rendering/frame_buffer.hpp"
+#include "things/actors/camera_3d.hpp"
 #include "things/actors/light.hpp"
 #include "application/application.hpp"
 #include <glad/glad.h>
@@ -169,7 +170,7 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
-void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVertexArray, uint inIndexCount, RenderLayers inLayers)
+void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<VertexArray> inVertexArray, uint inIndexCount)
 {
     inVertexArray->Bind();
     inVertexArray->GetIndexBuffer()->Bind();
@@ -177,6 +178,8 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVertexArray, uint inIn
 
     for(FAUTO [id, framebuffer] : mFramebuffers)
     {
+        if(!framebuffer->Layers().contains(inCamera->GetRenderLayers()))
+            { continue; }
         framebuffer->Bind();
         glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
@@ -198,11 +201,13 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVertexArray, uint inIn
     }
 }
 
-void OpenGLRendererAPI::DrawLines(Shared<VertexArray> inVertexArray, uint inVertexCount, RenderLayers inLayers)
+void OpenGLRendererAPI::DrawLines(Farg<Shared<Camera3D>> inCamera, Shared<VertexArray> inVertexArray, uint inVertexCount)
 {
     inVertexArray->Bind();
     for(FAUTO [id, framebuffer] : mFramebuffers)
     {
+        if(!framebuffer->Layers().contains(inCamera->GetRenderLayers()))
+            { continue; }
         framebuffer->Bind();
         glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
         glDrawArrays(GL_LINES, 0, inVertexCount);

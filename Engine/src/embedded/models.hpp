@@ -14,6 +14,10 @@ namespace Models
     constexpr unsigned char Cube[]{
         #embed "models/Cube.obj"
     };
+
+    constexpr unsigned char Camera[]{
+        #embed "models/Camera3D.obj"
+    };
 }
 
 #endif // MODELS_H

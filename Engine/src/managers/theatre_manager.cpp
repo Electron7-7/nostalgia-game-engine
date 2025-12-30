@@ -9,6 +9,7 @@
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
 #include "application/application.hpp"
+#include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
 #include "rendering/mesh_parser.hpp"
@@ -43,6 +44,7 @@ TheatreManager* g_pTheatreManager{&sTheatreManager};
 static bool sReadyToRender{false};
 static TheatreData sCurrentTheatreData{};
 static Shared<NostalgiaPlayer> sLocalPlayer{MakeShared<NostalgiaPlayer>()};
+static Shared<Camera3D> sCurrentCamera{MakeShared<Camera3D>()};
 static IBuffer::Layout sDefaultLayout{
     { IBuffer::Element::Type::Float3, "position" },
     { IBuffer::Element::Type::Float3, "color"    },
@@ -101,6 +103,7 @@ void TheatreManager::BufferEmbeddedResources()
     BufferMesh({Models::Error,         std::size(Models::Error),      FileType::model_OBJ}, UID::m_Error);
     BufferMesh({Models::Cube,          std::size(Models::Cube),       FileType::model_OBJ}, UID::m_Cube);
     BufferMesh({Models::Ramiel,        std::size(Models::Ramiel),     FileType::model_OBJ}, UID::m_Ramiel);
+    BufferMesh({Models::Camera,        std::size(Models::Camera),     FileType::model_OBJ}, UID::m_Camera3D);
     BufferTexture({Images::Missing,    std::size(Images::Missing),    FileType::image_PNG}, UID::i_Missing);
     BufferTexture({Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG}, UID::i_LolBit);
     BufferTexture({Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG}, UID::i_LightDebug);
@@ -146,7 +149,7 @@ void TheatreManager::Input(InputEvent* inInput)
 Shared<Thing> TheatreManager::GetThing(ID inID)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    return (mThings.contains(inID) && GetTheatreState() == IN_LEVEL)
+    return (mThings.contains(inID) && GetTheatreState() != NOT_IN_LEVEL)
         ? mThings.at(inID)
         : MakeShared<Thing>();
 }
@@ -156,7 +159,6 @@ void TheatreManager::DrawTheatre()
     if(!sReadyToRender || GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    RenderLayers currentRenderLayers{};
     light_t::ClearCounts();
 #pragma message("TODO: I have to loop through everything twice since I've removed the render command, so fix that...")
     for(auto& [id, thing] : mThings)
@@ -171,13 +173,10 @@ void TheatreManager::DrawTheatre()
             material->mColor = light->mColor;
             material->mFullBright = true;
         }
-        else if(auto camera_3d{DCast<Camera3D>(thing)};
-            camera_3d and camera_3d->IsEnabled() and camera_3d->IsCurrent())
-            { currentRenderLayers = camera_3d->GetRenderLayers(); }
     }
     for(auto& [id, thing] : mThings)
     {
-        if(auto actor{DCast<Actor>(thing)}; actor and actor->mVisible)
+        if(auto actor{DCast<Actor>(thing)}; actor and actor->mVisible and actor->uid() != sCurrentCamera->uid())
         {
             auto mesh_instance{g_pTheatreManager->GetThing<MeshInstance>(actor->MeshInstanceID())};
             auto material{g_pTheatreManager->GetThing<Material>(mesh_instance->MaterialID())};
@@ -185,7 +184,7 @@ void TheatreManager::DrawTheatre()
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
-            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe || actor->mWireframe);
+            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->mWireframe or DCast<Camera3D>(actor));
 
             GetTextureBuffer(material->DiffuseTextureID()[])->Bind(0);
             GetTextureBuffer(material->SpecularTextureID()[])->Bind(1);
@@ -212,8 +211,8 @@ void TheatreManager::DrawTheatre()
             shader->SetUniform("point_lights_count", PointLight::GetCount());
             shader->SetUniform("spot_lights_count", SpotLight::GetCount());
             shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
-            shader->SetUniform("view_matrix", sLocalPlayer->ViewMatrix());
-            shader->SetUniform("view_position", sLocalPlayer->ViewPosition());
+            shader->SetUniform("view_matrix", sCurrentCamera->ViewMatrix());
+            shader->SetUniform("view_position", sCurrentCamera->Origin());
             shader->SetUniform("current_material.texture_diffuse",  0);
             shader->SetUniform("current_material.texture_specular", 1);
             shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
@@ -221,7 +220,7 @@ void TheatreManager::DrawTheatre()
             shader->SetUniform("current_material.alpha", material->mAlpha);
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
             shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
-            renderer_api->DrawIndexed(GetVertexArray(mesh_instance->MeshID()[]));
+            renderer_api->DrawIndexed(sCurrentCamera, GetVertexArray(mesh_instance->MeshID()[]));
             renderer_api->SetFramebufferSRGB(false);
         }
     }
@@ -237,7 +236,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     mTheatreTextures.clear();
     BufferEmbeddedResources();
     CreateThings();
-    ReadyThings();
+    sLocalPlayer->Ready();
     sReadyToRender = true;
     return FINISHED;
 }
@@ -252,19 +251,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     mTheatreVAOs.clear();
     mTheatreTextures.clear();
     return FINISHED;
-}
-
-void TheatreManager::ReadyThings()
-{
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    for(const auto& [id, thing] : mThings)
-    {
-        thing->Ready();
-        if(auto mesh{DCast<Mesh>(thing)})
-            { BufferMesh(*mesh->Data(), mesh->uid()); }
-        else if(auto texture{DCast<Texture>(thing)})
-            { BufferTexture(*texture->Data(), texture->uid()); }
-    }
 }
 
 bool TheatreManager::ThingExists(ID uid)
@@ -344,36 +330,35 @@ Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 
 uint TheatreManager::CreateThing(Farg<ThingData> inData)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    Shared<Thing> thing;
-    ThingData data{inData};
-
-    if(mThings.contains(data.uid))
-    {
-        print_warning("A Thing with uid #{} already exists; a new ID will be generated and a duplicate Thing will be made", data.uid[]);
-        if(!UID::Contains(data.uid[]))
-            { std::println("{}[NOTE] uid #{} wasn't generated by `UIDs`, which is what caused the previous warning (it has just been added to avoid future issues){}", Sty::Bold + Fg::Cyan, data.uid[], Sty::Reset); }
-        data.uid = UID::Generate();
-    }
-
-    if(data.type() == ThingType::NostalgiaPlayer)
-    {
-        thing = static_pointer_cast<Thing>(sLocalPlayer);
-        thing->SetVariables(ThingData::PlayerDefaultData);
-    }
-    else
-        { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
-
-    thing->SetVariables(data);
-    if(auto collider{DCast<Collider>(thing)})
-        { g_pPhysicsManager->CreateBody(thing->uid(), collider); }
-
-    g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
-    return thing->uid()[];
+    uint output{CreateThingNoReady(inData)};
+    mThings.at(output)->Ready();
+    if(auto mesh{DCast<Mesh>(mThings.at(output))})
+        { BufferMesh(*mesh->Data(), mesh->uid()); }
+    else if(auto texture{DCast<Texture>(mThings.at(output))})
+        { BufferTexture(*texture->Data(), texture->uid()); }
+    return output;
 }
 
 Shared<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
 { return sLocalPlayer; }
+
+Shared<Camera3D> TheatreManager::GetCurrentCamera()
+{ return sCurrentCamera; }
+
+Error TheatreManager::SetCurrentCamera(ID inID)
+{
+    if(sCurrentCamera->uid() == inID)
+        { return OK; }
+    else if(inID.invalid())
+    {
+        if(sLocalPlayer and !sLocalPlayer->CameraID().invalid())
+            { sCurrentCamera = GetThing<Camera3D>(sLocalPlayer->CameraID()); return OK; }
+        print_warning("Unable to set a camera after unsetting the current one!");
+        return OK;
+    }
+    sCurrentCamera = GetThing<Camera3D>(inID);
+    return OK;
+}
 
 bool TheatreManager::DestroyThing(ID id)
 {
@@ -402,6 +387,36 @@ bool TheatreManager::DestroyThing(ID id)
     return false;
 }
 
+uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    Shared<Thing> thing;
+    ThingData data{inData};
+
+    if(mThings.contains(data.uid))
+    {
+        print_warning("A Thing with uid #{} already exists; a new ID will be generated and a duplicate Thing will be made", data.uid[]);
+        if(!UID::Contains(data.uid[]))
+            { std::println("{}[NOTE] uid #{} wasn't generated by `UIDs`, which is what caused the previous warning (it has just been added to avoid future issues){}", Sty::Bold + Fg::Cyan, data.uid[], Sty::Reset); }
+        data.uid = UID::Generate();
+    }
+
+    if(data.type() == ThingType::NostalgiaPlayer)
+    {
+        thing = static_pointer_cast<Thing>(sLocalPlayer);
+        thing->SetVariables(ThingData::PlayerDefaultData);
+    }
+    else
+        { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
+
+    thing->SetVariables(data);
+    if(auto collider{DCast<Collider>(thing)})
+        { g_pPhysicsManager->CreateBody(thing->uid(), collider); }
+
+    g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
+    return thing->uid()[];
+}
+
 void TheatreManager::CreateThings()
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
@@ -412,7 +427,30 @@ void TheatreManager::CreateThings()
         { sCurrentTheatreData.debug_PrintData(); }
 
     for(ThingData& data : sCurrentTheatreData.things_data)
-        { CreateThing(data); }
+        { CreateThingNoReady(data); }
+
+    for(auto& [id, thing] : mThings)
+    {
+        thing->Ready();
+#pragma message("TODO: move this to the renderer api + Resource::Ready")
+        if(auto mesh{DCast<Mesh>(thing)})
+            { BufferMesh(*mesh->Data(), mesh->uid()); }
+        else if(auto texture{DCast<Texture>(thing)})
+            { BufferTexture(*texture->Data(), texture->uid()); }
+    }
+
+    if(Settings::Engine::IsEditorHint)
+    {
+        ID camID{CreateThing({"Editor Camera",
+            ThingType::Camera3D,
+            UID::Generate(),
+            {
+                {true, "Current"},
+                {glm::vec3{0.0f, 1.0f, 1.0f}, "Origin"},
+            }
+        })};
+        sCurrentCamera = DCast<Camera3D>(mThings.at(camID));
+    }
 
     sReadyToRender = true;
 }
