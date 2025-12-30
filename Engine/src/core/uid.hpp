@@ -7,21 +7,21 @@
 namespace UID
 {
     constexpr ID
-    // Reserved Actor UIDs
-        a_Player {(uint)0},
+    // Reserved Player UID
+        a_Player {(uint)0x0},
     // Reserved Image UIDs
-        i_Missing    {1},
-        i_LightDebug {2},
-        i_COMP04_5   {3},
-        i_LolBit     {4},
+        i_Missing    {0x1},
+        i_LightDebug {0x2},
+        i_COMP04_5   {0x3},
+        i_LolBit     {0x4},
     // Reserved Model UIDs
-        m_Error      {5},
-        m_Cube       {6},
-        m_Ramiel     {7},
+        m_Error      {0x11},
+        m_Cube       {0x12},
+        m_Ramiel     {0x13},
     // Reserved Font UIDs
-        f_Verdana    {8},
-        f_DejaVuSans {9},
-        f_Audiowide  {10};
+        f_Verdana    {0x21},
+        f_DejaVuSans {0x22},
+        f_Audiowide  {0x23};
     constexpr uint
     // Reserved UID Boundaries
         reserved_back  {f_Audiowide},
