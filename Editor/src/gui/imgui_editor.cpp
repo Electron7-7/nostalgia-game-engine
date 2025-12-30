@@ -199,7 +199,10 @@ void s_ThingAdder()
         ThingType::Device.c_name(),
         ThingType::Collider.c_name(),
         ThingType::Material.c_name(),
-        ThingType::MeshInstance.c_name()
+        ThingType::MeshInstance.c_name(),
+        ThingType::Resource.c_name(),
+        ThingType::Texture.c_name(),
+        ThingType::Mesh.c_name(),
     };
     BeginChild("MakeNewThing");
     if(CollapsingHeader("Thing Spawner Widget"))
