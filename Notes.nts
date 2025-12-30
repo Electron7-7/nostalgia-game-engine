@@ -992,3 +992,5 @@ I think that I want to finally commit to making a v1.0 of Nostalgia (or at least
 
 [12/29/25]
 Meds weren't refilled today, so a Bang energy and lots of coping is hopefully gonna keep me kicking. I don't feel that bad, honestly; forcing myself to go on a drive in the morning, do my laundry, and not brain rot was very successfull. I actually get shit done with a fire lit under my ass. Anyways, time for some minor improvements or something like that before going to work. Already fixed the issue with the light meshes. Maybe implementing the editor camera?
+
+Here's an idea: render the scene for every camera in the scene and match them to the correct framebuffers using their render layers. Then, I could do something like have the editor camera and the player camera views both be visible at the same time on separate image layers. This would work well, I think.
