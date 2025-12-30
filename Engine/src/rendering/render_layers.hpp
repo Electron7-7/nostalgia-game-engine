@@ -3,7 +3,7 @@
 
 #include <format>
 
-inline constinit const uint MaxRenderLayers{31}; // This is also the max that an `int` can be bitshift to the left
+inline constinit const uint MaxRenderLayers{20};
 
 struct RenderLayers
 {
@@ -28,6 +28,9 @@ public:
     bool toggle(ushort inLayerIndex) noexcept;
 
     std::string log(bool noLayersStatus = false) const noexcept;
+
+    constexpr bool operator==(const RenderLayers& inLayers) const noexcept
+    { return layers_ == inLayers.layers_; }
 
 private:
     int layers_{0};
