@@ -39,8 +39,23 @@ bool UID::Push(uint id)
 bool UID::Erase(uint id)
 { return sActiveIDs.erase(id); }
 
+UID::ReservedType UID::GetReservedType(uint id)
+{
+    if(id > reserved_back)
+        { return ReservedType::NotReserved; }
+    else if(id == a_Player)
+        { return ReservedType::Player; }
+    else if(id < models_front)
+        { return ReservedType::Image; }
+    else if(id < fonts_front)
+        { return ReservedType::Model; }
+    else if(id < front)
+        { return ReservedType::Font; }
+    return ReservedType::NotReserved;
+}
+
 bool UID::IsReserved(uint id)
 { return id < front; }
 
 bool UID::Contains(uint id)
-{ return sActiveIDs.contains(id) or IsReserved(id); }
+{ return sActiveIDs.contains(id); }
