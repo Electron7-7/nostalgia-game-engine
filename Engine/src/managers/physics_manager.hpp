@@ -1,11 +1,10 @@
 #ifndef PHYSICS_MANAGER_H
 #define PHYSICS_MANAGER_H
 
-#include "fwd/things.hpp"
 #include "fwd/physics.hpp"
+#include "fwd/theatre.hpp"
 #include "managers/manager.hpp"
 #include "core/id.hpp"
-#include "core/smart_pointers.hpp"
 
 class PhysicsManager : public Manager
 {
@@ -20,13 +19,11 @@ public:
     JPH::BodyInterface& GetBodyInterface();
     JPH::BodyID& GetBodyID(ID UID);
 
-    // If `Collider` is `nullptr`, more work is done to verify and get the Collider at `UID`
-    bool CreateBody(ID UID,  Shared<Collider> Collider = nullptr);
-    // If `Collider` is `nullptr`, more work is done to verify and get the Collider at `UID`
-    bool DestroyBody(ID UID, Shared<Collider> Collider = nullptr);
+    bool CreateBody(ID UID, Farg<Transform3D> inTransform, PhysicsBodyShape, PhysicsBodyMotion);
+    bool DestroyBody(ID UID);
 
 private:
-    bool ValidateColliderUID(ID UID, Shared<Collider>& Ouptut, bool ValidateBodyID);
+    bool ValidateColliderUID(ID UID, bool ValidateBodyID);
 
     // github.com/jrouwe/JoltPhysics/blob/master/UnitTests/PhysicsTestContext.h:112-117
     JPH::TempAllocator* mTempAllocator{nullptr};

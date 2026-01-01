@@ -302,26 +302,23 @@ BodyInterface& PhysicsManager::GetBodyInterface()
 BodyID& PhysicsManager::GetBodyID(ID uid)
 { return sBodyIDMap[uid]; }
 
-bool PhysicsManager::DestroyBody(ID uid, std::shared_ptr<Collider> collider)
+bool PhysicsManager::DestroyBody(ID uid)
 {
-    if(!ValidateColliderUID(uid, collider, true))
+    if(!ValidateColliderUID(uid, true))
         { return false; }
     GetBodyInterface().RemoveBody(sBodyIDMap.at(uid));
     GetBodyInterface().DestroyBody(sBodyIDMap.at(uid));
-    print_jolt("Body Destroyed - Shape: {}, Motion: {}",
-        EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
-        EnumPrettifier::Get(collider->Motion(), EnumSet::PhysicsBodyMotion));
     sBodyIDMap.erase(uid);
     return true;
 }
 
-static bool s_MakeSimpleBodySettings(BodyCreationSettings& outSettings, Shared<Collider> inCollider, EMotionType inMotion, ObjectLayer inLayer)
+static bool s_MakeSimpleBodySettings(BodyCreationSettings& outSettings, Farg<Transform3D> inTransform, PhysicsBodyShape inShape, EMotionType inMotion, ObjectLayer inLayer)
 {
-    RVec3 scale{GlmToJolt<Vec3>(inCollider->Scale())};
-    RVec3 position{GlmToJolt<Vec3>(inCollider->Origin())};
-    Quat rotation{JPH::Quat::sEulerAngles(GlmToJolt<Vec3>(inCollider->Euler()))};
+    RVec3 scale{GlmToJolt<Vec3>(inTransform.Scale())};
+    RVec3 position{GlmToJolt<Vec3>(inTransform.Origin())};
+    Quat rotation{JPH::Quat::sEulerAngles(GlmToJolt<Vec3>(inTransform.Euler()))};
 
-    switch(inCollider->Shape())
+    switch(inShape)
     {
     case PhysicsBodyShape::Box:
         outSettings = BodyCreationSettings(
@@ -393,38 +390,31 @@ static ObjectLayer s_GetLayer(PhysicsBodyMotion inMotion)
     }
 }
 
-bool PhysicsManager::CreateBody(ID uid, std::shared_ptr<Collider> collider)
+bool PhysicsManager::CreateBody(ID uid, Farg<Transform3D> inTransform, PhysicsBodyShape inShape, PhysicsBodyMotion inMotion)
 {
-    if(!ValidateColliderUID(uid, collider, false))
+    if(!ValidateColliderUID(uid, false))
         { return false; }
 
     BodyCreationSettings settings;
-    EMotionType motion_type{s_GetMotion(collider->Motion())};
-    ObjectLayer layer{s_GetLayer(collider->Motion())};
+    EMotionType motion_type{s_GetMotion(inMotion)};
+    ObjectLayer layer{s_GetLayer(inMotion)};
 
-    if(!s_MakeSimpleBodySettings(settings, collider, motion_type, layer))
+    if(!s_MakeSimpleBodySettings(settings, inTransform, inShape, motion_type, layer))
     {
-        return print_error("invalid physics body type '{}' from Collider [{}, {}]",
-            EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
-            collider->type().name(),
+        return print_error("invalid physics body type '{}' from Collider#{}",
+            EnumPrettifier::Get(inShape, EnumSet::PhysicsBodyShape),
             uid[]);
     }
-
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
     sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
-    print_jolt("Body Created - Shape: {}, Motion: {}",
-        EnumPrettifier::Get(collider->Shape(), EnumSet::PhysicsBodyShape),
-        EnumPrettifier::Get(collider->Motion(), EnumSet::PhysicsBodyMotion));
     return !sBodyIDMap.at(uid).IsInvalid();
 }
 
-bool PhysicsManager::ValidateColliderUID(ID uid, Shared<Collider>& output, bool check_body_id)
+bool PhysicsManager::ValidateColliderUID(ID uid, bool check_body_id)
 {
     if(!mSystem)
         { return print_error("Jolt physics system is nullptr!"); }
     else if(check_body_id && (!sBodyIDMap.contains(uid) || sBodyIDMap.at(uid).IsInvalid()))
         { return print_error("No valid BodyID paired with UID {}", uid[]); }
-    else if(!output && !print_error_enum(g_pTheatreManager->GetThing<Collider>(uid, output)))
-        { return print_error("No Collider with UID#{}", uid[]); }
     return true;
 }
