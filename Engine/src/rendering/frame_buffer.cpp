@@ -8,7 +8,7 @@
 Shared<FrameBuffer> FrameBuffer::Create()
 { return Create(MainWindow()->GetScale()); }
 
-Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale)
+Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale, uint inCameraID)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -20,6 +20,6 @@ Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale)
         print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLFrameBuffer>(inScale);
+        return MakeShared<OpenGLFrameBuffer>(inScale, inCameraID);
     }
 }

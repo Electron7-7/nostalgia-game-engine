@@ -2,13 +2,12 @@
 #define GL_FRAME_BUFFER_H
 
 #include "rendering/frame_buffer.hpp"
-#include "rendering/render_layers.hpp"
 
 class OpenGLFrameBuffer : public FrameBuffer
 {
 public:
     OpenGLFrameBuffer() noexcept;
-    OpenGLFrameBuffer(Farg<Scale2D>) noexcept;
+    OpenGLFrameBuffer(Farg<Scale2D>, uint = ID::Invalid) noexcept;
     ~OpenGLFrameBuffer() noexcept;
 
     void Bind() const final;
@@ -21,13 +20,13 @@ public:
     uint TextureID() const final;
     Scale2D TextureSize() const final;
     Shared<TextureBuffer> Texture() const final;
-    RenderLayers Layers() const final;
-    void Layers(RenderLayers) final;
+    virtual uint CameraID() const final;
+    virtual void CameraID(uint) final;
 
 private:
     uint mBufferID{0};
     uint mRenderBufferID{0};
-    RenderLayers mLayers{};
+    uint mCameraID{static_cast<uint>(-1)};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     Error mStatus{FAILED};
 };

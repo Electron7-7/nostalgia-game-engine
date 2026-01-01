@@ -4,6 +4,7 @@
 #include "fwd/rendering.hpp"
 #include "core/farg.hpp"
 #include "core/error.hpp"
+#include "core/id.hpp"
 #include "core/smart_pointers.hpp"
 #include "math/containers.hpp"
 
@@ -22,14 +23,14 @@ public:
     virtual uint TextureID() const = 0;
     virtual Scale2D TextureSize() const = 0;
     virtual Shared<TextureBuffer> Texture() const = 0;
-    virtual RenderLayers Layers() const = 0;
-    virtual void Layers(RenderLayers) = 0;
+    virtual uint CameraID() const = 0;
+    virtual void CameraID(uint) = 0;
 
     // virtual void ClearColor(std::array<float,4> inColor) const = 0;
     // virtual void ClearDepth(float inDepth) const = 0;
 
     static Shared<FrameBuffer> Create();
-    static Shared<FrameBuffer> Create(Farg<Scale2D> inSize);
+    static Shared<FrameBuffer> Create(Farg<Scale2D> inSize, uint inCameraID = ID::Invalid);
 };
 
 #endif // FRAME_BUFFER_H
