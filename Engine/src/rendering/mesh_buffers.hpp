@@ -43,10 +43,12 @@ public:
     {
     public:
         static const Layout cIndexBufferLayout;
+        static const Layout cDefaultMeshLayout;
 
         typedef std::vector<Element> ElementList;
 
-        Layout(std::initializer_list<Element> inElements = {});
+        Layout();
+        Layout(std::initializer_list<Element> inElements);
 
         uint GetStride() const;
         Farg<ElementList> GetElements() const;

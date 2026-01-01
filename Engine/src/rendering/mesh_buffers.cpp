@@ -5,6 +5,12 @@
 #include "backends/opengl/gl_mesh_buffers.hpp"
 
 const IBuffer::Layout IBuffer::Layout::cIndexBufferLayout{{Element::Type::Int, "FaceIndex"}};
+const IBuffer::Layout IBuffer::Layout::cDefaultMeshLayout{
+    {Element::Type::Float3, "Position"},
+    {Element::Type::Float3, "Color"},
+    {Element::Type::Float3, "Normal"},
+    {Element::Type::Float2, "UV"},
+};
 
 uint IBuffer::Element::GetComponentCount(Type inType)
 {
@@ -51,6 +57,9 @@ uint IBuffer::Element::GetCount() const
 
 void IBuffer::Element::DebugLog() const
 { print_debug("Element {}: size: {}, offset: {}", name, size, offset); }
+
+IBuffer::Layout::Layout():
+    Layout{cDefaultMeshLayout} {}
 
 IBuffer::Layout::Layout(std::initializer_list<Element> inElements):
     mElements{inElements}
