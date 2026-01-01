@@ -17,6 +17,7 @@ public:
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
 protected:
+    cubemap_images_t m_pImages{nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     RMutex mTextureBufferMutex{};
     TextureFormat mFormat{};

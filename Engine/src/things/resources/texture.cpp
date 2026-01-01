@@ -5,16 +5,36 @@
 
 void Texture::Ready()
 {
-    if(UID::IsReserved(mUID[]))
-        { m_pFileData = FileData::s_GetReservedFileData(mUID[]); }
-    mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData);
+    switch(UID::GetReservedType(mUID[]))
+    {
+    case UID::ReservedType::Texture:
+        m_pImages[0] = FileData::s_GetReservedFileData(mUID[]);
+        break;
+    case UID::ReservedType::Cubemap:
+        for(uint i{0}; i < 6; ++i)
+            { m_pImages[i] = FileData::s_GetReservedFileData(mUID[] + i); }
+        break;
+    default:
+        break;
+    }
+    if(m_pImages.empty())
+        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData); }
+    else
+        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pImages); }
     if(!print_error_enum(mStatus = mTextureBuffer->Status()))
         { print_error("Failed to buffer texture#{}", mUID[]); }
 }
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
+    Thing::SetVariables(data);
+    std::string paths[6]{"","","","","",""};
+    for(uint i{0}; i < 6; ++i)
+    {
+        std::string number{(i == 0) ? "" : std::to_string(i+1)};
+        if(data.GetVariable(paths[i], "Image" + number, "File" + number, "Data" + number, "FilePath" + number))
+            { m_pImages[i] = MakeShared<FileData>(paths[i], FileType::Unknown); }
+    }
 
     data.GetVariable(mFormat.type, "Type");
     data.GetVariable(mFormat.data_format, "Format");
@@ -37,7 +57,15 @@ void Texture::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Texture::GetVariables() const
 {
-    Shared<ThingData> data{Resource::GetVariables()};
+    Shared<ThingData> data{Thing::GetVariables()};
+    uint i{0};
+    for(FAUTO image : m_pImages)
+    {
+        if(!image) { continue; }
+        std::string number{(i == 0) ? "" : std::to_string(i+1)};
+        if(image->HasPath())
+            { data->AddVariable(image->Path(), "Image" + number); }
+    }
     data->AddVariable(mFormat.type, "Type");
     data->AddVariable(mFormat.data_format, "Format");
     data->AddVariable(mFormat.width, "Width");
