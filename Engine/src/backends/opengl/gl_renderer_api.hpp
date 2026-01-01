@@ -21,6 +21,10 @@ public:
 
     void SetLight_TempBlinnPhongSolution(light_t*) final;
 
+    virtual void BindTexture(Shared<Texture>, uint) const final;
+    virtual void BindTexture(Shared<Texture>, texture_units) const final;
+    virtual void UnbindTexture(texture_units) const final;
+
     ID AddShader(Shared<Shader>, ID) final;
     Shared<Shader> GetShader(ID) final;
     Error RemoveShader(ID) final;

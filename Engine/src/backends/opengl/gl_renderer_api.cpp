@@ -175,7 +175,27 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
+void OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
+    if(auto buffer{inTexture->GetBuffer()};
+        buffer and buffer->Status() == OK)
+        { glBindTextureUnit(inUnit, buffer->ID()); return; }
+    else if(auto missing{g_pTheatreManager->GetThing<Texture>(UID::i_Missing)->GetBuffer()})
+        { glBindTextureUnit(inUnit, missing->ID()); }
+}
+
+void OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, texture_units inUnits) const
+{
+    for(uint unit : inUnits)
+        { BindTexture(inTexture, unit); }
+}
+
+void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
+{
+    for(uint unit : inTextureUnits)
+        { glBindTextureUnit(unit, 0); }
+}
+
 void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<Mesh> inMesh, uint inIndexCount)
 {
     if(!inMesh or !inMesh->MeshData() or inMesh->Status() != OK)
