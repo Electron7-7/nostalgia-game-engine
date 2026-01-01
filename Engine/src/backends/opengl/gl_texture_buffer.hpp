@@ -6,14 +6,14 @@
 class OpenGLTextureBuffer final : public TextureBuffer
 {
 public:
-    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, Shared<FileData>);
+#pragma message("TODO: should each side of the cubemap have its own `TextureFormat` and `SamplerState`?")
+    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, Farg<cubemap_images_t>);
     ~OpenGLTextureBuffer();
 
     Error Status() const final;
-
     uint ID() const final;
     Farg<TextureFormat> Format() const final;
-    Farg<SamplerState>  Sampler() const final;
+    Farg<SamplerState> Sampler() const final;
 
 private:
     uint mBufferID{};

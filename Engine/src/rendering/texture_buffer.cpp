@@ -5,10 +5,13 @@
 // Implementations
 #include "backends/opengl/gl_texture_buffer.hpp"
 
-Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Shared<FileData> inData)
-{ return Create(inFormat, {}, inData); }
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<SamplerState> inSampler)
+{ return Create(inFormat, inSampler, nullptr); }
 
-Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<SamplerState> inSamplerState, Shared<FileData> inData)
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<SamplerState> inSampler, Shared<FileData> inData)
+{ return Create(inFormat, inSampler, cubemap_images_t{inData}); }
+
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<SamplerState> inSampler, Farg<cubemap_images_t> inData)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -20,6 +23,6 @@ Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat, Farg<S
         print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLTextureBuffer>(inFormat, inSamplerState, inData);
+        return MakeShared<OpenGLTextureBuffer>(inFormat, inSampler, inData);
     }
 }
