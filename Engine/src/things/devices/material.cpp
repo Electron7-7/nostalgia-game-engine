@@ -41,7 +41,7 @@ Shared<ThingData> Material::GetVariables() const
 ID Material::DiffuseTextureID() const
 {
     return (mDiffuseTextureID.invalid())
-        ? UID::i_Missing
+        ? UID::t_Missing
         : mDiffuseTextureID;
 }
 
@@ -51,7 +51,7 @@ void Material::DiffuseTextureID(ID texture_id)
 ID Material::SpecularTextureID() const
 {
     return (mSpecularTextureID.invalid())
-        ? UID::i_Missing
+        ? UID::t_Missing
         : mSpecularTextureID;
 }
 

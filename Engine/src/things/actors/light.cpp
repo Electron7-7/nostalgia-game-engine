@@ -30,7 +30,7 @@ void light_t::Ready()
             ThingType::Material,
             UID::Generate(),
             {
-                {UID::i_LightDebug, "DiffuseTexture"},
+                {UID::t_LightDebug, "DiffuseTexture"},
                 {true, "FullBright"}
             }
         })};

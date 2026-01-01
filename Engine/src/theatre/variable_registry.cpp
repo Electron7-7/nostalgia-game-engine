@@ -74,10 +74,10 @@ Error VariableRegistry::RemoveID(uint inID)
 void VariableRegistry::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    m_sReferences["MissingTexture"] = UID::i_Missing[];
-    m_sReferences["LightTexture"]   = UID::i_LightDebug[];
-    m_sReferences["DoomTexture"]    = UID::i_COMP04_5[];
-    m_sReferences["LolBitTexture"]  = UID::i_LolBit[];
+    m_sReferences["MissingTexture"] = UID::t_Missing[];
+    m_sReferences["LightTexture"]   = UID::t_LightDebug[];
+    m_sReferences["DoomTexture"]    = UID::t_COMP04_5[];
+    m_sReferences["LolBitTexture"]  = UID::t_LolBit[];
     m_sReferences["ErrorModel"]     = UID::m_Error[];
     m_sReferences["DefaultCube"]    = UID::m_Cube[];
     m_sReferences["RamielModel"]    = UID::m_Ramiel[];
