@@ -1,6 +1,7 @@
 #ifndef ACTOR_H
 #define ACTOR_H
 
+#include "rendering/render_layers.hpp"
 #include "things/thing.hpp"
 #include "theatre/transform_3d.hpp"
 
@@ -14,19 +15,27 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
+    virtual bool Visible() const;
+    virtual void Visible(bool isVisible);
+
+    virtual bool Wireframe() const;
+    virtual void Wireframe(bool isWireframe);
+
     ID MeshInstanceID() const;
     void MeshInstanceID(ID MeshInstanceID);
 
     ID ColliderID() const;
     void ColliderID(ID UID);
 
-    bool mVisible{true};
-    bool mWireframe{false};
+    RenderLayers mRenderLayers{};
 
     // Off by default (alpha == 0.0f)
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};
 
 protected:
+    bool mVisible{true};
+    bool mWireframe{false};
+
     ID mMeshInstanceID{};
     ID mColliderID{};
 };

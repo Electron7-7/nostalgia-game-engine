@@ -57,3 +57,15 @@ ID Actor::ColliderID() const
 
 void Actor::ColliderID(ID uid)
 { mColliderID = uid; }
+
+bool Actor::Visible() const
+{ return mVisible; }
+
+void Actor::Visible(bool isVisible)
+{ mVisible = isVisible; }
+
+bool Actor::Wireframe() const
+{ return mWireframe; }
+
+void Actor::Wireframe(bool isWireframe)
+{ mWireframe = isWireframe; }
