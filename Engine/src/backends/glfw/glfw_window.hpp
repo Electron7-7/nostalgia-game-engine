@@ -44,6 +44,7 @@ private:
         static void sWindowPosCallbackFunction(GLFWwindow*,int,int);
         static void sCursorPosCallbackFunction(GLFWwindow*,double,double);
         static void sKeyCallbackFunction(GLFWwindow*,int,int,int,int);
+        static void sMouseButtonCallbackFunction(GLFWwindow*,int,int,int);
 
         inline static WindowGLFW* s_pWindow{nullptr};
     };

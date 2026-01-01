@@ -95,6 +95,21 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
     }
 }
 
+void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWindow, int button, int action, int mods)
+{
+    if(button == GLFW_KEY_UNKNOWN)
+        { return; }
+    else if(const auto& found_it{s_cGLFWInputLookup.find(button)};
+        found_it != s_cGLFWInputLookup.end())
+    {
+        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second[],
+                sConvertModifierKeys(mods),
+                action != GLFW_RELEASE,
+                action == GLFW_REPEAT,
+                g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
+    }
+}
+
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
@@ -138,6 +153,7 @@ Error WindowGLFW::InitializeCallbacks()
     glfwSetWindowPosCallback(m_pWindow, &CallbackHandler::sWindowPosCallbackFunction);
     glfwSetCursorPosCallback(m_pWindow, &CallbackHandler::sCursorPosCallbackFunction);
     glfwSetKeyCallback(m_pWindow, &CallbackHandler::sKeyCallbackFunction);
+    glfwSetMouseButtonCallback(m_pWindow, &CallbackHandler::sMouseButtonCallbackFunction);
     return OK;
 }
 
