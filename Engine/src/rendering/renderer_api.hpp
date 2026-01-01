@@ -18,6 +18,8 @@ enum class GraphicsAPI
 class RendererAPI
 {
 public:
+    using texture_units = std::initializer_list<uint>;
+
     static GraphicsAPI GetAPI() { return sAPI; }
     static Unique<RendererAPI> Activate();
 
@@ -35,6 +37,10 @@ public:
     virtual void SetWireframe(bool inValue) const = 0;
 
     virtual void SetLight_TempBlinnPhongSolution(light_t* inLight) = 0;
+
+    virtual void BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;
+    virtual void BindTexture(Shared<Texture> inTexture, texture_units) const = 0;
+    virtual void UnbindTexture(texture_units inTextureUnits) const = 0;
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;
     virtual Shared<Shader> GetShader(ID inID) = 0;
