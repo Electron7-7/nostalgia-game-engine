@@ -20,6 +20,8 @@ public:
 
     void SetVariables(Farg<ThingData>) override;
     Shared<ThingData> GetVariables() const override;
+    void Ready() override;
+    void Shutdown() override;
     void Tick() override;
 
     bool BodyIDInvalid() const;

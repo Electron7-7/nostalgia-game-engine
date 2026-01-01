@@ -1,8 +1,8 @@
 #include "collider.hpp"
+#include "core/enum_prettifier.hpp"
 #include "math/conversion.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "managers/physics_manager.hpp"
-
 #include <Jolt/Physics/Body/BodyInterface.h>
 
 using namespace JPH;
@@ -39,6 +39,23 @@ Shared<ThingData> Collider::GetVariables() const
     data->AddVariable(mMotion, "Motion");
     data->AddVariable(mInitialImpulse, "InitialImpulse");
     return data;
+}
+
+void Collider::Ready()
+{
+    g_pPhysicsManager->CreateBody(mUID, *this, mShape, mMotion);
+    print_jolt("Body Created - Shape: {}, Motion: {}",
+        EnumPrettifier::Get(mShape, EnumSet::PhysicsBodyShape),
+        EnumPrettifier::Get(mMotion, EnumSet::PhysicsBodyMotion));
+}
+
+void Collider::Shutdown()
+{
+    g_pPhysicsManager->DestroyBody(mUID);
+    print_jolt("Body Destroyed - Shape: {}, Motion: {}",
+        EnumPrettifier::Get(mShape, EnumSet::PhysicsBodyShape),
+        EnumPrettifier::Get(mMotion, EnumSet::PhysicsBodyMotion));
+    Device::Shutdown();
 }
 
 void Collider::Tick()

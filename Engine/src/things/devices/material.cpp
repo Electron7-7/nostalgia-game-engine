@@ -1,4 +1,5 @@
 #include "material.hpp"
+#include "core/uid.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Material::SetVariables(Farg<ThingData> data)
@@ -38,13 +39,21 @@ Shared<ThingData> Material::GetVariables() const
 }
 
 ID Material::DiffuseTextureID() const
-{ return mDiffuseTextureID; }
+{
+    return (mDiffuseTextureID.invalid())
+        ? UID::i_Missing
+        : mDiffuseTextureID;
+}
 
 void Material::DiffuseTextureID(ID texture_id)
 { mDiffuseTextureID = texture_id; }
 
 ID Material::SpecularTextureID() const
-{ return mSpecularTextureID; }
+{
+    return (mSpecularTextureID.invalid())
+        ? UID::i_Missing
+        : mSpecularTextureID;
+}
 
 void Material::SpecularTextureID(ID texture_id)
 { mSpecularTextureID = texture_id; }

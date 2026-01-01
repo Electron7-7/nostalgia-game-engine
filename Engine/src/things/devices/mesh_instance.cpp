@@ -1,4 +1,5 @@
 #include "mesh_instance.hpp"
+#include "core/uid.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void MeshInstance::SetVariables(Farg<ThingData> data)
@@ -25,7 +26,11 @@ Shared<ThingData> MeshInstance::GetVariables() const
 }
 
 ID MeshInstance::MeshID() const
-{ return mMeshID; }
+{
+    return (mMeshID.invalid())
+        ? UID::m_Error
+        : mMeshID;
+}
 
 ID MeshInstance::MaterialID() const
 { return mMaterialID; }
