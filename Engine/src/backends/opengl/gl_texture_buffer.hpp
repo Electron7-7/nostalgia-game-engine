@@ -16,10 +16,10 @@ public:
     Farg<SamplerState>  Sampler() const final;
 
 private:
-    uint mBufferID{0};
+    uint mBufferID{};
     TextureFormat mFormat{};
     SamplerState  mSampler{};
-    Error mStatus{FAILED};
+    Error mStatus{ERR_UNINITIALIZED};
 };
 
 #endif // GL_TEXTURE_BUFFER_H
