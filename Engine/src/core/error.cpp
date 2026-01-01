@@ -1,7 +1,5 @@
 #include "error.hpp"
-#include "message_labels.hpp"
-
-#include <print>
+#include "printing.hpp"
 
 #define Case(ERROR, MESSAGE, OTHER...)    \
     case ERROR:                           \
@@ -30,18 +28,24 @@ Error print_error_enum(Error error, bool UNIMPLEMENTED_returns_OK, const std::so
     Case(ERR_FILE_READ, "file read error")
     Case(ERR_FILE_WRITE, "file write error")
     Case(ERR_FILE_READ_WRITE, "file read/write error")
+    Case(ERR_DATA_LOAD, "generic data loading error (ex: `stbi_load_from_memory`) ")
+    Case(ERR_NOT_LOADED, "generic data not yet loaded error")
+    Case(ERR_INVALID_ID, "invalid ID (see: `ID::Invalid`)")
+    Case(ERR_INVALID_TYPE, "invalid TTID ('Thing Type ID')")
+    Case(ERR_ALREADY_EXISTS, "typically used when attempting to add an already existing key to a map")
+    Case(ERR_NOT_ALLOWED, "generic 'not allowed' error")
+    Case(ERR_EMPTY, "typically used to specify that an action failed because a container was empty (ex: erasing an item from an empty container)")
+    Case(ERR_FULL, "typically used when trying to add an item to a full container")
+    Case(ERR_NULLPTR, "a pointer is `nullptr`")
     }
 
-    std::println("\x1b[1m{}file {}({}:{}) `{}`: \x1b[22m{}\x1b[0m",
-        (is_warning) ? WarningLabel() : ErrorLabel(),
-        location.file_name(),
-        location.line(),
-        location.column(),
-        location.function_name(),
-        err_msg);
-    return (is_warning)
-        ? OK
-        : error;
+    if(is_warning)
+    {
+        print_warning("{}", err_msg);
+        return OK;
+    }
+    print_error("{}", err_msg);
+    return error;
 }
 
 #undef Case
