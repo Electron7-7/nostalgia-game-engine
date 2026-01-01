@@ -1,22 +1,22 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#include "fwd/filesystem.hpp"
 #include "things/thing.hpp"
+#include "filesystem/file_data.hpp"
 
 class Resource : public Thing
 {
 public:
-    Resource();
-    Resource(Shared<FileData> inData);
-
     virtual void SetVariables(Farg<ThingData> inData) override;
     virtual Shared<ThingData> GetVariables() const override;
+
+    Error Status() const;
 
     Shared<FileData> Data();
 
 protected:
-    Shared<FileData> m_pFileData{nullptr};
+    Shared<FileData> m_pFileData{MakeShared<FileData>()};
+    Error mStatus;
 };
 
 #endif // RESOURCE_H

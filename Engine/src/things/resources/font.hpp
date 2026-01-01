@@ -6,7 +6,6 @@
 class Font : public Resource
 {
 public:
-    using Resource::Resource;
     virtual void SetVariables(const ThingData& data)
     {
         Resource::SetVariables(data);

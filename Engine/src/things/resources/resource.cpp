@@ -1,12 +1,5 @@
 #include "resource.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "filesystem/file_data.hpp"
-
-Resource::Resource():
-    m_pFileData{MakeShared<FileData>()} {}
-
-Resource::Resource(Shared<FileData> Data):
-    m_pFileData{Data} {}
 
 void Resource::SetVariables(Farg<ThingData> inData)
 {
@@ -14,14 +7,33 @@ void Resource::SetVariables(Farg<ThingData> inData)
     std::string path = "";
     if(inData.GetVariable(path, "File", "Data", "FilePath"))
         { m_pFileData->LoadFile(path); }
+    switch(m_pFileData->Status())
+    {
+    case DataStatus::UNLOADED:
+        mStatus = ERR_NOT_LOADED;
+        break;
+    case DataStatus::FAILED:
+        mStatus = ERR_DATA_LOAD;
+        break;
+    case DataStatus::EMPTY:
+        mStatus = ERR_EMPTY;
+        break;
+    case DataStatus::SUCCESSFUL:
+        mStatus = OK;
+        break;
+    }
 }
 
 Shared<ThingData> Resource::GetVariables() const
 {
     Shared<ThingData> data{Thing::GetVariables()};
-    data->AddVariable(m_pFileData->Path(), "File");
+    if(m_pFileData->HasPath())
+        { data->AddVariable(m_pFileData->Path(), "File"); }
     return data;
 }
+
+Error Resource::Status() const
+{ print_error_enum(mStatus); return mStatus; }
 
 Shared<FileData> Resource::Data()
 { return m_pFileData; }
