@@ -28,6 +28,7 @@ enum Error : int {
     ERR_EMPTY, // Some container is empty
     ERR_FULL, // Some container is full
     ERR_NULLPTR, // A pointer is `nullptr`
+    ERR_UNINITIALIZED, // Uninitialized data/object error
 };
 
 constexpr bool operator!(const Error& inError) noexcept

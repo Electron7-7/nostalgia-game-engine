@@ -37,6 +37,7 @@ Error print_error_enum(Error error, bool UNIMPLEMENTED_returns_OK, const std::so
     Case(ERR_EMPTY, "typically used to specify that an action failed because a container was empty (ex: erasing an item from an empty container)")
     Case(ERR_FULL, "typically used when trying to add an item to a full container")
     Case(ERR_NULLPTR, "a pointer is `nullptr`")
+    Case(ERR_UNINITIALIZED, "some object or data is uninitialized")
     }
 
     if(is_warning)
