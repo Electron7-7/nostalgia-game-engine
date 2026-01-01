@@ -1,12 +1,17 @@
 #include "gl_renderer_api.hpp"
+#include "core/uid.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "core/printing.hpp"
-#include "rendering/vertex_array.hpp"
+#include "managers/theatre_manager.hpp"
+#include "things/resources/texture.hpp"
+#include "things/resources/mesh.hpp"
 #include "rendering/frame_buffer.hpp"
 #include "things/actors/camera_3d.hpp"
 #include "things/actors/light.hpp"
 #include "application/application.hpp"
+#include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/vertex_array.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
@@ -170,15 +175,31 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
-void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<VertexArray> inVertexArray, uint inIndexCount)
 {
-    inVertexArray->Bind();
-    inVertexArray->GetIndexBuffer()->Bind();
-    uint count{(inIndexCount) ? inIndexCount : inVertexArray->GetIndexBuffer()->GetCount()};
+void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<Mesh> inMesh, uint inIndexCount)
+{
+    if(!inMesh or !inMesh->MeshData() or inMesh->Status() != OK)
+        { inMesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
+    inMesh->MeshData()->Bind();
+    inMesh->MeshData()->GetIndexBuffer()->Bind();
+    uint count{(inIndexCount) ? inIndexCount : inMesh->MeshData()->GetIndexBuffer()->GetCount()};
+
+    if(inCamera->Current())
+    {
+        SetViewport(mViewportPosition, mViewportSize);
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+        if(gPrintDrawLogs)
+        {
+            print_debug("glDrawElements called w/ Camera#{} (viewport size: {}, viewport position: {})",
+                inCamera->uid()[],
+                mViewportSize.data_log(),
+                mViewportPosition.data_log());
+        }
+    }
 
     for(FAUTO [id, framebuffer] : mFramebuffers)
     {
-        if(!framebuffer->Layers().contains(inCamera->GetRenderLayers()))
+        if(inCamera->uid()[] != framebuffer->CameraID())
             { continue; }
         framebuffer->Bind();
         glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
@@ -186,46 +207,11 @@ void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<Vert
         framebuffer->Unbind();
         if(gPrintDrawLogs)
         {
-            print_debug("glDrawElements called w/ FrameBuffer#{} (size: {})",
+            print_debug("glDrawElements called w/ Camera#{} on FrameBuffer#{} (size: {})",
+                inCamera->uid()[],
                 id[],
                 framebuffer->TextureSize().data_log());
         }
-    }
-    SetViewport(mViewportPosition, mViewportSize);
-    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-    if(gPrintDrawLogs)
-    {
-        print_debug("glDrawElements called (viewport size: {}, viewport position: {})",
-            mViewportSize.data_log(),
-            mViewportPosition.data_log());
-    }
-}
-
-void OpenGLRendererAPI::DrawLines(Farg<Shared<Camera3D>> inCamera, Shared<VertexArray> inVertexArray, uint inVertexCount)
-{
-    inVertexArray->Bind();
-    for(FAUTO [id, framebuffer] : mFramebuffers)
-    {
-        if(!framebuffer->Layers().contains(inCamera->GetRenderLayers()))
-            { continue; }
-        framebuffer->Bind();
-        glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
-        glDrawArrays(GL_LINES, 0, inVertexCount);
-        framebuffer->Unbind();
-        if(gPrintDrawLogs)
-        {
-            print_debug("glDrawArrays called w/ FrameBuffer#{} (size: {})",
-                id[],
-                framebuffer->TextureSize().data_log());
-        }
-    }
-    SetViewport(mViewportPosition, mViewportSize);
-    glDrawArrays(GL_LINES, 0, inVertexCount);
-    if(gPrintDrawLogs)
-    {
-        print_debug("glDrawArrays called (viewport size: {}, viewport position: {})",
-            mViewportSize.data_log(),
-            mViewportPosition.data_log());
     }
 }
 

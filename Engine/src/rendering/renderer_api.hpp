@@ -49,8 +49,7 @@ public:
     virtual Shared<FrameBuffer> GetFrameBuffer(ID inID) = 0;
     virtual Error RemoveFrameBuffer(ID inID) = 0;
 
-    virtual void DrawIndexed (Farg<Shared<Camera3D>>, Shared<VertexArray>, uint IndexCount  = 0) = 0;
-    virtual void DrawLines   (Farg<Shared<Camera3D>>, Shared<VertexArray>, uint VertexCount = 0) = 0;
+    virtual void DrawIndexed(Farg<Shared<Camera3D>>, Shared<Mesh>, uint IndexCount = 0) = 0;
     virtual void Clear() = 0;
 
 private:
