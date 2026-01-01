@@ -520,6 +520,8 @@ struct thing_data_buffer
         {
             collider_id = actor->ColliderID()[];
             mesh_instance_id = actor->MeshInstanceID()[];
+            visible = actor->Visible();
+            wireframe = actor->Wireframe();
         }
         else if(auto mesh_instance{DCast<MeshInstance>(ptr)})
         {
@@ -538,7 +540,7 @@ struct thing_data_buffer
         }
         else if(auto camera3d{DCast<Camera3D>(ptr)})
         {
-            is_camera_current = camera3d->IsCurrent();
+            is_camera_current = camera3d->Current();
             camera_render_layers = camera3d->GetRenderLayers();
         }
     }
@@ -554,8 +556,10 @@ struct thing_data_buffer
         texture2_id{ID::Invalid};
     int motion{static_cast<int>(PhysicsBodyMotion::None)},
         shape{static_cast<int>(PhysicsBodyShape::None)};
-    bool activate_collider_on_reset{false};
-    bool is_camera_current{false};
+    bool visible{true},
+        wireframe{false},
+        activate_collider_on_reset{false},
+        is_camera_current{false};
     RenderLayers camera_render_layers{};
 };
 
@@ -576,11 +580,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
     {
         if(Begin("Theatre Inspector", is_active))
         {
-            if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
+            if(CollapsingHeader("Selector Settings"))
             {
-                PushItemFlag(ImGuiItemFlags_NoNavDefaultFocus, true);
                 InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
-                PopItemFlag();
                 ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Actor Color",    actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
@@ -588,272 +590,277 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 ColorEdit3("Resource Color", resource_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Camera Color",   camera_button_color, ImGuiColorEditFlags_Float);
                 Checkbox("Show Type Abbreviation", &show_type_on_button);
-                if(BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY))
+            }
+            if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
+                auto uids{g_pTheatreManager->GetThingIDs()};
+                int i{0}, j{0};
+                for(ID uid : uids)
                 {
-                    auto uids{g_pTheatreManager->GetThingIDs()};
-                    int i{0}, j{0};
-                    for(ID uid : uids)
+                    auto thing{g_pTheatreManager->GetThing(uid)};
+                    auto actor{DCast<Actor>(thing)};
+                    ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
+                    ImGuiCol push_color_where{ImGuiCol_TextDisabled}; // Basically "don't use"
+                    std::string type_symbol{"(T) "};
+                    if(actor)
                     {
-                        auto thing{g_pTheatreManager->GetThing(uid)};
-                        auto actor{DCast<Actor>(thing)};
-                        ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
-                        ImGuiCol push_color_where{ImGuiCol_TextDisabled}; // Basically "don't use"
-                        std::string type_symbol{"(T) "};
-                        if(actor)
+                        push_color_where = ImGuiCol_Button;
+                        if(DCast<light_t>(thing))
                         {
-                            push_color_where = ImGuiCol_Button;
-                            if(DCast<light_t>(thing))
-                            {
-                                push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
-                                type_symbol = "(L) ";
-                            }
-                            else if(DCast<Camera3D>(thing))
-                            {
-                                push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
-                                type_symbol = "(C) ";
-                            }
-                            else
-                            {
-                                push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
-                                type_symbol = "(A) ";
-                            }
+                            push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
+                            type_symbol = "(L) ";
                         }
-                        else if(DCast<Device>(thing))
+                        else if(DCast<Camera3D>(thing))
                         {
-                            push_color = {device_button_color[0],device_button_color[1],device_button_color[2],1.0f};
-                            push_color_where = ImGuiCol_Button;
-                            type_symbol = "(D) ";
+                            push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
+                            type_symbol = "(C) ";
                         }
-                        else if(DCast<Resource>(thing))
+                        else
                         {
-                            push_color = {resource_button_color[0],resource_button_color[1],resource_button_color[2],1.0f};
-                            push_color_where = ImGuiCol_Button;
-                            type_symbol = "(R) ";
+                            push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
+                            type_symbol = "(A) ";
                         }
-                        std::string button_name{std::format("{}{}",
-                            (show_type_on_button) ? type_symbol : "",
-                            (thing->name().empty()) ? std::format("N/A##{}", ++j) : thing->name())};
-                        PushStyleColor(push_color_where, push_color);
-                        if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
-                            { selected = thing_data_buffer{thing}; }
-                        if(actor)
-                            { actor->mDebugHighlight.a = IsItemHovered(); }
-                        PopStyleColor();
-                        if(++i < sMaxPerRow) { SameLine(); }
-                        else { i = 0; }
                     }
-                    EndChild();
+                    else if(DCast<Device>(thing))
+                    {
+                        push_color = {device_button_color[0],device_button_color[1],device_button_color[2],1.0f};
+                        push_color_where = ImGuiCol_Button;
+                        type_symbol = "(D) ";
+                    }
+                    else if(DCast<Resource>(thing))
+                    {
+                        push_color = {resource_button_color[0],resource_button_color[1],resource_button_color[2],1.0f};
+                        push_color_where = ImGuiCol_Button;
+                        type_symbol = "(R) ";
+                    }
+                    std::string button_name{std::format("{}{}",
+                        (show_type_on_button) ? type_symbol : "",
+                        (thing->name().empty()) ? std::format("N/A##{}", ++j) : thing->name())};
+                    PushStyleColor(push_color_where, push_color);
+                    if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
+                        { selected = thing_data_buffer{thing}; }
+                    if(actor)
+                        { actor->mDebugHighlight.a = IsItemHovered(); }
+                    PopStyleColor();
+                    if(++i < sMaxPerRow) { SameLine(); }
+                    else { i = 0; }
+                }
+                EndChild();
+            }
+            if(!selected.ptr)
+                { End(); return; }
+            // THINGS
+            BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
+            SeparatorText("Properties");
+            if(UID::IsReserved(selected.id))
+            {
+                TextF("UID: {}", selected.id);
+                TextF("Name: {}", selected.name);
+            }
+            else
+            {
+                static Error id_change_status{FAILED};
+                InputUInt("UID", &selected.id, 1, 5);
+                if(IsItemDeactivatedAfterEdit())
+                {
+                    id_change_status = g_pTheatreManager->ChangeThingID(selected.ptr->uid(), selected.id);
+                    if(!id_change_status)
+                        { OpenPopup("Failed to set UID!"); }
+                    SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
+                        ImGuiCond_Appearing,
+                        {0.5f, 0.5f});
+                }
+                if(BeginPopupModal("Failed to set UID!", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+                {
+                    std::string reason{"N/A"};
+                    if(id_change_status == ERR_NOT_FOUND)
+                        { reason = std::format("No Actor found with UID#{}", selected.ptr->uid()[]); }
+                    else if(id_change_status == ERR_ALREADY_EXISTS)
+                    {
+                        if(UID::IsReserved(selected.id))
+                            { reason = std::format("UID#{} is a reserved UID", selected.id); }
+                        else
+                            { reason = std::format("UID#{} is already in use", selected.id); }
+                    }
+                    Text("%s", reason.data());
+                    ImVec2 button_size{120, 0};
+                    SetCursorPosX((ImGui::GetWindowSize().x - button_size.x) / 2);
+                    if(Button("Ok##1", button_size))
+                        { CloseCurrentPopup(); }
+                    EndPopup();
+                }
+                if(InputText("Name", &selected.name))
+                    { selected.ptr->name(selected.name); }
+            }
+            if(selected.ptr)
+                { Text("Type - %s", selected.ptr->type().c_name()); }
+            // ACTORS
+            if(auto actor{DCast<Actor>(selected.ptr)})
+            {
+                if(Button(std::format("Destroy {}", actor->c_name()).data())
+                    and g_pTheatreManager->DestroyThing(actor->uid()))
+                    { EndChild(); End(); selected = thing_data_buffer{}; return; }
+                else if(auto light{DCast<light_t>(actor)})
+                {
+                    Checkbox("Enabled", &light->mEnabled);
+                    ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                    InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    if(DCast<SpotLight>(light))
+                    {
+                        InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                    }
+                }
+                if(Checkbox("Visible", &selected.visible))
+                    { actor->Visible(selected.visible); }
+                SameLine();
+                if(Checkbox("Wireframe", &selected.wireframe))
+                    { actor->Wireframe(selected.wireframe); }
+                if(IsItemHovered())
+                    { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
+                glm::vec3 Origin{actor->Origin()};
+                if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
+                    { actor->SetOrigin(Origin); }
+                glm::vec3 Euler{actor->Euler(true)};
+                if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                    { actor->SetEuler(Euler, true); }
+                glm::vec3 Scale{actor->Scale()};
+                if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
+                    { actor->SetScale(Scale); }
+                NewLine();
+                if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    if(Button("Inspect##1"))
+                    {
+                        EndChild(); End();
+                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.collider_id)};
+                        return;
+                    }
+                    SameLine();
+                    if(InputUInt("Collider UID", &selected.collider_id))
+                        { actor->ColliderID(selected.collider_id); }
+
+                    if(Button("Inspect##2"))
+                    {
+                        EndChild(); End();
+                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_instance_id)};
+                        return;
+                    }
+                    SameLine();
+                    if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
+                        { actor->MeshInstanceID(selected.mesh_instance_id); }
+                }
+                if(auto camera3d{DCast<Camera3D>(selected.ptr)})
+                {
+                    if(Checkbox("Current", &selected.is_camera_current))
+                    {
+                        camera3d->Current(!camera3d->Current());
+                        selected.is_camera_current = camera3d->Current();
+                    }
+                    for(int i{0}; i < MaxRenderLayers; ++i)
+                    {
+                        PushID(i);
+                        if(Selectable("Layer", selected.camera_render_layers.status(i), 0, {20, 20}))
+                        {
+                            selected.camera_render_layers.toggle(i);
+                            camera3d->SetRenderLayers(selected.camera_render_layers);
+                        }
+                        PopID();
+                        if(i % (MaxRenderLayers/4))
+                            { SameLine(); }
+                    }
                 }
             }
-            // THINGS
-            if(selected.ptr and IManager::GetTheatreState() == ManagerEnums::IN_LEVEL
-                and BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border))
+            // DEVICES
+            else if(auto device{DCast<Device>(selected.ptr)})
             {
-                SeparatorText("Properties");
-                if(UID::IsReserved(selected.id))
+                if(auto collider{DCast<Collider>(selected.ptr)})
                 {
-                    TextF("UID: {}", selected.id);
-                    TextF("Name: {}", selected.name);
-                }
-                else
-                {
-                    static Error id_change_status{FAILED};
-                    InputUInt("UID", &selected.id, 1, 5);
-                    if(IsItemDeactivatedAfterEdit())
-                    {
-                        id_change_status = g_pTheatreManager->ChangeThingID(selected.ptr->uid(), selected.id);
-                        if(!id_change_status)
-                            { OpenPopup("Failed to set UID!"); }
-                        SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(),
-                            ImGuiCond_Appearing,
-                            {0.5f, 0.5f});
-                    }
-                    if(BeginPopupModal("Failed to set UID!", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-                    {
-                        std::string reason{"N/A"};
-                        if(id_change_status == ERR_NOT_FOUND)
-                            { reason = std::format("No Actor found with UID#{}", selected.ptr->uid()[]); }
-                        else if(id_change_status == ERR_ALREADY_EXISTS)
-                        {
-                            if(UID::IsReserved(selected.id))
-                                { reason = std::format("UID#{} is a reserved UID", selected.id); }
-                            else
-                                { reason = std::format("UID#{} is already in use", selected.id); }
-                        }
-                        Text("%s", reason.data());
-                        ImVec2 button_size{120, 0};
-                        SetCursorPosX((ImGui::GetWindowSize().x - button_size.x) / 2);
-                        if(Button("Ok##1", button_size))
-                            { CloseCurrentPopup(); }
-                        EndPopup();
-                    }
-                    if(InputText("Name", &selected.name))
-                        { selected.ptr->name(selected.name); }
-                }
-                Text("Type - %s", selected.ptr->type().c_name());
-                // ACTORS
-                if(auto actor{DCast<Actor>(selected.ptr)})
-                {
-                    if(Button(std::format("Destroy {}", actor->c_name()).data())
-                        and g_pTheatreManager->DestroyThing(actor->uid()))
-                        { EndChild(); End(); selected = thing_data_buffer{}; return; }
-                    else if(auto light{DCast<light_t>(actor)})
-                    {
-                        Checkbox("Enabled", &light->mEnabled);
-                        ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
-                        InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        if(DCast<SpotLight>(light))
-                        {
-                            InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                            InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        }
-                    }
-                    Checkbox("Visible", &actor->mVisible);
+                    static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
+                    static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
+                    if(Combo("Motion", &selected.motion, motion_names))
+                        { print_debug("You can't change a Collider's motion, yet"); }
+                    if(Combo("Shape", &selected.shape, shape_names))
+                        { print_debug("You can't change a Collider's shape, yet"); }
+                    bool is_active{collider->Active()};
+                    TextF("Active: {}", is_active);
+                    if(!is_active and Button("Activate"))
+                        { collider->Activate(); }
+                    else if(is_active and Button("Deactivate"))
+                        { collider->Deactivate(); }
+                    if(Button("Reset Transform"))
+                        { collider->ResetTransform(selected.activate_collider_on_reset); }
                     SameLine();
-                    Checkbox("Actor Wireframe", &actor->mWireframe);
-                    if(IsItemHovered())
-                        { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
-                    ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-                    glm::vec3 Origin{actor->Origin()};
-                    if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
-                        { actor->SetOrigin(Origin); }
-                    glm::vec3 Euler{actor->Euler(true)};
-                    if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                        { actor->SetEuler(Euler, true); }
-                    glm::vec3 Scale{actor->Scale()};
-                    if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
-                        { actor->SetScale(Scale); }
-                    NewLine();
+                    Checkbox("Activate on Reset", &selected.activate_collider_on_reset);
+                }
+                else if(auto mesh_instance{DCast<MeshInstance>(selected.ptr)})
+                {
                     if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
                     {
                         if(Button("Inspect##1"))
                         {
                             EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.collider_id)};
+                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_id)};
                             return;
                         }
                         SameLine();
-                        if(InputUInt("Collider UID", &selected.collider_id))
-                            { actor->ColliderID(selected.collider_id); }
+                        if(InputUInt("Mesh UID", &selected.mesh_id))
+                            { mesh_instance->MeshID(selected.mesh_id); }
 
                         if(Button("Inspect##2"))
                         {
                             EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_instance_id)};
+                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.material_id)};
                             return;
                         }
                         SameLine();
-                        if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
-                            { actor->MeshInstanceID(selected.mesh_instance_id); }
-                    }
-                    if(auto camera3d{DCast<Camera3D>(selected.ptr)})
-                    {
-                        if(Checkbox("Current", &selected.is_camera_current))
-                            { camera3d->SetCurrent(selected.is_camera_current); }
-                        for(int i{0}; i < MaxRenderLayers; ++i)
-                        {
-                            PushID(i);
-                            if(Selectable("Layer", selected.camera_render_layers.status(i), 0, {20, 20}))
-                            {
-                                selected.camera_render_layers.toggle(i);
-                                camera3d->SetRenderLayers(selected.camera_render_layers);
-                            }
-                            PopID();
-                            if(i % (MaxRenderLayers/4))
-                                { SameLine(); }
-                        }
+                        if(InputUInt("Material UID", &selected.material_id))
+                            { mesh_instance->MaterialID(selected.material_id); }
                     }
                 }
-                // DEVICES
-                else if(auto device{DCast<Device>(selected.ptr)})
+                else if(auto material{DCast<Material>(selected.ptr)})
                 {
-                    if(auto collider{DCast<Collider>(selected.ptr)})
+                    Checkbox("Don't Use Textures", &material->mDontUseTexture);
+                    Checkbox("Ignore Lighting", &material->mFullBright);
+                    ColorEditGLMv3("Diffuse Color",
+                        &material->mColor,
+                        ImGuiColorEditFlags_Float |
+                            ImGuiColorEditFlags_DisplayRGB |
+                            ImGuiColorEditFlags_InputRGB);
+                    InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
+                    InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
+
+                    if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
                     {
-                        static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
-                        static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
-                        if(Combo("Motion", &selected.motion, motion_names))
-                            { print_debug("You can't change a Collider's motion, yet"); }
-                        if(Combo("Shape", &selected.shape, shape_names))
-                            { print_debug("You can't change a Collider's shape, yet"); }
-                        bool is_active{collider->Active()};
-                        TextF("Active: {}", is_active);
-                        if(!is_active and Button("Activate"))
-                            { collider->Activate(); }
-                        else if(is_active and Button("Deactivate"))
-                            { collider->Deactivate(); }
-                        if(Button("Reset Transform"))
-                            { collider->ResetTransform(selected.activate_collider_on_reset); }
+                        if(Button("Inspect##1"))
+                        {
+                            EndChild(); End();
+                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture1_id)};
+                            return;
+                        }
                         SameLine();
-                        Checkbox("Activate on Reset", &selected.activate_collider_on_reset);
-                    }
-                    else if(auto mesh_instance{DCast<MeshInstance>(selected.ptr)})
-                    {
-                        if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                        if(InputUInt("Diffuse Texture UID", &selected.texture1_id))
+                            { material->DiffuseTextureID(selected.texture1_id); }
+
+                        if(Button("Inspect##2"))
                         {
-                            if(Button("Inspect##1"))
-                            {
-                                EndChild(); End();
-                                selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_id)};
-                                return;
-                            }
-                            SameLine();
-                            if(InputUInt("Mesh UID", &selected.mesh_id))
-                                { mesh_instance->MeshID(selected.mesh_id); }
-
-                            if(Button("Inspect##2"))
-                            {
-                                EndChild(); End();
-                                selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.material_id)};
-                                return;
-                            }
-                            SameLine();
-                            if(InputUInt("Material UID", &selected.material_id))
-                                { mesh_instance->MaterialID(selected.material_id); }
+                            EndChild(); End();
+                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture2_id)};
+                            return;
                         }
-                    }
-                    else if(auto material{DCast<Material>(selected.ptr)})
-                    {
-                        Checkbox("Don't Use Textures", &material->mDontUseTexture);
-                        Checkbox("Ignore Lighting", &material->mFullBright);
-                        ColorEditGLMv3("Diffuse Color",
-                            &material->mColor,
-                            ImGuiColorEditFlags_Float |
-                                ImGuiColorEditFlags_DisplayRGB |
-                                ImGuiColorEditFlags_InputRGB);
-                        InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
-                        InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
-
-                        if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
-                        {
-                            if(Button("Inspect##1"))
-                            {
-                                EndChild(); End();
-                                selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture1_id)};
-                                return;
-                            }
-                            SameLine();
-                            if(InputUInt("Diffuse Texture UID", &selected.texture1_id))
-                                { material->DiffuseTextureID(selected.texture1_id); }
-
-                            if(Button("Inspect##2"))
-                            {
-                                EndChild(); End();
-                                selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture2_id)};
-                                return;
-                            }
-                            SameLine();
-                            if(InputUInt("Specular Texture UID", &selected.texture2_id))
-                                { material->SpecularTextureID(selected.texture2_id); }
-                        }
+                        SameLine();
+                        if(InputUInt("Specular Texture UID", &selected.texture2_id))
+                            { material->SpecularTextureID(selected.texture2_id); }
                     }
                 }
-                EndChild();
             }
-            else { selected = thing_data_buffer{}; }
+            EndChild();
         }
         End();
     }

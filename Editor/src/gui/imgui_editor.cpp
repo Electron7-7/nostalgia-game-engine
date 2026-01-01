@@ -2,10 +2,12 @@
 #include "core/uid.hpp"
 #include "application/application.hpp"
 #include "events/event.hpp"
+#include "managers/input_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "theatre/parser/thing_data.hpp"
+#include "things/actors/camera_3d.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
@@ -38,7 +40,8 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    sEditorFramebufferID = g_pRenderManager->GetAPI()->AddFrameBuffer(FrameBuffer::Create({1920, 1080}));
+    sEditorFramebufferID = g_pRenderManager->GetAPI()
+        ->AddFrameBuffer(FrameBuffer::Create({1920, 1080}, UID::a_EditorCamera[]));
 }
 
 void ImGui_Editor::Shutdown()
@@ -46,27 +49,27 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    sSpawnLocationMaterialID = g_pTheatreManager->CreateThing(ThingData{
+    sSpawnLocationMaterialID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_Material",
         ThingType::Material,
         UID::Generate(),
         {
-            ThingVar{true, "NoTexture"},
-            ThingVar{glm::vec3(1.0f, 0.0f, 0.0f), "Color"},
-            ThingVar{true, "mat_fullbright"}
+            {true, "NoTexture"},
+            {glm::vec3{1.0f, 0.0f, 0.0f}, "Color"},
+            {true, "mat_fullbright"}
         }
     });
     sSpawnLocationMeshInstanceID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_MeshInstance",
         ThingType::MeshInstance,
         UID::Generate(),
-        {{ID{UID::m_Ramiel}, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
+        {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
     });
     sSpawnLocationID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation",
         ThingType::Actor,
         UID::Generate(),
-        {{sSpawnLocationMeshInstanceID, "MeshInstance"}, {glm::vec3(1.0f), "Scale"}, {true, "Wireframe"}}
+        {{sSpawnLocationMeshInstanceID, "MeshInstance"}, {glm::vec3{1.0f}, "Scale"}, {true, "Wireframe"}}
     });
 }
 
@@ -79,13 +82,13 @@ void ImGui_Editor::TheatreExited()
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    if(g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard)
+    if(g_pTheatreManager->GetPlayer()->mCaptureKeyboard)
     {
         if(event->IsJustPressed(Key::Escape))
         {
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
-            g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = false;
-            g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = false;
+            g_pTheatreManager->GetPlayer()->mCaptureMouse    = false;
+            g_pTheatreManager->GetPlayer()->mCaptureKeyboard = false;
         }
         return;
     }
@@ -102,8 +105,53 @@ enum ScaleDir
 };
 static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
 
+/*static void s_EditorViewport(ID inID)
+{
+    auto framebuffer{g_pRenderManager->GetAPI()->GetFrameBuffer(inID)};
+    auto original_aspect{framebuffer->TextureSize().AspectRatio()};
+
+    PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
+    PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
+    PushID(inID[]);
+    BeginChild("Viewport",
+        {50, 50},
+        sResizableChildWithBorder,
+        ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoScrollWithMouse);
+    if(IsItemClicked())
+    {
+        MainWindow()->SetMouseMode(
+            (MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_DISABLED)
+                ? IWindow::MOUSE_MODE_DISABLED
+                : IWindow::MOUSE_MODE_VISIBLE);
+        g_pTheatreManager->GetPlayer()->mCaptureMouse    = !g_pTheatreManager->GetPlayer()->mCaptureMouse;
+        g_pTheatreManager->GetPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetPlayer()->mCaptureKeyboard;
+    }
+    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+    Image((ImTextureID)framebuffer->TextureID(), sEditorViewportSizes[inID], {0, 1}, {1, 0});
+    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+    EndChild();
+    auto child_size{sEditorViewportSizes[inID] = GetItemRectSize()};
+    if((child_size.x / child_size.y) < original_aspect)
+    {
+        sEditorViewportSizes[inID].x = child_size.x;
+        sEditorViewportSizes[inID].y = sEditorViewportSizes[inID].x / original_aspect;
+    }
+    else
+    {
+        sEditorViewportSizes[inID].y = child_size.y;
+        sEditorViewportSizes[inID].x = sEditorViewportSizes[inID].y * original_aspect;
+    }
+    PopStyleVar(2);
+    PopID();
+}*/
+
 void ImGui_Editor::Update()
 {
+    static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
+        ImGuiChildFlags_ResizeY |
+        ImGuiChildFlags_ResizeX};
+    auto framebuffer{g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)};
     if(!sSpawnLocationID.invalid())
     {
         auto thingy = g_pTheatreManager->GetThing<Actor>(sSpawnLocationID);
@@ -142,33 +190,37 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
-        static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY | ImGuiChildFlags_ResizeX};
-        PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
-        if(BeginChild("Viewport",
-            {720, 690},
+        TextF("Mouse Motion: {}", InputManager::MouseMotion().data_log());
+        TextF("Is Left Mouse Down: {}", InputManager::IsKeyDown(Key::MouseLeft));
+        BeginChild("Viewport",
+            {500, 500},
             sResizableChildWithBorder,
-            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
-        {
+            ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoScrollWithMouse);
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-            Image((ImTextureID)g_pRenderManager->GetAPI()
-                ->GetFrameBuffer(sEditorFramebufferID)
-                    ->TextureID(),
-                static_cast<ImVec2>(MainWindow()->GetScale()), {0, 1}, {1, 0}); /*g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)->TextureSize() * 0.5f*/
+            Image((ImTextureID)framebuffer->TextureID(),
+                (ImVec2)MainWindow()->GetScale(),
+                {0, 1},
+                {1, 0});
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-            if(IsItemClicked())
+        EndChild();
+        static bool camera_moving{false};
+        if(IsItemHovered() or camera_moving)
+        {
+            if(InputManager::IsKeyPressed(Key::MouseLeft))
+                { camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
+            if(InputManager::IsKeyDown(Key::MouseLeft))
             {
-                MainWindow()->SetMouseMode(
-                    (MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_DISABLED)
-                        ? IWindow::MOUSE_MODE_DISABLED
-                        : IWindow::MOUSE_MODE_VISIBLE);
-                g_pTheatreManager->GetLocalPlayer()->mCaptureMouse    = !g_pTheatreManager->GetLocalPlayer()->mCaptureMouse;
-                g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetLocalPlayer()->mCaptureKeyboard;
+                auto camera{g_pTheatreManager->GetThing<Camera3D>(framebuffer->CameraID())};
+                auto motion{InputManager::MouseMotion()};
+                camera->SetEuler(camera->Euler(true) - glm::vec3{motion.y(), motion.x(), 0.0f}, true);
             }
         }
+        if(InputManager::IsKeyReleased(Key::MouseLeft))
+            { camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
+        BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
+            s_ThingAdder();
         EndChild();
-        if(BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder))
-            { s_ThingAdder(); }
-        EndChild(); PopStyleVar();
     }
     End();
 }
