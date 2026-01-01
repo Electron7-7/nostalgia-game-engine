@@ -37,10 +37,10 @@ void TheatreManager::CreateEmbeddedResources()
     CreateThingNoReady({"Cube Mesh",           ThingType::Mesh,    UID::m_Cube});
     CreateThingNoReady({"Ramiel Mesh",         ThingType::Mesh,    UID::m_Ramiel});
     CreateThingNoReady({"Camera3D Mesh",       ThingType::Mesh,    UID::m_Camera3D});
-    CreateThingNoReady({"Missing Texture",     ThingType::Texture, UID::i_Missing});
-    CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::i_LolBit});
-    CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::i_LightDebug});
-    CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::i_COMP04_5});
+    CreateThingNoReady({"Missing Texture",     ThingType::Texture, UID::t_Missing});
+    CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::t_LolBit});
+    CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::t_LightDebug});
+    CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::t_COMP04_5});
 }
 
 bool TheatreManager::Init()

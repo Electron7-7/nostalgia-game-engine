@@ -45,10 +45,12 @@ UID::ReservedType UID::GetReservedType(uint id)
         { return ReservedType::NotReserved; }
     else if(id == a_Player)
         { return ReservedType::Player; }
+    else if(id < cubemap_front)
+        { return ReservedType::Texture; }
     else if(id < models_front)
-        { return ReservedType::Image; }
+        { return ReservedType::Cubemap; }
     else if(id < fonts_front)
-        { return ReservedType::Model; }
+        { return ReservedType::Mesh; }
     else if(id < front)
         { return ReservedType::Font; }
     return ReservedType::NotReserved;
