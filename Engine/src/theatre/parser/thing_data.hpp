@@ -10,8 +10,6 @@
 struct ThingData
 {
 public:
-    static const ThingData PlayerDefaultData;
-
     ThingData();
     ThingData(Farg<std::string> Name, Farg<std::string> TypeName);
     ThingData(Farg<std::string> Name, Farg<TTID> Type, Farg<std::vector<ThingVar>> Variables = {});

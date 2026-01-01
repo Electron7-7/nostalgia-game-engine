@@ -1,18 +1,8 @@
 #include "thing_data.hpp"
 #include "thing_variable.hpp"
 #include "things/thing_factory.hpp"
-#include "core/uid.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
-
-const ThingData ThingData::PlayerDefaultData{
-    "Default Player",
-    ThingType::NostalgiaPlayer,
-    UID::a_Player,
-    {
-        ThingVar{glm::vec3(0.0f), "Rotation"},
-        ThingVar{glm::vec3(0.0f), "Origin"},
-    }};
 
 ThingData::ThingData() = default;
 
