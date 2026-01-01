@@ -4,14 +4,15 @@
 #include "managers/manager.hpp"
 #include "fwd/things.hpp"
 #include "fwd/theatre.hpp"
-#include "fwd/rendering.hpp"
-#include "fwd/filesystem.hpp"
 #include "core/id.hpp"
 #include "core/error.hpp"
-#include "rendering/mesh_buffers.hpp"
+#include "core/smart_pointers.hpp"
 #include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <mutex>
+
+using things_t = std::unordered_map<ID,Shared<Thing>>;
 
 class TheatreManager : public Manager
 {
@@ -24,23 +25,27 @@ public:
     void Tick();
     void Input(InputEvent*);
 
-    void DrawTheatre();
-    bool ThingExists(ID UID);
-    Farg<TTID> GetType(ID ObjectID);
-
     void LoadTheatreData(Farg<TheatreData>);
     bool LoadTheatreFromMemory(Farg<std::string> Data);
     bool LoadTheatreFromFile(Farg<std::string> Path);
 
+    bool IsCurrentCamera(ID UID) const;
+    Error SetCurrentCamera(ID UID);
+    void UnsetCurrentCamera(ID UID);
+    ID GetCurrentCamera() const;
+
+    void DrawTheatre();
+    bool ThingExists(ID UID);
+    Farg<TTID> GetType(ID ObjectID);
+
     const TheatreData& GetInitialState();
     TheatreData GetCurrentState();
     std::vector<ID> GetThingIDs();
+    Farg<std::unordered_set<ID>> GetCameraIDs();
+    Shared<NostalgiaPlayer> GetPlayer();
 
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
-    Shared<NostalgiaPlayer> GetLocalPlayer();
-    Shared<Camera3D> GetCurrentCamera();
-    Error SetCurrentCamera(ID);
     bool DestroyThing(ID);
 
     Shared<Thing> GetThing(ID ObjectID);
@@ -68,22 +73,17 @@ public:
         }
 
 private:
-    std::unordered_map<ID, Shared<Thing>> mThings{};
-    std::unordered_map<ID, Shared<VertexArray>> mTheatreVAOs{};
-    std::unordered_map<ID, Shared<TextureBuffer>> mTheatreTextures{};
-
+    things_t mThings{};
     std::recursive_mutex mThingsMutex{};
+    std::unordered_set<ID> mActiveCameras{};
+    ID mCurrentCamera{};
 
     void CreateThings();
     void DestroyThings();
-    uint CreateThingNoReady(Farg<ThingData> ThingData);
-
-    Error BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::Layout> inLayout);
-    Error BufferTexture(Farg<FileData> inData, ID inID, Farg<TextureFormat> inFormat);
-    void  BufferEmbeddedResources();
-
-    Shared<TextureBuffer>& GetTextureBuffer(ID inID);
-    Shared<VertexArray>& GetVertexArray(ID inID);
+    things_t::iterator DestroyThing(things_t::iterator);
+    uint CreateThingNoReady(Farg<ThingData>);
+    void CreateEmbeddedResources();
+    void DrawActor(Shared<Actor>, Shared<Camera3D>);
 };
 
 extern bool gPrintLoadedTheatreData;

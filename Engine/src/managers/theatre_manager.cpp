@@ -1,21 +1,14 @@
 #include "theatre_manager.hpp"
 #include "render_manager.hpp"
-#include "physics_manager.hpp"
 #include "core/uid.hpp"
 #include "common/colors.hpp"
-#include "math/containers.hpp"
-#include "embedded/models.hpp"
-#include "embedded/images.hpp"
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
 #include "application/application.hpp"
+#include "math/containers.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
-#include "rendering/mesh_parser.hpp"
-#include "rendering/vertex_array.hpp"
-#include "rendering/mesh_buffers.hpp"
-#include "rendering/texture_buffer.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
 #include "theatre/parser/theatre_data.hpp"
@@ -26,88 +19,28 @@
 #include "things/resources/texture.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
-#include "things/devices/collider.hpp"
 #include "things/actors/nostalgia_player.hpp"
 #include "things/actors/light.hpp"
-
-#include <vector>
 #include <ranges>
-#include <glm/glm.hpp>
 
 using namespace ManagerEnums;
 
 bool gPrintLoadedTheatreData{false};
 
+static TheatreData sCurrentTheatreData{};
 static TheatreManager sTheatreManager;
 TheatreManager* g_pTheatreManager{&sTheatreManager};
 
-static bool sReadyToRender{false};
-static TheatreData sCurrentTheatreData{};
-static Shared<NostalgiaPlayer> sLocalPlayer{MakeShared<NostalgiaPlayer>()};
-static Shared<Camera3D> sCurrentCamera{MakeShared<Camera3D>()};
-static IBuffer::Layout sDefaultLayout{
-    { IBuffer::Element::Type::Float3, "position" },
-    { IBuffer::Element::Type::Float3, "color"    },
-    { IBuffer::Element::Type::Float3, "normal"   },
-    { IBuffer::Element::Type::Float2, "uv"       },
-};
-
-Error TheatreManager::BufferMesh(Farg<FileData> inData, ID inID, Farg<IBuffer::Layout> inLayout = sDefaultLayout)
+void TheatreManager::CreateEmbeddedResources()
 {
-    if(mTheatreVAOs.contains(inID))
-        { return ERR_ALREADY_EXISTS; }
-    std::vector<float> vertices{};
-    std::vector<uint>  indices{};
-    if(!MeshParser::CreateMeshData(vertices, indices, inData))
-        { print_error("Failed to parse mesh"); return FAILED; }
-    auto& array{mTheatreVAOs[inID] = VertexArray::Create()};
-    Shared<VertexBuffer> vbo{VertexBuffer::Create(vertices.data(), vertices.size())};
-    vbo->SetLayout(inLayout);
-    array->AddVertexBuffer(vbo);
-    array->Bind();
-    Shared<IndexBuffer> ibo{IndexBuffer::Create(indices.data(), indices.size())};
-    array->SetIndexBuffer(ibo);
-    return OK;
-}
-
-Error TheatreManager::BufferTexture(Farg<FileData> inData, ID inID, Farg<TextureFormat> inFormat = {})
-{
-    if(mTheatreTextures.contains(inID))
-        { return ERR_ALREADY_EXISTS; }
-    mTheatreTextures[inID] = TextureBuffer::Create(inFormat, SamplerState::JuliansPreferredDefaults, &inData);
-    Error status{mTheatreTextures.at(inID)->Status()};
-    if(!status)
-    {
-        print_error("Failed to buffer texture (ID#{})", inID[]);
-        mTheatreTextures.erase(inID);
-    }
-    return status;
-}
-
-Shared<TextureBuffer>& TheatreManager::GetTextureBuffer(ID ID)
-{
-    if(auto found_it{mTheatreTextures.find(ID)}; found_it != mTheatreTextures.end())
-        { return found_it->second; }
-    return mTheatreTextures.at(UID::i_Missing);
-}
-
-Shared<VertexArray>& TheatreManager::GetVertexArray(ID ID)
-{
-    if(auto found_it{mTheatreVAOs.find(ID)}; found_it != mTheatreVAOs.end())
-        { return found_it->second; }
-    return mTheatreVAOs.at(UID::m_Error);
-}
-
-void TheatreManager::BufferEmbeddedResources()
-{
-    BufferMesh({Models::Error,         std::size(Models::Error),      FileType::model_OBJ}, UID::m_Error);
-    BufferMesh({Models::Cube,          std::size(Models::Cube),       FileType::model_OBJ}, UID::m_Cube);
-    BufferMesh({Models::Ramiel,        std::size(Models::Ramiel),     FileType::model_OBJ}, UID::m_Ramiel);
-    BufferMesh({Models::Camera,        std::size(Models::Camera),     FileType::model_OBJ}, UID::m_Camera3D);
-    BufferTexture({Images::Missing,    std::size(Images::Missing),    FileType::image_PNG}, UID::i_Missing);
-    BufferTexture({Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG}, UID::i_LolBit);
-    BufferTexture({Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG}, UID::i_LightDebug);
-    BufferTexture({Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG}, UID::i_COMP04_5);
+    CreateThingNoReady({"Error Mesh",          ThingType::Mesh,    UID::m_Error});
+    CreateThingNoReady({"Cube Mesh",           ThingType::Mesh,    UID::m_Cube});
+    CreateThingNoReady({"Ramiel Mesh",         ThingType::Mesh,    UID::m_Ramiel});
+    CreateThingNoReady({"Camera3D Mesh",       ThingType::Mesh,    UID::m_Camera3D});
+    CreateThingNoReady({"Missing Texture",     ThingType::Texture, UID::i_Missing});
+    CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::i_LolBit});
+    CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::i_LightDebug});
+    CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::i_COMP04_5});
 }
 
 bool TheatreManager::Init()
@@ -121,7 +54,6 @@ void TheatreManager::Update()
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sLocalPlayer->Update();
     for(auto& [id, thing] : mThings)
         { thing->Update(); }
 }
@@ -131,7 +63,6 @@ void TheatreManager::Tick()
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sLocalPlayer->Tick();
     for(auto& [id, thing] : mThings)
         { thing->Tick(); }
 }
@@ -141,7 +72,6 @@ void TheatreManager::Input(InputEvent* inInput)
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sLocalPlayer->Input(inInput);
     for(auto& [id, thing] : mThings)
         { thing->Input(inInput); }
 }
@@ -149,14 +79,14 @@ void TheatreManager::Input(InputEvent* inInput)
 Shared<Thing> TheatreManager::GetThing(ID inID)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    return (mThings.contains(inID) && GetTheatreState() != NOT_IN_LEVEL)
+    return (mThings.contains(inID))
         ? mThings.at(inID)
         : MakeShared<Thing>();
 }
 
 void TheatreManager::DrawTheatre()
 {
-    if(!sReadyToRender || GetTheatreState() != IN_LEVEL)
+    if(GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     light_t::ClearCounts();
@@ -166,64 +96,70 @@ void TheatreManager::DrawTheatre()
         if(auto light{DCast<light_t>(thing)}; light and light->IncrementIndex())
         {
             g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get());
-            auto material{g_pTheatreManager
-                ->GetThing<Material>(g_pTheatreManager
-                    ->GetThing<MeshInstance>(light->MeshInstanceID())
-                        ->MaterialID())};
+            auto material{GetThing<Material>(GetThing<MeshInstance>(light->MeshInstanceID())->MaterialID())};
             material->mColor = light->mColor;
             material->mFullBright = true;
         }
     }
-    for(auto& [id, thing] : mThings)
+    for(ID cam_id : mActiveCameras)
     {
-        if(auto actor{DCast<Actor>(thing)}; actor and actor->mVisible and actor->uid() != sCurrentCamera->uid())
+        for(auto& [id, thing] : mThings)
         {
-            auto mesh_instance{g_pTheatreManager->GetThing<MeshInstance>(actor->MeshInstanceID())};
-            auto material{g_pTheatreManager->GetThing<Material>(mesh_instance->MaterialID())};
-            auto& renderer_api{g_pRenderManager->GetAPI()};
-            auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
-
-            renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
-            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->mWireframe or DCast<Camera3D>(actor));
-
-            GetTextureBuffer(material->DiffuseTextureID()[])->Bind(0);
-            GetTextureBuffer(material->SpecularTextureID()[])->Bind(1);
-
-            glm::mat4 projection_matrix{glm::perspective(
-                glm::radians(Settings::Player::FOV),
-                static_cast<float>(MainWindow()->GetScale().AspectRatio()),
-                Settings::Player::ViewCutoffNear,
-                Settings::Player::ViewCutoffFar
-            )};
-
-            // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-            glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
-            glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
-            glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
-            glm::mat4 model_matrix {transMat * rotMat * scaleMat};
-
-            shader->Bind();
-            shader->SetUniform("model_matrix", model_matrix);
-            shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
-            shader->SetUniform("projection_matrix", projection_matrix);
-            shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
-            shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
-            shader->SetUniform("point_lights_count", PointLight::GetCount());
-            shader->SetUniform("spot_lights_count", SpotLight::GetCount());
-            shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
-            shader->SetUniform("view_matrix", sCurrentCamera->ViewMatrix());
-            shader->SetUniform("view_position", sCurrentCamera->Origin());
-            shader->SetUniform("current_material.texture_diffuse",  0);
-            shader->SetUniform("current_material.texture_specular", 1);
-            shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
-            shader->SetUniform("current_material.diffuse_color", material->mColor);
-            shader->SetUniform("current_material.alpha", material->mAlpha);
-            shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-            shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
-            renderer_api->DrawIndexed(sCurrentCamera, GetVertexArray(mesh_instance->MeshID()[]));
-            renderer_api->SetFramebufferSRGB(false);
+            if(id == cam_id) { continue; }
+            else if(auto actor{DCast<Actor>(thing)}; actor and actor->Visible())
+                { DrawActor(actor, GetThing<Camera3D>(cam_id)); }
         }
     }
+}
+
+void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
+{
+    if(!camera->GetRenderLayers().contains(actor->mRenderLayers))
+        { return; }
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    auto mesh_instance{GetThing<MeshInstance>(actor->MeshInstanceID())};
+    auto material{GetThing<Material>(mesh_instance->MaterialID())};
+    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
+
+    renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
+    renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
+    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[]), 0);
+    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[]), 1);
+
+    glm::mat4 projection_matrix{glm::perspective(
+        glm::radians(Settings::Player::FOV),
+        static_cast<float>(MainWindow()->GetScale().AspectRatio()),
+        Settings::Player::ViewCutoffNear,
+        Settings::Player::ViewCutoffFar
+    )};
+
+    // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
+    glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
+    glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
+    glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
+    glm::mat4 model_matrix {transMat * rotMat * scaleMat};
+
+    shader->Bind();
+    shader->SetUniform("model_matrix", model_matrix);
+    shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+    shader->SetUniform("projection_matrix", projection_matrix);
+    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
+    shader->SetUniform("point_lights_count", PointLight::GetCount());
+    shader->SetUniform("spot_lights_count", SpotLight::GetCount());
+    shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
+    shader->SetUniform("view_matrix", camera->ViewMatrix());
+    shader->SetUniform("view_position", camera->Origin());
+    shader->SetUniform("current_material.texture_diffuse",  0);
+    shader->SetUniform("current_material.texture_specular", 1);
+    shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
+    shader->SetUniform("current_material.diffuse_color", material->mColor);
+    shader->SetUniform("current_material.alpha", material->mAlpha);
+    shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+    shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
+    renderer_api->DrawIndexed(camera, GetThing<Mesh>(mesh_instance->MeshID()[]));
+    renderer_api->SetFramebufferSRGB(false);
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
@@ -231,13 +167,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_cal
     if(!is_first_call)
         { return FINISHED; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sReadyToRender = false;
-    mTheatreVAOs.clear();
-    mTheatreTextures.clear();
-    BufferEmbeddedResources();
     CreateThings();
-    sLocalPlayer->Ready();
-    sReadyToRender = true;
     return FINISHED;
 }
 
@@ -246,10 +176,7 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     if(!is_first_call)
         { return FINISHED; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sReadyToRender = false;
     DestroyThings();
-    mTheatreVAOs.clear();
-    mTheatreTextures.clear();
     return FINISHED;
 }
 
@@ -294,6 +221,43 @@ bool TheatreManager::LoadTheatreFromFile(const std::string& path)
     return true;
 }
 
+bool TheatreManager::IsCurrentCamera(ID inUID) const
+{ return mCurrentCamera == inUID; }
+
+Error TheatreManager::SetCurrentCamera(ID inID)
+{
+    if(inID.invalid())
+        { return ERR_INVALID_ID; }
+    else if(mActiveCameras.contains(inID))
+    {
+        mCurrentCamera = inID;
+        return OK;
+    }
+    return ERR_NOT_FOUND;
+}
+
+void TheatreManager::UnsetCurrentCamera(ID inID)
+{
+    if(mCurrentCamera != inID)
+        { return; }
+    // for(Farg<ID> uid : mActiveCameras)
+    // {
+    //     if(mCurrentCamera != uid and DCast<Camera3D>(mThings.at(uid))->Visible())
+    //         { mCurrentCamera = uid; return; }
+    // }
+    mCurrentCamera = ID::Invalid;
+}
+
+ID TheatreManager::GetCurrentCamera() const
+{ return mCurrentCamera; }
+
+Shared<NostalgiaPlayer> TheatreManager::GetPlayer()
+{
+    if(mThings.empty() or !mThings.contains(UID::a_Player))
+        { return MakeShared<NostalgiaPlayer>(); }
+    return DCast<NostalgiaPlayer>(mThings.at(UID::a_Player));
+}
+
 const TheatreData& TheatreManager::GetInitialState()
 { return sCurrentTheatreData; }
 
@@ -314,10 +278,13 @@ std::vector<ID> TheatreManager::GetThingIDs()
     return {keys.begin(), keys.end()};
 }
 
+Farg<std::unordered_set<ID>> TheatreManager::GetCameraIDs()
+{ return mActiveCameras; }
+
 Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    if(UID::Contains(inNewID[]))
+    if(mThings.contains(inNewID))
         { return ERR_ALREADY_EXISTS; }
     else if(!mThings.contains(inOldID))
         { return ERR_NOT_FOUND; }
@@ -330,67 +297,31 @@ Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 
 uint TheatreManager::CreateThing(Farg<ThingData> inData)
 {
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     uint output{CreateThingNoReady(inData)};
     mThings.at(output)->Ready();
-    if(auto mesh{DCast<Mesh>(mThings.at(output))})
-        { BufferMesh(*mesh->Data(), mesh->uid()); }
-    else if(auto texture{DCast<Texture>(mThings.at(output))})
-        { BufferTexture(*texture->Data(), texture->uid()); }
     return output;
 }
 
-Shared<NostalgiaPlayer> TheatreManager::GetLocalPlayer()
-{ return sLocalPlayer; }
-
-Shared<Camera3D> TheatreManager::GetCurrentCamera()
-{ return sCurrentCamera; }
-
-Error TheatreManager::SetCurrentCamera(ID inID)
-{
-    if(sCurrentCamera->uid() == inID)
-        { return OK; }
-    else if(inID.invalid())
-    {
-        if(sLocalPlayer and !sLocalPlayer->CameraID().invalid())
-            { sCurrentCamera = GetThing<Camera3D>(sLocalPlayer->CameraID()); return OK; }
-        print_warning("Unable to set a camera after unsetting the current one!");
-        return OK;
-    }
-    sCurrentCamera = GetThing<Camera3D>(inID);
-    return OK;
-}
-
 bool TheatreManager::DestroyThing(ID id)
+{ return DestroyThing(mThings.find(id)) != mThings.end() or mThings.empty(); }
+
+things_t::iterator TheatreManager::DestroyThing(things_t::iterator inIterator)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    if(!mThings.contains(id))
-    {
-        print_warning("No Thing with uid#{} exists", id[]);
-        return false;
-    }
-    else if(id == sLocalPlayer->uid())
-    {
-        print_warning("Cannot destroy the NostalgiaPlayer Thing! (uid#{})", sLocalPlayer->uid()[]);
-        print_debug("Player ID: {}, Thing ID: {}", sLocalPlayer->uid()[], id[]);
-        return false;
-    }
-    if(!UID::Contains(id[]))
-        { print_warning("{} is not in 's_ExistingIDs', but is somehow in 'mThings'! The Thing will still be destroyed, but this is highly unusual behaviour!", id[]); }
-
-    std::string thing_name{mThings.at(id)->name()};
-    if(mThings.erase(id))
-    {
-        if(!g_pVariableRegistry->RemoveID(id[]) and !g_pVariableRegistry->RemoveID(thing_name))
-            { print_warning("Unable to remove the Thing UID {} from the variable registry!", id[]); }
-        return true;
-    }
-    return false;
+    if(inIterator == mThings.end())
+        { return inIterator; }
+    if(!g_pVariableRegistry->RemoveID(inIterator->first[])
+        and !g_pVariableRegistry->RemoveID(inIterator->second->name()))
+        { print_warning("Unable to remove Thing#{} from the variable registry!", inIterator->first[]); }
+    inIterator->second->Shutdown();
+    mActiveCameras.erase(inIterator->first);
+    return mThings.erase(inIterator);
 }
 
 uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    Shared<Thing> thing;
     ThingData data{inData};
 
     if(mThings.contains(data.uid))
@@ -401,69 +332,46 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
         data.uid = UID::Generate();
     }
 
-    if(data.type() == ThingType::NostalgiaPlayer)
-    {
-        thing = static_pointer_cast<Thing>(sLocalPlayer);
-        thing->SetVariables(ThingData::PlayerDefaultData);
-    }
-    else
-        { thing = mThings[data.uid] = g_pThingFactory->MakeThing(data.type())(); }
-
+    auto& thing{mThings[data.uid] = g_pThingFactory->MakeThing(data.type())()};
     thing->SetVariables(data);
-    if(auto collider{DCast<Collider>(thing)})
-        { g_pPhysicsManager->CreateBody(thing->uid(), collider); }
-
     g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
+
+    if(DCast<Camera3D>(thing))
+        { mActiveCameras.insert(thing->uid()); }
+    else if(DCast<NostalgiaPlayer>(thing))
+        { ChangeThingID(thing->uid(), UID::a_Player); }
+
     return thing->uid()[];
 }
 
 void TheatreManager::CreateThings()
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    sReadyToRender = false;
-
     sCurrentTheatreData.SetupUIDsAndPriorities();
     if(gPrintLoadedTheatreData)
         { sCurrentTheatreData.debug_PrintData(); }
 
+    CreateEmbeddedResources();
+
     for(ThingData& data : sCurrentTheatreData.things_data)
         { CreateThingNoReady(data); }
 
-    for(auto& [id, thing] : mThings)
-    {
-        thing->Ready();
-#pragma message("TODO: move this to the renderer api + Resource::Ready")
-        if(auto mesh{DCast<Mesh>(thing)})
-            { BufferMesh(*mesh->Data(), mesh->uid()); }
-        else if(auto texture{DCast<Texture>(thing)})
-            { BufferTexture(*texture->Data(), texture->uid()); }
-    }
+    if(!mThings.contains(UID::a_Player))
+        { CreateThingNoReady({"Default NostalgiaPlayer", ThingType::NostalgiaPlayer, UID::a_Player}); }
 
     if(Settings::Engine::IsEditorHint)
-    {
-        ID camID{CreateThing({"Editor Camera",
-            ThingType::Camera3D,
-            UID::Generate(),
-            {
-                {true, "Current"},
-                {glm::vec3{0.0f, 1.0f, 1.0f}, "Origin"},
-            }
-        })};
-        sCurrentCamera = DCast<Camera3D>(mThings.at(camID));
-    }
+        { CreateThingNoReady({"Editor Camera", ThingType::Camera3D, UID::a_EditorCamera}); }
 
-    sReadyToRender = true;
+    for(auto& [id, thing] : mThings)
+        { thing->Ready(); }
+
+    if(Settings::Engine::IsEditorHint)
+        { mCurrentCamera = ID::Invalid; }
 }
 
 void TheatreManager::DestroyThings()
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-#pragma message("When I implement multiple Theatres, they should be able to clear their own sets of IDs")
-    for(const auto& [id, thing] : mThings)
-    {
-        if(auto collider{DCast<Collider>(thing)})
-            { g_pPhysicsManager->DestroyBody(id, collider); }
-    }
-    UID::Clear();
-    mThings.clear();
+    for(auto it{mThings.begin()}; it != mThings.end();)
+        { it = DestroyThing(it); }
 }
