@@ -85,8 +85,8 @@ public:
     virtual Farg<TextureFormat> Format() const = 0;
     virtual Farg<SamplerState>  Sampler() const = 0;
 
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>, const FileData* = nullptr);
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState>, const FileData* = nullptr);
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Shared<FileData> = nullptr);
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState>, Shared<FileData> = nullptr);
 };
 
 #endif // TEXTURE_BUFFER_H

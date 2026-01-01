@@ -97,7 +97,7 @@ static GLenum s_GLWrap(SamplerRepeat inRepeat)
 
 OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat,
     Farg<SamplerState> inSampler,
-    const FileData* inData):
+    Shared<FileData> inData):
         mFormat{inFormat}, mSampler{inSampler}, mStatus{OK}
 {
     GLenum gl_type{s_GLType(mFormat.type)};

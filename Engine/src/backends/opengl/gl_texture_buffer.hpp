@@ -6,7 +6,7 @@
 class OpenGLTextureBuffer final : public TextureBuffer
 {
 public:
-    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, const FileData*);
+    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, Shared<FileData>);
     ~OpenGLTextureBuffer();
 
     Error Status() const final;
