@@ -13,7 +13,7 @@ MessageLabel ErrorLabel{"[ERROR]",
 
 MessageLabel WarningLabel{"[WARNING]",
     ANSI_Sequence{ANSI::begin,
-        48, ANSI::next, 5, ANSI::next, 172, // 256 bit background color code
+        48, ANSI::next, 5, ANSI::next, 166, // 256 bit background color code
         ANSI::end},
     "WarningLabel"};
 

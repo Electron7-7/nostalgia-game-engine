@@ -24,8 +24,8 @@ public:
     bool      mFullBright{false};
 
 protected:
-    ID mDiffuseTextureID{};
-    ID mSpecularTextureID{};
+    ID mDiffuseTextureID{},
+        mSpecularTextureID{};
 };
 
 #endif // MATERIAL_H

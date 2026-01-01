@@ -3,8 +3,8 @@
 
 // Stolen from Hazel [https://github.com/TheCherno/Hazel]
 
-#include "rendering/mesh_buffers.hpp"
 #include "core/smart_pointers.hpp"
+#include "rendering/mesh_buffers.hpp"
 
 class VertexArray
 {

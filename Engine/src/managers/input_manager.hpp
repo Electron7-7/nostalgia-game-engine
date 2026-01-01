@@ -55,10 +55,10 @@ private:
         }
 
         bool pressed() const noexcept
-        { return active && just_changed; }
+        { return active and just_changed; }
 
         bool released() const noexcept
-        { return !active && just_changed; }
+        { return !active and just_changed; }
     };
 
     std::vector<pInputCallback_f> mCallbacks{};

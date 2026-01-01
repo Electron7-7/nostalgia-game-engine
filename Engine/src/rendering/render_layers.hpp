@@ -12,7 +12,6 @@ public:
     static constexpr uint max{MaxRenderLayers};
     static constexpr int all_enabled  {0b1111111111111111111111111111111};
     static constexpr int all_disabled {0b0000000000000000000000000000000}; // hopefully u get the point
-
     using StatusArray = std::array<bool, max>;
 
     RenderLayers(bool inAllLayersEnabled = true) noexcept;
