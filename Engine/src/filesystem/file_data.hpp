@@ -1,6 +1,7 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
+#include "core/smart_pointers.hpp"
 #include "fwd/core.hpp"
 #include "core/farg.hpp"
 #include <string>
@@ -17,6 +18,7 @@ enum class FileType : ushort
     glsl_VERT,
 };
 
+#pragma message("TODO: change this to use `Error`")
 enum class DataStatus : ushort
 {
     UNLOADED,
@@ -29,6 +31,7 @@ struct FileData
 {
 public:
     static FileType s_DetectFileType(Farg<std::string> FilePath);
+    static Shared<FileData> s_GetReservedFileData(uint inReservedUID);
 
     FileData();
     FileData(const unsigned char* Data, int Size, FileType Type);

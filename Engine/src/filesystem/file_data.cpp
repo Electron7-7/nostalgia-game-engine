@@ -1,8 +1,23 @@
 #include "file_data.hpp"
+#include "core/uid.hpp"
+#include "embedded/models.hpp"
+#include "embedded/images.hpp"
 #include "filesystem.hpp"
 #include "core/printing.hpp"
 #include "core/error.hpp"
 #include <map>
+
+static std::map<ID, Shared<FileData>>
+sReservedFileData{
+    {UID::m_Error,      MakeShared<FileData>(Models::Error,      std::size(Models::Error),      FileType::model_OBJ)},
+    {UID::m_Cube,       MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)},
+    {UID::m_Ramiel,     MakeShared<FileData>(Models::Ramiel,     std::size(Models::Ramiel),     FileType::model_OBJ)},
+    {UID::m_Camera3D,   MakeShared<FileData>(Models::Camera,     std::size(Models::Camera),     FileType::model_OBJ)},
+    {UID::i_Missing,    MakeShared<FileData>(Images::Missing,    std::size(Images::Missing),    FileType::image_PNG)},
+    {UID::i_LolBit,     MakeShared<FileData>(Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG)},
+    {UID::i_LightDebug, MakeShared<FileData>(Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG)},
+    {UID::i_COMP04_5,   MakeShared<FileData>(Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG)},
+};
 
 static std::map<std::string, FileType>
 s_FileTypesByExtension{
@@ -22,6 +37,15 @@ FileType FileData::s_DetectFileType(Farg<std::string> path)
     if(!s_FileTypesByExtension.contains(extension))
         { return FileType::Unknown; }
     return s_FileTypesByExtension.at(extension);
+}
+
+Shared<FileData> FileData::s_GetReservedFileData(uint inReservedUID)
+{
+    if(auto type{UID::GetReservedType(inReservedUID)};
+        type != UID::ReservedType::NotReserved)
+        { return sReservedFileData.at(inReservedUID); }
+    print_warning("Invalid UID");
+    return MakeShared<FileData>();
 }
 
 FileData::FileData() = default;
