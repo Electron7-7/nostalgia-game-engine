@@ -1,15 +1,13 @@
 #include "thing.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "core/uid.hpp"
+#include "managers/theatre_manager.hpp"
+#include "theatre/parser/thing_data.hpp"
 
-Thing::Thing() noexcept {}
-Thing::Thing(ID inID) noexcept: mUID{inID} {}
-Thing::Thing(Farg<ThingData> inData) noexcept:
-    mUID{inData.uid},
-    mName{inData.name},
-    mType{inData.type()} {}
+Thing::Thing()  noexcept = default;
+Thing::~Thing() noexcept = default;
 
-Thing::~Thing() noexcept {}
+void Thing::Free()
+{ g_pTheatreManager->DestroyThing(mUID); }
 
 void Thing::SetVariables(Farg<ThingData> data)
 {
@@ -35,10 +33,12 @@ const char* const Thing::c_name() const
 
 bool Thing::uid(ID inID)
 {
-    if(inID.invalid())
+    if(inID == mUID)
+        { return true; }
+    else if(inID.invalid())
         { inID = UID::Generate(); }
-    else if(UID::Contains(inID[]))
-        { return false; }
+    else if(inID != UID::a_Player)
+        { UID::Push(inID[]); }
     UID::Erase(mUID[]);
     mUID = inID;
     return true;

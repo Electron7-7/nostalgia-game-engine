@@ -15,6 +15,7 @@ public:
     virtual ~Thing() noexcept;
 
     virtual void Ready() {}
+    virtual void Shutdown() {}
     virtual void Tick() override {}
     virtual void Update() override {}
     virtual void Input(InputEvent*) override {}
@@ -28,18 +29,16 @@ public:
     // See `Material::GetVariables` for an example.
     virtual Shared<ThingData> GetVariables() const;
 
-    ID uid() const;
-    Sarg name() const;
-    const char* const c_name() const;
+    void Free();
 
+    ID uid() const;
     bool uid(ID inID);
+    Sarg name() const;
     void name(Sarg inName);
+    const char* const c_name() const;
     Farg<TTID> type() const;
 
 protected:
-    Thing(ID) noexcept;
-    Thing(Farg<ThingData>) noexcept;
-
     ID mUID{};
     std::string mName{"Untitled Thing"};
     TTID mType{"Thing"};
