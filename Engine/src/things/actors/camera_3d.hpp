@@ -16,8 +16,11 @@ public:
     virtual void SetRenderLayers(Farg<RenderLayers> inLayers);
     virtual Farg<RenderLayers> GetRenderLayers() const;
 
-    virtual void SetCurrent(bool isCurrent);
-    virtual bool IsCurrent() const;
+    virtual bool Current(bool isCurrent);
+    virtual bool Current() const;
+
+    virtual bool Wireframe() const override;
+    virtual void Wireframe(bool) override {}
 
     glm::mat4 ViewMatrix() const;
 

@@ -4,9 +4,6 @@
 #include "theatre/parser/thing_data.hpp"
 #include "settings/engine.hpp"
 
-//////////////
-// Camera3D //
-//////////////
 void Camera3D::SetVariables(Farg<ThingData> data)
 {
     Actor::SetVariables(data);
@@ -26,10 +23,7 @@ Shared<ThingData> Camera3D::GetVariables() const
 }
 
 void Camera3D::Tick()
-{
-    if(mCurrent)
-        { g_pTheatreManager->SetCurrentCamera(mUID); }
-}
+{}
 
 void Camera3D::Ready()
 {
@@ -61,17 +55,27 @@ void Camera3D::Ready()
         { g_pTheatreManager->SetCurrentCamera(mUID); }
 }
 
+bool Camera3D::Wireframe() const
+{ return true; }
+
 void Camera3D::SetRenderLayers(Farg<RenderLayers> inLayers)
 { mRenderLayers = inLayers; }
 
 Farg<RenderLayers> Camera3D::GetRenderLayers() const
 { return mRenderLayers; }
 
-void Camera3D::SetCurrent(bool isCurrent)
-{ mCurrent = true; }
+bool Camera3D::Current(bool isCurrent)
+{
+    if(isCurrent == Current())
+        { return isCurrent; }
+    else if(isCurrent)
+        { return g_pTheatreManager->SetCurrentCamera(mUID) == OK; }
+    g_pTheatreManager->UnsetCurrentCamera(mUID);
+    return false;
+}
 
-bool Camera3D::IsCurrent() const
-{ return mCurrent; }
+bool Camera3D::Current() const
+{ return g_pTheatreManager->IsCurrentCamera(mUID); }
 
 glm::mat4 Camera3D::ViewMatrix() const
 { return glm::lookAt(mOrigin, mOrigin + Front(), Up());; }
