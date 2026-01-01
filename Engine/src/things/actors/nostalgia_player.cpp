@@ -40,7 +40,7 @@ void NostalgiaPlayer::Ready()
             {
                 {mViewPosition, "Origin"},
                 {mQuaternion, "Quaternion"},
-                {!Settings::Engine::IsEditorHint, "Current"},
+                {true, "Current"},
             }});
     }
 }
