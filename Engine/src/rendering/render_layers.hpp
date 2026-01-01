@@ -3,7 +3,7 @@
 
 #include <format>
 
-inline constinit const uint MaxRenderLayers{20};
+inline constinit const uint MaxRenderLayers{30};
 
 struct RenderLayers
 {
