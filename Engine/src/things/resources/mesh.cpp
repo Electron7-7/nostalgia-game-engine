@@ -13,6 +13,8 @@ static bool s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared
 
 void Mesh::Ready()
 {
+    if(UID::IsReserved(mUID[]))
+        { m_pFileData = FileData::s_GetReservedFileData(mUID[]); }
     mVertexArray = VertexArray::Create();
     std::vector<float> vertices{};
     std::vector<uint>  indices{};

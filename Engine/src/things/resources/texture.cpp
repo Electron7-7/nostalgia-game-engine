@@ -5,6 +5,8 @@
 
 void Texture::Ready()
 {
+    if(UID::IsReserved(mUID[]))
+        { m_pFileData = FileData::s_GetReservedFileData(mUID[]); }
     mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData);
     if(!print_error_enum(mStatus = mTextureBuffer->Status()))
         { print_error("Failed to buffer texture#{}", mUID[]); }
