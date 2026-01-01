@@ -994,3 +994,9 @@ I think that I want to finally commit to making a v1.0 of Nostalgia (or at least
 Meds weren't refilled today, so a Bang energy and lots of coping is hopefully gonna keep me kicking. I don't feel that bad, honestly; forcing myself to go on a drive in the morning, do my laundry, and not brain rot was very successfull. I actually get shit done with a fire lit under my ass. Anyways, time for some minor improvements or something like that before going to work. Already fixed the issue with the light meshes. Maybe implementing the editor camera?
 
 Here's an idea: render the scene for every camera in the scene and match them to the correct framebuffers using their render layers. Then, I could do something like have the editor camera and the player camera views both be visible at the same time on separate image layers. This would work well, I think.
+
+[12/30/25]
+Did a lot of stuff that I'll document in a second, but I wanted to quickly write that with ImGui, if you have a child window and a lot of widgets/logic that could result in an early return, you shouldn't use `if(BeginChild)`, as that could cause issues per this quote from (https://github.com/ocornut/imgui/issues/1783#issuecomment-385241309):
+:::Quote
+The reason it happen is that because child windows always know their size (because it is currently always explicit), when they are out of sight they are able to request early out/clipping of their own children.
+:::
