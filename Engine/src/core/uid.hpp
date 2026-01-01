@@ -11,8 +11,6 @@ namespace UID
 
     constexpr ID
     // Reserved Player UID
-        a_Player {(uint) 0x0},
-        a_EditorCamera  {0x1},
     // Reserved Image UIDs
         i_Missing    {0x11},
         i_LightDebug {0x12},
@@ -23,6 +21,8 @@ namespace UID
         m_Cube       {0x22},
         m_Ramiel     {0x23},
         m_Camera3D   {0x24},
+        a_Player       {0x0},
+        a_EditorCamera {0x1},
     // Reserved Font UIDs
         f_Verdana    {0x31},
         f_DejaVuSans {0x32},
