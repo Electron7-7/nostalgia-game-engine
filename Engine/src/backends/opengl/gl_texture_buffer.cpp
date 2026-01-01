@@ -157,25 +157,6 @@ OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat,
 OpenGLTextureBuffer::~OpenGLTextureBuffer()
 { glDeleteTextures(1, &mBufferID); }
 
-void OpenGLTextureBuffer::Bind()
-{
-    Unbind();
-    glBindTexture(s_GLType(mFormat.type), mBufferID);
-    mIsBound = true;
-}
-
-void OpenGLTextureBuffer::Bind(uint inTextureUnit)
-{ glBindTextureUnit(inTextureUnit, mBufferID); }
-
-void OpenGLTextureBuffer::Unbind()
-{
-    if(mIsBound)
-    {
-        glBindTextureUnit(s_GLType(mFormat.type), 0);
-        mIsBound = false;
-    }
-}
-
 Error OpenGLTextureBuffer::Status() const
 { return mStatus; }
 

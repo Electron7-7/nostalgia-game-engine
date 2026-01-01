@@ -9,10 +9,6 @@ public:
     OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, const FileData*);
     ~OpenGLTextureBuffer();
 
-    void Bind() final;
-    void Bind(uint) final;
-    void Unbind() final;
-
     Error Status() const final;
 
     uint ID() const final;
@@ -20,7 +16,6 @@ public:
     Farg<SamplerState>  Sampler() const final;
 
 private:
-    bool mIsBound{false};
     uint mBufferID{0};
     TextureFormat mFormat{};
     SamplerState  mSampler{};

@@ -79,10 +79,6 @@ class TextureBuffer
 public:
     virtual ~TextureBuffer() = default;
 
-    virtual void Bind() = 0;
-    virtual void Bind(uint inTextureUnit) = 0;
-    virtual void Unbind() = 0;
-
     virtual Error Status() const = 0;
 
     virtual uint ID() const = 0;
