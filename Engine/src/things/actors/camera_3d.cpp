@@ -2,13 +2,35 @@
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
+#include "things/devices/viewport.hpp"
 #include "settings/engine.hpp"
 
 void Camera3D::SetVariables(Farg<ThingData> data)
 {
     Actor::SetVariables(data);
 
-    data.GetVariable(mCurrent, "Current", "CurrentCamera", "IsCurrent");
+    data.GetVariable(mFOV, "FOV");
+    data.GetVariable(mViewCutoffNear, "Near", "CutoffNear");
+    data.GetVariable(mViewCutoffFar, "Far", "CutoffFar");
+    data.GetVariable(mViewportID, "Viewport", "ViewportID");
+    if(int bitmask; data.GetVariable(bitmask, "RenderLayersBitMask", "RenderLayers"))
+        { mRenderLayers.set(bitmask); }
+    if(bool use_env{false};
+        data.GetVariable(use_env, "UseDefaultSkybox"))
+    {
+        mEnvironment.mType = Environment::BG_SKYBOX;
+        mEnvironment.mSkyboxTextureID = UID::t_ShittySkybox;
+    }
+    data.GetVariable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
+    if(data.GetVariable(mEnvironment.mSkyboxTextureID, "EnvironmentSkybox"))
+        { mEnvironment.mType = Environment::BG_SKYBOX; }
+    if(glm::vec3 color{(glm::vec3)mEnvironment.mCustomColor};
+        data.GetVariable(color, "EnvironmentColor"))
+    {
+        mEnvironment.mType = Environment::BG_SKYBOX;
+        mEnvironment.mCustomColor = color;
+    }
+    data.GetVariable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha", "EnvironmentAlpha");
 
     mVisible = mVisible and Settings::Engine::IsEditorHint;
 }
@@ -17,13 +39,27 @@ Shared<ThingData> Camera3D::GetVariables() const
 {
     Shared<ThingData> data{Actor::GetVariables()};
 
-    data->AddVariable(mCurrent, "Current");
+    data->AddVariable(mFOV, "FOV");
+    data->AddVariable(mViewCutoffNear, "Near");
+    data->AddVariable(mViewCutoffFar, "Far");
+    data->AddVariable(mViewportID, "Viewport");
+    data->AddVariable(mRenderLayers.get(), "RenderLayersBitMask");
+    data->AddVariable(mInitCurrent, "Current");
+    if(mEnvironment.mType == Environment::BG_SKYBOX
+        and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox)
+        { data->AddVariable(true, "UseDefaultSkybox"); }
+    if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
+        { data->AddVariable((glm::vec3)mEnvironment.mCustomColor, "EnvironmentColor"); }
+    data->AddVariable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
 
     return data;
 }
 
 void Camera3D::Tick()
 {}
+
+void Camera3D::Shutdown()
+{ g_pTheatreManager->GetThing<Viewport>(mViewportID)->EraseCamera(mUID); }
 
 void Camera3D::Ready()
 {
@@ -51,31 +87,50 @@ void Camera3D::Ready()
         });
     }
 
-    if(mCurrent)
-        { g_pTheatreManager->SetCurrentCamera(mUID); }
+    auto viewport{g_pTheatreManager->GetThing<Viewport>(mViewportID)};
+    viewport->AddCamera(mUID);
+    if(mInitCurrent)
+        { viewport->CurrentCamera(mUID); }
 }
 
 bool Camera3D::Wireframe() const
 { return true; }
-
-void Camera3D::SetRenderLayers(Farg<RenderLayers> inLayers)
-{ mRenderLayers = inLayers; }
-
-Farg<RenderLayers> Camera3D::GetRenderLayers() const
-{ return mRenderLayers; }
 
 bool Camera3D::Current(bool isCurrent)
 {
     if(isCurrent == Current())
         { return isCurrent; }
     else if(isCurrent)
-        { return g_pTheatreManager->SetCurrentCamera(mUID) == OK; }
-    g_pTheatreManager->UnsetCurrentCamera(mUID);
+        { return g_pTheatreManager->GetThing<Viewport>(mViewportID)->CurrentCamera(mUID) == OK; }
+    g_pTheatreManager->GetThing<Viewport>(mViewportID)->CurrentCamera(ID::Invalid);
     return false;
 }
 
 bool Camera3D::Current() const
-{ return g_pTheatreManager->IsCurrentCamera(mUID); }
+{ return g_pTheatreManager->GetThing<Viewport>(mViewportID)->IsCurrentCamera(mUID); }
+
+ID Camera3D::ViewportID() const
+{ return mViewportID; }
+
+Error Camera3D::ViewportID(ID inID)
+{
+    if(auto viewport{g_pTheatreManager->GetThing<Viewport>(inID)})
+    {
+        mViewportID = inID;
+        viewport->AddCamera(mUID);
+        return OK;
+    }
+    return ERR_INVALID_ID;
+}
 
 glm::mat4 Camera3D::ViewMatrix() const
-{ return glm::lookAt(mOrigin, mOrigin + Front(), Up());; }
+{ return glm::lookAt(mOrigin, mOrigin + Front(), Up()); }
+
+glm::mat4 Camera3D::ProjectionMatrix() const
+{
+    return glm::perspective(glm::radians(mFOV),
+        static_cast<float>(g_pTheatreManager->GetThing<Viewport>(mViewportID)->Size().AspectRatio()),
+        mViewCutoffNear,
+        mViewCutoffFar
+    );
+}
