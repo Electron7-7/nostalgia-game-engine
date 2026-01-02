@@ -106,7 +106,7 @@ public:
     // virtual void SetContext(Farg<IGraphicsContext> inContext) = 0;
 
     const char* GetTitle()     const { return mData.title.data(); }
-    Scale2D GetScale()         const;
+    Size2D GetScale()          const;
     Position2D GetPosition()   const;
     uint GetWidth()            const { return mData.width; }
     uint GetHeight()           const { return mData.height; }

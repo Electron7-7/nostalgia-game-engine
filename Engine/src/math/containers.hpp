@@ -259,10 +259,14 @@ template<typename T>
 
 typedef vector<2,double,VectorMembers::XYZ>  Position2D;
 typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
+typedef vector<2,int,VectorMembers::WHL>     Size2D;
 typedef vector<2,int,VectorMembers::WHL>     Scale2D;
 typedef vector<3,double,VectorMembers::XYZ>  Position3D;
 typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
+typedef vector<3,int,VectorMembers::WHL>     Size3D;
 typedef vector<3,int,VectorMembers::WHL>     Scale3D;
+typedef vector<3,double,VectorMembers::RGB>  ColorRGB;
+typedef vector<4,double,VectorMembers::RGBA> ColorRGBA;
 
 #undef Derived
 #undef Same

@@ -21,9 +21,13 @@ template<unsigned short Length, class T, vector_members_t M>
 // header doesn't sit right with me.
 typedef vector<2,double,1>  Position2D;
 typedef vector<2,double,1>  Motion2D;
+typedef vector<2,int,2>     Size2D;
 typedef vector<2,int,2>     Scale2D;
 typedef vector<3,double,1>  Position3D;
 typedef vector<3,double,1>  Motion3D;
+typedef vector<3,int,2>     Size3D;
 typedef vector<3,int,2>     Scale3D;
+typedef vector<3,double,3>  ColorRGB;
+typedef vector<4,double,3>  ColorRGBA;
 
 #endif // MATH_FWD_H
