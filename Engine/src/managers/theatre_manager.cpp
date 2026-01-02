@@ -4,11 +4,8 @@
 #include "common/colors.hpp"
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
-#include "application/application.hpp"
 #include "math/containers.hpp"
-#include "settings/engine.hpp"
 #include "settings/graphics.hpp"
-#include "settings/player.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
 #include "theatre/parser/theatre_data.hpp"
@@ -17,6 +14,7 @@
 #include "things/thing_factory.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/texture.hpp"
+#include "things/devices/viewport.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/actors/nostalgia_player.hpp"
@@ -41,6 +39,7 @@ void TheatreManager::CreateEmbeddedResources()
     CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::t_LolBit});
     CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::t_LightDebug});
     CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::t_COMP04_5});
+    CreateThingNoReady({"Shitty SkyBox",       ThingType::Texture, UID::t_ShittySkybox});
 }
 
 bool TheatreManager::Init()
@@ -101,38 +100,53 @@ void TheatreManager::DrawTheatre()
             material->mFullBright = true;
         }
     }
-    for(ID cam_id : mActiveCameras)
+    for(ID viewport_id : mViewportIDs)
     {
         for(auto& [id, thing] : mThings)
         {
-            if(id == cam_id) { continue; }
-            else if(auto actor{DCast<Actor>(thing)}; actor and actor->Visible())
-                { DrawActor(actor, GetThing<Camera3D>(cam_id)); }
+            if(auto actor{DCast<Actor>(thing)}; actor and actor->Visible())
+                { DrawActor(actor, GetThing<Viewport>(viewport_id)); }
         }
     }
 }
 
-void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
+void TheatreManager::ClearViewports()
 {
-    if(!camera->GetRenderLayers().contains(actor->mRenderLayers))
-        { return; }
+    for(ID viewport_id : mViewportIDs)
+    {
+        auto framebuffer{GetThing<Viewport>(viewport_id)->Framebuffer()};
+        framebuffer->Bind();
+        g_pRenderManager->GetAPI()->Clear();
+        framebuffer->Unbind();
+    }
+}
+
+void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Viewport> viewport)
+{
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+
+    auto camera{GetThing<Camera3D>(viewport->CurrentCamera())};
+    if(!camera->mRenderLayers.contains(actor->mRenderLayers)
+        or !camera->Current() or actor->uid() == camera->uid())
+        { return; }
+
+    auto framebuffer{viewport->Framebuffer()};
     auto mesh_instance{GetThing<MeshInstance>(actor->MeshInstanceID())};
+    auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
     auto material{GetThing<Material>(mesh_instance->MaterialID())};
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
+    if(!mesh or !mesh->MeshData() or mesh->Status() != OK)
+        { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
+
     renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
     renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
-    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[]), 0);
-    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[]), 1);
+    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
+    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
 
-    glm::mat4 projection_matrix{glm::perspective(
-        glm::radians(Settings::Player::FOV),
-        static_cast<float>(MainWindow()->GetScale().AspectRatio()),
-        Settings::Player::ViewCutoffNear,
-        Settings::Player::ViewCutoffFar
-    )};
+    glm::mat4 projection_matrix{camera->ProjectionMatrix()};
+    glm::mat4 view_matrix{camera->ViewMatrix()};
 
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
     glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
@@ -149,7 +163,7 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
     shader->SetUniform("point_lights_count", PointLight::GetCount());
     shader->SetUniform("spot_lights_count", SpotLight::GetCount());
     shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
-    shader->SetUniform("view_matrix", camera->ViewMatrix());
+    shader->SetUniform("view_matrix", view_matrix);
     shader->SetUniform("view_position", camera->Origin());
     shader->SetUniform("current_material.texture_diffuse",  0);
     shader->SetUniform("current_material.texture_specular", 1);
@@ -158,8 +172,12 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
     shader->SetUniform("current_material.alpha", material->mAlpha);
     shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
     shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
-    renderer_api->DrawIndexed(camera, GetThing<Mesh>(mesh_instance->MeshID()[]));
+
+    framebuffer->Bind();
+    renderer_api->SetViewport({0, 0}, viewport->Size());
+    renderer_api->DrawIndexed(mesh->MeshData());
     renderer_api->SetFramebufferSRGB(false);
+    framebuffer->Unbind();
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
@@ -221,36 +239,6 @@ bool TheatreManager::LoadTheatreFromFile(const std::string& path)
     return true;
 }
 
-bool TheatreManager::IsCurrentCamera(ID inUID) const
-{ return mCurrentCamera == inUID; }
-
-Error TheatreManager::SetCurrentCamera(ID inID)
-{
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    else if(mActiveCameras.contains(inID))
-    {
-        mCurrentCamera = inID;
-        return OK;
-    }
-    return ERR_NOT_FOUND;
-}
-
-void TheatreManager::UnsetCurrentCamera(ID inID)
-{
-    if(mCurrentCamera != inID)
-        { return; }
-    // for(Farg<ID> uid : mActiveCameras)
-    // {
-    //     if(mCurrentCamera != uid and DCast<Camera3D>(mThings.at(uid))->Visible())
-    //         { mCurrentCamera = uid; return; }
-    // }
-    mCurrentCamera = ID::Invalid;
-}
-
-ID TheatreManager::GetCurrentCamera() const
-{ return mCurrentCamera; }
-
 Shared<NostalgiaPlayer> TheatreManager::GetPlayer()
 {
     if(mThings.empty() or !mThings.contains(UID::a_Player))
@@ -278,8 +266,11 @@ std::vector<ID> TheatreManager::GetThingIDs()
     return {keys.begin(), keys.end()};
 }
 
-Farg<std::unordered_set<ID>> TheatreManager::GetCameraIDs()
-{ return mActiveCameras; }
+Farg<std::unordered_set<ID>> TheatreManager::GetViewportIDs()
+{ return mViewportIDs; }
+
+std::vector<ID> TheatreManager::GetViewportIDList()
+{ return std::vector<ID>{mViewportIDs.cbegin(), mViewportIDs.cend()}; }
 
 Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 {
@@ -315,7 +306,7 @@ things_t::iterator TheatreManager::DestroyThing(things_t::iterator inIterator)
         and !g_pVariableRegistry->RemoveID(inIterator->second->name()))
         { print_warning("Unable to remove Thing#{} from the variable registry!", inIterator->first[]); }
     inIterator->second->Shutdown();
-    mActiveCameras.erase(inIterator->first);
+    mViewportIDs.erase(inIterator->first);
     return mThings.erase(inIterator);
 }
 
@@ -336,8 +327,8 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
     thing->SetVariables(data);
     g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
 
-    if(DCast<Camera3D>(thing))
-        { mActiveCameras.insert(thing->uid()); }
+    if(DCast<Viewport>(thing))
+        { mViewportIDs.insert(thing->uid()); }
     else if(DCast<NostalgiaPlayer>(thing))
         { ChangeThingID(thing->uid(), UID::a_Player); }
 
@@ -359,14 +350,10 @@ void TheatreManager::CreateThings()
     if(!mThings.contains(UID::a_Player))
         { CreateThingNoReady({"Default NostalgiaPlayer", ThingType::NostalgiaPlayer, UID::a_Player}); }
 
-    if(Settings::Engine::IsEditorHint)
-        { CreateThingNoReady({"Editor Camera", ThingType::Camera3D, UID::a_EditorCamera}); }
+    CreateThingNoReady({"Main Viewport", ThingType::Viewport, UID::a_MainViewport});
 
     for(auto& [id, thing] : mThings)
         { thing->Ready(); }
-
-    if(Settings::Engine::IsEditorHint)
-        { mCurrentCamera = ID::Invalid; }
 }
 
 void TheatreManager::DestroyThings()

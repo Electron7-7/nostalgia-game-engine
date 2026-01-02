@@ -5,13 +5,11 @@
 #include "core/printing.hpp"
 #include "managers/theatre_manager.hpp"
 #include "things/resources/texture.hpp"
-#include "things/resources/mesh.hpp"
-#include "rendering/frame_buffer.hpp"
-#include "things/actors/camera_3d.hpp"
 #include "things/actors/light.hpp"
 #include "application/application.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/vertex_array.hpp" // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/frame_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
@@ -28,6 +26,7 @@ bool OpenGLRendererAPI::Init()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 #ifdef DEBUGGING
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -37,28 +36,25 @@ bool OpenGLRendererAPI::Init()
 
     mShaders[Shaders::BlinnPhong] = Shader::Create();
     mShaders[Shaders::Fullbright] = Shader::Create();
+    mShaders[Shaders::SkyBox]     = Shader::Create();
 
-    SetViewport({0, 0}, MainWindow()->GetScale());
+    SetViewport(0, 0, MainWindow()->GetScale().w(), MainWindow()->GetScale().h());
 
 #ifndef CLANGD_KEEPS_CRASHING_HERE
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
     mShaders[Shaders::Fullbright]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
+    mShaders[Shaders::SkyBox]->CompileShader(GLSL_Skybox_Vert, GLSL_Skybox_Frag);
 #endif
     return true;
 }
 
-void OpenGLRendererAPI::Shutdown()
-{ mFramebuffers.clear(); }
+void OpenGLRendererAPI::Shutdown() {}
 
 void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
 { SetViewport({XPosition, YPosition}, {Width, Height}); }
 
 void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Scale2D> inSize)
-{
-    mViewportSize = inSize;
-    mViewportPosition = inPos;
-    glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h());
-}
+{ glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
 void OpenGLRendererAPI::SetClearColor(float Red, float Green, float Blue, float Alpha)
 { mClearColor = {Red, Green, Blue, Alpha}; }
@@ -69,12 +65,6 @@ void OpenGLRendererAPI::SetClearColor(const glm::vec4& Color)
 void OpenGLRendererAPI::Clear()
 {
     glClearColor(mClearColor[0],mClearColor[1],mClearColor[2],mClearColor[3]);
-    for(auto& [id, framebuffer] : mFramebuffers)
-    {
-        framebuffer->Bind();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        framebuffer->Unbind();
-    }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -101,31 +91,6 @@ Error OpenGLRendererAPI::RemoveShader(ID inID)
     return (mShaders.erase(inID))
         ? OK
         : (mShaders.empty())
-            ? ERR_EMPTY
-            : ERR_NOT_FOUND;
-}
-
-ID OpenGLRendererAPI::AddFrameBuffer(Shared<FrameBuffer> inFrameBuffer, ID inID)
-{
-    while(inID.invalid() or mFramebuffers.contains(inID))
-        { inID = ID::Generate(); }
-    mFramebuffers[inID] = inFrameBuffer;
-    return inID;
-}
-
-Shared<FrameBuffer> OpenGLRendererAPI::GetFrameBuffer(ID inID)
-{
-    if(auto found_it{mFramebuffers.find(inID)}; found_it != mFramebuffers.end())
-        { return found_it->second; }
-    print_warning("Unable to find FrameBuffer#{}", inID[]);
-    return FrameBuffer::Create({});
-}
-
-Error OpenGLRendererAPI::RemoveFrameBuffer(ID inID)
-{
-    return (mFramebuffers.erase(inID))
-        ? OK
-        : (mFramebuffers.empty())
             ? ERR_EMPTY
             : ERR_NOT_FOUND;
 }
@@ -175,16 +140,15 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
-void OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
+void OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inTexture, uint inUnit) const
 {
-    if(auto buffer{inTexture->GetBuffer()};
-        buffer and buffer->Status() == OK)
-        { glBindTextureUnit(inUnit, buffer->ID()); return; }
-    else if(auto missing{g_pTheatreManager->GetThing<Texture>(UID::i_Missing)->GetBuffer()})
+    if(inTexture and inTexture->Status() == OK)
+        { glBindTextureUnit(inUnit, inTexture->ID()); return; }
+    else if(auto missing{g_pTheatreManager->GetThing<Texture>(UID::t_Missing)->GetBuffer()})
         { glBindTextureUnit(inUnit, missing->ID()); }
 }
 
-void OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, texture_units inUnits) const
+void OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inTexture, texture_units inUnits) const
 {
     for(uint unit : inUnits)
         { BindTexture(inTexture, unit); }
@@ -196,43 +160,18 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
         { glBindTextureUnit(unit, 0); }
 }
 
-void OpenGLRendererAPI::DrawIndexed(Farg<Shared<Camera3D>> inCamera, Shared<Mesh> inMesh, uint inIndexCount)
+void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
-    if(!inMesh or !inMesh->MeshData() or inMesh->Status() != OK)
-        { inMesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
-    inMesh->MeshData()->Bind();
-    inMesh->MeshData()->GetIndexBuffer()->Bind();
-    uint count{(inIndexCount) ? inIndexCount : inMesh->MeshData()->GetIndexBuffer()->GetCount()};
+    inVAO->Bind();
+    inVAO->GetIndexBuffer()->Bind();
+    glDrawElements(GL_TRIANGLES,
+        (inIndexCount)
+            ? inIndexCount
+            : inVAO->GetIndexBuffer()->GetCount(),
+        GL_UNSIGNED_INT,
+        nullptr);
+}
 
-    if(inCamera->Current())
-    {
-        SetViewport(mViewportPosition, mViewportSize);
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-        if(gPrintDrawLogs)
-        {
-            print_debug("glDrawElements called w/ Camera#{} (viewport size: {}, viewport position: {})",
-                inCamera->uid()[],
-                mViewportSize.data_log(),
-                mViewportPosition.data_log());
-        }
-    }
-
-    for(FAUTO [id, framebuffer] : mFramebuffers)
-    {
-        if(inCamera->uid()[] != framebuffer->CameraID())
-            { continue; }
-        framebuffer->Bind();
-        glViewport(0, 0, framebuffer->TextureSize().w(), framebuffer->TextureSize().h());
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-        framebuffer->Unbind();
-        if(gPrintDrawLogs)
-        {
-            print_debug("glDrawElements called w/ Camera#{} on FrameBuffer#{} (size: {})",
-                inCamera->uid()[],
-                id[],
-                framebuffer->TextureSize().data_log());
-        }
-    }
 }
 
 //----------------------------------------------------------------------------------

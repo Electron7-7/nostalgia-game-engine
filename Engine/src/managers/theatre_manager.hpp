@@ -29,11 +29,7 @@ public:
     bool LoadTheatreFromMemory(Farg<std::string> Data);
     bool LoadTheatreFromFile(Farg<std::string> Path);
 
-    bool IsCurrentCamera(ID UID) const;
-    Error SetCurrentCamera(ID UID);
-    void UnsetCurrentCamera(ID UID);
-    ID GetCurrentCamera() const;
-
+    void ClearViewports();
     void DrawTheatre();
     bool ThingExists(ID UID);
     Farg<TTID> GetType(ID ObjectID);
@@ -41,7 +37,8 @@ public:
     const TheatreData& GetInitialState();
     TheatreData GetCurrentState();
     std::vector<ID> GetThingIDs();
-    Farg<std::unordered_set<ID>> GetCameraIDs();
+    Farg<std::unordered_set<ID>> GetViewportIDs();
+    std::vector<ID> GetViewportIDList();
     Shared<NostalgiaPlayer> GetPlayer();
 
     Error ChangeThingID(ID inOldID, ID inNewID);
@@ -58,32 +55,17 @@ public:
             return MakeShared<T>();
         }
 
-    // More efficient when breaking on an invalid UID is preferred. See `PhysicsManager::CreateBody` for an example.
-    template<typename T> requires std::derived_from<T,Thing>
-        Error GetThing(ID ObjectID, Shared<T>& Output)
-        {
-            if(auto thing{DCast<T>(GetThing(ObjectID))})
-            {
-                Output = thing;
-                return OK;
-            }
-            return (ThingExists(ObjectID))
-                ? ERR_INVALID_ID
-                : ERR_INVALID_TYPE;
-        }
-
 private:
     things_t mThings{};
     std::recursive_mutex mThingsMutex{};
-    std::unordered_set<ID> mActiveCameras{};
-    ID mCurrentCamera{};
+    std::unordered_set<ID> mViewportIDs{};
 
     void CreateThings();
     void DestroyThings();
     things_t::iterator DestroyThing(things_t::iterator);
     uint CreateThingNoReady(Farg<ThingData>);
     void CreateEmbeddedResources();
-    void DrawActor(Shared<Actor>, Shared<Camera3D>);
+    void DrawActor(Shared<Actor>, Shared<Viewport>);
 };
 
 extern bool gPrintLoadedTheatreData;

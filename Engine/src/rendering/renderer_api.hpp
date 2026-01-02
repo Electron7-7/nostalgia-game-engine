@@ -38,18 +38,15 @@ public:
 
     virtual void SetLight_TempBlinnPhongSolution(light_t* inLight) = 0;
 
-    virtual void BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;
-    virtual void BindTexture(Shared<Texture> inTexture, texture_units) const = 0;
+    virtual void BindTexture(Shared<TextureBuffer> inTexture, uint inTextureUnit) const = 0;
+    virtual void BindTexture(Shared<TextureBuffer> inTexture, texture_units) const = 0;
     virtual void UnbindTexture(texture_units inTextureUnits) const = 0;
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;
     virtual Shared<Shader> GetShader(ID inID) = 0;
     virtual Error RemoveShader(ID inID) = 0;
-    virtual ID AddFrameBuffer(Shared<FrameBuffer> inFrameBuffer, ID inID = ID::Invalid) = 0;
-    virtual Shared<FrameBuffer> GetFrameBuffer(ID inID) = 0;
-    virtual Error RemoveFrameBuffer(ID inID) = 0;
 
-    virtual void DrawIndexed(Farg<Shared<Camera3D>>, Shared<Mesh>, uint IndexCount = 0) = 0;
+    virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0) = 0;
     virtual void Clear() = 0;
 
 private:

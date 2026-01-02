@@ -34,6 +34,7 @@ void RenderManager::Update()
     {
         mRendererAPI->SetClearColor({0.29f, 0.34f, 0.26f, 1.0f});
         mRendererAPI->Clear();
+        g_pTheatreManager->ClearViewports();
     }
     g_pTheatreManager->DrawTheatre();
     g_pUIManager->DrawUI();
