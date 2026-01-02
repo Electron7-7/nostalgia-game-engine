@@ -38,6 +38,7 @@ Error print_error_enum(Error error, bool UNIMPLEMENTED_returns_OK, const std::so
     Case(ERR_FULL, "typically used when trying to add an item to a full container")
     Case(ERR_NULLPTR, "a pointer is `nullptr`")
     Case(ERR_UNINITIALIZED, "some object or data is uninitialized")
+    Case(ERR_INVALID_ENUM, "you probably casted an invalid number to an enum type; sit in the timeout corner, now")
     }
 
     if(is_warning)

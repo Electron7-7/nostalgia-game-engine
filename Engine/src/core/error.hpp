@@ -29,6 +29,7 @@ enum Error : int {
     ERR_FULL, // Some container is full
     ERR_NULLPTR, // A pointer is `nullptr`
     ERR_UNINITIALIZED, // Uninitialized data/object error
+    ERR_INVALID_ENUM, // An invalid value was passed when an enum was expected (e.g: casting an out of bounds number to an enum type)
 };
 
 constexpr bool operator!(const Error& inError) noexcept
