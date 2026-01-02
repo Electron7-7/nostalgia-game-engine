@@ -1000,3 +1000,8 @@ Did a lot of stuff that I'll document in a second, but I wanted to quickly write
 :::Quote
 The reason it happen is that because child windows always know their size (because it is currently always explicit), when they are out of sight they are able to request early out/clipping of their own children.
 :::
+
+[01/01/26]
+I think that I'll implement the skybox today; that requires cubemaps, new shaders, and another render pass. I think that the skybox should be based on the Environment (which will be a new class), and that could be tied to the Camera (like in Godot).
+
+I just implemented cubemap textures via `TextureBuffer` and `Texture`. Now, time to implement an Environment class, a skybox shader, and rendering pass.
