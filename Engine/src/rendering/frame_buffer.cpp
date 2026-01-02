@@ -1,14 +1,13 @@
 #include "frame_buffer.hpp"
 #include "renderer_api.hpp"
 #include "core/printing.hpp"
-#include "application/application.hpp"
 // Implementations
 #include "backends/opengl/gl_frame_buffer.hpp"
 
 Shared<FrameBuffer> FrameBuffer::Create()
-{ return Create(MainWindow()->GetScale()); }
+{ return Create({}); }
 
-Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale, uint inCameraID)
+Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -20,6 +19,9 @@ Shared<FrameBuffer> FrameBuffer::Create(Farg<Scale2D> inScale, uint inCameraID)
         print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLFrameBuffer>(inScale, inCameraID);
+        if(inScale == Scale2D{})
+            { return MakeShared<OpenGLFrameBuffer>(); }
+        else
+            { return MakeShared<OpenGLFrameBuffer>(inScale); }
     }
 }

@@ -1,9 +1,6 @@
 #include "gl_frame_buffer.hpp"
 #include "core/printing.hpp"
-#include "core/id.hpp"
-#include "managers/theatre_manager.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "application/application.hpp"
 #include <glad/glad.h>
 
 static Error s_CheckFramebufferStatus(uint inID)
@@ -35,10 +32,10 @@ static Error s_CheckFramebufferStatus(uint inID)
 }
 
 OpenGLFrameBuffer::OpenGLFrameBuffer() noexcept:
-    OpenGLFrameBuffer{MainWindow()->GetScale()} {}
+    mBufferID{0}, mStatus{OK} {}
 
-OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Scale2D> inSize, uint inCameraID) noexcept:
-    mCameraID{inCameraID}, mStatus{OK}
+OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Size2D> inSize) noexcept:
+    mStatus{OK}
 {
     glGenFramebuffers(1, &mBufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, mBufferID);
@@ -64,9 +61,6 @@ OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
 uint OpenGLFrameBuffer::TextureID() const
 { return mTextureBuffer->ID(); }
 
-Scale2D OpenGLFrameBuffer::TextureSize() const
-{ return {mTextureBuffer->Format().width, mTextureBuffer->Format().height}; }
-
 Shared<TextureBuffer> OpenGLFrameBuffer::Texture() const
 { return mTextureBuffer; }
 
@@ -84,13 +78,3 @@ uint OpenGLFrameBuffer::ID() const
 
 Error OpenGLFrameBuffer::Status() const
 { return mStatus; }
-
-uint OpenGLFrameBuffer::CameraID() const
-{
-    if(mCameraID == ID::Invalid and g_pTheatreManager->GetTheatreState() == ManagerEnums::IN_LEVEL)
-        { return g_pTheatreManager->GetCurrentCamera()[]; }
-    return mCameraID;
-}
-
-void OpenGLFrameBuffer::CameraID(uint inID)
-{ mCameraID = inID; }
