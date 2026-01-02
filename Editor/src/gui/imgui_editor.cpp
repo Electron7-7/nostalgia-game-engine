@@ -6,6 +6,7 @@
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "rendering/renderer_api.hpp"
+#include "things/devices/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "things/actors/camera_3d.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
@@ -24,7 +25,6 @@ static void s_ThingAdder();
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
 static ID sSpawnLocationID{};
-static ID sEditorFramebufferID{};
 static float sSpawnLocationRotationSpeed{1.0f};
 static float sSpawnLocationScaleSpeedStore{0.0085f};
 static float sSpawnLocationScaleSpeed{sSpawnLocationScaleSpeedStore};
@@ -40,8 +40,6 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    sEditorFramebufferID = g_pRenderManager->GetAPI()
-        ->AddFrameBuffer(FrameBuffer::Create({1920, 1080}, UID::a_EditorCamera[]));
 }
 
 void ImGui_Editor::Shutdown()
@@ -71,6 +69,19 @@ void ImGui_Editor::TheatreEntered()
         UID::Generate(),
         {{sSpawnLocationMeshInstanceID, "MeshInstance"}, {glm::vec3{1.0f}, "Scale"}, {true, "Wireframe"}}
     });
+
+    g_pTheatreManager->CreateThing({"Editor Viewport",
+        ThingType::Viewport,
+        UID::a_EditorViewport});
+
+    g_pTheatreManager->CreateThing({"Editor Camera",
+        ThingType::Camera3D,
+        UID::Generate(),
+        {
+            {true, "UseDefaultSkybox"},
+            {UID::a_EditorViewport, "Viewport"},
+            {true, "Current"},
+        }});
 }
 
 void ImGui_Editor::TheatreExited()
@@ -105,53 +116,11 @@ enum ScaleDir
 };
 static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
 
-/*static void s_EditorViewport(ID inID)
-{
-    auto framebuffer{g_pRenderManager->GetAPI()->GetFrameBuffer(inID)};
-    auto original_aspect{framebuffer->TextureSize().AspectRatio()};
-
-    PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2.0f);
-    PushStyleVar(ImGuiStyleVar_WindowPadding, {0.0f, 0.0f});
-    PushID(inID[]);
-    BeginChild("Viewport",
-        {50, 50},
-        sResizableChildWithBorder,
-        ImGuiWindowFlags_NoScrollbar |
-        ImGuiWindowFlags_NoScrollWithMouse);
-    if(IsItemClicked())
-    {
-        MainWindow()->SetMouseMode(
-            (MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_DISABLED)
-                ? IWindow::MOUSE_MODE_DISABLED
-                : IWindow::MOUSE_MODE_VISIBLE);
-        g_pTheatreManager->GetPlayer()->mCaptureMouse    = !g_pTheatreManager->GetPlayer()->mCaptureMouse;
-        g_pTheatreManager->GetPlayer()->mCaptureKeyboard = !g_pTheatreManager->GetPlayer()->mCaptureKeyboard;
-    }
-    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-    Image((ImTextureID)framebuffer->TextureID(), sEditorViewportSizes[inID], {0, 1}, {1, 0});
-    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-    EndChild();
-    auto child_size{sEditorViewportSizes[inID] = GetItemRectSize()};
-    if((child_size.x / child_size.y) < original_aspect)
-    {
-        sEditorViewportSizes[inID].x = child_size.x;
-        sEditorViewportSizes[inID].y = sEditorViewportSizes[inID].x / original_aspect;
-    }
-    else
-    {
-        sEditorViewportSizes[inID].y = child_size.y;
-        sEditorViewportSizes[inID].x = sEditorViewportSizes[inID].y * original_aspect;
-    }
-    PopStyleVar(2);
-    PopID();
-}*/
-
 void ImGui_Editor::Update()
 {
     static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
         ImGuiChildFlags_ResizeY |
         ImGuiChildFlags_ResizeX};
-    auto framebuffer{g_pRenderManager->GetAPI()->GetFrameBuffer(sEditorFramebufferID)};
     if(!sSpawnLocationID.invalid())
     {
         auto thingy = g_pTheatreManager->GetThing<Actor>(sSpawnLocationID);
@@ -167,14 +136,14 @@ void ImGui_Editor::Update()
         { ShowDemoWindow(&sShowDemoWindow); }
     float window_width  = MainWindow()->GetWidth();
     float window_height = MainWindow()->GetHeight();
-    SetNextWindowSize({window_width, window_height});
-    SetNextWindowPos({0, 0});
+    SetNextWindowSize({window_width, window_height}, ImGuiCond_Once);
+    SetNextWindowPos({0, 0}, ImGuiCond_Once);
     if(Begin("Nostalgia Editor",
-        nullptr,
+        nullptr/*,
         ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoBringToFrontOnFocus))
+            ImGuiWindowFlags_NoBringToFrontOnFocus*/))
     {
         if(BeginMenuBar())
         {
@@ -190,16 +159,20 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
-        TextF("Mouse Motion: {}", InputManager::MouseMotion().data_log());
-        TextF("Is Left Mouse Down: {}", InputManager::IsKeyDown(Key::MouseLeft));
+        auto viewport{g_pTheatreManager->GetThing<Viewport>(UID::a_EditorViewport)};
+        if(!viewport->Framebuffer())
+            { End(); return; }
         BeginChild("Viewport",
             {500, 500},
             sResizableChildWithBorder,
             ImGuiWindowFlags_NoScrollbar |
                 ImGuiWindowFlags_NoScrollWithMouse);
+            TextF("ImTextureID: {}, Size: [{}, {}]",
+                (ImTextureID)viewport->Framebuffer()->TextureID(),
+                ((ImVec2)viewport->Size()).x, ((ImVec2)viewport->Size()).y);
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-            Image((ImTextureID)framebuffer->TextureID(),
-                (ImVec2)MainWindow()->GetScale(),
+            Image((ImTextureID)viewport->Framebuffer()->TextureID(),
+                (ImVec2)viewport->Size(),
                 {0, 1},
                 {1, 0});
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
@@ -211,7 +184,7 @@ void ImGui_Editor::Update()
                 { camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
             if(InputManager::IsKeyDown(Key::MouseLeft))
             {
-                auto camera{g_pTheatreManager->GetThing<Camera3D>(framebuffer->CameraID())};
+                auto camera{g_pTheatreManager->GetThing<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
                 camera->SetEuler(camera->Euler(true) - glm::vec3{motion.y(), motion.x(), 0.0f}, true);
             }

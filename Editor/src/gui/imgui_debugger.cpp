@@ -16,6 +16,7 @@
 #include "filesystem/filesystem.hpp"
 #include "things/actors/light.hpp"
 #include "things/actors/camera_3d.hpp"
+#include "things/devices/viewport.hpp"
 #include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
 #include "things/devices/collider.hpp"
@@ -541,7 +542,9 @@ struct thing_data_buffer
         else if(auto camera3d{DCast<Camera3D>(ptr)})
         {
             is_camera_current = camera3d->Current();
-            camera_render_layers = camera3d->GetRenderLayers();
+            fov = camera3d->mFOV;
+            view_near = camera3d->mViewCutoffNear;
+            view_far = camera3d->mViewCutoffFar;
         }
     }
 
@@ -556,11 +559,13 @@ struct thing_data_buffer
         texture2_id{ID::Invalid};
     int motion{static_cast<int>(PhysicsBodyMotion::None)},
         shape{static_cast<int>(PhysicsBodyShape::None)};
+    float fov{75.0f},
+        view_near{0.001f},
+        view_far{1000.0f};
     bool visible{true},
         wireframe{false},
         activate_collider_on_reset{false},
         is_camera_current{false};
-    RenderLayers camera_render_layers{};
 };
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
@@ -571,6 +576,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
         actor_button_color[3]    {0.063f, 0.392f, 0.6f},
         light_button_color[3]    {0.494f, 0.494f, 0.494f},
         device_button_color[3]   {0.447f, 0.125f, 0.361f},
+        viewport_button_color[3] {0.500f, 0.300f, 0.800f},
         resource_button_color[3] {0.608f, 0.204f, 0.165f},
         camera_button_color[3]   {0.808f, 0.707f, 0.086f};
     static bool show_type_on_button{true};
@@ -587,6 +593,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 ColorEdit3("Actor Color",    actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Device Color",   device_button_color,   ImGuiColorEditFlags_Float);
+                ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Resource Color", resource_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Camera Color",   camera_button_color, ImGuiColorEditFlags_Float);
                 Checkbox("Show Type Abbreviation", &show_type_on_button);
@@ -601,11 +608,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     auto thing{g_pTheatreManager->GetThing(uid)};
                     auto actor{DCast<Actor>(thing)};
                     ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
-                    ImGuiCol push_color_where{ImGuiCol_TextDisabled}; // Basically "don't use"
+                    ImGuiCol push_color_where{ImGuiCol_Button};
                     std::string type_symbol{"(T) "};
                     if(actor)
                     {
-                        push_color_where = ImGuiCol_Button;
                         if(DCast<light_t>(thing))
                         {
                             push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
@@ -624,16 +630,23 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     }
                     else if(DCast<Device>(thing))
                     {
-                        push_color = {device_button_color[0],device_button_color[1],device_button_color[2],1.0f};
-                        push_color_where = ImGuiCol_Button;
-                        type_symbol = "(D) ";
+                        if(DCast<Viewport>(thing))
+                        {
+                            push_color = {viewport_button_color[0],viewport_button_color[1],viewport_button_color[2],1.0f};
+                            type_symbol = "(V) ";
+                        }
+                        else
+                        {
+                            push_color = {device_button_color[0],device_button_color[1],device_button_color[2],1.0f};
+                            type_symbol = "(D) ";
+                        }
                     }
                     else if(DCast<Resource>(thing))
                     {
                         push_color = {resource_button_color[0],resource_button_color[1],resource_button_color[2],1.0f};
-                        push_color_where = ImGuiCol_Button;
                         type_symbol = "(R) ";
                     }
+                    else { push_color_where = ImGuiCol_TextDisabled; } // Basically "don't use"
                     std::string button_name{std::format("{}{}",
                         (show_type_on_button) ? type_symbol : "",
                         (thing->name().empty()) ? std::format("N/A##{}", ++j) : thing->name())};
@@ -758,29 +771,63 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
                 if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                 {
+                    auto cur_vp{g_pTheatreManager->GetThing(camera3d->ViewportID())};
+                    auto viewports{g_pTheatreManager->GetViewportIDList()};
+                    std::string current_viewport{std::format("{} [{}]",
+                        cur_vp->name(),
+                        cur_vp->uid()[])};
+                    if(BeginCombo("Viewport", current_viewport.data()))
+                    {
+                        for(ID id : viewports)
+                        {
+                            const bool is_selected{cur_vp->uid() == id};
+                            std::string label{std::format("{} [{}]",
+                                g_pTheatreManager->GetThing(id)->name(),
+                                id[])};
+                            if(Selectable(label.data())
+                                and camera3d->ViewportID(id) == OK)
+                                { selected = thing_data_buffer{camera3d}; }
+                            if(is_selected)
+                                { SetItemDefaultFocus(); }
+                        }
+                        EndCombo();
+                    }
+
                     if(Checkbox("Current", &selected.is_camera_current))
                     {
                         camera3d->Current(!camera3d->Current());
                         selected.is_camera_current = camera3d->Current();
                     }
-                    for(int i{0}; i < MaxRenderLayers; ++i)
-                    {
-                        PushID(i);
-                        if(Selectable("Layer", selected.camera_render_layers.status(i), 0, {20, 20}))
-                        {
-                            selected.camera_render_layers.toggle(i);
-                            camera3d->SetRenderLayers(selected.camera_render_layers);
-                        }
-                        PopID();
-                        if(i % (MaxRenderLayers/4))
-                            { SameLine(); }
-                    }
+                    if(SliderFloat("Vertical FOV", &selected.fov, 0.0f, 180.0f))
+                        { camera3d->mFOV = selected.fov; }
+                    if(DragFloat("View Cutoff Near", &selected.view_near, 0.001f, 0.001f, 100000.0f))
+                        { camera3d->mViewCutoffNear = selected.view_near; }
+                    if(DragFloat("View Cutoff Far", &selected.view_far, 1.0f, 0.001f, 100000.0f))
+                        { camera3d->mViewCutoffFar = selected.view_far; }
                 }
             }
             // DEVICES
             else if(auto device{DCast<Device>(selected.ptr)})
             {
-                if(auto collider{DCast<Collider>(selected.ptr)})
+                if(auto viewport{DCast<Viewport>(selected.ptr)})
+                {
+                    TextF("Size: {}", viewport->Size().data_log());
+                    TextF("Framebuffer ID: {}", (viewport->Framebuffer()) ? std::to_string(viewport->Framebuffer()->ID()) : "nullptr");
+                    SeparatorText("Cameras");
+                    for(ID id : viewport->CameraIDs())
+                    {
+                        if(viewport->IsCurrentCamera(id))
+                            { Text("\t%s (current)", g_pTheatreManager->GetThing(id)->c_name()); }
+                        else
+                        {
+                            Text("\t%s", g_pTheatreManager->GetThing(id)->c_name());
+                            SameLine();
+                            if(Button("Make Current"))
+                                { viewport->CurrentCamera(id); }
+                        }
+                    }
+                }
+                else if(auto collider{DCast<Collider>(selected.ptr)})
                 {
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
