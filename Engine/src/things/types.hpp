@@ -14,6 +14,7 @@ namespace ThingType
         Texture             {"Texture"},
         Font                {"Font"},
         Device              {"Device"},
+        Viewport            {"Viewport"},
         Collider            {"Collider"},
         Material            {"Material"},
         MeshInstance        {"MeshInstance"},

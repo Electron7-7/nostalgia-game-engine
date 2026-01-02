@@ -5,6 +5,7 @@
 #include "actors/camera_3d.hpp"
 #include "actors/light.hpp"
 #include "devices/device.hpp"
+#include "devices/viewport.hpp"
 #include "devices/collider.hpp"
 #include "devices/material.hpp"
 #include "devices/mesh_instance.hpp"
@@ -33,6 +34,7 @@ bool ThingFactory::Init()
     AddThing( &ThingMakerTemplate<SpotLight>,             "SpotLight",             cDefaultPriority     );
     AddThing( &ThingMakerTemplate<DirectionalLight>,      "DirectionalLight",      cDefaultPriority     );
     AddThing( &ThingMakerTemplate<Device>,                "Device",                cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Viewport>,              "Viewport",              cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Collider>,              "Collider",              cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Resource>,              "Resource",              cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Actor>,                 "Actor",                 cDefaultPriority + 1 );

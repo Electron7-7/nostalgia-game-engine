@@ -28,6 +28,7 @@ class NostalgiaPlayer;
 // Devices //
 /////////////
 class Device;
+class Viewport;
 class Collider;
 class Material;
 class MeshInstance;
