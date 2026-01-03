@@ -1,7 +1,9 @@
 #include "variable_registry.hpp"
 #include "core/printing.hpp"
 #include "core/uid.hpp"
+#include "rendering/texture_buffer.hpp"
 #include "things/devices/collider.hpp"
+#include "rendering/environment.hpp"
 
 static VariableRegistry sVariableRegistry{};
 VariableRegistry* g_pVariableRegistry{&sVariableRegistry};
@@ -78,6 +80,7 @@ void VariableRegistry::Init()
     m_sReferences["LightTexture"]   = UID::t_LightDebug[];
     m_sReferences["DoomTexture"]    = UID::t_COMP04_5[];
     m_sReferences["LolBitTexture"]  = UID::t_LolBit[];
+    m_sReferences["ShittySkybox"]   = UID::t_ShittySkybox[];
     m_sReferences["ErrorModel"]     = UID::m_Error[];
     m_sReferences["DefaultCube"]    = UID::m_Cube[];
     m_sReferences["RamielModel"]    = UID::m_Ramiel[];
@@ -92,6 +95,11 @@ void VariableRegistry::Init()
     m_sEnums["Capsule"]             = PhysicsBodyShape::Capsule;
     m_sEnums["Cylinder"]            = PhysicsBodyShape::Cylinder;
     m_sEnums["Sphere"]              = PhysicsBodyShape::Sphere;
+    m_sEnums["2DTexture"]           = TextureType::TEXTURE_TYPE_2D;
+    m_sEnums["CubeMapTexture"]      = TextureType::TEXTURE_TYPE_CUBE;
+    m_sEnums["CustomColor"]         = Environment::BG_CUSTOM_COLOR;
+    m_sEnums["ClearColor"]          = Environment::BG_CLEAR_COLOR;
+    m_sEnums["Skybox"]              = Environment::BG_SKYBOX;
 }
 
 void VariableRegistry::ClearIDs()
