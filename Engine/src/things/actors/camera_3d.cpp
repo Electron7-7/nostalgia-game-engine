@@ -63,33 +63,37 @@ void Camera3D::Shutdown()
 
 void Camera3D::Ready()
 {
-    static ID debug_camera_mesh_instance{};
     // the debug mesh/material shouldn't override a manually specificed one
     if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
-        if(debug_camera_mesh_instance.invalid())
+        ID mat_id{"Camera3D-debug-material"};
+        ID mesh_id{"Camera3D-debug-mesh-instance"};
+        if(!g_pTheatreManager->ThingExists(mat_id))
         {
-            ID material_id{g_pTheatreManager->CreateThing({
+            g_pTheatreManager->CreateThing({
                 "Camera3D-debug-material",
                 ThingType::Material,
-                UID::Generate(),
+                mat_id,
                 {
                     {true, "FullBright"},
                     {true, "NoTextures"},
                     {glm::vec3{200.0f, 80.0f, 255.0f}, "Color"},
                 }
-            })};
-            debug_camera_mesh_instance = g_pTheatreManager->CreateThing({
+            });
+        }
+        if(!g_pTheatreManager->ThingExists(mesh_id))
+        {
+            mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
                 "Camera3D-debug-mesh-instance",
                 ThingType::MeshInstance,
-                UID::Generate(),
+                mesh_id,
                 {
                     {UID::m_Camera3D, "Mesh"},
-                    {material_id, "Material", "Camera3D-debug-material"}
+                    {mat_id, "Material"}
                 }
             });
         }
-        mDebugMeshInstanceID = debug_camera_mesh_instance;
+        mDebugMeshInstanceID = mesh_id;
     }
 
     auto viewport{g_pTheatreManager->GetThing<Viewport>(mViewportID)};

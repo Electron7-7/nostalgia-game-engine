@@ -95,12 +95,7 @@ void TheatreManager::DrawTheatre()
     for(auto& [id, thing] : mThings)
     {
         if(auto light{DCast<light_t>(thing)}; light and light->IncrementIndex())
-        {
-            g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get());
-            auto material{GetThing<Material>(GetThing<MeshInstance>(light->DebugMeshInstance())->MaterialID())};
-            material->mColor = light->mColor;
-            material->mFullBright = true;
-        }
+            { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get()); }
     }
     for(ID viewport_id : mViewportIDs)
     {
