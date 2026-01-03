@@ -1008,3 +1008,5 @@ I just implemented cubemap textures via `TextureBuffer` and `Texture`. Now, time
 
 [01/02/26]
 Just finished bugfixing and fully implementing the new `Environment` and skybox systems.
+
+I just implemented children. Holy shit.
