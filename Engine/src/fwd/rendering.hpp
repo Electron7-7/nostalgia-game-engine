@@ -20,7 +20,7 @@ namespace Shaders
 {
     extern constinit const unsigned int BlinnPhong;
     extern constinit const unsigned int Fullbright;
-    extern constinit const unsigned int Skybox;
+    extern constinit const unsigned int SkyBox;
     extern constinit const unsigned int Fonts;
 }
 
@@ -32,5 +32,7 @@ struct TextureFormat;
 class TextureBuffer;
 
 class VertexArray;
+
+class Environment;
 
 #endif // RENDERING_FWD_H
