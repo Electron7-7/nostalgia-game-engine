@@ -4,8 +4,8 @@
 #include "theatre/parser/thing_variable.hpp"
 #include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
-#include "things/types.hpp"
 #include "core/concepts.hpp"
+#include "things/types.hpp"
 
 struct ThingData
 {
