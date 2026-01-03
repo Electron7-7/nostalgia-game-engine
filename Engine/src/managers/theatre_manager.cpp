@@ -154,12 +154,12 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
         or !camera->Current() or actor->uid() == camera->uid())
         { return; }
     auto children{actor->children()};
-    if(Settings::Engine::IsEditorHint)
         { children.emplace_back(actor->DebugMeshInstance()); }
+    if(Settings::Engine::IsEditorHint and !actor->DebugMeshInstance().invalid())
     for(auto child : children)
     {
         auto mesh_instance{GetThing<MeshInstance>(child.id)};
-        if(!mesh_instance)
+        if(mesh_instance->uid().invalid())
             { continue; }
         auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
         auto material{GetThing<Material>(mesh_instance->MaterialID())};
