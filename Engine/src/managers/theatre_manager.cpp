@@ -5,6 +5,7 @@
 #include "filesystem/filesystem.hpp"
 #include "filesystem/file_data.hpp"
 #include "math/containers.hpp"
+#include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
@@ -96,7 +97,7 @@ void TheatreManager::DrawTheatre()
         if(auto light{DCast<light_t>(thing)}; light and light->IncrementIndex())
         {
             g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get());
-            auto material{GetThing<Material>(GetThing<MeshInstance>(light->MeshInstanceID())->MaterialID())};
+            auto material{GetThing<Material>(GetThing<MeshInstance>(light->DebugMeshInstance())->MaterialID())};
             material->mColor = light->mColor;
             material->mFullBright = true;
         }
@@ -152,50 +153,57 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
     if(!camera->mRenderLayers.contains(actor->mRenderLayers)
         or !camera->Current() or actor->uid() == camera->uid())
         { return; }
+    auto children{actor->children()};
+    if(Settings::Engine::IsEditorHint)
+        { children.emplace_back(actor->DebugMeshInstance()); }
+    for(auto child : children)
+    {
+        auto mesh_instance{GetThing<MeshInstance>(child.id)};
+        if(!mesh_instance)
+            { continue; }
+        auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
+        auto material{GetThing<Material>(mesh_instance->MaterialID())};
+        FAUTO renderer_api{g_pRenderManager->GetAPI()};
+        auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
-    auto mesh_instance{GetThing<MeshInstance>(actor->MeshInstanceID())};
-    auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
-    auto material{GetThing<Material>(mesh_instance->MaterialID())};
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
-    auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
+        if(!mesh or !mesh->MeshData() or mesh->Status() != OK)
+            { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
 
-    if(!mesh or !mesh->MeshData() or mesh->Status() != OK)
-        { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
+        // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
+        glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
+        glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
+        glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
+        glm::mat4 model_matrix {transMat * rotMat * scaleMat};
+        glm::mat4 projection_matrix{camera->ProjectionMatrix()};
+        glm::mat4 view_matrix{camera->ViewMatrix()};
 
-    // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-    glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
-    glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
-    glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
-    glm::mat4 model_matrix {transMat * rotMat * scaleMat};
-    glm::mat4 projection_matrix{camera->ProjectionMatrix()};
-    glm::mat4 view_matrix{camera->ViewMatrix()};
+        renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
+        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
+        renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
+        renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
 
-    renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
-    renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
-    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
-    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
+        shader->SetUniform("model_matrix", model_matrix);
+        shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+        shader->SetUniform("projection_matrix", projection_matrix);
+        shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+        shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
+        shader->SetUniform("point_lights_count", PointLight::GetCount());
+        shader->SetUniform("spot_lights_count", SpotLight::GetCount());
+        shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
+        shader->SetUniform("view_matrix", view_matrix);
+        shader->SetUniform("view_position", camera->Origin());
+        shader->SetUniform("current_material.texture_diffuse",  0);
+        shader->SetUniform("current_material.texture_specular", 1);
+        shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
+        shader->SetUniform("current_material.diffuse_color", material->mColor);
+        shader->SetUniform("current_material.alpha", material->mAlpha);
+        shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+        shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
 
-    shader->SetUniform("model_matrix", model_matrix);
-    shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
-    shader->SetUniform("projection_matrix", projection_matrix);
-    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
-    shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
-    shader->SetUniform("point_lights_count", PointLight::GetCount());
-    shader->SetUniform("spot_lights_count", SpotLight::GetCount());
-    shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
-    shader->SetUniform("view_matrix", view_matrix);
-    shader->SetUniform("view_position", camera->Origin());
-    shader->SetUniform("current_material.texture_diffuse",  0);
-    shader->SetUniform("current_material.texture_specular", 1);
-    shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
-    shader->SetUniform("current_material.diffuse_color", material->mColor);
-    shader->SetUniform("current_material.alpha", material->mAlpha);
-    shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-    shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
-
-    shader->Bind();
-    renderer_api->DrawIndexed(mesh->MeshData());
-    renderer_api->SetFramebufferSRGB(false);
+        shader->Bind();
+        renderer_api->DrawIndexed(mesh->MeshData());
+        renderer_api->SetFramebufferSRGB(false);
+    }
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)

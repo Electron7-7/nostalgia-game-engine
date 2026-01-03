@@ -5,7 +5,7 @@
 #include "things/thing.hpp"
 #include "theatre/transform_3d.hpp"
 
-class Actor : public Thing, public Transform3D
+class __actor_t : public Thing, public Transform3D
 {
 public:
     virtual void Ready() override;
@@ -15,17 +15,14 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
+    virtual ID DebugMeshInstance() const;
+    virtual void DebugMeshInstance(ID);
+
     virtual bool Visible() const;
     virtual void Visible(bool isVisible);
 
     virtual bool Wireframe() const;
     virtual void Wireframe(bool isWireframe);
-
-    ID MeshInstanceID() const;
-    void MeshInstanceID(ID MeshInstanceID);
-
-    ID ColliderID() const;
-    void ColliderID(ID UID);
 
     RenderLayers mRenderLayers{};
 
@@ -33,11 +30,13 @@ public:
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};
 
 protected:
+    ID mDebugMeshInstanceID{};
     bool mVisible{true};
     bool mWireframe{false};
-
-    ID mMeshInstanceID{};
-    ID mColliderID{};
 };
+
+class Actor : public __actor_t {};
+class Actor2D : public __actor_t {};
+class Actor3D : public __actor_t {};
 
 #endif // ACTOR_H

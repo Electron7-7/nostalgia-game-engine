@@ -1,10 +1,14 @@
 #ifndef THINGS_FWD_H
 #define THINGS_FWD_H
 
+#include <vector>
+
 class ThingFactory;
 struct TTID;
 
 class Thing;
+struct ThingChild;
+using children_t = std::vector<ThingChild>;
 
 class Thinker;
 

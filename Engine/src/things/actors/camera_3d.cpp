@@ -64,7 +64,7 @@ void Camera3D::Shutdown()
 void Camera3D::Ready()
 {
     // the debug mesh/material shouldn't override a manually specificed one
-    if(mMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
+    if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
         ID material_id{g_pTheatreManager->CreateThing({
             mName + "_DebugMat",
@@ -76,7 +76,7 @@ void Camera3D::Ready()
                 {glm::vec3{200.0f, 80.0f, 255.0f}, "Color"},
             }
         })};
-        mMeshInstanceID = g_pTheatreManager->CreateThing({
+        mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "_DebugMeshInst",
             ThingType::MeshInstance,
             UID::Generate(),

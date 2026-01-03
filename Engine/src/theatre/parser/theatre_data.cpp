@@ -56,7 +56,8 @@ void TheatreData::SetupUIDsAndPriorities()
     // this, but for now it's fine to have two for loops (even if I personally hate it).
     for(ThingData& data : things_data)
     {
-        data.uid = UID::Generate();
+        if(data.uid.invalid())
+            { data.uid = UID::Generate(); }
         g_pVariableRegistry->RegisterID(data.name, data.uid[]);
     }
     for(ThingData& data : things_data)
@@ -73,6 +74,11 @@ void TheatreData::SetupUIDsAndPriorities()
             // for an enum variable.
             else if(variable.type == ThingVar::Type::Enum)
                 { g_pVariableRegistry->try_GetEnum(variable.value, variable.id_or_enum); }
+        }
+        for(ThingVar& child : data.children)
+        {
+            if(uint id; g_pVariableRegistry->try_GetID(child.value, id))
+                { child.id_or_enum = id; }
         }
     }
 }

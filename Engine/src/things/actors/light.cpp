@@ -23,7 +23,7 @@ void light_t::ClearCounts()
 void light_t::Ready()
 {
     // the debug mesh/material shouldn't override a manually specificed one
-    if(mMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
+    if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
         ID material_id{g_pTheatreManager->CreateThing({
             mName + "_DebugMaterial",
@@ -34,7 +34,7 @@ void light_t::Ready()
                 {true, "FullBright"}
             }
         })};
-        mMeshInstanceID = g_pTheatreManager->CreateThing({
+        mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "_DebugMeshInstance",
             ThingType::MeshInstance,
             UID::Generate(),
@@ -82,10 +82,6 @@ Shared<ThingData> light_t::GetVariables() const
     data->AddVariable(mEnabled, "LightVisible");
     data->AddVariable(mEnabled, "Enabled");
     data->AddVariable(mVisible, "Visible");
-#ifndef DEBUGGING // See above pragma message
-    data->RemoveVariable("Mesh");
-    data->RemoveVariable("Material");
-#endif
 
     return data;
 }

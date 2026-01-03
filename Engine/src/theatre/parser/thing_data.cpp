@@ -31,6 +31,22 @@ ThingData::ThingData(Sarg inName, Farg<TTID> inType, Farg<std::vector<ThingVar>>
     variables(inVariables),
     type_{inType} {}
 
+bool ThingData::GetChildren(children_t& output) const
+{
+    if(children.empty())
+        { return false; }
+    for(FAUTO child : children)
+        { output.emplace_back(child.id_or_enum, !child.name.compare(cUniqueChildVarName)); }
+    return true;
+}
+
+void ThingData::SetChildren(Farg<children_t> input)
+{
+    children.clear();
+    for(auto child : input)
+        { children.emplace_back(child.id, (child.is_unique) ? cUniqueChildVarName : cChildVarName); }
+}
+
 bool ThingData::RemoveVariable(Sarg inName)
 {
     if(auto iter = std::find(variables.cbegin(), variables.cend(), inName);
@@ -49,11 +65,13 @@ ThingVar& ThingData::AddVariable(Farg<ThingVar> inVariable, Sarg inName)
 
 ThingVar& ThingData::AddVariable(Sarg inName, Sarg inValue, ThingVar::Type inType)
 {
+    if(!inName.compare(cChildVarName))
+    {
+        children.emplace_back(ThingVar::Type::Reference, cChildVarName, inValue);
+        return children.back();
+    }
     RemoveVariable(inName);
-    variables.emplace_back();
-    variables.back().name  = inName;
-    variables.back().value = inValue;
-    variables.back().type  = inType;
+    variables.emplace_back(inType, inName, inValue);
     return variables.back();
 }
 
@@ -84,6 +102,12 @@ std::string ThingData::log(bool colored, bool indent) const
         if(indent)
             { log.push_back('\t'); }
         log.append(std::format("{}\n", var.log(colored)));
+    }
+    for(FAUTO child : children)
+    {
+        if(indent)
+            { log.push_back('\t'); }
+        log.append(std::format("{}\n", child.log(colored)));
     }
     return log;
 }

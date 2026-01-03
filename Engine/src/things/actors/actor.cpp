@@ -3,26 +3,24 @@
 #include "things/devices/collider.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-void Actor::SetVariables(Farg<ThingData> data)
+void __actor_t::SetVariables(Farg<ThingData> data)
 {
     Thing::SetVariables(data);
     SetTransformVariables(data);
 
-    data.GetVariable(mMeshInstanceID, "MeshInstance");
-    data.GetVariable(mColliderID, "Collider");
+    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
     data.GetVariable(mVisible, "Visible");
     data.GetVariable(mWireframe, "MakeWireframe");
     data.GetVariable(mWireframe, "Wireframe");
     data.GetVariable(mDebugHighlight, "DebugHighlight");
 }
 
-Shared<ThingData> Actor::GetVariables() const
+Shared<ThingData> __actor_t::GetVariables() const
 {
-    Shared<ThingData> data{Thing::GetVariables()};
+    auto data{Thing::GetVariables()};
     GetTransformVariables(data);
 
-    data->AddVariable(mMeshInstanceID, "MeshInstance");
-    data->AddVariable(mColliderID, "Collider");
+    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
     data->AddVariable(mVisible, "Visible");
     data->AddVariable(mWireframe, "Wireframe");
     data->AddVariable(mDebugHighlight, "DebugHighlight");
@@ -30,42 +28,42 @@ Shared<ThingData> Actor::GetVariables() const
     return data;
 }
 
-void Actor::Ready()
+void __actor_t::Ready()
 {
     Thing::Ready();
-    if(auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
-        !collider->BodyIDInvalid())
-        { mScale = collider->Scale(); }
+    for(auto child : mChildren)
+    {
+        if(auto collider{g_pTheatreManager->GetThing<Collider>(child.id)}; !collider->BodyIDInvalid())
+            { mScale = collider->Scale(); }
+    }
 }
 
-void Actor::Tick()
+void __actor_t::Tick()
 {
-    if(mColliderID == ID::Invalid)
-        { return; }
-    SetOrigin(g_pTheatreManager->GetThing<Collider>(mColliderID)->Origin());
-    SetQuaternion(g_pTheatreManager->GetThing<Collider>(mColliderID)->Quaternion());
+    for(auto child : mChildren)
+    {
+        if(auto collider{g_pTheatreManager->GetThing<Collider>(child.id)}; !collider->uid().invalid())
+        {
+            SetOrigin(collider->Origin());
+            SetQuaternion(collider->Quaternion());
+        }
+    }
 }
 
-ID Actor::MeshInstanceID() const
-{ return mMeshInstanceID; }
+ID __actor_t::DebugMeshInstance() const
+{ return mDebugMeshInstanceID; }
 
-void Actor::MeshInstanceID(ID mesh_instance_id)
-{ mMeshInstanceID = mesh_instance_id; }
+void __actor_t::DebugMeshInstance(ID inID)
+{ mDebugMeshInstanceID = inID; }
 
-ID Actor::ColliderID() const
-{ return mColliderID; }
-
-void Actor::ColliderID(ID uid)
-{ mColliderID = uid; }
-
-bool Actor::Visible() const
+bool __actor_t::Visible() const
 { return mVisible; }
 
-void Actor::Visible(bool isVisible)
+void __actor_t::Visible(bool isVisible)
 { mVisible = isVisible; }
 
-bool Actor::Wireframe() const
+bool __actor_t::Wireframe() const
 { return mWireframe; }
 
-void Actor::Wireframe(bool isWireframe)
+void __actor_t::Wireframe(bool isWireframe)
 { mWireframe = isWireframe; }

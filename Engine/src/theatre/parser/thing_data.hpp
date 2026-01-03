@@ -1,11 +1,15 @@
 #ifndef THING_DATA_H
 #define THING_DATA_H
 
+#include "fwd/things.hpp"
 #include "theatre/parser/thing_variable.hpp"
 #include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
 #include "core/concepts.hpp"
 #include "things/types.hpp"
+
+constexpr const char* cChildVarName{"Child"};
+constexpr const char* cUniqueChildVarName{"UniqueChild"};
 
 struct ThingData
 {
@@ -18,10 +22,14 @@ public:
     ID uid{};
     std::string name{"Untitled Thing"};
     std::vector<ThingVar> variables{};
+    std::vector<ThingVar> children{};
 
     bool RemoveVariable(Farg<std::string> VariableName);
     ThingVar& AddVariable(Farg<std::string> Name, Farg<std::string> ParsedValue, ThingVar::Type Type);
     ThingVar& AddVariable(Farg<ThingVar> Value, Farg<std::string> Name);
+
+    bool GetChildren(children_t& output) const;
+    void SetChildren(Farg<children_t> input);
 
     template<StringContainer T, StringType... Names>
         bool GetVariable(T& output, Names... names) const
