@@ -2,7 +2,6 @@
 #include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
-#include "settings/engine.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
@@ -41,6 +40,7 @@ void NostalgiaPlayer::Ready()
                 {mViewPosition, "Origin"},
                 {mQuaternion, "Quaternion"},
                 {true, "Current"},
+                {true, "UseDefaultSkybox"},
             }});
     }
 }
