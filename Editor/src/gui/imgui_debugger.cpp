@@ -6,6 +6,7 @@
 #include "core/uid.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
+#include "settings/engine.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
@@ -519,8 +520,8 @@ struct thing_data_buffer
     {
         if(auto actor{DCast<Actor>(ptr)})
         {
-            collider_id = actor->ColliderID()[];
-            mesh_instance_id = actor->MeshInstanceID()[];
+            // collider_id = actor->ColliderID()[];
+            // mesh_instance_id = actor->MeshInstanceID()[];
             visible = actor->Visible();
             wireframe = actor->Wireframe();
         }
@@ -572,6 +573,9 @@ struct thing_data_buffer
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
+    static uint mNewChildUID{0};
+    static int  mNewChildUnique{1};
+    static const char* unique_combo{"True\0False\0"};
     static thing_data_buffer selected{};
     static int sMaxPerRow{3};
     static float thing_button_color[3]{},
@@ -654,7 +658,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         (thing->name().empty()) ? std::format("N/A##{}", ++j) : thing->name())};
                     PushStyleColor(push_color_where, push_color);
                     if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
-                        { selected = thing_data_buffer{thing}; }
+                        { selected = thing_data_buffer{thing}; mNewChildUID = 0; mNewChildUnique = 1; }
                     if(actor)
                         { actor->mDebugHighlight.a = IsItemHovered(); }
                     PopStyleColor();
@@ -667,6 +671,17 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 { End(); return; }
             // THINGS
             BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
+            if(!selected.ptr->parent().invalid())
+            {
+                auto parent{g_pTheatreManager->GetThing(selected.ptr->parent())};
+                TextF("Parent: <{}> {} [{}]",
+                    parent->type().name(),
+                    parent->name(),
+                    parent->uid()[]);
+                SameLine();
+                if(Button("Inspect##1234"))
+                    { selected = thing_data_buffer{parent}; }
+            }
             SeparatorText("Properties");
             if(UID::IsReserved(selected.id))
             {
@@ -748,29 +763,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 glm::vec3 Scale{actor->Scale()};
                 if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
                     { actor->SetScale(Scale); }
-                NewLine();
-                if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
-                {
-                    if(Button("Inspect##1"))
-                    {
-                        EndChild(); End();
-                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.collider_id)};
-                        return;
-                    }
-                    SameLine();
-                    if(InputUInt("Collider UID", &selected.collider_id))
-                        { actor->ColliderID(selected.collider_id); }
-
-                    if(Button("Inspect##2"))
-                    {
-                        EndChild(); End();
-                        selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_instance_id)};
-                        return;
-                    }
-                    SameLine();
-                    if(InputUInt("MeshInstance UID", &selected.mesh_instance_id))
-                        { actor->MeshInstanceID(selected.mesh_instance_id); }
-                }
                 if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                 {
                     auto cur_vp{g_pTheatreManager->GetThing(camera3d->ViewportID())};
@@ -794,7 +786,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         }
                         EndCombo();
                     }
-
                     if(Checkbox("Current", &selected.is_camera_current))
                     {
                         camera3d->Current(!camera3d->Current());
@@ -871,31 +862,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     SameLine();
                     Checkbox("Activate on Reset", &selected.activate_collider_on_reset);
                 }
-                else if(auto mesh_instance{DCast<MeshInstance>(selected.ptr)})
-                {
-                    if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
-                    {
-                        if(Button("Inspect##1"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.mesh_id)};
-                            return;
-                        }
-                        SameLine();
-                        if(InputUInt("Mesh UID", &selected.mesh_id))
-                            { mesh_instance->MeshID(selected.mesh_id); }
-
-                        if(Button("Inspect##2"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.material_id)};
-                            return;
-                        }
-                        SameLine();
-                        if(InputUInt("Material UID", &selected.material_id))
-                            { mesh_instance->MaterialID(selected.material_id); }
-                    }
-                }
                 else if(auto material{DCast<Material>(selected.ptr)})
                 {
                     Checkbox("Don't Use Textures", &material->mDontUseTexture);
@@ -907,28 +873,51 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             ImGuiColorEditFlags_InputRGB);
                     InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
                     InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
+                }
+            }
+            // CHILDREN
+            if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto children{selected.ptr->children()};
+                if(auto actor{DCast<Actor>(selected.ptr)};
+                    actor
+                    and Settings::Engine::IsEditorHint
+                    and !actor->DebugMeshInstance().invalid()) { children.push_back(actor->DebugMeshInstance()); }
 
-                    if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+                if(Button("+"))
+                {
+                    selected.ptr->add_child({mNewChildUID, (bool)(1 - mNewChildUnique)});
+                    selected = {selected.ptr};
+                    mNewChildUID = 0;
+                    mNewChildUnique = 1;
+                    EndChild(); End();
+                    return;
+                }
+                SameLine();
+                Combo("Unique", &mNewChildUnique, unique_combo);
+                SameLine();
+                InputUInt("UID##1", &mNewChildUID, 0, 0);
+
+                int i{0};
+                for(auto child : children)
+                {
+                    auto thing{g_pTheatreManager->GetThing(child.id)};
+                    if(thing->uid().invalid())
+                        { TextF("[Invalid Child UID]##{}", ++i); }
+                    else
                     {
-                        if(Button("Inspect##1"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture1_id)};
-                            return;
-                        }
+                        PushID(++i + thing->uid()[]);
+                        if(Button("-"))
+                            { selected.ptr->remove_child(child); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
                         SameLine();
-                        if(InputUInt("Diffuse Texture UID", &selected.texture1_id))
-                            { material->DiffuseTextureID(selected.texture1_id); }
-
-                        if(Button("Inspect##2"))
-                        {
-                            EndChild(); End();
-                            selected = thing_data_buffer{g_pTheatreManager->GetThing(selected.texture2_id)};
-                            return;
-                        }
+                        TextF("<{}> {} [{}]",
+                            thing->type().name(),
+                            thing->name(),
+                            thing->uid()[]);
                         SameLine();
-                        if(InputUInt("Specular Texture UID", &selected.texture2_id))
-                            { material->SpecularTextureID(selected.texture2_id); }
+                        if(Button("Inspect"))
+                            { selected = thing_data_buffer{thing}; }
+                        PopID();
                     }
                 }
             }
