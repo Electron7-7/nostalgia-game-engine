@@ -1005,3 +1005,6 @@ The reason it happen is that because child windows always know their size (becau
 I think that I'll implement the skybox today; that requires cubemaps, new shaders, and another render pass. I think that the skybox should be based on the Environment (which will be a new class), and that could be tied to the Camera (like in Godot).
 
 I just implemented cubemap textures via `TextureBuffer` and `Texture`. Now, time to implement an Environment class, a skybox shader, and rendering pass.
+
+[01/02/26]
+Just finished bugfixing and fully implementing the new `Environment` and skybox systems.
