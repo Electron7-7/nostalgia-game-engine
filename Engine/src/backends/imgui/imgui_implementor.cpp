@@ -78,6 +78,14 @@ void ImGui_Implementor::Begin()
 {
     WarnIf(!mAttached)
     mState = STATE_BEGINNING_FRAME;
+    ImGui::GetIO().WantCaptureKeyboard = mCanHandleEvents;
+    ImGui::GetIO().WantCaptureMouse    = mCanHandleEvents;
+    if(!mCanHandleEvents)
+    {
+        ImGui::GetIO().ClearEventsQueue();
+        ImGui::GetIO().ClearInputMouse();
+    }
+
     switch(sGraphicsAPI())
     {
     case GraphicsAPI::OpenGL:

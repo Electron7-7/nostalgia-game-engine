@@ -12,6 +12,16 @@ UI_Implementor::InstanceState UI_Implementor::GetState() const
 { return mState; }
 
 // Static functions
+void UI_Implementor::SetGlobalCanHandleEvents(bool inCanHandleEvents)
+{
+    const std::lock_guard<std::recursive_mutex> lock{m_sInstancesMutex};
+    for(auto& [index, instance] : m_sInstances)
+    {
+        if(instance)
+            { instance->CanHandleEvents(inCanHandleEvents); }
+    }
+}
+
 void UI_Implementor::AttachAll()
 { InvokeMethod(&UI_Implementor::Attach); }
 

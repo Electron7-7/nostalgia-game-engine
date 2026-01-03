@@ -59,7 +59,7 @@ bool InputManager::UpdateKeyState(KeyID inKeyID, bool inCurrentState)
         if(action.UpdateState(inKeyID[], inCurrentState))
             { sInputEventQueue.add<InputEventAction>(action); }
     }
-    return m_sInputStateBuffer[inKeyID[]].just_changed;
+    return m_sInputStateBuffer[inKeyID[]].just_changed();
 }
 
 EventQueue* InputManager::Queue()
@@ -114,16 +114,10 @@ void InputManager::EraseCallback(pInputCallback_f inCallback)
 }
 
 bool InputManager::IsKeyDown(KeyID inKey) noexcept
-{ return m_sInputStateBuffer.at(inKey[]).active; }
+{ return m_sInputStateBuffer.at(inKey[]).active(); }
 
 bool InputManager::IsKeyUp(KeyID inKey) noexcept
-{ return !m_sInputStateBuffer.at(inKey[]).active; }
-
-bool InputManager::IsKeyPressed(KeyID inKey) noexcept
-{ return m_sInputStateBuffer.at(inKey[]).pressed(); }
-
-bool InputManager::IsKeyReleased(KeyID inKey) noexcept
-{ return m_sInputStateBuffer.at(inKey[]).released(); }
+{ return !m_sInputStateBuffer.at(inKey[]).active(); }
 
 bool InputManager::IsActionDown(const std::string& inName) noexcept
 {
@@ -135,20 +129,6 @@ bool InputManager::IsActionUp(const std::string& inName) noexcept
 {
     auto found_it{sInputActions.find(inName)};
     return (found_it == sInputActions.end() || !found_it->second.State());
-}
-
-bool InputManager::IsActionPressed(const std::string& inName) noexcept
-{
-    auto found_it{sInputActions.find(inName)};
-    return (found_it != sInputActions.end() &&
-        found_it->second.State() && found_it->second.StateJustChanged());
-}
-
-bool InputManager::IsActionReleased(const std::string& inName) noexcept
-{
-    auto found_it{sInputActions.find(inName)};
-    return (found_it != sInputActions.end() &&
-        !found_it->second.State() && found_it->second.StateJustChanged());
 }
 
 Position2D InputManager::MousePosition() noexcept

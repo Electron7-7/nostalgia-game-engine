@@ -5,6 +5,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
+#include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
 #include "things/devices/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
@@ -97,11 +98,19 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
+            UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             g_pTheatreManager->GetPlayer()->mCaptureMouse    = false;
             g_pTheatreManager->GetPlayer()->mCaptureKeyboard = false;
         }
         return;
+    }
+    else if(event->IsJustPressed(Key::A) and event->IsModifierActive(Key::Mod_Control))
+    {
+        UI_Implementor::SetGlobalCanHandleEvents(false);
+        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
+        g_pTheatreManager->GetPlayer()->mCaptureKeyboard = true;
+        g_pTheatreManager->GetPlayer()->mCaptureMouse    = true;
     }
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
@@ -178,19 +187,26 @@ void ImGui_Editor::Update()
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
         EndChild();
         static bool camera_moving{false};
-        if(IsItemHovered() or camera_moving)
+        if((IsItemHovered() or camera_moving)
+            and !g_pTheatreManager->GetPlayer()->mCaptureMouse)
         {
-            if(InputManager::IsKeyPressed(Key::MouseLeft))
-                { camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
+            if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
+                { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
             if(InputManager::IsKeyDown(Key::MouseLeft))
             {
                 auto camera{g_pTheatreManager->GetThing<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
-                camera->SetEuler(camera->Euler(true) - glm::vec3{motion.y(), motion.x(), 0.0f}, true);
+                camera->SetEuler(camera->Euler(true) - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}), true);
+                glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
+                    InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
+
+                camera->SetOrigin(camera->Origin() + (0.1f * ((camera->Front() * movement_direction[1]) + (camera->Right() * movement_direction[0]))));
             }
         }
-        if(InputManager::IsKeyReleased(Key::MouseLeft))
-            { camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
+        if(InputManager::IsKeyUp(Key::MouseLeft)
+            and camera_moving
+            and !g_pTheatreManager->GetPlayer()->mCaptureMouse)
+            { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
         BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
             s_ThingAdder();
         EndChild();
@@ -245,7 +261,7 @@ void s_ThingAdder()
         { g_pTheatreManager->GetThing<Actor>(sSpawnLocationID)->SetOrigin(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
-        { sSpawnLocation = glm::vec3(0.0f); }
+        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor>(sSpawnLocationID)->SetOrigin(sSpawnLocation); }
     if(Button("Spawn Thing"))
     {
         sNewThingName = sNameBuffer;

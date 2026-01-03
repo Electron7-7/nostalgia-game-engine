@@ -30,13 +30,9 @@ public:
 
     static bool IsKeyDown(KeyID inKeyID) noexcept;
     static bool IsKeyUp(KeyID inKeyID) noexcept;
-    static bool IsKeyPressed(KeyID inKeyID) noexcept;
-    static bool IsKeyReleased(KeyID inKeyID) noexcept;
 
     static bool IsActionDown(Farg<std::string> inName) noexcept;
     static bool IsActionUp(Farg<std::string> inName) noexcept;
-    static bool IsActionPressed(Farg<std::string> inName) noexcept;
-    static bool IsActionReleased(Farg<std::string> inName) noexcept;
 
     static Position2D MousePosition() noexcept;
     static Position2D LastMousePosition() noexcept;
@@ -45,20 +41,44 @@ public:
 private:
     struct InputState
     {
-        bool active{false};
-        bool just_changed{false};
+    private:
+        long time_changed_{0};
+        bool active_{false};
+        bool just_changed_{false};
 
+        void update_()
+        {
+            if(!just_changed_)
+                { return; }
+            else if(m_sFrameNumber != time_changed_)
+                { just_changed_ = false; }
+        }
+    public:
         void set(bool isActive) noexcept
         {
-            just_changed = active != isActive;
-            active = isActive;
+            just_changed_ = active_ != isActive;
+            active_ = isActive;
+            if(just_changed_)
+                { time_changed_ = Manager::m_sFrameNumber; }
         }
 
-        bool pressed() const noexcept
-        { return active and just_changed; }
+        bool active() noexcept
+        { return active_; }
 
-        bool released() const noexcept
-        { return !active and just_changed; }
+        bool just_changed() noexcept
+        { return just_changed_; }
+
+        bool pressed() noexcept
+        {
+            update_();
+            return active_ and just_changed_;
+        }
+
+        bool released() noexcept
+        {
+            update_();
+            return !active_ and just_changed_;
+        }
     };
 
     std::vector<pInputCallback_f> mCallbacks{};

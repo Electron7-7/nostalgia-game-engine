@@ -69,6 +69,8 @@ public:
     void CanHandleEvents(bool inCanHandleEvents)
     { mCanHandleEvents = inCanHandleEvents; }
 
+    static void SetGlobalCanHandleEvents(bool inCanHandleEvents);
+
     template<typename T> requires std::derived_from<T, UI_Solution>
         Unique<UI_Solution>& CreateSolution()
         {
