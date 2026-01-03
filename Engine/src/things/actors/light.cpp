@@ -22,27 +22,32 @@ void light_t::ClearCounts()
 
 void light_t::Ready()
 {
+    static ID debug_light_mesh_instance{};
     // the debug mesh/material shouldn't override a manually specificed one
     if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
-        ID material_id{g_pTheatreManager->CreateThing({
-            mName + "_DebugMaterial",
-            ThingType::Material,
-            UID::Generate(),
-            {
-                {UID::t_LightDebug, "DiffuseTexture"},
-                {true, "FullBright"}
-            }
-        })};
-        mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
-            mName + "_DebugMeshInstance",
-            ThingType::MeshInstance,
-            UID::Generate(),
-            {
-                {UID::m_Cube, "Mesh"},
-                {material_id, "Material", mName + "_DebugMaterial"}
-            }
-        });
+        if(debug_light_mesh_instance.invalid())
+        {
+            ID material_id{g_pTheatreManager->CreateThing({
+                "light_t-debug-material",
+                ThingType::Material,
+                UID::Generate(),
+                {
+                    {UID::t_LightDebug, "DiffuseTexture"},
+                    {true, "FullBright"}
+                }
+            })};
+            debug_light_mesh_instance = g_pTheatreManager->CreateThing({
+                "light_t-debug-mesh-instance",
+                ThingType::MeshInstance,
+                UID::Generate(),
+                {
+                    {UID::m_Cube, "Mesh"},
+                    {material_id, "Material", "light_t-debug-material"}
+                }
+            });
+        }
+        mDebugMeshInstanceID = debug_light_mesh_instance;
     }
 }
 

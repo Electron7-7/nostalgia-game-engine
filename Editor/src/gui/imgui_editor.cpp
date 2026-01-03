@@ -143,16 +143,11 @@ void ImGui_Editor::Update()
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-    float window_width  = MainWindow()->GetWidth();
-    float window_height = MainWindow()->GetHeight();
-    SetNextWindowSize({window_width, window_height}, ImGuiCond_Once);
+    // float window_width  = MainWindow()->GetWidth();
+    // float window_height = MainWindow()->GetHeight();
+    // SetNextWindowSize({window_width, window_height}, ImGuiCond_Once);
     SetNextWindowPos({0, 0}, ImGuiCond_Once);
-    if(Begin("Nostalgia Editor",
-        nullptr/*,
-        ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoBringToFrontOnFocus*/))
+    if(Begin("Nostalgia Editor"))
     {
         if(BeginMenuBar())
         {
@@ -176,9 +171,6 @@ void ImGui_Editor::Update()
             sResizableChildWithBorder,
             ImGuiWindowFlags_NoScrollbar |
                 ImGuiWindowFlags_NoScrollWithMouse);
-            TextF("ImTextureID: {}, Size: [{}, {}]",
-                (ImTextureID)viewport->Framebuffer()->TextureID(),
-                ((ImVec2)viewport->Size()).x, ((ImVec2)viewport->Size()).y);
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
             Image((ImTextureID)viewport->Framebuffer()->TextureID(),
                 (ImVec2)viewport->Size(),

@@ -63,28 +63,33 @@ void Camera3D::Shutdown()
 
 void Camera3D::Ready()
 {
+    static ID debug_camera_mesh_instance{};
     // the debug mesh/material shouldn't override a manually specificed one
     if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
-        ID material_id{g_pTheatreManager->CreateThing({
-            mName + "_DebugMat",
-            ThingType::Material,
-            UID::Generate(),
-            {
-                {true, "FullBright"},
-                {true, "NoTextures"},
-                {glm::vec3{200.0f, 80.0f, 255.0f}, "Color"},
-            }
-        })};
-        mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
-            mName + "_DebugMeshInst",
-            ThingType::MeshInstance,
-            UID::Generate(),
-            {
-                {UID::m_Camera3D, "Mesh"},
-                {material_id, "Material", mName + "_DebugMat"}
-            }
-        });
+        if(debug_camera_mesh_instance.invalid())
+        {
+            ID material_id{g_pTheatreManager->CreateThing({
+                "Camera3D-debug-material",
+                ThingType::Material,
+                UID::Generate(),
+                {
+                    {true, "FullBright"},
+                    {true, "NoTextures"},
+                    {glm::vec3{200.0f, 80.0f, 255.0f}, "Color"},
+                }
+            })};
+            debug_camera_mesh_instance = g_pTheatreManager->CreateThing({
+                "Camera3D-debug-mesh-instance",
+                ThingType::MeshInstance,
+                UID::Generate(),
+                {
+                    {UID::m_Camera3D, "Mesh"},
+                    {material_id, "Material", "Camera3D-debug-material"}
+                }
+            });
+        }
+        mDebugMeshInstanceID = debug_camera_mesh_instance;
     }
 
     auto viewport{g_pTheatreManager->GetThing<Viewport>(mViewportID)};
@@ -94,7 +99,7 @@ void Camera3D::Ready()
 }
 
 bool Camera3D::Wireframe() const
-{ return true; }
+{ return mWireframe; }
 
 bool Camera3D::Current(bool isCurrent)
 {

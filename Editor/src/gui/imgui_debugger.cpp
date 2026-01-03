@@ -514,33 +514,23 @@ struct thing_data_buffer
     thing_data_buffer() noexcept = default;
     thing_data_buffer(Shared<Thing> inThingPtr) noexcept:
         ptr{inThingPtr},
-        name{ptr->name()},
-        id{ptr->uid()[]},
+        id{inThingPtr->uid()[]},
+        name{inThingPtr->name()},
         activate_collider_on_reset{false}
     {
         if(auto actor{DCast<Actor>(ptr)})
         {
-            // collider_id = actor->ColliderID()[];
-            // mesh_instance_id = actor->MeshInstanceID()[];
             visible = actor->Visible();
             wireframe = actor->Wireframe();
-        }
-        else if(auto mesh_instance{DCast<MeshInstance>(ptr)})
-        {
-            mesh_id = mesh_instance->MeshID()[];
-            material_id = mesh_instance->MaterialID()[];
-        }
-        else if(auto material{DCast<Material>(ptr)})
-        {
-            texture1_id = material->DiffuseTextureID()[];
-            texture2_id = material->SpecularTextureID()[];
+            debug_mesh_instance = actor->DebugMeshInstance()[];
+
         }
         else if(auto collider{DCast<Collider>(ptr)})
         {
             motion = static_cast<int>(collider->Motion());
             shape  = static_cast<int>(collider->Shape());
         }
-        else if(auto camera3d{DCast<Camera3D>(ptr)})
+        if(auto camera3d{DCast<Camera3D>(ptr)})
         {
             is_camera_current = camera3d->Current();
             fov = camera3d->mFOV;
@@ -549,18 +539,12 @@ struct thing_data_buffer
             env_type = camera3d->mEnvironment.mType;
         }
     }
-
     Shared<Thing> ptr{nullptr};
-    std::string name{"N/A"};
-    uint id{ID::Invalid},
-        collider_id{ID::Invalid},
-        mesh_instance_id{ID::Invalid},
-        mesh_id{ID::Invalid},
-        material_id{ID::Invalid},
-        texture1_id{ID::Invalid},
-        texture2_id{ID::Invalid};
+    uint id{};
+    std::string name{};
     int motion{static_cast<int>(PhysicsBodyMotion::None)},
         shape{static_cast<int>(PhysicsBodyShape::None)};
+    uint debug_mesh_instance{};
     float fov{75.0f},
         view_near{0.001f},
         view_far{1000.0f};
@@ -682,6 +666,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 if(Button("Inspect##1234"))
                     { selected = thing_data_buffer{parent}; }
             }
+            if(Button(std::format("Destroy {}", selected.ptr->name()).data())
+                and g_pTheatreManager->DestroyThing(selected.ptr->uid()))
+                { EndChild(); End(); selected = {}; return; }
             SeparatorText("Properties");
             if(UID::IsReserved(selected.id))
             {
@@ -728,10 +715,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             // ACTORS
             if(auto actor{DCast<Actor>(selected.ptr)})
             {
-                if(Button(std::format("Destroy {}", actor->c_name()).data())
-                    and g_pTheatreManager->DestroyThing(actor->uid()))
-                    { EndChild(); End(); selected = thing_data_buffer{}; return; }
-                else if(auto light{DCast<light_t>(actor)})
+                if(auto light{DCast<light_t>(actor)})
                 {
                     Checkbox("Enabled", &light->mEnabled);
                     ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
@@ -876,49 +860,48 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
             }
             // CHILDREN
-            if(CollapsingHeader("Children", ImGuiTreeNodeFlags_DefaultOpen))
+            if(auto actor{DCast<Actor>(selected.ptr)})
             {
-                auto children{selected.ptr->children()};
-                if(auto actor{DCast<Actor>(selected.ptr)};
-                    actor
-                    and Settings::Engine::IsEditorHint
-                    and !actor->DebugMeshInstance().invalid()) { children.push_back(actor->DebugMeshInstance()); }
+                SeparatorText("Debug MeshInstance");
+                if(InputUInt("UID##1", &selected.debug_mesh_instance, 0, 0))
+                    { actor->DebugMeshInstance(selected.debug_mesh_instance); }
+            }
+            SeparatorText("Children");
+            auto children{selected.ptr->children()};
+            if(Button("+"))
+            {
+                selected.ptr->add_child({mNewChildUID, (bool)(1 - mNewChildUnique)});
+                selected = {selected.ptr};
+                mNewChildUID = 0;
+                mNewChildUnique = 1;
+                EndChild(); End();
+                return;
+            }
+            SameLine();
+            Combo("Unique", &mNewChildUnique, unique_combo);
+            SameLine();
+            InputUInt("UID##2", &mNewChildUID, 0, 0);
 
-                if(Button("+"))
+            int i{0};
+            for(auto child : children)
+            {
+                auto thing{g_pTheatreManager->GetThing(child.id)};
+                if(thing->uid().invalid())
+                    { TextF("[Invalid Child UID]##{}", ++i); }
+                else
                 {
-                    selected.ptr->add_child({mNewChildUID, (bool)(1 - mNewChildUnique)});
-                    selected = {selected.ptr};
-                    mNewChildUID = 0;
-                    mNewChildUnique = 1;
-                    EndChild(); End();
-                    return;
-                }
-                SameLine();
-                Combo("Unique", &mNewChildUnique, unique_combo);
-                SameLine();
-                InputUInt("UID##1", &mNewChildUID, 0, 0);
-
-                int i{0};
-                for(auto child : children)
-                {
-                    auto thing{g_pTheatreManager->GetThing(child.id)};
-                    if(thing->uid().invalid())
-                        { TextF("[Invalid Child UID]##{}", ++i); }
-                    else
-                    {
-                        PushID(++i + thing->uid()[]);
-                        if(Button("-"))
-                            { selected.ptr->remove_child(child); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
-                        SameLine();
-                        TextF("<{}> {} [{}]",
-                            thing->type().name(),
-                            thing->name(),
-                            thing->uid()[]);
-                        SameLine();
-                        if(Button("Inspect"))
-                            { selected = thing_data_buffer{thing}; }
-                        PopID();
-                    }
+                    PushID(++i + thing->uid()[]);
+                    if(Button("-"))
+                        { selected.ptr->remove_child(child); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
+                    SameLine();
+                    TextF("<{}> {} [{}]",
+                        thing->type().name(),
+                        thing->name(),
+                        thing->uid()[]);
+                    SameLine();
+                    if(Button("Inspect"))
+                        { selected = thing_data_buffer{thing}; }
+                    PopID();
                 }
             }
             EndChild();
