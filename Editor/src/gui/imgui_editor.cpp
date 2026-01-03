@@ -19,7 +19,7 @@ using namespace ImGui;
 static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
-bool gShowDebugWindow{true};
+bool gShowDebugWindow{false};
 
 static bool sShowDemoWindow{false};
 static void s_ThingAdder();
