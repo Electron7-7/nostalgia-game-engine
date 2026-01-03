@@ -52,11 +52,13 @@ Things
         // This is a "Sandwich" variable, which is just a way of defining a Thing inside of another Thing. It's used to help keep
         // things looking cleaner (as well as keep smaller Things grouped more nicely). The syntax for a Sandwich is simply the
         // variable name, a colon instead of an equals sign, followed by a typical Thing definition
-        MeshInstance : MeshInstance RamielMeshInstance
+        UniqueChild : MeshInstance RamielMeshInstance
         {
             Mesh = <RamielModel>
             Material = <RamielMaterial>
         }
+        Child = <DoomCubeMeshInstance>
+        Child = <LolBitTexture>
         Scale = [120, 120, 120]
         Origin = [-30, 18.152, -215] // An example of various number types working together!
         Visible = [true]
@@ -96,8 +98,8 @@ Things
 
     Actor Floor
     {
-        Collider = <FloorCollider>
-        MeshInstance : MeshInstance FloorMesh
+        Child = <FloorCollider>
+        Child : MeshInstance FloorMesh
         {
             Mesh = <DefaultCube>
             Material = <RedMaterial>
@@ -115,21 +117,21 @@ Things
 
     Actor DoomCube
     {
-        MeshInstance = <DoomCubeMeshInstance>
-        Collider = <DoomCollider>
+        Child = <DoomCubeMeshInstance>
+        Child = <DoomCollider>
         Visible = [true]
     }
 
     Actor LolBitCube
     {
-        MeshInstance = <LolBitCubeMeshInstance>
+        Child = <LolBitCubeMeshInstance>
         Origin = [-0.25, 2, -3.5]
         RotationDegrees = [25, 0, 1]
     }
 
     Actor RedCube
     {
-        MeshInstance : MeshInstance RedCubeMeshInstance
+        Child : MeshInstance RedCubeMeshInstance
         {
             Mesh = <DefaultCube>
             Material = <RedMaterial>
@@ -142,7 +144,7 @@ Things
 
     Actor IcoSphereActor
     {
-        MeshInstance : MeshInstance IcoSphereMeshInstance
+        Child : MeshInstance IcoSphereMeshInstance
         {
             Mesh = <IcoSphere>
             Material = <StupidMaterial>
