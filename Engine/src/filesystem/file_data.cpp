@@ -19,8 +19,8 @@ sReservedFileData{
     {UID::t_COMP04_5,   MakeShared<FileData>(Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG)},
     {UID::t_ShittySkybox,   MakeShared<FileData>(Images::SkyboxXn,   std::size(Images::SkyboxXn),   FileType::image_PNG)},
     {UID::t_ShittySkybox[]+1, MakeShared<FileData>(Images::SkyboxXp,   std::size(Images::SkyboxXp),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+2, MakeShared<FileData>(Images::SkyboxYn,   std::size(Images::SkyboxYn),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+3, MakeShared<FileData>(Images::SkyboxYp,   std::size(Images::SkyboxYp),   FileType::image_PNG)},
+    {UID::t_ShittySkybox[]+2, MakeShared<FileData>(Images::SkyboxYp,   std::size(Images::SkyboxYp),   FileType::image_PNG)},
+    {UID::t_ShittySkybox[]+3, MakeShared<FileData>(Images::SkyboxYn,   std::size(Images::SkyboxYn),   FileType::image_PNG)},
     {UID::t_ShittySkybox[]+4, MakeShared<FileData>(Images::SkyboxZn,   std::size(Images::SkyboxZn),   FileType::image_PNG)},
     {UID::t_ShittySkybox[]+5, MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)},
 };
