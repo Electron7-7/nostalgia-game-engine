@@ -180,4 +180,10 @@ Things
         RotationDegrees = [180, 100, -25]
         Energy = [0.6]
     }
+
+    Camera3D test_camera
+    {
+        Origin  = [-1, 1, 2]
+        Current = [false]
+    }
 }
