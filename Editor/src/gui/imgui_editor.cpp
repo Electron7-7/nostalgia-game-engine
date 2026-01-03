@@ -105,7 +105,7 @@ void ImGui_Editor::Input(InputEvent* event)
         }
         return;
     }
-    else if(event->IsJustPressed(Key::A) and event->IsModifierActive(Key::Mod_Control))
+    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift))
     {
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
