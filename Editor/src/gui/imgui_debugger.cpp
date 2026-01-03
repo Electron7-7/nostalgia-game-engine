@@ -545,6 +545,7 @@ struct thing_data_buffer
             fov = camera3d->mFOV;
             view_near = camera3d->mViewCutoffNear;
             view_far = camera3d->mViewCutoffFar;
+            env_type = camera3d->mEnvironment.mType;
         }
     }
 
@@ -566,6 +567,7 @@ struct thing_data_buffer
         wireframe{false},
         activate_collider_on_reset{false},
         is_camera_current{false};
+    Environment::BackgroundType env_type{Environment::BackgroundType::BG_CLEAR_COLOR};
 };
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
@@ -804,6 +806,29 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { camera3d->mViewCutoffNear = selected.view_near; }
                     if(DragFloat("View Cutoff Far", &selected.view_far, 1.0f, 0.001f, 100000.0f))
                         { camera3d->mViewCutoffFar = selected.view_far; }
+
+                    static const std::map<Environment::BackgroundType, const char*>
+                        bg_type{
+                            { Environment::BG_SKYBOX, "SkyBox"},
+                            { Environment::BG_CLEAR_COLOR, "Clear Color"},
+                            { Environment::BG_CUSTOM_COLOR, "Custom Color"},
+                        };
+                    Environment::BackgroundType current_type{camera3d->mEnvironment.mType};
+                    if(BeginCombo("Viewport", bg_type.at(current_type)))
+                    {
+                        for(FAUTO [bg, name] : bg_type)
+                        {
+                            const bool is_selected{bg == current_type};
+                            if(Selectable(name))
+                            {
+                                camera3d->mEnvironment.mType = bg;
+                                selected = thing_data_buffer{camera3d};
+                            }
+                            if(is_selected)
+                                { SetItemDefaultFocus(); }
+                        }
+                        EndCombo();
+                    }
                 }
             }
             // DEVICES
