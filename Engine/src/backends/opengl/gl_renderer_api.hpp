@@ -30,6 +30,7 @@ public:
     Error RemoveShader(ID) final;
 
     void DrawIndexed(Shared<VertexArray>, uint) final;
+    void DrawSkybox(Shared<VertexArray>) final;
     void Clear() final;
 
 private:

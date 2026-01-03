@@ -65,7 +65,7 @@ private:
     things_t::iterator DestroyThing(things_t::iterator);
     uint CreateThingNoReady(Farg<ThingData>);
     void CreateEmbeddedResources();
-    void DrawActor(Shared<Actor>, Shared<Viewport>);
+    void DrawActor(Shared<Actor>, Shared<Camera3D>);
 };
 
 extern bool gPrintLoadedTheatreData;

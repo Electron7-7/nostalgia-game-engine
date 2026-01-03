@@ -47,6 +47,7 @@ public:
     virtual Error RemoveShader(ID inID) = 0;
 
     virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0) = 0;
+    virtual void DrawSkybox(Shared<VertexArray>) = 0;
     virtual void Clear() = 0;
 
 private:

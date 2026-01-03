@@ -172,6 +172,19 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount
         nullptr);
 }
 
+void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
+{
+    // glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+    inVAO->Bind();
+    inVAO->GetIndexBuffer()->Bind();
+    glDrawElements(GL_TRIANGLES,
+        inVAO->GetIndexBuffer()->GetCount(),
+        GL_UNSIGNED_INT,
+        nullptr);
+    inVAO->Unbind();
+    glDepthMask(GL_TRUE);
+    // glDepthFunc(GL_LESS);
 }
 
 //----------------------------------------------------------------------------------

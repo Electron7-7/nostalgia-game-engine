@@ -39,7 +39,8 @@ void TheatreManager::CreateEmbeddedResources()
     CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::t_LolBit});
     CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::t_LightDebug});
     CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::t_COMP04_5});
-    CreateThingNoReady({"Shitty SkyBox",       ThingType::Texture, UID::t_ShittySkybox});
+    CreateThingNoReady({"Shitty SkyBox",       ThingType::Texture, UID::t_ShittySkybox,
+        {{TextureType::TEXTURE_TYPE_CUBE, "Type"}}});
 }
 
 bool TheatreManager::Init()
@@ -102,11 +103,34 @@ void TheatreManager::DrawTheatre()
     }
     for(ID viewport_id : mViewportIDs)
     {
+        auto viewport{GetThing<Viewport>(viewport_id)};
+        auto framebuffer{viewport->Framebuffer()};
+        auto camera{GetThing<Camera3D>(viewport->CurrentCamera())};
+        FAUTO renderer_api{g_pRenderManager->GetAPI()};
+        framebuffer->Bind();
+        renderer_api->SetViewport({0, 0}, viewport->Size());
+        switch(camera->mEnvironment.mType)
+        {
+        case Environment::BG_SKYBOX:
+            renderer_api->SetWireframe(false);
+            renderer_api->BindTexture(
+                g_pTheatreManager->GetThing<Texture>(camera->mEnvironment.mSkyboxTextureID)->GetBuffer(),
+                0);
+            renderer_api->GetShader(Shaders::SkyBox)->Bind();
+            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{camera->ViewMatrix()}});
+            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", camera->ProjectionMatrix());
+            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
+            renderer_api->DrawSkybox(g_pTheatreManager->GetThing<Mesh>(UID::m_Cube)->MeshData());
+            break;
+        default:
+            break;
+        }
         for(auto& [id, thing] : mThings)
         {
             if(auto actor{DCast<Actor>(thing)}; actor and actor->Visible())
-                { DrawActor(actor, GetThing<Viewport>(viewport_id)); }
+                { DrawActor(actor, camera); }
         }
+        framebuffer->Unbind();
     }
 }
 
@@ -121,16 +145,14 @@ void TheatreManager::ClearViewports()
     }
 }
 
-void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Viewport> viewport)
+void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
 
-    auto camera{GetThing<Camera3D>(viewport->CurrentCamera())};
     if(!camera->mRenderLayers.contains(actor->mRenderLayers)
         or !camera->Current() or actor->uid() == camera->uid())
         { return; }
 
-    auto framebuffer{viewport->Framebuffer()};
     auto mesh_instance{GetThing<MeshInstance>(actor->MeshInstanceID())};
     auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
     auto material{GetThing<Material>(mesh_instance->MaterialID())};
@@ -140,21 +162,19 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Viewport> viewport)
     if(!mesh or !mesh->MeshData() or mesh->Status() != OK)
         { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
 
-    renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
-    renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
-    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
-    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
-
-    glm::mat4 projection_matrix{camera->ProjectionMatrix()};
-    glm::mat4 view_matrix{camera->ViewMatrix()};
-
     // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
     glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
     glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
     glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
     glm::mat4 model_matrix {transMat * rotMat * scaleMat};
+    glm::mat4 projection_matrix{camera->ProjectionMatrix()};
+    glm::mat4 view_matrix{camera->ViewMatrix()};
 
-    shader->Bind();
+    renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
+    renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
+    renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
+    renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
+
     shader->SetUniform("model_matrix", model_matrix);
     shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
     shader->SetUniform("projection_matrix", projection_matrix);
@@ -173,11 +193,9 @@ void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Viewport> viewport)
     shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
     shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
 
-    framebuffer->Bind();
-    renderer_api->SetViewport({0, 0}, viewport->Size());
+    shader->Bind();
     renderer_api->DrawIndexed(mesh->MeshData());
     renderer_api->SetFramebufferSRGB(false);
-    framebuffer->Unbind();
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
