@@ -52,7 +52,7 @@ Things
         // This is a "Sandwich" variable, which is just a way of defining a Thing inside of another Thing. It's used to help keep
         // things looking cleaner (as well as keep smaller Things grouped more nicely). The syntax for a Sandwich is simply the
         // variable name, a colon instead of an equals sign, followed by a typical Thing definition
-        UniqueChild : MeshInstance RamielMeshInstance
+        Child : MeshInstance RamielMeshInstance
         {
             Mesh = <RamielModel>
             Material = <RamielMaterial>
