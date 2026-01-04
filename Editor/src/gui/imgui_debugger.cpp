@@ -16,10 +16,10 @@
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
 #include "things/actors/light.hpp"
-#include "things/actors/camera_3d.hpp"
+#include "things/actors/camera.hpp"
 #include "things/devices/viewport.hpp"
-#include "things/devices/mesh_instance.hpp"
 #include "things/devices/material.hpp"
+#include "things/devices/mesh_instance.hpp"
 #include "things/devices/collider.hpp"
 #include "things/resources/resource.hpp"
 #include "theatre/parser/theatre_data.hpp"
@@ -518,33 +518,49 @@ struct thing_data_buffer
         name{inThingPtr->name()},
         activate_collider_on_reset{false}
     {
-        if(auto actor{DCast<Actor>(ptr)})
+        if(auto actor{DCast<Actor3D>(ptr)})
         {
             visible = actor->Visible();
             wireframe = actor->Wireframe();
             debug_mesh_instance = actor->DebugMeshInstance()[];
-
+            if(auto camera3d{DCast<Camera3D>(ptr)})
+            {
+                is_camera_current = camera3d->Current();
+                fov = camera3d->mFOV;
+                view_near = camera3d->mViewCutoffNear;
+                view_far = camera3d->mViewCutoffFar;
+                env_type = camera3d->mEnvironment.mType;
+            }
         }
-        else if(auto collider{DCast<Collider>(ptr)})
+        else if(auto device{DCast<Device>(ptr)})
         {
-            motion = static_cast<int>(collider->Motion());
-            shape  = static_cast<int>(collider->Shape());
-        }
-        if(auto camera3d{DCast<Camera3D>(ptr)})
-        {
-            is_camera_current = camera3d->Current();
-            fov = camera3d->mFOV;
-            view_near = camera3d->mViewCutoffNear;
-            view_far = camera3d->mViewCutoffFar;
-            env_type = camera3d->mEnvironment.mType;
+            if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
+            {
+                mesh = mesh_instance->MeshID()[];
+                material = mesh_instance->MaterialID()[];
+            }
+            else if(auto material{DCast<Material>(ptr)})
+            {
+                diffuseTexture  = material->DiffuseTextureID()[];
+                specularTexture = material->SpecularTextureID()[];
+            }
+            else if(auto collider{DCast<Collider>(ptr)})
+            {
+                motion = static_cast<int>(collider->Motion());
+                shape  = static_cast<int>(collider->Shape());
+            }
         }
     }
     Shared<Thing> ptr{nullptr};
     uint id{};
     std::string name{};
+    uint mesh{},
+        material{},
+        diffuseTexture{},
+        specularTexture{},
+        debug_mesh_instance{};
     int motion{static_cast<int>(PhysicsBodyMotion::None)},
         shape{static_cast<int>(PhysicsBodyShape::None)};
-    uint debug_mesh_instance{};
     float fov{75.0f},
         view_near{0.001f},
         view_far{1000.0f};
@@ -580,7 +596,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             {
                 InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
                 ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
-                ColorEdit3("Actor Color",    actor_button_color,    ImGuiColorEditFlags_Float);
+                ColorEdit3("Actor3D Color",    actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Device Color",   device_button_color,   ImGuiColorEditFlags_Float);
                 ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
@@ -592,11 +608,11 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             {
                 BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
                 auto uids{g_pTheatreManager->GetThingIDs()};
-                int i{0}, j{0};
+                int item_counter{0}, name_counter{0};
                 for(ID uid : uids)
                 {
                     auto thing{g_pTheatreManager->GetThing(uid)};
-                    auto actor{DCast<Actor>(thing)};
+                    auto actor{DCast<Actor3D>(thing)};
                     ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
                     ImGuiCol push_color_where{ImGuiCol_Button};
                     std::string type_symbol{"(T) "};
@@ -639,15 +655,17 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     else { push_color_where = ImGuiCol_TextDisabled; } // Basically "don't use"
                     std::string button_name{std::format("{}{}",
                         (show_type_on_button) ? type_symbol : "",
-                        (thing->name().empty()) ? std::format("N/A##{}", ++j) : thing->name())};
+                        (thing->name().empty()) ? "N/A" : thing->name())};
                     PushStyleColor(push_color_where, push_color);
+                    PushID(++name_counter);
                     if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
                         { selected = thing_data_buffer{thing}; mNewChildUID = 0; mNewChildUnique = 1; }
+                    PopID();
                     if(actor)
                         { actor->mDebugHighlight.a = IsItemHovered(); }
                     PopStyleColor();
-                    if(++i < sMaxPerRow) { SameLine(); }
-                    else { i = 0; }
+                    if(++item_counter < sMaxPerRow) { SameLine(); }
+                    else { item_counter = 0; }
                 }
                 EndChild();
             }
@@ -655,16 +673,29 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 { End(); return; }
             // THINGS
             BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
-            if(!selected.ptr->parent().invalid())
+            int parent_counter{0};
+            for(FAUTO parent : selected.ptr->parents())
             {
-                auto parent{g_pTheatreManager->GetThing(selected.ptr->parent())};
-                TextF("Parent: <{}> {} [{}]",
-                    parent->type().name(),
-                    parent->name(),
-                    parent->uid()[]);
-                SameLine();
-                if(Button("Inspect##1234"))
-                    { selected = thing_data_buffer{parent}; }
+                PushID(++parent_counter);
+                if(auto parent_ptr{g_pTheatreManager->GetThing(parent.id)};
+                    !parent.id.invalid() and !parent_ptr->uid().invalid())
+                {
+                    TextF("Parent: <{}> {} [{}]",
+                        parent_ptr->type().name(),
+                        parent_ptr->name(),
+                        parent_ptr->uid()[]);
+                    SameLine();
+                    if(Button("Inspect"))
+                        { selected = thing_data_buffer{parent_ptr}; }
+                }
+                else
+                {
+                    TextF("Invalid Parent");
+                    SameLine();
+                    if(Button("Remove"))
+                        { selected.ptr->remove_parent(parent); }
+                }
+                PopID();
             }
             if(Button(std::format("Destroy {}", selected.ptr->name()).data())
                 and g_pTheatreManager->DestroyThing(selected.ptr->uid()))
@@ -692,7 +723,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     std::string reason{"N/A"};
                     if(id_change_status == ERR_NOT_FOUND)
-                        { reason = std::format("No Actor found with UID#{}", selected.ptr->uid()[]); }
+                        { reason = std::format("No Actor3D found with UID#{}", selected.ptr->uid()[]); }
                     else if(id_change_status == ERR_ALREADY_EXISTS)
                     {
                         if(UID::IsReserved(selected.id))
@@ -712,8 +743,21 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             }
             if(selected.ptr)
                 { Text("Type - %s", selected.ptr->type().c_name()); }
+            // TRANSFORM 3D
+            if(auto transform3d{DCast<Transform3D>(selected.ptr)})
+            {
+                glm::vec3 Origin{transform3d->Origin()};
+                if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
+                    { transform3d->Origin(Origin); }
+                glm::vec3 Euler{transform3d->Euler(true)};
+                if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                    { transform3d->Euler(Euler, true); }
+                glm::vec3 Scale{transform3d->Scale()};
+                if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
+                    { transform3d->Scale(Scale); }
+            }
             // ACTORS
-            if(auto actor{DCast<Actor>(selected.ptr)})
+            if(auto actor{DCast<Actor3D>(selected.ptr)})
             {
                 if(auto light{DCast<light_t>(actor)})
                 {
@@ -738,15 +782,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 if(IsItemHovered())
                     { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                 ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-                glm::vec3 Origin{actor->Origin()};
-                if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
-                    { actor->SetOrigin(Origin); }
-                glm::vec3 Euler{actor->Euler(true)};
-                if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                    { actor->SetEuler(Euler, true); }
-                glm::vec3 Scale{actor->Scale()};
-                if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
-                    { actor->SetScale(Scale); }
                 if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                 {
                     auto cur_vp{g_pTheatreManager->GetThing(camera3d->ViewportID())};
@@ -846,8 +881,20 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     SameLine();
                     Checkbox("Activate on Reset", &selected.activate_collider_on_reset);
                 }
+                else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
+                {
+                    if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
+                        { mesh_instance->MeshID(selected.mesh); }
+                    if(InputUInt("Material UID", &selected.material, 0, 0))
+                        { mesh_instance->MaterialID(selected.material); }
+                }
                 else if(auto material{DCast<Material>(selected.ptr)})
                 {
+                    if(InputUInt("Diffuse Texture UID", &selected.diffuseTexture, 0, 0))
+                        { material->DiffuseTextureID(selected.diffuseTexture); }
+                    if(InputUInt("Specular Texture UID", &selected.specularTexture, 0, 0))
+                        { material->SpecularTextureID(selected.specularTexture); }
+
                     Checkbox("Don't Use Textures", &material->mDontUseTexture);
                     Checkbox("Ignore Lighting", &material->mFullBright);
                     ColorEditGLMv3("Diffuse Color",
@@ -860,9 +907,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
             }
             // CHILDREN
-            if(auto actor{DCast<Actor>(selected.ptr)})
+            if(auto actor{DCast<Actor3D>(selected.ptr)})
             {
-                SeparatorText("Debug MeshInstance");
+                SeparatorText("Debug MeshInstance3D");
                 if(InputUInt("UID##1", &selected.debug_mesh_instance, 0, 0))
                     { actor->DebugMeshInstance(selected.debug_mesh_instance); }
             }
@@ -870,7 +917,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             auto children{selected.ptr->children()};
             if(Button("+"))
             {
-                selected.ptr->add_child({mNewChildUID, (bool)(1 - mNewChildUnique)});
+                selected.ptr->add_child({mNewChildUID, g_pTheatreManager->GetThing(mNewChildUID)->type()});
                 selected = {selected.ptr};
                 mNewChildUID = 0;
                 mNewChildUnique = 1;
@@ -882,15 +929,15 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             SameLine();
             InputUInt("UID##2", &mNewChildUID, 0, 0);
 
-            int i{0};
+            uint j{0};
             for(auto child : children)
             {
                 auto thing{g_pTheatreManager->GetThing(child.id)};
                 if(thing->uid().invalid())
-                    { TextF("[Invalid Child UID]##{}", ++i); }
+                    { TextF("[Invalid Child UID]##{}", ++j); }
                 else
                 {
-                    PushID(++i + thing->uid()[]);
+                    PushID(++j + thing->uid()[]);
                     if(Button("-"))
                         { selected.ptr->remove_child(child); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
                     SameLine();

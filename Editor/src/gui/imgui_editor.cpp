@@ -9,7 +9,7 @@
 #include "rendering/renderer_api.hpp"
 #include "things/devices/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "things/actors/camera_3d.hpp"
+#include "things/actors/camera.hpp"
 #include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
@@ -60,13 +60,13 @@ void ImGui_Editor::TheatreEntered()
     });
     sSpawnLocationMeshInstanceID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation_MeshInstance",
-        ThingType::MeshInstance,
+        ThingType::MeshInstance3D,
         UID::Generate(),
         {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
     });
     sSpawnLocationID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation",
-        ThingType::Actor,
+        ThingType::Actor3D,
         UID::Generate(),
         {{sSpawnLocationMeshInstanceID, "DebugMeshInstance"}, {glm::vec3{1.0f}, "Scale"}, {true, "Wireframe"}}
     });
@@ -132,21 +132,17 @@ void ImGui_Editor::Update()
         ImGuiChildFlags_ResizeX};
     if(!sSpawnLocationID.invalid())
     {
-        auto thingy = g_pTheatreManager->GetThing<Actor>(sSpawnLocationID);
+        auto thingy = g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID);
         if(thingy->Scale().y > sSpawnLocationScaleMax)
             { sScaleDirection = SCALE_DIRECTION_DOWN; }
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
             { sScaleDirection = SCALE_DIRECTION_UP; }
         sSpawnLocationScaleSpeed = (int)sScaleDirection * sSpawnLocationScaleSpeedStore;
-        thingy->SetEuler(thingy->Euler(true) + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f}, true);
-        thingy->SetScale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
+        thingy->Euler(thingy->Euler(true) + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f}, true);
+        thingy->Scale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
-    // float window_width  = MainWindow()->GetWidth();
-    // float window_height = MainWindow()->GetHeight();
-    // SetNextWindowSize({window_width, window_height}, ImGuiCond_Once);
-    SetNextWindowPos({0, 0}, ImGuiCond_Once);
     if(Begin("Nostalgia Editor"))
     {
         if(BeginMenuBar())
@@ -188,11 +184,11 @@ void ImGui_Editor::Update()
             {
                 auto camera{g_pTheatreManager->GetThing<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
-                camera->SetEuler(camera->Euler(true) - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}), true);
+                camera->Euler(camera->Euler(true) - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}), true);
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
                     InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
-                camera->SetOrigin(camera->Origin() + (0.1f * ((camera->Front() * movement_direction[1]) + (camera->Right() * movement_direction[0]))));
+                camera->Origin(camera->Origin() + (0.1f * ((camera->Front() * movement_direction[1]) + (camera->Right() * movement_direction[0]))));
             }
         }
         if(InputManager::IsKeyUp(Key::MouseLeft)
@@ -206,26 +202,17 @@ void ImGui_Editor::Update()
     End();
 }
 
-static std::string s_GetComboString(std::string* inArray, int inSize)
-{
-    std::string output{};
-    for(int i{0}; i < inSize; ++i)
-        { output += inArray[i] + '\0'; }
-    return output;
-}
-
 void s_ThingAdder()
 {
-    static ThingData sThingData{};
-    static std::string sNewThingName{""};
-    static ID sNewThingID{ThingType::Thing};
+    static std::string sNewThingName{};
     static std::string sNameBuffer{};
     static glm::vec3 sSpawnLocation{0.0f};
-    static int sCurrentType{0};
-    static std::string sTypeNames[]
+    static int sSelectedType{0};
+    static std::vector<const char*> sTypeNames
     {
         ThingType::Thing.c_name(),
-        ThingType::Actor.c_name(),
+        ThingType::Actor3D.c_name(),
+        ThingType::Actor2D.c_name(),
         ThingType::Camera3D.c_name(),
         ThingType::PointLight.c_name(),
         ThingType::SpotLight.c_name(),
@@ -233,7 +220,7 @@ void s_ThingAdder()
         ThingType::Device.c_name(),
         ThingType::Collider.c_name(),
         ThingType::Material.c_name(),
-        ThingType::MeshInstance.c_name(),
+        ThingType::MeshInstance3D.c_name(),
         ThingType::Resource.c_name(),
         ThingType::Texture.c_name(),
         ThingType::Mesh.c_name(),
@@ -248,23 +235,34 @@ void s_ThingAdder()
     }
     SeparatorText("Thing Spawner");
     InputTextWithHint("Name", "UntitledThing", &sNameBuffer);
-    Combo("Type", &sCurrentType, s_GetComboString(sTypeNames, 9).data());
+    if(BeginCombo("Type", sTypeNames[sSelectedType], ImGuiComboFlags_WidthFitPreview))
+    {
+        for(uint i{0}; i < sTypeNames.size(); ++i)
+        {
+            const bool is_selected{sSelectedType == i};
+            if(Selectable(sTypeNames[i], is_selected))
+                { sSelectedType = i; }
+            if(is_selected)
+                { SetItemDefaultFocus(); }
+        }
+        EndCombo();
+    }
     if(DragGLMv3("Spawn Location", &sSpawnLocation, 0.01f, 0.0f, 0.0f, "%.2f"))
-        { g_pTheatreManager->GetThing<Actor>(sSpawnLocationID)->SetOrigin(sSpawnLocation); }
+        { g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Origin(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
-        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor>(sSpawnLocationID)->SetOrigin(sSpawnLocation); }
+        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Origin(sSpawnLocation); }
     if(Button("Spawn Thing"))
     {
         sNewThingName = sNameBuffer;
-        sThingData = {sNewThingName, sTypeNames[sCurrentType], UID::Generate()};
-        sThingData.AddVariable(sSpawnLocation, "Origin");
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
-        g_pTheatreManager->CreateThing(sThingData);
-        sNewThingID = ThingType::Thing;
+        g_pTheatreManager->CreateThing({(sNewThingName.empty()) ? "New Thing" : sNewThingName,
+            sTypeNames[sSelectedType],
+            UID::Generate(),
+            { {sSpawnLocation, "Origin"} }
+        });
         sNewThingName.clear();
         sNameBuffer.clear();
-        sThingData.clear();
     }
 
     EndChild();
