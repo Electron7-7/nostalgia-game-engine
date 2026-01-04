@@ -58,7 +58,8 @@ void TheatreData::SetupUIDsAndPriorities()
     {
         if(data.uid.invalid())
             { data.uid = UID::Generate(); }
-        g_pVariableRegistry->RegisterID(data.name, data.uid[]);
+        if(!g_pVariableRegistry->RegisterID(data.name, data.uid[]))
+            { print_warning("Duplicate Thing name found: {}", data.name); }
     }
     for(ThingData& data : things_data)
     {
