@@ -7,9 +7,6 @@ class ThingFactory;
 struct TTID;
 
 class Thing;
-struct ThingChild;
-using children_t = std::vector<ThingChild>;
-
 class Thinker;
 
 ////////////
@@ -43,5 +40,7 @@ class Resource;
 class Mesh;
 class Texture;
 class Font;
+
+using relatives_t = std::vector<ThingRelative>;
 
 #endif // THINGS_FWD_H

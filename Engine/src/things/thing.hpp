@@ -10,17 +10,17 @@
 #include "components/event_handling.hpp"
 #include <vector>
 
-struct ThingChild
+struct ThingRelative
 {
-    ThingChild() = default;
-    ThingChild(ID inID, bool isUnique = false):
-        id{inID}, is_unique{isUnique} {}
+    ThingRelative() = default;
+    ThingRelative(ID inID, Farg<TTID> inType):
+        id{inID}, type{inType} {}
     ID id{};
-    bool is_unique{false};
-    constexpr bool operator==(Farg<ThingChild> other) const noexcept
-    { return id == other.id and is_unique == other.is_unique; }
+    TTID type{};
+    constexpr bool operator==(Farg<ThingRelative> other) const noexcept
+    { return id == other.id and type == other.type; }
 };
-using children_t = std::vector<ThingChild>;
+using relatives_t = std::vector<ThingRelative>;
 
 class Thing : public OnInput, public OnTick, public OnUpdate
 {
@@ -53,23 +53,25 @@ public:
     const char* const c_name() const;
     Farg<TTID> type() const;
 
-    Farg<children_t> children() const;
-    ID parent() const;
+    relatives_t children() const;
+    relatives_t parents()  const;
 
-    Error add_child(ThingChild);
-    Error remove_child(ThingChild);
-    Error swap_child(ThingChild, ThingChild);
+    Error add_child(ThingRelative);
+    Error remove_child(ThingRelative);
+    Error swap_child(ThingRelative, ThingRelative);
 
-    Error set_parent(ID);
-    Error unset_parent();
+    Error add_parent(ThingRelative);
+    Error remove_parent(ThingRelative);
+    Error swap_parent(ThingRelative, ThingRelative);
 
 protected:
     ID mUID{};
     std::string mName{"Untitled Thing"};
     TTID mType{"Thing"};
     RMutex mChildrenMutex{};
-    ID mParentID{};
-    children_t mChildren{};
+
+    relatives_t mParents{};
+    relatives_t mChildren{};
 };
 
 template<typename T>

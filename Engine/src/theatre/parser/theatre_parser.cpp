@@ -77,6 +77,7 @@ enum class Parsing
     ObjectType,
     ObjectName,
     VariableName,
+    ChildType,
     VariableValue
 };
 
@@ -124,6 +125,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         theatre_index{},
         variable_name{},
         variable_value{},
+        child_type{},
         sandwich_variable_name{};
 
     ThingData temp_data{},
@@ -202,12 +204,22 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             switch(parsing)
             {
             case Parsing::ObjectType:
+                if(!variable_name.compare(cChildVarName))
+                    { child_type = buffer; }
                 temp_data.set_type(buffer);
                 parsing = Parsing::ObjectName;
                 buffer.clear();
                 break;
             case Parsing::VariableName:
+                if(!buffer.compare(cChildVarName))
+                    { parsing = Parsing::ChildType; }
+                else
+                    { parsing = Parsing::VariableValue; }
                 variable_name = buffer;
+                buffer.clear();
+                break;
+            case Parsing::ChildType:
+                child_type = buffer;
                 parsing = Parsing::VariableValue;
                 buffer.clear();
                 break;
@@ -222,6 +234,14 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             }
             continue;
         case assignment_delimiter:
+            if(!variable_name.compare(cChildVarName) and child_type.empty())
+            {
+                print_warningv(VERBOSE0,
+                    "Syntax Error({}:{}): missing Child type (defaulting to 'Thing')",
+                    gLine,
+                    gColumn);
+                child_type = "Thing";
+            }
             parsing = Parsing::VariableValue;
             continue;
         case sandwich_delimiter:
@@ -262,7 +282,10 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
         case exit_enum:
         case exit_reference:
             variable_value = buffer;
-            temp_data.AddVariable(variable_name, variable_value, variable_type);
+            temp_data.AddVariable(variable_name, variable_value, variable_type, child_type);
+            variable_name.clear();
+            variable_value.clear();
+            child_type.clear();
             buffer.clear();
             if(context != Context::Resources)
                 { parsing = Parsing::VariableName; }
@@ -345,8 +368,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
 
                 std::string sandwich_variable_value = temp_data.name;
                 temp_data = temp_data_swap;
-                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::Type::Reference);
-
+                temp_data.AddVariable(sandwich_variable_name, sandwich_variable_value, ThingVar::Type::Reference, child_type);
+                child_type.clear();
                 temp_data_swap.clear();
                 sandwich_variable_name.clear();
                 continue;
@@ -354,6 +377,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
 
             output.AddData(temp_data);
             temp_data.clear();
+            child_type.clear();
             variable_name.clear();
             variable_value.clear();
             continue;

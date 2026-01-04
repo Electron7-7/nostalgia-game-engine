@@ -9,27 +9,26 @@
 #include "things/types.hpp"
 
 constexpr const char* cChildVarName{"Child"};
-constexpr const char* cUniqueChildVarName{"UniqueChild"};
 
 struct ThingData
 {
 public:
     ThingData();
-    ThingData(Farg<std::string> Name, Farg<std::string> TypeName);
-    ThingData(Farg<std::string> Name, Farg<TTID> Type, Farg<std::vector<ThingVar>> Variables = {});
-    ThingData(Farg<std::string> Name, Farg<TTID> Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, Sarg TypeName);
+    ThingData(Sarg Name, Farg<TTID> Type, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, Farg<TTID> Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
 
     ID uid{};
     std::string name{"Untitled Thing"};
     std::vector<ThingVar> variables{};
     std::vector<ThingVar> children{};
 
-    bool RemoveVariable(Farg<std::string> VariableName);
-    ThingVar& AddVariable(Farg<std::string> Name, Farg<std::string> ParsedValue, ThingVar::Type Type);
-    ThingVar& AddVariable(Farg<ThingVar> Value, Farg<std::string> Name);
+    bool RemoveVariable(Sarg VariableName);
+    ThingVar& AddVariable(Sarg Name, Sarg ParsedValue, ThingVar::Type Type, Sarg ParsedChildType = "");
+    ThingVar& AddVariable(Farg<ThingVar> Value, Sarg Name);
 
-    bool GetChildren(children_t& output) const;
-    void SetChildren(Farg<children_t> input);
+    bool GetChildren(relatives_t& output) const;
+    void SetChildren(Farg<relatives_t> input);
 
     template<StringContainer T, StringType... Names>
         bool GetVariable(T& output, Names... names) const
@@ -90,10 +89,10 @@ private:
     TTID type_{ThingType::Thing};
 
     typedef std::vector<ThingVar>::const_iterator VarIter_t;
-    VarIter_t AssertVariable(Farg<std::string> VarName, ThingVar::Type VarType) const;
+    VarIter_t AssertVariable(Sarg VarName, ThingVar::Type VarType) const;
 
-    bool GetBoolean(bool& BooleanOutput, Farg<std::string> VariableName) const;
-    bool GetString(std::string& StringOutput, Farg<std::string> VariableName) const;
+    bool GetBoolean(bool& BooleanOutput, Sarg VariableName) const;
+    bool GetString(std::string& StringOutput, Sarg VariableName) const;
 };
 
 template<>

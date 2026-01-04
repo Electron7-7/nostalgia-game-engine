@@ -20,9 +20,7 @@ ThingData::ThingData(Sarg inName, Farg<TTID> inType, ID inID, Farg<std::vector<T
     variables(inVariables),
     type_{inType}
 {
-    if(type_ == ThingType::NostalgiaPlayer) // ThingData::PlayerDefaultData triggers the error message bc of when it's constructed
-        { return; }
-    else if(!g_pThingFactory->IsThing(type_))
+    if(!g_pThingFactory->IsThing(type_))
         { print_error("'{}' is an invalid type!", type_.name()); }
 }
 
@@ -31,20 +29,20 @@ ThingData::ThingData(Sarg inName, Farg<TTID> inType, Farg<std::vector<ThingVar>>
     variables(inVariables),
     type_{inType} {}
 
-bool ThingData::GetChildren(children_t& output) const
+bool ThingData::GetChildren(relatives_t& output) const
 {
     if(children.empty())
         { return false; }
     for(FAUTO child : children)
-        { output.emplace_back(child.id_or_enum, !child.name.compare(cUniqueChildVarName)); }
+        { output.emplace_back(child.id_or_enum, TTID{child.name}); }
     return true;
 }
 
-void ThingData::SetChildren(Farg<children_t> input)
+void ThingData::SetChildren(Farg<relatives_t> input)
 {
     children.clear();
     for(auto child : input)
-        { children.emplace_back(child.id, (child.is_unique) ? cUniqueChildVarName : cChildVarName); }
+        { children.emplace_back(child.id, child.type.name()); }
 }
 
 bool ThingData::RemoveVariable(Sarg inName)
@@ -63,11 +61,11 @@ ThingVar& ThingData::AddVariable(Farg<ThingVar> inVariable, Sarg inName)
     return variables.back();
 }
 
-ThingVar& ThingData::AddVariable(Sarg inName, Sarg inValue, ThingVar::Type inType)
+ThingVar& ThingData::AddVariable(Sarg inName, Sarg inValue, ThingVar::Type inType, Sarg inChildType)
 {
     if(!inName.compare(cChildVarName))
     {
-        children.emplace_back(ThingVar::Type::Reference, cChildVarName, inValue);
+        children.emplace_back(ThingVar::Type::Reference, inChildType, inValue);
         return children.back();
     }
     RemoveVariable(inName);
