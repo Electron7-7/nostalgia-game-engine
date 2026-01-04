@@ -176,8 +176,9 @@ void ImGui_Editor::Update()
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
         EndChild();
         static bool camera_moving{false};
+        auto player{g_pTheatreManager->GetThing<NostalgiaPlayer>(UID::a_Player)};
         if((IsItemHovered() or camera_moving)
-            and !g_pTheatreManager->GetPlayer()->mCaptureMouse)
+            and !player->mCaptureMouse)
         {
             if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
                 { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
