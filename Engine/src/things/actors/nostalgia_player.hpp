@@ -12,22 +12,21 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    void Move(Farg<glm::vec2> Direction);
-    void Look(Farg<glm::vec2> Position);
-    glm::vec3 ViewPosition() const; // View position is an offset from the player's origin
-    void SetViewPosition(Farg<glm::vec3> ViewPosition);
+    virtual void Move(Farg<glm::vec2> Direction);
+    virtual void Look(Farg<glm::vec2> Position);
+    virtual glm::vec3 ViewPosition() const; // View position is an offset from the player's origin
+    virtual void SetViewPosition(Farg<glm::vec3> ViewPosition);
+    virtual ID CameraID() const;
+    virtual void CameraID(ID);
 
-    bool mCaptureMouse{false};
-    bool mCaptureKeyboard{false};
+    bool mCaptureMouse{false},
+        mCaptureKeyboard{false};
 
-    ID CameraID() const;
-    void CameraID(ID);
-
-private:
-    glm::vec3 mViewPosition{0.0f, 1.5f, 0.0f};
-    glm::vec3 mVelocity{0.0f};
-    glm::vec2 mMovementDirection{0.0f};
-    glm::vec2 mLookWish{0.0f};
+protected:
+    glm::vec3 mViewPosition{0.0f, 1.5f, 0.0f},
+        mVelocity{0.0f};
+    glm::vec2 mMovementDirection{0.0f},
+        mLookWish{0.0f};
     ID mCameraID{};
 };
 
