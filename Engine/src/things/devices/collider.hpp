@@ -3,7 +3,7 @@
 
 #include "fwd/physics.hpp"
 #include "things/devices/device.hpp"
-#include "theatre/transform_3d.hpp"
+#include "theatre/transform.hpp"
 
 enum class PhysicsBodyShape : ushort
 { Box = 0, Sphere = 1, Capsule = 2, Cylinder = 3, None = 4 };

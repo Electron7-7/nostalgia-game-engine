@@ -1,6 +1,7 @@
 #include "actor.hpp"
 #include "managers/theatre_manager.hpp"
 #include "things/devices/collider.hpp"
+#include "things/thing_factory.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void __actor_t::SetVariables(Farg<ThingData> data)
@@ -29,23 +30,18 @@ Shared<ThingData> __actor_t::GetVariables() const
 }
 
 void __actor_t::Ready()
-{
-    Thing::Ready();
-    for(auto child : mChildren)
-    {
-        if(auto collider{g_pTheatreManager->GetThing<Collider>(child.id)}; !collider->BodyIDInvalid())
-            { mScale = collider->Scale(); }
-    }
-}
+{ Thing::Ready(); }
 
 void __actor_t::Tick()
 {
     for(auto child : mChildren)
     {
-        if(auto collider{g_pTheatreManager->GetThing<Collider>(child.id)}; !collider->uid().invalid())
+        if(g_pThingFactory->IsDerivedFrom<Collider>(child.type))
         {
-            SetOrigin(collider->Origin());
-            SetQuaternion(collider->Quaternion());
+            auto collider{DCast<Transform3D>(g_pTheatreManager->GetThing<Collider>(child.id))};
+            Origin(collider->Origin());
+            Scale(collider->Scale());
+            Euler(collider->Euler());
         }
     }
 }

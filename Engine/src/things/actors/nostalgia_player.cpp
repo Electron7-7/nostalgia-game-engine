@@ -59,10 +59,10 @@ void NostalgiaPlayer::Tick()
     mVelocity[1] = 0.0f;
     mOrigin += mVelocity;
     mMovementDirection = glm::vec3(0.0f);
-    SetEuler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
+    Euler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
     auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
-    camera->SetOrigin(mOrigin + mViewPosition);
-    camera->SetQuaternion(mQuaternion);
+    camera->Origin(mOrigin + mViewPosition);
+    camera->Quaternion(mQuaternion);
 }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)

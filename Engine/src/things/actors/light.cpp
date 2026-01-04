@@ -136,7 +136,7 @@ int DirectionalLight::GetCount()
 
 void DirectionalLight::SetVariables(Farg<ThingData> data)
 {
-    SetEuler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
+    Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
     light_t::SetVariables(data);
     mVisible = false;
 }

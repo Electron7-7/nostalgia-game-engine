@@ -3,7 +3,7 @@
 
 #include "rendering/render_layers.hpp"
 #include "things/thing.hpp"
-#include "theatre/transform_3d.hpp"
+#include "theatre/transform.hpp"
 
 class __actor_t : public Thing, public Transform3D
 {
