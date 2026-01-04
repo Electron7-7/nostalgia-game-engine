@@ -27,7 +27,7 @@ bool ThingFactory::Init()
     AddThing( &ThingMakerTemplate<Texture>,               "Texture",               cDefaultPriority - 2 );
     AddThing( &ThingMakerTemplate<Font>,                  "Font",                  cDefaultPriority - 2 );
     AddThing( &ThingMakerTemplate<Material>,              "Material",              cDefaultPriority - 1 );
-    AddThing( &ThingMakerTemplate<MeshInstance>,          "MeshInstance",          cDefaultPriority - 1 );
+    AddThing( &ThingMakerTemplate<MeshInstance3D>,          "MeshInstance3D",          cDefaultPriority - 1 );
     AddThing( &ThingMakerTemplate<NostalgiaPlayer>,       "NostalgiaPlayer",       cDefaultPriority     );
     AddThing( &ThingMakerTemplate<Camera3D>,              "Camera3D",              cDefaultPriority - 2 );
     AddThing( &ThingMakerTemplate<PointLight>,            "PointLight",            cDefaultPriority     );

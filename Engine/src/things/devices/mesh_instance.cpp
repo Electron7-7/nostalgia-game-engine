@@ -2,7 +2,7 @@
 #include "core/uid.hpp"
 #include "theatre/parser/thing_data.hpp"
 
-void MeshInstance::SetVariables(Farg<ThingData> data)
+void __mesh_instance_t::SetVariables(Farg<ThingData> data)
 {
     Device::SetVariables(data);
 
@@ -14,7 +14,7 @@ void MeshInstance::SetVariables(Farg<ThingData> data)
         { mRenderLayers.set(render_layers); }
 }
 
-Shared<ThingData> MeshInstance::GetVariables() const
+Shared<ThingData> __mesh_instance_t::GetVariables() const
 {
     auto data{Device::GetVariables()};
 
@@ -25,18 +25,31 @@ Shared<ThingData> MeshInstance::GetVariables() const
     return data;
 }
 
-ID MeshInstance::MeshID() const
+ID __mesh_instance_t::MeshID() const
 {
     return (mMeshID.invalid())
         ? UID::m_Error
         : mMeshID;
 }
 
-ID MeshInstance::MaterialID() const
+ID __mesh_instance_t::MaterialID() const
 { return mMaterialID; }
 
-void MeshInstance::MeshID(ID inID)
+void __mesh_instance_t::MeshID(ID inID)
 { mMeshID = inID; }
 
-void MeshInstance::MaterialID(ID inID)
+void __mesh_instance_t::MaterialID(ID inID)
 { mMaterialID = inID; }
+
+void MeshInstance3D::SetVariables(Farg<ThingData> data)
+{
+    __mesh_instance_t::SetVariables(data);
+    SetTransformVariables(data);
+}
+
+Shared<ThingData> MeshInstance3D::GetVariables() const
+{
+    auto data{__mesh_instance_t::GetVariables()};
+    GetTransformVariables(data);
+    return data;
+}

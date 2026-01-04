@@ -165,10 +165,11 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
             { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
 
         // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-        glm::mat4 scaleMat     {glm::scale(glm::mat4(1.0f), actor->Scale())};
+        glm::mat4 scaleMat     {glm::scale(glm::mat4{1.0f}, actor->Scale() * mesh_instance->Scale())};
         glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
-        glm::mat4 transMat     {glm::translate(glm::mat4(1.0f), actor->Origin())};
-        glm::mat4 model_matrix {transMat * rotMat * scaleMat};
+        glm::mat4 rotMat2      {glm::mat4_cast(mesh_instance->Quaternion())};
+        glm::mat4 transMat     {glm::translate(glm::mat4{1.0f}, actor->Origin() + mesh_instance->Origin())};
+        glm::mat4 model_matrix {transMat * rotMat * rotMat2 * scaleMat};
         glm::mat4 projection_matrix{camera->ProjectionMatrix()};
         glm::mat4 view_matrix{camera->ViewMatrix()};
 
