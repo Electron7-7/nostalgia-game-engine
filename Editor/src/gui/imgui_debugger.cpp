@@ -693,7 +693,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     TextF("Invalid Parent");
                     SameLine();
                     if(Button("Remove"))
-                        { selected.ptr->remove_parent(parent); }
+                        { selected.ptr->remove_parent(parent, true); }
                 }
                 PopID();
             }
@@ -917,7 +917,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             auto children{selected.ptr->children()};
             if(Button("+"))
             {
-                selected.ptr->add_child({mNewChildUID, g_pTheatreManager->GetThing(mNewChildUID)->type()});
+                selected.ptr->add_child({mNewChildUID, g_pTheatreManager->GetThing(mNewChildUID)->type()}, true);
                 selected = {selected.ptr};
                 mNewChildUID = 0;
                 mNewChildUnique = 1;
@@ -939,7 +939,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     PushID(++j + thing->uid()[]);
                     if(Button("-"))
-                        { selected.ptr->remove_child(child); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
+                        { selected.ptr->remove_child(child, true); selected = {selected.ptr}; PopID(); EndChild(); End(); return; }
                     SameLine();
                     TextF("<{}> {} [{}]",
                         thing->type().name(),
