@@ -18,11 +18,16 @@ public:
     Collider(Farg<glm::vec3> Position, Farg<glm::vec3> Rotation, PhysicsBodyShape Shape);
     Collider(Farg<glm::vec3> Position, Farg<glm::vec3> Rotation, Farg<glm::vec3> Scale, PhysicsBodyShape Shape);
 
-    void SetVariables(Farg<ThingData>) override;
-    Shared<ThingData> GetVariables() const override;
-    void Ready() override;
-    void Shutdown() override;
-    void Tick() override;
+    virtual void SetVariables(Farg<ThingData>) override;
+    virtual Shared<ThingData> GetVariables() const override;
+    virtual void Ready() override;
+    virtual void Shutdown() override;
+    virtual void Tick() override;
+
+    virtual void Origin(Farg<glm::vec3> inOrigin) override;
+    virtual void Scale(Farg<glm::vec3> inScale) override;
+    virtual void Quaternion(Farg<glm::quat> inQuaternion) override;
+    virtual void Euler(Farg<glm::vec3> inEuler, bool isDegrees = false) override;
 
     bool BodyIDInvalid() const;
     bool Active() const;

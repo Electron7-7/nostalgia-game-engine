@@ -110,3 +110,41 @@ bool Collider::BodyIDInvalid() const
 
 JPH::BodyID& Collider::BodyID() const
 { return g_pPhysicsManager->GetBodyID(mUID); }
+
+void Collider::Origin(Farg<glm::vec3> inOrigin)
+{
+    LockGuard<RMutex> lock{mTransformMutex};
+    mOrigin = inOrigin;
+    if(BodyIDInvalid())
+        { return; }
+    g_pPhysicsManager->GetBodyInterface().SetPosition(BodyID(),
+        GlmToJolt<JPH::Vec3>(mOrigin),
+        EActivation::DontActivate);
+}
+
+void Collider::Scale(Farg<glm::vec3> inScale)
+{ print_warning("Currently unable to change collider scale"); }
+
+void Collider::Quaternion(Farg<glm::quat> inQuaternion)
+{
+    LockGuard<RMutex> lock{mTransformMutex};
+    mQuaternion = inQuaternion;
+    mEuler = glm::eulerAngles(mQuaternion);
+    if(BodyIDInvalid())
+        { return; }
+    g_pPhysicsManager->GetBodyInterface().SetRotation(BodyID(),
+        GlmToJolt<JPH::Quat>(mQuaternion),
+        EActivation::DontActivate);
+}
+
+void Collider::Euler(Farg<glm::vec3> inEuler, bool isDegrees)
+{
+    LockGuard<RMutex> lock{mTransformMutex};
+    mEuler = (isDegrees) ? glm::radians(inEuler) : inEuler;
+    mQuaternion = glm::quat{mEuler};
+    if(BodyIDInvalid())
+        { return; }
+    g_pPhysicsManager->GetBodyInterface().SetRotation(BodyID(),
+        GlmToJolt<JPH::Quat>(glm::quat{(isDegrees) ? glm::radians(inEuler) : inEuler}),
+        EActivation::DontActivate);
+}
