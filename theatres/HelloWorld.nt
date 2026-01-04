@@ -29,7 +29,7 @@ Things
         DiffuseTexture = <LolBitTexture>
     }
 
-    MeshInstance LolBitCubeMeshInstance
+    MeshInstance3D LolBitCubeMeshInstance3D
     {
         // This is also a reference, but it references a Thing/Resource defined in the current Theatre. It is delimited by angled
         // brackets (<>)
@@ -47,12 +47,12 @@ Things
         SpecularStrength = [0.6]
     }
 
-    Actor Ramiel
+    Actor3D Ramiel
     {
         // This is a "Sandwich" variable, which is just a way of defining a Thing inside of another Thing. It's used to help keep
         // things looking cleaner (as well as keep smaller Things grouped more nicely). The syntax for a Sandwich is simply the
         // variable name, a colon instead of an equals sign, followed by a typical Thing definition
-        Child : MeshInstance RamielMeshInstance
+        Child : MeshInstance3D RamielMeshInstance3D
         {
             Mesh = <RamielModel>
             Material = <RamielMaterial>
@@ -82,7 +82,7 @@ Things
         DiffuseTexture = <DoomTexture>
     }
 
-    MeshInstance DoomCubeMeshInstance
+    MeshInstance3D DoomCubeMeshInstance3D
     {
         Mesh = <DefaultCube>
         Material = <DoomMaterial>
@@ -94,10 +94,10 @@ Things
         Scale = [20, 2, 20]
     }
 
-    Actor Floor
+    Actor3D Floor
     {
-        Child = <FloorCollider>
-        Child : MeshInstance FloorMesh
+        Child Collider = <FloorCollider>
+        Child : MeshInstance3D FloorMesh
         {
             Mesh = <DefaultCube>
             Material = <RedMaterial>
@@ -106,30 +106,54 @@ Things
         Scale = [20, 2, 20]
     }
 
-    Collider DoomCollider
+    Actor3D DoomCube
     {
-        Motion = (Dynamic)
-        Origin = [3, 0, -3]
-        RotationDegrees = [-10, -55, 5]
-    }
-
-    Actor DoomCube
-    {
-        Child = <DoomCubeMeshInstance>
-        Child = <DoomCollider>
+        Child MeshInstance3D = <DoomCubeMeshInstance3D>
+        Child : Collider DoomCollider
+        {
+            Motion = (Dynamic)
+            Origin = [3, 0, -3]
+            RotationDegrees = [-20, 20, 50]
+        }
         Visible = [true]
     }
 
-    Actor LolBitCube
+    Actor3D DoomCube2
     {
-        Child = <LolBitCubeMeshInstance>
+        Child MeshInstance3D = <DoomCubeMeshInstance3D>
+        Child : Collider DoomCollider2
+        {
+            Motion = (Dynamic)
+            Origin = [2.35, 6.95, -2.95]
+            RotationDegrees = [-36.6, 25, 0.1]
+            Scale  = [0.3, 1, 1.7]
+        }
+        Visible = [true]
+    }
+
+    Actor3D DoomCube3
+    {
+        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+        Child : Collider DoomCollider3
+        {
+            Motion = (Dynamic)
+            Origin = [3, 5, -3]
+            RotationDegrees = [20, -20, -50]
+            Scale  = [0.5, 1, 0.7]
+        }
+        Visible = [true]
+    }
+
+    Actor3D LolBitCube
+    {
+        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
         Origin = [-0.25, 2, -3.5]
         RotationDegrees = [25, 0, 1]
     }
 
-    Actor RedCube
+    Actor3D RedCube
     {
-        Child : MeshInstance RedCubeMeshInstance
+        Child : MeshInstance3D RedCubeMeshInstance3D
         {
             Mesh = <DefaultCube>
             Material = <RedMaterial>
@@ -140,9 +164,9 @@ Things
         Visible = [true]
     }
 
-    Actor IcoSphereActor
+    Actor3D IcoSphereActor3D
     {
-        Child : MeshInstance IcoSphereMeshInstance
+        Child : MeshInstance3D IcoSphereMeshInstance3D
         {
             Mesh = <IcoSphere>
             Material = <StupidMaterial>
