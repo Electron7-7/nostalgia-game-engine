@@ -37,7 +37,8 @@ bool ThingFactory::Init()
     AddThing( &ThingMakerTemplate<Viewport>,              "Viewport",              cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Collider>,              "Collider",              cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Resource>,              "Resource",              cDefaultPriority + 1 );
-    AddThing( &ThingMakerTemplate<Actor>,                 "Actor",                 cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Actor3D>,               "Actor3D",               cDefaultPriority + 1 );
+    AddThing( &ThingMakerTemplate<Actor2D>,               "Actor2D",               cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Thinker>,               "Thinker",               cDefaultPriority + 1 );
     AddThing( &ThingMakerTemplate<Thing>,                 "Thing",                 cDefaultPriority + 1 );
 

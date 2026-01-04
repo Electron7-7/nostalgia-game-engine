@@ -1,4 +1,4 @@
-#include "camera_3d.hpp"
+#include "camera.hpp"
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
@@ -7,7 +7,7 @@
 
 void Camera3D::SetVariables(Farg<ThingData> data)
 {
-    Actor::SetVariables(data);
+    Actor3D::SetVariables(data);
 
     data.GetVariable(mFOV, "FOV");
     data.GetVariable(mViewCutoffNear, "Near", "CutoffNear");
@@ -37,7 +37,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Camera3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor::GetVariables()};
+    Shared<ThingData> data{Actor3D::GetVariables()};
 
     data->AddVariable(mFOV, "FOV");
     data->AddVariable(mViewCutoffNear, "Near");
@@ -85,7 +85,7 @@ void Camera3D::Ready()
         {
             mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
                 "Camera3D-debug-mesh-instance",
-                ThingType::MeshInstance,
+                ThingType::MeshInstance3D,
                 mesh_id,
                 {
                     {UID::m_Camera3D, "Mesh"},

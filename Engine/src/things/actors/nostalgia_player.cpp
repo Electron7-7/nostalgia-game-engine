@@ -1,5 +1,5 @@
 #include "nostalgia_player.hpp"
-#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
+#include "camera.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
@@ -9,7 +9,7 @@
 
 void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 {
-    Actor::SetVariables(data);
+    Actor3D::SetVariables(data);
 
     data.GetVariable(mViewPosition, "ViewPosition");
     data.GetVariable(mCameraID, "Camera", "CameraID", "Camera3D");
@@ -17,7 +17,7 @@ void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> NostalgiaPlayer::GetVariables() const
 {
-    Shared<ThingData> data{Actor::GetVariables()};
+    Shared<ThingData> data{Actor3D::GetVariables()};
 
     data->AddVariable(mViewPosition, "ViewPosition");
     data->AddVariable(mCameraID, "Camera");
@@ -30,7 +30,7 @@ void NostalgiaPlayer::Input(InputEvent* event)
 
 void NostalgiaPlayer::Ready()
 {
-    Actor::Ready();
+    Actor3D::Ready();
     if(mCameraID.invalid())
     {
         mCameraID = g_pTheatreManager->CreateThing({"DefaultPlayerCam",

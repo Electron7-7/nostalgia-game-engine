@@ -35,7 +35,6 @@ protected:
     bool mWireframe{false};
 };
 
-class Actor : public __actor_t {};
 class Actor2D : public __actor_t {};
 class Actor3D : public __actor_t {};
 

@@ -11,7 +11,7 @@
 #include "rendering/shader.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "theatre/parser/theatre_parser.hpp"
-#include "things/actors/camera_3d.hpp"
+#include "things/actors/camera.hpp"
 #include "things/thing_factory.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/texture.hpp"
@@ -123,7 +123,7 @@ void TheatreManager::DrawTheatre()
         }
         for(auto& [id, thing] : mThings)
         {
-            if(auto actor{DCast<Actor>(thing)}; actor and actor->Visible())
+            if(auto actor{DCast<Actor3D>(thing)}; actor and actor->Visible())
                 { DrawActor(actor, camera); }
         }
         framebuffer->Unbind();
@@ -141,7 +141,7 @@ void TheatreManager::ClearViewports()
     }
 }
 
-void TheatreManager::DrawActor(Shared<Actor> actor, Shared<Camera3D> camera)
+void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
 

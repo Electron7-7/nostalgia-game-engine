@@ -1,12 +1,12 @@
-#ifndef CAMERA_3D_H
-#define CAMERA_3D_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include "core/uid.hpp"
 #include "things/actors/actor.hpp"
 #include "rendering/render_layers.hpp"
 #include "rendering/environment.hpp"
 
-class Camera3D : public Actor
+class Camera3D : public Actor3D
 {
 public:
     float mFOV{75.0f},
@@ -39,4 +39,4 @@ protected:
     ID mViewportID{UID::a_MainViewport};
 };
 
-#endif // CAMERA_3D_H
+#endif // CAMERA_H

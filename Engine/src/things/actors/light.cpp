@@ -37,7 +37,7 @@ void light_t::Ready()
         })};
         mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
             mName + "-debug-mesh-instance",
-            ThingType::MeshInstance,
+            ThingType::MeshInstance3D,
             UID::Generate(),
             {
                 {UID::m_Cube, "Mesh"},
@@ -54,7 +54,7 @@ void light_t::SetVariables(Farg<ThingData> data)
     // The light's debug mesh should only be visible by default on debug builds
     TRUE_IF_DEBUGGING(mVisible);
 
-    Actor::SetVariables(data);
+    Actor3D::SetVariables(data);
 
     data.GetVariable(mColor, "Color");
     data.GetVariable(mEnergy, "Energy");
@@ -71,7 +71,7 @@ void light_t::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> light_t::GetVariables() const
 {
-    Shared<ThingData> data{Actor::GetVariables()};
+    Shared<ThingData> data{Actor3D::GetVariables()};
 
     data->AddVariable(mColor, "Color");
     data->AddVariable(mEnergy, "Energy");

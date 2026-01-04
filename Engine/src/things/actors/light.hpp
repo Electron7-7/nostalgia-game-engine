@@ -10,7 +10,7 @@ enum class LightType
     DIRECTIONAL
 };
 
-class light_t : public Actor
+class light_t : public Actor3D
 {
 public:
     static void ClearCounts();

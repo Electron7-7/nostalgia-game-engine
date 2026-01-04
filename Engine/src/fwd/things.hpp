@@ -15,10 +15,10 @@ class Thinker;
 ////////////
 // Actors //
 ////////////
-class Actor;
+class Actor2D;
+class Actor3D;
 // Cameras
 class Camera3D;
-class EditorCamera3D;
 // Lights
 enum class LightType;
 class light_t;
