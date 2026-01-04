@@ -1010,3 +1010,14 @@ I just implemented cubemap textures via `TextureBuffer` and `Texture`. Now, time
 Just finished bugfixing and fully implementing the new `Environment` and skybox systems.
 
 I just implemented children. Holy shit.
+
+[01/04/25]
+Idk what I wanna do now... I could flesh out the GitHub, or try making a short game. Maybe even start fleshing out the editor. Lots of choices.
+
+Oh, also, "unique" children and ownership will go like this: everything is a "unique" child, except for resources, and a similar method to Godot's 'make unique' button will be implemented that literally makes a unique copy of the object. Resources, however, can be used by multiple Things without consequence and should never be automatically duplicated. This is all editor-side, by the way; if you're writing a Theatre file manually, you'd just try to follow these rules yourself.
+
+Oh, `MeshInstance` Devices need transform properties; maybe it's time to implement that *and* the 'Actor2D/Actor3D' classes.
+
+Okay, I implemented 'Actor2D/Actor3D' classes. Now, time to add transforms to `MeshInstance` and actually use them.
+
+I did all of that and overhauled the parent/child system. Now, Things can have multiple parents, and the editor (or whoever is writing the Theatre file) will have the job of managing how Unique vs shared (or 'referenced') children will be created. Internally, every Thing can have as many children and parents as they want, letting the user decide how strict ownership should be.
