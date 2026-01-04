@@ -56,13 +56,13 @@ public:
     relatives_t children() const;
     relatives_t parents()  const;
 
-    Error add_child(ThingRelative);
-    Error remove_child(ThingRelative);
-    Error swap_child(ThingRelative, ThingRelative);
+    Error add_child(ThingRelative, bool doUpdateChild = false);
+    Error remove_child(ThingRelative, bool doUpdateChild = false);
+    Error swap_child(ThingRelative, ThingRelative, bool doUpdateChildren = false);
 
-    Error add_parent(ThingRelative);
-    Error remove_parent(ThingRelative);
-    Error swap_parent(ThingRelative, ThingRelative);
+    Error add_parent(ThingRelative, bool doUpdateParent = false);
+    Error remove_parent(ThingRelative, bool doUpdateParent = false);
+    Error swap_parent(ThingRelative, ThingRelative, bool doUpdateParents = false);
 
 protected:
     ID mUID{};

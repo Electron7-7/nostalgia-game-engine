@@ -74,7 +74,7 @@ relatives_t Thing::children() const
 relatives_t Thing::parents() const
 { return mParents; }
 
-Error Thing::add_child(ThingRelative inChild)
+Error Thing::add_child(ThingRelative inChild, bool doUpdateChild)
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     if(inChild.id.invalid())
@@ -83,10 +83,12 @@ Error Thing::add_child(ThingRelative inChild)
         found_it != mChildren.cend())
         { return ERR_ALREADY_EXISTS; }
     mChildren.emplace_back(inChild);
+    if(doUpdateChild)
+        { g_pTheatreManager->GetThing(inChild.id)->add_parent({mUID, mType}); }
     return OK;
 }
 
-Error Thing::remove_child(ThingRelative inChild)
+Error Thing::remove_child(ThingRelative inChild, bool doUpdateChild)
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     if(inChild.id.invalid())
@@ -94,31 +96,37 @@ Error Thing::remove_child(ThingRelative inChild)
     else if(auto found_it{std::find(mChildren.cbegin(), mChildren.cend(), inChild)};
         found_it != mChildren.cend())
     {
-        g_pTheatreManager->GetThing(found_it->id)->remove_parent({mUID, mType});
+        if(doUpdateChild)
+            { g_pTheatreManager->GetThing(found_it->id)->remove_parent({mUID, mType}); }
         mChildren.erase(found_it);
         return OK;
     }
     return ERR_NOT_FOUND;
 }
 
-Error Thing::swap_child(ThingRelative inChild, ThingRelative inNewChild)
+Error Thing::swap_child(ThingRelative inChild, ThingRelative inNewChild, bool doUpdateChildren)
 {
-    if(Error status{add_child(inNewChild)}; !status)
+    if(Error status{add_child(inNewChild, doUpdateChildren)}; !status)
         { return status; }
-    else if(Error status{remove_child(inChild)}; !status)
-        { remove_child(inNewChild); return status; }
+    else if(Error status{remove_child(inChild, doUpdateChildren)}; !status)
+        { remove_child(inNewChild, doUpdateChildren); return status; }
     return OK;
 }
 
-Error Thing::add_parent(ThingRelative inParent)
+Error Thing::add_parent(ThingRelative inParent, bool doUpdateParent)
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     g_pTheatreManager->GetThing(inParent.id)->add_child({mUID, mType});
+    if(auto found_it{std::find(mParents.cbegin(), mParents.cend(), inParent)};
+        found_it != mParents.cend())
+        { return ERR_ALREADY_EXISTS; }
     mParents.emplace_back(inParent);
+    if(doUpdateParent)
+        { g_pTheatreManager->GetThing(inParent.id)->add_child({mUID, mType}); }
     return OK;
 }
 
-Error Thing::remove_parent(ThingRelative inParent)
+Error Thing::remove_parent(ThingRelative inParent, bool doUpdateParent)
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     if(inParent.id.invalid())
@@ -126,18 +134,19 @@ Error Thing::remove_parent(ThingRelative inParent)
     else if(auto found_it{std::find(mParents.cbegin(), mParents.cend(), inParent)};
         found_it != mParents.cend())
     {
-        g_pTheatreManager->GetThing(found_it->id)->remove_child({mUID, mType});
+        if(doUpdateParent)
+            { g_pTheatreManager->GetThing(found_it->id)->remove_child({mUID, mType}); }
         mParents.erase(found_it);
         return OK;
     }
     return ERR_NOT_FOUND;
 }
 
-Error Thing::swap_parent(ThingRelative inParent, ThingRelative inNewParent)
+Error Thing::swap_parent(ThingRelative inParent, ThingRelative inNewParent, bool doUpdateParents)
 {
-    if(Error status{add_parent(inNewParent)}; !status)
+    if(Error status{add_parent(inNewParent, doUpdateParents)}; !status)
         { return status; }
-    else if(Error status{remove_parent(inParent)}; !status)
-        { remove_parent(inNewParent); return status; }
+    else if(Error status{remove_parent(inParent, doUpdateParents)}; !status)
+        { remove_parent(inNewParent, doUpdateParents); return status; }
     return OK;
 }
