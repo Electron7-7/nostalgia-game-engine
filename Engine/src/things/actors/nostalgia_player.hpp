@@ -14,8 +14,6 @@ public:
 
     virtual void Move(Farg<glm::vec2> Direction);
     virtual void Look(Farg<glm::vec2> Position);
-    virtual glm::vec3 ViewPosition() const; // View position is an offset from the player's origin
-    virtual void SetViewPosition(Farg<glm::vec3> ViewPosition);
     virtual ID CameraID() const;
     virtual void CameraID(ID);
 
