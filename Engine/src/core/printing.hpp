@@ -29,9 +29,9 @@ template<class... Args>
         Args&&... args)
     {
         static std::string prefixes[3] {
-            std::format("file {}", loc.file_name()),
-            std::format("({}:{})", loc.line(), loc.column()),
-            std::format("`{}`", loc.function_name()),
+            std::format("file {} ", loc.file_name()),
+            std::format("({}:{}) ", loc.line(), loc.column()),
+            std::format("`{}` ", loc.function_name()),
         };
 
         if(verbosity == VERBOSE0)
@@ -67,7 +67,7 @@ template<class... Args>
 
 // Always returns true. Use with: bad behaviour that doesn't lead to a crash/failure (not great, not terrible)
 #define print_warning(Format, Args...) \
-    __print_verbose(true, VERBOSE1 | VERBOSE3, Format, std::source_location::current(), WarningLabel, ## Args)
+    __print_verbose(true, VERBOSE1 | VERBOSE2 | VERBOSE3, Format, std::source_location::current(), WarningLabel, ## Args)
 
 // Version of `print_warning` that lets you control the verbosity
 #define print_warningv(Verbosity, Format, Args...) \

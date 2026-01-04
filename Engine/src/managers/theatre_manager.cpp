@@ -150,12 +150,12 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
         { return; }
     auto children{actor->children()};
     if(Settings::Engine::IsEditorHint and !actor->DebugMeshInstance().invalid())
-        { children.emplace_back(actor->DebugMeshInstance()); }
+        { children.emplace_back(actor->DebugMeshInstance(), ThingType::MeshInstance3D); }
     for(auto child : children)
     {
-        auto mesh_instance{GetThing<MeshInstance>(child.id)};
-        if(mesh_instance->uid().invalid())
+        if(!g_pThingFactory->IsDerivedFrom<MeshInstance3D>(child.type))
             { continue; }
+        auto mesh_instance{GetThing<MeshInstance3D>(child.id)};
         auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
         auto material{GetThing<Material>(mesh_instance->MaterialID())};
         FAUTO renderer_api{g_pRenderManager->GetAPI()};

@@ -64,6 +64,7 @@ void Collider::Tick()
         { return; }
     JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetRotation(BodyID()), mQuaternion);
     JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetCenterOfMassPosition(BodyID()), mOrigin);
+    mEuler = glm::eulerAngles(mQuaternion);
 }
 
 bool Collider::Active() const

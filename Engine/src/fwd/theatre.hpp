@@ -1,22 +1,22 @@
 #ifndef THEATRE_FWD_H
 #define THEATRE_FWD_H
 
-class Transform3D;
-
-class VariableRegistry;
-extern VariableRegistry* g_pVariableRegistry;
-
 enum class ThingVarType : unsigned short;
+
+class Transform3D;
+class Transform2D;
+class VariableRegistry;
+
 struct ThingVar;
-
 struct ThingData;
-
 struct TheatreParser;
+struct TheatreData;
+
 extern unsigned int gColumn,
     gLine,
     gBreakOnColumn,
     gBreakOnLine;
 
-struct TheatreData;
+extern VariableRegistry* g_pVariableRegistry;
 
 #endif // THEATRE_FWD_H

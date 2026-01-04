@@ -3,12 +3,14 @@
 
 #include <vector>
 
-class ThingFactory;
-struct TTID;
+enum class LightType : int;
 
+struct TTID;
+struct ThingRelative;
+
+class ThingFactory;
 class Thing;
 class Thinker;
-
 ////////////
 // Actors //
 ////////////
@@ -17,14 +19,12 @@ class Actor3D;
 // Cameras
 class Camera3D;
 // Lights
-enum class LightType;
 class light_t;
 class PointLight;
 class SpotLight;
 class DirectionalLight;
 // Player
 class NostalgiaPlayer;
-
 /////////////
 // Devices //
 /////////////

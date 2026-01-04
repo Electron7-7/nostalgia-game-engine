@@ -3,7 +3,7 @@
 
 #include "things/actors/actor.hpp"
 
-enum class LightType
+enum class LightType : int
 {
     POINT,
     SPOT,

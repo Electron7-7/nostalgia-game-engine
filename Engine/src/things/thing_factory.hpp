@@ -41,7 +41,7 @@ public:
 private:
     bool mIsInitialized{false};
     std::map<ID, pThingMakerTemplate_t> mThingMakers{};
-    std::map<ID, int>           mTypePriorities{};
+    std::map<ID, int>                   mTypePriorities{};
 };
 
 extern ThingFactory* g_pThingFactory;
