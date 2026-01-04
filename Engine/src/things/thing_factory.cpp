@@ -2,7 +2,7 @@
 #include "thinkers/thinker.hpp"
 #include "actors/actor.hpp"
 #include "actors/nostalgia_player.hpp"
-#include "actors/camera_3d.hpp"
+#include "actors/camera.hpp"
 #include "actors/light.hpp"
 #include "devices/device.hpp"
 #include "devices/viewport.hpp"
