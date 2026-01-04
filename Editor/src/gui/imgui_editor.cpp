@@ -94,14 +94,15 @@ void ImGui_Editor::TheatreExited()
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    if(g_pTheatreManager->GetPlayer()->mCaptureKeyboard)
+    auto player{g_pTheatreManager->GetThing<NostalgiaPlayer>(UID::a_Player)};
+    if(player->mCaptureKeyboard)
     {
         if(event->IsJustPressed(Key::Escape))
         {
             UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
-            g_pTheatreManager->GetPlayer()->mCaptureMouse    = false;
-            g_pTheatreManager->GetPlayer()->mCaptureKeyboard = false;
+            player->mCaptureMouse    = false;
+            player->mCaptureKeyboard = false;
         }
         return;
     }
@@ -109,8 +110,8 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
-        g_pTheatreManager->GetPlayer()->mCaptureKeyboard = true;
-        g_pTheatreManager->GetPlayer()->mCaptureMouse    = true;
+        player->mCaptureKeyboard = true;
+        player->mCaptureMouse    = true;
     }
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
@@ -193,7 +194,7 @@ void ImGui_Editor::Update()
         }
         if(InputManager::IsKeyUp(Key::MouseLeft)
             and camera_moving
-            and !g_pTheatreManager->GetPlayer()->mCaptureMouse)
+            and !player->mCaptureMouse)
             { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
         BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
             s_ThingAdder();

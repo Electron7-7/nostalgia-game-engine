@@ -261,13 +261,6 @@ bool TheatreManager::LoadTheatreFromFile(const std::string& path)
     return true;
 }
 
-Shared<NostalgiaPlayer> TheatreManager::GetPlayer()
-{
-    if(mThings.empty() or !mThings.contains(UID::a_Player))
-        { return MakeShared<NostalgiaPlayer>(); }
-    return DCast<NostalgiaPlayer>(mThings.at(UID::a_Player));
-}
-
 const TheatreData& TheatreManager::GetInitialState()
 { return sCurrentTheatreData; }
 

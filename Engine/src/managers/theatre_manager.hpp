@@ -39,7 +39,6 @@ public:
     std::vector<ID> GetThingIDs();
     Farg<std::unordered_set<ID>> GetViewportIDs();
     std::vector<ID> GetViewportIDList();
-    Shared<NostalgiaPlayer> GetPlayer();
 
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
