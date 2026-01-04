@@ -9,7 +9,6 @@
 #include "core/smart_pointers.hpp"
 #include <unordered_map>
 #include <unordered_set>
-#include <string>
 #include <mutex>
 
 using things_t = std::unordered_map<ID,Shared<Thing>>;
@@ -26,13 +25,11 @@ public:
     void Input(InputEvent*);
 
     void LoadTheatreData(Farg<TheatreData>);
-    bool LoadTheatreFromMemory(Farg<std::string> Data);
-    bool LoadTheatreFromFile(Farg<std::string> Path);
+    bool LoadTheatreFromMemory(Sarg Data);
+    bool LoadTheatreFromFile(Sarg Path);
 
     void ClearViewports();
     void DrawTheatre();
-    bool ThingExists(ID UID);
-    Farg<TTID> GetType(ID ObjectID);
 
     const TheatreData& GetInitialState();
     TheatreData GetCurrentState();
@@ -40,10 +37,11 @@ public:
     Farg<std::unordered_set<ID>> GetViewportIDs();
     std::vector<ID> GetViewportIDList();
 
+    bool ThingExists(ID UID);
+    Farg<TTID> GetType(ID ObjectID);
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
     bool DestroyThing(ID);
-
     Shared<Thing> GetThing(ID ObjectID);
 
     template<typename T> requires std::derived_from<T,Thing>
@@ -65,6 +63,7 @@ private:
     uint CreateThingNoReady(Farg<ThingData>);
     void CreateEmbeddedResources();
     void DrawActor(Shared<Actor3D>, Shared<Camera3D>);
+    // void DrawActor(Shared<Actor2D>, Shared<Camera2D>);
 };
 
 extern bool gPrintLoadedTheatreData;
