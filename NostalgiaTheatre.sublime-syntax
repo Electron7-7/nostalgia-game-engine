@@ -17,11 +17,14 @@ variables:
       \bThing\b            |
       \bThinker\b          |
       \bTexture\b          |
-      \bActor\b            |
+      \bActor2D\b          |
+      \bActor3D\b          |
+      \bCamera3D\b         |
       \bResource\b         |
       \bCollider\b         |
       \bMaterial\b         |
-      \bMeshInstance\b     |
+      \bViewport\b         |
+      \bMeshInstance3D\b   |
       \bImage\b            |
       \bMesh\b             |
       \bNostalgiaPlayer\b  |
@@ -126,7 +129,13 @@ contexts:
 
   variable:
     - include: comment
-    - match: '\w+'
+    - match: '(Child) ({{typenames}})'
+      captures:
+        1: entity.name.function
+        2: storage.type.variable
+    - match: 'Child (?=:)'
+      scope: entity.name.function
+    - match: '(?!Child)\w+'
       scope: variable
     - match: ':'
       scope: punctuation.accessor
