@@ -9,6 +9,8 @@
 #include <Jolt/Math/Vec3.h>
 #include <Jolt/Math/Quat.h>
 #include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyLock.h>
+#include <Jolt/Physics/Body/BodyLockInterface.h>
 #include <Jolt/Core/Atomics.h>
 #include <Jolt/Math/DVec3.h>
 #include <Jolt/Math/Float2.h>
@@ -31,6 +33,9 @@ namespace JPH
     class PhysicsSystem;
     class Float2;
 }
+using BodyArg = const JPH::Body&;
+using BodyIDArg = const JPH::BodyID&;
+using BodyLockInterfaceArg = const JPH::BodyLockInterface&;
 
 // Collider enums
 enum class PhysicsBodyShape  : unsigned short;
