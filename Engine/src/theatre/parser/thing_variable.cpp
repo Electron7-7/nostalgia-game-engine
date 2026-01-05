@@ -71,21 +71,24 @@ static constexpr std::string sTypeName(ThingVar::Type inType)
     }
 }
 
-std::string ThingVar::log(bool colored) const
+std::string ThingVar::log(bool colored, bool isChild) const
 {
+    const char* child_prefix{(isChild) ? "Child " : ""};
     if(colored)
     {
-        return std::format("{2}({4}){0} {1}{3}{0} == {5}",
+        return std::format("{2}({6}{4}){0} {1}{3}{0} == {5}",
             Sty::Reset,
             Sty::Bold + Fg::Green,
             Sty::Bold + Fg::Yellow,
             name,
             sTypeName(type),
-            formatted_value());
+            formatted_value(),
+            child_prefix);
     }
     else
     {
-        return std::format("({}) {} == {}",
+        return std::format("({}{}) {} == {}",
+            child_prefix,
             sTypeName(type),
             name,
             formatted_value());

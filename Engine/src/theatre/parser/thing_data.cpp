@@ -78,15 +78,12 @@ std::string ThingData::log(bool colored, bool indent) const
     std::string log;
     if(colored)
     {
-        log = std::format("{1}(Type: {3}, ID: {5}){0} {2}{4}{0}\n",
+        log = std::format("{1}(Type: {3}){0} {2}{4}{0}\n",
             Sty::Reset,
             Sty::Bold + Fg::Yellow,
             Sty::Bold + Fg::Green,
             type_.name(),
-            name,
-            (uid.invalid())
-                ? "ID::Invalid"
-                : std::to_string(uid[]));
+            name);
     }
     else
     {
@@ -105,7 +102,7 @@ std::string ThingData::log(bool colored, bool indent) const
     {
         if(indent)
             { log.push_back('\t'); }
-        log.append(std::format("{}\n", child.log(colored)));
+        log.append(std::format("{}\n", child.log(colored, true)));
     }
     return log;
 }

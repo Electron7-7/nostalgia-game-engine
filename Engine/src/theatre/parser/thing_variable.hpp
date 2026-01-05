@@ -54,7 +54,7 @@ struct ThingVar
 
     std::string formatted() const;
     std::string formatted_value() const;
-    std::string log(bool useColors = false) const;
+    std::string log(bool useColors = false, bool isChild = false) const;
 
     constexpr bool operator==(Sarg inVarName) const
     { return !name.compare(inVarName); }
