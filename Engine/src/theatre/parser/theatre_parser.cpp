@@ -204,7 +204,7 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             switch(parsing)
             {
             case Parsing::ObjectType:
-                if(!variable_name.compare(cChildVarName))
+                if(location == Location::Sandwich)
                     { child_type = buffer; }
                 temp_data.set_type(buffer);
                 parsing = Parsing::ObjectName;
@@ -219,6 +219,8 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                 buffer.clear();
                 break;
             case Parsing::ChildType:
+                if(location == Location::Sandwich and buffer.empty())
+                    { continue; }
                 child_type = buffer;
                 parsing = Parsing::VariableValue;
                 buffer.clear();
@@ -285,7 +287,6 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
             temp_data.AddVariable(variable_name, variable_value, variable_type, child_type);
             variable_name.clear();
             variable_value.clear();
-            child_type.clear();
             buffer.clear();
             if(context != Context::Resources)
                 { parsing = Parsing::VariableName; }
@@ -329,7 +330,6 @@ bool TheatreParser::ReadTheatre(TheatreData& output)
                     defining = Defining::Index;
                     buffer.clear();
                 }
-
                 else if(defining == Defining::Index)
                 {
                     theatre_index = buffer;
