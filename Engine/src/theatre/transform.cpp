@@ -2,6 +2,8 @@
 #include "settings/world.hpp"
 #include "theatre/parser/thing_data.hpp"
 
+void Transform2D::OnTransformChanged(PropertyChanged) {}
+
 void Transform2D::SetTransformVariables(Farg<ThingData> data)
 {
     data.GetVariable(mOrigin, "Origin", "Position");
@@ -29,17 +31,25 @@ void Transform2D::Origin(Farg<glm::vec2> inOrigin)
 {
     LockGuard<RMutex> lock{mTransformMutex};
     mOrigin = inOrigin;
+    OnTransformChanged(ORIGIN);
 }
 
 void Transform2D::Scale(Farg<glm::vec2> inScale)
 {
     LockGuard<RMutex> lock{mTransformMutex};
     mScale = inScale;
+    OnTransformChanged(SCALE);
 }
 
 void Transform2D::Rotation(double inRotation, bool isDegrees)
-{ mRotation = (isDegrees) ? glm::radians(inRotation) : inRotation; }
+{
+    mRotation = (isDegrees)
+        ? glm::radians(inRotation)
+        : inRotation;
+    OnTransformChanged(ROTATION);
+}
 
+void Transform3D::OnTransformChanged(PropertyChanged) {}
 
 void Transform3D::SetTransformVariables(Farg<ThingData> data)
 {
@@ -73,18 +83,24 @@ Farg<glm::quat> Transform3D::Quaternion() const
 { return mQuaternion; }
 
 glm::vec3 Transform3D::Euler(bool degrees) const
-{ return (degrees) ? glm::degrees(mEuler) : mEuler; }
+{
+    return (degrees)
+        ? glm::degrees(mEuler)
+        : mEuler;
+}
 
 void Transform3D::Origin(Farg<glm::vec3> origin)
 {
     LockGuard<RMutex> lock{mTransformMutex};
     mOrigin = origin;
+    OnTransformChanged(ORIGIN);
 }
 
 void Transform3D::Scale(Farg<glm::vec3> scale)
 {
     LockGuard<RMutex> lock{mTransformMutex};
     mScale = scale;
+    OnTransformChanged(SCALE);
 }
 
 void Transform3D::Quaternion(Farg<glm::quat> quaternion)
@@ -92,6 +108,7 @@ void Transform3D::Quaternion(Farg<glm::quat> quaternion)
     LockGuard<RMutex> lock{mTransformMutex};
     mQuaternion = quaternion;
     mEuler = glm::eulerAngles(mQuaternion);
+    OnTransformChanged(ROTATION);
 }
 
 void Transform3D::Euler(Farg<glm::vec3> euler, bool degrees)
@@ -101,6 +118,7 @@ void Transform3D::Euler(Farg<glm::vec3> euler, bool degrees)
         ? glm::radians(euler)
         : euler;
     mQuaternion = glm::quat(mEuler);
+    OnTransformChanged(ROTATION);
 }
 
 glm::vec3 Transform3D::Front() const

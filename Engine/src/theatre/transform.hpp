@@ -11,27 +11,44 @@
 
 class Transform2D
 {
-public:
-    void SetTransformVariables(Farg<ThingData>);
-    void GetTransformVariables(Shared<ThingData>) const;
+protected:
+    enum PropertyChanged : int
+    { ORIGIN, ROTATION, SCALE };
 
-    virtual Farg<glm::vec2> Origin() const;
-    virtual Farg<glm::vec2> Scale() const;
-    virtual double Rotation(bool isDegrees = false) const;
-
-    virtual void Origin(Farg<glm::vec2> inOrigin);
-    virtual void Scale(Farg<glm::vec2> inScale);
-    virtual void Rotation(double inRotation, bool isDegrees = false);
-
-private:
     glm::vec2 mOrigin{},
         mScale{};
     double mRotation{};
     RMutex mTransformMutex{};
+
+public:
+    virtual void OnTransformChanged(PropertyChanged);
+
+    void SetTransformVariables(Farg<ThingData>);
+    void GetTransformVariables(Shared<ThingData>) const;
+
+    Farg<glm::vec2> Origin() const;
+    Farg<glm::vec2> Scale() const;
+    double Rotation(bool isDegrees = false) const;
+
+    void Origin(Farg<glm::vec2> inOrigin);
+    void Scale(Farg<glm::vec2> inScale);
+    void Rotation(double inRotation, bool isDegrees = false);
 };
 
 class Transform3D
 {
+protected:
+    enum PropertyChanged : int
+    { ORIGIN, ROTATION, SCALE };
+
+    glm::vec3 mOrigin{0.0f},
+        mEuler{0.0f},
+        mScale{1.0f};
+    glm::quat mQuaternion{};
+    RMutex mTransformMutex{};
+
+    virtual void OnTransformChanged(PropertyChanged);
+
 public:
     void SetTransformVariables(Farg<ThingData>);
     void GetTransformVariables(Shared<ThingData>) const;
@@ -45,17 +62,10 @@ public:
     glm::vec3 Right() const;
     glm::vec3 Up() const;
 
-    virtual void Origin(Farg<glm::vec3> inOrigin);
-    virtual void Scale(Farg<glm::vec3> inScale);
-    virtual void Quaternion(Farg<glm::quat> inQuaternion);
-    virtual void Euler(Farg<glm::vec3> inEuler, bool isDegrees = false);
-
-protected:
-    glm::vec3 mOrigin{0.0f},
-        mEuler{0.0f},
-        mScale{1.0f};
-    glm::quat mQuaternion{};
-    RMutex mTransformMutex{};
+    void Origin(Farg<glm::vec3> inOrigin);
+    void Scale(Farg<glm::vec3> inScale);
+    void Quaternion(Farg<glm::quat> inQuaternion);
+    void Euler(Farg<glm::vec3> inEuler, bool isDegrees = false);
 };
 
 #endif // TRANSFORM_H

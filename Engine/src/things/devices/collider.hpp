@@ -14,20 +14,13 @@ enum class PhysicsBodyMotion : ushort
 class Collider : public Device, public Transform3D
 {
 public:
-    Collider() = default;
-    Collider(Farg<glm::vec3> Position, Farg<glm::vec3> Rotation, PhysicsBodyShape Shape);
-    Collider(Farg<glm::vec3> Position, Farg<glm::vec3> Rotation, Farg<glm::vec3> Scale, PhysicsBodyShape Shape);
-
+    virtual void OnTransformChanged(PropertyChanged) override;
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
     virtual void Ready() override;
     virtual void Shutdown() override;
     virtual void Tick() override;
 
-    virtual void Origin(Farg<glm::vec3> inOrigin) override;
-    virtual void Scale(Farg<glm::vec3> inScale) override;
-    virtual void Quaternion(Farg<glm::quat> inQuaternion) override;
-    virtual void Euler(Farg<glm::vec3> inEuler, bool isDegrees = false) override;
 
     bool BodyIDInvalid() const;
     bool Active() const;

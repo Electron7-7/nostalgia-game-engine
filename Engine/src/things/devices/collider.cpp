@@ -7,15 +7,8 @@
 
 using namespace JPH;
 
-Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, PhysicsBodyShape shape):
-    Collider(pos, rot, glm::vec3(1.0f), shape) {}
 
-Collider::Collider(const glm::vec3& pos, const glm::vec3& rot, const glm::vec3& scale, PhysicsBodyShape shape):
-    mShape(shape)
 {
-    mOrigin = pos;
-    mEuler  = rot;
-    mScale  = scale;
 }
 
 void Collider::SetVariables(Farg<ThingData> data)
@@ -112,40 +105,26 @@ bool Collider::BodyIDInvalid() const
 JPH::BodyID& Collider::BodyID() const
 { return g_pPhysicsManager->GetBodyID(mUID); }
 
-void Collider::Origin(Farg<glm::vec3> inOrigin)
+void Collider::OnTransformChanged(PropertyChanged inProp)
 {
     LockGuard<RMutex> lock{mTransformMutex};
-    mOrigin = inOrigin;
     if(BodyIDInvalid())
         { return; }
-    g_pPhysicsManager->GetBodyInterface().SetPosition(BodyID(),
+    else if(inProp == SCALE)
+    {
+        print_warning("Editing a Collider's scale is not allowed, yet");
+        return;
+    }
+    g_pPhysicsManager->GetBodyInterface().SetPositionAndRotation(BodyID(),
         GlmToJolt<JPH::Vec3>(mOrigin),
-        EActivation::DontActivate);
-}
-
-void Collider::Scale(Farg<glm::vec3> inScale)
-{ print_warning("Currently unable to change collider scale"); }
-
-void Collider::Quaternion(Farg<glm::quat> inQuaternion)
-{
-    LockGuard<RMutex> lock{mTransformMutex};
-    mQuaternion = inQuaternion;
-    mEuler = glm::eulerAngles(mQuaternion);
-    if(BodyIDInvalid())
-        { return; }
-    g_pPhysicsManager->GetBodyInterface().SetRotation(BodyID(),
         GlmToJolt<JPH::Quat>(mQuaternion),
         EActivation::DontActivate);
 }
 
-void Collider::Euler(Farg<glm::vec3> inEuler, bool isDegrees)
 {
-    LockGuard<RMutex> lock{mTransformMutex};
-    mEuler = (isDegrees) ? glm::radians(inEuler) : inEuler;
-    mQuaternion = glm::quat{mEuler};
     if(BodyIDInvalid())
-        { return; }
-    g_pPhysicsManager->GetBodyInterface().SetRotation(BodyID(),
-        GlmToJolt<JPH::Quat>(glm::quat{(isDegrees) ? glm::radians(inEuler) : inEuler}),
-        EActivation::DontActivate);
+}
+
+{
+    if(BodyIDInvalid())
 }
