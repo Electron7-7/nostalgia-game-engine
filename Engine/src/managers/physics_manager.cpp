@@ -26,12 +26,12 @@ using namespace JPH;
 
 JPH_SUPPRESS_WARNINGS
 
-bool gEnableMsg_ContactValidate  = false;
-bool gEnableMsg_ContactAdded     = false;
-bool gEnableMsg_ContactPersisted = false;
-bool gEnableMsg_ContactRemoved   = false;
-bool gEnableMsg_BodyActivated    = false;
-bool gEnableMsg_BodyDeactivated  = false;
+bool gEnableMsg_ContactValidate  {false},
+    gEnableMsg_ContactAdded      {false},
+    gEnableMsg_ContactPersisted  {false},
+    gEnableMsg_ContactRemoved    {false},
+    gEnableMsg_BodyActivated     {false},
+    gEnableMsg_BodyDeactivated   {false};
 
 ////////////////////////////
 // BEGIN JOLT BOILERPLATE //
@@ -40,9 +40,9 @@ bool gEnableMsg_BodyDeactivated  = false;
 // You can add as many layers as you want
 namespace Layers
 {
-    static constexpr ObjectLayer NON_MOVING = 0;
-    static constexpr ObjectLayer MOVING     = 1;
-    static constexpr ObjectLayer NUM_LAYERS = 2;
+    static constexpr ObjectLayer NON_MOVING {0},
+        MOVING     {1},
+        NUM_LAYERS {2};
 }
 
 // Comments from JoltPhysics `HelloWorld.cpp`:
@@ -319,7 +319,11 @@ bool PhysicsManager::DestroyBody(ID uid)
     return true;
 }
 
-static bool s_MakeSimpleBodySettings(BodyCreationSettings& outSettings, Farg<Transform3D> inTransform, PhysicsBodyShape inShape, EMotionType inMotion, ObjectLayer inLayer)
+static bool s_MakeSimpleBodySettings(BodyCreationSettings& outSettings,
+    Farg<Transform3D> inTransform,
+    PhysicsBodyShape inShape,
+    EMotionType inMotion,
+    ObjectLayer inLayer)
 {
     RVec3 scale{GlmToJolt<Vec3>(inTransform.Scale())};
     RVec3 position{GlmToJolt<Vec3>(inTransform.Origin())};
