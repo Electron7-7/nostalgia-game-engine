@@ -5,13 +5,11 @@ namespace Settings
 {
     namespace Player
     {
-        extern float FOV;
-        extern float ViewCutoffNear;
-        extern float ViewCutoffFar;
         extern bool  RawMouseMotion;
         extern float MouseSensitivity;
         extern float MouseSensitivityScale;
         extern float MovementSpeed;
+        extern float Mass;
     }
 }
 
