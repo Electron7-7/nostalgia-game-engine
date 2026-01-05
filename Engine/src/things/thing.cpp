@@ -22,7 +22,7 @@ void Thing::Ready()
     for(auto child : mChildren)
         { g_pTheatreManager->GetThing(child.id)->add_parent({mUID, mType}); }
     for(auto parent : mParents)
-        { g_pTheatreManager->GetThing(parent.id)->add_parent({mUID, mType}); }
+        { g_pTheatreManager->GetThing(parent.id)->add_child({mUID, mType}); }
 }
 
 void Thing::SetVariables(Farg<ThingData> data)
