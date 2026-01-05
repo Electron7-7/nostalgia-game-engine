@@ -6,6 +6,10 @@
 #include "managers/manager.hpp"
 #include "core/id.hpp"
 
+using BodyArg = const JPH::Body&;
+using BodyIDArg = const JPH::BodyID&;
+using BodyLockInterfaceArg = const JPH::BodyLockInterface&;
+
 class PhysicsManager : public Manager
 {
 public:
@@ -18,8 +22,14 @@ public:
 
     JPH::BodyInterface& GetBodyInterface();
     JPH::BodyID& GetBodyID(ID UID);
+    BodyLockInterfaceArg GetBodyLockInterface();
 
-    bool CreateBody(ID UID, Farg<Transform3D> inTransform, PhysicsBodyShape, PhysicsBodyMotion);
+    bool CreateBody(ID UID,
+        Farg<Transform3D> inTransform,
+        PhysicsBodyShape,
+        PhysicsBodyMotion,
+        float inFriction = 0.0f,
+        float inDensity  = 0.0f);
     bool DestroyBody(ID UID);
 
 private:

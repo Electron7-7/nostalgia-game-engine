@@ -1,5 +1,4 @@
 #include "physics_manager.hpp"
-#include "theatre_manager.hpp"
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
 #include "things/devices/collider.hpp"
@@ -12,6 +11,7 @@
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Body/BodyLockInterface.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -188,14 +188,18 @@ static void sJoltTraceImpl(const char* inFMT, ...)
 }
 
 #ifdef JPH_ENABLE_ASSERTS
-static bool sJoltAssertFailed(const char* in_expression, const char* in_message, const char* in_file, uint in_line)
+static bool sJoltAssertFailed(const char* in_expression,
+    const char* in_message,
+    const char* in_file,
+    uint in_line)
 {
-    print_error("{}:{}: ({}){}",
+    // Quoting Jolt/Core/IssueReporting.h line 9:
+    // "This function should return true if a breakpoint needs to be triggered"
+    return !print_errorv(VERBOSE0, "{}({}) `{}` {}",
         in_file,
         in_line,
         in_expression,
         (!in_message) ? "" : in_message);
-    return true; // Quoting Jolt/Core/IssueReporting.h line 9: "This function should return true if a breakpoint needs to be triggered"
 }
 #endif // JPH_ENABLE_ASSERTS
 
@@ -299,6 +303,9 @@ void PhysicsManager::Tick()
 BodyInterface& PhysicsManager::GetBodyInterface()
 { assert(mSystem); return mSystem->GetBodyInterface(); }
 
+Farg<BodyLockInterface> PhysicsManager::GetBodyLockInterface()
+{ assert(mSystem); return mSystem->GetBodyLockInterface(); }
+
 BodyID& PhysicsManager::GetBodyID(ID uid)
 { return sBodyIDMap[uid]; }
 
@@ -390,11 +397,15 @@ static ObjectLayer s_GetLayer(PhysicsBodyMotion inMotion)
     }
 }
 
-bool PhysicsManager::CreateBody(ID uid, Farg<Transform3D> inTransform, PhysicsBodyShape inShape, PhysicsBodyMotion inMotion)
+bool PhysicsManager::CreateBody(ID uid,
+    Farg<Transform3D> inTransform,
+    PhysicsBodyShape inShape,
+    PhysicsBodyMotion inMotion,
+    float inFriction,
+    float inDensity)
 {
     if(!ValidateColliderUID(uid, false))
         { return false; }
-
     BodyCreationSettings settings;
     EMotionType motion_type{s_GetMotion(inMotion)};
     ObjectLayer layer{s_GetLayer(inMotion)};
@@ -406,6 +417,15 @@ bool PhysicsManager::CreateBody(ID uid, Farg<Transform3D> inTransform, PhysicsBo
             uid[]);
     }
 #pragma message("TODO: Add bodies in a batch and activate them in a batch")
+    if(inFriction)
+        { settings.mFriction = inFriction; }
+    if(inDensity)
+    {
+        settings.mOverrideMassProperties = EOverrideMassProperties::CalculateInertia;
+        settings.mMassPropertiesOverride.SetMassAndInertiaOfSolidBox(
+            GlmToJolt<Vec3>(inTransform.Scale()),
+            inDensity);
+    }
     sBodyIDMap[uid] = GetBodyInterface().CreateAndAddBody(settings, EActivation::Activate);
     return !sBodyIDMap.at(uid).IsInvalid();
 }
