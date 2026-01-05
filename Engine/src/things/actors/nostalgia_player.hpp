@@ -26,6 +26,7 @@ protected:
     glm::vec2 mMovementDirection{0.0f},
         mLookWish{0.0f};
     ID mCameraID{};
+    ID mColliderID{};
 };
 
 #endif // NOSTALGIA_PLAYER_H

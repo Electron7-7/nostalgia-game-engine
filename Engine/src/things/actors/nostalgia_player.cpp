@@ -6,6 +6,7 @@
 #include "events/event.hpp"
 #include "settings/player.hpp"
 #include "managers/input_manager.hpp"
+#include "things/devices/collider.hpp"
 
 void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 {
@@ -13,6 +14,7 @@ void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
 
     data.GetVariable(mViewPosition, "ViewPosition");
     data.GetVariable(mCameraID, "Camera", "CameraID", "Camera3D");
+    data.GetVariable(mColliderID, "Collider", "ColliderID", "PlayerCollider");
 }
 
 Shared<ThingData> NostalgiaPlayer::GetVariables() const
@@ -21,6 +23,7 @@ Shared<ThingData> NostalgiaPlayer::GetVariables() const
 
     data->AddVariable(mViewPosition, "ViewPosition");
     data->AddVariable(mCameraID, "Camera");
+    data->AddVariable(mColliderID, "Collider");
 
     return data;
 }
@@ -31,6 +34,8 @@ void NostalgiaPlayer::Input(InputEvent* event)
 void NostalgiaPlayer::Ready()
 {
     Actor3D::Ready();
+    if(mScale == glm::vec3{1.0f})
+        { mScale = glm::vec3{1.0f, 3.0f, 1.0f}; }
     if(mCameraID.invalid())
     {
         mCameraID = g_pTheatreManager->CreateThing({"DefaultPlayerCam",
@@ -43,6 +48,20 @@ void NostalgiaPlayer::Ready()
                 {true, "UseDefaultSkybox"},
             }});
     }
+    if(mColliderID.invalid())
+    {
+        mColliderID = g_pTheatreManager->CreateThing({"DefaultPlayerCollider",
+            ThingType::Collider,
+            UID::Generate(),
+            {
+                {mOrigin + (mScale.y * 0.5f), "Origin"},
+                {mQuaternion, "Quaternion"},
+                {mScale, "Scale"},
+                {PhysicsBodyMotion::Dynamic, "Motion"},
+                {PhysicsBodyShape::Capsule, "Shape"},
+            }});
+    }
+    add_child({mColliderID, ThingType::Collider}, true);
 }
 
 void NostalgiaPlayer::Tick()
@@ -53,16 +72,19 @@ void NostalgiaPlayer::Tick()
     });
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
-    glm::vec3 l_FrontBackVelocity = glm::vec3(Front()[0], 0.0f, Front()[2]) * (mMovementDirection[1] * Settings::Player::MovementSpeed);
+    Euler(Euler(true) -= glm::vec3(0.0f, mLookWish.x, 0.0f), true);
+    auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
+    camera->Euler(camera->Euler(true) -= glm::vec3{mLookWish.y, mLookWish.x, 0.0f}, true);
+    camera->Origin(mOrigin + mViewPosition);
+
+    glm::vec3 l_FrontBackVelocity = Front() * (mMovementDirection[1] * Settings::Player::MovementSpeed);
     glm::vec3 l_LeftRightVelocity = Right() * (mMovementDirection[0] * Settings::Player::MovementSpeed);
     mVelocity = (l_FrontBackVelocity + l_LeftRightVelocity);
     mVelocity[1] = 0.0f;
-    mOrigin += mVelocity;
+    auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
+    collider->SetLinearVelocity(mVelocity);
+    mOrigin = DCast<Transform3D>(collider)->Origin();
     mMovementDirection = glm::vec3(0.0f);
-    Euler(Euler(true) -= glm::vec3(mLookWish.y, mLookWish.x, 0.0f), true);
-    auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
-    camera->Origin(mOrigin + mViewPosition);
-    camera->Quaternion(mQuaternion);
 }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)
