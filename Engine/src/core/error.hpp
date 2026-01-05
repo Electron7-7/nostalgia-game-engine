@@ -1,6 +1,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#include "core/printing.hpp"
 #include <source_location>
 
 // Modelled after GDScript's `Error` enum:
@@ -35,6 +36,26 @@ enum Error : int {
 constexpr bool operator!(const Error& inError) noexcept
 { return inError != OK; }
 
-Error print_error_enum(Error error, bool UNIMPLEMENTED_returns_OK = true, const std::source_location location = std::source_location::current());
+const char* __get_print_message(Error error);
+
+inline Error __print_error_enum(Error error, const std::source_location location)
+{
+    const char* msg{__get_print_message(error)};
+    if(!msg)
+        { return OK; }
+    __print_verbose(false,
+        VERBOSE1 | VERBOSE2 | VERBOSE3,
+        "{}",
+        location,
+        (error == UNIMPLEMENTED)
+            ? WarningLabel
+            : ErrorLabel,
+        msg);
+    return (error == UNIMPLEMENTED)
+        ? OK
+        : error;
+}
+
+#define print_error_enum(ENUM) __print_error_enum(ENUM, std::source_location::current())
 
 #endif // ERROR_H
