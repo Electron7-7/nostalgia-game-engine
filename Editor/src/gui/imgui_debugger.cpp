@@ -5,6 +5,7 @@
 #include "core/uid.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
+#include "physics/engine.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
@@ -263,12 +264,12 @@ static void s_GeneralDebuggingWindow()
                 { gOpenGLMessageFilter = static_cast<DebugMessageSeverityFilter>(gl_debug_selection); }
         }
         SeparatorText("Jolt Physics");
-            Checkbox("Contact Validate", &gEnableMsg_ContactValidate); SameLine();
-            Checkbox("Contact Added", &gEnableMsg_ContactAdded); SameLine();
-            Checkbox("Contact Persisted", &gEnableMsg_ContactPersisted); SameLine();
-            Checkbox("Contact Removed", &gEnableMsg_ContactRemoved);
-            Checkbox("Body Activated", &gEnableMsg_BodyActivated); SameLine();
-            Checkbox("Body Deactivated", &gEnableMsg_BodyDeactivated);
+            Checkbox("Contact Validate",  &gJoltDebugMessageAllow_ContactValidate);  SameLine();
+            Checkbox("Contact Added",     &gJoltDebugMessageAllow_ContactAdded);     SameLine();
+            Checkbox("Contact Persisted", &gJoltDebugMessageAllow_ContactPersisted); SameLine();
+            Checkbox("Contact Removed",   &gJoltDebugMessageAllow_ContactRemoved);
+            Checkbox("Body Activated",    &gJoltDebugMessageAllow_BodyActivated);    SameLine();
+            Checkbox("Body Deactivated",  &gJoltDebugMessageAllow_BodyDeactivated);
     }
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
@@ -513,7 +514,7 @@ struct thing_data_buffer
         ptr{inThingPtr},
         id{inThingPtr->uid()[]},
         name{inThingPtr->name()},
-        activate_collider_on_reset{false}
+        activate_on_change{false}
     {
         if(auto actor{DCast<Actor3D>(ptr)})
         {
@@ -545,7 +546,7 @@ struct thing_data_buffer
             {
                 motion = static_cast<int>(collider->Motion());
                 shape  = static_cast<int>(collider->Shape());
-                friction = collider->Friction();
+                collider_material = collider->Material();
             }
         }
     }
@@ -557,8 +558,8 @@ struct thing_data_buffer
         diffuseTexture{},
         specularTexture{},
         debug_mesh_instance{};
-    int motion{static_cast<int>(PhysicsBodyMotion::None)},
-        shape{static_cast<int>(PhysicsBodyShape::None)};
+    int motion{static_cast<int>(MotionType::None)},
+        shape{static_cast<int>(ShapeType::None)};
     float fov{75.0f},
         view_near{0.001f},
         view_far{1000.0f},
@@ -566,9 +567,10 @@ struct thing_data_buffer
         friction{0.0f};
     bool visible{true},
         wireframe{false},
-        activate_collider_on_reset{false},
+        activate_on_change{false},
         is_camera_current{false};
     Environment::BackgroundType env_type{Environment::BackgroundType::BG_CLEAR_COLOR};
+    ColliderMaterial collider_material{};
 };
 
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
@@ -595,7 +597,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             {
                 InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
                 ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
-                ColorEdit3("Actor3D Color",    actor_button_color,    ImGuiColorEditFlags_Float);
+                ColorEdit3("Actor3D Color",  actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Device Color",   device_button_color,   ImGuiColorEditFlags_Float);
                 ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
@@ -841,24 +843,27 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
-                    if(InputFloat("Density", &selected.density, 0.1f, 1.0f))
-                        { collider->Density(selected.density); }
-                    if(InputFloat("Friction", &selected.friction, 0.01f, 0.2f))
-                        { collider->Friction(selected.friction); }
+                    if(InputFloat("Mass", &selected.density, 0.1f, 1.0f))
+                        { collider->Mass(selected.density); }
+                    if(InputFloat("Friction", &selected.collider_material.friction, 0.01f, 0.1f))
+                    {
+                        if(selected.collider_material.friction > 1.0f)
+                            { selected.collider_material.friction = 1.0f; }
+                        else if(selected.collider_material.friction < 0.0f)
+                            { selected.collider_material.friction = 0.0f; }
+                        collider->Material(selected.collider_material);
+                    }
                     if(Combo("Motion", &selected.motion, motion_names))
-                        { collider->Motion((PhysicsBodyMotion)selected.motion); }
+                        { collider->Motion((MotionType)selected.motion, selected.activate_on_change); }
                     if(Combo("Shape", &selected.shape, shape_names))
-                        { collider->Shape((PhysicsBodyShape)selected.shape); }
+                        { collider->Shape((ShapeType)selected.shape, selected.activate_on_change); }
                     bool is_active{collider->Active()};
                     TextF("Active: {}", is_active);
                     if(!is_active and Button("Activate"))
-                        { collider->Activate(); }
+                        { collider->Active(true); }
                     else if(is_active and Button("Deactivate"))
-                        { collider->Deactivate(); }
-                    if(Button("Reset Transform"))
-                        { collider->ResetTransform(selected.activate_collider_on_reset); }
-                    SameLine();
-                    Checkbox("Activate on Reset", &selected.activate_collider_on_reset);
+                        { collider->Active(false); }
+                    Checkbox("Activate on Motion/Shape Change", &selected.activate_on_change);
                 }
                 else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
                 {
