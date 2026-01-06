@@ -30,6 +30,7 @@ void Thing::SetVariables(Farg<ThingData> data)
     mUID  = data.uid;
     mName = data.name;
     mType = data.type();
+    mStartingData = MakeUnique<ThingData>(data);
     data.GetChildren(mChildren);
 }
 
@@ -39,6 +40,9 @@ Shared<ThingData> Thing::GetVariables() const
     data->SetChildren(mChildren);
     return data;
 }
+
+ThingData Thing::GetStartingVariables() const
+{ return *mStartingData; }
 
 ID Thing::uid() const
 { return mUID; }

@@ -44,6 +44,8 @@ public:
     // See `Material::GetVariables` for an example.
     virtual Shared<ThingData> GetVariables() const;
 
+    ThingData GetStartingVariables() const;
+
     void Free();
 
     ID uid() const;
@@ -69,6 +71,7 @@ protected:
     std::string mName{"Untitled Thing"};
     TTID mType{"Thing"};
     RMutex mChildrenMutex{};
+    Unique<ThingData> mStartingData{nullptr};
 
     relatives_t mParents{};
     relatives_t mChildren{};
