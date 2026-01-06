@@ -13,6 +13,9 @@ enum class ShapeType : ushort
 enum class MotionType : ushort
 { Static, Dynamic, Kinematic, None };
 
+enum class CollisionType : ushort
+{ Validated, Added, Persisted, Removed, None, };
+
 struct ColliderMaterial
 {
     float friction{1.0f};
@@ -34,6 +37,9 @@ public:
     virtual bool CreateBody(bool setActive);
     virtual void DestroyBody();
 
+    virtual CollisionType Collision() const;
+    virtual ID CollidedID() const;
+
     virtual Farg<ColliderMaterial> Material() const;
     virtual Error Material(Farg<ColliderMaterial>);
 
@@ -49,6 +55,9 @@ public:
     virtual bool Active() const;
     virtual void Active(bool) const;
 
+    virtual bool SetActiveOnNextChange() const;
+    virtual void SetActiveOnNextChange(bool);
+
     virtual void AddImpulse(Farg<glm::vec3> inImpulse);
     virtual void AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint);
     virtual void AddAngularImpulse(Farg<glm::vec3> inAngularImpulse);
@@ -62,7 +71,12 @@ protected:
     MotionType mMotion{MotionType::Static};
     ColliderMaterial mMaterial{};
     float mMass{1.0f};
-    bool mStartInactive{false};
+    bool mActivateOnNextChange{true};
+    CollisionType mCurrentCollision{CollisionType::None};
+    ID mCurrentCollisionID{};
+
+    friend void s_NotifyCollider(CollisionType,ID,ID);
+    void collision_notification(CollisionType, ID inOtherColliderID);
 };
 
 #endif // COLLIDER_H

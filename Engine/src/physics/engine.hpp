@@ -52,7 +52,7 @@ public:
     static JPH::EMotionType ConvertMotionType(MotionType) noexcept;
     static void Instantiate();
     static Shared<PhysicsEngine> Instance();
-    static Shared<PhysicsEngine> operator[]() noexcept;
+    static Shared<PhysicsEngine> I() noexcept;
 
 private:
     static Shared<PhysicsEngine> m_sInstance;

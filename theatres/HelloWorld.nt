@@ -210,4 +210,23 @@ Things
         Origin  = [-1, 1, 2]
         Current = [false]
     }
+
+    Actor3D TestCube1
+    {
+        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+        Origin = [0, 1, 3]
+    }
+
+    Actor3D TestCube2
+    {
+        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+        Origin = [0, 2, 3]
+    }
+
+    Actor3D TestCube3
+    {
+        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+        Origin = [1, 2, 3]
+        Scale = [1, 2, 1]
+    }
 }

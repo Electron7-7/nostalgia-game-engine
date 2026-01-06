@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/devices/collider.hpp"
 #include "Jolt/RegisterTypes.h"
 #include "Jolt/Physics/PhysicsSystem.h"
@@ -114,6 +115,12 @@ private:
     BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
 };
 
+void s_NotifyCollider(CollisionType inType, ID inColliderID, ID inOtherColliderID)
+{
+    g_pTheatreManager->GetThing<Collider>(inColliderID)->collision_notification(inType, inOtherColliderID);
+    g_pTheatreManager->GetThing<Collider>(inOtherColliderID)->collision_notification(inType, inColliderID);
+}
+
 class Jolt_ContactListener : public ContactListener
 {
 public:
@@ -121,6 +128,7 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactValidate)
             { print_jolt("Contact validate callback"); }
+        s_NotifyCollider(CollisionType::Validated, in_body_1.GetUserData(), in_body_2.GetUserData());
         return ValidateResult::AcceptAllContactsForThisBodyPair;
     }
 
@@ -128,18 +136,23 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
+        s_NotifyCollider(CollisionType::Added, body1.GetUserData(), body2.GetUserData());
     }
 
     virtual void OnContactPersisted(const Body& body1, const Body& body2, const ContactManifold& manifold, ContactSettings& io_settings) override
     {
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
+        s_NotifyCollider(CollisionType::Persisted, body1.GetUserData(), body2.GetUserData());
     }
 
     virtual void OnContactRemoved(const SubShapeIDPair& sub_shape_pair) override
     {
         if(gJoltDebugMessageAllow_ContactRemoved)
             { print_jolt("A contact was removed"); }
+        s_NotifyCollider(CollisionType::Removed,
+            PhysicsEngine::I()->BodyInterface().GetUserData(sub_shape_pair.GetBody1ID()),
+            PhysicsEngine::I()->BodyInterface().GetUserData(sub_shape_pair.GetBody2ID()));
     }
 };
 
@@ -204,7 +217,7 @@ void PhysicsEngine::Instantiate()
 Shared<PhysicsEngine> PhysicsEngine::Instance()
 { assert(m_sInstance); return m_sInstance; }
 
-Shared<PhysicsEngine> PhysicsEngine::operator[]() noexcept
+Shared<PhysicsEngine> PhysicsEngine::I() noexcept
 { assert(m_sInstance); return m_sInstance; }
 
 ObjectLayer PhysicsEngine::GetObjectLayer(MotionType inMotion) noexcept

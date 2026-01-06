@@ -29,6 +29,7 @@
 #include "application/window.hpp"
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
@@ -516,6 +517,12 @@ struct thing_data_buffer
         name{inThingPtr->name()},
         activate_on_change{false}
     {
+        if(auto transform3d{DCast<Transform3D>(ptr)})
+        {
+            origin = transform3d->Origin();
+            rotation = transform3d->Euler(true);
+            scale = transform3d->Scale();
+        }
         if(auto actor{DCast<Actor3D>(ptr)})
         {
             visible = actor->Visible();
@@ -547,12 +554,16 @@ struct thing_data_buffer
                 motion = static_cast<int>(collider->Motion());
                 shape  = static_cast<int>(collider->Shape());
                 collider_material = collider->Material();
+                activate_on_change = collider->SetActiveOnNextChange();
             }
         }
     }
     Shared<Thing> ptr{nullptr};
     uint id{};
     std::string name{};
+    glm::vec3 origin{},
+        rotation{},
+        scale{};
     uint mesh{},
         material{},
         diffuseTexture{},
@@ -720,18 +731,22 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             }
             if(selected.ptr)
                 { Text("Type - %s", selected.ptr->type().c_name()); }
+            static bool collider_update_transform_instantly{false};
             // TRANSFORM 3D
             if(auto transform3d{DCast<Transform3D>(selected.ptr)})
             {
-                glm::vec3 Origin{transform3d->Origin()};
-                if(DragGLMv3("Position", &Origin, 0.05f, -200.0f, 200.0f, "%.2f"))
-                    { transform3d->Origin(Origin); }
-                glm::vec3 Euler{transform3d->Euler(true)};
-                if(DragGLMv3("Rotation", &Euler, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                    { transform3d->Euler(Euler, true); }
-                glm::vec3 Scale{transform3d->Scale()};
-                if(DragGLMv3("Scale", &Scale, 0.01f, -100.0f, 100.0f, "%.2f"))
-                    { transform3d->Scale(Scale); }
+                bool (*ItemEdited_f)(){(DCast<Collider>(selected.ptr) and !collider_update_transform_instantly)
+                    ? &IsItemDeactivatedAfterEdit
+                    : &IsItemEdited};
+                DragGLMv3("Position", &selected.origin, 0.05f, -200.0f, 200.0f, "%.2f");
+                if(ItemEdited_f())
+                    { transform3d->Origin(selected.origin); }
+                DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround);
+                if(ItemEdited_f())
+                    { transform3d->Euler(selected.rotation, true); }
+                DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f");
+                if(ItemEdited_f())
+                    { transform3d->Scale(selected.scale); }
             }
             // ACTORS
             if(auto actor{DCast<Actor3D>(selected.ptr)})
@@ -841,6 +856,26 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 }
                 else if(auto collider{DCast<Collider>(selected.ptr)})
                 {
+                    if(CollapsingHeader("Jolt Properties"))
+                    {
+                        auto bodyid{collider->id()};
+                        auto& interface{PhysicsEngine::I()->BodyInterface()};
+                        TextF("BodyID (index#): {}", bodyid.GetIndex());
+                        TextF("Position: [{}, {}, {}]",
+                            interface.GetPosition(bodyid).GetX(),
+                            interface.GetPosition(bodyid).GetY(),
+                            interface.GetPosition(bodyid).GetZ());
+                        TextF("Rotation (euler degrees): [{}, {}, {}]",
+                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetX()),
+                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetY()),
+                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
+                        auto scale{collider->CreationSettings()->GetShape()->GetLocalBounds().GetSize()};
+                        TextF("Scale: [{}, {}, {}]",
+                            // collider->CreationSettings()->GetShape()->Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe));
+                            scale.GetX(),
+                            scale.GetY(),
+                            scale.GetZ());
+                    }
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
                     if(InputFloat("Mass", &selected.density, 0.1f, 1.0f))
@@ -857,13 +892,14 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { collider->Motion((MotionType)selected.motion, selected.activate_on_change); }
                     if(Combo("Shape", &selected.shape, shape_names))
                         { collider->Shape((ShapeType)selected.shape, selected.activate_on_change); }
-                    bool is_active{collider->Active()};
-                    TextF("Active: {}", is_active);
-                    if(!is_active and Button("Activate"))
+                    if(Checkbox("Set Active on Change", &selected.activate_on_change))
+                        { collider->SetActiveOnNextChange(selected.activate_on_change); selected = {collider}; }
+                    Checkbox("Update Transform Values Instantly", &collider_update_transform_instantly);
+                    TextF("Active: {}", collider->Active());
+                    if(!collider->Active() and Button("Activate"))
                         { collider->Active(true); }
-                    else if(is_active and Button("Deactivate"))
+                    else if(collider->Active() and Button("Deactivate"))
                         { collider->Active(false); }
-                    Checkbox("Activate on Motion/Shape Change", &selected.activate_on_change);
                 }
                 else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
                 {
