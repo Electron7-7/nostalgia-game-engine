@@ -1,24 +1,60 @@
 #include "collider.hpp"
-#include "core/enum_prettifier.hpp"
+#include "core/enum_prettifier.hpp" // IWYU pragma: keep
+#include "physics/engine.hpp"
 #include "math/conversion.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "managers/physics_manager.hpp"
-#include <Jolt/Physics/Body/BodyInterface.h>
+#include "thirdparty/frozen/map.h"
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+
+bool gEnableMsg_ContactValidate{false},
+    gEnableMsg_ContactAdded{false},
+    gEnableMsg_ContactPersisted{false},
+    gEnableMsg_ContactRemoved{false},
+    gEnableMsg_BodyActivated{false},
+    gEnableMsg_BodyDeactivated{false};
+
+#define ASSERT_BODYID(RETURN_VALUE...) \
+    if(mBodyID.IsInvalid()) { return RETURN_VALUE; }
 
 using namespace JPH;
 
-Error Collider::DestroyBody() const
-{
-    return (g_pPhysicsManager->DestroyBody(mUID))
-        ? OK
-        : FAILED;
-}
+typedef const ShapeSettings* (*ShapeSettingsMaker_f)(Vec3Arg);
 
-Error Collider::CreateBody() const
+template<ShapeType Shape>
+    const ShapeSettings* sMakeShapeSettings(Vec3Arg inScale);
+
+template<>
+    const ShapeSettings* sMakeShapeSettings<ShapeType::Box>(Vec3Arg inScale)
+    { return new BoxShapeSettings{inScale}; }
+template<>
+    const ShapeSettings* sMakeShapeSettings<ShapeType::Sphere>(Vec3Arg inScale)
+    { return new SphereShapeSettings{inScale.GetX() * 0.5f}; }
+template<>
+    const ShapeSettings* sMakeShapeSettings<ShapeType::Cylinder>(Vec3Arg inScale)
+    { return new CylinderShapeSettings{inScale.GetZ() * 0.5f, inScale.GetX() * 0.5f}; }
+template<>
+    const ShapeSettings* sMakeShapeSettings<ShapeType::Capsule>(Vec3Arg inScale)
+    { return new CapsuleShapeSettings{inScale.GetZ() * 0.5f, inScale.GetX() * 0.5f}; }
+
+static constexpr frozen::map<ShapeType, ShapeSettingsMaker_f, 5>
+s_ShapeSettingsMakers
 {
-    return (g_pPhysicsManager->CreateBody(mUID, *this, mShape, mMotion, mFriction, mDensity))
-        ? OK
-        : FAILED;
+    { ShapeType::None,     &sMakeShapeSettings<ShapeType::Box>      },
+    { ShapeType::Box,      &sMakeShapeSettings<ShapeType::Box>      },
+    { ShapeType::Sphere,   &sMakeShapeSettings<ShapeType::Sphere>   },
+    { ShapeType::Cylinder, &sMakeShapeSettings<ShapeType::Cylinder> },
+    { ShapeType::Capsule,  &sMakeShapeSettings<ShapeType::Capsule>  },
+};
+
+static constexpr EActivation s_Activation(bool setActive) noexcept
+{
+    return (setActive)
+        ? EActivation::Activate
+        : EActivation::DontActivate;
 }
 
 void Collider::SetVariables(Farg<ThingData> data)
@@ -28,12 +64,20 @@ void Collider::SetVariables(Farg<ThingData> data)
 
     data.GetVariable(mShape, "Shape", "ColliderShape", "BodyShape");
     data.GetVariable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
-    data.GetVariable(mDensity, "Density", "ColliderDensity", "BodyDensity");
-    data.GetVariable(mFriction, "Friction", "ColliderFriction", "BodyFriction");
-    data.GetVariable(mInitialImpulse, "InitialImpulse", "Impulse");
+    data.GetVariable(mMass, "Mass", "ColliderMass", "BodyMass");
+    data.GetVariable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
+    data.GetVariable(mStartInactive, "StartInactive", "Inactive");
+    if(data.GetVariable(mStartInactive, "StartActive", "Active"))
+        { mStartInactive = false; }
 
-    GlmToJolt(mOrigin, mInitialPosition);
-    GlmToJolt(mQuaternion, mInitialRotation);
+    if(CreateBody(!mStartInactive))
+    {
+        print_jolt("Body Created - Shape: {}, Motion: {}",
+            PRETTIFY_ENUM(mShape, ShapeType),
+            PRETTIFY_ENUM(mMotion, MotionType));
+    }
+    else
+        { print_error("Failed to create physics body for Collider#{}", mUID[]); }
 }
 
 Shared<ThingData> Collider::GetVariables() const
@@ -42,161 +86,178 @@ Shared<ThingData> Collider::GetVariables() const
     GetTransformVariables(data);
     data->AddVariable(mShape, "Shape");
     data->AddVariable(mMotion, "Motion");
-    data->AddVariable(mDensity, "Density");
-    data->AddVariable(mFriction, "Friction");
-    data->AddVariable(mInitialImpulse, "InitialImpulse");
+    data->AddVariable(mMass, "Mass");
+    data->AddVariable(mMaterial.friction, "Friction");
+    data->AddVariable(mStartInactive, "Inactive");
     return data;
 }
 
 void Collider::Ready()
 {
     Device::Ready();
-    g_pPhysicsManager->CreateBody(mUID, *this, mShape, mMotion, mDensity);
-    print_jolt("Body Created - Shape: {}, Motion: {}",
-        EnumPrettifier::Get(mShape, EnumSet::PhysicsBodyShape),
-        EnumPrettifier::Get(mMotion, EnumSet::PhysicsBodyMotion));
 }
 
 void Collider::Shutdown()
 {
-    g_pPhysicsManager->DestroyBody(mUID);
+    DestroyBody();
     print_jolt("Body Destroyed - Shape: {}, Motion: {}",
-        EnumPrettifier::Get(mShape, EnumSet::PhysicsBodyShape),
-        EnumPrettifier::Get(mMotion, EnumSet::PhysicsBodyMotion));
+        PRETTIFY_ENUM(mShape, ShapeType),
+        PRETTIFY_ENUM(mMotion, MotionType));
     Device::Shutdown();
 }
 
 void Collider::Tick()
 {
-    if(BodyIDInvalid())
-        { return; }
-    JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetRotation(BodyID()), mQuaternion);
-    JoltToGlm(g_pPhysicsManager->GetBodyInterface().GetCenterOfMassPosition(BodyID()), mOrigin);
+    ASSERT_BODYID()
+    JoltToGlm(PhysicsEngine::Instance()->BodyInterface().GetRotation(mBodyID), mQuaternion);
+    JoltToGlm(PhysicsEngine::Instance()->BodyInterface().GetCenterOfMassPosition(mBodyID), mOrigin);
     mEuler = glm::eulerAngles(mQuaternion);
 }
 
-bool Collider::Active() const
-{ return g_pPhysicsManager->GetBodyInterface().IsActive(BodyID()); }
+bool Collider::CreateBody(bool setActive)
+{
+    m_pBodyCreationSettings =
+        MakeShared<BodyCreationSettings>(s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale)),
+            GlmToJolt<Vec3>(mOrigin),
+            // GlmToJolt<Quat>(mQuaternion),
+            Quat::sEulerAngles(GlmToJolt<Vec3>(mEuler)),
+            PhysicsEngine::ConvertMotionType(mMotion),
+            PhysicsEngine::GetObjectLayer(mMotion));
 
-PhysicsBodyShape Collider::Shape() const
+    m_pBodyCreationSettings->mOverrideMassProperties =
+        EOverrideMassProperties::CalculateInertia;
+
+    m_pBodyCreationSettings->mMassPropertiesOverride.mMass = mMass;
+    m_pBodyCreationSettings->mFriction = mMaterial.friction;
+
+#pragma message("TODO: Add bodies in a batch and activate them in a batch")
+    mBodyID = PhysicsEngine::Instance()
+        ->BodyInterface()
+            .CreateAndAddBody(*m_pBodyCreationSettings, s_Activation(setActive));
+    return !mBodyID.IsInvalid();
+}
+
+void Collider::DestroyBody()
+{
+    if(mBodyID.IsInvalid())
+        { print_warning("mBodyID.IsInvalid == true (body was already destroyed?)"); }
+    PhysicsEngine::Instance()->BodyInterface().RemoveBody(mBodyID);
+    PhysicsEngine::Instance()->BodyInterface().DestroyBody(mBodyID);
+    mBodyID = BodyID{BodyID::cInvalidBodyID};
+}
+
+ShapeType Collider::Shape() const
 { return mShape; }
 
-PhysicsBodyMotion Collider::Motion() const
+Error Collider::Shape(ShapeType inShape, bool isActive)
+{
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mShape = inShape;
+    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
+        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        true,
+        s_Activation(isActive));
+    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
+        GlmToJolt<Vec3>(mOrigin),
+        true,
+        s_Activation(isActive));
+    return OK;
+}
+
+MotionType Collider::Motion() const
 { return mMotion; }
 
-void Collider::ResetTransform(bool activate) const
+Error Collider::Motion(MotionType inMotion, bool isActive)
 {
-    if(BodyIDInvalid())
-        { return; }
-    g_pPhysicsManager->GetBodyInterface().SetPositionRotationAndVelocity(
-        BodyID(),
-        mInitialPosition,
-        mInitialRotation,
-        Vec3{0,0,0},
-        Vec3{0,0,0});
-    if(activate)
-        { Activate(); }
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mMotion = inMotion;
+    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
+        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        true,
+        s_Activation(isActive));
+    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
+        GlmToJolt<Vec3>(mOrigin),
+        true,
+        s_Activation(isActive));
+    return OK;
 }
 
-void Collider::ToggleActivation()
+bool Collider::Active() const
 {
-    if(BodyIDInvalid())
-        { return; }
-    else if(Active())
-        { Activate(); }
+    ASSERT_BODYID(false)
+    return PhysicsEngine::Instance()->BodyInterface().IsActive(mBodyID);
+}
+
+void Collider::Active(bool isActive) const
+{
+    ASSERT_BODYID()
+    if(isActive)
+        { PhysicsEngine::Instance()->BodyInterface().ActivateBody(mBodyID); }
     else
-        { Deactivate(); }
+        { PhysicsEngine::Instance()->BodyInterface().DeactivateBody(mBodyID); }
 }
-
-void Collider::Activate() const
-{ g_pPhysicsManager->GetBodyInterface().ActivateBody(BodyID()); }
-
-void Collider::Deactivate() const
-{ g_pPhysicsManager->GetBodyInterface().DeactivateBody(BodyID()); }
-
-bool Collider::BodyIDInvalid() const
-{ return BodyID().IsInvalid(); }
-
-JPH::BodyID& Collider::BodyID() const
-{ return g_pPhysicsManager->GetBodyID(mUID); }
 
 void Collider::OnTransformChanged(PropertyChanged inProp)
 {
+    ASSERT_BODYID()
     LockGuard<RMutex> lock{mTransformMutex};
-    if(BodyIDInvalid())
-        { return; }
-    else if(inProp == SCALE)
+    if(inProp == SCALE)
     {
         print_warning("Editing a Collider's scale is not allowed, yet");
         return;
     }
-    g_pPhysicsManager->GetBodyInterface().SetPositionAndRotation(BodyID(),
-        GlmToJolt<JPH::Vec3>(mOrigin),
-        GlmToJolt<JPH::Quat>(mQuaternion),
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotation(BodyID(),
+        GlmToJolt<Vec3>(mOrigin),
+        GlmToJolt<Quat>(mQuaternion),
         EActivation::DontActivate);
 }
 
-float Collider::Friction()
+Farg<ColliderMaterial> Collider::Material() const
+{ return mMaterial; }
+
+Error Collider::Material(Farg<ColliderMaterial> inMaterial)
 {
-    if(BodyIDInvalid())
-        { return mFriction; }
-    return mFriction = g_pPhysicsManager->GetBodyInterface().GetFriction(BodyID());
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mMaterial = inMaterial;
+    PhysicsEngine::Instance()->BodyInterface().SetFriction(mBodyID,
+        mMaterial.friction);
+    return OK;
 }
 
-void Collider::Friction(float inFriction)
-{ g_pPhysicsManager->GetBodyInterface().SetFriction(BodyID(), mFriction = inFriction); }
-
-float Collider::Density()
+float Collider::Mass() const
 {
-    if(BodyIDInvalid())
-        { return mDensity; }
-    return mDensity;
+    ASSERT_BODYID(mMass)
+    return mMass;
 }
 
-void Collider::Density(float inDensity)
-{ print_debug("You can't change a Collider's density, yet"); }
-
-PhysicsBodyShape Collider::Shape()
-{ return mShape; }
-
-void Collider::Shape(PhysicsBodyShape inShape)
-{
-    mShape = inShape;
-    DestroyBody();
-    print_error_enum(CreateBody());
-}
-
-PhysicsBodyMotion Collider::Motion()
-{ return mMotion; }
-
-void Collider::Motion(PhysicsBodyMotion inMotion)
-{
-    mMotion = inMotion;
-    DestroyBody();
-    print_error_enum(CreateBody());
-}
+void Collider::Mass(float inMass)
+{ print_debug("You can't change a Collider's mass, yet"); }
 
 void Collider::AddImpulse(Farg<glm::vec3> inImpulse)
 {
-    g_pPhysicsManager->GetBodyInterface().AddImpulse(BodyID(),
+    ASSERT_BODYID()
+    PhysicsEngine::Instance()->BodyInterface().AddImpulse(BodyID(),
         GlmToJolt<Vec3>(inImpulse));
 }
 
 void Collider::AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint)
 {
-    g_pPhysicsManager->GetBodyInterface().AddImpulse(BodyID(),
+    ASSERT_BODYID()
+    PhysicsEngine::Instance()->BodyInterface().AddImpulse(BodyID(),
         GlmToJolt<Vec3>(inImpulse),
         GlmToJolt<Vec3>(inPoint));
 }
 
 void Collider::AddAngularImpulse(Farg<glm::vec3> inAngularImpulse)
 {
-    g_pPhysicsManager->GetBodyInterface().AddAngularImpulse(BodyID(),
+    ASSERT_BODYID()
+    PhysicsEngine::Instance()->BodyInterface().AddAngularImpulse(BodyID(),
         GlmToJolt<Vec3>(inAngularImpulse));
 }
 
 void Collider::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
 {
-    g_pPhysicsManager->GetBodyInterface().SetLinearVelocity(BodyID(),
+    ASSERT_BODYID()
+    PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(BodyID(),
         GlmToJolt<Vec3>(inLinearVelocity));
 }

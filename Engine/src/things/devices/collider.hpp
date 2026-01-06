@@ -1,19 +1,29 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
-#include "fwd/physics.hpp"
 #include "things/devices/device.hpp"
 #include "theatre/transform.hpp"
+#include <glm/fwd.hpp>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/Body.h>
 
-enum class PhysicsBodyShape : ushort
-{ Box = 0, Sphere = 1, Capsule = 2, Cylinder = 3, None = 4 };
+enum class ShapeType : ushort
+{ Box, Sphere, Capsule, Cylinder, None };
 
-enum class PhysicsBodyMotion : ushort
-{ Static = 0, Dynamic = 1, Kinematic = 2, None = 3 };
+enum class MotionType : ushort
+{ Static, Dynamic, Kinematic, None };
+
+struct ColliderMaterial
+{
+    float friction{1.0f};
+};
 
 class Collider : public Device, public Transform3D
 {
 public:
+    Farg<JPH::BodyID> id() const;
+    Shared<JPH::BodyCreationSettings> CreationSettings();
+
     virtual void OnTransformChanged(PropertyChanged) override;
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
@@ -21,43 +31,38 @@ public:
     virtual void Shutdown() override;
     virtual void Tick() override;
 
-    virtual float Friction();
-    virtual void  Friction(float);
-    virtual float Density();
-    virtual void  Density(float);
-    virtual PhysicsBodyShape Shape();
-    virtual void Shape(PhysicsBodyShape);
-    virtual PhysicsBodyMotion Motion();
-    virtual void Motion(PhysicsBodyMotion);
+    virtual bool CreateBody(bool setActive);
+    virtual void DestroyBody();
+
+    virtual Farg<ColliderMaterial> Material() const;
+    virtual Error Material(Farg<ColliderMaterial>);
+
+    virtual float Mass() const;
+    virtual void  Mass(float);
+
+    virtual ShapeType Shape() const;
+    virtual Error Shape(ShapeType, bool setActive = false);
+
+    virtual MotionType Motion() const;
+    virtual Error Motion(MotionType, bool setActive = false);
+
+    virtual bool Active() const;
+    virtual void Active(bool) const;
 
     virtual void AddImpulse(Farg<glm::vec3> inImpulse);
     virtual void AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint);
     virtual void AddAngularImpulse(Farg<glm::vec3> inAngularImpulse);
     virtual void SetLinearVelocity(Farg<glm::vec3> inLinearVelocity);
 
-    bool BodyIDInvalid() const;
-    bool Active() const;
-    PhysicsBodyShape Shape() const;
-    PhysicsBodyMotion Motion() const;
-
-    void ResetTransform(bool ActivateOnReset = false) const;
-    void ToggleActivation();
-    void Activate() const;
-    void Deactivate() const;
-
 protected:
-    Error DestroyBody() const;
-    Error CreateBody() const;
-
-    JPH::Vec3 mInitialPosition{0,0,0};
-    JPH::Quat mInitialRotation{JPH::Quat::sIdentity()};
-    glm::vec3 mInitialImpulse{0.0f};
-    float mDensity{0.0f};
-    float mFriction{0.0f};
-    PhysicsBodyShape  mShape{PhysicsBodyShape::Box};
-    PhysicsBodyMotion mMotion{PhysicsBodyMotion::Static};
-
-    JPH::BodyID& BodyID() const;
+    RMutex mPhysicsMutex{};
+    Shared<JPH::BodyCreationSettings> m_pBodyCreationSettings{nullptr};
+    JPH::BodyID mBodyID{};
+    ShapeType  mShape{ShapeType::Box};
+    MotionType mMotion{MotionType::Static};
+    ColliderMaterial mMaterial{};
+    float mMass{1.0f};
+    bool mStartInactive{false};
 };
 
 #endif // COLLIDER_H
