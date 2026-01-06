@@ -1021,3 +1021,6 @@ Oh, `MeshInstance` Devices need transform properties; maybe it's time to impleme
 Okay, I implemented 'Actor2D/Actor3D' classes. Now, time to add transforms to `MeshInstance` and actually use them.
 
 I did all of that and overhauled the parent/child system. Now, Things can have multiple parents, and the editor (or whoever is writing the Theatre file) will have the job of managing how Unique vs shared (or 'referenced') children will be created. Internally, every Thing can have as many children and parents as they want, letting the user decide how strict ownership should be.
+
+[01/05/25]
+Did a big physics engine refactor with some minor features. There's some issues when changig a Collider's shape/motion types that I think is related to updating the shape in Jolt (specifically, the "last position" function parameter). Oh, so I don't forget: I also want to change the enum prettifier to use the typeid of the enums as the map key.
