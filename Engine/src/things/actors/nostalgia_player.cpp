@@ -57,8 +57,8 @@ void NostalgiaPlayer::Ready()
                 {mOrigin + (mScale.y * 0.5f), "Origin"},
                 {mQuaternion, "Quaternion"},
                 {mScale, "Scale"},
-                {PhysicsBodyMotion::Dynamic, "Motion"},
-                {PhysicsBodyShape::Capsule, "Shape"},
+                {MotionType::Dynamic, "Motion"},
+                {ShapeType::Capsule, "Shape"},
             }});
     }
     add_child({mColliderID, ThingType::Collider}, true);
