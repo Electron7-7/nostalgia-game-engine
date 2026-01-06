@@ -76,14 +76,13 @@ void NostalgiaPlayer::Tick()
     auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
     camera->Euler(camera->Euler(true) -= glm::vec3{mLookWish.y, mLookWish.x, 0.0f}, true);
     camera->Origin(mOrigin + mViewPosition);
-
     glm::vec3 l_FrontBackVelocity = Front() * (mMovementDirection[1] * Settings::Player::MovementSpeed);
     glm::vec3 l_LeftRightVelocity = Right() * (mMovementDirection[0] * Settings::Player::MovementSpeed);
     mVelocity = (l_FrontBackVelocity + l_LeftRightVelocity);
     mVelocity[1] = 0.0f;
+    mOrigin += mVelocity;
     auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
-    collider->SetLinearVelocity(mVelocity);
-    mOrigin = DCast<Transform3D>(collider)->Origin();
+    collider->Origin(mOrigin);
     mMovementDirection = glm::vec3(0.0f);
 }
 
