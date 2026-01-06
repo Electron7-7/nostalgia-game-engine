@@ -17,13 +17,7 @@ extern RenderManager*  g_pRenderManager;
 extern TheatreManager* g_pTheatreManager;
 extern UIManager*      g_pUIManager;
 
-extern bool gEnableMsg_ContactValidate,
-    gEnableMsg_ContactAdded,
-    gEnableMsg_ContactPersisted,
-    gEnableMsg_ContactRemoved,
-    gEnableMsg_BodyActivated,
-    gEnableMsg_BodyDeactivated,
-    gDebugPrintFrameNumbers,
+extern bool gDebugPrintFrameNumbers,
     gDebugPrintTickNumbers,
     gPrintInputLogs,
     gPrintLoadedTheatreData,
