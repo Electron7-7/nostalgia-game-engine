@@ -13,9 +13,6 @@ enum class ShapeType : ushort
 enum class MotionType : ushort
 { Static, Dynamic, Kinematic, None };
 
-enum class CollisionType : ushort
-{ Validated, Added, Persisted, Removed, None, };
-
 struct ColliderMaterial
 {
     float friction{1.0f};
@@ -36,9 +33,6 @@ public:
 
     virtual bool CreateBody(bool setActive);
     virtual void DestroyBody();
-
-    virtual CollisionType Collision() const;
-    virtual ID CollidedID() const;
 
     virtual Farg<ColliderMaterial> Material() const;
     virtual Error Material(Farg<ColliderMaterial>);
@@ -72,11 +66,6 @@ protected:
     ColliderMaterial mMaterial{};
     float mMass{1.0f};
     bool mActivateOnNextChange{true};
-    CollisionType mCurrentCollision{CollisionType::None};
-    ID mCurrentCollisionID{};
-
-    friend void s_NotifyCollider(CollisionType,ID,ID);
-    void collision_notification(CollisionType, ID inOtherColliderID);
 };
 
 #endif // COLLIDER_H

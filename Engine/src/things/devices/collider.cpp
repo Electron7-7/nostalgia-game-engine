@@ -63,12 +63,6 @@ Farg<JPH::BodyID> Collider::id() const
 Shared<JPH::BodyCreationSettings> Collider::CreationSettings()
 { return m_pBodyCreationSettings; }
 
-void Collider::collision_notification(CollisionType inType, ID inID)
-{
-    mCurrentCollision = inType;
-    mCurrentCollisionID = inID;
-}
-
 void Collider::SetVariables(Farg<ThingData> data)
 {
     Device::SetVariables(data);
@@ -162,12 +156,6 @@ void Collider::DestroyBody()
     PhysicsEngine::Instance()->BodyInterface().DestroyBody(mBodyID);
     mBodyID = BodyID{BodyID::cInvalidBodyID};
 }
-
-CollisionType Collider::Collision() const
-{ return mCurrentCollision; }
-
-ID Collider::CollidedID() const
-{ return mCurrentCollisionID; }
 
 ShapeType Collider::Shape() const
 { return mShape; }
