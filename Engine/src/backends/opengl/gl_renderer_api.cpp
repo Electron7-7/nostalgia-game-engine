@@ -43,7 +43,7 @@ bool OpenGLRendererAPI::Init()
 #ifndef CLANGD_KEEPS_CRASHING_HERE
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
     mShaders[Shaders::Fullbright]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
-    mShaders[Shaders::SkyBox]->CompileShader(GLSL_Skybox_Vert, GLSL_Skybox_Frag);
+    mShaders[Shaders::SkyBox]->CompileShader(GLSL_SkyBox_Vert, GLSL_SkyBox_Frag);
 #endif
     return true;
 }

@@ -19,13 +19,13 @@ constexpr const char GLSL_FullBright_Frag[]{
         0
 };
 
-constexpr const char GLSL_Skybox_Vert[]{
+constexpr const char GLSL_SkyBox_Vert[]{
     #embed "shaders/GLSL/SkyBox.vert" \
         suffix(,)
         0
 };
 
-constexpr const char GLSL_Skybox_Frag[]{
+constexpr const char GLSL_SkyBox_Frag[]{
     #embed "shaders/GLSL/SkyBox.frag" \
         suffix(,)
         0
