@@ -9,6 +9,7 @@ namespace Settings
         extern float MouseSensitivity;
         extern float MouseSensitivityScale;
         extern float MovementSpeed;
+        extern float MovementAcceleration;
         extern float Mass;
         extern bool  EnableGravity;
     }

@@ -101,27 +101,11 @@ void ImGui_Debugger::Update()
     static bool sPopOutStopwatches{false};
     if(sTheatreInspectorActive)
         { s_InspectTheatreWindow(&sTheatreInspectorActive); }
-    bool is_in_theatre{Manager::GetTheatreState() == ManagerEnums::IN_LEVEL};
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
     if(gShowDebugWindow)
     {
         if(Begin("Debugging", &gShowDebugWindow, ImGuiWindowFlags_MenuBar))
         {
-            if(is_in_theatre)
-            {
-                TextF("NostalgiaPlayer.mVelocity: {}",
-                    g_pTheatreManager
-                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
-                            ->Velocity());
-                TextF("NostalgiaPlayer.wish_velocity: {}",
-                    g_pTheatreManager
-                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
-                            ->wish_velocity);
-                TextF("NostalgiaPlayer.mMovementDirection: {}",
-                    g_pTheatreManager
-                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
-                            ->mMovementDirection);
-            }
             if(BeginTabBar("Debug Tools"))
             {
                 if(BeginTabItem("General"))

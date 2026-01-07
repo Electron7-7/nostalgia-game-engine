@@ -58,7 +58,7 @@ void NostalgiaPlayer::Ready()
             ThingType::Collider,
             UID::Generate(),
             {
-                {mOrigin + (mScale.y * 0.5f), "Origin"},
+                {mOrigin, "Origin"},
                 {mQuaternion, "Quaternion"},
                 {mScale, "Scale"},
                 {MotionType::Kinematic, "Motion"},
@@ -80,22 +80,44 @@ void NostalgiaPlayer::Tick()
     auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
     camera->Euler(camera->Euler(true) -= glm::vec3{mLookWish.y, mLookWish.x, 0.0f}, true);
     camera->Origin(mOrigin + mViewPosition);
+
     auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
-    glm::vec3 l_FrontBackVelocity = Front() * (mMovementDirection[1] * Settings::Player::MovementSpeed);
-    glm::vec3 l_LeftRightVelocity = Right() * (mMovementDirection[0] * Settings::Player::MovementSpeed);
-    mVelocity = glm::clamp(l_FrontBackVelocity + l_LeftRightVelocity, -Settings::Player::MovementSpeed, Settings::Player::MovementSpeed);
+
+    glm::vec3 l_FrontBackVelocity = Front() * mMovementDirection.z * Settings::Player::MovementSpeed;
+    glm::vec3 l_LeftRightVelocity = Right() * mMovementDirection.x * Settings::Player::MovementSpeed;
+    glm::vec3 wish_velocity = l_FrontBackVelocity + l_LeftRightVelocity;
+
+    for(int i{0}; i < 3; ++i)
+    {
+        if(wish_velocity[i] == mVelocity[i])
+            { continue; }
+        else if(wish_velocity[i] == 0.0f)
+        {
+            mVelocity[i] *= mVelocity[i] / Settings::Player::MovementAcceleration;
+            if(glm::abs(mVelocity[i]) <= 0.001f)
+                { mVelocity[i] = 0.0f; }
+        }
+        else
+        {
+            mVelocity[i] += wish_velocity[i] / Settings::Player::MovementAcceleration;
+            if(glm::abs(mVelocity[i]) > glm::abs(wish_velocity[i]))
+                { mVelocity[i] = wish_velocity[i]; }
+        }
+    }
     mVelocity[1] = 0.0f;
-    PhysicsEngine::I()->BodyInterface().AddLinearVelocity(collider->id(),
+
+    PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
         GlmToJolt<JPH::Vec3>(mVelocity));
-#pragma message("FIXME: this is a shit way of doing this; change it to be on demand instead of every tick")
     mOrigin = collider->Origin();
-    mMovementDirection = glm::vec3(0.0f);
 }
+
+Farg<glm::vec3> NostalgiaPlayer::Velocity() const
+{ return mVelocity; }
 
 void NostalgiaPlayer::Move(const glm::vec2& direction)
 {
-    mMovementDirection.x += direction.x;
-    mMovementDirection.y += direction.y;
+    mMovementDirection.x = direction.x;
+    mMovementDirection.z = direction.y;
 }
 
 void NostalgiaPlayer::Look(const glm::vec2& motion)

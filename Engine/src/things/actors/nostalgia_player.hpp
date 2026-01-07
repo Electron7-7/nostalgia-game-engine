@@ -17,14 +17,17 @@ public:
     virtual ID CameraID() const;
     virtual void CameraID(ID);
 
+    virtual Farg<glm::vec3> Velocity() const;
+
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};
 
 protected:
+    friend class ImGui_Debugger;
     glm::vec3 mViewPosition{0.0f, 1.5f, 0.0f},
         mVelocity{0.0f};
-    glm::vec2 mMovementDirection{0.0f},
-        mLookWish{0.0f};
+    glm::vec3 mMovementDirection{0.0f};
+    glm::vec2 mLookWish{0.0f};
     ID mCameraID{};
     ID mColliderID{};
 };

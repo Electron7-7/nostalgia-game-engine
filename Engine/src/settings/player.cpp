@@ -5,5 +5,6 @@ bool  Settings::Player::RawMouseMotion{true};
 bool  Settings::Player::EnableGravity{true};
 float Settings::Player::MouseSensitivity{0.15f};
 float Settings::Player::MouseSensitivityScale{0.5f};
-float Settings::Player::MovementSpeed{0.4f};
+float Settings::Player::MovementSpeed{8.0f};
+float Settings::Player::MovementAcceleration{10.0f};
 float Settings::Player::Mass{10.0f};
