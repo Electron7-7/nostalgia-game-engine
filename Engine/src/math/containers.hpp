@@ -1,6 +1,7 @@
 #ifndef CONTAINERS_H
 #define CONTAINERS_H
 
+#include "fwd/math.hpp"
 #include "math/concepts.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include <glm/vec2.hpp>
@@ -15,18 +16,6 @@
     T  NAME() const ONLY_IF(VM) { return array_[INDEX]; }
 #define NO_OVERFLOW(INDEX) \
     (Length > INDEX) ? INDEX : (Length - 1)
-
-namespace VectorMembers
-{
-    inline constinit const ushort None {0},
-        XYZ     {1},
-        WHL     {2},
-        RGBA    {3};
-
-    inline constinit const ushort RGB {RGBA},
-        WH     {WHL},
-        XY     {XYZ};
-}
 
 template<typename T, typename Base>
     concept Derived = std::derived_from<T, Base>;

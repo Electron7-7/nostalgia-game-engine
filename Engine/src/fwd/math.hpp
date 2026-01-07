@@ -7,9 +7,13 @@ using vector_members_t = unsigned short;
 
 namespace VectorMembers
 {
-    extern constinit const vector_members_t None,
-        XYZ, WHL, RGBA,
-        XY,  WH,  RGB;
+    constexpr unsigned short None {0},
+        XYZ  {1},
+        WHL  {2},
+        RGBA {3},
+        RGB  {RGBA},
+        WH   {WHL},
+        XY   {XYZ};
 }
 
 template<unsigned short Length, class T, vector_members_t M>
