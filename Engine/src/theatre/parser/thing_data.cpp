@@ -1,6 +1,6 @@
 #include "thing_data.hpp"
 #include "thing_variable.hpp"
-#include "things/thing_factory.hpp"
+#include "thing/thing_factory.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
 

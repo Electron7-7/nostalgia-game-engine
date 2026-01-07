@@ -7,10 +7,10 @@
 #include "managers/theatre_manager.hpp"
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
-#include "things/devices/viewport.hpp"
+#include "thing/thinker/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "things/actors/camera.hpp"
-#include "things/actors/nostalgia_player.hpp" // IWYU pragma: keep
+#include "thing/thinker/actor3d/camera3d.hpp"
+#include "thing/thinker/actor3d/nostalgia_player3d.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
 
@@ -219,7 +219,6 @@ void s_ThingAdder()
         ThingType::PointLight.c_name(),
         ThingType::SpotLight.c_name(),
         ThingType::DirectionalLight.c_name(),
-        ThingType::Device.c_name(),
         ThingType::Collider.c_name(),
         ThingType::Material.c_name(),
         ThingType::MeshInstance3D.c_name(),

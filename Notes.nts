@@ -1048,7 +1048,9 @@ I think I need a global base class, similar to Godot's 'Object' class, just to k
 Here's the new class heirarchy:
 - `Thing`: my version of Godot's 'Object'
     - `Resource`: my version of Godot's 'RefCounted' or 'Resource'
-    - `Thinker`: my version of Godot's 'Node'. Cannot be rendered, because is not 2D or 3D
+        - `Mesh`: my version of Godot's 'Mesh'
+        - `Texture`: my version of Godot's 'Texture'
+    - `Thinker`: my version of Godot's 'Node'; cannot be rendered, because is not 2D or 3D
         - `Viewport`: my version of Godot's 'Viewport'
         - `Actor2D`: my version of Godot's 'Node2D'
             - `MeshInstance2D`

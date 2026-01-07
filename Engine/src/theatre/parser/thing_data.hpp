@@ -6,7 +6,7 @@
 #include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
 #include "core/concepts.hpp"
-#include "things/types.hpp"
+#include "thing/types.hpp"
 
 constexpr const char* cChildVarName{"Child"};
 

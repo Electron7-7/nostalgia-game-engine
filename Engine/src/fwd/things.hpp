@@ -7,39 +7,25 @@ enum class LightType : int;
 
 struct TTID;
 struct ThingRelative;
-
 class ThingFactory;
+
 class Thing;
-class Thinker;
-////////////
-// Actors //
-////////////
-class Actor2D;
-class Actor3D;
-// Cameras
-class Camera3D;
-// Lights
-class light_t;
-class PointLight;
-class SpotLight;
-class DirectionalLight;
-// Player
-class NostalgiaPlayer;
-/////////////
-// Devices //
-/////////////
-class Device;
-class Viewport;
-class Collider;
-class Material;
-class MeshInstance3D;
-///////////////
-// Resources //
-///////////////
-class Resource;
-class Mesh;
-class Texture;
-class Font;
+    class Resource;
+        class Material;
+        class Mesh;
+        class Texture;
+    class Thinker;
+    class Viewport;
+        class Actor2D;
+        class Actor3D;
+            class Camera3D;
+            class light_t;
+            class PointLight;
+            class SpotLight;
+            class DirectionalLight;
+            class NostalgiaPlayer;
+            class MeshInstance3D;
+            class Collider;
 
 using relatives_t = std::vector<ThingRelative>;
 

@@ -3,14 +3,12 @@
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
 #include "core/uid.hpp"
-#include "math/glm_format.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
-#include "things/actors/nostalgia_player.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
@@ -19,13 +17,13 @@
 #include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
 #include "filesystem/filesystem.hpp"
-#include "things/actors/light.hpp"
-#include "things/actors/camera.hpp"
-#include "things/devices/viewport.hpp"
-#include "things/devices/material.hpp"
-#include "things/devices/mesh_instance.hpp"
-#include "things/devices/collider.hpp"
-#include "things/resources/resource.hpp"
+#include "thing/thinker/actor3d/light3d.hpp"
+#include "thing/thinker/actor3d/camera3d.hpp"
+#include "thing/thinker/viewport.hpp"
+#include "thing/resource/material.hpp"
+#include "thing/thinker/actor3d/mesh_instance3d.hpp"
+#include "thing/thinker/actor3d/collider3d.hpp"
+#include "thing/resource/resource.hpp"
 #include "theatre/parser/theatre_data.hpp"
 #include "application/application.hpp"
 #include "application/window.hpp"
@@ -277,7 +275,6 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
-        Checkbox("Draw Physics Bodies", &Settings::Graphics::DrawPhysicsBodies);
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
@@ -521,14 +518,11 @@ struct thing_data_buffer
         name{inThingPtr->name()},
         activate_on_change{false}
     {
-        if(auto transform3d{DCast<Transform3D>(ptr)})
-        {
-            origin = transform3d->Origin();
-            rotation = transform3d->Euler(true);
-            scale = transform3d->Scale();
-        }
         if(auto actor{DCast<Actor3D>(ptr)})
         {
+            origin = actor->Origin();
+            rotation = actor->Euler(true);
+            scale = actor->Scale();
             visible = actor->Visible();
             wireframe = actor->Wireframe();
             debug_mesh_instance = actor->DebugMeshInstance()[];
@@ -540,18 +534,10 @@ struct thing_data_buffer
                 view_far = camera3d->mViewCutoffFar;
                 env_type = camera3d->mEnvironment.mType;
             }
-        }
-        else if(auto device{DCast<Device>(ptr)})
-        {
-            if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
+            else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
             {
                 mesh = mesh_instance->MeshID()[];
                 material = mesh_instance->MaterialID()[];
-            }
-            else if(auto material{DCast<Material>(ptr)})
-            {
-                diffuseTexture  = material->DiffuseTextureID()[];
-                specularTexture = material->SpecularTextureID()[];
             }
             else if(auto collider{DCast<Collider>(ptr)})
             {
@@ -559,6 +545,14 @@ struct thing_data_buffer
                 shape  = static_cast<int>(collider->Shape());
                 collider_material = collider->Material();
                 activate_on_change = collider->SetActiveOnNextChange();
+            }
+        }
+        else if(auto device{DCast<Resource>(ptr)})
+        {
+            if(auto material{DCast<Material>(ptr)})
+            {
+                diffuseTexture  = material->DiffuseTextureID()[];
+                specularTexture = material->SpecularTextureID()[];
             }
         }
     }
@@ -597,7 +591,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
     static float thing_button_color[3]{},
         actor_button_color[3]    {0.063f, 0.392f, 0.6f},
         light_button_color[3]    {0.494f, 0.494f, 0.494f},
-        device_button_color[3]   {0.447f, 0.125f, 0.361f},
+        thinker_button_color[3]  {0.447f, 0.125f, 0.361f},
         viewport_button_color[3] {0.500f, 0.300f, 0.800f},
         resource_button_color[3] {0.608f, 0.204f, 0.165f},
         camera_button_color[3]   {0.808f, 0.707f, 0.086f};
@@ -614,7 +608,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Actor3D Color",  actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
-                ColorEdit3("Device Color",   device_button_color,   ImGuiColorEditFlags_Float);
+                ColorEdit3("Thinker Color",  thinker_button_color,  ImGuiColorEditFlags_Float);
                 ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Resource Color", resource_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Camera Color",   camera_button_color, ImGuiColorEditFlags_Float);
@@ -628,42 +622,39 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 for(ID uid : uids)
                 {
                     auto thing{g_pTheatreManager->GetThing(uid)};
+                    auto resource{DCast<Resource>(thing)};
+                    auto thinker{DCast<Thinker>(thing)};
                     auto actor{DCast<Actor3D>(thing)};
                     ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
                     ImGuiCol push_color_where{ImGuiCol_Button};
                     std::string type_symbol{"(T) "};
-                    if(actor)
+                    if(thinker)
                     {
-                        if(DCast<light_t>(thing))
+                        if(actor)
                         {
-                            push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
-                            type_symbol = "(L) ";
+                            if(DCast<light_t>(thing))
+                            {
+                                push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
+                                type_symbol = "(L) ";
+                            }
+                            else if(DCast<Camera3D>(thing))
+                            {
+                                push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
+                                type_symbol = "(C) ";
+                            }
+                            else
+                            {
+                                push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
+                                type_symbol = "(A) ";
+                            }
                         }
-                        else if(DCast<Camera3D>(thing))
-                        {
-                            push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
-                            type_symbol = "(C) ";
-                        }
-                        else
-                        {
-                            push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
-                            type_symbol = "(A) ";
-                        }
-                    }
-                    else if(DCast<Device>(thing))
-                    {
-                        if(DCast<Viewport>(thing))
+                        else if(DCast<Viewport>(thing))
                         {
                             push_color = {viewport_button_color[0],viewport_button_color[1],viewport_button_color[2],1.0f};
                             type_symbol = "(V) ";
                         }
-                        else
-                        {
-                            push_color = {device_button_color[0],device_button_color[1],device_button_color[2],1.0f};
-                            type_symbol = "(D) ";
-                        }
                     }
-                    else if(DCast<Resource>(thing))
+                    else if(resource)
                     {
                         push_color = {resource_button_color[0],resource_button_color[1],resource_button_color[2],1.0f};
                         type_symbol = "(R) ";
@@ -715,7 +706,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     std::string reason{"N/A"};
                     if(id_change_status == ERR_NOT_FOUND)
-                        { reason = std::format("No Actor3D found with UID#{}", selected.ptr->uid()[]); }
+                        { reason = std::format("No Thing found with UID#{}", selected.ptr->uid()[]); }
                     else if(id_change_status == ERR_ALREADY_EXISTS)
                     {
                         if(UID::IsReserved(selected.id))
@@ -736,109 +727,8 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             if(selected.ptr)
                 { Text("Type - %s", selected.ptr->type().c_name()); }
             static bool collider_update_transform_instantly{false};
-            // TRANSFORM 3D
-            if(auto transform3d{DCast<Transform3D>(selected.ptr)})
-            {
-                bool (*ItemEdited_f)(){(DCast<Collider>(selected.ptr) and !collider_update_transform_instantly)
-                    ? &IsItemDeactivatedAfterEdit
-                    : &IsItemEdited};
-                DragGLMv3("Position", &selected.origin, 0.05f, -200.0f, 200.0f, "%.2f");
-                if(ItemEdited_f())
-                    { transform3d->Origin(selected.origin); }
-                DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround);
-                if(ItemEdited_f())
-                    { transform3d->Euler(selected.rotation, true); }
-                DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f");
-                if(ItemEdited_f())
-                    { transform3d->Scale(selected.scale); }
-            }
-            // ACTORS
-            if(auto actor{DCast<Actor3D>(selected.ptr)})
-            {
-                if(auto light{DCast<light_t>(actor)})
-                {
-                    Checkbox("Enabled", &light->mEnabled);
-                    ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
-                    InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    if(DCast<SpotLight>(light))
-                    {
-                        InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                    }
-                }
-                if(Checkbox("Visible", &selected.visible))
-                    { actor->Visible(selected.visible); }
-                SameLine();
-                if(Checkbox("Wireframe", &selected.wireframe))
-                    { actor->Wireframe(selected.wireframe); }
-                if(IsItemHovered())
-                    { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
-                ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-                if(auto camera3d{DCast<Camera3D>(selected.ptr)})
-                {
-                    auto cur_vp{g_pTheatreManager->GetThing(camera3d->ViewportID())};
-                    auto viewports{g_pTheatreManager->GetViewportIDList()};
-                    std::string current_viewport{std::format("{} [{}]",
-                        cur_vp->name(),
-                        cur_vp->uid()[])};
-                    if(BeginCombo("Viewport", current_viewport.data()))
-                    {
-                        for(ID id : viewports)
-                        {
-                            const bool is_selected{cur_vp->uid() == id};
-                            std::string label{std::format("{} [{}]",
-                                g_pTheatreManager->GetThing(id)->name(),
-                                id[])};
-                            if(Selectable(label.data())
-                                and camera3d->ViewportID(id) == OK)
-                                { selected = thing_data_buffer{camera3d}; }
-                            if(is_selected)
-                                { SetItemDefaultFocus(); }
-                        }
-                        EndCombo();
-                    }
-                    if(Checkbox("Current", &selected.is_camera_current))
-                    {
-                        camera3d->Current(!camera3d->Current());
-                        selected.is_camera_current = camera3d->Current();
-                    }
-                    if(SliderFloat("Vertical FOV", &selected.fov, 0.0f, 180.0f))
-                        { camera3d->mFOV = selected.fov; }
-                    if(DragFloat("View Cutoff Near", &selected.view_near, 0.001f, 0.001f, 100000.0f))
-                        { camera3d->mViewCutoffNear = selected.view_near; }
-                    if(DragFloat("View Cutoff Far", &selected.view_far, 1.0f, 0.001f, 100000.0f))
-                        { camera3d->mViewCutoffFar = selected.view_far; }
-
-                    static const std::map<Environment::BackgroundType, const char*>
-                        bg_type{
-                            { Environment::BG_SKYBOX, "SkyBox"},
-                            { Environment::BG_CLEAR_COLOR, "Clear Color"},
-                            { Environment::BG_CUSTOM_COLOR, "Custom Color"},
-                        };
-                    Environment::BackgroundType current_type{camera3d->mEnvironment.mType};
-                    if(BeginCombo("Viewport", bg_type.at(current_type)))
-                    {
-                        for(FAUTO [bg, name] : bg_type)
-                        {
-                            const bool is_selected{bg == current_type};
-                            if(Selectable(name))
-                            {
-                                camera3d->mEnvironment.mType = bg;
-                                selected = thing_data_buffer{camera3d};
-                            }
-                            if(is_selected)
-                                { SetItemDefaultFocus(); }
-                        }
-                        EndCombo();
-                    }
-                }
-            }
-            // DEVICES
-            else if(auto device{DCast<Device>(selected.ptr)})
+            // THINKERS
+            if(auto device{DCast<Thinker>(selected.ptr)})
             {
                 if(auto viewport{DCast<Viewport>(selected.ptr)})
                 {
@@ -858,61 +748,163 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         }
                     }
                 }
-                else if(auto collider{DCast<Collider>(selected.ptr)})
+                // 3D ACTORS
+                if(auto actor{DCast<Actor3D>(selected.ptr)})
                 {
-                    if(CollapsingHeader("Jolt Properties"))
+                    bool (*ItemEdited_f)(){(DCast<Collider>(selected.ptr) and !collider_update_transform_instantly)
+                        ? &IsItemDeactivatedAfterEdit
+                        : &IsItemEdited};
+                    DragGLMv3("Position", &selected.origin, 0.05f, -200.0f, 200.0f, "%.2f");
+                    if(ItemEdited_f())
+                        { actor->Origin(selected.origin); }
+                    DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround);
+                    if(ItemEdited_f())
+                        { actor->Euler(selected.rotation, true); }
+                    DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f");
+                    if(ItemEdited_f())
+                        { actor->Scale(selected.scale); }
+
+                    if(Checkbox("Visible", &selected.visible))
+                        { actor->Visible(selected.visible); }
+                    SameLine();
+                    if(Checkbox("Wireframe", &selected.wireframe))
+                        { actor->Wireframe(selected.wireframe); }
+                    if(IsItemHovered())
+                        { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                    ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
+                    if(auto light{DCast<light_t>(actor)})
                     {
-                        auto bodyid{collider->id()};
-                        auto& interface{PhysicsEngine::Inst()->BodyInterface()};
-                        TextF("BodyID (index#): {}", bodyid.GetIndex());
-                        TextF("Position: [{}, {}, {}]",
-                            interface.GetPosition(bodyid).GetX(),
-                            interface.GetPosition(bodyid).GetY(),
-                            interface.GetPosition(bodyid).GetZ());
-                        TextF("Rotation (euler degrees): [{}, {}, {}]",
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetX()),
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetY()),
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
-                        auto scale{collider->CreationSettings()->GetShape()->GetLocalBounds().GetSize()};
-                        TextF("Scale: [{}, {}, {}]",
-                            // collider->CreationSettings()->GetShape()->Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe));
-                            scale.GetX(),
-                            scale.GetY(),
-                            scale.GetZ());
+                        Checkbox("Enabled", &light->mEnabled);
+                        ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                        InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        if(DCast<SpotLight>(light))
+                        {
+                            InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                        }
                     }
-                    static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
-                    static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
-                    if(InputFloat("Mass", &selected.density, 0.1f, 1.0f))
-                        { collider->Mass(selected.density); }
-                    if(InputFloat("Friction", &selected.collider_material.friction, 0.01f, 0.1f))
+                    else if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                     {
-                        if(selected.collider_material.friction > 1.0f)
-                            { selected.collider_material.friction = 1.0f; }
-                        else if(selected.collider_material.friction < 0.0f)
-                            { selected.collider_material.friction = 0.0f; }
-                        collider->Material(selected.collider_material);
+                        auto cur_vp{g_pTheatreManager->GetThing(camera3d->ViewportID())};
+                        auto viewports{g_pTheatreManager->GetViewportIDList()};
+                        std::string current_viewport{std::format("{} [{}]",
+                            cur_vp->name(),
+                            cur_vp->uid()[])};
+                        if(BeginCombo("Viewport", current_viewport.data()))
+                        {
+                            for(ID id : viewports)
+                            {
+                                const bool is_selected{cur_vp->uid() == id};
+                                std::string label{std::format("{} [{}]",
+                                    g_pTheatreManager->GetThing(id)->name(),
+                                    id[])};
+                                if(Selectable(label.data())
+                                    and camera3d->ViewportID(id) == OK)
+                                    { selected = thing_data_buffer{camera3d}; }
+                                if(is_selected)
+                                    { SetItemDefaultFocus(); }
+                            }
+                            EndCombo();
+                        }
+                        if(Checkbox("Current", &selected.is_camera_current))
+                        {
+                            camera3d->Current(!camera3d->Current());
+                            selected.is_camera_current = camera3d->Current();
+                        }
+                        if(SliderFloat("Vertical FOV", &selected.fov, 0.0f, 180.0f))
+                            { camera3d->mFOV = selected.fov; }
+                        if(DragFloat("View Cutoff Near", &selected.view_near, 0.001f, 0.001f, 100000.0f))
+                            { camera3d->mViewCutoffNear = selected.view_near; }
+                        if(DragFloat("View Cutoff Far", &selected.view_far, 1.0f, 0.001f, 100000.0f))
+                            { camera3d->mViewCutoffFar = selected.view_far; }
+
+                        static const std::map<Environment::BackgroundType, const char*>
+                            bg_type{
+                                { Environment::BG_SKYBOX, "SkyBox"},
+                                { Environment::BG_CLEAR_COLOR, "Clear Color"},
+                                { Environment::BG_CUSTOM_COLOR, "Custom Color"},
+                            };
+                        Environment::BackgroundType current_type{camera3d->mEnvironment.mType};
+                        if(BeginCombo("Viewport", bg_type.at(current_type)))
+                        {
+                            for(FAUTO [bg, name] : bg_type)
+                            {
+                                const bool is_selected{bg == current_type};
+                                if(Selectable(name))
+                                {
+                                    camera3d->mEnvironment.mType = bg;
+                                    selected = thing_data_buffer{camera3d};
+                                }
+                                if(is_selected)
+                                    { SetItemDefaultFocus(); }
+                            }
+                            EndCombo();
+                        }
                     }
-                    if(Combo("Motion", &selected.motion, motion_names))
-                        { collider->Motion((MotionType)selected.motion, selected.activate_on_change); }
-                    if(Combo("Shape", &selected.shape, shape_names))
-                        { collider->Shape((ShapeType)selected.shape, selected.activate_on_change); }
-                    if(Checkbox("Set Active on Change", &selected.activate_on_change))
-                        { collider->SetActiveOnNextChange(selected.activate_on_change); selected = {collider}; }
-                    Checkbox("Update Transform Values Instantly", &collider_update_transform_instantly);
-                    TextF("Active: {}", collider->Active());
-                    if(!collider->Active() and Button("Activate"))
-                        { collider->Active(true); }
-                    else if(collider->Active() and Button("Deactivate"))
-                        { collider->Active(false); }
+                    else if(auto collider{DCast<Collider>(selected.ptr)})
+                    {
+                        if(CollapsingHeader("Jolt Properties"))
+                        {
+                            auto bodyid{collider->id()};
+                            auto& interface{PhysicsEngine::Inst()->BodyInterface()};
+                            TextF("BodyID (index#): {}", bodyid.GetIndex());
+                            TextF("Position: [{}, {}, {}]",
+                                interface.GetPosition(bodyid).GetX(),
+                                interface.GetPosition(bodyid).GetY(),
+                                interface.GetPosition(bodyid).GetZ());
+                            TextF("Rotation (euler degrees): [{}, {}, {}]",
+                                JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetX()),
+                                JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetY()),
+                                JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
+                            auto scale{collider->CreationSettings()->GetShape()->GetLocalBounds().GetSize()};
+                            TextF("Scale: [{}, {}, {}]",
+                                // collider->CreationSettings()->GetShape()->Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe));
+                                scale.GetX(),
+                                scale.GetY(),
+                                scale.GetZ());
+                        }
+                        static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
+                        static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
+                        if(InputFloat("Mass", &selected.density, 0.1f, 1.0f))
+                            { collider->Mass(selected.density); }
+                        if(InputFloat("Friction", &selected.collider_material.friction, 0.01f, 0.1f))
+                        {
+                            if(selected.collider_material.friction > 1.0f)
+                                { selected.collider_material.friction = 1.0f; }
+                            else if(selected.collider_material.friction < 0.0f)
+                                { selected.collider_material.friction = 0.0f; }
+                            collider->Material(selected.collider_material);
+                        }
+                        if(Combo("Motion", &selected.motion, motion_names))
+                            { collider->Motion((MotionType)selected.motion, selected.activate_on_change); }
+                        if(Combo("Shape", &selected.shape, shape_names))
+                            { collider->Shape((ShapeType)selected.shape, selected.activate_on_change); }
+                        if(Checkbox("Set Active on Change", &selected.activate_on_change))
+                            { collider->SetActiveOnNextChange(selected.activate_on_change); selected = {collider}; }
+                        Checkbox("Update Transform Values Instantly", &collider_update_transform_instantly);
+                        TextF("Active: {}", collider->Active());
+                        if(!collider->Active() and Button("Activate"))
+                            { collider->Active(true); }
+                        else if(collider->Active() and Button("Deactivate"))
+                            { collider->Active(false); }
+                    }
+                    else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
+                    {
+                        if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
+                            { mesh_instance->MeshID(selected.mesh); }
+                        if(InputUInt("Material UID", &selected.material, 0, 0))
+                            { mesh_instance->MaterialID(selected.material); }
+                    }
                 }
-                else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
-                {
-                    if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
-                        { mesh_instance->MeshID(selected.mesh); }
-                    if(InputUInt("Material UID", &selected.material, 0, 0))
-                        { mesh_instance->MaterialID(selected.material); }
-                }
-                else if(auto material{DCast<Material>(selected.ptr)})
+            }
+            // RESOURCES
+            else if(auto material{DCast<Resource>(selected.ptr)})
+            {
+                if(auto material{DCast<Material>(selected.ptr)})
                 {
                     if(InputUInt("Diffuse Texture UID", &selected.diffuseTexture, 0, 0))
                         { material->DiffuseTextureID(selected.diffuseTexture); }
