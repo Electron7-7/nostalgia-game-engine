@@ -14,7 +14,7 @@ ThingData::ThingData(Sarg inName, Sarg inTypeName):
         { print_warningv(VERBOSE1, "{} is an invalid type!", type_.log()); }
 }
 
-ThingData::ThingData(Sarg inName, Farg<TTID> inType, ID inID, Farg<std::vector<ThingVar>> inVariables):
+ThingData::ThingData(Sarg inName, Farg<PID> inType, ID inID, Farg<std::vector<ThingVar>> inVariables):
     uid{inID},
     name{inName},
     variables(inVariables),
@@ -24,7 +24,7 @@ ThingData::ThingData(Sarg inName, Farg<TTID> inType, ID inID, Farg<std::vector<T
         { print_error("'{}' is an invalid type!", type_.name()); }
 }
 
-ThingData::ThingData(Sarg inName, Farg<TTID> inType, Farg<std::vector<ThingVar>> inVariables):
+ThingData::ThingData(Sarg inName, Farg<PID> inType, Farg<std::vector<ThingVar>> inVariables):
     name{inName},
     variables(inVariables),
     type_{inType} {}
@@ -34,7 +34,7 @@ bool ThingData::GetChildren(relatives_t& output) const
     if(children.empty())
         { return false; }
     for(FAUTO child : children)
-        { output.emplace_back(child.id_or_enum, TTID{child.name}); }
+        { output.emplace_back(child.id_or_enum, PID{child.name}); }
     return true;
 }
 
@@ -107,10 +107,10 @@ std::string ThingData::log(bool colored, bool indent) const
     return log;
 }
 
-Farg<TTID> ThingData::type() const
+Farg<PID> ThingData::type() const
 { return type_; }
 
-bool ThingData::set_type(Farg<TTID> inType)
+bool ThingData::set_type(Farg<PID> inType)
 {
     type_ = inType;
     if(!g_pThingFactory->IsThing(inType))

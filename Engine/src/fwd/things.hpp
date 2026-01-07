@@ -5,7 +5,6 @@
 
 enum class LightType : int;
 
-struct TTID;
 struct ThingRelative;
 class ThingFactory;
 

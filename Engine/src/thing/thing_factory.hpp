@@ -20,22 +20,22 @@ public:
     bool Init();
 
     bool AddThing(pThingMakerTemplate_t FunctionPtr, Sarg TypeName, int Priority = cDefaultPriority);
-    pThingMakerTemplate_t MakeThing(Farg<TTID> TypeId);
-    bool SetPriority(Farg<TTID> TypeId, int Priority);
-    int  GetPriority(Farg<TTID> TypeId) const;
+    pThingMakerTemplate_t MakeThing(Farg<PID> TypeId);
+    bool SetPriority(Farg<PID> TypeId, int Priority);
+    int  GetPriority(Farg<PID> TypeId) const;
 
-    bool IsThing(Farg<TTID> TypeId) const;
+    bool IsThing(Farg<PID> TypeId) const;
 
     // Slower than `IsThing` due to using `dynamic_pointer_cast` to test derivation
     template<typename T> requires std::derived_from<T,Thing>
-        bool IsDerivedFrom(Farg<TTID> TypeId) const
+        bool IsDerivedFrom(Farg<PID> TypeId) const
         {
             assert(mIsInitialized);
             if(auto found_it{mThingMakers.find(TypeId)}; found_it != mThingMakers.end())
                 { return DCast<T>(found_it->second()) != nullptr; }
             return false;
         }
-    bool IsResource(Farg<TTID> TypeId) const; // Uses `IsDerivedFrom`
+    bool IsResource(Farg<PID> TypeId) const; // Uses `IsDerivedFrom`
 
 private:
     bool mIsInitialized{false};

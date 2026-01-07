@@ -15,8 +15,8 @@ struct ThingData
 public:
     ThingData();
     ThingData(Sarg Name, Sarg TypeName);
-    ThingData(Sarg Name, Farg<TTID> Type, Farg<std::vector<ThingVar>> Variables = {});
-    ThingData(Sarg Name, Farg<TTID> Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, Farg<PID> Type, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, Farg<PID> Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
 
     ID uid{};
     std::string name{"Untitled Thing"};
@@ -81,12 +81,12 @@ public:
         }
 
     std::string log(bool colored = false, bool indent_items = false) const;
-    Farg<TTID> type() const;
-    bool set_type(Farg<TTID> Type);
+    Farg<PID> type() const;
+    bool set_type(Farg<PID> Type);
     void clear();
 
 private:
-    TTID type_{ThingType::Thing};
+    PID type_{ThingType::Thing};
 
     typedef std::vector<ThingVar>::const_iterator VarIter_t;
     VarIter_t AssertVariable(Sarg VarName, ThingVar::Type VarType) const;

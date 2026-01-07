@@ -47,7 +47,7 @@ ThingData Thing::GetStartingVariables() const
 ID Thing::uid() const
 { return mUID; }
 
-Farg<TTID> Thing::type() const
+Farg<PID> Thing::type() const
 { return mType; }
 
 Farg<std::string> Thing::name() const

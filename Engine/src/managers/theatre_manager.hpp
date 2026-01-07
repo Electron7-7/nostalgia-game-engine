@@ -38,7 +38,7 @@ public:
     std::vector<ID> GetViewportIDList();
 
     bool ThingExists(ID UID);
-    Farg<TTID> GetType(ID ObjectID);
+    Farg<PID> GetType(ID ObjectID);
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
     bool DestroyThing(ID);

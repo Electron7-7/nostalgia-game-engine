@@ -13,10 +13,10 @@
 struct ThingRelative
 {
     ThingRelative() = default;
-    ThingRelative(ID inID, Farg<TTID> inType):
+    ThingRelative(ID inID, Farg<PID> inType):
         id{inID}, type{inType} {}
     ID id{};
-    TTID type{};
+    PID type{};
     constexpr bool operator==(Farg<ThingRelative> other) const noexcept
     { return id == other.id and type == other.type; }
 };
@@ -53,7 +53,7 @@ public:
     Sarg name() const;
     void name(Sarg inName);
     const char* const c_name() const;
-    Farg<TTID> type() const;
+    Farg<PID> type() const;
 
     relatives_t children() const;
     relatives_t parents()  const;
@@ -69,7 +69,7 @@ public:
 protected:
     ID mUID{};
     std::string mName{"Untitled Thing"};
-    TTID mType{"Thing"};
+    PID mType{"Thing"};
     RMutex mChildrenMutex{};
     Unique<ThingData> mStartingData{nullptr};
 

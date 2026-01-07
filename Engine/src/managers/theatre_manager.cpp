@@ -226,9 +226,9 @@ bool TheatreManager::ThingExists(ID uid)
     return mThings.contains(uid);
 }
 
-Farg<TTID> TheatreManager::GetType(ID uid)
+Farg<PID> TheatreManager::GetType(ID uid)
 {
-    static TTID invalid{ID::Invalid, "Invalid"};
+    static PID invalid{ID::Invalid, "Invalid"};
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(uid)}; found_it != mThings.end())
         { return found_it->second->type(); }

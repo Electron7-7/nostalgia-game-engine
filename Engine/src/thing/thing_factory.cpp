@@ -53,7 +53,7 @@ bool ThingFactory::AddThing(pThingMakerTemplate_t maker_ptr, Farg<std::string> t
     return true;
 }
 
-pThingMakerTemplate_t ThingFactory::MakeThing(Farg<TTID> type)
+pThingMakerTemplate_t ThingFactory::MakeThing(Farg<PID> type)
 {
     if(auto found_it{mThingMakers.find(type)}; found_it != mThingMakers.end())
         { return found_it->second; }
@@ -61,7 +61,7 @@ pThingMakerTemplate_t ThingFactory::MakeThing(Farg<TTID> type)
     return ThingMakerTemplate<Thing>;
 }
 
-bool ThingFactory::SetPriority(Farg<TTID> type, int priority)
+bool ThingFactory::SetPriority(Farg<PID> type, int priority)
 {
     if(!IsThing(type))
         { return false; }
@@ -69,17 +69,17 @@ bool ThingFactory::SetPriority(Farg<TTID> type, int priority)
     return true;
 }
 
-int ThingFactory::GetPriority(Farg<TTID> type) const
+int ThingFactory::GetPriority(Farg<PID> type) const
 {
     if(auto found_it{mTypePriorities.find(type)}; found_it != mTypePriorities.end())
         { return mTypePriorities.at(type); }
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
-bool ThingFactory::IsThing(Farg<TTID> type) const
+bool ThingFactory::IsThing(Farg<PID> type) const
 { return mThingMakers.contains(type); }
 
-bool ThingFactory::IsResource(Farg<TTID> type) const
+bool ThingFactory::IsResource(Farg<PID> type) const
 { return IsDerivedFrom<Resource>(type); }
 
 #undef ADD_THING

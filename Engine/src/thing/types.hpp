@@ -3,9 +3,7 @@
 
 #include "core/id.hpp"
 
-#define TYPE_DEF(TYPE) inline const TTID TYPE{#TYPE};
-
-struct TTID : public PID { using PID::PID; };
+#define TYPE_DEF(TYPE) inline const PID TYPE{#TYPE};
 
 namespace ThingType
 {
