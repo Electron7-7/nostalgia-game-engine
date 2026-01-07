@@ -1033,3 +1033,5 @@ Uhoh, now I'm getting lots of weird errors/infinite loops that look related to J
 Yeah, and it's due to my shoehorned collision detection function. Removing it from the contact listener solves the problem. Ughhhhhh...
 
 Fucking... hate having to recompile Jolt bc everything gets fucked up and then I have to spend an hour fixing problems that I created. Oh, well, it works again and now I can test the debug renderer.
+
+Cleaned up the code and fixed up the temporary/wip player collider/movement.
