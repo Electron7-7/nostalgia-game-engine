@@ -1035,3 +1035,27 @@ Yeah, and it's due to my shoehorned collision detection function. Removing it fr
 Fucking... hate having to recompile Jolt bc everything gets fucked up and then I have to spend an hour fixing problems that I created. Oh, well, it works again and now I can test the debug renderer.
 
 Cleaned up the code and fixed up the temporary/wip player collider/movement.
+
+[01/07/25]
+I'm gonna leave the player movement code as is for now. I think the next big step is working on the 2D rendering, as that's a major part of the engine that has absolutely no code written for it, yet (lmfao).
+
+First, though, I need to flesh out the parent/child relationships.
+
+I'm making the decision to mirror Godot and make `Resource` a separate class from `Thing`. Resources will be specific to each Thing that uses them; for instance: `MeshInstance` only needs one mesh resource, so `Resource` doesn't need to care about being a child and having a parent, it just needs to care about how many things are referencing it (a la Godot's 'RefCounted' class).
+
+I think I need a global base class, similar to Godot's 'Object' class, just to keep things tidy.
+
+Here's the new class heirarchy:
+- `Thing`: my version of Godot's 'Object'
+    - `Resource`: my version of Godot's 'RefCounted' or 'Resource'
+    - `Thinker`: my version of Godot's 'Node'. Cannot be rendered, because is not 2D or 3D
+        - `Viewport`: my version of Godot's 'Viewport'
+        - `Actor2D`: my version of Godot's 'Node2D'
+            - `MeshInstance2D`
+            - etc...
+        - `Actor3D`: my version of Godot's 'Node3D'
+            - `MeshInstance3D`
+            - etc...
+- `Transform3D`/`Transform2D`/etc...: components that can be inherited from or just used as a variable, similar to 'variants' in Godot (without the main base class 'Variant').
+
+I'm also going to move the 'Wireframe' attribute to `Viewport`, just like in Godot.
