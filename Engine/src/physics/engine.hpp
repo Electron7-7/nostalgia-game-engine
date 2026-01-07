@@ -1,15 +1,16 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
+#include "core/id.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
 #include <Jolt/Jolt.h>
-#   include <Jolt/Math/Vec3.h>
-#   include <Jolt/Math/Quat.h>
-#   include <Jolt/Math/DVec3.h>
-#   include <Jolt/Math/Float2.h>
-#   include <Jolt/Core/Atomics.h>
-#   include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Math/Quat.h>
+#include <Jolt/Math/DVec3.h>
+#include <Jolt/Math/Float2.h>
+#include <Jolt/Core/Atomics.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Core/JobSystem.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Core/TempAllocator.h>
@@ -47,12 +48,15 @@ public:
     JPH::PhysicsSystem*  System();
     JPH::BodyInterface&  BodyInterface();
     BodyLockInterfaceArg BodyLockInterface() const;
+    JPH::BodyID CreateAndAddBody(ID inColliderID,
+        Shared<JPH::BodyCreationSettings> inCreationSettings,
+        JPH::EActivation inActivation);
 
     static JPH::ObjectLayer GetObjectLayer(MotionType) noexcept;
     static JPH::EMotionType ConvertMotionType(MotionType) noexcept;
     static void Instantiate();
     static Shared<PhysicsEngine> Instance();
-    static Shared<PhysicsEngine> I() noexcept;
+    static Shared<PhysicsEngine> Inst() noexcept;
 
 private:
     static Shared<PhysicsEngine> m_sInstance;

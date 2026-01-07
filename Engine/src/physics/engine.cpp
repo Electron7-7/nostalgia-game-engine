@@ -2,12 +2,12 @@
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
 #include "things/devices/collider.hpp"
-#include "Jolt/RegisterTypes.h"
-#include "Jolt/Physics/PhysicsSystem.h"
-#include "Jolt/Core/JobSystemThreadPool.h"
-#include "Jolt/Physics/Body/BodyActivationListener.h"
-#include "Jolt/Physics/Collision/ObjectLayer.h"
-#include "Jolt/Physics/Collision/ContactListener.h"
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
 #include <cassert>
 #include <cstdarg>
 
@@ -117,26 +117,35 @@ private:
 class Jolt_ContactListener : public ContactListener
 {
 public:
-    virtual ValidateResult OnContactValidate(const Body& in_body_1, const Body& in_body_2, RVec3Arg in_base_offset, const CollideShapeResult& in_collision_result) override
+    virtual ValidateResult OnContactValidate(Farg<Body> inBody1,
+        Farg<Body> inBody2,
+        RVec3Arg inBaseOffset,
+        Farg<CollideShapeResult> inCollisionResult) override
     {
         if(gJoltDebugMessageAllow_ContactValidate)
             { print_jolt("Contact validate callback"); }
         return ValidateResult::AcceptAllContactsForThisBodyPair;
     }
 
-    virtual void OnContactAdded(const Body& body1, const Body& body2, const ContactManifold& manifold, ContactSettings& io_settings) override
+    virtual void OnContactAdded(Farg<Body> inBody1,
+        Farg<Body> inBody2,
+        Farg<ContactManifold> manifold,
+        ContactSettings& ioSettings) override
     {
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
     }
 
-    virtual void OnContactPersisted(const Body& body1, const Body& body2, const ContactManifold& manifold, ContactSettings& io_settings) override
+    virtual void OnContactPersisted(Farg<Body> inBody1,
+        Farg<Body> inBody2,
+        Farg<ContactManifold> manifold,
+        ContactSettings& ioSettings) override
     {
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
     }
 
-    virtual void OnContactRemoved(const SubShapeIDPair& sub_shape_pair) override
+    virtual void OnContactRemoved(Farg<SubShapeIDPair> inSubShapeIDPair) override
     {
         if(gJoltDebugMessageAllow_ContactRemoved)
             { print_jolt("A contact was removed"); }
@@ -204,7 +213,7 @@ void PhysicsEngine::Instantiate()
 Shared<PhysicsEngine> PhysicsEngine::Instance()
 { assert(m_sInstance); return m_sInstance; }
 
-Shared<PhysicsEngine> PhysicsEngine::I() noexcept
+Shared<PhysicsEngine> PhysicsEngine::Inst() noexcept
 { assert(m_sInstance); return m_sInstance; }
 
 ObjectLayer PhysicsEngine::GetObjectLayer(MotionType inMotion) noexcept
