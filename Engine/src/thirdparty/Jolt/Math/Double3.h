@@ -40,7 +40,7 @@ public:
 	double		z;
 };
 
-static_assert((std::is_trivially_default_constructible_v<Double3> && std::is_trivially_copyable_v<Double3>), "Is supposed to be a trivial type!");
+static_assert(std::is_trivially_default_constructible<Double3>() && std::is_trivially_copyable<Double3>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END
 

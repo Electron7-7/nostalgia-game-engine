@@ -20,7 +20,7 @@ FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_DYNAMIC         := -shared -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_DEBUG_RENDERER -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -D CPP_RTTI_ENABLED -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_DEBUG_RENDERER -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D NOSTALGIA_WINDOWS
 FLAGS_LINUX           := -D NOSTALGIA_LINUX

@@ -39,6 +39,6 @@ public:
 	float		w;
 };
 
-static_assert((std::is_trivially_default_constructible_v<Float4> && std::is_trivially_copyable_v<Float4>), "Is supposed to be a trivial type!");
+static_assert(std::is_trivially_default_constructible<Float4>() && std::is_trivially_copyable<Float4>(), "Is supposed to be a trivial type!");
 
 JPH_NAMESPACE_END
