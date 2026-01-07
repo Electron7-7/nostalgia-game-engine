@@ -1024,3 +1024,12 @@ I did all of that and overhauled the parent/child system. Now, Things can have m
 
 [01/05/25]
 Did a big physics engine refactor with some minor features. There's some issues when changig a Collider's shape/motion types that I think is related to updating the shape in Jolt (specifically, the "last position" function parameter). Oh, so I don't forget: I also want to change the enum prettifier to use the typeid of the enums as the map key.
+
+[01/06/25]
+I'm thinking that since I have collision working, I might want to make `Resource` a separate class from `Thing`. It just makes more sense to have a resource not be tied to the Theatre but rather the entire project as a whole. Maybe do the small things first, like the enum prettifier and maybe even a re-write of the Theatre parser (adding child reference identifiers while I'm at it?).
+
+Uhoh, now I'm getting lots of weird errors/infinite loops that look related to Jolt mutexes...
+
+Yeah, and it's due to my shoehorned collision detection function. Removing it from the contact listener solves the problem. Ughhhhhh...
+
+Fucking... hate having to recompile Jolt bc everything gets fucked up and then I have to spend an hour fixing problems that I created. Oh, well, it works again and now I can test the debug renderer.
