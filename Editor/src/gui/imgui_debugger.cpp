@@ -3,12 +3,14 @@
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
 #include "core/uid.hpp"
+#include "math/glm_format.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
+#include "things/actors/nostalgia_player.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
@@ -99,11 +101,27 @@ void ImGui_Debugger::Update()
     static bool sPopOutStopwatches{false};
     if(sTheatreInspectorActive)
         { s_InspectTheatreWindow(&sTheatreInspectorActive); }
+    bool is_in_theatre{Manager::GetTheatreState() == ManagerEnums::IN_LEVEL};
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
     if(gShowDebugWindow)
     {
         if(Begin("Debugging", &gShowDebugWindow, ImGuiWindowFlags_MenuBar))
         {
+            if(is_in_theatre)
+            {
+                TextF("NostalgiaPlayer.mVelocity: {}",
+                    g_pTheatreManager
+                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
+                            ->Velocity());
+                TextF("NostalgiaPlayer.wish_velocity: {}",
+                    g_pTheatreManager
+                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
+                            ->wish_velocity);
+                TextF("NostalgiaPlayer.mMovementDirection: {}",
+                    g_pTheatreManager
+                        ->GetThing<NostalgiaPlayer>(UID::a_Player)
+                            ->mMovementDirection);
+            }
             if(BeginTabBar("Debug Tools"))
             {
                 if(BeginTabItem("General"))
@@ -275,6 +293,7 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
+        Checkbox("Draw Physics Bodies", &Settings::Graphics::DrawPhysicsBodies);
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
@@ -330,6 +349,7 @@ static void s_GeneralDebuggingWindow()
     {
         SeparatorText("Movement");
         SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
+        DragFloat("Movement Acceleration", &Settings::Player::MovementAcceleration, 0.01f, 0.0f, 10.0f);
         SeparatorText("Mouse");
 #pragma message("TODO: re-implement raw mouse motion")
         if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))
@@ -859,7 +879,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     if(CollapsingHeader("Jolt Properties"))
                     {
                         auto bodyid{collider->id()};
-                        auto& interface{PhysicsEngine::I()->BodyInterface()};
+                        auto& interface{PhysicsEngine::Inst()->BodyInterface()};
                         TextF("BodyID (index#): {}", bodyid.GetIndex());
                         TextF("Position: [{}, {}, {}]",
                             interface.GetPosition(bodyid).GetX(),
