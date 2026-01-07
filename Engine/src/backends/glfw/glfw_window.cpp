@@ -113,10 +113,10 @@ void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWin
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
-    REGISTER_ENUM(MOUSE_MODE_VISIBLE,  MouseMode);
-    REGISTER_ENUM(MOUSE_MODE_CAPTURED, MouseMode);
-    REGISTER_ENUM(MOUSE_MODE_HIDDEN,   MouseMode);
-    REGISTER_ENUM(MOUSE_MODE_DISABLED, MouseMode);
+    REGISTER_ENUM(MOUSE_MODE_VISIBLE);
+    REGISTER_ENUM(MOUSE_MODE_CAPTURED);
+    REGISTER_ENUM(MOUSE_MODE_HIDDEN);
+    REGISTER_ENUM(MOUSE_MODE_DISABLED);
     PRINT_PRETTY_CONSTRUCTOR;
 }
 
@@ -219,8 +219,8 @@ Error WindowGLFW::SetMouseMode(MouseMode inMode)
     if(gDebugPrintStateChanges)
     {
         print_debug("Mouse mode set: {} (from: {})",
-            PRETTIFY_ENUM(inMode, MouseMode),
-            PRETTIFY_ENUM(mData.mouse_mode, MouseMode));
+            PRETTIFY_ENUM(inMode),
+            PRETTIFY_ENUM(mData.mouse_mode));
     }
     mData.mouse_mode = inMode;
     return OK;
