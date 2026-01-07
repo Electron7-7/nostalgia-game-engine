@@ -1,91 +1,56 @@
 #ifndef ENUM_PRETTIFIER_H
+#define ENUM_PRETTIFIER_H
 
 #include "core/farg.hpp"
 #include "core/error.hpp"
-#include "common/string_hash.hpp"
 #include "math/concepts.hpp"
 #include <unordered_map>
-
-#define ENUM_SET(NAME) inline constinit const char* NAME{#NAME};
+#include <typeindex>
 
 // Used by the lazy
-#define REGISTER_ENUM(ENUM, ENUM_SET) EnumPrettifier::Add(#ENUM, ENUM_SET::ENUM, #ENUM_SET)
-#define PRETTIFY_ENUM(ENUM, ENUM_SET) EnumPrettifier::Get(ENUM, #ENUM_SET)
-
-namespace EnumSet
-{
-    ENUM_SET(Global)
-    ENUM_SET(PhysicsBodyShape)
-    ENUM_SET(PhysicsBodyMotion)
-}
+#define REGISTER_ENUM(ENUM) EnumPrettifier::Register(ENUM, #ENUM)
+#define PRETTIFY_ENUM(ENUM) EnumPrettifier::Prettify(ENUM)
 
 class EnumPrettifier
 {
-private:
-    inline static std::unordered_map<uint, std::unordered_map<int, std::string>> m_sEnumMaps{};
-
 public:
+    using enums_map = std::unordered_map<long, std::string>;
+    using enums_registry = std::unordered_map<std::type_index, enums_map>;
+
+    // Will not overwrite a previously registered enum
     template<IsEnum T>
-        static Farg<std::string> Get(T inEnum, uint inEnumSet)
+        inline static Error Register(T inEnum, Sarg inName) noexcept
         {
-            static const std::string c_sDefaultString{"N/A"};
-            if(auto found_them{m_sEnumMaps.find(inEnumSet)}; found_them != m_sEnumMaps.end())
+            return (m_sEnums[typeid(T)].emplace(static_cast<long>(inEnum), inName).second)
+                ? OK
+                : ERR_ALREADY_EXISTS;
+        }
+
+    // Will overwrite a previously registered enum
+    template<IsEnum T>
+        inline static void Assign(T inEnum, Sarg inName) noexcept
+            { m_sEnums[typeid(T)][static_cast<long>(inEnum)] = inName; }
+
+    template<IsEnum T>
+        inline static Sarg Prettify(T inEnum) noexcept
+        {
+            if(auto found_one{m_sEnums.find(typeid(T))};
+                found_one != m_sEnums.end())
             {
-                if(auto found_it{found_them->second.find(static_cast<int>(inEnum))};
-                    found_it != found_them->second.end())
-                    { return found_it->second; }
+                if(auto found_two{found_one->second.find(static_cast<long>(inEnum))};
+                    found_two != found_one->second.end())
+                    { return found_two->second; }
             }
-            return c_sDefaultString;
+            return m_sEmpty;
         }
 
     template<IsEnum T>
-        static void Set(Farg<std::string> inName, T inEnum, uint inEnumSet)
-        { m_sEnumMaps[inEnumSet][static_cast<int>(inEnum)] = inName; }
+        Sarg operator()(T inEnum) const noexcept
+        { return Prettify(inEnum); }
 
-    template<IsEnum T>
-        static Error Add(Farg<std::string> inName, T inEnum, uint inEnumSet)
-        {
-            if(m_sEnumMaps[inEnumSet].contains(static_cast<int>(inEnum)))
-                { return ERR_ALREADY_EXISTS; }
-            Set(inName, inEnum, inEnumSet);
-            return OK;
-        }
-
-    template<IsEnum T>
-        static Error EraseEnum(T inEnum, uint inEnumSet)
-        {
-            if(auto found_it{m_sEnumMaps.find(inEnumSet)}; found_it != m_sEnumMaps.end())
-            {
-                return (found_it->second.erase(static_cast<int>(inEnum)))
-                    ? OK
-                    : ERR_EMPTY;
-            }
-            return ERR_NOT_FOUND;
-        }
-
-    template<IsEnum T>
-        static Farg<std::string> Get(T inEnum, Farg<std::string> inEnumSet)
-        { return Get(inEnum, ConstexprHash(inEnumSet)); }
-
-    template<IsEnum T>
-        static void Set(Farg<std::string> inName, T inEnum, Farg<std::string> inEnumSet)
-        { return Set(inName, inEnum, ConstexprHash(inEnumSet)); }
-
-    template<IsEnum T>
-        static Error Add(Farg<std::string> inName, T inEnum, Farg<std::string> inEnumSet)
-        { return Add(inName, inEnum, ConstexprHash(inEnumSet)); }
-
-    template<IsEnum T>
-        static Error EraseEnum(T inEnum, Farg<std::string> inEnumSet)
-        { return EraseEnum(inEnum, ConstexprHash(inEnumSet)); }
-
-
-    static Error EraseEnum(Farg<std::string> inName, Farg<std::string> inSetName = EnumSet::Global);
-    static Error EraseSet(Farg<std::string> inSetName);
-    static Error EraseEnum(Farg<std::string> inName, uint inSetID);
-    static Error EraseSet(uint inSetID);
-    static void Clear();
+private:
+    inline static enums_registry m_sEnums{};
+    inline static std::string m_sEmpty{"Unregistered Enum"};
 };
 
-#undef ENUM_SET
 #endif // ENUM_PRETTIFIER_H

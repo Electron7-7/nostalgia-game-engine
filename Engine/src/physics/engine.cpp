@@ -252,13 +252,13 @@ PhysicsEngine::PhysicsEngine() noexcept
     m_pJobSystem     = new JobSystemThreadPool{cMaxPhysicsJobs, cMaxPhysicsBarriers};
 
 #ifdef DEBUGGING
-    REGISTER_ENUM(Box,       ShapeType);
-    REGISTER_ENUM(Sphere,    ShapeType);
-    REGISTER_ENUM(Capsule,   ShapeType);
-    REGISTER_ENUM(Cylinder,  ShapeType);
-    REGISTER_ENUM(Dynamic,   MotionType);
-    REGISTER_ENUM(Kinematic, MotionType);
-    REGISTER_ENUM(Static,    MotionType);
+    REGISTER_ENUM(ShapeType::Box);
+    REGISTER_ENUM(ShapeType::Sphere);
+    REGISTER_ENUM(ShapeType::Capsule);
+    REGISTER_ENUM(ShapeType::Cylinder);
+    REGISTER_ENUM(MotionType::Dynamic);
+    REGISTER_ENUM(MotionType::Kinematic);
+    REGISTER_ENUM(MotionType::Static);
 #endif // DEBUGGING
 }
 

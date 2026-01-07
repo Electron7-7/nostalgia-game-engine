@@ -79,9 +79,9 @@ void Collider::SetVariables(Farg<ThingData> data)
 
     if(CreateBody(mActivateOnNextChange))
     {
-        print_jolt("Body Created - Shape: {}, Motion: {}",
-            PRETTIFY_ENUM(mShape, ShapeType),
-            PRETTIFY_ENUM(mMotion, MotionType));
+        print_jolt("Physics Body Created [{}, {}]",
+            PRETTIFY_ENUM(mShape),
+            PRETTIFY_ENUM(mMotion));
     }
     else
         { print_error("Failed to create physics body for Collider#{}", mUID[]); }
@@ -109,9 +109,9 @@ void Collider::Ready()
 void Collider::Shutdown()
 {
     DestroyBody();
-    print_jolt("Body Destroyed - Shape: {}, Motion: {}",
-        PRETTIFY_ENUM(mShape, ShapeType),
-        PRETTIFY_ENUM(mMotion, MotionType));
+    print_jolt("Physics Body Destroyed [{}, {}]",
+        PRETTIFY_ENUM(mShape),
+        PRETTIFY_ENUM(mMotion));
     Device::Shutdown();
 }
 
