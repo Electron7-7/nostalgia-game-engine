@@ -2,9 +2,9 @@
 #define CONVERSION_H
 
 #pragma message("FIXME: These aren't great")
-template<typename J, typename G>
+template<typename G, typename J>
     G JoltToGlm(const J& Jolt);
-template<typename J, typename G>
+template<typename G, typename J>
     void JoltToGlm(const J& Jolt, G& Glm);
 
 template<typename J, typename G>
