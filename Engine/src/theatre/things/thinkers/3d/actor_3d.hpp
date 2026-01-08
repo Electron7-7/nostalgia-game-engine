@@ -2,7 +2,6 @@
 #define ACTOR_3D_H
 
 #include "theatre/things/thinkers/thinker.hpp"
-#include "rendering/render_layers.hpp"
 #include <glm/vec3.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtc/quaternion.hpp>
