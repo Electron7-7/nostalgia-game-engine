@@ -33,7 +33,7 @@ Things
     {
         // This is also a reference, but it references a Thing/Resource defined in the current Theatre. It is delimited by angled
         // brackets (<>)
-        Material = <LolBitMaterial>
+        MaterialOverride = <LolBitMaterial>
         Mesh = <DefaultCube>
     }
 
@@ -55,7 +55,7 @@ Things
         Child : MeshInstance3D RamielMeshInstance3D
         {
             Mesh = <RamielModel>
-            Material = <RamielMaterial>
+            MaterialOverride = <RamielMaterial>
         }
         Scale = [120, 120, 120]
         Origin = [-30, 18.152, -215] // An example of various number types working together!
@@ -85,7 +85,7 @@ Things
     MeshInstance3D DoomCubeMeshInstance3D
     {
         Mesh = <DefaultCube>
-        Material = <DoomMaterial>
+        MaterialOverride = <DoomMaterial>
     }
 
     Collider FloorCollider
@@ -100,7 +100,7 @@ Things
         Child : MeshInstance3D FloorMesh
         {
             Mesh = <DefaultCube>
-            Material = <RedMaterial>
+            MaterialOverride = <RedMaterial>
         }
         Position = [3, -5, -3]
         Scale = [20, 2, 20]
@@ -156,7 +156,7 @@ Things
         Child : MeshInstance3D RedCubeMeshInstance3D
         {
             Mesh = <DefaultCube>
-            Material = <RedMaterial>
+            MaterialOverride = <RedMaterial>
         }
         Origin = [1.35, 1, -4.45]
         RotationDegrees = [-0.3, -64.6, -17.4]
@@ -169,7 +169,7 @@ Things
         Child : MeshInstance3D IcoSphereMeshInstance3D
         {
             Mesh = <IcoSphere>
-            Material = <StupidMaterial>
+            MaterialOverride = <StupidMaterial>
         }
         Origin = [-2.55, 0.15, -1.3]
         RotationDegrees = [15.2, 38.6, 0]
