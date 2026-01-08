@@ -1,7 +1,7 @@
 #include "glfw_window.hpp"
-#include "application/monitor.hpp"
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
+#include "application/monitor.hpp"
 #include "events/event.hpp"
 #include "events/event_queue.hpp"
 #include "managers/event_manager.hpp"
@@ -9,7 +9,6 @@
 #include "managers/render_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
-
 #include <vector>
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
