@@ -12,18 +12,18 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    virtual void Move(Farg<glm::vec2> Direction);
-    virtual void Look(Farg<glm::vec2> Position);
     virtual ID CameraID() const;
-    virtual void CameraID(ID);
+    virtual void SetCameraID(ID);
 
     virtual Farg<glm::vec3> Velocity() const;
+
+    virtual void Move(Farg<glm::vec2> Direction);
+    virtual void Look(Farg<glm::vec2> Position);
 
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};
 
 protected:
-    friend class ImGui_Debugger;
     glm::vec3 mViewPosition{0.0f, 1.5f, 0.0f},
         mVelocity{0.0f};
     glm::vec3 mMovementDirection{0.0f};

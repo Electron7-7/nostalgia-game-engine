@@ -4,6 +4,7 @@
 #include "core/uid.hpp"
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 #include "rendering/environment.hpp"
+#include "rendering/render_layers.hpp"
 
 class Camera3D : public Actor3D
 {
@@ -20,14 +21,13 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    virtual bool Current(bool isCurrent);
     virtual bool Current() const;
-
     virtual ID ViewportID() const;
-    virtual Error ViewportID(ID);
-
     virtual RenderLayers LayersMask() const;
-    virtual void LayersMask(RenderLayers);
+
+    virtual bool SetCurrent(bool);
+    virtual Error SetViewportID(ID);
+    virtual void SetLayersMask(RenderLayers);
 
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;

@@ -133,7 +133,7 @@ int DirectionalLight::GetCount()
 
 void DirectionalLight::SetVariables(Farg<ThingData> data)
 {
-    RotationDegrees({-90.0f, 0.0f, 0.0f});
+    SetRotationDegrees({-90.0f, 0.0f, 0.0f});
     light_t::SetVariables(data);
     mVisible = false;
 }

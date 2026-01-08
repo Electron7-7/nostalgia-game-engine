@@ -97,17 +97,7 @@ void Camera3D::Ready()
     auto viewport{g_pTheatreManager->GetThing<Viewport>(mViewportID)};
     viewport->AddCamera(mUID);
     if(mInitCurrent)
-        { viewport->CurrentCamera(mUID); }
-}
-
-bool Camera3D::Current(bool isCurrent)
-{
-    if(isCurrent == Current())
-        { return isCurrent; }
-    else if(isCurrent)
-        { return g_pTheatreManager->GetThing<Viewport>(mViewportID)->CurrentCamera(mUID) == OK; }
-    g_pTheatreManager->GetThing<Viewport>(mViewportID)->CurrentCamera(ID::Invalid);
-    return false;
+        { viewport->SetCurrentCamera(mUID); }
 }
 
 bool Camera3D::Current() const
@@ -116,7 +106,20 @@ bool Camera3D::Current() const
 ID Camera3D::ViewportID() const
 { return mViewportID; }
 
-Error Camera3D::ViewportID(ID inID)
+RenderLayers Camera3D::LayersMask() const
+{ return mLayersMask; }
+
+bool Camera3D::SetCurrent(bool isCurrent)
+{
+    if(isCurrent == Current())
+        { return isCurrent; }
+    else if(isCurrent)
+        { return g_pTheatreManager->GetThing<Viewport>(mViewportID)->SetCurrentCamera(mUID) == OK; }
+    g_pTheatreManager->GetThing<Viewport>(mViewportID)->SetCurrentCamera(ID::Invalid);
+    return false;
+}
+
+Error Camera3D::SetViewportID(ID inID)
 {
     if(auto viewport{g_pTheatreManager->GetThing<Viewport>(inID)})
     {
@@ -127,10 +130,7 @@ Error Camera3D::ViewportID(ID inID)
     return ERR_INVALID_ID;
 }
 
-RenderLayers Camera3D::LayersMask() const
-{ return mLayersMask; }
-
-void Camera3D::LayersMask(RenderLayers inLayersMask)
+void Camera3D::SetLayersMask(RenderLayers inLayersMask)
 { mLayersMask = inLayersMask; }
 
 glm::mat4 Camera3D::ViewMatrix() const

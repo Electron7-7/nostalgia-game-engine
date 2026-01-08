@@ -116,59 +116,136 @@ void Collider::Shutdown()
 void Collider::Tick()
 {
     ASSERT_BODYID()
-    Actor3D::Quaternion(JoltToGlm<glm::quat>(PhysicsEngine::Instance()
+    Actor3D::SetQuaternion(JoltToGlm<glm::quat>(PhysicsEngine::Instance()
         ->BodyInterface()
             .GetRotation(mBodyID)));
-    Actor3D::Position(JoltToGlm<glm::vec3>(PhysicsEngine::Instance()
+    Actor3D::SetPosition(JoltToGlm<glm::vec3>(PhysicsEngine::Instance()
             ->BodyInterface()
                 .GetCenterOfMassPosition(mBodyID)));
 }
 
-void Collider::Position(Farg<glm::vec3> inPosition)
+Farg<ColliderMaterial> Collider::Material() const
+{ return mMaterial; }
+
+float Collider::Mass() const
 {
-    Actor3D::Position(inPosition);
+    ASSERT_BODYID(mMass)
+    return mMass;
+}
+
+ShapeType Collider::Shape() const
+{ return mShape; }
+
+MotionType Collider::Motion() const
+{ return mMotion; }
+
+bool Collider::Active() const
+{
+    ASSERT_BODYID(false)
+    return PhysicsEngine::Instance()->BodyInterface().IsActive(mBodyID);
+}
+
+bool Collider::ActivateOnNextChange() const
+{ return mActivateOnNextChange; }
+
+void Collider::SetPosition(Farg<glm::vec3> inPosition)
+{
+    Actor3D::SetPosition(inPosition);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         GlmToJolt<Vec3>(mPosition),
         GlmToJolt<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::Quaternion(Farg<glm::quat> inQuaternion)
+void Collider::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
-    Actor3D::Quaternion(inQuaternion);
+    Actor3D::SetQuaternion(inQuaternion);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         GlmToJolt<Vec3>(mPosition),
         GlmToJolt<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::Rotation(Farg<glm::vec3> inRotation)
+void Collider::SetRotation(Farg<glm::vec3> inRotation)
 {
-    Actor3D::Rotation(inRotation);
+    Actor3D::SetRotation(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         GlmToJolt<Vec3>(mPosition),
         GlmToJolt<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::RotationDegrees(Farg<glm::vec3> inRotation)
+void Collider::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
-    Actor3D::RotationDegrees(inRotation);
+    Actor3D::SetRotationDegrees(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         GlmToJolt<Vec3>(mPosition),
         GlmToJolt<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::Scale(Farg<glm::vec3> inScale)
+void Collider::SetScale(Farg<glm::vec3> inScale)
 {
-    Actor3D::Scale(inScale);
+    Actor3D::SetScale(inScale);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         GlmToJolt<Vec3>(mPosition),
         GlmToJolt<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
+Error Collider::SetMaterial(Farg<ColliderMaterial> inMaterial)
+{
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mMaterial = inMaterial;
+    PhysicsEngine::Instance()->BodyInterface().SetFriction(mBodyID,
+        mMaterial.friction);
+    return OK;
+}
+
+void Collider::SetMass(float inMass)
+{ print_debug("You can't change a Collider's mass, yet"); }
+
+Error Collider::SetShape(ShapeType inShape, bool isActive)
+{
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mShape = inShape;
+    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
+        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        true,
+        s_Activation(isActive));
+    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        true,
+        s_Activation(isActive));
+    return OK;
+}
+
+Error Collider::SetMotion(MotionType inMotion, bool isActive)
+{
+    ASSERT_BODYID(ERR_INVALID_ID)
+    mMotion = inMotion;
+    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
+        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        true,
+        s_Activation(isActive));
+    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        true,
+        s_Activation(isActive));
+    return OK;
+}
+
+void Collider::SetActive(bool isActive) const
+{
+    ASSERT_BODYID()
+    if(isActive)
+        { PhysicsEngine::Instance()->BodyInterface().ActivateBody(mBodyID); }
+    else
+        { PhysicsEngine::Instance()->BodyInterface().DeactivateBody(mBodyID); }
+}
+
+void Collider::SetActivateOnNextChange(bool setActive)
+{ mActivateOnNextChange = setActive; }
 
 bool Collider::CreateBody(bool setActive)
 {
@@ -204,84 +281,6 @@ void Collider::DestroyBody()
     PhysicsEngine::Instance()->BodyInterface().DestroyBody(mBodyID);
     mBodyID = BodyID{BodyID::cInvalidBodyID};
 }
-
-ShapeType Collider::Shape() const
-{ return mShape; }
-
-Error Collider::Shape(ShapeType inShape, bool isActive)
-{
-    ASSERT_BODYID(ERR_INVALID_ID)
-    mShape = inShape;
-    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
-        true,
-        s_Activation(isActive));
-    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        true,
-        s_Activation(isActive));
-    return OK;
-}
-
-MotionType Collider::Motion() const
-{ return mMotion; }
-
-Error Collider::Motion(MotionType inMotion, bool isActive)
-{
-    ASSERT_BODYID(ERR_INVALID_ID)
-    mMotion = inMotion;
-    PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
-        true,
-        s_Activation(isActive));
-    PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        true,
-        s_Activation(isActive));
-    return OK;
-}
-
-bool Collider::Active() const
-{
-    ASSERT_BODYID(false)
-    return PhysicsEngine::Instance()->BodyInterface().IsActive(mBodyID);
-}
-
-void Collider::Active(bool isActive) const
-{
-    ASSERT_BODYID()
-    if(isActive)
-        { PhysicsEngine::Instance()->BodyInterface().ActivateBody(mBodyID); }
-    else
-        { PhysicsEngine::Instance()->BodyInterface().DeactivateBody(mBodyID); }
-}
-
-bool Collider::SetActiveOnNextChange() const
-{ return mActivateOnNextChange; }
-
-void Collider::SetActiveOnNextChange(bool setActive)
-{ mActivateOnNextChange = setActive; }
-
-Farg<ColliderMaterial> Collider::Material() const
-{ return mMaterial; }
-
-Error Collider::Material(Farg<ColliderMaterial> inMaterial)
-{
-    ASSERT_BODYID(ERR_INVALID_ID)
-    mMaterial = inMaterial;
-    PhysicsEngine::Instance()->BodyInterface().SetFriction(mBodyID,
-        mMaterial.friction);
-    return OK;
-}
-
-float Collider::Mass() const
-{
-    ASSERT_BODYID(mMass)
-    return mMass;
-}
-
-void Collider::Mass(float inMass)
-{ print_debug("You can't change a Collider's mass, yet"); }
 
 void Collider::AddImpulse(Farg<glm::vec3> inImpulse)
 {

@@ -77,10 +77,10 @@ void NostalgiaPlayer::Tick()
     });
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
-    RotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
+    SetRotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
     auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
-    camera->RotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
-    camera->Position(mPosition + mViewPosition);
+    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
+    camera->SetPosition(mPosition + mViewPosition);
 
     auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
 
@@ -114,6 +114,12 @@ void NostalgiaPlayer::Tick()
     mPosition = collider->Position();
 }
 
+ID NostalgiaPlayer::CameraID() const
+{ return mCameraID; }
+
+void NostalgiaPlayer::SetCameraID(ID inID)
+{ mCameraID = inID; }
+
 Farg<glm::vec3> NostalgiaPlayer::Velocity() const
 { return mVelocity; }
 
@@ -125,9 +131,3 @@ void NostalgiaPlayer::Move(const glm::vec2& direction)
 
 void NostalgiaPlayer::Look(const glm::vec2& motion)
 { mLookWish = motion * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale; }
-
-ID NostalgiaPlayer::CameraID() const
-{ return mCameraID; }
-
-void NostalgiaPlayer::CameraID(ID inID)
-{ mCameraID = inID; }

@@ -8,9 +8,9 @@ void Actor2D::SetVariables(Farg<ThingData> data)
     data.GetVariable(mPosition, "Position", "Origin");
     data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
     if(data.GetVariable(mRotationDegrees, "RotationDegrees"))
-        { RotationDegrees(mRotationDegrees); }
+        { SetRotationDegrees(mRotationDegrees); }
     if(data.GetVariable(mRotationRadians, "Rotation", "RotationRadians"))
-        { Rotation(mRotationRadians); }
+        { SetRotation(mRotationRadians); }
     data.GetVariable(mVisible, "Visible");
 
     data.GetVariable(mDebugHighlight, "DebugHighlight");
@@ -50,26 +50,26 @@ float Actor2D::RotationDegrees() const
 Farg<glm::vec2> Actor2D::Scale() const
 { return mScale; }
 
-void Actor2D::Position(Farg<glm::vec2> inPosition)
+bool Actor2D::Visible() const
+{ return mVisible; }
+
+void Actor2D::SetPosition(Farg<glm::vec2> inPosition)
 { mPosition = inPosition; }
 
-void Actor2D::Rotation(float inRotation)
+void Actor2D::SetRotation(float inRotation)
 {
     mRotationRadians = inRotation;
     mRotationDegrees = glm::degrees(mRotationRadians);
 }
 
-void Actor2D::RotationDegrees(float inRotation)
+void Actor2D::SetRotationDegrees(float inRotation)
 {
     mRotationDegrees = inRotation;
     mRotationRadians = glm::radians(mRotationDegrees);
 }
 
-void Actor2D::Scale(Farg<glm::vec2> inScale)
+void Actor2D::SetScale(Farg<glm::vec2> inScale)
 { mScale = inScale; }
 
-bool Actor2D::Visible() const
-{ return mVisible; }
-
-void Actor2D::Visible(bool isVisible)
+void Actor2D::SetVisible(bool isVisible)
 { mVisible = isVisible; }

@@ -50,6 +50,7 @@ class PointLight : public light_t
 {
 public:
     static int GetCount();
+
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::POINT; }
 };
@@ -58,8 +59,10 @@ class SpotLight : public light_t
 {
 public:
     static int GetCount();
+
     void SetVariables(Farg<ThingData>) override;
     Shared<ThingData> GetVariables() const override;
+
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::SPOT; }
 };
@@ -68,8 +71,10 @@ class DirectionalLight : public light_t
 {
 public:
     static int GetCount();
+
     void SetVariables(Farg<ThingData>) override;
     Shared<ThingData> GetVariables() const override;
+
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::DIRECTIONAL; }
 };

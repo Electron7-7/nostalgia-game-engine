@@ -544,7 +544,7 @@ struct thing_data_buffer
                 motion = static_cast<int>(collider->Motion());
                 shape  = static_cast<int>(collider->Shape());
                 collider_material = collider->Material();
-                activate_on_change = collider->SetActiveOnNextChange();
+                activate_on_change = collider->ActivateOnNextChange();
             }
         }
         else if(auto resource{DCast<Resource>(ptr)})
@@ -748,7 +748,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             Text("\t%s", g_pTheatreManager->GetThing(id)->c_name());
                             SameLine();
                             if(Button("Make Current"))
-                                { viewport->CurrentCamera(id); }
+                                { viewport->SetCurrentCamera(id); }
                         }
                     }
                 }
@@ -759,13 +759,13 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     selected.rotation = actor->RotationDegrees();
                     selected.scale    = actor->Scale();
                     if(DragGLMv3("Position", &selected.position, 0.05f, -200.0f, 200.0f, "%.2f"))
-                        { actor->Position(selected.position); }
+                        { actor->SetPosition(selected.position); }
                     if(DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                        { actor->RotationDegrees(selected.rotation); }
+                        { actor->SetRotationDegrees(selected.rotation); }
                     if(DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f"))
-                        { actor->Scale(selected.scale); }
+                        { actor->SetScale(selected.scale); }
                     if(Checkbox("Visible", &selected.visible))
-                        { actor->Visible(selected.visible); }
+                        { actor->SetVisible(selected.visible); }
                     ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
                     if(auto light{DCast<light_t>(actor)})
                     {
@@ -798,7 +798,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                     g_pTheatreManager->GetThing(id)->name(),
                                     id[])};
                                 if(Selectable(label.data())
-                                    and camera3d->ViewportID(id) == OK)
+                                    and camera3d->SetViewportID(id) == OK)
                                     { selected = thing_data_buffer{camera3d}; }
                                 if(is_selected)
                                     { SetItemDefaultFocus(); }
@@ -807,7 +807,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         }
                         if(Checkbox("Current", &selected.is_camera_current))
                         {
-                            camera3d->Current(!camera3d->Current());
+                            camera3d->SetCurrent(!camera3d->Current());
                             selected.is_camera_current = camera3d->Current();
                         }
                         if(SliderFloat("Vertical FOV", &selected.fov, 0.0f, 180.0f))
@@ -864,34 +864,34 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                         static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
                         if(InputFloat("Mass", &selected.density, 0.1f, 1.0f))
-                            { collider->Mass(selected.density); }
+                            { collider->SetMass(selected.density); }
                         if(InputFloat("Friction", &selected.collider_material.friction, 0.01f, 0.1f))
                         {
                             if(selected.collider_material.friction > 1.0f)
                                 { selected.collider_material.friction = 1.0f; }
                             else if(selected.collider_material.friction < 0.0f)
                                 { selected.collider_material.friction = 0.0f; }
-                            collider->Material(selected.collider_material);
+                            collider->SetMaterial(selected.collider_material);
                         }
                         if(Combo("Motion", &selected.motion, motion_names))
-                            { collider->Motion((MotionType)selected.motion, selected.activate_on_change); }
+                            { collider->SetMotion((MotionType)selected.motion, selected.activate_on_change); }
                         if(Combo("Shape", &selected.shape, shape_names))
-                            { collider->Shape((ShapeType)selected.shape, selected.activate_on_change); }
+                            { collider->SetShape((ShapeType)selected.shape, selected.activate_on_change); }
                         if(Checkbox("Set Active on Change", &selected.activate_on_change))
-                            { collider->SetActiveOnNextChange(selected.activate_on_change); selected = {collider}; }
+                            { collider->SetActivateOnNextChange(selected.activate_on_change); selected = {collider}; }
                         Checkbox("Update Transform Values Instantly", &collider_update_transform_instantly);
                         TextF("Active: {}", collider->Active());
                         if(!collider->Active() and Button("Activate"))
-                            { collider->Active(true); }
+                            { collider->SetActive(true); }
                         else if(collider->Active() and Button("Deactivate"))
-                            { collider->Active(false); }
+                            { collider->SetActive(false); }
                     }
                     else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
                     {
                         if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
-                            { mesh_instance->MeshID(selected.mesh); }
+                            { mesh_instance->SetMeshID(selected.mesh); }
                         if(Checkbox("Wireframe", &selected.wireframe))
-                            { mesh_instance->Wireframe(selected.wireframe); }
+                            { mesh_instance->SetWireframe(selected.wireframe); }
                         if(IsItemHovered())
                             { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     }

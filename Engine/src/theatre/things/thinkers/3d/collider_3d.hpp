@@ -29,38 +29,27 @@ public:
     virtual void Shutdown() override;
     virtual void Tick() override;
 
-    using Actor3D::Position;
-    using Actor3D::Quaternion;
-    using Actor3D::Rotation;
-    using Actor3D::RotationDegrees;
-    using Actor3D::Scale;
+    virtual Farg<ColliderMaterial> Material() const;
+    virtual float Mass() const;
+    virtual ShapeType Shape() const;
+    virtual MotionType Motion() const;
+    virtual bool Active() const;
+    virtual bool ActivateOnNextChange() const;
 
-    virtual void Position(Farg<glm::vec3>) override;
-    virtual void Quaternion(Farg<glm::quat>) override;
-    virtual void Rotation(Farg<glm::vec3>) override;
-    virtual void RotationDegrees(Farg<glm::vec3>) override;
-    virtual void Scale(Farg<glm::vec3>) override;
+    virtual void SetPosition(Farg<glm::vec3>) override;
+    virtual void SetQuaternion(Farg<glm::quat>) override;
+    virtual void SetRotation(Farg<glm::vec3>) override;
+    virtual void SetRotationDegrees(Farg<glm::vec3>) override;
+    virtual void SetScale(Farg<glm::vec3>) override;
+    virtual Error SetMaterial(Farg<ColliderMaterial>);
+    virtual void  SetMass(float);
+    virtual Error SetShape(ShapeType, bool setActive = false);
+    virtual Error SetMotion(MotionType, bool setActive = false);
+    virtual void SetActive(bool) const;
+    virtual void SetActivateOnNextChange(bool);
 
     virtual bool CreateBody(bool setActive);
     virtual void DestroyBody();
-
-    virtual Farg<ColliderMaterial> Material() const;
-    virtual Error Material(Farg<ColliderMaterial>);
-
-    virtual float Mass() const;
-    virtual void  Mass(float);
-
-    virtual ShapeType Shape() const;
-    virtual Error Shape(ShapeType, bool setActive = false);
-
-    virtual MotionType Motion() const;
-    virtual Error Motion(MotionType, bool setActive = false);
-
-    virtual bool Active() const;
-    virtual void Active(bool) const;
-
-    virtual bool SetActiveOnNextChange() const;
-    virtual void SetActiveOnNextChange(bool);
 
     virtual void AddImpulse(Farg<glm::vec3> inImpulse);
     virtual void AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint);

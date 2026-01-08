@@ -22,13 +22,13 @@ public:
     virtual float           RotationDegrees() const;
     virtual Farg<glm::vec2> Scale() const;
 
-    virtual void Position(Farg<glm::vec2>);
-    virtual void Rotation(float);
-    virtual void RotationDegrees(float);
-    virtual void Scale(Farg<glm::vec2>);
+    virtual void SetPosition(Farg<glm::vec2>);
+    virtual void SetRotation(float);
+    virtual void SetRotationDegrees(float);
+    virtual void SetScale(Farg<glm::vec2>);
 
     virtual bool Visible() const;
-    virtual void Visible(bool isVisible);
+    virtual void SetVisible(bool isVisible);
 
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
     ID mDebugMeshInstanceID{};

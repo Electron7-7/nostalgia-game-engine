@@ -11,7 +11,7 @@ public:
     virtual Shared<ThingData> GetVariables() const override;
 
     virtual RenderLayers Layers() const;
-    virtual void Layers(RenderLayers);
+    virtual void SetLayers(RenderLayers);
 
 protected:
     RenderLayers mLayers{};

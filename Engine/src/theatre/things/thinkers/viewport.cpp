@@ -44,7 +44,7 @@ Shared<ThingData> Viewport::GetVariables() const
 bool Viewport::IsCurrentCamera(ID inID)
 { return mCurrentCamera == inID; }
 
-Error Viewport::CurrentCamera(ID inID)
+Error Viewport::SetCurrentCamera(ID inID)
 {
     if(mCameraIDs.contains(inID))
         { mCurrentCamera = inID; return OK; }
@@ -79,7 +79,7 @@ void Viewport::EraseCamera(ID inID)
         { mCurrentCamera = (mCameraIDs.empty()) ? ID::Invalid : *mCameraIDs.begin(); }
 }
 
-void Viewport::Size(Farg<Size2D> inSize)
+void Viewport::SetSize(Farg<Size2D> inSize)
 {
     if(mSize == inSize)
         { return; }
@@ -88,7 +88,7 @@ void Viewport::Size(Farg<Size2D> inSize)
     mSize = inSize;
 }
 
-void Viewport::Framebuffer(Shared<FrameBuffer> inFramebuffer)
+void Viewport::SetFramebuffer(Shared<FrameBuffer> inFramebuffer)
 {
     if(mUID == UID::a_MainViewport)
         { return; }

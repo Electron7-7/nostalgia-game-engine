@@ -23,6 +23,6 @@ Shared<ThingData> Visual3D::GetVariables() const
 RenderLayers Visual3D::Layers() const
 { return mLayers; }
 
-void Visual3D::Layers(RenderLayers inLayers)
+void Visual3D::SetLayers(RenderLayers inLayers)
 { mLayers = inLayers; }
 

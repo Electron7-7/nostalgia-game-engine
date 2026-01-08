@@ -29,17 +29,17 @@ ID MeshInstance3D::MeshID() const
         : mMeshID;
 }
 
-void MeshInstance3D::MeshID(ID inID)
-{ mMeshID = inID; }
-
 ID MeshInstance3D::MaterialOverrideID() const
 { return mMaterialOverrideID; }
-
-void MeshInstance3D::MaterialOverrideID(ID inID)
-{ mMaterialOverrideID = inID; }
 
 bool MeshInstance3D::Wireframe() const
 { return mWireframe; }
 
-void MeshInstance3D::Wireframe(bool inWireframe)
+void MeshInstance3D::SetMeshID(ID inID)
+{ mMeshID = inID; }
+
+void MeshInstance3D::SetMaterialOverrideID(ID inID)
+{ mMaterialOverrideID = inID; }
+
+void MeshInstance3D::SetWireframe(bool inWireframe)
 { mWireframe = inWireframe; }

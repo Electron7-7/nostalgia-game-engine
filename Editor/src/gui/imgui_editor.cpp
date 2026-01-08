@@ -140,8 +140,8 @@ void ImGui_Editor::Update()
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
             { sScaleDirection = SCALE_DIRECTION_UP; }
         sSpawnLocationScaleSpeed = (int)sScaleDirection * sSpawnLocationScaleSpeedStore;
-        thingy->RotationDegrees(thingy->RotationDegrees() + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f});
-        thingy->Scale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
+        thingy->SetRotationDegrees(thingy->RotationDegrees() + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f});
+        thingy->SetScale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
     }
     if(sShowDemoWindow)
         { ShowDemoWindow(&sShowDemoWindow); }
@@ -187,11 +187,11 @@ void ImGui_Editor::Update()
             {
                 auto camera{g_pTheatreManager->GetThing<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
-                camera->RotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
+                camera->SetRotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
                     InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
-                camera->Position(camera->Position() +
+                camera->SetPosition(camera->Position() +
                     (0.1f * (
                         ((camera->Quaternion() * Settings::World::Front()) *
                             movement_direction[1]) +
@@ -257,10 +257,10 @@ void s_ThingAdder()
         EndCombo();
     }
     if(DragGLMv3("Spawn Location", &sSpawnLocation, 0.01f, 0.0f, 0.0f, "%.2f"))
-        { g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Position(sSpawnLocation); }
+        { g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
-        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Position(sSpawnLocation); }
+        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
     if(Button("Spawn Thing"))
     {
         sNewThingName = sNameBuffer;

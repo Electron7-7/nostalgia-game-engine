@@ -10,11 +10,11 @@ void Actor3D::SetVariables(Farg<ThingData> data)
     data.GetVariable(mPosition, "Position", "Origin");
     data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
     if(data.GetVariable(mEulerRotationDegrees, "RotationDegrees", "EulerDegrees"))
-        { RotationDegrees(mEulerRotationDegrees); }
+        { SetRotationDegrees(mEulerRotationDegrees); }
     if(data.GetVariable(mEulerRotationRadians, "Rotation", "Euler"))
-        { Rotation(mEulerRotationRadians); }
+        { SetRotation(mEulerRotationRadians); }
     if(data.GetVariable(mQuaternion, "Quaternion"))
-        { Quaternion(mQuaternion); }
+        { SetQuaternion(mQuaternion); }
     data.GetVariable(mVisible, "Visible");
 
     data.GetVariable(mDebugHighlight, "DebugHighlight");
@@ -46,9 +46,9 @@ void Actor3D::Tick()
         if(auto collider{DCast<Collider>(g_pTheatreManager->GetThing<Collider>(child.id))};
             !collider->uid().invalid())
         {
-            Position(collider->Position());
-            Scale(collider->Scale());
-            Quaternion(collider->Quaternion());
+            SetPosition(collider->Position());
+            SetScale(collider->Scale());
+            SetQuaternion(collider->Quaternion());
         }
     }
 }
@@ -68,35 +68,35 @@ Farg<glm::vec3> Actor3D::RotationDegrees() const
 Farg<glm::vec3> Actor3D::Scale() const
 { return mScale; }
 
-void Actor3D::Position(Farg<glm::vec3> inPosition)
+bool Actor3D::Visible() const
+{ return mVisible; }
+
+void Actor3D::SetPosition(Farg<glm::vec3> inPosition)
 { mPosition = inPosition; }
 
-void Actor3D::Quaternion(Farg<glm::quat> inQuaternion)
+void Actor3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
     mQuaternion = glm::normalize(inQuaternion);
     mEulerRotationRadians = glm::eulerAngles(mQuaternion);
     mEulerRotationDegrees = glm::degrees(mEulerRotationRadians);
 }
 
-void Actor3D::Rotation(Farg<glm::vec3> inRotation)
+void Actor3D::SetRotation(Farg<glm::vec3> inRotation)
 {
     mEulerRotationRadians = inRotation;
     mQuaternion = glm::normalize(glm::quat{mEulerRotationRadians});
     mEulerRotationDegrees = glm::degrees(mEulerRotationRadians);
 }
 
-void Actor3D::RotationDegrees(Farg<glm::vec3> inRotation)
+void Actor3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
     mEulerRotationDegrees = inRotation;
     mEulerRotationRadians = glm::radians(mEulerRotationDegrees);
     mQuaternion = glm::normalize(glm::quat{mEulerRotationRadians});
 }
 
-void Actor3D::Scale(Farg<glm::vec3> inScale)
+void Actor3D::SetScale(Farg<glm::vec3> inScale)
 { mScale = inScale; }
 
-bool Actor3D::Visible() const
-{ return mVisible; }
-
-void Actor3D::Visible(bool isVisible)
+void Actor3D::SetVisible(bool isVisible)
 { mVisible = isVisible; }

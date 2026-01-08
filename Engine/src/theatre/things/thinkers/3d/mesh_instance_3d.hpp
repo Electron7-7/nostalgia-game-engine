@@ -10,13 +10,12 @@ public:
     virtual Shared<ThingData> GetVariables() const override;
 
     virtual ID MeshID() const;
-    virtual void MeshID(ID);
-
     virtual ID MaterialOverrideID() const;
-    virtual void MaterialOverrideID(ID);
-
     virtual bool Wireframe() const;
-    virtual void Wireframe(bool);
+
+    virtual void SetMeshID(ID);
+    virtual void SetMaterialOverrideID(ID);
+    virtual void SetWireframe(bool);
 
 protected:
     ID mMeshID{};

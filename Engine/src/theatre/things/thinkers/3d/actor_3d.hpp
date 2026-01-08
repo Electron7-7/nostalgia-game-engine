@@ -22,15 +22,14 @@ public:
     virtual Farg<glm::vec3> Rotation() const;
     virtual Farg<glm::vec3> RotationDegrees() const;
     virtual Farg<glm::vec3> Scale() const;
-
-    virtual void Position(Farg<glm::vec3>);
-    virtual void Quaternion(Farg<glm::quat>);
-    virtual void Rotation(Farg<glm::vec3>);
-    virtual void RotationDegrees(Farg<glm::vec3>);
-    virtual void Scale(Farg<glm::vec3>);
-
     virtual bool Visible() const;
-    virtual void Visible(bool isVisible);
+
+    virtual void SetPosition(Farg<glm::vec3>);
+    virtual void SetQuaternion(Farg<glm::quat>);
+    virtual void SetRotation(Farg<glm::vec3>);
+    virtual void SetRotationDegrees(Farg<glm::vec3>);
+    virtual void SetScale(Farg<glm::vec3>);
+    virtual void SetVisible(bool);
 
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
     ID mDebugMeshInstanceID{};

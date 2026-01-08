@@ -16,16 +16,19 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    bool IsCurrentCamera(ID);
-    Error CurrentCamera(ID);
-    ID CurrentCamera() const;
-    Farg<cameras> CameraIDs() const;
-    Size2D Size() const;
     Farg<Shared<FrameBuffer>> Framebuffer() const;
+    void SetFramebuffer(Shared<FrameBuffer>);
+
+    ID CurrentCamera() const;
+    Error SetCurrentCamera(ID);
+
+    Farg<cameras> CameraIDs() const;
+    bool IsCurrentCamera(ID);
     void AddCamera(ID);
     void EraseCamera(ID);
-    void Size(Farg<Size2D>);
-    void Framebuffer(Shared<FrameBuffer>);
+
+    Size2D Size() const;
+    void SetSize(Farg<Size2D>);
 
 protected:
     Shared<FrameBuffer> mFramebuffer{nullptr};
