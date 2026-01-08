@@ -21,7 +21,7 @@ enum Error : int {
     ERR_FILE_WRITE,
     ERR_FILE_READ_WRITE,
     ERR_DATA_LOAD, // Example use: OpenGLTextureBuffer's constructor sets `mStatus` to this if `stbi_load_from_memory` fails
-    ERR_NOT_LOADED,
+    ERR_NOT_LOADED, // Data hasn't been loaded in yet
     ERR_INVALID_ID, // Invalid `ID` error
     ERR_INVALID_TYPE, // Invalid type error
     ERR_ALREADY_EXISTS, // Example use: InputManager::AddAction returns this if the given "action name" already exists in the unordered map
