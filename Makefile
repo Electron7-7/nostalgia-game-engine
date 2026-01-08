@@ -130,41 +130,42 @@ VPATH := $(ENGINE_SRC_DIRS):$(EDITR_SRC_DIRS):$(DIR_ROOT)
 ENGINE_SRC := Engine/src
 EDITR_SRC  := Editor/src
 
-ENGINE_SRC_DIRS :=                             \
-    $(ENGINE_SRC)/application                  \
-    $(ENGINE_SRC)/backends                     \
-    $(ENGINE_SRC)/backends/glfw                \
-    $(ENGINE_SRC)/backends/opengl              \
-    $(ENGINE_SRC)/backends/imgui               \
-    $(ENGINE_SRC)/components                   \
-    $(ENGINE_SRC)/common                       \
-    $(ENGINE_SRC)/core                         \
-    $(ENGINE_SRC)/embedded                     \
-    $(ENGINE_SRC)/filesystem                   \
-    $(ENGINE_SRC)/events                       \
-    $(ENGINE_SRC)/managers                     \
-    $(ENGINE_SRC)/math                         \
-    $(ENGINE_SRC)/physics                      \
-    $(ENGINE_SRC)/rendering                    \
-    $(ENGINE_SRC)/settings                     \
-    $(ENGINE_SRC)/theatre                      \
-    $(ENGINE_SRC)/theatre/parser               \
-    $(ENGINE_SRC)/thing                        \
-    $(ENGINE_SRC)/thing/resource               \
-    $(ENGINE_SRC)/thing/thinker                \
-    $(ENGINE_SRC)/thing/thinker/actor3d        \
-    $(ENGINE_SRC)/thing/thinker/actor2d        \
-	$(ENGINE_SRC)/ui                           \
+ENGINE_SRC_DIRS := \
+    $(ENGINE_SRC)/application \
+    $(ENGINE_SRC)/backends \
+    $(ENGINE_SRC)/backends/glfw \
+    $(ENGINE_SRC)/backends/opengl \
+    $(ENGINE_SRC)/backends/imgui \
+    $(ENGINE_SRC)/components \
+    $(ENGINE_SRC)/common \
+    $(ENGINE_SRC)/core \
+    $(ENGINE_SRC)/embedded \
+    $(ENGINE_SRC)/filesystem \
+    $(ENGINE_SRC)/events \
+    $(ENGINE_SRC)/managers \
+    $(ENGINE_SRC)/math \
+    $(ENGINE_SRC)/physics \
+    $(ENGINE_SRC)/rendering \
+    $(ENGINE_SRC)/settings \
+    $(ENGINE_SRC)/theatre \
+    $(ENGINE_SRC)/theatre/parser \
+    $(ENGINE_SRC)/thing \
+    $(ENGINE_SRC)/thing/resource \
+    $(ENGINE_SRC)/thing/thinker \
+    $(ENGINE_SRC)/thing/thinker/actor3d \
+    $(ENGINE_SRC)/thing/thinker/actor3d/visual3d \
+    $(ENGINE_SRC)/thing/thinker/actor2d \
+	$(ENGINE_SRC)/ui \
 
-THIRDPARTY_SRC_DIRS :=                  \
-	$(ENGINE_SRC)/thirdparty/DearImGui  \
+THIRDPARTY_SRC_DIRS := \
+	$(ENGINE_SRC)/thirdparty/DearImGui \
 	$(ENGINE_SRC)/thirdparty/glm/detail \
 	$(ENGINE_SRC)/thirdparty/glad
 
-EDITR_SRC_DIRS :=               \
-    $(EDITR_SRC)/app    \
+EDITR_SRC_DIRS := \
+    $(EDITR_SRC)/app \
     $(EDITR_SRC)/system \
-    $(EDITR_SRC)/tools  \
+    $(EDITR_SRC)/tools \
     $(EDITR_SRC)/gui
 
 DIRTY_SRC_DIRS := \
