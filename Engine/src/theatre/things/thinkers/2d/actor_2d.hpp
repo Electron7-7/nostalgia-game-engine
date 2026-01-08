@@ -11,9 +11,6 @@ class Actor2D : public Thinker
 {
 public:
     virtual void Ready() override;
-    virtual void Tick() override;
-    virtual void Update() override {}
-    virtual void Input(InputEvent*) override {}
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 

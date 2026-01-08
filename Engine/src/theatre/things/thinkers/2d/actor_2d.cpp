@@ -35,9 +35,6 @@ Shared<ThingData> Actor2D::GetVariables() const
 void Actor2D::Ready()
 { Thinker::Ready(); }
 
-void Actor2D::Tick()
-{}
-
 Farg<glm::vec2> Actor2D::Position() const
 { return mPosition; }
 
