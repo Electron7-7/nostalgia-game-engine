@@ -4,6 +4,7 @@
 #include "core/printing.hpp"
 #include "embedded/models.hpp"
 #include "embedded/images.hpp"
+#include "thirdparty/frozen/map.h"
 #include <map>
 
 static std::map<ID, Shared<FileData>>
@@ -24,7 +25,7 @@ sReservedFileData{
     {UID::t_ShittySkybox[]+5, MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)},
 };
 
-static std::map<std::string, FileType>
+static constexpr frozen::map<std::string, FileType, 8>
 s_FileTypesByExtension{
     { ".otf",  FileType::font_OTF  },
     { ".ttf",  FileType::font_TTF  },
