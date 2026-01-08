@@ -32,11 +32,16 @@ void Mesh::Ready()
 void Mesh::SetVariables(Farg<ThingData> data)
 {
     Resource::SetVariables(data);
+
+    data.GetVariable(mMaterialID, "Material");
+
 }
 
 Shared<ThingData> Mesh::GetVariables() const
 {
     auto data{Resource::GetVariables()};
+
+    data->AddVariable(mMaterialID, "Material");
 
     return data;
 }
@@ -46,6 +51,12 @@ Farg<Shared<VertexArray>> Mesh::MeshData() const
 
 void Mesh::MeshData(Shared<VertexArray> inMeshData)
 { mVertexArray = inMeshData; }
+
+ID Mesh::MaterialID() const
+{ return mMaterialID; }
+
+void Mesh::MaterialID(ID inID)
+{ mMaterialID = inID; }
 
 //////////////////
 // MESH PARSING //

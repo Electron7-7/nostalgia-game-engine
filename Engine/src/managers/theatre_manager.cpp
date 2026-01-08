@@ -17,7 +17,7 @@
 #include "thing/resource/texture.hpp"
 #include "thing/thinker/viewport.hpp"
 #include "thing/resource/material.hpp"
-#include "thing/thinker/actor3d/mesh_instance3d.hpp"
+#include "thing/thinker/actor3d/visual3d/mesh_instance3d.hpp"
 #include "thing/thinker/actor3d/nostalgia_player3d.hpp"
 #include "thing/thinker/actor3d/light3d.hpp"
 #include <ranges>
@@ -145,23 +145,25 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
 
-    if(!camera->mRenderLayers.contains(actor->mRenderLayers)
-        or !camera->Current() or actor->uid() == camera->uid())
+    if(!camera->Current() or actor->uid() == camera->uid())
         { return; }
     auto children{actor->children()};
-    if(Settings::Engine::IsEditorHint and !actor->DebugMeshInstance().invalid())
-        { children.emplace_back(actor->DebugMeshInstance(), ThingType::MeshInstance3D); }
+    if(Settings::Engine::IsEditorHint and !actor->mDebugMeshInstanceID.invalid())
+        { children.emplace_back(actor->mDebugMeshInstanceID, ThingType::MeshInstance3D); }
     for(auto child : children)
     {
-        if(!g_pThingFactory->IsDerivedFrom<MeshInstance3D>(child.type))
-            { continue; }
         auto mesh_instance{GetThing<MeshInstance3D>(child.id)};
+        if(mesh_instance->uid().invalid() or
+            !camera->LayersMask().contains(mesh_instance->Layers()))
+            { continue; }
         auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
-        auto material{GetThing<Material>(mesh_instance->MaterialID())};
+        auto material{GetThing<Material>(mesh->MaterialID())};
+        if(!mesh_instance->MaterialOverrideID().invalid())
+            { material = GetThing<Material>(mesh_instance->MaterialOverrideID()); }
         FAUTO renderer_api{g_pRenderManager->GetAPI()};
         auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
-        if(!mesh or !mesh->MeshData() or mesh->Status() != OK)
+        if(mesh->uid().invalid())
             { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
 
         // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
@@ -174,7 +176,7 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
         glm::mat4 view_matrix{camera->ViewMatrix()};
 
         renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
-        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or actor->Wireframe());
+        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
         renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
         renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
 

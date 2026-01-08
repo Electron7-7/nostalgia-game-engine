@@ -4,6 +4,7 @@
 #include "theatre/parser/thing_data.hpp"
 #include "thing/thinker/viewport.hpp"
 #include "settings/engine.hpp"
+#include "settings/world.hpp"
 
 void Camera3D::SetVariables(Farg<ThingData> data)
 {
@@ -13,8 +14,6 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     data.GetVariable(mViewCutoffNear, "Near", "CutoffNear");
     data.GetVariable(mViewCutoffFar, "Far", "CutoffFar");
     data.GetVariable(mViewportID, "Viewport", "ViewportID");
-    if(int bitmask; data.GetVariable(bitmask, "RenderLayersBitMask", "RenderLayers"))
-        { mRenderLayers.set(bitmask); }
     if(bool use_env{false};
         data.GetVariable(use_env, "UseDefaultSkybox"))
     {
@@ -43,7 +42,6 @@ Shared<ThingData> Camera3D::GetVariables() const
     data->AddVariable(mViewCutoffNear, "Near");
     data->AddVariable(mViewCutoffFar, "Far");
     data->AddVariable(mViewportID, "Viewport");
-    data->AddVariable(mRenderLayers.get(), "RenderLayersBitMask");
     data->AddVariable(mInitCurrent, "Current");
     if(mEnvironment.mType == Environment::BG_SKYBOX
         and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox)
@@ -89,7 +87,7 @@ void Camera3D::Ready()
                 mesh_id,
                 {
                     {UID::m_Camera3D, "Mesh"},
-                    {mat_id, "Material"}
+                    {mat_id, "MaterialOverride"},
                 }
             });
         }
@@ -101,9 +99,6 @@ void Camera3D::Ready()
     if(mInitCurrent)
         { viewport->CurrentCamera(mUID); }
 }
-
-bool Camera3D::Wireframe() const
-{ return mWireframe; }
 
 bool Camera3D::Current(bool isCurrent)
 {
@@ -131,6 +126,12 @@ Error Camera3D::ViewportID(ID inID)
     }
     return ERR_INVALID_ID;
 }
+
+RenderLayers Camera3D::LayersMask() const
+{ return mLayersMask; }
+
+void Camera3D::LayersMask(RenderLayers inLayersMask)
+{ mLayersMask = inLayersMask; }
 
 glm::mat4 Camera3D::ViewMatrix() const
 {

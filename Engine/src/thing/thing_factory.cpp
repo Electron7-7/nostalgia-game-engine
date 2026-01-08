@@ -6,7 +6,8 @@
 #include "thinker/actor3d/camera3d.hpp"
 #include "thinker/actor3d/light3d.hpp"
 #include "thinker/actor3d/collider3d.hpp"
-#include "thinker/actor3d/mesh_instance3d.hpp"
+#include "thinker/actor3d/visual3d/visual3d.hpp"
+#include "thinker/actor3d/visual3d/mesh_instance3d.hpp"
 #include "thinker/viewport.hpp"
 #include "resource/resource.hpp"
 #include "resource/material.hpp"
@@ -31,6 +32,7 @@ bool ThingFactory::Init()
     ADD_THING(Material, -2)
     ADD_THING(Thinker,  +1)
     ADD_THING(Actor3D,  +1)
+    ADD_THING(Visual3D)
     ADD_THING(MeshInstance3D, -1)
     ADD_THING(NostalgiaPlayer)
     ADD_THING(Camera3D, -2)

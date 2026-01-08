@@ -1,0 +1,28 @@
+#ifndef MESH_INSTANCE_3D_H
+#define MESH_INSTANCE_3D_H
+
+#include "thing/thinker/actor3d/visual3d/visual3d.hpp"
+
+class MeshInstance3D : public Visual3D
+{
+public:
+    virtual void SetVariables(Farg<ThingData>) override;
+    virtual Shared<ThingData> GetVariables() const override;
+
+    virtual ID MeshID() const;
+    virtual void MeshID(ID);
+
+    virtual ID MaterialOverrideID() const;
+    virtual void MaterialOverrideID(ID);
+
+    virtual bool Wireframe() const;
+    virtual void Wireframe(bool);
+
+protected:
+    ID mMeshID{};
+    ID mMaterialOverrideID{};
+    bool mWireframe{false};
+};
+
+
+#endif // MESH_INSTANCE_3D_H

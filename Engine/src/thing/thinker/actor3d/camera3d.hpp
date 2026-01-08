@@ -3,7 +3,6 @@
 
 #include "core/uid.hpp"
 #include "thing/thinker/actor3d/actor3d.hpp"
-#include "rendering/render_layers.hpp"
 #include "rendering/environment.hpp"
 
 class Camera3D : public Actor3D
@@ -12,7 +11,6 @@ public:
     float mFOV{75.0f},
         mViewCutoffNear{0.01f},
         mViewCutoffFar{1000.0f};
-    RenderLayers mRenderLayers{};
     Environment mEnvironment{};
 
     virtual void Shutdown() override;
@@ -25,11 +23,11 @@ public:
     virtual bool Current(bool isCurrent);
     virtual bool Current() const;
 
-    virtual bool Wireframe() const override;
-    virtual void Wireframe(bool) override {}
-
     virtual ID ViewportID() const;
     virtual Error ViewportID(ID);
+
+    virtual RenderLayers LayersMask() const;
+    virtual void LayersMask(RenderLayers);
 
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
@@ -37,6 +35,7 @@ public:
 protected:
     bool mInitCurrent{false};
     ID mViewportID{UID::a_MainViewport};
+    RenderLayers mLayersMask{};
 };
 
 #endif // CAMERA_3D_H

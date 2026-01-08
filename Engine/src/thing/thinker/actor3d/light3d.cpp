@@ -41,7 +41,7 @@ void light_t::Ready()
             UID::Generate(),
             {
                 {UID::m_Cube, "Mesh"},
-                {mat_id, "Material"}
+                {mat_id, "MaterialOverride"}
             }
         });
     }
@@ -49,10 +49,7 @@ void light_t::Ready()
 
 void light_t::SetVariables(Farg<ThingData> data)
 {
-    mScale = glm::vec3(0.1f);
-
-    // The light's debug mesh should only be visible by default on debug builds
-    TRUE_IF_DEBUGGING(mVisible);
+    mScale = glm::vec3{0.1f};
 
     Actor3D::SetVariables(data);
 
@@ -136,7 +133,7 @@ int DirectionalLight::GetCount()
 
 void DirectionalLight::SetVariables(Farg<ThingData> data)
 {
-    Euler(glm::vec3(-90.0f, 0.0f, 0.0f), true);
+    RotationDegrees({-90.0f, 0.0f, 0.0f});
     light_t::SetVariables(data);
     mVisible = false;
 }

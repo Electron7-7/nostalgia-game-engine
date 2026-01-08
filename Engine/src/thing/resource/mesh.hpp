@@ -14,8 +14,12 @@ public:
     virtual Farg<Shared<VertexArray>> MeshData() const;
     virtual void MeshData(Shared<VertexArray>);
 
+    virtual ID MaterialID() const;
+    virtual void MaterialID(ID);
+
 protected:
     Shared<VertexArray> mVertexArray{nullptr};
+    ID mMaterialID{};
 };
 
 #endif // MESH_H
