@@ -3,7 +3,7 @@
 
 #include "fwd/rendering.hpp"
 #include "core/mutex.hpp"
-#include "thing/resource/resource.hpp"
+#include "theatre/things/resources/resource.hpp"
 #include "rendering/texture_buffer.hpp"
 
 class Texture : public Resource

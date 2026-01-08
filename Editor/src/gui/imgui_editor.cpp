@@ -8,10 +8,10 @@
 #include "settings/world.hpp"
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
-#include "thing/thinker/viewport.hpp"
+#include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "thing/thinker/actor3d/camera3d.hpp"
-#include "thing/thinker/actor3d/nostalgia_player3d.hpp" // IWYU pragma: keep
+#include "theatre/things/thinkers/3d/camera_3d.hpp"
+#include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
 

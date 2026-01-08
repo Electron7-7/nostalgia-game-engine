@@ -1,7 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "thing/thinker/actor3d/actor3d.hpp"
+#include "theatre/things/thinkers/3d/actor_3d.hpp"
 
 enum class LightType : int
 {

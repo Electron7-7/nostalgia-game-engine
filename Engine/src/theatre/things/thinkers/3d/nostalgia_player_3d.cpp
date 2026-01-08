@@ -1,5 +1,5 @@
-#include "nostalgia_player3d.hpp"
-#include "camera3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
+#include "nostalgia_player_3d.hpp"
+#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "math/conversion.hpp"
@@ -8,7 +8,7 @@
 #include "events/event.hpp"
 #include "settings/player.hpp"
 #include "managers/input_manager.hpp"
-#include "thing/thinker/actor3d/collider3d.hpp"
+#include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "physics/engine.hpp"
 
 void NostalgiaPlayer::SetVariables(Farg<ThingData> data)

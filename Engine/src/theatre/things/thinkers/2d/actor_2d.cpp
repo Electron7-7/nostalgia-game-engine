@@ -1,4 +1,4 @@
-#include "actor2d.hpp"
+#include "actor_2d.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Actor2D::SetVariables(Farg<ThingData> data)

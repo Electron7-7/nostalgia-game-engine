@@ -1,4 +1,4 @@
-#include "mesh_instance3d.hpp"
+#include "mesh_instance_3d.hpp"
 #include "core/uid.hpp"
 #include "theatre/parser/thing_data.hpp"
 

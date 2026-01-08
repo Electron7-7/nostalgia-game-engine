@@ -1,7 +1,7 @@
 #include "engine.hpp"
 #include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
-#include "thing/thinker/actor3d/collider3d.hpp"
+#include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Core/JobSystemThreadPool.h>

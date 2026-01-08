@@ -1,7 +1,7 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-#include "thing/thinker/thinker.hpp"
+#include "theatre/things/thinkers/thinker.hpp"
 #include "math/containers.hpp"
 #include "rendering/frame_buffer.hpp"
 #include <set>

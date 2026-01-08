@@ -3,7 +3,7 @@
 
 #include "fwd/theatre.hpp"
 #include "fwd/core.hpp"
-#include "thing/types.hpp"
+#include "theatre/thing_types.hpp"
 #include "core/smart_pointers.hpp"
 #include "core/mutex.hpp"
 #include "components/game_loop.hpp"

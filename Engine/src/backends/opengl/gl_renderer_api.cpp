@@ -4,8 +4,8 @@
 #include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "core/printing.hpp"
 #include "managers/theatre_manager.hpp"
-#include "thing/resource/texture.hpp"
-#include "thing/thinker/actor3d/light3d.hpp"
+#include "theatre/things/resources/texture.hpp"
+#include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/vertex_array.hpp" // IWYU pragma: keep // idk why clangd says these are unused

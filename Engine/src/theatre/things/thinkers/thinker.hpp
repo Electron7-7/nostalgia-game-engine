@@ -1,7 +1,7 @@
 #ifndef THINKER_H
 #define THINKER_H
 
-#include "thing/thing.hpp"
+#include "theatre/things/thing.hpp"
 
 class Thinker : public Thing
 {

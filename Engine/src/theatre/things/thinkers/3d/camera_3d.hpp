@@ -2,7 +2,7 @@
 #define CAMERA_3D_H
 
 #include "core/uid.hpp"
-#include "thing/thinker/actor3d/actor3d.hpp"
+#include "theatre/things/thinkers/3d/actor_3d.hpp"
 #include "rendering/environment.hpp"
 
 class Camera3D : public Actor3D

@@ -1,5 +1,5 @@
-#include "actor3d.hpp"
-#include "collider3d.hpp"
+#include "actor_3d.hpp"
+#include "collider_3d.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
 

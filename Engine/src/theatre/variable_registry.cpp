@@ -2,7 +2,7 @@
 #include "core/printing.hpp"
 #include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "thing/thinker/actor3d/collider3d.hpp"
+#include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
 
 static VariableRegistry sVariableRegistry{};

@@ -2,7 +2,7 @@
 #define ACTOR_2D_H
 
 #include "rendering/render_layers.hpp"
-#include "thing/thinker/thinker.hpp"
+#include "theatre/things/thinkers/thinker.hpp"
 #include <glm/vec4.hpp>
 #include <glm/vec2.hpp>
 

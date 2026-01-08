@@ -1,4 +1,4 @@
-#include "light3d.hpp"
+#include "light_3d.hpp"
 #include "core/uid.hpp"
 #include "settings/engine.hpp"
 #include "theatre/parser/thing_data.hpp"

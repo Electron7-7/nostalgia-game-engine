@@ -1,7 +1,7 @@
 #ifndef NOSTALGIA_PLAYER_H
 #define NOSTALGIA_PLAYER_H
 
-#include "thing/thinker/actor3d/actor3d.hpp"
+#include "theatre/things/thinkers/3d/actor_3d.hpp"
 
 class NostalgiaPlayer : public Actor3D
 {

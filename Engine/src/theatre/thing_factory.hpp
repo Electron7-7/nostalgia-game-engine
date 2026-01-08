@@ -1,7 +1,7 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#include "thing/thing.hpp"
+#include "theatre/things/thing.hpp"
 #include "core/id.hpp"
 #include "core/smart_pointers.hpp"
 #include <map>

@@ -149,12 +149,11 @@ ENGINE_SRC_DIRS := \
     $(ENGINE_SRC)/settings \
     $(ENGINE_SRC)/theatre \
     $(ENGINE_SRC)/theatre/parser \
-    $(ENGINE_SRC)/thing \
-    $(ENGINE_SRC)/thing/resource \
-    $(ENGINE_SRC)/thing/thinker \
-    $(ENGINE_SRC)/thing/thinker/actor3d \
-    $(ENGINE_SRC)/thing/thinker/actor3d/visual3d \
-    $(ENGINE_SRC)/thing/thinker/actor2d \
+    $(ENGINE_SRC)/theatre/things \
+    $(ENGINE_SRC)/theatre/things/resources \
+    $(ENGINE_SRC)/theatre/things/thinkers \
+    $(ENGINE_SRC)/theatre/things/thinkers/3d \
+    $(ENGINE_SRC)/theatre/things/thinkers/2d \
 	$(ENGINE_SRC)/ui \
 
 THIRDPARTY_SRC_DIRS := \

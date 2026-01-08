@@ -1,5 +1,5 @@
 #include "theatre_data.hpp"
-#include "thing/thing_factory.hpp"
+#include "theatre/thing_factory.hpp"
 #include "core/uid.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"

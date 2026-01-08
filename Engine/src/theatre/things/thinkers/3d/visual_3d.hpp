@@ -1,7 +1,7 @@
 #ifndef VISUAL_3D_H
 #define VISUAL_3D_H
 
-#include "thing/thinker/actor3d/actor3d.hpp"
+#include "theatre/things/thinkers/3d/actor_3d.hpp"
 #include "rendering/render_layers.hpp"
 
 class Visual3D : public Actor3D

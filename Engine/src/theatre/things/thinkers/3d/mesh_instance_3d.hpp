@@ -1,7 +1,7 @@
 #ifndef MESH_INSTANCE_3D_H
 #define MESH_INSTANCE_3D_H
 
-#include "thing/thinker/actor3d/visual3d/visual3d.hpp"
+#include "theatre/things/thinkers/3d/visual_3d.hpp"
 
 class MeshInstance3D : public Visual3D
 {

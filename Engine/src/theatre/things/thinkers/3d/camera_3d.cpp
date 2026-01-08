@@ -1,8 +1,8 @@
-#include "camera3d.hpp"
+#include "camera_3d.hpp"
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
-#include "thing/thinker/viewport.hpp"
+#include "theatre/things/thinkers/viewport.hpp"
 #include "settings/engine.hpp"
 #include "settings/world.hpp"
 

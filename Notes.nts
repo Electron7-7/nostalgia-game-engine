@@ -1011,7 +1011,7 @@ Just finished bugfixing and fully implementing the new `Environment` and skybox 
 
 I just implemented children. Holy shit.
 
-[01/04/25]
+[01/04/26]
 Idk what I wanna do now... I could flesh out the GitHub, or try making a short game. Maybe even start fleshing out the editor. Lots of choices.
 
 Oh, also, "unique" children and ownership will go like this: everything is a "unique" child, except for resources, and a similar method to Godot's 'make unique' button will be implemented that literally makes a unique copy of the object. Resources, however, can be used by multiple Things without consequence and should never be automatically duplicated. This is all editor-side, by the way; if you're writing a Theatre file manually, you'd just try to follow these rules yourself.
@@ -1022,10 +1022,10 @@ Okay, I implemented 'Actor2D/Actor3D' classes. Now, time to add transforms to `M
 
 I did all of that and overhauled the parent/child system. Now, Things can have multiple parents, and the editor (or whoever is writing the Theatre file) will have the job of managing how Unique vs shared (or 'referenced') children will be created. Internally, every Thing can have as many children and parents as they want, letting the user decide how strict ownership should be.
 
-[01/05/25]
+[01/05/26]
 Did a big physics engine refactor with some minor features. There's some issues when changig a Collider's shape/motion types that I think is related to updating the shape in Jolt (specifically, the "last position" function parameter). Oh, so I don't forget: I also want to change the enum prettifier to use the typeid of the enums as the map key.
 
-[01/06/25]
+[01/06/26]
 I'm thinking that since I have collision working, I might want to make `Resource` a separate class from `Thing`. It just makes more sense to have a resource not be tied to the Theatre but rather the entire project as a whole. Maybe do the small things first, like the enum prettifier and maybe even a re-write of the Theatre parser (adding child reference identifiers while I'm at it?).
 
 Uhoh, now I'm getting lots of weird errors/infinite loops that look related to Jolt mutexes...
@@ -1036,7 +1036,7 @@ Fucking... hate having to recompile Jolt bc everything gets fucked up and then I
 
 Cleaned up the code and fixed up the temporary/wip player collider/movement.
 
-[01/07/25]
+[01/07/26]
 I'm gonna leave the player movement code as is for now. I think the next big step is working on the 2D rendering, as that's a major part of the engine that has absolutely no code written for it, yet (lmfao).
 
 First, though, I need to flesh out the parent/child relationships.
@@ -1061,3 +1061,6 @@ Here's the new class heirarchy:
 - `Transform3D`/`Transform2D`/etc...: components that can be inherited from or just used as a variable, similar to 'variants' in Godot (without the main base class 'Variant').
 
 I'm also going to move the 'Wireframe' attribute to `Viewport`, just like in Godot.
+
+[01/08/26]
+I'm gonna restructure the `Thing` directories one more time; this time I'm gonna model it based on Godot's internal file structure.

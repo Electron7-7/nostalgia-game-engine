@@ -1,4 +1,4 @@
-#include "visual3d.hpp"
+#include "visual_3d.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Visual3D::SetVariables(Farg<ThingData> data)
