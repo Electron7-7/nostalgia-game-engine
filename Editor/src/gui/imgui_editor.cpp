@@ -5,6 +5,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
+#include "settings/world.hpp"
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
 #include "thing/thinker/viewport.hpp"
@@ -62,13 +63,13 @@ void ImGui_Editor::TheatreEntered()
         "ThingAdderSpawnLocation_MeshInstance",
         ThingType::MeshInstance3D,
         UID::Generate(),
-        {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "Material"}}
+        {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "MaterialOverride"}, {true, "Wireframe"}}
     });
     sSpawnLocationID = g_pTheatreManager->CreateThing({
         "ThingAdderSpawnLocation",
         ThingType::Actor3D,
         UID::Generate(),
-        {{sSpawnLocationMeshInstanceID, "DebugMeshInstance"}, {glm::vec3{1.0f}, "Scale"}, {true, "Wireframe"}}
+        {{sSpawnLocationMeshInstanceID, "DebugMeshInstance"}, {glm::vec3{1.0f}, "Scale"}}
     });
 
     g_pTheatreManager->CreateThing({"Editor Viewport",
@@ -139,7 +140,7 @@ void ImGui_Editor::Update()
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
             { sScaleDirection = SCALE_DIRECTION_UP; }
         sSpawnLocationScaleSpeed = (int)sScaleDirection * sSpawnLocationScaleSpeedStore;
-        thingy->Euler(thingy->Euler(true) + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f}, true);
+        thingy->RotationDegrees(thingy->RotationDegrees() + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f});
         thingy->Scale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
     }
     if(sShowDemoWindow)
@@ -186,11 +187,18 @@ void ImGui_Editor::Update()
             {
                 auto camera{g_pTheatreManager->GetThing<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
-                camera->Euler(camera->Euler(true) - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}), true);
+                camera->RotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
                     InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
-                camera->Origin(camera->Origin() + (0.1f * ((camera->Front() * movement_direction[1]) + (camera->Right() * movement_direction[0]))));
+                camera->Position(camera->Position() +
+                    (0.1f * (
+                        ((camera->Quaternion() * Settings::World::Front()) *
+                            movement_direction[1]) +
+                        ((camera->Quaternion() * Settings::World::Right()) *
+                            movement_direction[0])
+                    ))
+                );
             }
         }
         if(InputManager::IsKeyUp(Key::MouseLeft)
@@ -249,10 +257,10 @@ void s_ThingAdder()
         EndCombo();
     }
     if(DragGLMv3("Spawn Location", &sSpawnLocation, 0.01f, 0.0f, 0.0f, "%.2f"))
-        { g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Origin(sSpawnLocation); }
+        { g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Position(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
-        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Origin(sSpawnLocation); }
+        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThing<Actor3D>(sSpawnLocationID)->Position(sSpawnLocation); }
     if(Button("Spawn Thing"))
     {
         sNewThingName = sNameBuffer;
@@ -260,7 +268,7 @@ void s_ThingAdder()
         g_pTheatreManager->CreateThing({(sNewThingName.empty()) ? "New Thing" : sNewThingName,
             sTypeNames[sSelectedType],
             UID::Generate(),
-            { {sSpawnLocation, "Origin"} }
+            { {sSpawnLocation, "Position"} }
         });
         sNewThingName.clear();
         sNameBuffer.clear();

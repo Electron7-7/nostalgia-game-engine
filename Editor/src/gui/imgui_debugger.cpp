@@ -9,6 +9,7 @@
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
+#include "thing/resource/mesh.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
@@ -21,7 +22,7 @@
 #include "thing/thinker/actor3d/camera3d.hpp"
 #include "thing/thinker/viewport.hpp"
 #include "thing/resource/material.hpp"
-#include "thing/thinker/actor3d/mesh_instance3d.hpp"
+#include "thing/thinker/actor3d/visual3d/mesh_instance3d.hpp"
 #include "thing/thinker/actor3d/collider3d.hpp"
 #include "thing/resource/resource.hpp"
 #include "theatre/parser/theatre_data.hpp"
@@ -520,12 +521,11 @@ struct thing_data_buffer
     {
         if(auto actor{DCast<Actor3D>(ptr)})
         {
-            origin = actor->Origin();
-            rotation = actor->Euler(true);
+            position = actor->Position();
+            rotation = actor->RotationDegrees();
             scale = actor->Scale();
             visible = actor->Visible();
-            wireframe = actor->Wireframe();
-            debug_mesh_instance = actor->DebugMeshInstance()[];
+            debug_mesh_instance = actor->mDebugMeshInstanceID[];
             if(auto camera3d{DCast<Camera3D>(ptr)})
             {
                 is_camera_current = camera3d->Current();
@@ -537,7 +537,7 @@ struct thing_data_buffer
             else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
             {
                 mesh = mesh_instance->MeshID()[];
-                material = mesh_instance->MaterialID()[];
+                wireframe = mesh_instance->Wireframe();
             }
             else if(auto collider{DCast<Collider>(ptr)})
             {
@@ -547,19 +547,23 @@ struct thing_data_buffer
                 activate_on_change = collider->SetActiveOnNextChange();
             }
         }
-        else if(auto device{DCast<Resource>(ptr)})
+        else if(auto resource{DCast<Resource>(ptr)})
         {
-            if(auto material{DCast<Material>(ptr)})
+            if(auto mat{DCast<Material>(ptr)})
             {
-                diffuseTexture  = material->DiffuseTextureID()[];
-                specularTexture = material->SpecularTextureID()[];
+                diffuseTexture  = mat->DiffuseTextureID()[];
+                specularTexture = mat->SpecularTextureID()[];
+            }
+            else if(auto mesh{DCast<Mesh>(ptr)})
+            {
+                material = mesh->MaterialID()[];
             }
         }
     }
     Shared<Thing> ptr{nullptr};
     uint id{};
     std::string name{};
-    glm::vec3 origin{},
+    glm::vec3 position{},
         rotation{},
         scale{};
     uint mesh{},
@@ -749,28 +753,19 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     }
                 }
                 // 3D ACTORS
-                if(auto actor{DCast<Actor3D>(selected.ptr)})
+                else if(auto actor{DCast<Actor3D>(selected.ptr)})
                 {
-                    bool (*ItemEdited_f)(){(DCast<Collider>(selected.ptr) and !collider_update_transform_instantly)
-                        ? &IsItemDeactivatedAfterEdit
-                        : &IsItemEdited};
-                    DragGLMv3("Position", &selected.origin, 0.05f, -200.0f, 200.0f, "%.2f");
-                    if(ItemEdited_f())
-                        { actor->Origin(selected.origin); }
-                    DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround);
-                    if(ItemEdited_f())
-                        { actor->Euler(selected.rotation, true); }
-                    DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f");
-                    if(ItemEdited_f())
+                    selected.position = actor->Position();
+                    selected.rotation = actor->RotationDegrees();
+                    selected.scale    = actor->Scale();
+                    if(DragGLMv3("Position", &selected.position, 0.05f, -200.0f, 200.0f, "%.2f"))
+                        { actor->Position(selected.position); }
+                    if(DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                        { actor->RotationDegrees(selected.rotation); }
+                    if(DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f"))
                         { actor->Scale(selected.scale); }
-
                     if(Checkbox("Visible", &selected.visible))
                         { actor->Visible(selected.visible); }
-                    SameLine();
-                    if(Checkbox("Wireframe", &selected.wireframe))
-                        { actor->Wireframe(selected.wireframe); }
-                    if(IsItemHovered())
-                        { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
                     if(auto light{DCast<light_t>(actor)})
                     {
@@ -862,7 +857,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
                             auto scale{collider->CreationSettings()->GetShape()->GetLocalBounds().GetSize()};
                             TextF("Scale: [{}, {}, {}]",
-                                // collider->CreationSettings()->GetShape()->Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe));
                                 scale.GetX(),
                                 scale.GetY(),
                                 scale.GetZ());
@@ -896,15 +890,22 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     {
                         if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
                             { mesh_instance->MeshID(selected.mesh); }
-                        if(InputUInt("Material UID", &selected.material, 0, 0))
-                            { mesh_instance->MaterialID(selected.material); }
+                        if(Checkbox("Wireframe", &selected.wireframe))
+                            { mesh_instance->Wireframe(selected.wireframe); }
+                        if(IsItemHovered())
+                            { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     }
                 }
             }
             // RESOURCES
-            else if(auto material{DCast<Resource>(selected.ptr)})
+            else if(auto resource{DCast<Resource>(selected.ptr)})
             {
-                if(auto material{DCast<Material>(selected.ptr)})
+                if(auto mesh{DCast<Mesh>(selected.ptr)})
+                {
+                    if(InputUInt("Material UID", &selected.material, 0, 0))
+                        { mesh->MaterialID(selected.material); }
+                }
+                else if(auto material{DCast<Material>(selected.ptr)})
                 {
                     if(InputUInt("Diffuse Texture UID", &selected.diffuseTexture, 0, 0))
                         { material->DiffuseTextureID(selected.diffuseTexture); }
@@ -964,7 +965,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 if(auto actor{DCast<Actor3D>(selected.ptr)})
                 {
                     if(InputUInt("Debug MeshInstance3D UID", &selected.debug_mesh_instance, 0, 0))
-                        { actor->DebugMeshInstance(selected.debug_mesh_instance); }
+                        { actor->mDebugMeshInstanceID = selected.debug_mesh_instance; }
                 }
                 auto children{selected.ptr->children()};
                 if(Button("+##2"))
