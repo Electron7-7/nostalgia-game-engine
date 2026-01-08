@@ -2,9 +2,9 @@
 #define CAMERA_3D_H
 
 #include "core/uid.hpp"
+#include "core/bitmask.hpp"
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 #include "rendering/environment.hpp"
-#include "rendering/render_layers.hpp"
 
 class Camera3D : public Actor3D
 {
@@ -23,11 +23,11 @@ public:
 
     virtual bool Current() const;
     virtual ID ViewportID() const;
-    virtual RenderLayers LayersMask() const;
+    virtual BitMask LayersMask() const;
 
     virtual bool SetCurrent(bool);
     virtual Error SetViewportID(ID);
-    virtual void SetLayersMask(RenderLayers);
+    virtual void SetLayersMask(BitMask inRenderLayersMask);
 
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
@@ -35,7 +35,7 @@ public:
 protected:
     bool mInitCurrent{false};
     ID mViewportID{UID::a_MainViewport};
-    RenderLayers mLayersMask{};
+    BitMask mLayersMask{};
 };
 
 #endif // CAMERA_3D_H

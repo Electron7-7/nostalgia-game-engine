@@ -1,7 +1,7 @@
 #ifndef ACTOR_2D_H
 #define ACTOR_2D_H
 
-#include "rendering/render_layers.hpp"
+#include "core/bitmask.hpp"
 #include "theatre/things/thinkers/thinker.hpp"
 #include <glm/vec4.hpp>
 #include <glm/vec2.hpp>
@@ -39,7 +39,7 @@ protected:
     float     mRotationDegrees{};
     glm::vec2 mScale{};
 
-    RenderLayers mLayers{};
+    BitMask mLayers{};
     bool mVisible{true};
 };
 #endif // ACTOR_2D_H

@@ -106,7 +106,7 @@ bool Camera3D::Current() const
 ID Camera3D::ViewportID() const
 { return mViewportID; }
 
-RenderLayers Camera3D::LayersMask() const
+BitMask Camera3D::LayersMask() const
 { return mLayersMask; }
 
 bool Camera3D::SetCurrent(bool isCurrent)
@@ -130,7 +130,7 @@ Error Camera3D::SetViewportID(ID inID)
     return ERR_INVALID_ID;
 }
 
-void Camera3D::SetLayersMask(RenderLayers inLayersMask)
+void Camera3D::SetLayersMask(BitMask inLayersMask)
 { mLayersMask = inLayersMask; }
 
 glm::mat4 Camera3D::ViewMatrix() const

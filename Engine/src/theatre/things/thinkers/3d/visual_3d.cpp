@@ -20,9 +20,9 @@ Shared<ThingData> Visual3D::GetVariables() const
     return data;
 }
 
-RenderLayers Visual3D::Layers() const
+BitMask Visual3D::Layers() const
 { return mLayers; }
 
-void Visual3D::SetLayers(RenderLayers inLayers)
+void Visual3D::SetLayers(BitMask inLayers)
 { mLayers = inLayers; }
 

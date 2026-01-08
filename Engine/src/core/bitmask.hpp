@@ -1,25 +1,25 @@
-#ifndef RENDER_LAYERS_H
-#define RENDER_LAYERS_H
+#ifndef BIT_MASK_H
+#define BIT_MASK_H
 
 #include <format>
 
-inline constinit const uint MaxRenderLayers{30};
+inline constinit const uint MaxBitMaskPlaces{30};
 
-struct RenderLayers
+struct BitMask
 {
 public:
     static constexpr uint min{1};
-    static constexpr uint max{MaxRenderLayers};
+    static constexpr uint max{MaxBitMaskPlaces};
     static constexpr int all_enabled  {0b1111111111111111111111111111111};
     static constexpr int all_disabled {0b0000000000000000000000000000000}; // hopefully u get the point
     using StatusArray = std::array<bool, max>;
 
-    RenderLayers(bool inAllLayersEnabled = true) noexcept;
+    BitMask(bool inAllLayersEnabled = true) noexcept;
 
     int get() const noexcept;
     void set(int inLayers) noexcept;
     bool contains(int inLayers) const noexcept;
-    bool contains(RenderLayers inLayers) const noexcept;
+    bool contains(BitMask inLayers) const noexcept;
     bool status(ushort inLayerIndex) const noexcept;
     StatusArray status() const noexcept;
     void enable(ushort inLayerIndex) noexcept;
@@ -28,7 +28,7 @@ public:
 
     std::string log(bool noLayersStatus = false) const noexcept;
 
-    constexpr bool operator==(const RenderLayers& inLayers) const noexcept
+    constexpr bool operator==(const BitMask& inLayers) const noexcept
     { return layers_ == inLayers.layers_; }
 
 private:
@@ -36,10 +36,10 @@ private:
 };
 
 template<>
-    struct std::formatter<RenderLayers> : std::formatter<std::string>
+    struct std::formatter<BitMask> : std::formatter<std::string>
     {
-        auto format(const RenderLayers& inT, std::format_context& ctx) const
+        auto format(const BitMask& inT, std::format_context& ctx) const
             { return std::formatter<std::string>::format(inT.log(), ctx); }
     };
 
-#endif // RENDER_LAYERS_H
+#endif // BIT_MASK_H

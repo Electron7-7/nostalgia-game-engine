@@ -9,9 +9,6 @@ class IBuffer;
 class VertexBuffer;
 class IndexBuffer;
 
-extern constinit const unsigned int MaxRenderLayers;
-struct RenderLayers;
-
 enum class GraphicsAPI;
 class RendererAPI;
 

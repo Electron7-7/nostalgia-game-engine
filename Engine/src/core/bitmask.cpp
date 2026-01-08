@@ -1,39 +1,39 @@
-#include "render_layers.hpp"
+#include "bitmask.hpp"
 
-RenderLayers::RenderLayers(bool inState) noexcept:
+BitMask::BitMask(bool inState) noexcept:
     layers_{(inState) ? all_enabled : all_disabled} {}
 
-int RenderLayers::get() const noexcept
+int BitMask::get() const noexcept
 { return layers_; }
 
-void RenderLayers::set(int inLayers) noexcept
+void BitMask::set(int inLayers) noexcept
 { layers_ = inLayers; }
 
-bool RenderLayers::contains(int inLayers) const noexcept
+bool BitMask::contains(int inLayers) const noexcept
 { return layers_ & inLayers; }
 
-bool RenderLayers::contains(RenderLayers inLayers) const noexcept
+bool BitMask::contains(BitMask inLayers) const noexcept
 { return layers_ & inLayers.get(); }
 
-bool RenderLayers::status(ushort index) const noexcept
+bool BitMask::status(ushort index) const noexcept
 {
     int layer{1 << index};
     return (layers_ & layer) == layer;
 }
 
-void RenderLayers::enable(ushort index) noexcept
+void BitMask::enable(ushort index) noexcept
 { layers_ |= (1 << index); }
 
-void RenderLayers::disable(ushort index) noexcept
+void BitMask::disable(ushort index) noexcept
 { layers_ |= ~(1 << index); }
 
-bool RenderLayers::toggle(ushort index) noexcept
+bool BitMask::toggle(ushort index) noexcept
 {
     layers_ ^= (1 << index);
     return status(index);
 }
 
-std::string RenderLayers::log(bool noLayersStatus) const noexcept
+std::string BitMask::log(bool noLayersStatus) const noexcept
 {
     std::string output{std::format("(count: {})", max)};
     if(!noLayersStatus)
@@ -51,7 +51,7 @@ std::string RenderLayers::log(bool noLayersStatus) const noexcept
     return output;
 }
 
-RenderLayers::StatusArray RenderLayers::status() const noexcept
+BitMask::StatusArray BitMask::status() const noexcept
 {
     std::array<bool, max> output{};
     for(int i{0}; i < max; ++i)
