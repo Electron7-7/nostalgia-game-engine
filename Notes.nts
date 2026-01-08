@@ -1066,3 +1066,7 @@ I'm also going to move the 'Wireframe' attribute to `Viewport`, just like in God
 I'm gonna restructure the `Thing` directories one more time; this time I'm gonna model it based on Godot's internal file structure.
 
 I also want to change the naming scheme for the accessor functions, to avoid requiring 'using <type>::<function>' when only overriding one of them (see `Collider` for an example).
+
+All right, with that all done I think it's time to optimize the Theatre rendering pipeline; after that, I can implement 2D rendering.
+
+I might also want to move most of the stuff from `TheatreManager` into a new 'Theatre' class. Might do that first, actually.
