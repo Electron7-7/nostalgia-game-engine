@@ -6,6 +6,7 @@
 #include <glm/vec4.hpp>
 #include <glm/vec2.hpp>
 
+// Similar to Godot's `Node2D`
 class Actor2D : public Thinker
 {
 public:

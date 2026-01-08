@@ -22,6 +22,7 @@ struct ThingRelative
 };
 using relatives_t = std::vector<ThingRelative>;
 
+// Similar to Godot's `Object`
 class Thing : public OnInput, public OnTick, public OnUpdate
 {
 public:

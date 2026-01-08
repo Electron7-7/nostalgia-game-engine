@@ -3,6 +3,7 @@
 
 #include "theatre/things/thing.hpp"
 
+// Similar to Godot's `Node`
 class Thinker : public Thing
 {
 public:
