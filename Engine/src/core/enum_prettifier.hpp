@@ -7,10 +7,6 @@
 #include <unordered_map>
 #include <typeindex>
 
-// Used by the lazy
-#define REGISTER_ENUM(ENUM) EnumPrettifier::Register(ENUM, #ENUM)
-#define PRETTIFY_ENUM(ENUM) EnumPrettifier::Prettify(ENUM)
-
 class EnumPrettifier
 {
 public:

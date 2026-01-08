@@ -80,8 +80,8 @@ void Collider::SetVariables(Farg<ThingData> data)
     if(CreateBody(mActivateOnNextChange))
     {
         print_jolt("Physics Body Created [{}, {}]",
-            PRETTIFY_ENUM(mShape),
-            PRETTIFY_ENUM(mMotion));
+            EnumPrettifier::Prettify(mShape),
+            EnumPrettifier::Prettify(mMotion));
     }
     else
         { print_error("Failed to create physics body for Collider#{}", mUID[]); }
@@ -110,8 +110,8 @@ void Collider::Shutdown()
 {
     DestroyBody();
     print_jolt("Physics Body Destroyed [{}, {}]",
-        PRETTIFY_ENUM(mShape),
-        PRETTIFY_ENUM(mMotion));
+        EnumPrettifier::Prettify(mShape),
+        EnumPrettifier::Prettify(mMotion));
     Actor3D::Shutdown();
 }
 
