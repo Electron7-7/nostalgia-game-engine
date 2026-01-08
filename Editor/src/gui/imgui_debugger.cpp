@@ -58,8 +58,6 @@ static std::vector<StopwatchLog> sManualStopwatchLogs{};
 static std::vector<StopwatchLog> sStopwatchLogs{};
 static std::set<int>             sStopwatchLogIds{};
 
-static void s_AutomaticStopwatchWindow(float);
-static void s_ManualStopwatchWindow(float);
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
@@ -118,9 +116,9 @@ void ImGui_Debugger::Update()
                     if(Begin("Stopwatches"))
                     {
                         float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                        s_AutomaticStopwatchWindow(width);
+                        m_AutomaticStopwatchWindow(width);
                         SameLine();
-                        s_ManualStopwatchWindow(width);
+                        m_ManualStopwatchWindow(width);
                     }
                     End();
                 }
@@ -132,9 +130,9 @@ void ImGui_Debugger::Update()
                     if(!sPopOutStopwatches)
                     {
                         float width = (GetWindowWidth() / 2.0f) - 12.0f;
-                        s_AutomaticStopwatchWindow(width);
+                        m_AutomaticStopwatchWindow(width);
                         SameLine();
-                        s_ManualStopwatchWindow(width);
+                        m_ManualStopwatchWindow(width);
                     }
                     EndTabItem();
                 }
@@ -164,6 +162,7 @@ void s_HandleAutomaticStopwatchToggle()
 
 StopwatchLog& ImGui_Debugger::StartStopwatch(const std::string& message)
 {
+    LockGuard<RMutex> lock{mStopwatchMutex};
     if(!sAutoStopwatchEnabled)
         { return StopwatchLog::Invalid; }
     return m_StartStopwatch(message);
@@ -171,6 +170,7 @@ StopwatchLog& ImGui_Debugger::StartStopwatch(const std::string& message)
 
 bool ImGui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 {
+    LockGuard<RMutex> lock{mStopwatchMutex};
     if(!sAutoStopwatchEnabled)
         { return false; }
     return m_StopStopwatch(stopwatch);
@@ -178,7 +178,7 @@ bool ImGui_Debugger::StopStopwatch(StopwatchLog& stopwatch)
 
 StopwatchLog& ImGui_Debugger::m_StartStopwatch(const std::string& message)
 {
-#pragma message("TODO: Make this thread safe")
+    LockGuard<RMutex> lock{mStopwatchMutex};
     StopwatchLog& stopwatch = sStopwatchLogs.emplace_back();
     stopwatch.Start(message);
     return stopwatch;
@@ -186,6 +186,7 @@ StopwatchLog& ImGui_Debugger::m_StartStopwatch(const std::string& message)
 
 bool ImGui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
 {
+    LockGuard<RMutex> lock{mStopwatchMutex};
     if(stopwatch == StopwatchLog::Invalid || !stopwatch.Running())
         { return false; }
     else if(std::find(sStopwatchLogs.begin(), sStopwatchLogs.end(), stopwatch) == sStopwatchLogs.end())
@@ -354,8 +355,9 @@ static void s_PrintStopwatchLog(const StopwatchLog& stopwatch, size_t i)
     Text("Message: '%s'", stopwatch.Message().c_str());
 }
 
-static void s_AutomaticStopwatchWindow(float width)
+void ImGui_Debugger::m_AutomaticStopwatchWindow(float width)
 {
+    LockGuard<RMutex> lock{mStopwatchMutex};
     BeginChild("Automatic Stopwatch", {width, 0}, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_Borders);
     Text("%s", "Automatic Stopwatch");
     static bool s_DummyAutoStopwatchEnabled = true;
@@ -397,8 +399,9 @@ static void s_AutomaticStopwatchWindow(float width)
     EndChild();
 }
 
-static void s_ManualStopwatchWindow(float width)
+void ImGui_Debugger::m_ManualStopwatchWindow(float width)
 {
+    LockGuard<RMutex> lock{mStopwatchMutex};
     BeginChild("Manual Stopwatch", {width, 0}, ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_Borders);
     Text("%s", "Manual Stopwatch");
     if(Button("Start Stopwatch"))

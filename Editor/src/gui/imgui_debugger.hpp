@@ -1,12 +1,9 @@
 #ifndef IMGUI_DEBUGGER_H
 #define IMGUI_DEBUGGER_H
 
-#define FWD_DCL
-#   include "tools/stopwatch_log.hpp"
-#undef  FWD_DCL
-
 #include "ui/solution.hpp"
-
+#include "tools/stopwatch_log.hpp"
+#include "core/mutex.hpp"
 #include <string>
 
 class ImGui_Debugger : public UI_Solution
@@ -27,8 +24,12 @@ public:
 
     static void s_InspectTheatreWindow(bool* is_active);
 private:
+    RMutex mStopwatchMutex{};
+
     StopwatchLog& m_StartStopwatch(const std::string& Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);
+    void m_AutomaticStopwatchWindow(float inWidth);
+    void m_ManualStopwatchWindow(float inWidth);
 };
 
 extern ImGui_Debugger* g_pImGuiDebugger;
