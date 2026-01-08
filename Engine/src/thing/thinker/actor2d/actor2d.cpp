@@ -1,29 +1,33 @@
 #include "actor2d.hpp"
-#include "managers/theatre_manager.hpp"
-#include "thing/thing_factory.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Actor2D::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
-    SetTransformVariables(data);
 
-    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data.GetVariable(mPosition, "Position", "Origin");
+    data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.GetVariable(mRotationDegrees, "RotationDegrees"))
+        { RotationDegrees(mRotationDegrees); }
+    if(data.GetVariable(mRotationRadians, "Rotation", "RotationRadians"))
+        { Rotation(mRotationRadians); }
     data.GetVariable(mVisible, "Visible");
-    data.GetVariable(mWireframe, "MakeWireframe");
-    data.GetVariable(mWireframe, "Wireframe");
+
     data.GetVariable(mDebugHighlight, "DebugHighlight");
+    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 }
 
 Shared<ThingData> Actor2D::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
-    GetTransformVariables(data);
 
-    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data->AddVariable(mPosition, "Position");
+    data->AddVariable(mScale, "Scale");
+    data->AddVariable(mRotationRadians, "RotationRadians");
     data->AddVariable(mVisible, "Visible");
-    data->AddVariable(mWireframe, "Wireframe");
+
     data->AddVariable(mDebugHighlight, "DebugHighlight");
+    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 
     return data;
 }
@@ -34,20 +38,38 @@ void Actor2D::Ready()
 void Actor2D::Tick()
 {}
 
-ID Actor2D::DebugMeshInstance() const
-{ return mDebugMeshInstanceID; }
+Farg<glm::vec2> Actor2D::Position() const
+{ return mPosition; }
 
-void Actor2D::DebugMeshInstance(ID inID)
-{ mDebugMeshInstanceID = inID; }
+float Actor2D::Rotation() const
+{ return mRotationRadians; }
+
+float Actor2D::RotationDegrees() const
+{ return mRotationDegrees; }
+
+Farg<glm::vec2> Actor2D::Scale() const
+{ return mScale; }
+
+void Actor2D::Position(Farg<glm::vec2> inPosition)
+{ mPosition = inPosition; }
+
+void Actor2D::Rotation(float inRotation)
+{
+    mRotationRadians = inRotation;
+    mRotationDegrees = glm::degrees(mRotationRadians);
+}
+
+void Actor2D::RotationDegrees(float inRotation)
+{
+    mRotationDegrees = inRotation;
+    mRotationRadians = glm::radians(mRotationDegrees);
+}
+
+void Actor2D::Scale(Farg<glm::vec2> inScale)
+{ mScale = inScale; }
 
 bool Actor2D::Visible() const
 { return mVisible; }
 
 void Actor2D::Visible(bool isVisible)
 { mVisible = isVisible; }
-
-bool Actor2D::Wireframe() const
-{ return mWireframe; }
-
-void Actor2D::Wireframe(bool isWireframe)
-{ mWireframe = isWireframe; }

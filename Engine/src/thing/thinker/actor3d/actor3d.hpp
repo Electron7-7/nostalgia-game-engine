@@ -3,9 +3,11 @@
 
 #include "thing/thinker/thinker.hpp"
 #include "rendering/render_layers.hpp"
-#include "theatre/transform.hpp"
+#include <glm/vec3.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtc/quaternion.hpp>
 
-class Actor3D : public Thinker, public Transform3D
+class Actor3D : public Thinker
 {
 public:
     virtual void Ready() override;
@@ -15,24 +17,32 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    virtual ID DebugMeshInstance() const;
-    virtual void DebugMeshInstance(ID);
+    virtual Farg<glm::vec3> Position() const;
+    virtual Farg<glm::quat> Quaternion() const;
+    virtual Farg<glm::vec3> Rotation() const;
+    virtual Farg<glm::vec3> RotationDegrees() const;
+    virtual Farg<glm::vec3> Scale() const;
+
+    virtual void Position(Farg<glm::vec3>);
+    virtual void Quaternion(Farg<glm::quat>);
+    virtual void Rotation(Farg<glm::vec3>);
+    virtual void RotationDegrees(Farg<glm::vec3>);
+    virtual void Scale(Farg<glm::vec3>);
 
     virtual bool Visible() const;
     virtual void Visible(bool isVisible);
 
-    virtual bool Wireframe() const;
-    virtual void Wireframe(bool isWireframe);
-
-    RenderLayers mRenderLayers{};
-
-    // Off by default (alpha == 0.0f)
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
+    ID mDebugMeshInstanceID{};
 
 protected:
-    ID mDebugMeshInstanceID{};
+    glm::vec3 mPosition{0.0f};
+    glm::quat mQuaternion{};
+    glm::vec3 mEulerRotationRadians{0.0f};
+    glm::vec3 mEulerRotationDegrees{0.0f};
+    glm::vec3 mScale{1.0f};
+
     bool mVisible{true};
-    bool mWireframe{false};
 };
 
 #endif // ACTOR_3D_H

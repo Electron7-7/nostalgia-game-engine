@@ -168,7 +168,7 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
         glm::mat4 scaleMat     {glm::scale(glm::mat4{1.0f}, actor->Scale() * mesh_instance->Scale())};
         glm::mat4 rotMat       {glm::mat4_cast(actor->Quaternion())};
         glm::mat4 rotMat2      {glm::mat4_cast(mesh_instance->Quaternion())};
-        glm::mat4 transMat     {glm::translate(glm::mat4{1.0f}, actor->Origin() + mesh_instance->Origin())};
+        glm::mat4 transMat     {glm::translate(glm::mat4{1.0f}, actor->Position() + mesh_instance->Position())};
         glm::mat4 model_matrix {transMat * rotMat * rotMat2 * scaleMat};
         glm::mat4 projection_matrix{camera->ProjectionMatrix()};
         glm::mat4 view_matrix{camera->ViewMatrix()};
@@ -187,7 +187,7 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
         shader->SetUniform("spot_lights_count", SpotLight::GetCount());
         shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
         shader->SetUniform("view_matrix", view_matrix);
-        shader->SetUniform("view_position", camera->Origin());
+        shader->SetUniform("view_position", camera->Position());
         shader->SetUniform("current_material.texture_diffuse",  0);
         shader->SetUniform("current_material.texture_specular", 1);
         shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);

@@ -2,7 +2,6 @@
 #define COLLIDER_H
 
 #include "thing/thinker/actor3d/actor3d.hpp"
-#include "theatre/transform.hpp"
 #include <glm/fwd.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/Body.h>
@@ -24,12 +23,23 @@ public:
     Farg<JPH::BodyID> id() const;
     Shared<JPH::BodyCreationSettings> CreationSettings();
 
-    virtual void OnTransformChanged(PropertyChanged) override;
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
     virtual void Ready() override;
     virtual void Shutdown() override;
     virtual void Tick() override;
+
+    using Actor3D::Position;
+    using Actor3D::Quaternion;
+    using Actor3D::Rotation;
+    using Actor3D::RotationDegrees;
+    using Actor3D::Scale;
+
+    virtual void Position(Farg<glm::vec3>) override;
+    virtual void Quaternion(Farg<glm::quat>) override;
+    virtual void Rotation(Farg<glm::vec3>) override;
+    virtual void RotationDegrees(Farg<glm::vec3>) override;
+    virtual void Scale(Farg<glm::vec3>) override;
 
     virtual bool CreateBody(bool setActive);
     virtual void DestroyBody();

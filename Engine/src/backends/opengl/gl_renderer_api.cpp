@@ -10,6 +10,7 @@
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/vertex_array.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/frame_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
+#include "settings/world.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/vec4.hpp>
@@ -118,8 +119,8 @@ void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(light_t* inLight)
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "ambient_strength",  inLight->mAmbientStrength);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "attenuation",       inLight->mAttenuation);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "range",             inLight->mRange);
-    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "position",          inLight->Origin());
-    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "direction",         inLight->Front());
+    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "position",          inLight->Position());
+    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "direction",         inLight->Quaternion() * Settings::World::Front());
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "spot_cutoff",       glm::cos(glm::radians(inLight->mSpotAngle)));
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "spot_cutoff_fade",  glm::cos(glm::radians(inLight->mSpotAngle - inLight->mSpotAngleFade)));
 }

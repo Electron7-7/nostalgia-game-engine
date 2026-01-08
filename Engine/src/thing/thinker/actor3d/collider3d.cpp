@@ -66,7 +66,6 @@ Shared<JPH::BodyCreationSettings> Collider::CreationSettings()
 void Collider::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
-    SetTransformVariables(data);
 
     data.GetVariable(mShape, "Shape", "ColliderShape", "BodyShape");
     data.GetVariable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
@@ -92,7 +91,6 @@ void Collider::SetVariables(Farg<ThingData> data)
 Shared<ThingData> Collider::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
-    GetTransformVariables(data);
     data->AddVariable(mShape, "Shape");
     data->AddVariable(mMotion, "Motion");
     data->AddVariable(mMass, "Mass");
@@ -118,16 +116,66 @@ void Collider::Shutdown()
 void Collider::Tick()
 {
     ASSERT_BODYID()
-    JoltToGlm(PhysicsEngine::Instance()->BodyInterface().GetRotation(mBodyID), mQuaternion);
-    JoltToGlm(PhysicsEngine::Instance()->BodyInterface().GetCenterOfMassPosition(mBodyID), mOrigin);
-    mEuler = glm::eulerAngles(mQuaternion);
+    Actor3D::Quaternion(JoltToGlm<glm::quat>(PhysicsEngine::Instance()
+        ->BodyInterface()
+            .GetRotation(mBodyID)));
+    Actor3D::Position(JoltToGlm<glm::vec3>(PhysicsEngine::Instance()
+            ->BodyInterface()
+                .GetCenterOfMassPosition(mBodyID)));
 }
+
+void Collider::Position(Farg<glm::vec3> inPosition)
+{
+    Actor3D::Position(inPosition);
+    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        GlmToJolt<Quat>(mQuaternion),
+        s_Activation(mActivateOnNextChange));
+}
+
+void Collider::Quaternion(Farg<glm::quat> inQuaternion)
+{
+    Actor3D::Quaternion(inQuaternion);
+    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        GlmToJolt<Quat>(mQuaternion),
+        s_Activation(mActivateOnNextChange));
+}
+
+void Collider::Rotation(Farg<glm::vec3> inRotation)
+{
+    Actor3D::Rotation(inRotation);
+    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        GlmToJolt<Quat>(mQuaternion),
+        s_Activation(mActivateOnNextChange));
+}
+
+void Collider::RotationDegrees(Farg<glm::vec3> inRotation)
+{
+    Actor3D::RotationDegrees(inRotation);
+    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        GlmToJolt<Quat>(mQuaternion),
+        s_Activation(mActivateOnNextChange));
+}
+
+void Collider::Scale(Farg<glm::vec3> inScale)
+{
+    Actor3D::Scale(inScale);
+    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+        GlmToJolt<Vec3>(mPosition),
+        GlmToJolt<Quat>(mQuaternion),
+        s_Activation(mActivateOnNextChange));
+}
+
 
 bool Collider::CreateBody(bool setActive)
 {
     m_pBodyCreationSettings =
-        MakeShared<BodyCreationSettings>(s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale)),
-            GlmToJolt<Vec3>(mOrigin),
+        MakeShared<BodyCreationSettings>(
+            s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale)),
+            GlmToJolt<Vec3>(mPosition),
             GlmToJolt<Quat>(mQuaternion),
             PhysicsEngine::ConvertMotionType(mMotion),
             PhysicsEngine::GetObjectLayer(mMotion));
@@ -169,7 +217,7 @@ Error Collider::Shape(ShapeType inShape, bool isActive)
         true,
         s_Activation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mOrigin),
+        GlmToJolt<Vec3>(mPosition),
         true,
         s_Activation(isActive));
     return OK;
@@ -187,7 +235,7 @@ Error Collider::Motion(MotionType inMotion, bool isActive)
         true,
         s_Activation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mOrigin),
+        GlmToJolt<Vec3>(mPosition),
         true,
         s_Activation(isActive));
     return OK;
@@ -213,21 +261,6 @@ bool Collider::SetActiveOnNextChange() const
 
 void Collider::SetActiveOnNextChange(bool setActive)
 { mActivateOnNextChange = setActive; }
-
-void Collider::OnTransformChanged(PropertyChanged inProp)
-{
-    ASSERT_BODYID()
-    LockGuard<RMutex> lock{mTransformMutex};
-    if(inProp == SCALE)
-    {
-        print_warning("Editing a Collider's scale is not allowed, yet");
-        return;
-    }
-    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotation(mBodyID,
-        GlmToJolt<Vec3>(mOrigin),
-        GlmToJolt<Quat>(mQuaternion),
-        s_Activation(mActivateOnNextChange));
-}
 
 Farg<ColliderMaterial> Collider::Material() const
 { return mMaterial; }

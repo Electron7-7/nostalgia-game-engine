@@ -1,30 +1,37 @@
 #include "actor3d.hpp"
-#include "managers/theatre_manager.hpp"
 #include "collider3d.hpp"
-#include "thing/thing_factory.hpp"
+#include "managers/theatre_manager.hpp"
 #include "theatre/parser/thing_data.hpp"
 
 void Actor3D::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
-    SetTransformVariables(data);
 
-    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data.GetVariable(mPosition, "Position", "Origin");
+    data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.GetVariable(mEulerRotationDegrees, "RotationDegrees", "EulerDegrees"))
+        { RotationDegrees(mEulerRotationDegrees); }
+    if(data.GetVariable(mEulerRotationRadians, "Rotation", "Euler"))
+        { Rotation(mEulerRotationRadians); }
+    if(data.GetVariable(mQuaternion, "Quaternion"))
+        { Quaternion(mQuaternion); }
     data.GetVariable(mVisible, "Visible");
-    data.GetVariable(mWireframe, "MakeWireframe");
-    data.GetVariable(mWireframe, "Wireframe");
+
     data.GetVariable(mDebugHighlight, "DebugHighlight");
+    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 }
 
 Shared<ThingData> Actor3D::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
-    GetTransformVariables(data);
 
-    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data->AddVariable(mPosition, "Position");
+    data->AddVariable(mQuaternion, "Quaternion");
+    data->AddVariable(mScale, "Scale");
     data->AddVariable(mVisible, "Visible");
-    data->AddVariable(mWireframe, "Wireframe");
+
     data->AddVariable(mDebugHighlight, "DebugHighlight");
+    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 
     return data;
 }
@@ -36,30 +43,60 @@ void Actor3D::Tick()
 {
     for(auto child : mChildren)
     {
-        if(g_pThingFactory->IsDerivedFrom<Collider>(child.type))
+        if(auto collider{DCast<Collider>(g_pTheatreManager->GetThing<Collider>(child.id))};
+            !collider->uid().invalid())
         {
-            auto collider{DCast<Transform3D>(g_pTheatreManager->GetThing<Collider>(child.id))};
-            Origin(collider->Origin());
+            Position(collider->Position());
             Scale(collider->Scale());
-            Euler(collider->Euler());
+            Quaternion(collider->Quaternion());
         }
     }
 }
 
-ID Actor3D::DebugMeshInstance() const
-{ return mDebugMeshInstanceID; }
+Farg<glm::vec3> Actor3D::Position() const
+{ return mPosition; }
 
-void Actor3D::DebugMeshInstance(ID inID)
-{ mDebugMeshInstanceID = inID; }
+Farg<glm::quat> Actor3D::Quaternion() const
+{ return mQuaternion; }
+
+Farg<glm::vec3> Actor3D::Rotation() const
+{ return mEulerRotationRadians; }
+
+Farg<glm::vec3> Actor3D::RotationDegrees() const
+{ return mEulerRotationDegrees; }
+
+Farg<glm::vec3> Actor3D::Scale() const
+{ return mScale; }
+
+void Actor3D::Position(Farg<glm::vec3> inPosition)
+{ mPosition = inPosition; }
+
+void Actor3D::Quaternion(Farg<glm::quat> inQuaternion)
+{
+    mQuaternion = glm::normalize(inQuaternion);
+    mEulerRotationRadians = glm::eulerAngles(mQuaternion);
+    mEulerRotationDegrees = glm::degrees(mEulerRotationRadians);
+}
+
+void Actor3D::Rotation(Farg<glm::vec3> inRotation)
+{
+    mEulerRotationRadians = inRotation;
+    mQuaternion = glm::normalize(glm::quat{mEulerRotationRadians});
+    mEulerRotationDegrees = glm::degrees(mEulerRotationRadians);
+}
+
+void Actor3D::RotationDegrees(Farg<glm::vec3> inRotation)
+{
+    mEulerRotationDegrees = inRotation;
+    mEulerRotationRadians = glm::radians(mEulerRotationDegrees);
+    mQuaternion = glm::normalize(glm::quat{mEulerRotationRadians});
+}
+
+void Actor3D::Scale(Farg<glm::vec3> inScale)
+{ mScale = inScale; }
 
 bool Actor3D::Visible() const
 { return mVisible; }
 
 void Actor3D::Visible(bool isVisible)
 { mVisible = isVisible; }
-
-bool Actor3D::Wireframe() const
-{ return mWireframe; }
-
-void Actor3D::Wireframe(bool isWireframe)
-{ mWireframe = isWireframe; }

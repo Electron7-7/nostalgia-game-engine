@@ -3,6 +3,7 @@
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "math/conversion.hpp"
+#include "settings/world.hpp"
 #include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
@@ -58,7 +59,7 @@ void NostalgiaPlayer::Ready()
             ThingType::Collider,
             UID::Generate(),
             {
-                {mOrigin, "Origin"},
+                {mPosition, "Origin"},
                 {mQuaternion, "Quaternion"},
                 {mScale, "Scale"},
                 {MotionType::Kinematic, "Motion"},
@@ -76,16 +77,18 @@ void NostalgiaPlayer::Tick()
     });
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
-    Euler(Euler(true) -= glm::vec3(0.0f, mLookWish.x, 0.0f), true);
+    RotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
     auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
-    camera->Euler(camera->Euler(true) -= glm::vec3{mLookWish.y, mLookWish.x, 0.0f}, true);
-    camera->Origin(mOrigin + mViewPosition);
+    camera->RotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
+    camera->Position(mPosition + mViewPosition);
 
     auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
 
-    glm::vec3 l_FrontBackVelocity = Front() * mMovementDirection.z * Settings::Player::MovementSpeed;
-    glm::vec3 l_LeftRightVelocity = Right() * mMovementDirection.x * Settings::Player::MovementSpeed;
-    glm::vec3 wish_velocity = l_FrontBackVelocity + l_LeftRightVelocity;
+    glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
+        mMovementDirection.z * Settings::Player::MovementSpeed};
+    glm::vec3 l_LeftRightVelocity{(mQuaternion * Settings::World::Right()) *
+        mMovementDirection.x * Settings::Player::MovementSpeed};
+    glm::vec3 wish_velocity{l_FrontBackVelocity + l_LeftRightVelocity};
 
     for(int i{0}; i < 3; ++i)
     {
@@ -108,7 +111,7 @@ void NostalgiaPlayer::Tick()
 
     PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
         GlmToJolt<JPH::Vec3>(mVelocity));
-    mOrigin = collider->Origin();
+    mPosition = collider->Position();
 }
 
 Farg<glm::vec3> NostalgiaPlayer::Velocity() const

@@ -133,7 +133,11 @@ Error Camera3D::ViewportID(ID inID)
 }
 
 glm::mat4 Camera3D::ViewMatrix() const
-{ return glm::lookAt(mOrigin, mOrigin + Front(), Up()); }
+{
+    return glm::lookAt(mPosition,
+        mPosition + (mQuaternion * Settings::World::Front()),
+        mQuaternion * Settings::World::Up());
+}
 
 glm::mat4 Camera3D::ProjectionMatrix() const
 {

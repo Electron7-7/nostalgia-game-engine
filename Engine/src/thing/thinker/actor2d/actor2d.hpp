@@ -3,9 +3,10 @@
 
 #include "rendering/render_layers.hpp"
 #include "thing/thinker/thinker.hpp"
-#include "theatre/transform.hpp"
+#include <glm/vec4.hpp>
+#include <glm/vec2.hpp>
 
-class Actor2D : public Thinker, public Transform3D
+class Actor2D : public Thinker
 {
 public:
     virtual void Ready() override;
@@ -15,24 +16,29 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    virtual ID DebugMeshInstance() const;
-    virtual void DebugMeshInstance(ID);
+    virtual Farg<glm::vec2> Position() const;
+    virtual float           Rotation() const;
+    virtual float           RotationDegrees() const;
+    virtual Farg<glm::vec2> Scale() const;
+
+    virtual void Position(Farg<glm::vec2>);
+    virtual void Rotation(float);
+    virtual void RotationDegrees(float);
+    virtual void Scale(Farg<glm::vec2>);
 
     virtual bool Visible() const;
     virtual void Visible(bool isVisible);
 
-    virtual bool Wireframe() const;
-    virtual void Wireframe(bool isWireframe);
-
-    RenderLayers mRenderLayers{};
-
-    // Off by default (alpha == 0.0f)
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f};
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
+    ID mDebugMeshInstanceID{};
 
 protected:
-    ID mDebugMeshInstanceID{};
-    bool mVisible{true};
-    bool mWireframe{false};
-};
+    glm::vec2 mPosition{};
+    float     mRotationRadians{};
+    float     mRotationDegrees{};
+    glm::vec2 mScale{};
 
+    RenderLayers mLayers{};
+    bool mVisible{true};
+};
 #endif // ACTOR_2D_H

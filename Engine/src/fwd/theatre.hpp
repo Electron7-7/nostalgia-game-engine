@@ -3,8 +3,6 @@
 
 enum class ThingVarType : unsigned short;
 
-class Transform3D;
-class Transform2D;
 class VariableRegistry;
 
 struct ThingVar;
