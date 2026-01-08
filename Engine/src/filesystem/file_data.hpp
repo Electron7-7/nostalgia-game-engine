@@ -30,27 +30,27 @@ public:
     ~FileData();
 
     const unsigned char* Data() const;
+    std::string DataString() const;
+
     int Size() const;
-    bool Empty() const;
     Error Status() const;
     FileType Type() const;
     Farg<std::string> Path() const;
     bool HasPath() const;
 
-    void Clear();
-
     Error LoadFile(Farg<std::string> Path, FileType Type = FileType::Unknown);
     void LoadData(const unsigned char* Data, int Size, FileType Type);
 
-    std::string String() const;
+    bool empty() const;
+    void clear();
 
 private:
-    std::string m_Path{};
-    const unsigned char* m_Data{nullptr};
-    int m_Size{0};
-    FileType m_Type{FileType::Unknown};
-    Error m_Status{ERR_EMPTY};
-    bool m_ReleaseData{false};
+    const unsigned char* mData{nullptr};
+    int mSize{0};
+    std::string mPath{};
+    FileType mType{FileType::Unknown};
+    Error mStatus{ERR_EMPTY};
+    bool mReleaseData{false};
 };
 
 #endif // FILE_DATA_H

@@ -82,7 +82,7 @@ bool s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Far
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(inData->String(), "", reader_config))
+    if(!reader.ParseFromString(inData->DataString(), "", reader_config))
     {
         if(!reader.Error().empty())
             { print_error("TinyObjReader Error: '{}'", reader.Error()); }

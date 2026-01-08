@@ -57,21 +57,21 @@ Shared<FileData> FileData::s_GetReservedFileData(uint inReservedUID)
 FileData::FileData() = default;
 
 FileData::FileData(const unsigned char* data, int size, FileType type):
-    m_Data{data},
-    m_Size{size},
-    m_Type{type},
-    m_Status{OK}{}
+    mData{data},
+    mSize{size},
+    mType{type},
+    mStatus{OK}{}
 
 FileData::FileData(Farg<std::string> path, FileType type):
-    m_Path{path},
-    m_Data{nullptr},
-    m_Size{0},
-    m_Type{type},
-    m_Status{ERR_NOT_LOADED}
+    mData{nullptr},
+    mSize{0},
+    mPath{path},
+    mType{type},
+    mStatus{ERR_NOT_LOADED}
 { LoadFile(path, type); }
 
 FileData::~FileData()
-{ Clear(); }
+{ clear(); }
 
 Error FileData::LoadFile(Farg<std::string> path, FileType type)
 {
@@ -86,7 +86,7 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     if(!image_file)
     {
         print_error("Failed to load file '{}'", path);
-        return m_Status = ERR_FILE_LOAD;
+        return mStatus = ERR_FILE_LOAD;
     }
 
     fseek(image_file, 0, SEEK_END);
@@ -99,56 +99,56 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     fread(data, sizeof(unsigned char), size, image_file);
     fclose(image_file);
 
-    Clear();
-    m_Data = data;
-    m_Size = size;
-    m_Type = type;
-    m_Path = path;
-    m_ReleaseData = true;
-    return m_Status = OK;
+    clear();
+    mData = data;
+    mSize = size;
+    mType = type;
+    mPath = path;
+    mReleaseData = true;
+    return mStatus = OK;
 }
 
 void FileData::LoadData(const unsigned char* data, int size, FileType type)
 {
-    Clear();
-    m_Status = OK;
-    m_Data = data;
-    m_Size = size;
-    m_Type = type;
+    clear();
+    mStatus = OK;
+    mData = data;
+    mSize = size;
+    mType = type;
 }
 
 Error FileData::Status() const
-{ return m_Status; }
+{ return mStatus; }
 
 FileType FileData::Type() const
-{ return m_Type; }
+{ return mType; }
 
 Farg<std::string> FileData::Path() const
-{ return m_Path; }
+{ return mPath; }
 
 bool FileData::HasPath() const
-{ return !m_Path.empty(); }
+{ return !mPath.empty(); }
 
-void FileData::Clear()
+void FileData::clear()
 {
-    if(m_ReleaseData)
-        { delete [] m_Data; }
-    m_ReleaseData = false;
-    m_Data = nullptr;
-    m_Size = 0;
-    m_Path = "";
-    m_Type = FileType::Unknown;
-    m_Status = ERR_NOT_LOADED;
+    if(mReleaseData)
+        { delete [] mData; }
+    mReleaseData = false;
+    mData = nullptr;
+    mSize = 0;
+    mPath = "";
+    mType = FileType::Unknown;
+    mStatus = ERR_NOT_LOADED;
 }
 
-std::string FileData::String() const
-{ return std::string(m_Data, m_Data + m_Size); }
+std::string FileData::DataString() const
+{ return std::string(mData, mData + mSize); }
 
 const unsigned char* FileData::Data() const
-{ return m_Data; }
+{ return mData; }
 
 int FileData::Size() const
-{ return m_Size; }
+{ return mSize; }
 
-bool FileData::Empty() const
-{ return (m_Data != nullptr); }
+bool FileData::empty() const
+{ return (mData != nullptr); }
