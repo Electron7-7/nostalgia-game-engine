@@ -2,7 +2,7 @@
 #define RENDERER_API_H
 
 #include "fwd/rendering.hpp"
-#include "fwd/things.hpp"
+#include "fwd/theatre.hpp"
 #include "fwd/math.hpp"
 #include "core/id.hpp"
 #include "core/error.hpp"

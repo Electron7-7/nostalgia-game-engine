@@ -2,7 +2,6 @@
 #define THEATRE_MANAGER_H
 
 #include "managers/manager.hpp"
-#include "fwd/things.hpp"
 #include "fwd/theatre.hpp"
 #include "core/id.hpp"
 #include "core/error.hpp"

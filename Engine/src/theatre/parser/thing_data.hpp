@@ -1,7 +1,7 @@
 #ifndef THING_DATA_H
 #define THING_DATA_H
 
-#include "fwd/things.hpp"
+#include "fwd/theatre.hpp"
 #include "theatre/parser/thing_variable.hpp"
 #include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
