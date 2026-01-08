@@ -1064,3 +1064,5 @@ I'm also going to move the 'Wireframe' attribute to `Viewport`, just like in God
 
 [01/08/26]
 I'm gonna restructure the `Thing` directories one more time; this time I'm gonna model it based on Godot's internal file structure.
+
+I also want to change the naming scheme for the accessor functions, to avoid requiring 'using <type>::<function>' when only overriding one of them (see `Collider` for an example).
