@@ -1,9 +1,9 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
-#include "core/smart_pointers.hpp"
-#include "fwd/core.hpp"
+#include "core/error.hpp"
 #include "core/farg.hpp"
+#include "core/smart_pointers.hpp"
 #include <string>
 
 enum class FileType : ushort
@@ -16,15 +16,6 @@ enum class FileType : ushort
     font_OTF,
     glsl_FRAG,
     glsl_VERT,
-};
-
-#pragma message("TODO: change this to use `Error`")
-enum class DataStatus : ushort
-{
-    UNLOADED,
-    FAILED,
-    EMPTY,
-    SUCCESSFUL
 };
 
 struct FileData
@@ -41,7 +32,7 @@ public:
     const unsigned char* Data() const;
     int Size() const;
     bool Empty() const;
-    DataStatus Status() const;
+    Error Status() const;
     FileType Type() const;
     Farg<std::string> Path() const;
     bool HasPath() const;
@@ -58,7 +49,7 @@ private:
     const unsigned char* m_Data{nullptr};
     int m_Size{0};
     FileType m_Type{FileType::Unknown};
-    DataStatus m_Status{DataStatus::EMPTY};
+    Error m_Status{ERR_EMPTY};
     bool m_ReleaseData{false};
 };
 

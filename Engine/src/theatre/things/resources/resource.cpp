@@ -7,21 +7,7 @@ void Resource::SetVariables(Farg<ThingData> inData)
     std::string path = "";
     if(inData.GetVariable(path, "File", "Data", "FilePath"))
         { m_pFileData->LoadFile(path); }
-    switch(m_pFileData->Status())
-    {
-    case DataStatus::UNLOADED:
-        mStatus = ERR_NOT_LOADED;
-        break;
-    case DataStatus::FAILED:
-        mStatus = ERR_DATA_LOAD;
-        break;
-    case DataStatus::EMPTY:
-        mStatus = ERR_EMPTY;
-        break;
-    case DataStatus::SUCCESSFUL:
-        mStatus = OK;
-        break;
-    }
+    mStatus = m_pFileData->Status();
 }
 
 Shared<ThingData> Resource::GetVariables() const

@@ -1,10 +1,9 @@
 #include "file_data.hpp"
+#include "filesystem.hpp"
 #include "core/uid.hpp"
+#include "core/printing.hpp"
 #include "embedded/models.hpp"
 #include "embedded/images.hpp"
-#include "filesystem.hpp"
-#include "core/printing.hpp"
-#include "core/error.hpp"
 #include <map>
 
 static std::map<ID, Shared<FileData>>
@@ -60,14 +59,14 @@ FileData::FileData(const unsigned char* data, int size, FileType type):
     m_Data{data},
     m_Size{size},
     m_Type{type},
-    m_Status{DataStatus::SUCCESSFUL}{}
+    m_Status{OK}{}
 
 FileData::FileData(Farg<std::string> path, FileType type):
     m_Path{path},
     m_Data{nullptr},
     m_Size{0},
     m_Type{type},
-    m_Status{DataStatus::UNLOADED}
+    m_Status{ERR_NOT_LOADED}
 { LoadFile(path, type); }
 
 FileData::~FileData()
@@ -86,8 +85,7 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     if(!image_file)
     {
         print_error("Failed to load file '{}'", path);
-        m_Status = DataStatus::FAILED;
-        return ERR_FILE_LOAD;
+        return m_Status = ERR_FILE_LOAD;
     }
 
     fseek(image_file, 0, SEEK_END);
@@ -106,20 +104,19 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     m_Type = type;
     m_Path = path;
     m_ReleaseData = true;
-    m_Status = DataStatus::SUCCESSFUL;
-    return OK;
+    return m_Status = OK;
 }
 
 void FileData::LoadData(const unsigned char* data, int size, FileType type)
 {
     Clear();
-    m_Status = DataStatus::SUCCESSFUL;
+    m_Status = OK;
     m_Data = data;
     m_Size = size;
     m_Type = type;
 }
 
-DataStatus FileData::Status() const
+Error FileData::Status() const
 { return m_Status; }
 
 FileType FileData::Type() const
@@ -140,7 +137,7 @@ void FileData::Clear()
     m_Size = 0;
     m_Path = "";
     m_Type = FileType::Unknown;
-    m_Status = DataStatus::UNLOADED;
+    m_Status = ERR_NOT_LOADED;
 }
 
 std::string FileData::String() const

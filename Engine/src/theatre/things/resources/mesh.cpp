@@ -63,7 +63,7 @@ void Mesh::MaterialID(ID inID)
 //////////////////
 bool s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
 {
-    if(inData->Status() == DataStatus::FAILED)
+    if(!inData->Status())
         { return false; }
 
     switch(inData->Type())
