@@ -1,10 +1,12 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#include "theatre/things/thing.hpp"
+#include "fwd/theatre.hpp"
 #include "core/id.hpp"
+#include "core/error.hpp"
 #include "core/smart_pointers.hpp"
 #include <map>
+#include <set>
 #include <cassert>
 
 typedef Shared<Thing> (*pThingMakerTemplate_t)();
@@ -12,35 +14,38 @@ typedef Shared<Thing> (*pThingMakerTemplate_t)();
 class ThingFactory
 {
 public:
-    template<ThingDerived T>
+    template<typename T> requires std::derived_from<T, Thing>
         static Shared<Thing> ThingMakerTemplate() { return Shared<Thing>(new T{}); }
 
     static constexpr int cDefaultPriority{1};
 
-    bool Init();
+    static bool Init();
 
-    bool AddThing(pThingMakerTemplate_t FunctionPtr, Sarg TypeName, int Priority = cDefaultPriority);
-    pThingMakerTemplate_t MakeThing(Farg<PID> TypeId);
-    bool SetPriority(Farg<PID> TypeId, int Priority);
-    int  GetPriority(Farg<PID> TypeId) const;
+    static Error AddThing(pThingMakerTemplate_t inPtr,
+        Sarg inTypeName,
+        FPID inBaseType,
+        int inPriority = cDefaultPriority);
 
-    bool IsThing(Farg<PID> TypeId) const;
+    static Error RemoveThing(FPID inType) noexcept;
+    static Farg<ThingType> GetType(FPID inType) noexcept;
 
-    // Slower than `IsThing` due to using `dynamic_pointer_cast` to test derivation
-    template<typename T> requires std::derived_from<T,Thing>
-        bool IsDerivedFrom(Farg<PID> TypeId) const
-        {
-            assert(mIsInitialized);
-            if(auto found_it{mThingMakers.find(TypeId)}; found_it != mThingMakers.end())
-                { return DCast<T>(found_it->second()) != nullptr; }
-            return false;
-        }
-    bool IsResource(Farg<PID> TypeId) const; // Uses `IsDerivedFrom`
+    static Shared<Thing> MakeThing(FPID inTypeID);
+    static Shared<Thinker> MakeThinker(FPID inTypeID);
+    static Shared<Resource> MakeResource(FPID inTypeID);
+
+    static bool SetPriority(FPID inTypeID, int inPriority);
+    static int  GetPriority(FPID inTypeID);
+
+    static bool IsThing(FPID inTypeID);
+    static bool IsThinker(FPID inTypeID);
+    static bool IsResource(FPID inTypeID);
+    static bool IsDerivedFrom(FPID inTypeID1, FPID inTypeID2);
 
 private:
-    bool mIsInitialized{false};
-    std::map<ID, pThingMakerTemplate_t> mThingMakers{};
-    std::map<ID, int>                   mTypePriorities{};
+    inline static bool m_sIsInitialized{false};
+    inline static std::map<ID, pThingMakerTemplate_t> m_sThingMakers{};
+    inline static std::map<ID, int>                   m_sTypePriorities{};
+    inline static std::set<ThingType>                 m_sAllTypes{};
 };
 
 extern ThingFactory* g_pThingFactory;

@@ -19,6 +19,7 @@ extern unsigned int gColumn,
     gBreakOnColumn,
     gBreakOnLine;
 
+struct ThingType;
 ////////////
 // THINGS //
 ////////////
