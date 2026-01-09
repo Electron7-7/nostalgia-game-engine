@@ -52,6 +52,9 @@ public:
                     TYPE_ID(DirectionalLight3D)
                 TYPE_ID(Collider3D)
         TYPE_ID(Actor2D)
+            TYPE_ID(Camera2D)
+            TYPE_ID(Visual2D)
+                TYPE_ID(MeshInstance2D)
 };
 
 #undef TYPE_ID

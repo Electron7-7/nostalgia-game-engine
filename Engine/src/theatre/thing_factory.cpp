@@ -2,6 +2,9 @@
 #include "thing_type.hpp"
 #include "things/thinkers/thinker.hpp"
 #include "things/thinkers/2d/actor_2d.hpp"
+#include "things/thinkers/2d/visual_2d.hpp"
+#include "things/thinkers/2d/camera_2d.hpp"
+#include "things/thinkers/2d/mesh_instance_2d.hpp"
 #include "things/thinkers/3d/actor_3d.hpp"
 #include "things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "things/thinkers/3d/camera_3d.hpp"
@@ -48,6 +51,9 @@ bool ThingFactory::Init()
                     ADD_THING(DirectionalLight3D, Light3D)
                 ADD_THING(Collider3D, Actor3D)
         ADD_THING(Actor2D, Thinker)
+            ADD_THING(Camera2D, Actor2D)
+            ADD_THING(Visual2D, Actor2D)
+                ADD_THING(MeshInstance2D, Visual2D)
 
     return m_sIsInitialized = true;
 }
