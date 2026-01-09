@@ -1075,3 +1075,5 @@ Hmm, actually, while doing all of that, I realized that I still need to fix the 
 
 [01/09/26]
 Okay, I think it's time for me to either implement `Resource`'s reference functionality, or save that for later and start working on 3D+2D rendering. I kinda wanna do that more, so I think I'll start by first reorganizing the Theatre rendering pipeline until I'm satisfied with where it is. Big picture stuff; the small details can be ironed out later. I just basically want the code in a function and file that I won't change in the near future. As for transferring this code from `TheatreManager` into `Theatre`, I actually think I'll first figure out how I want rendering to work inside `TheatreManger`, then once that's all sorted out I'll move everything over. Easier than doing both at the same time, I think. Oh, also, gotta remove the `ThingFactory` singleton, lmao.
+
+I also kept it as a fully static class, because I don't wanna type anything other than `friend class ThingFactory` in `ThingType`.
