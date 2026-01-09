@@ -82,12 +82,6 @@ Things
         DiffuseTexture = <DoomTexture>
     }
 
-    MeshInstance3D DoomCubeMeshInstance3D
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <DoomMaterial>
-    }
-
     Collider3D FloorCollider
     {
         Position = [3, -5, -3]
@@ -108,7 +102,11 @@ Things
 
     Actor3D DoomCube
     {
-        Child MeshInstance3D = <DoomCubeMeshInstance3D>
+        Child : MeshInstance3D DoomCubeMeshInstance3D
+        {
+            Mesh = <DefaultCube>
+            MaterialOverride = <DoomMaterial>
+        }
         Child : Collider3D DoomCollider
         {
             Motion = (Dynamic)
@@ -120,7 +118,11 @@ Things
 
     Actor3D DoomCube2
     {
-        Child MeshInstance3D = <DoomCubeMeshInstance3D>
+        Child : MeshInstance3D DoomCubeMeshInstance3D2
+        {
+            Mesh = <DefaultCube>
+            MaterialOverride = <DoomMaterial>
+        }
         Child : Collider3D DoomCollider2
         {
             Motion = (Dynamic)
@@ -133,7 +135,11 @@ Things
 
     Actor3D DoomCube3
     {
-        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+        Child : MeshInstance3D DoomCubeMeshInstance3D3
+        {
+            Mesh = <DefaultCube>
+            MaterialOverride = <LolBitMaterial>
+        }
         Child : Collider3D DoomCollider3
         {
             Motion = (Dynamic)
