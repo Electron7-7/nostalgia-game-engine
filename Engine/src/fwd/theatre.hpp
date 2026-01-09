@@ -13,15 +13,7 @@ struct ThingVar;
 struct ThingData;
 struct TheatreParser;
 struct TheatreData;
-
-extern unsigned int gColumn,
-    gLine,
-    gBreakOnColumn,
-    gBreakOnLine;
-
 struct ThingType;
-class ThingFactory;
-
 struct ThinkerRelative;
 using ThinkerChildren = std::vector<ThinkerRelative>;
 

@@ -2,6 +2,7 @@
 #include "imgui_editor.hpp"
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
+#include "theatre/parser/theatre_parser.hpp"
 #include "core/uid.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
