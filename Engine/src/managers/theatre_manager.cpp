@@ -367,7 +367,8 @@ void TheatreManager::CreateThings()
     if(!mThings.contains(UID::a_Player))
         { CreateThingNoReady({"Default NostalgiaPlayer3D", ThingType::NostalgiaPlayer3D, UID::a_Player}); }
 
-    CreateThingNoReady({"Main Viewport", ThingType::Viewport, UID::a_MainViewport});
+    CreateThingNoReady({"Global 3D Viewport", ThingType::Viewport, UID::a_Global3DViewport});
+    CreateThingNoReady({"Global 2D Viewport", ThingType::Viewport, UID::a_Global2DViewport});
 
     for(auto& [id, thing] : mThings)
         { thing->Ready(); }

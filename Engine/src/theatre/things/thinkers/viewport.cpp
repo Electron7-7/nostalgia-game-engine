@@ -11,7 +11,7 @@ void Viewport::Ready()
         mCameraIDs.erase(mCurrentCamera);
         mCurrentCamera = ID::Invalid;
     }
-    if(mUID == UID::a_MainViewport)
+    if(mUID <= UID::a_Global3DViewport)
         { mFramebuffer = FrameBuffer::Create(); }
     else
         { mFramebuffer = FrameBuffer::Create(mSize); }
@@ -61,7 +61,7 @@ Farg<Viewport::cameras> Viewport::CameraIDs() const
 
 Size2D Viewport::Size() const
 {
-    return (mUID == UID::a_MainViewport)
+    return (mUID == UID::a_Global3DViewport)
         ? MainWindow()->GetScale()
         : mSize;
 }
@@ -83,14 +83,14 @@ void Viewport::SetSize(Farg<Size2D> inSize)
 {
     if(mSize == inSize)
         { return; }
-    else if(mUID != UID::a_MainViewport)
+    else if(mUID != UID::a_Global3DViewport)
         { mFramebuffer = FrameBuffer::Create(inSize); }
     mSize = inSize;
 }
 
 void Viewport::SetFramebuffer(Shared<FrameBuffer> inFramebuffer)
 {
-    if(mUID == UID::a_MainViewport)
+    if(mUID == UID::a_Global3DViewport)
         { return; }
     mFramebuffer = inFramebuffer;
 }

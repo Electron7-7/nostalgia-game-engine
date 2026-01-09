@@ -10,10 +10,11 @@ namespace UID
     { NotReserved = 0, Player, Mesh, Texture, Cubemap, Font, };
 
     constexpr ID
-    // Reserved Player UID
-        a_Player         {0x00},
-        a_MainViewport   {0x01},
-        a_EditorViewport {0x02},
+    // Reserved Non-Specific UIDs
+        a_Player           {0x00},
+        a_EditorViewport   {0x01},
+        a_Global2DViewport {0x02},
+        a_Global3DViewport {0x03},
     // Reserved Texture UIDs
         t_Missing        {0x10},
         t_LightDebug     {0x11},

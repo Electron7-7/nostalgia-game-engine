@@ -34,7 +34,7 @@ public:
 
 protected:
     bool mInitCurrent{false};
-    ID mViewportID{UID::a_MainViewport};
+    ID mViewportID{UID::a_Global3DViewport};
     BitMask mLayersMask{};
 };
 
