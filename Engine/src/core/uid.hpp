@@ -16,21 +16,21 @@ namespace UID
         a_Global2DViewport {0x02},
         a_Global3DViewport {0x03},
     // Reserved Texture UIDs
-        t_Missing        {0x10},
-        t_LightDebug     {0x11},
-        t_COMP04_5       {0x12},
-        t_LolBit         {0x13},
+        t_Missing          {0x10},
+        t_LightDebug       {0x11},
+        t_COMP04_5         {0x12},
+        t_LolBit           {0x13},
     // Reserved Cubemap Texture UIDs
-        t_ShittySkybox   {0x20},
+        t_ShittySkybox     {0x20},
     // Reserved Mesh UIDs
-        m_Error          {0x30},
-        m_Cube           {0x31},
-        m_Ramiel         {0x32},
-        m_Camera3D       {0x33},
+        m_Error            {0x30},
+        m_Cube             {0x31},
+        m_Ramiel           {0x32},
+        m_Camera3D         {0x33},
     // Reserved Font UIDs
-        f_Verdana        {0x40},
-        f_DejaVuSans     {0x41},
-        f_Audiowide      {0x42};
+        f_Verdana          {0x40},
+        f_DejaVuSans       {0x41},
+        f_Audiowide        {0x42};
     constexpr uint
     // Reserved UID Boundaries
         textures_front {t_Missing},

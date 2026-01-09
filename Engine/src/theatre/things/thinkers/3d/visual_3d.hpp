@@ -10,12 +10,11 @@ public:
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
 
-    virtual void SetLayers(BitMask inRenderLayers);
+    virtual void SetLayers(BitMask inVisualLayers);
     virtual BitMask Layers() const;
 
 protected:
-    BitMask mLayers{};
+    BitMask mVisualLayers{};
 };
-
 
 #endif // VISUAL_3D_H

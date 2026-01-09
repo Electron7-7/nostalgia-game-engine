@@ -5,24 +5,24 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    int render_layers{mLayers.get()};
+    int render_layers{mVisualLayers.get()};
 
-    if(data.GetVariable(render_layers, "RenderLayers", "Layers"))
-        { mLayers.set(render_layers); }
+    if(data.GetVariable(render_layers, "VisualLayers", "RenderLayers", "Layers"))
+        { mVisualLayers.set(render_layers); }
 }
 
 Shared<ThingData> Visual3D::GetVariables() const
 {
     auto data{Actor3D::GetVariables()};
 
-    data->AddVariable(mLayers.get(), "RenderLayers");
+    data->AddVariable(mVisualLayers.get(), "VisualLayers");
 
     return data;
 }
 
 BitMask Visual3D::Layers() const
-{ return mLayers; }
+{ return mVisualLayers; }
 
-void Visual3D::SetLayers(BitMask inLayers)
-{ mLayers = inLayers; }
+void Visual3D::SetLayers(BitMask inVisualLayers)
+{ mVisualLayers = inVisualLayers; }
 

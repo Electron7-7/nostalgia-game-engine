@@ -16,17 +16,17 @@ variables:
     (
       \bThinker\b |
         \bActor2D\b |
-          \bVisual2D\b |
           \bCamera2D\b |
+          \bVisual2D\b |
         \bActor3D\b |
+          \bCamera3D\b |
+          \bCollider3D\b |
           \bVisual3D\b |
             \bMeshInstance3D\b |
-        \bCamera3D\b |
-        \bCollider3D\b |
-        \bNostalgiaPlayer3D\b |
-        \bPointLight3D\b |
-        \bSpotLight3D\b |
-        \bDirectionalLight3D\b |
+            \bNostalgiaPlayer3D\b |
+            \bPointLight3D\b |
+            \bSpotLight3D\b |
+            \bDirectionalLight3D\b |
       \bResource\b |
         \bMaterial\b |
         \bMesh\b |
