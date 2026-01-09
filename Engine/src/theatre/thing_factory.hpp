@@ -42,7 +42,7 @@ public:
     static bool IsThing(FPID inTypeID);
     static bool IsThinker(FPID inTypeID);
     static bool IsResource(FPID inTypeID);
-    static bool IsDerivedFrom(FPID inTypeID1, FPID inTypeID2);
+    static bool IsDerivedFrom(FPID inDerivedID, FPID inBaseID);
 
 private:
     static bool m_sIsInitialized;
