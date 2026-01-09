@@ -1,8 +1,9 @@
 #include "thing_data.hpp"
 #include "thing_variable.hpp"
-#include "theatre/thing_factory.hpp"
 #include "core/printing.hpp"
 #include "common/colors.hpp"
+#include "theatre/thing_factory.hpp"
+#include "theatre/things/thinkers/thinker.hpp"
 
 ThingData::ThingData() = default;
 
@@ -29,7 +30,7 @@ ThingData::ThingData(Sarg inName, Farg<PID> inType, Farg<std::vector<ThingVar>> 
     variables(inVariables),
     type_{inType} {}
 
-bool ThingData::GetChildren(relatives_t& output) const
+bool ThingData::GetChildren(ThinkerChildren& output) const
 {
     if(children.empty())
         { return false; }
@@ -38,12 +39,28 @@ bool ThingData::GetChildren(relatives_t& output) const
     return true;
 }
 
-void ThingData::SetChildren(Farg<relatives_t> input)
+void ThingData::SetChildren(Farg<ThinkerChildren> input)
 {
     children.clear();
     for(auto child : input)
         { children.emplace_back(child.id, child.type.name()); }
 }
+
+// Not yet implemented in the parser
+bool ThingData::GetParent(ThinkerRelative& output) const
+{
+    if(!parent.empty())
+    {
+        output.id = parent.id_or_enum;
+        output.type = PID{parent.name};
+        return true;
+    }
+    return false;
+}
+
+// Not yet implemented in the parser
+void ThingData::SetParent(Farg<ThinkerRelative> input)
+{ parent = {input.id, input.type.name()}; }
 
 bool ThingData::RemoveVariable(Sarg inName)
 {

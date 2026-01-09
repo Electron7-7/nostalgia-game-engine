@@ -145,7 +145,7 @@ void OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inTexture, uint inUnit
 {
     if(inTexture and inTexture->Status() == OK)
         { glBindTextureUnit(inUnit, inTexture->ID()); return; }
-    else if(auto missing{g_pTheatreManager->GetThing<Texture>(UID::t_Missing)->GetBuffer()})
+    else if(auto missing{g_pTheatreManager->GetResource<Texture>(UID::t_Missing)->GetBuffer()})
         { glBindTextureUnit(inUnit, missing->ID()); }
 }
 

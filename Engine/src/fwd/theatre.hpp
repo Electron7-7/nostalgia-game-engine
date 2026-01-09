@@ -20,14 +20,14 @@ extern unsigned int gColumn,
     gBreakOnLine;
 
 struct ThingType;
+class ThingFactory;
+
+struct ThinkerRelative;
+using ThinkerChildren = std::vector<ThinkerRelative>;
+
 ////////////
 // THINGS //
 ////////////
-enum class LightType : int;
-
-struct ThingRelative;
-class ThingFactory;
-
 class Thing;
     class Resource;
         class Material;
@@ -48,7 +48,5 @@ class Thing;
                 class DirectionalLight3D;
                 class NostalgiaPlayer3D;
                 class MeshInstance3D;
-
-using relatives_t = std::vector<ThingRelative>;
 
 #endif // THEATRE_FWD_H

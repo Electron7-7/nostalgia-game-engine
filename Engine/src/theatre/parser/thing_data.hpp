@@ -6,7 +6,7 @@
 #include "theatre/parser/number_parser.hpp"
 #include "theatre/variable_registry.hpp"
 #include "core/concepts.hpp"
-#include "theatre/thing_types.hpp"
+#include "theatre/thing_type.hpp"
 
 constexpr const char* cChildVarName{"Child"};
 
@@ -22,13 +22,19 @@ public:
     std::string name{"Untitled Thing"};
     std::vector<ThingVar> variables{};
     std::vector<ThingVar> children{};
+    // Not yet implemented in the parser
+    ThingVar parent{};
 
     bool RemoveVariable(Sarg VariableName);
     ThingVar& AddVariable(Sarg Name, Sarg ParsedValue, ThingVar::Type Type, Sarg ParsedChildType = "");
     ThingVar& AddVariable(Farg<ThingVar> Value, Sarg Name);
 
-    bool GetChildren(relatives_t& output) const;
-    void SetChildren(Farg<relatives_t> input);
+    bool GetChildren(ThinkerChildren& output) const;
+    void SetChildren(Farg<ThinkerChildren> input);
+    // Not yet implemented in the parser
+    bool GetParent(ThinkerRelative& output) const;
+    // Not yet implemented in the parser
+    void SetParent(Farg<ThinkerRelative> input);
 
     template<StringContainer T, StringType... Names>
         bool GetVariable(T& output, Names... names) const

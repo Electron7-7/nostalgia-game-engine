@@ -57,7 +57,7 @@ void Camera3D::Tick()
 {}
 
 void Camera3D::Shutdown()
-{ g_pTheatreManager->GetThing<Viewport>(mViewportID)->EraseCamera(mUID); }
+{ g_pTheatreManager->GetThinker<Viewport>(mViewportID)->EraseCamera(mUID); }
 
 void Camera3D::Ready()
 {
@@ -94,14 +94,14 @@ void Camera3D::Ready()
         mDebugMeshInstanceID = mesh_id;
     }
 
-    auto viewport{g_pTheatreManager->GetThing<Viewport>(mViewportID)};
+    auto viewport{g_pTheatreManager->GetThinker<Viewport>(mViewportID)};
     viewport->AddCamera(mUID);
     if(mInitCurrent)
         { viewport->SetCurrentCamera(mUID); }
 }
 
 bool Camera3D::Current() const
-{ return g_pTheatreManager->GetThing<Viewport>(mViewportID)->IsCurrentCamera(mUID); }
+{ return g_pTheatreManager->GetThinker<Viewport>(mViewportID)->IsCurrentCamera(mUID); }
 
 ID Camera3D::ViewportID() const
 { return mViewportID; }
@@ -114,14 +114,14 @@ bool Camera3D::SetCurrent(bool isCurrent)
     if(isCurrent == Current())
         { return isCurrent; }
     else if(isCurrent)
-        { return g_pTheatreManager->GetThing<Viewport>(mViewportID)->SetCurrentCamera(mUID) == OK; }
-    g_pTheatreManager->GetThing<Viewport>(mViewportID)->SetCurrentCamera(ID::Invalid);
+        { return g_pTheatreManager->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(mUID) == OK; }
+    g_pTheatreManager->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(ID::Invalid);
     return false;
 }
 
 Error Camera3D::SetViewportID(ID inID)
 {
-    if(auto viewport{g_pTheatreManager->GetThing<Viewport>(inID)})
+    if(auto viewport{g_pTheatreManager->GetThinker<Viewport>(inID)})
     {
         mViewportID = inID;
         viewport->AddCamera(mUID);
@@ -143,7 +143,7 @@ glm::mat4 Camera3D::ViewMatrix() const
 glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
-        static_cast<float>(g_pTheatreManager->GetThing<Viewport>(mViewportID)->Size().AspectRatio()),
+        static_cast<float>(g_pTheatreManager->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
     );

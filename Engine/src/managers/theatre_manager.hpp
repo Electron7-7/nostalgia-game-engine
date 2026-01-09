@@ -1,14 +1,14 @@
 #ifndef THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#include "managers/manager.hpp"
 #include "fwd/theatre.hpp"
+#include "managers/manager.hpp"
 #include "core/id.hpp"
 #include "core/error.hpp"
+#include "core/mutex.hpp"
 #include "core/smart_pointers.hpp"
 #include <unordered_map>
 #include <unordered_set>
-#include <mutex>
 
 using things_t = std::unordered_map<ID,Shared<Thing>>;
 
@@ -41,19 +41,30 @@ public:
     Error ChangeThingID(ID inOldID, ID inNewID);
     uint CreateThing(Farg<ThingData> ThingData);
     bool DestroyThing(ID);
-    Shared<Thing> GetThing(ID ObjectID);
 
-    template<typename T> requires std::derived_from<T,Thing>
-        Shared<T> GetThing(ID ObjectID)
+    Shared<Thing> GetThing(ID ObjectID);
+    Shared<Resource> GetResource(ID ObjectID);
+    Shared<Thinker> GetThinker(ID ObjectID);
+
+    template<typename T> requires std::derived_from<T,Thinker>
+        Shared<T> GetThinker(ID ObjectID)
         {
-            if(auto thing{DCast<T>(GetThing(ObjectID))})
-                { return thing; }
+            if(auto thinker{DCast<T>(GetThinker(ObjectID))})
+                { return thinker; }
+            return MakeShared<T>();
+        }
+
+    template<typename T> requires std::derived_from<T,Resource>
+        Shared<T> GetResource(ID ObjectID)
+        {
+            if(auto resource{DCast<T>(GetResource(ObjectID))})
+                { return resource; }
             return MakeShared<T>();
         }
 
 private:
     things_t mThings{};
-    std::recursive_mutex mThingsMutex{};
+    RMutex mThingsMutex{};
     std::unordered_set<ID> mViewportIDs{};
 
     void CreateThings();

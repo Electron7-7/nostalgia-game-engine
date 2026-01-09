@@ -1,5 +1,5 @@
 #include "nostalgia_player_3d.hpp"
-#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThing<Camera3D>
+#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->GetThinker<Camera3D>
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "math/conversion.hpp"
@@ -78,11 +78,11 @@ void NostalgiaPlayer3D::Tick()
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
     SetRotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
-    auto camera{g_pTheatreManager->GetThing<Camera3D>(mCameraID)};
+    auto camera{g_pTheatreManager->GetThinker<Camera3D>(mCameraID)};
     camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
     camera->SetPosition(mPosition + mViewPosition);
 
-    auto collider{g_pTheatreManager->GetThing<Collider3D>(mColliderID)};
+    auto collider{g_pTheatreManager->GetThinker<Collider3D>(mColliderID)};
 
     glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
         mMovementDirection.z * Settings::Player::MovementSpeed};

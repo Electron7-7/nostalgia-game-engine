@@ -80,9 +80,34 @@ void TheatreManager::Input(InputEvent* inInput)
 Shared<Thing> TheatreManager::GetThing(ID inID)
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    return (mThings.contains(inID))
-        ? mThings.at(inID)
-        : MakeShared<Thing>();
+    if(auto found_it{mThings.find(inID)};
+        found_it != mThings.end())
+    { return found_it->second; }
+    return MakeShared<Thing>();
+}
+
+Shared<Thinker> TheatreManager::GetThinker(ID inID)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    if(auto found_it{mThings.find(inID)};
+        found_it != mThings.end())
+    {
+        if(ThingFactory::IsThinker(found_it->second->type()))
+            { return DCast<Thinker>(found_it->second); }
+    }
+    return MakeShared<Thinker>();
+}
+
+Shared<Resource> TheatreManager::GetResource(ID inID)
+{
+    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    if(auto found_it{mThings.find(inID)};
+        found_it != mThings.end())
+    {
+        if(ThingFactory::IsResource(found_it->second->type()))
+            { return DCast<Resource>(found_it->second); }
+    }
+    return MakeShared<Resource>();
 }
 
 void TheatreManager::DrawTheatre()
@@ -99,9 +124,9 @@ void TheatreManager::DrawTheatre()
     }
     for(ID viewport_id : mViewportIDs)
     {
-        auto viewport{GetThing<Viewport>(viewport_id)};
+        auto viewport{GetThinker<Viewport>(viewport_id)};
         auto framebuffer{viewport->Framebuffer()};
-        auto camera{GetThing<Camera3D>(viewport->CurrentCamera())};
+        auto camera{GetThinker<Camera3D>(viewport->CurrentCamera())};
         FAUTO renderer_api{g_pRenderManager->GetAPI()};
         framebuffer->Bind();
         renderer_api->SetViewport({0, 0}, viewport->Size());
@@ -110,13 +135,13 @@ void TheatreManager::DrawTheatre()
         case Environment::BG_SKYBOX:
             renderer_api->SetWireframe(false);
             renderer_api->BindTexture(
-                g_pTheatreManager->GetThing<Texture>(camera->mEnvironment.mSkyboxTextureID)->GetBuffer(),
+                g_pTheatreManager->GetResource<Texture>(camera->mEnvironment.mSkyboxTextureID)->GetBuffer(),
                 0);
             renderer_api->GetShader(Shaders::SkyBox)->Bind();
             renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{camera->ViewMatrix()}});
             renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", camera->ProjectionMatrix());
             renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
-            renderer_api->DrawSkybox(g_pTheatreManager->GetThing<Mesh>(UID::m_Cube)->MeshData());
+            renderer_api->DrawSkybox(g_pTheatreManager->GetResource<Mesh>(UID::m_Cube)->MeshData());
             break;
         default:
             break;
@@ -134,7 +159,7 @@ void TheatreManager::ClearViewports()
 {
     for(ID viewport_id : mViewportIDs)
     {
-        auto framebuffer{GetThing<Viewport>(viewport_id)->Framebuffer()};
+        auto framebuffer{GetThinker<Viewport>(viewport_id)->Framebuffer()};
         framebuffer->Bind();
         g_pRenderManager->GetAPI()->Clear();
         framebuffer->Unbind();
@@ -147,24 +172,24 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
 
     if(!camera->Current() or actor->uid() == camera->uid())
         { return; }
-    auto children{actor->children()};
+    auto children{actor->Children()};
     if(Settings::Engine::IsEditorHint and !actor->mDebugMeshInstanceID.invalid())
         { children.emplace_back(actor->mDebugMeshInstanceID, ThingType::MeshInstance3D); }
     for(auto child : children)
     {
-        auto mesh_instance{GetThing<MeshInstance3D>(child.id)};
+        auto mesh_instance{GetThinker<MeshInstance3D>(child.id)};
         if(mesh_instance->uid().invalid() or
             !camera->LayersMask().contains(mesh_instance->Layers()))
             { continue; }
-        auto mesh{GetThing<Mesh>(mesh_instance->MeshID()[])};
-        auto material{GetThing<Material>(mesh->MaterialID())};
+        auto mesh{GetResource<Mesh>(mesh_instance->MeshID()[])};
+        auto material{GetResource<Material>(mesh->MaterialID())};
         if(!mesh_instance->MaterialOverrideID().invalid())
-            { material = GetThing<Material>(mesh_instance->MaterialOverrideID()); }
+            { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
         FAUTO renderer_api{g_pRenderManager->GetAPI()};
         auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
         if(mesh->uid().invalid())
-            { mesh = g_pTheatreManager->GetThing<Mesh>(UID::m_Error); }
+            { mesh = g_pTheatreManager->GetResource<Mesh>(UID::m_Error); }
 
         // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
         glm::mat4 scaleMat     {glm::scale(glm::mat4{1.0f}, actor->Scale() * mesh_instance->Scale())};
@@ -177,8 +202,8 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
 
         renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
-        renderer_api->BindTexture(GetThing<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
-        renderer_api->BindTexture(GetThing<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
+        renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
+        renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
 
         shader->SetUniform("model_matrix", model_matrix);
         shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
@@ -350,7 +375,7 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
         }
     }
 
-    auto& thing{mThings[data.uid] = g_pThingFactory->MakeThing(data.type())()};
+    auto& thing{mThings[data.uid] = g_pThingFactory->MakeThing(data.type())};
     thing->SetVariables(data);
     g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
 
