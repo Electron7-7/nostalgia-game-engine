@@ -18,7 +18,6 @@
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/things/resources/material.hpp"
 #include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
-#include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include <ranges>
 
@@ -347,8 +346,11 @@ things_t::iterator TheatreManager::DestroyThing(things_t::iterator inIterator)
     if(!g_pVariableRegistry->RemoveID(inIterator->first[])
         and !g_pVariableRegistry->RemoveID(inIterator->second->name()))
         { print_warning("Unable to remove Thing#{} from the variable registry!", inIterator->first[]); }
-    inIterator->second->Shutdown();
     mViewportIDs.erase(inIterator->first);
+    mVisual2DIDs.erase(inIterator->first);
+    mVisual3DIDs.erase(inIterator->first);
+    mLightIDs.erase(inIterator->first);
+    inIterator->second->Shutdown();
     return mThings.erase(inIterator);
 }
 
@@ -379,9 +381,17 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
     thing->SetVariables(data);
     g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
 
-    if(DCast<Viewport>(thing))
+    if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
-    else if(DCast<NostalgiaPlayer3D>(thing))
+    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Visual3D))
+    {
+        mVisual3DIDs.insert(thing->uid());
+        if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Light3D))
+            { mLightIDs.insert(thing->uid()); }
+    }
+    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Visual2D))
+        { mVisual2DIDs.insert(thing->uid()); }
+    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::NostalgiaPlayer3D))
         { ChangeThingID(thing->uid(), UID::a_Player); }
 
     return thing->uid()[];

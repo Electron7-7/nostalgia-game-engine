@@ -65,6 +65,9 @@ public:
 private:
     things_t mThings{};
     RMutex mThingsMutex{};
+    std::unordered_set<ID> mLightIDs{};
+    std::unordered_set<ID> mVisual3DIDs{};
+    std::unordered_set<ID> mVisual2DIDs{};
     std::unordered_set<ID> mViewportIDs{};
 
     void CreateThings();
