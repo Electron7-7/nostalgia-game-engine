@@ -15,10 +15,15 @@
 #include "things/resources/texture.hpp"
 #include "things/resources/mesh.hpp"
 #include "core/printing.hpp"
+#include <cassert>
 
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
     AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
 
+bool ThingFactory::m_sIsInitialized{false};
+std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
+std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
+std::set<ThingType>                 ThingFactory::m_sAllTypes{};
 
 bool ThingFactory::Init()
 {

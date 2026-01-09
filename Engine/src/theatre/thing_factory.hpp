@@ -7,15 +7,17 @@
 #include "core/smart_pointers.hpp"
 #include <map>
 #include <set>
-#include <cassert>
 
 typedef Shared<Thing> (*pThingMakerTemplate_t)();
 
+// This is a class instead of a namespace because fuck typing anything
+// other than `friend class ThingFactory` in `ThingType`.
 class ThingFactory
 {
 public:
     template<typename T> requires std::derived_from<T, Thing>
-        static Shared<Thing> ThingMakerTemplate() { return Shared<Thing>(new T{}); }
+        static Shared<Thing> ThingMakerTemplate()
+        { return Shared<Thing>(new T{}); }
 
     static constexpr int cDefaultPriority{1};
 
@@ -43,10 +45,10 @@ public:
     static bool IsDerivedFrom(FPID inTypeID1, FPID inTypeID2);
 
 private:
-    inline static bool m_sIsInitialized{false};
-    inline static std::map<ID, pThingMakerTemplate_t> m_sThingMakers{};
-    inline static std::map<ID, int>                   m_sTypePriorities{};
-    inline static std::set<ThingType>                 m_sAllTypes{};
+    static bool m_sIsInitialized;
+    static std::map<ID, pThingMakerTemplate_t> m_sThingMakers;
+    static std::map<ID, int>                   m_sTypePriorities;
+    static std::set<ThingType>                 m_sAllTypes;
 };
 
 #endif // THING_FACTORY_H
