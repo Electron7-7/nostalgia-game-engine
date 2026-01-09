@@ -7,7 +7,8 @@ enum class LightType : int
 {
     POINT,
     SPOT,
-    DIRECTIONAL
+    DIRECTIONAL,
+    NONE,
 };
 
 class Light3D : public Actor3D
@@ -15,8 +16,8 @@ class Light3D : public Actor3D
 public:
     static void ClearCounts();
 
-    virtual bool IncrementIndex()  = 0;
-    virtual LightType Type() const = 0;
+    virtual bool IncrementIndex() { return false; }
+    virtual LightType Type() const { return LightType::NONE; }
 
     virtual void Ready() override;
     virtual void SetVariables(Farg<ThingData>) override;

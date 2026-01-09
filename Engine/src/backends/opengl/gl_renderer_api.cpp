@@ -111,6 +111,8 @@ void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Light3D* inLight)
     case LightType::DIRECTIONAL:
         l_Light = "directional" + l_Light;
         break;
+    case LightType::NONE:
+        return;
     }
 
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "color",             inLight->mColor);
