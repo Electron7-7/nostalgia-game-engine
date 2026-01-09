@@ -1070,3 +1070,5 @@ I also want to change the naming scheme for the accessor functions, to avoid req
 All right, with that all done I think it's time to optimize the Theatre rendering pipeline; after that, I can implement 2D rendering.
 
 I might also want to move most of the stuff from `TheatreManager` into a new 'Theatre' class. Might do that first, actually.
+
+Hmm, actually, while doing all of that, I realized that I still need to fix the parent/child relationships in `Thing`. Now that I've started figuring out how `Resource` is going to differ from `Thinker`, I need to move all of the ownership code into `Thinker` and eventually work on a 'reference' system for `Resource`.
