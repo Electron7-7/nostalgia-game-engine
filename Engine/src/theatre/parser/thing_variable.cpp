@@ -25,6 +25,12 @@ ThingVar::ThingVar(ID inThingID, Sarg inName, Sarg inThingName) noexcept:
         { g_pVariableRegistry->try_GetIDName(id_or_enum, value); }
 }
 
+bool ThingVar::empty() const
+{
+    return type == Type::None
+        and ((name.empty() and value.empty()) or id_or_enum == ID::Invalid);
+}
+
 std::string ThingVar::formatted() const
 {
     if(value.empty())

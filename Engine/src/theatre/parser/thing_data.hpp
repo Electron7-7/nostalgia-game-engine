@@ -15,8 +15,8 @@ struct ThingData
 public:
     ThingData();
     ThingData(Sarg Name, Sarg TypeName);
-    ThingData(Sarg Name, Farg<PID> Type, Farg<std::vector<ThingVar>> Variables = {});
-    ThingData(Sarg Name, Farg<PID> Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, FPID Type, Farg<std::vector<ThingVar>> Variables = {});
+    ThingData(Sarg Name, FPID Type, ID UID, Farg<std::vector<ThingVar>> Variables = {});
 
     ID uid{};
     std::string name{"Untitled Thing"};

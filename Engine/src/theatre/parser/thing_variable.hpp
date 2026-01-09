@@ -34,6 +34,8 @@ struct ThingVar
     ThingVar(ID inThingID, Sarg inName = "", Sarg inThingNameOverride = "") noexcept;
     ThingVar(bool inBoolean, Sarg inName = "") noexcept;
 
+    bool empty() const;
+
     template<NumberOrGLM T>
         ThingVar(Farg<T> inNumber, Sarg inName = "") noexcept:
             ThingVar{Type::Number, inName, NumToString(inNumber)} {}

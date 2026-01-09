@@ -72,6 +72,8 @@ protected:
     std::string name_{"N/A"};
 };
 
+using FPID = const PID&;
+
 template<typename T>
     concept ID_t = std::derived_from<T, ID>;
 
