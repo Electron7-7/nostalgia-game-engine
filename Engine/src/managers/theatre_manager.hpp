@@ -8,7 +8,6 @@
 #include "core/mutex.hpp"
 #include "core/smart_pointers.hpp"
 #include <unordered_map>
-#include <unordered_set>
 
 using things_t = std::unordered_map<ID,Shared<Thing>>;
 
@@ -32,9 +31,9 @@ public:
 
     const TheatreData& GetInitialState();
     TheatreData GetCurrentState();
-    std::vector<ID> GetThingIDs();
-    Farg<std::unordered_set<ID>> GetViewportIDs();
-    std::vector<ID> GetViewportIDList();
+    IdVec_t GetThingIDs();
+    IdSet_arg GetViewportIDs();
+    IdVec_t GetViewportIDList();
 
     bool ThingExists(ID UID);
     Farg<PID> GetType(ID ObjectID);
@@ -65,10 +64,10 @@ public:
 private:
     things_t mThings{};
     RMutex mThingsMutex{};
-    std::unordered_set<ID> mLightIDs{};
-    std::unordered_set<ID> mVisual3DIDs{};
-    std::unordered_set<ID> mVisual2DIDs{};
-    std::unordered_set<ID> mViewportIDs{};
+    IdSet_t mLightIDs{},
+        mVisual3DIDs{},
+        mVisual2DIDs{},
+        mViewportIDs{};
 
     void CreateThings();
     void DestroyThings();

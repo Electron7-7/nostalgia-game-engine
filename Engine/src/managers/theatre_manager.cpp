@@ -296,18 +296,18 @@ TheatreData TheatreManager::GetCurrentState()
     return data;
 }
 
-std::vector<ID> TheatreManager::GetThingIDs()
+IdVec_t TheatreManager::GetThingIDs()
 {
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     auto keys{std::views::keys(mThings)};
     return {keys.begin(), keys.end()};
 }
 
-Farg<std::unordered_set<ID>> TheatreManager::GetViewportIDs()
+IdSet_arg TheatreManager::GetViewportIDs()
 { return mViewportIDs; }
 
-std::vector<ID> TheatreManager::GetViewportIDList()
-{ return std::vector<ID>{mViewportIDs.cbegin(), mViewportIDs.cend()}; }
+IdVec_t TheatreManager::GetViewportIDList()
+{ return {mViewportIDs.cbegin(), mViewportIDs.cend()}; }
 
 Error TheatreManager::ChangeThingID(ID inOldID, ID inNewID)
 {

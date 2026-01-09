@@ -3,6 +3,8 @@
 
 #include "farg.hpp"
 #include "common/string_hash.hpp"
+#include <vector>
+#include <unordered_set>
 
 #define __id_operator(OPERATION, TYPE, COMPARE_TO...) \
     constexpr bool operator OPERATION(TYPE inOther) const noexcept \
@@ -72,8 +74,6 @@ protected:
     std::string name_{"N/A"};
 };
 
-using FPID = const PID&;
-
 template<typename T>
     concept ID_t = std::derived_from<T, ID>;
 
@@ -90,6 +90,13 @@ template<ID_t T>
         size_t operator()(Farg<T> inID) const noexcept
         { return static_cast<size_t>(inID[]); }
     };
+
+
+using FPID = const PID&;
+using IdSet_t   = std::unordered_set<ID>;
+using IdSet_arg = const std::unordered_set<ID>&;
+using IdVec_t   = std::vector<ID>;
+using IdVec_arg = const std::vector<ID>&;
 
 #undef __id_operator
 #undef ID_UINT_OPERATOR
