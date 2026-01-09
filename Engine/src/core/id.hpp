@@ -25,9 +25,6 @@ public:
     constexpr ID(Farg<std::string> inHashable) noexcept:
         id_{ConstexprHash(inHashable)} {}
 
-    // constexpr ID(const char* inHashable) noexcept:
-        // id_{ConstexprHash(inHashable)} {}
-
     constexpr ~ID() noexcept = default;
 
     constexpr explicit operator uint() const { return id_; }
