@@ -22,7 +22,7 @@ template<NumberOrBool T>
     std::string NumToString(T inNum)
     { return std::format("{}", inNum); }
 
-#pragma message("Wait, can't I just use `std::format` for all of these? Unless I want to define my own format, of course")
+// NOTE: Wait, can't I just use `std::format` for all of these? Unless I want to define my own format, of course
 template<GLMContainer T, uint size = gGlmSize<T>()>
     std::string NumToString(const T& inVec) noexcept
     {
