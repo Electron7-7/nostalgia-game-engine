@@ -48,6 +48,4 @@ private:
     inline static std::set<ThingType>                 m_sAllTypes{};
 };
 
-extern ThingFactory* g_pThingFactory;
-
 #endif // THING_FACTORY_H

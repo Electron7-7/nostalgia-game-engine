@@ -19,8 +19,6 @@
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
     AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
 
-static ThingFactory sThingFactory;
-ThingFactory* g_pThingFactory = &sThingFactory;
 
 bool ThingFactory::Init()
 {

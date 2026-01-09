@@ -11,7 +11,7 @@ ThingData::ThingData(Sarg inName, Sarg inTypeName):
     name{inName},
     type_{inTypeName}
 {
-    if(!g_pThingFactory->IsThing(type_))
+    if(!ThingFactory::IsThing(type_))
         { print_warningv(VERBOSE1, "{} is an invalid type!", type_.log()); }
 }
 
@@ -21,7 +21,7 @@ ThingData::ThingData(Sarg inName, Farg<PID> inType, ID inID, Farg<std::vector<Th
     variables(inVariables),
     type_{inType}
 {
-    if(!g_pThingFactory->IsThing(type_))
+    if(!ThingFactory::IsThing(type_))
         { print_error("'{}' is an invalid type!", type_.name()); }
 }
 
@@ -130,7 +130,7 @@ Farg<PID> ThingData::type() const
 bool ThingData::set_type(Farg<PID> inType)
 {
     type_ = inType;
-    if(!g_pThingFactory->IsThing(inType))
+    if(!ThingFactory::IsThing(inType))
     {
         return !print_warning("The specified type '{}' is not a known type! This data structure will not be used if its type name is invalid (meaning, you won't see '{}' in the Theatre)",
             inType.name(),

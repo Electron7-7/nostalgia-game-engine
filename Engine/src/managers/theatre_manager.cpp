@@ -47,7 +47,7 @@ void TheatreManager::CreateEmbeddedResources()
 bool TheatreManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    return g_pThingFactory->Init();
+    return ThingFactory::Init();
 }
 
 void TheatreManager::Update()
@@ -375,7 +375,7 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
         }
     }
 
-    auto& thing{mThings[data.uid] = g_pThingFactory->MakeThing(data.type())};
+    auto& thing{mThings[data.uid] = ThingFactory::MakeThing(data.type())};
     thing->SetVariables(data);
     g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
 
