@@ -47,6 +47,9 @@ bool ThingFactory::Init()
     return m_sIsInitialized = true;
 }
 
+bool ThingFactory::IsInitialized()
+{ return m_sIsInitialized; }
+
 Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     Sarg inType,
     FPID inBaseType,

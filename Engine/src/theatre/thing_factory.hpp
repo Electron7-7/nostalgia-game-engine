@@ -20,6 +20,7 @@ public:
     static constexpr int cDefaultPriority{1};
 
     static bool Init();
+    static bool IsInitialized();
 
     static Error AddThing(pThingMakerTemplate_t inPtr,
         Sarg inTypeName,
