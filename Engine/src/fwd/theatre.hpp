@@ -37,13 +37,14 @@ class Thing;
         class Actor2D;
         class Actor3D;
             class Camera3D;
-            class light_t;
-            class PointLight;
-            class SpotLight;
-            class DirectionalLight;
-            class NostalgiaPlayer;
-            class MeshInstance3D;
-            class Collider;
+            class Visual3D;
+                class Light3D;
+                class PointLight3D;
+                class SpotLight3D;
+                class DirectionalLight3D;
+                class NostalgiaPlayer3D;
+                class MeshInstance3D;
+                class Collider3D;
 
 using relatives_t = std::vector<ThingRelative>;
 

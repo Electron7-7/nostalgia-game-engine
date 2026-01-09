@@ -10,7 +10,7 @@ enum class LightType : int
     DIRECTIONAL
 };
 
-class light_t : public Actor3D
+class Light3D : public Actor3D
 {
 public:
     static void ClearCounts();
@@ -46,7 +46,7 @@ protected:
     static constexpr int MAX_DIRECTIONAL {4};
 };
 
-class PointLight : public light_t
+class PointLight3D : public Light3D
 {
 public:
     static int GetCount();
@@ -55,7 +55,7 @@ public:
     LightType Type() const final { return LightType::POINT; }
 };
 
-class SpotLight : public light_t
+class SpotLight3D : public Light3D
 {
 public:
     static int GetCount();
@@ -67,7 +67,7 @@ public:
     LightType Type() const final { return LightType::SPOT; }
 };
 
-class DirectionalLight : public light_t
+class DirectionalLight3D : public Light3D
 {
 public:
     static int GetCount();

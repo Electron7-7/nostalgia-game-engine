@@ -17,7 +17,7 @@ struct ColliderMaterial
     float friction{1.0f};
 };
 
-class Collider : public Actor3D
+class Collider3D : public Actor3D
 {
 public:
     Farg<JPH::BodyID> id() const;

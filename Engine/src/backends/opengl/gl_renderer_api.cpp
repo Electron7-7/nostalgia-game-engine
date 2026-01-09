@@ -96,7 +96,7 @@ Error OpenGLRendererAPI::RemoveShader(ID inID)
             : ERR_NOT_FOUND;
 }
 
-void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(light_t* inLight)
+void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Light3D* inLight)
 {
 #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
     std::string l_Light = std::format("_lights[{}].", inLight->Index());

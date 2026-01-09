@@ -95,7 +95,7 @@ void ImGui_Editor::TheatreExited()
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    auto player{g_pTheatreManager->GetThing<NostalgiaPlayer>(UID::a_Player)};
+    auto player{g_pTheatreManager->GetThing<NostalgiaPlayer3D>(UID::a_Player)};
     if(player->mCaptureKeyboard)
     {
         if(event->IsJustPressed(Key::Escape))
@@ -177,7 +177,7 @@ void ImGui_Editor::Update()
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
         EndChild();
         static bool camera_moving{false};
-        auto player{g_pTheatreManager->GetThing<NostalgiaPlayer>(UID::a_Player)};
+        auto player{g_pTheatreManager->GetThing<NostalgiaPlayer3D>(UID::a_Player)};
         if((IsItemHovered() or camera_moving)
             and !player->mCaptureMouse)
         {
@@ -224,10 +224,10 @@ void s_ThingAdder()
         ThingType::Actor3D.c_name(),
         ThingType::Actor2D.c_name(),
         ThingType::Camera3D.c_name(),
-        ThingType::PointLight.c_name(),
-        ThingType::SpotLight.c_name(),
-        ThingType::DirectionalLight.c_name(),
-        ThingType::Collider.c_name(),
+        ThingType::PointLight3D.c_name(),
+        ThingType::SpotLight3D.c_name(),
+        ThingType::DirectionalLight3D.c_name(),
+        ThingType::Collider3D.c_name(),
         ThingType::Material.c_name(),
         ThingType::MeshInstance3D.c_name(),
         ThingType::Resource.c_name(),

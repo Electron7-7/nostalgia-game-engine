@@ -542,7 +542,7 @@ struct thing_data_buffer
                 mesh = mesh_instance->MeshID()[];
                 wireframe = mesh_instance->Wireframe();
             }
-            else if(auto collider{DCast<Collider>(ptr)})
+            else if(auto collider{DCast<Collider3D>(ptr)})
             {
                 motion = static_cast<int>(collider->Motion());
                 shape  = static_cast<int>(collider->Shape());
@@ -639,7 +639,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     {
                         if(actor)
                         {
-                            if(DCast<light_t>(thing))
+                            if(DCast<Light3D>(thing))
                             {
                                 push_color = {light_button_color[0],light_button_color[1],light_button_color[2],1.0f};
                                 type_symbol = "(L) ";
@@ -770,7 +770,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     if(Checkbox("Visible", &selected.visible))
                         { actor->SetVisible(selected.visible); }
                     ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
-                    if(auto light{DCast<light_t>(actor)})
+                    if(auto light{DCast<Light3D>(actor)})
                     {
                         Checkbox("Enabled", &light->mEnabled);
                         ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
@@ -779,7 +779,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                         InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                         InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        if(DCast<SpotLight>(light))
+                        if(DCast<SpotLight3D>(light))
                         {
                             InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
                             InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
@@ -843,7 +843,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             EndCombo();
                         }
                     }
-                    else if(auto collider{DCast<Collider>(selected.ptr)})
+                    else if(auto collider{DCast<Collider3D>(selected.ptr)})
                     {
                         if(CollapsingHeader("Jolt Properties"))
                         {

@@ -57,13 +57,13 @@ static constexpr EActivation s_Activation(bool setActive) noexcept
         : EActivation::DontActivate;
 }
 
-Farg<JPH::BodyID> Collider::id() const
+Farg<JPH::BodyID> Collider3D::id() const
 { return mBodyID; }
 
-Shared<JPH::BodyCreationSettings> Collider::CreationSettings()
+Shared<JPH::BodyCreationSettings> Collider3D::CreationSettings()
 { return m_pBodyCreationSettings; }
 
-void Collider::SetVariables(Farg<ThingData> data)
+void Collider3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
@@ -83,12 +83,12 @@ void Collider::SetVariables(Farg<ThingData> data)
             EnumPrettifier::Prettify(mMotion));
     }
     else
-        { print_error("Failed to create physics body for Collider#{}", mUID[]); }
+        { print_error("Failed to create physics body for Collider3D#{}", mUID[]); }
 
     mActivateOnNextChange = false;
 }
 
-Shared<ThingData> Collider::GetVariables() const
+Shared<ThingData> Collider3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
     data->AddVariable(mShape, "Shape");
@@ -99,12 +99,12 @@ Shared<ThingData> Collider::GetVariables() const
     return data;
 }
 
-void Collider::Ready()
+void Collider3D::Ready()
 {
     Actor3D::Ready();
 }
 
-void Collider::Shutdown()
+void Collider3D::Shutdown()
 {
     DestroyBody();
     print_jolt("Physics Body Destroyed [{}, {}]",
@@ -113,7 +113,7 @@ void Collider::Shutdown()
     Actor3D::Shutdown();
 }
 
-void Collider::Tick()
+void Collider3D::Tick()
 {
     ASSERT_BODYID()
     Actor3D::SetQuaternion(JoltToGlm<glm::quat>(PhysicsEngine::Instance()
@@ -124,31 +124,31 @@ void Collider::Tick()
                 .GetCenterOfMassPosition(mBodyID)));
 }
 
-Farg<ColliderMaterial> Collider::Material() const
+Farg<ColliderMaterial> Collider3D::Material() const
 { return mMaterial; }
 
-float Collider::Mass() const
+float Collider3D::Mass() const
 {
     ASSERT_BODYID(mMass)
     return mMass;
 }
 
-ShapeType Collider::Shape() const
+ShapeType Collider3D::Shape() const
 { return mShape; }
 
-MotionType Collider::Motion() const
+MotionType Collider3D::Motion() const
 { return mMotion; }
 
-bool Collider::Active() const
+bool Collider3D::Active() const
 {
     ASSERT_BODYID(false)
     return PhysicsEngine::Instance()->BodyInterface().IsActive(mBodyID);
 }
 
-bool Collider::ActivateOnNextChange() const
+bool Collider3D::ActivateOnNextChange() const
 { return mActivateOnNextChange; }
 
-void Collider::SetPosition(Farg<glm::vec3> inPosition)
+void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
     Actor3D::SetPosition(inPosition);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
@@ -157,7 +157,7 @@ void Collider::SetPosition(Farg<glm::vec3> inPosition)
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::SetQuaternion(Farg<glm::quat> inQuaternion)
+void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
     Actor3D::SetQuaternion(inQuaternion);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
@@ -166,7 +166,7 @@ void Collider::SetQuaternion(Farg<glm::quat> inQuaternion)
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::SetRotation(Farg<glm::vec3> inRotation)
+void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotation(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
@@ -175,7 +175,7 @@ void Collider::SetRotation(Farg<glm::vec3> inRotation)
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::SetRotationDegrees(Farg<glm::vec3> inRotation)
+void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotationDegrees(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
@@ -184,7 +184,7 @@ void Collider::SetRotationDegrees(Farg<glm::vec3> inRotation)
         s_Activation(mActivateOnNextChange));
 }
 
-void Collider::SetScale(Farg<glm::vec3> inScale)
+void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
     Actor3D::SetScale(inScale);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
@@ -193,7 +193,7 @@ void Collider::SetScale(Farg<glm::vec3> inScale)
         s_Activation(mActivateOnNextChange));
 }
 
-Error Collider::SetMaterial(Farg<ColliderMaterial> inMaterial)
+Error Collider3D::SetMaterial(Farg<ColliderMaterial> inMaterial)
 {
     ASSERT_BODYID(ERR_INVALID_ID)
     mMaterial = inMaterial;
@@ -202,10 +202,10 @@ Error Collider::SetMaterial(Farg<ColliderMaterial> inMaterial)
     return OK;
 }
 
-void Collider::SetMass(float inMass)
-{ print_debug("You can't change a Collider's mass, yet"); }
+void Collider3D::SetMass(float inMass)
+{ print_debug("You can't change a Collider3D's mass, yet"); }
 
-Error Collider::SetShape(ShapeType inShape, bool isActive)
+Error Collider3D::SetShape(ShapeType inShape, bool isActive)
 {
     ASSERT_BODYID(ERR_INVALID_ID)
     mShape = inShape;
@@ -220,7 +220,7 @@ Error Collider::SetShape(ShapeType inShape, bool isActive)
     return OK;
 }
 
-Error Collider::SetMotion(MotionType inMotion, bool isActive)
+Error Collider3D::SetMotion(MotionType inMotion, bool isActive)
 {
     ASSERT_BODYID(ERR_INVALID_ID)
     mMotion = inMotion;
@@ -235,7 +235,7 @@ Error Collider::SetMotion(MotionType inMotion, bool isActive)
     return OK;
 }
 
-void Collider::SetActive(bool isActive) const
+void Collider3D::SetActive(bool isActive) const
 {
     ASSERT_BODYID()
     if(isActive)
@@ -244,10 +244,10 @@ void Collider::SetActive(bool isActive) const
         { PhysicsEngine::Instance()->BodyInterface().DeactivateBody(mBodyID); }
 }
 
-void Collider::SetActivateOnNextChange(bool setActive)
+void Collider3D::SetActivateOnNextChange(bool setActive)
 { mActivateOnNextChange = setActive; }
 
-bool Collider::CreateBody(bool setActive)
+bool Collider3D::CreateBody(bool setActive)
 {
     m_pBodyCreationSettings =
         MakeShared<BodyCreationSettings>(
@@ -273,7 +273,7 @@ bool Collider::CreateBody(bool setActive)
     return true;
 }
 
-void Collider::DestroyBody()
+void Collider3D::DestroyBody()
 {
     if(mBodyID.IsInvalid())
         { print_warning("mBodyID.IsInvalid == true (body was already destroyed?)"); }
@@ -282,14 +282,14 @@ void Collider::DestroyBody()
     mBodyID = BodyID{BodyID::cInvalidBodyID};
 }
 
-void Collider::AddImpulse(Farg<glm::vec3> inImpulse)
+void Collider3D::AddImpulse(Farg<glm::vec3> inImpulse)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddImpulse(mBodyID,
         GlmToJolt<Vec3>(inImpulse));
 }
 
-void Collider::AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint)
+void Collider3D::AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddImpulse(mBodyID,
@@ -297,14 +297,14 @@ void Collider::AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint)
         GlmToJolt<Vec3>(inPoint));
 }
 
-void Collider::AddAngularImpulse(Farg<glm::vec3> inAngularImpulse)
+void Collider3D::AddAngularImpulse(Farg<glm::vec3> inAngularImpulse)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddAngularImpulse(mBodyID,
         GlmToJolt<Vec3>(inAngularImpulse));
 }
 
-void Collider::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
+void Collider3D::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(mBodyID,

@@ -90,11 +90,11 @@ void TheatreManager::DrawTheatre()
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    light_t::ClearCounts();
+    Light3D::ClearCounts();
 #pragma message("TODO: I have to loop through everything twice since I've removed the render command, so fix that...")
     for(auto& [id, thing] : mThings)
     {
-        if(auto light{DCast<light_t>(thing)}; light and light->IncrementIndex())
+        if(auto light{DCast<Light3D>(thing)}; light and light->IncrementIndex())
             { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get()); }
     }
     for(ID viewport_id : mViewportIDs)
@@ -185,9 +185,9 @@ void TheatreManager::DrawActor(Shared<Actor3D> actor, Shared<Camera3D> camera)
         shader->SetUniform("projection_matrix", projection_matrix);
         shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
         shader->SetUniform("debug_highlight", actor->mDebugHighlight * actor->mDebugHighlight.a);
-        shader->SetUniform("point_lights_count", PointLight::GetCount());
-        shader->SetUniform("spot_lights_count", SpotLight::GetCount());
-        shader->SetUniform("directional_lights_count", DirectionalLight::GetCount());
+        shader->SetUniform("point_lights_count", PointLight3D::GetCount());
+        shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
+        shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
         shader->SetUniform("view_matrix", view_matrix);
         shader->SetUniform("view_position", camera->Position());
         shader->SetUniform("current_material.texture_diffuse",  0);
@@ -346,7 +346,7 @@ uint TheatreManager::CreateThingNoReady(Farg<ThingData> inData)
 
     if(DCast<Viewport>(thing))
         { mViewportIDs.insert(thing->uid()); }
-    else if(DCast<NostalgiaPlayer>(thing))
+    else if(DCast<NostalgiaPlayer3D>(thing))
         { ChangeThingID(thing->uid(), UID::a_Player); }
 
     return thing->uid()[];
@@ -365,7 +365,7 @@ void TheatreManager::CreateThings()
         { CreateThingNoReady(data); }
 
     if(!mThings.contains(UID::a_Player))
-        { CreateThingNoReady({"Default NostalgiaPlayer", ThingType::NostalgiaPlayer, UID::a_Player}); }
+        { CreateThingNoReady({"Default NostalgiaPlayer3D", ThingType::NostalgiaPlayer3D, UID::a_Player}); }
 
     CreateThingNoReady({"Main Viewport", ThingType::Viewport, UID::a_MainViewport});
 

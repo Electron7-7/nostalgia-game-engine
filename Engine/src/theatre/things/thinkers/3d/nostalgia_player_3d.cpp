@@ -11,7 +11,7 @@
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "physics/engine.hpp"
 
-void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
+void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
@@ -21,7 +21,7 @@ void NostalgiaPlayer::SetVariables(Farg<ThingData> data)
     data.GetVariable(Settings::Player::EnableGravity, "EnableGravity", "Gravity", "Fall");
 }
 
-Shared<ThingData> NostalgiaPlayer::GetVariables() const
+Shared<ThingData> NostalgiaPlayer3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
 
@@ -33,10 +33,10 @@ Shared<ThingData> NostalgiaPlayer::GetVariables() const
     return data;
 }
 
-void NostalgiaPlayer::Input(InputEvent* event)
+void NostalgiaPlayer3D::Input(InputEvent* event)
 {}
 
-void NostalgiaPlayer::Ready()
+void NostalgiaPlayer3D::Ready()
 {
     Actor3D::Ready();
     if(mScale == glm::vec3{1.0f})
@@ -56,7 +56,7 @@ void NostalgiaPlayer::Ready()
     if(mColliderID.invalid())
     {
         mColliderID = g_pTheatreManager->CreateThing({"DefaultPlayerCollider",
-            ThingType::Collider,
+            ThingType::Collider3D,
             UID::Generate(),
             {
                 {mPosition, "Origin"},
@@ -66,10 +66,10 @@ void NostalgiaPlayer::Ready()
                 {ShapeType::Box, "Shape"},
             }});
     }
-    add_child({mColliderID, ThingType::Collider}, true);
+    add_child({mColliderID, ThingType::Collider3D}, true);
 }
 
-void NostalgiaPlayer::Tick()
+void NostalgiaPlayer3D::Tick()
 {
     Move({
         mCaptureKeyboard * (InputManager::IsActionDown("+right")   - InputManager::IsActionDown("+left")),
@@ -82,7 +82,7 @@ void NostalgiaPlayer::Tick()
     camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
     camera->SetPosition(mPosition + mViewPosition);
 
-    auto collider{g_pTheatreManager->GetThing<Collider>(mColliderID)};
+    auto collider{g_pTheatreManager->GetThing<Collider3D>(mColliderID)};
 
     glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
         mMovementDirection.z * Settings::Player::MovementSpeed};
@@ -114,20 +114,20 @@ void NostalgiaPlayer::Tick()
     mPosition = collider->Position();
 }
 
-ID NostalgiaPlayer::CameraID() const
+ID NostalgiaPlayer3D::CameraID() const
 { return mCameraID; }
 
-void NostalgiaPlayer::SetCameraID(ID inID)
+void NostalgiaPlayer3D::SetCameraID(ID inID)
 { mCameraID = inID; }
 
-Farg<glm::vec3> NostalgiaPlayer::Velocity() const
+Farg<glm::vec3> NostalgiaPlayer3D::Velocity() const
 { return mVelocity; }
 
-void NostalgiaPlayer::Move(const glm::vec2& direction)
+void NostalgiaPlayer3D::Move(const glm::vec2& direction)
 {
     mMovementDirection.x = direction.x;
     mMovementDirection.z = direction.y;
 }
 
-void NostalgiaPlayer::Look(const glm::vec2& motion)
+void NostalgiaPlayer3D::Look(const glm::vec2& motion)
 { mLookWish = motion * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale; }

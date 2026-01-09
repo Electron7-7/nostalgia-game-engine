@@ -14,23 +14,25 @@ variables:
   typenames: >-
     (?x)
     (
-      \bThing\b            |
-      \bThinker\b          |
-      \bTexture\b          |
-      \bActor2D\b          |
-      \bActor3D\b          |
-      \bCamera3D\b         |
-      \bResource\b         |
-      \bCollider\b         |
-      \bMaterial\b         |
-      \bViewport\b         |
-      \bMeshInstance3D\b   |
-      \bImage\b            |
-      \bMesh\b             |
-      \bNostalgiaPlayer\b  |
-      \bPointLight\b       |
-      \bSpotLight\b        |
-      \bDirectionalLight\b
+      \bThinker\b |
+        \bActor2D\b |
+          \bVisual2D\b |
+          \bCamera2D\b |
+        \bActor3D\b |
+          \bVisual3D\b |
+            \bMeshInstance3D\b |
+        \bCamera3D\b |
+        \bCollider3D\b |
+        \bNostalgiaPlayer3D\b |
+        \bPointLight3D\b |
+        \bSpotLight3D\b |
+        \bDirectionalLight3D\b |
+      \bResource\b |
+        \bMaterial\b |
+        \bMesh\b |
+        \bTexture\b |
+        \bViewport\b |
+      \bThing\b
     )
   variable_enter: >-
     (?x)
@@ -41,25 +43,25 @@ variables:
   reserved_resources: >-
     (?x)
     (
-      \bErrorModel\b           |
-      \bRamielModel\b          |
-      \bDefaultCube\b          |
-      \bMissingTexture\b       |
-      \bLightTexture\b         |
-      \bLolBitTexture\b        |
-      \bDoomTexture\b          |
-      \bVerdanaFont\b          |
+      \bErrorModel\b |
+      \bRamielModel\b |
+      \bDefaultCube\b |
+      \bMissingTexture\b |
+      \bLightTexture\b |
+      \bLolBitTexture\b |
+      \bDoomTexture\b |
+      \bVerdanaFont\b |
       \bAudiowideRegularFont\b |
-      \bDejaVuSansMonoFont\b   |
+      \bDejaVuSansMonoFont\b |
     )
   pretty_enums: >-
     (?x)
     (
-      \bBox\b       |
-      \bSphere\b    |
-      \bCapsule\b   |
-      \bCylinder\b  |
-      \bDynamic\b   |
+      \bBox\b |
+      \bSphere\b |
+      \bCapsule\b |
+      \bCylinder\b |
+      \bDynamic\b |
       \bKinematic\b |
       \bStatic\b
     )

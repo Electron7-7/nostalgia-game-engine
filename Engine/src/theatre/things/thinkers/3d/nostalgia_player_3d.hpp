@@ -3,7 +3,7 @@
 
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 
-class NostalgiaPlayer : public Actor3D
+class NostalgiaPlayer3D : public Actor3D
 {
 public:
     virtual void Tick() override;

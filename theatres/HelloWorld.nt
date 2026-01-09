@@ -88,7 +88,7 @@ Things
         MaterialOverride = <DoomMaterial>
     }
 
-    Collider FloorCollider
+    Collider3D FloorCollider
     {
         Position = [3, -5, -3]
         Scale = [20, 2, 20]
@@ -96,7 +96,7 @@ Things
 
     Actor3D Floor
     {
-        Child Collider = <FloorCollider>
+        Child Collider3D = <FloorCollider>
         Child : MeshInstance3D FloorMesh
         {
             Mesh = <DefaultCube>
@@ -109,7 +109,7 @@ Things
     Actor3D DoomCube
     {
         Child MeshInstance3D = <DoomCubeMeshInstance3D>
-        Child : Collider DoomCollider
+        Child : Collider3D DoomCollider
         {
             Motion = (Dynamic)
             Origin = [3, 0, -3]
@@ -121,7 +121,7 @@ Things
     Actor3D DoomCube2
     {
         Child MeshInstance3D = <DoomCubeMeshInstance3D>
-        Child : Collider DoomCollider2
+        Child : Collider3D DoomCollider2
         {
             Motion = (Dynamic)
             Origin = [2.35, 6.95, -2.95]
@@ -134,7 +134,7 @@ Things
     Actor3D DoomCube3
     {
         Child MeshInstance3D = <LolBitCubeMeshInstance3D>
-        Child : Collider DoomCollider3
+        Child : Collider3D DoomCollider3
         {
             Motion = (Dynamic)
             Origin = [3, 5, -3]
@@ -175,19 +175,19 @@ Things
         RotationDegrees = [15.2, 38.6, 0]
     }
 
-    NostalgiaPlayer Player
+    NostalgiaPlayer3D Player
     {
         Origin = [0, 0.3, 6]
     }
 
-    PointLight Test_PointLight
+    PointLight3D Test_PointLight
     {
         Visible = [true]
         Origin = [1.6, 0.1, -2.1]
         Color = [1, 0.8, 0.2]
     }
 
-    SpotLight Test_SpotLight
+    SpotLight3D Test_SpotLight
     {
         Visible = [true]
         Origin = [-0.32, 0.29, -0.45]
@@ -199,7 +199,7 @@ Things
         AngleFade = [2]
     }
 
-    DirectionalLight The_Sun
+    DirectionalLight3D The_Sun
     {
         RotationDegrees = [180, 100, -25]
         Energy = [0.6]

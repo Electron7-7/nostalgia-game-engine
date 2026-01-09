@@ -9,18 +9,18 @@
 #   define TRUE_IF_DEBUGGING(boolean) boolean = false
 #endif // DEBUGGING
 
-int light_t::sPointCount       = 0;
-int light_t::sSpotCount        = 0;
-int light_t::sDirectionalCount = 0;
+int Light3D::sPointCount       = 0;
+int Light3D::sSpotCount        = 0;
+int Light3D::sDirectionalCount = 0;
 
-void light_t::ClearCounts()
+void Light3D::ClearCounts()
 {
-    light_t::sPointCount       = 0;
-    light_t::sSpotCount        = 0;
-    light_t::sDirectionalCount = 0;
+    Light3D::sPointCount       = 0;
+    Light3D::sSpotCount        = 0;
+    Light3D::sDirectionalCount = 0;
 }
 
-void light_t::Ready()
+void Light3D::Ready()
 {
     // the debug mesh/material shouldn't override a manually specificed one
     if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
@@ -47,7 +47,7 @@ void light_t::Ready()
     }
 }
 
-void light_t::SetVariables(Farg<ThingData> data)
+void Light3D::SetVariables(Farg<ThingData> data)
 {
     mScale = glm::vec3{0.1f};
 
@@ -66,7 +66,7 @@ void light_t::SetVariables(Farg<ThingData> data)
         { mEnabled = !mEnabled; }
 }
 
-Shared<ThingData> light_t::GetVariables() const
+Shared<ThingData> Light3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
 
@@ -84,35 +84,35 @@ Shared<ThingData> light_t::GetVariables() const
     return data;
 }
 
-int light_t::Index() const
+int Light3D::Index() const
 { return mIndex; }
 
-int PointLight::GetCount()
-{ return light_t::sPointCount;}
+int PointLight3D::GetCount()
+{ return Light3D::sPointCount;}
 
-bool PointLight::IncrementIndex()
+bool PointLight3D::IncrementIndex()
 {
-    if(!mEnabled || light_t::sPointCount >= MAX_POINT)
+    if(!mEnabled || Light3D::sPointCount >= MAX_POINT)
         { return false; }
-    mIndex = light_t::sPointCount++;
+    mIndex = Light3D::sPointCount++;
     return true;
 }
 
-int SpotLight::GetCount()
-{ return light_t::sSpotCount;}
+int SpotLight3D::GetCount()
+{ return Light3D::sSpotCount;}
 
-void SpotLight::SetVariables(Farg<ThingData> data)
+void SpotLight3D::SetVariables(Farg<ThingData> data)
 {
-    light_t::SetVariables(data);
+    Light3D::SetVariables(data);
     data.GetVariable(mSpotAngle, "Angle");
     data.GetVariable(mSpotAngle, "SpotAngle");
     data.GetVariable(mSpotAngleFade, "AngleFade");
     data.GetVariable(mSpotAngleFade, "SpotAngleFade");
 }
 
-Shared<ThingData> SpotLight::GetVariables() const
+Shared<ThingData> SpotLight3D::GetVariables() const
 {
-    Shared<ThingData> data{light_t::GetVariables()};
+    Shared<ThingData> data{Light3D::GetVariables()};
     data->AddVariable(mSpotAngle, "Angle");
     data->AddVariable(mSpotAngle, "SpotAngle");
     data->AddVariable(mSpotAngleFade, "AngleFade");
@@ -120,35 +120,35 @@ Shared<ThingData> SpotLight::GetVariables() const
     return data;
 }
 
-bool SpotLight::IncrementIndex()
+bool SpotLight3D::IncrementIndex()
 {
-    if(!mEnabled || light_t::sSpotCount >= MAX_SPOT)
+    if(!mEnabled || Light3D::sSpotCount >= MAX_SPOT)
         { return false; }
-    mIndex = light_t::sSpotCount++;
+    mIndex = Light3D::sSpotCount++;
     return true;
 }
 
-int DirectionalLight::GetCount()
-{ return light_t::sDirectionalCount;}
+int DirectionalLight3D::GetCount()
+{ return Light3D::sDirectionalCount;}
 
-void DirectionalLight::SetVariables(Farg<ThingData> data)
+void DirectionalLight3D::SetVariables(Farg<ThingData> data)
 {
     SetRotationDegrees({-90.0f, 0.0f, 0.0f});
-    light_t::SetVariables(data);
+    Light3D::SetVariables(data);
     mVisible = false;
 }
 
-Shared<ThingData> DirectionalLight::GetVariables() const
+Shared<ThingData> DirectionalLight3D::GetVariables() const
 {
-    Shared<ThingData> data{light_t::GetVariables()};
+    Shared<ThingData> data{Light3D::GetVariables()};
     data->AddVariable(false, "Visible");
     return data;
 }
 
-bool DirectionalLight::IncrementIndex()
+bool DirectionalLight3D::IncrementIndex()
 {
-    if(!mEnabled || light_t::sDirectionalCount >= MAX_DIRECTIONAL)
+    if(!mEnabled || Light3D::sDirectionalCount >= MAX_DIRECTIONAL)
         { return false; }
-    mIndex = light_t::sDirectionalCount++;
+    mIndex = Light3D::sDirectionalCount++;
     return true;
 }

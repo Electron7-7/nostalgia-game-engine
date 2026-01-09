@@ -36,7 +36,7 @@ public:
     virtual void SetFramebufferSRGB(bool inValue) const = 0;
     virtual void SetWireframe(bool inValue) const = 0;
 
-    virtual void SetLight_TempBlinnPhongSolution(light_t* inLight) = 0;
+    virtual void SetLight_TempBlinnPhongSolution(Light3D* inLight) = 0;
 
     virtual void BindTexture(Shared<TextureBuffer> inTexture, uint inTextureUnit) const = 0;
     virtual void BindTexture(Shared<TextureBuffer> inTexture, texture_units) const = 0;
