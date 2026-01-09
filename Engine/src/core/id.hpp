@@ -4,6 +4,13 @@
 #include "farg.hpp"
 #include "common/string_hash.hpp"
 
+#define __id_operator(OPERATION, TYPE, COMPARE_TO...) \
+    constexpr bool operator OPERATION(TYPE inOther) const noexcept \
+    { return id_ OPERATION inOther COMPARE_TO; }
+
+#define ID_UINT_OPERATOR(OP) __id_operator(OP, uint)
+#define ID_ID_OPERATOR(OP)   __id_operator(OP, Farg<ID>, .id_)
+
 struct ID
 {
 public:
@@ -29,16 +36,15 @@ public:
     constexpr bool    invalid() const { return id_ == Invalid; }
     constexpr uint         id() const { return id_;            }
 
-    constexpr bool operator<(Farg<ID> other) const noexcept
-    { return id_ < other.id_; }
-    constexpr bool operator==(Farg<ID> other) const noexcept
-    { return id_ == other.id_; }
-    constexpr bool operator!=(Farg<ID> other) const noexcept
-    { return id_ != other.id_; }
-    constexpr bool operator==(uint id) const noexcept
-    { return id_ == id; }
-    constexpr bool operator!=(uint id) const noexcept
-    { return id_ != id; }
+    ID_ID_OPERATOR(==)
+    ID_ID_OPERATOR(!=)
+    ID_ID_OPERATOR(<)
+    ID_ID_OPERATOR(<=)
+    ID_ID_OPERATOR(>)
+    ID_ID_OPERATOR(>=)
+
+    ID_UINT_OPERATOR(==)
+    ID_UINT_OPERATOR(!=)
 
     static constexpr uint Invalid {static_cast<uint>(-1)}; // Same as `UINT_MAX`
     static constexpr uint front   {0};
@@ -85,5 +91,9 @@ template<ID_t T>
         size_t operator()(Farg<T> inID) const noexcept
         { return static_cast<size_t>(inID[]); }
     };
+
+#undef __id_operator
+#undef ID_UINT_OPERATOR
+#undef ID_ID_OPERATOR
 
 #endif // ID_H
