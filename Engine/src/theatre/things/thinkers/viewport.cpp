@@ -11,7 +11,7 @@ void Viewport::Ready()
         mCameraIDs.erase(mCurrentCamera);
         mCurrentCamera = ID::Invalid;
     }
-    if(mUID <= UID::a_Global3DViewport)
+    if(mUID == UID::a_Global3DViewport or mUID == UID::a_Global2DViewport)
         { mFramebuffer = FrameBuffer::Create(); }
     else
         { mFramebuffer = FrameBuffer::Create(mSize); }
