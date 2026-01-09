@@ -522,32 +522,36 @@ struct thing_data_buffer
         name{inThingPtr->name()},
         activate_on_change{false}
     {
-        if(auto actor{DCast<Actor3D>(ptr)})
+        if(auto thinker{DCast<Thinker>(ptr)})
         {
-            position = actor->Position();
-            rotation = actor->RotationDegrees();
-            scale = actor->Scale();
-            visible = actor->Visible();
-            debug_mesh_instance = actor->mDebugMeshInstanceID[];
-            if(auto camera3d{DCast<Camera3D>(ptr)})
+            parent = thinker->Parent().id[];
+            if(auto actor{DCast<Actor3D>(ptr)})
             {
-                is_camera_current = camera3d->Current();
-                fov = camera3d->mFOV;
-                view_near = camera3d->mViewCutoffNear;
-                view_far = camera3d->mViewCutoffFar;
-                env_type = camera3d->mEnvironment.mType;
-            }
-            else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
-            {
-                mesh = mesh_instance->MeshID()[];
-                wireframe = mesh_instance->Wireframe();
-            }
-            else if(auto collider{DCast<Collider3D>(ptr)})
-            {
-                motion = static_cast<int>(collider->Motion());
-                shape  = static_cast<int>(collider->Shape());
-                collider_material = collider->Material();
-                activate_on_change = collider->ActivateOnNextChange();
+                position = actor->Position();
+                rotation = actor->RotationDegrees();
+                scale = actor->Scale();
+                visible = actor->Visible();
+                debug_mesh_instance = actor->mDebugMeshInstanceID[];
+                if(auto camera3d{DCast<Camera3D>(ptr)})
+                {
+                    is_camera_current = camera3d->Current();
+                    fov = camera3d->mFOV;
+                    view_near = camera3d->mViewCutoffNear;
+                    view_far = camera3d->mViewCutoffFar;
+                    env_type = camera3d->mEnvironment.mType;
+                }
+                else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
+                {
+                    mesh = mesh_instance->MeshID()[];
+                    wireframe = mesh_instance->Wireframe();
+                }
+                else if(auto collider{DCast<Collider3D>(ptr)})
+                {
+                    motion = static_cast<int>(collider->Motion());
+                    shape  = static_cast<int>(collider->Shape());
+                    collider_material = collider->Material();
+                    activate_on_change = collider->ActivateOnNextChange();
+                }
             }
         }
         else if(auto resource{DCast<Resource>(ptr)})
@@ -569,7 +573,8 @@ struct thing_data_buffer
     glm::vec3 position{},
         rotation{},
         scale{};
-    uint mesh{},
+    uint parent{},
+        mesh{},
         material{},
         diffuseTexture{},
         specularTexture{},
@@ -592,7 +597,6 @@ struct thing_data_buffer
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
     static uint mNewChildUID{0};
-    static uint mNewParentUID{0};
     static thing_data_buffer selected{};
     static int sMaxPerRow{3};
     static float thing_button_color[3]{},
@@ -735,8 +739,30 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 { Text("Type - %s", selected.ptr->type().c_name()); }
             static bool collider_update_transform_instantly{false};
             // THINKERS
-            if(auto device{DCast<Thinker>(selected.ptr)})
+            if(auto thinker{DCast<Thinker>(selected.ptr)})
             {
+                // PARENT
+                BeginChild("Parent", {}, ImGuiChildFlags_AutoResizeY);
+                    SeparatorText("Parent");
+                    if(auto parent_ptr{g_pTheatreManager->GetThinker(selected.parent)};
+                        !parent_ptr->uid().invalid())
+                    {
+                        TextF("Parent: {} [Type:{}]",
+                            parent_ptr->name(),
+                            parent_ptr->type().name());
+                        SameLine();
+                        if(Button("Inspect"))
+                            { selected = thing_data_buffer{parent_ptr}; }
+                    }
+                    else
+                        { TextF("Invalid Parent"); }
+                    InputUInt("Parent UID", &selected.parent, 0, 0);
+                    if(IsItemDeactivatedAfterEdit())
+                    {
+                        thinker->remove_parent(thinker->Parent(), true);
+                        selected = {thinker};
+                    }
+                EndChild();
                 if(auto viewport{DCast<Viewport>(selected.ptr)})
                 {
                     TextF("Size: {}", viewport->Size().data_log());
@@ -899,6 +925,46 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     }
                 }
+                // CHILDREN
+                BeginChild("Children", {}, ImGuiChildFlags_AutoResizeY);
+                    SeparatorText("Children");
+                    if(auto actor{DCast<Actor3D>(selected.ptr)})
+                    {
+                        if(InputUInt("Debug MeshInstance3D UID", &selected.debug_mesh_instance, 0, 0))
+                            { actor->mDebugMeshInstanceID = selected.debug_mesh_instance; }
+                    }
+                    auto children{thinker->Children()};
+                    if(Button("+"))
+                    {
+                        thinker->add_child({mNewChildUID, g_pTheatreManager->GetThing(mNewChildUID)->type()}, true);
+                        selected = {thinker};
+                        mNewChildUID = 0;
+                    }
+                    SameLine();
+                    InputUInt("UID##2", &mNewChildUID, 0, 0);
+                    uint child_counter{0};
+                    for(FAUTO child : children)
+                    {
+                        auto thing{g_pTheatreManager->GetThing(child.id)};
+                        if(thing->uid().invalid())
+                            { TextF("[Invalid Child UID]##{}", ++child_counter); }
+                        else
+                        {
+                            PushID(++child_counter + thing->uid()[]);
+                            if(Button("-"))
+                                { thinker->remove_child(child, true); selected = {selected.ptr}; PopID(); EndChild(); EndChild(); End(); return; }
+                            SameLine();
+                            TextF("Child: {} [Type:{}] [UID:{}]",
+                                thing->name(),
+                                thing->type().name(),
+                                thing->uid()[]);
+                            SameLine();
+                            if(Button("Inspect"))
+                                { selected = thing_data_buffer{thing}; }
+                            PopID();
+                        }
+                    }
+                EndChild();
             }
             // RESOURCES
             else if(auto resource{DCast<Resource>(selected.ptr)})
@@ -926,84 +992,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
                 }
             }
-            // PARENTS
-            BeginChild("Parents", {}, ImGuiChildFlags_AutoResizeY);
-                SeparatorText("Parents");
-                int parent_counter{0};
-                if(Button("+##1"))
-                {
-                    selected.ptr->add_parent({mNewParentUID, g_pTheatreManager->GetThing(mNewParentUID)->type()}, true);
-                    selected = {selected.ptr};
-                    mNewParentUID = 0;
-                    EndChild(); End();
-                    return;
-                }
-                SameLine();
-                InputUInt("UID##3", &mNewParentUID, 0, 0);
-                for(FAUTO parent : selected.ptr->parents())
-                {
-                    PushID(++parent_counter);
-                    if(Button("-"))
-                        { selected.ptr->remove_parent(parent, true); PopID(); EndChild(); EndChild(); End(); return; }
-                    SameLine();
-                    if(auto parent_ptr{g_pTheatreManager->GetThing(parent.id)};
-                        !parent.id.invalid() and !parent_ptr->uid().invalid())
-                    {
-                        TextF("Parent: <{}> {} [{}]",
-                            parent_ptr->type().name(),
-                            parent_ptr->name(),
-                            parent_ptr->uid()[]);
-                        SameLine();
-                        if(Button("Inspect"))
-                            { selected = thing_data_buffer{parent_ptr}; }
-                    }
-                    else
-                        { TextF("Invalid Parent"); SameLine(); }
-                    PopID();
-                }
-            EndChild();
-            // CHILDREN
-            BeginChild("Children", {}, ImGuiChildFlags_AutoResizeY);
-                SeparatorText("Children");
-                if(auto actor{DCast<Actor3D>(selected.ptr)})
-                {
-                    if(InputUInt("Debug MeshInstance3D UID", &selected.debug_mesh_instance, 0, 0))
-                        { actor->mDebugMeshInstanceID = selected.debug_mesh_instance; }
-                }
-                auto children{selected.ptr->children()};
-                if(Button("+##2"))
-                {
-                    selected.ptr->add_child({mNewChildUID, g_pTheatreManager->GetThing(mNewChildUID)->type()}, true);
-                    selected = {selected.ptr};
-                    mNewChildUID = 0;
-                    EndChild(); End();
-                    return;
-                }
-                SameLine();
-                InputUInt("UID##2", &mNewChildUID, 0, 0);
-                uint child_counter{0};
-                for(FAUTO child : children)
-                {
-                    auto thing{g_pTheatreManager->GetThing(child.id)};
-                    if(thing->uid().invalid())
-                        { TextF("[Invalid Child UID]##{}", ++child_counter); }
-                    else
-                    {
-                        PushID(++child_counter + thing->uid()[]);
-                        if(Button("-"))
-                            { selected.ptr->remove_child(child, true); selected = {selected.ptr}; PopID(); EndChild(); EndChild(); End(); return; }
-                        SameLine();
-                        TextF("<{}> {} [{}]",
-                            thing->type().name(),
-                            thing->name(),
-                            thing->uid()[]);
-                        SameLine();
-                        if(Button("Inspect"))
-                            { selected = thing_data_buffer{thing}; }
-                        PopID();
-                    }
-                }
-            EndChild();
             EndChild();
         }
         End();
