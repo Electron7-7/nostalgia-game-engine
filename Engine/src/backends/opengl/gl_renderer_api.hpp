@@ -19,7 +19,7 @@ public:
     void SetFramebufferSRGB(bool) const final;
     void SetWireframe(bool inValue) const final;
 
-    void SetLight_TempBlinnPhongSolution(Light3D*) final;
+    void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 
     virtual void BindTexture(Shared<TextureBuffer>, uint) const final;
     virtual void BindTexture(Shared<TextureBuffer>, texture_units) const final;

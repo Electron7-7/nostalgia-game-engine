@@ -115,12 +115,8 @@ void TheatreManager::DrawTheatre()
         { return; }
     const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
     Light3D::ClearCounts();
-#pragma message("TODO: I have to loop through everything twice since I've removed the render command, so fix that...")
-    for(auto& [id, thing] : mThings)
-    {
-        if(auto light{DCast<Light3D>(thing)}; light and light->IncrementIndex())
-            { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(light.get()); }
-    }
+    for(ID id : mLightIDs)
+        { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
     for(ID viewport_id : mViewportIDs)
     {
         auto viewport{GetThinker<Viewport>(viewport_id)};
