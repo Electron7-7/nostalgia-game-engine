@@ -49,7 +49,7 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    sSpawnLocationMaterialID = g_pTheatreManager->CreateThing({
+    sSpawnLocationMaterialID = g_pTheatreManager->CurrentTheatre()->CreateThing({
         "ThingAdderSpawnLocation_Material",
         ThingType::Material,
         UID::Generate(),
@@ -59,24 +59,24 @@ void ImGui_Editor::TheatreEntered()
             {true, "mat_fullbright"}
         }
     });
-    sSpawnLocationMeshInstanceID = g_pTheatreManager->CreateThing({
+    sSpawnLocationMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing({
         "ThingAdderSpawnLocation_MeshInstance",
         ThingType::MeshInstance3D,
         UID::Generate(),
         {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "MaterialOverride"}, {true, "Wireframe"}}
     });
-    sSpawnLocationID = g_pTheatreManager->CreateThing({
+    sSpawnLocationID = g_pTheatreManager->CurrentTheatre()->CreateThing({
         "ThingAdderSpawnLocation",
         ThingType::Actor3D,
         UID::Generate(),
         {{sSpawnLocationMeshInstanceID, "DebugMeshInstance"}, {glm::vec3{1.0f}, "Scale"}}
     });
 
-    g_pTheatreManager->CreateThing({"Editor Viewport",
+    g_pTheatreManager->CurrentTheatre()->CreateThing({"Editor Viewport",
         ThingType::Viewport,
         UID::a_EditorViewport});
 
-    g_pTheatreManager->CreateThing({"Editor Camera",
+    g_pTheatreManager->CurrentTheatre()->CreateThing({"Editor Camera",
         ThingType::Camera3D,
         UID::Generate(),
         {
@@ -95,7 +95,7 @@ void ImGui_Editor::TheatreExited()
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    auto player{g_pTheatreManager->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
     if(player->mCaptureKeyboard)
     {
         if(event->IsJustPressed(Key::Escape))
@@ -134,7 +134,7 @@ void ImGui_Editor::Update()
         ImGuiChildFlags_ResizeX};
     if(!sSpawnLocationID.invalid())
     {
-        auto thingy = g_pTheatreManager->GetThinker<Actor3D>(sSpawnLocationID);
+        auto thingy{g_pTheatreManager->CurrentTheatre()->GetThinker<Actor3D>(sSpawnLocationMeshInstanceID)};
         if(thingy->Scale().y > sSpawnLocationScaleMax)
             { sScaleDirection = SCALE_DIRECTION_DOWN; }
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
@@ -161,7 +161,7 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
-        auto viewport{g_pTheatreManager->GetThinker<Viewport>(UID::a_EditorViewport)};
+        auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(UID::a_EditorViewport)};
         if(!viewport->Framebuffer())
             { End(); return; }
         BeginChild("Viewport",
@@ -177,7 +177,7 @@ void ImGui_Editor::Update()
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
         EndChild();
         static bool camera_moving{false};
-        auto player{g_pTheatreManager->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
         if((IsItemHovered() or camera_moving)
             and !player->mCaptureMouse)
         {
@@ -185,7 +185,7 @@ void ImGui_Editor::Update()
                 { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
             if(InputManager::IsKeyDown(Key::MouseLeft))
             {
-                auto camera{g_pTheatreManager->GetThinker<Camera3D>(viewport->CurrentCamera())};
+                auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera())};
                 auto motion{InputManager::MouseMotion()};
                 camera->SetRotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
@@ -257,15 +257,15 @@ void s_ThingAdder()
         EndCombo();
     }
     if(DragGLMv3("Spawn Location", &sSpawnLocation, 0.01f, 0.0f, 0.0f, "%.2f"))
-        { g_pTheatreManager->GetThinker<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
+        { g_pTheatreManager->CurrentTheatre()->GetThinker<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
     SameLine();
     if(Button("Reset Spawn Location"))
-        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->GetThinker<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
+        { sSpawnLocation = glm::vec3{0.0f}; g_pTheatreManager->CurrentTheatre()->GetThinker<Actor3D>(sSpawnLocationID)->SetPosition(sSpawnLocation); }
     if(Button("Spawn Thing"))
     {
         sNewThingName = sNameBuffer;
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
-        g_pTheatreManager->CreateThing({(sNewThingName.empty()) ? "New Thing" : sNewThingName,
+        g_pTheatreManager->CurrentTheatre()->CreateThing({(sNewThingName.empty()) ? "New Thing" : sNewThingName,
             sTypeNames[sSelectedType],
             UID::Generate(),
             { {sSpawnLocation, "Position"} }

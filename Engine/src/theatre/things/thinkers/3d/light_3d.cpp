@@ -26,7 +26,7 @@ void Light3D::Ready()
         and Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
-        ID mat_id{g_pTheatreManager->CreateThing({
+        ID mat_id{g_pTheatreManager->CurrentTheatre()->CreateThing({
             mName + "-debug-material",
             ThingType::Material,
             UID::Generate(),
@@ -36,7 +36,7 @@ void Light3D::Ready()
                 {true, "FullBright"}
             }
         })};
-        mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
+        mDebugMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing({
             mName + "-debug-mesh-instance",
             ThingType::MeshInstance3D,
             UID::Generate(),

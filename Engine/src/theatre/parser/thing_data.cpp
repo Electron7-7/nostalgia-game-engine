@@ -55,7 +55,7 @@ bool ThingData::GetParent(ThinkerRelative& output) const
             and found_it->id_or_enum != ID::Invalid)
     {
         output.id = found_it->id_or_enum;
-        output.type = g_pTheatreManager->GetType(found_it->id_or_enum);
+        output.type = g_pTheatreManager->CurrentTheatre()->TypeOf(found_it->id_or_enum);
         return true;
     }
     return false;

@@ -6,17 +6,17 @@ void Thinker::Free()
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     for(auto child : mChildren)
-        { g_pTheatreManager->GetThinker(child.id)->remove_parent({mUID, mType}); }
-    g_pTheatreManager->GetThinker(mParent.id)->remove_child({mUID, mType});
-    g_pTheatreManager->DestroyThing(mUID);
+        { g_pTheatreManager->CurrentTheatre()->GetThinker(child.id)->remove_parent({mUID, mType}); }
+    g_pTheatreManager->CurrentTheatre()->GetThinker(mParent.id)->remove_child({mUID, mType});
+    g_pTheatreManager->CurrentTheatre()->DestroyThing(mUID);
 }
 
 void Thinker::Ready()
 {
     LockGuard<RMutex> lock{mChildrenMutex};
     for(auto child : mChildren)
-        { g_pTheatreManager->GetThinker(child.id)->set_parent({mUID, mType}); }
-    g_pTheatreManager->GetThinker(mParent.id)->add_child({mUID, mType});
+        { g_pTheatreManager->CurrentTheatre()->GetThinker(child.id)->set_parent({mUID, mType}); }
+    g_pTheatreManager->CurrentTheatre()->GetThinker(mParent.id)->add_child({mUID, mType});
 }
 
 void Thinker::SetVariables(Farg<ThingData> inData)
@@ -50,7 +50,7 @@ Error Thinker::add_child(ThinkerRelative inChild, bool doUpdateChild)
         { return ERR_ALREADY_EXISTS; }
     mChildren.emplace_back(inChild);
     if(doUpdateChild)
-        { g_pTheatreManager->GetThinker(inChild.id)->set_parent({mUID, mType}, false); }
+        { g_pTheatreManager->CurrentTheatre()->GetThinker(inChild.id)->set_parent({mUID, mType}, false); }
     return OK;
 }
 
@@ -63,7 +63,7 @@ Error Thinker::remove_child(ThinkerRelative inChild, bool doUpdateChild)
         found_it != mChildren.cend())
     {
         if(doUpdateChild)
-            { g_pTheatreManager->GetThinker(found_it->id)->remove_parent({mUID, mType}, false); }
+            { g_pTheatreManager->CurrentTheatre()->GetThinker(found_it->id)->remove_parent({mUID, mType}, false); }
         mChildren.erase(found_it);
         return OK;
     }
@@ -84,8 +84,8 @@ Error Thinker::set_parent(ThinkerRelative inParent, bool doUpdateParent)
     LockGuard<RMutex> lock{mChildrenMutex};
     if(mParent != inParent)
     {
-        g_pTheatreManager->GetThinker(mParent.id)->remove_child({mUID, mType}, false);
-        g_pTheatreManager->GetThinker(inParent.id)->add_child({mUID, mType}, false);
+        g_pTheatreManager->CurrentTheatre()->GetThinker(mParent.id)->remove_child({mUID, mType}, false);
+        g_pTheatreManager->CurrentTheatre()->GetThinker(inParent.id)->add_child({mUID, mType}, false);
         mParent = inParent;
     }
     return OK;
@@ -97,7 +97,7 @@ Error Thinker::remove_parent(ThinkerRelative inParent, bool doUpdateParent)
     if(inParent.id.invalid() or inParent != mParent)
         { return ERR_INVALID_ID; }
     else if(doUpdateParent)
-        { g_pTheatreManager->GetThinker(mParent.id)->remove_child({mUID, mType}, false); }
+        { g_pTheatreManager->CurrentTheatre()->GetThinker(mParent.id)->remove_child({mUID, mType}, false); }
     mParent = {};
     return OK;
 }

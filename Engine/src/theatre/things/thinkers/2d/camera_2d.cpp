@@ -27,18 +27,18 @@ Shared<ThingData> Camera2D::GetVariables() const
 }
 
 void Camera2D::Shutdown()
-{ g_pTheatreManager->GetThinker<Viewport>(mViewportID)->EraseCamera(mUID); }
+{ g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(mViewportID)->EraseCamera(mUID); }
 
 void Camera2D::Ready()
 {
-    auto viewport{g_pTheatreManager->GetThinker<Viewport>(mViewportID)};
+    auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(mViewportID)};
     viewport->AddCamera(mUID);
     if(mInitCurrent)
         { viewport->SetCurrentCamera(mUID); }
 }
 
 bool Camera2D::Current() const
-{ return g_pTheatreManager->GetThinker<Viewport>(mViewportID)->IsCurrentCamera(mUID); }
+{ return g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(mViewportID)->IsCurrentCamera(mUID); }
 
 ID Camera2D::ViewportID() const
 { return mViewportID; }
@@ -51,14 +51,14 @@ bool Camera2D::SetCurrent(bool isCurrent)
     if(isCurrent == Current())
         { return isCurrent; }
     else if(isCurrent)
-        { return g_pTheatreManager->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(mUID) == OK; }
-    g_pTheatreManager->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(ID::Invalid);
+        { return g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(mUID) == OK; }
+    g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(ID::Invalid);
     return false;
 }
 
 Error Camera2D::SetViewportID(ID inID)
 {
-    if(auto viewport{g_pTheatreManager->GetThinker<Viewport>(inID)})
+    if(auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(inID)})
     {
         mViewportID = inID;
         viewport->AddCamera(mUID);

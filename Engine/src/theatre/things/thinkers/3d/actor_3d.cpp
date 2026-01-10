@@ -44,7 +44,8 @@ void Actor3D::Tick()
     for(auto child : mChildren)
     {
         if(auto collider{DCast<Collider3D>(g_pTheatreManager
-                ->GetThinker<Collider3D>(child.id))};
+                ->CurrentTheatre()
+                    ->GetThinker<Collider3D>(child.id))};
             !collider->uid().invalid())
         {
             SetPosition(collider->Position());

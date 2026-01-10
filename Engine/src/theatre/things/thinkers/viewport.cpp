@@ -6,7 +6,7 @@
 
 void Viewport::Ready()
 {
-    if(mCameraIDs.contains(mCurrentCamera) and !g_pTheatreManager->ThingExists(mCurrentCamera))
+    if(mCameraIDs.contains(mCurrentCamera) and !g_pTheatreManager->CurrentTheatre()->ThingExists(mCurrentCamera))
     {
         mCameraIDs.erase(mCurrentCamera);
         mCurrentCamera = ID::Invalid;
