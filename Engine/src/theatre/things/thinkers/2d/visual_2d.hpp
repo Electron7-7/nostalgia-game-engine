@@ -13,8 +13,16 @@ public:
     virtual void SetLayers(BitMask inVisualLayers);
     virtual BitMask Layers() const;
 
+    virtual IdSet_t Viewports() const;
+    virtual void Viewports(IdSet_arg);
+    virtual Error AddViewport(ID);
+    virtual Error RemoveViewport(ID);
+    virtual void ClearViewports();
+    virtual bool IsUsingViewport(ID) const;
+
 protected:
     BitMask mVisualLayers{};
+    IdSet_t mViewportIDs{};
 };
 
 #endif // VISUAL_2D_H
