@@ -20,7 +20,6 @@ extern UIManager*      g_pUIManager;
 extern bool gDebugPrintFrameNumbers,
     gDebugPrintTickNumbers,
     gPrintInputLogs,
-    gPrintLoadedTheatreData,
     gPrintEventLogs;
 
 #endif // MANAGERS_FWD_H
