@@ -5,6 +5,7 @@
 #include "fwd/theatre.hpp"
 #include "fwd/math.hpp"
 #include "core/id.hpp"
+#include "core/farg.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
 #include <glm/fwd.hpp>
@@ -30,8 +31,9 @@ public:
 
     virtual void SetViewport(Farg<Position2D> inPosition, Farg<Scale2D> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
-    virtual void SetClearColor(float Red, float Green, float Blue, float Alpha) = 0;
-    virtual void SetClearColor(const glm::vec4& Color) = 0;
+    virtual void SetClearColor(double Red, double Green, double Blue, double Alpha) = 0;
+    virtual void SetClearColor(Farg<glm::vec4> Color) = 0;
+    virtual void SetClearColor(Farg<ColorRGBA> Color) = 0;
     virtual void SetLineWidth(float Width) = 0;
     virtual void SetFramebufferSRGB(bool inValue) const = 0;
     virtual void SetWireframe(bool inValue) const = 0;

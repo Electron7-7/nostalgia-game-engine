@@ -13,8 +13,9 @@ public:
 
     void SetViewport(Farg<Position2D>, Farg<Scale2D>) final;
     void SetViewport(int, int, int, int) final;
-    void SetClearColor(float, float, float, float) final;
+    void SetClearColor(double, double, double, double) final;
     void SetClearColor(Farg<glm::vec4>) final;
+    void SetClearColor(Farg<ColorRGBA>) final;
     void SetLineWidth(float) override;
     void SetFramebufferSRGB(bool) const final;
     void SetWireframe(bool inValue) const final;
@@ -35,7 +36,7 @@ public:
 
 private:
     std::unordered_map<ID, Shared<Shader>> mShaders{};
-    std::array<float, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
+    std::array<double, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
 };
 
 enum class DebugMessageSeverityFilter

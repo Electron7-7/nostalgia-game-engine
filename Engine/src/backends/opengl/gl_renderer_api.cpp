@@ -57,11 +57,14 @@ void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int
 void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Scale2D> inSize)
 { glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
-void OpenGLRendererAPI::SetClearColor(float Red, float Green, float Blue, float Alpha)
+void OpenGLRendererAPI::SetClearColor(double Red, double Green, double Blue, double Alpha)
 { mClearColor = {Red, Green, Blue, Alpha}; }
 
-void OpenGLRendererAPI::SetClearColor(const glm::vec4& Color)
+void OpenGLRendererAPI::SetClearColor(Farg<glm::vec4> Color)
 { mClearColor = {Color.r, Color.g, Color.b, Color.a}; }
+
+void OpenGLRendererAPI::SetClearColor(Farg<ColorRGBA> Color)
+{ mClearColor = {Color.r(), Color.g(), Color.b(), Color.a()}; }
 
 void OpenGLRendererAPI::Clear()
 {
