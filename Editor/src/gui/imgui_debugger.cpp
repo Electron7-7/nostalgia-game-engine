@@ -26,7 +26,6 @@
 #include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "theatre/things/resources/resource.hpp"
-#include "theatre/parser/theatre_data.hpp"
 #include "application/application.hpp"
 #include "application/window.hpp"
 #include "DearImGui/imgui.h"
@@ -47,6 +46,7 @@ using namespace ImGui;
 static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
+static bool sPrintLoadedTheatreData{false};
 static bool sTheatreInspectorActive{false};
 static bool sAutoStopwatchEnabled{true};
 
@@ -256,7 +256,7 @@ static void s_GeneralDebuggingWindow()
             SameLine();
             Checkbox("Print Tick#", &gDebugPrintTickNumbers);
         SeparatorText("Theatre");
-            Checkbox("Print Theatre Parser Log", &gPrintLoadedTheatreData);
+            Checkbox("Print Theatre Parser Log", &sPrintLoadedTheatreData);
         SeparatorText("Rendering");
             Checkbox("Draw Command", &gPrintDrawLogs);
         if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
@@ -452,7 +452,7 @@ static void s_TheatreDebuggingWindow()
     PushItemWidth(0.0f);
     Separator();
 #endif // DEBUGGING
-    Checkbox("Debug Theatre File Load Printout", &gPrintLoadedTheatreData);
+    Checkbox("Debug Theatre File Load Printout", &sPrintLoadedTheatreData);
 
     InputText("Theatre File", &sTheatreFilePath);
 
