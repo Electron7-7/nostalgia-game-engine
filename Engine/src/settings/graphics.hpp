@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_SETTINGS_H
 #define GRAPHICS_SETTINGS_H
 
-#include "fwd/math.hpp"
+#include "math/containers.hpp"
 
 namespace Settings
 {
