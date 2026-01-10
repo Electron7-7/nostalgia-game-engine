@@ -173,7 +173,7 @@ bool ThingFactory::IsResource(Farg<PID> inTypeID)
 bool ThingFactory::IsDerivedFrom(Farg<PID> inTypeID1, Farg<PID> inTypeID2)
 {
     if(auto found_it{m_sAllTypes.find(inTypeID1)}; found_it != m_sAllTypes.end())
-        { return found_it->type() == inTypeID1 or found_it->is_derived_from(inTypeID2); }
+        { return (found_it->type() == inTypeID2 or found_it->is_derived_from(inTypeID2)); }
     return false;
 }
 
