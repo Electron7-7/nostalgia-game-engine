@@ -1,4 +1,5 @@
 #include "render_manager.hpp"
+#include "settings/graphics.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "core/printing.hpp"
@@ -30,11 +31,10 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_
 
 void RenderManager::Update()
 {
-    if(mCanClearWindow && mRendererAPI)
+    if(mCanClearWindow and mRendererAPI and GetTheatreState() != IN_LEVEL)
     {
-        // mRendererAPI->SetClearColor({0.29f, 0.34f, 0.26f, 1.0f});
-        // mRendererAPI->Clear();
-        // g_pTheatreManager->CurrentTheatre()->ClearViewports();
+        mRendererAPI->SetClearColor(Settings::Graphics::ClearColor.glm());
+        mRendererAPI->Clear();
     }
     g_pTheatreManager->DrawCurrentTheatre();
     g_pUIManager->DrawUI();
