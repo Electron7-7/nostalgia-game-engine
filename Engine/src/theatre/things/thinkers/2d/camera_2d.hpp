@@ -9,14 +9,8 @@
 class Camera2D : public Actor2D
 {
 public:
-    float mFOV{75.0f},
-        mViewCutoffNear{0.01f},
-        mViewCutoffFar{1000.0f};
-    Environment mEnvironment{};
-
     virtual void Shutdown() override;
     virtual void Ready() override;
-    virtual void Tick() override;
 
     virtual void SetVariables(Farg<ThingData>) override;
     virtual Shared<ThingData> GetVariables() const override;
@@ -29,10 +23,11 @@ public:
     virtual Error SetViewportID(ID);
     virtual void SetLayersMask(BitMask inRenderLayersMask);
 
-    glm::mat4 ViewMatrix() const;
-    glm::mat4 ProjectionMatrix() const;
+    // glm::mat4 ViewMatrix() const;
+    // glm::mat4 ProjectionMatrix() const;
 
 protected:
+    glm::vec2 mZoom{1.0f, 1.0f};
     bool mInitCurrent{false};
     ID mViewportID{UID::a_Global2DViewport};
     BitMask mLayersMask{};
