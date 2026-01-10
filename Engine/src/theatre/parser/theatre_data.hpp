@@ -20,7 +20,7 @@ struct TheatreData
     std::string formatted() const;
     ID id() const;
     void clear();
-    void debug_PrintData();
+    void debug_PrintData() const;
 
     constexpr bool operator==(Farg<TheatreData> Other) const
     { return (id_ == Other.id_); }

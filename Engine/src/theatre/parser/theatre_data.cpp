@@ -117,9 +117,9 @@ std::string TheatreData::formatted() const
 void TheatreData::clear()
 { things_data.clear(); }
 
-void TheatreData::debug_PrintData()
+void TheatreData::debug_PrintData() const
 {
     print_debug("Theatre Data Printout:", Sty::Bold + Fg::Cyan, Sty::Reset);
     for(const ThingData& thing_data : things_data)
-        { println("{}", thing_data.log(true, true)); }
+        { debug_print("{}", thing_data.log(true, true)); }
 }

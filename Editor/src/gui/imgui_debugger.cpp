@@ -461,6 +461,8 @@ static void s_TheatreDebuggingWindow()
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
+        if(sPrintLoadedTheatreData)
+            { g_pTheatreManager->CurrentTheatre()->InitialState().debug_PrintData(); }
     }
     if(IManager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
