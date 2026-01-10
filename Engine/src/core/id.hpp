@@ -12,6 +12,7 @@
 
 #define ID_UINT_OPERATOR(OP) __id_operator(OP, uint)
 #define ID_ID_OPERATOR(OP)   __id_operator(OP, Farg<ID>, .id_)
+#define PID_PID_OPERATOR(OP) __id_operator(OP, Farg<PID>, [])
 
 struct ID
 {
@@ -69,6 +70,16 @@ public:
     virtual Farg<std::string> name() const;
     virtual const char*     c_name() const;
     virtual std::string        log() const;
+
+    PID_PID_OPERATOR(==)
+    PID_PID_OPERATOR(!=)
+    PID_PID_OPERATOR(<)
+    PID_PID_OPERATOR(<=)
+    PID_PID_OPERATOR(>)
+    PID_PID_OPERATOR(>=)
+
+    ID_UINT_OPERATOR(==)
+    ID_UINT_OPERATOR(!=)
 
 protected:
     std::string name_{"N/A"};
