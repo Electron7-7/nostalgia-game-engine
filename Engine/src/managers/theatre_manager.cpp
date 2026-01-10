@@ -12,6 +12,7 @@ TheatreManager* g_pTheatreManager{&sTheatreManager};
 bool TheatreManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
+    mCurrentTheatre = MakeUnique<Theatre>();
     return ThingFactory::Init();
 }
 
@@ -20,14 +21,15 @@ void TheatreManager::Update()
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     LockGuard<RMutex> lock{mTheatreMutex};
+    mCurrentTheatre->Update();
 }
 
 void TheatreManager::Tick()
 {
     if(GetTheatreState() != IN_LEVEL)
         { return; }
-
     LockGuard<RMutex> lock{mTheatreMutex};
+    mCurrentTheatre->Tick();
 }
 
 void TheatreManager::Input(InputEvent* inInput)
@@ -35,6 +37,7 @@ void TheatreManager::Input(InputEvent* inInput)
     if(GetTheatreState() != IN_LEVEL)
         { return; }
     LockGuard<RMutex> lock{mTheatreMutex};
+    mCurrentTheatre->Input(inInput);
 }
 
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
@@ -66,6 +69,14 @@ Theatre* TheatreManager::CurrentTheatre()
 
 const Theatre* TheatreManager::CurrentTheatre() const
 { return mCurrentTheatre.get(); }
+
+void TheatreManager::DrawCurrentTheatre()
+{
+    if(GetTheatreState() != IN_LEVEL)
+        { return; }
+    LockGuard<RMutex> lock{mTheatreMutex};
+    mCurrentTheatre->Draw();
+}
 
 void TheatreManager::LoadNewTheatre(Farg<TheatreData> inData)
 {

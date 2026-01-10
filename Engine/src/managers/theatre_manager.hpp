@@ -4,6 +4,7 @@
 #include "fwd/theatre.hpp"
 #include "fwd/filesystem.hpp"
 #include "managers/manager.hpp"
+#include "theatre/theatre.hpp"
 #include "core/smart_pointers.hpp"
 #include "core/mutex.hpp"
 #include "core/farg.hpp"
@@ -21,6 +22,8 @@ public:
 
     Theatre*       CurrentTheatre();
     const Theatre* CurrentTheatre() const;
+
+    void DrawCurrentTheatre();
     void LoadNewTheatre(Farg<TheatreData> inTheatreData);
     bool LoadNewTheatre(Farg<FileData> inTheatreFileData);
     bool LoadNewTheatre(Sarg inTheatreFilePath);
