@@ -22,8 +22,6 @@ public:
     std::string name{"Untitled Thing"};
     std::vector<ThingVar> variables{};
     std::vector<ThingVar> children{};
-    // Not yet implemented in the parser
-    ThingVar parent{};
 
     bool RemoveVariable(Sarg VariableName);
     ThingVar& AddVariable(Sarg Name, Sarg ParsedValue, ThingVar::Type Type, Sarg ParsedChildType = "");
@@ -31,9 +29,9 @@ public:
 
     bool GetChildren(ThinkerChildren& output) const;
     void SetChildren(Farg<ThinkerChildren> input);
-    // Not yet implemented in the parser
+    // Temporary implementation (not done by parser)
     bool GetParent(ThinkerRelative& output) const;
-    // Not yet implemented in the parser
+    // Temporary implementation (not done by parser)
     void SetParent(Farg<ThinkerRelative> input);
 
     template<StringContainer T, StringType... Names>

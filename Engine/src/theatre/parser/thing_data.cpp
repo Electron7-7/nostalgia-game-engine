@@ -4,6 +4,7 @@
 #include "common/colors.hpp"
 #include "theatre/thing_factory.hpp"
 #include "theatre/things/thinkers/thinker.hpp"
+#include "managers/theatre_manager.hpp"
 
 ThingData::ThingData() = default;
 
@@ -49,10 +50,12 @@ void ThingData::SetChildren(Farg<ThinkerChildren> input)
 // Not yet implemented in the parser
 bool ThingData::GetParent(ThinkerRelative& output) const
 {
-    if(!parent.empty())
+    if(auto found_it{AssertVariable("Parent", ThingVar::Type::Reference)};
+        found_it != variables.cend()
+            and found_it->id_or_enum != ID::Invalid)
     {
-        output.id = parent.id_or_enum;
-        output.type = PID{parent.name};
+        output.id = found_it->id_or_enum;
+        output.type = g_pTheatreManager->GetType(found_it->id_or_enum);
         return true;
     }
     return false;
@@ -60,7 +63,7 @@ bool ThingData::GetParent(ThinkerRelative& output) const
 
 // Not yet implemented in the parser
 void ThingData::SetParent(Farg<ThinkerRelative> input)
-{ parent = {input.id, input.type.name()}; }
+{ AddVariable(input.id, "Parent"); }
 
 bool ThingData::RemoveVariable(Sarg inName)
 {
