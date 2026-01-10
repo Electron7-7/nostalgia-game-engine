@@ -9,6 +9,7 @@
 enum class FileType : ushort
 {
     Unknown = 0,
+    theatre_NT,
     model_OBJ,
     image_PNG,
     image_JPG,
