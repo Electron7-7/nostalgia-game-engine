@@ -14,7 +14,6 @@ void Actor2D::SetVariables(Farg<ThingData> data)
     data.GetVariable(mVisible, "Visible");
 
     data.GetVariable(mDebugHighlight, "DebugHighlight");
-    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 }
 
 Shared<ThingData> Actor2D::GetVariables() const
@@ -27,7 +26,6 @@ Shared<ThingData> Actor2D::GetVariables() const
     data->AddVariable(mVisible, "Visible");
 
     data->AddVariable(mDebugHighlight, "DebugHighlight");
-    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
 
     return data;
 }

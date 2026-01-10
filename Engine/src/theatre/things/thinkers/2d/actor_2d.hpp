@@ -28,7 +28,6 @@ public:
     virtual void SetVisible(bool isVisible);
 
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
-    ID mDebugMeshInstanceID{};
 
 protected:
     glm::vec2 mPosition{};
