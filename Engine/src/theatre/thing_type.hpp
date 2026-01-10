@@ -34,6 +34,8 @@ public:
     bool operator==(Farg<ThingType> inOther) const noexcept
     { return _type_id == inOther._type_id; }
 
+    inline static const PID Invalid{ID::Invalid, "Invalid"};
+
     TYPE_ID(Thing)
         TYPE_ID(Resource)
             TYPE_ID(Mesh)
