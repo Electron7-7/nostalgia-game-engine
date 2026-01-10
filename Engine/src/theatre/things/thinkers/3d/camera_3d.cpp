@@ -23,7 +23,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     data.GetVariable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
     if(data.GetVariable(mEnvironment.mSkyboxTextureID, "EnvironmentSkybox"))
         { mEnvironment.mType = Environment::BG_SKYBOX; }
-    if(glm::vec3 color{(glm::vec3)mEnvironment.mCustomColor};
+    if(glm::vec3 color{mEnvironment.mCustomColor.glm()};
         data.GetVariable(color, "EnvironmentColor"))
     {
         mEnvironment.mType = Environment::BG_SKYBOX;
@@ -47,7 +47,7 @@ Shared<ThingData> Camera3D::GetVariables() const
         and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox)
         { data->AddVariable(true, "UseDefaultSkybox"); }
     if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
-        { data->AddVariable((glm::vec3)mEnvironment.mCustomColor, "EnvironmentColor"); }
+        { data->AddVariable(mEnvironment.mCustomColor.glm(), "EnvironmentColor"); }
     data->AddVariable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
 
     return data;
@@ -64,12 +64,12 @@ void Camera3D::Ready()
     // the debug mesh/material shouldn't override a manually specificed one
     if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
     {
-        ID mat_id{"Camera3D-debug-material"};
-        ID mesh_id{"Camera3D-debug-mesh-instance"};
+        ID mat_id{mName + "-debug-material"};
+        ID mesh_id{mName + "-debug-mesh-instance"};
         if(!g_pTheatreManager->ThingExists(mat_id))
         {
             g_pTheatreManager->CreateThing({
-                "Camera3D-debug-material",
+                {mName + "-debug-material"},
                 ThingType::Material,
                 mat_id,
                 {
@@ -82,7 +82,7 @@ void Camera3D::Ready()
         if(!g_pTheatreManager->ThingExists(mesh_id))
         {
             mDebugMeshInstanceID = g_pTheatreManager->CreateThing({
-                "Camera3D-debug-mesh-instance",
+                {mName + "-debug-mesh-instance"},
                 ThingType::MeshInstance3D,
                 mesh_id,
                 {
@@ -91,8 +91,8 @@ void Camera3D::Ready()
                 }
             });
         }
-        mDebugMeshInstanceID = mesh_id;
     }
+    add_child({mDebugMeshInstanceID, ThingType::MeshInstance3D});
 
     auto viewport{g_pTheatreManager->GetThinker<Viewport>(mViewportID)};
     viewport->AddCamera(mUID);
