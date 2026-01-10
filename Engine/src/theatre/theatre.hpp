@@ -18,6 +18,7 @@ public:
 
     bool mDoPrintDebugLogs{false};
 
+    Theatre() noexcept;
     Theatre(Farg<TheatreData>) noexcept;
     Theatre(Farg<FileData> inTheatreFileData) noexcept;
     Theatre(Sarg inTheatreFilePath) noexcept;

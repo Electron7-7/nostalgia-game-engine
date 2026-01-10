@@ -21,6 +21,8 @@
 #include "rendering/shader.hpp"
 #include <ranges>
 
+Theatre::Theatre() noexcept = default;
+
 Theatre::Theatre(Farg<TheatreData> inData) noexcept:
     mInitialState{MakeUnique<TheatreData>(inData)},
     mInitStatus{OK} {}
@@ -46,21 +48,21 @@ Theatre::~Theatre() noexcept
 
 void Theatre::Update()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     for(auto& [id, thing] : mThings)
         { thing->Update(); }
 }
 
 void Theatre::Tick()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     for(auto& [id, thing] : mThings)
         { thing->Tick(); }
 }
 
 void Theatre::Input(InputEvent* inInput)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     for(auto& [id, thing] : mThings)
         { thing->Input(inInput); }
 }
@@ -70,7 +72,7 @@ bool Theatre::Startup()
     if(mIsStarted or !mInitStatus)
         { return false; }
 
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
 
     mInitialState->SetupUIDsAndPriorities();
     if(mDoPrintDebugLogs)
@@ -100,7 +102,7 @@ bool Theatre::Shutdown()
 {
     if(!mIsStarted)
         { return false; }
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     for(auto it{mThings.begin()}; it != mThings.end();)
         { it = DestroyThing(it); }
     return !(mIsStarted = false);
@@ -108,7 +110,7 @@ bool Theatre::Shutdown()
 
 void Theatre::Draw()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
         { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
@@ -143,7 +145,7 @@ Farg<TheatreData> Theatre::InitialState() const
 
 TheatreData Theatre::CurrentState()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     TheatreData data{*mInitialState};
     data.clear();
     for(const auto& [id, thing] : mThings)
@@ -153,26 +155,26 @@ TheatreData Theatre::CurrentState()
 
 IdVec_t Theatre::ThingIDs()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     auto keys{std::views::keys(mThings)};
     return {keys.begin(), keys.end()};
 }
 
 IdSet_arg Theatre::ViewportIDs()
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     return mViewportIDs;
 }
 
 bool Theatre::ThingExists(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     return mThings.contains(inID);
 }
 
 FPID Theatre::TypeOf(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
         { return found_it->second->type(); }
     return ThingType::Invalid;
@@ -180,7 +182,7 @@ FPID Theatre::TypeOf(ID inID)
 
 Error Theatre::ChangeThingID(ID inOldID, ID inNewID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(mThings.contains(inNewID))
         { return ERR_ALREADY_EXISTS; }
     else if(!mThings.contains(inOldID))
@@ -194,15 +196,15 @@ Error Theatre::ChangeThingID(ID inOldID, ID inNewID)
 
 ID Theatre::CreateThing(Farg<ThingData> inData)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
-    uint output{CreateThingNoReady(inData)};
+    LockGuard<RMutex> lock{mThingsMutex};
+    ID output{CreateThingNoReady(inData)};
     mThings.at(output)->Ready();
     return output;
 }
 
 Error Theatre::DestroyThing(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     return (DestroyThing(mThings.find(inID)) != mThings.end())
         ? OK
         : (mThings.empty())
@@ -212,7 +214,7 @@ Error Theatre::DestroyThing(ID inID)
 
 Shared<Thing> Theatre::GetThing(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     { return found_it->second; }
@@ -221,7 +223,7 @@ Shared<Thing> Theatre::GetThing(ID inID)
 
 Shared<Resource> Theatre::GetResource(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     {
@@ -233,7 +235,7 @@ Shared<Resource> Theatre::GetResource(ID inID)
 
 Shared<Thinker> Theatre::GetThinker(ID inID)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     {
@@ -259,7 +261,7 @@ void Theatre::CreateEmbeddedResources()
 
 ID Theatre::CreateThingNoReady(Farg<ThingData> inData)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     ThingData data{inData};
 
     if(mThings.contains(data.uid))
@@ -297,12 +299,12 @@ ID Theatre::CreateThingNoReady(Farg<ThingData> inData)
     else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::NostalgiaPlayer3D))
         { ChangeThingID(thing->uid(), UID::a_Player); }
 
-    return thing->uid()[];
+    return thing->uid();
 }
 
 Theatre::Things_t::iterator Theatre::DestroyThing(Things_t::iterator inIterator)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     if(inIterator == mThings.end())
         { return inIterator; }
     if(!g_pVariableRegistry->RemoveID(inIterator->first[])
@@ -318,7 +320,7 @@ Theatre::Things_t::iterator Theatre::DestroyThing(Things_t::iterator inIterator)
 
 void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
 {
-    const std::lock_guard<std::recursive_mutex> lock{mThingsMutex};
+    LockGuard<RMutex> lock{mThingsMutex};
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
 
     switch(inCamera->mEnvironment.mType)
