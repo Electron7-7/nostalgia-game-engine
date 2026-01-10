@@ -1085,3 +1085,5 @@ God damnit... I need to make a 'SceneTree' or something akin to it so I can more
 Okay, rendering is back to normal while retaining some of my changes. Time to move everything into `Theatre`.
 
 Finished implementing `Theatre`. Now, it's time to figure out how I'm gonna implement some form of hierarchy.
+
+Okay, that's all for today; I don't have time to start work on a hierarchy system, but all the pieces are in place for it. When I work on this next, I'll start work on that so I can finish that plus `Visual3D`, `Visual2D`, and rendering overhauls.
