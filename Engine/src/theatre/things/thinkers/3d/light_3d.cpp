@@ -22,8 +22,9 @@ void Light3D::ClearCounts()
 
 void Light3D::Ready()
 {
-    // the debug mesh/material shouldn't override a manually specificed one
-    if(mDebugMeshInstanceID.invalid() and Settings::Engine::IsEditorHint)
+    if(mDebugMeshInstanceID.invalid() // the debug mesh instance shouldn't override a manually specificed one
+        and Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
+        and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
         ID mat_id{g_pTheatreManager->CreateThing({
             mName + "-debug-material",
@@ -41,7 +42,9 @@ void Light3D::Ready()
             UID::Generate(),
             {
                 {UID::m_Cube, "Mesh"},
-                {mat_id, "MaterialOverride"}
+                {mat_id, "MaterialOverride"},
+                {glm::vec3{0.1f}, "Scale"},
+                {mUID, "Parent"},
             }
         });
     }
@@ -49,8 +52,6 @@ void Light3D::Ready()
 
 void Light3D::SetVariables(Farg<ThingData> data)
 {
-    mScale = glm::vec3{0.1f};
-
     Actor3D::SetVariables(data);
 
     data.GetVariable(mColor, "Color");
