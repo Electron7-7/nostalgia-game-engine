@@ -56,7 +56,7 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Size2D> inSize) noexcept:
 }
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
-{ glDeleteFramebuffers(1, &mBufferID); }
+{ if(mStatus == OK and mBufferID) { glDeleteFramebuffers(1, &mBufferID); } }
 
 uint OpenGLFrameBuffer::TextureID() const
 { return mTextureBuffer->ID(); }
