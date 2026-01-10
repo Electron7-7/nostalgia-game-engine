@@ -69,7 +69,7 @@ void ImGui_Editor::TheatreEntered()
         "ThingAdderSpawnLocation",
         ThingType::Actor3D,
         UID::Generate(),
-        {{sSpawnLocationMeshInstanceID, "DebugMeshInstance"}, {glm::vec3{1.0f}, "Scale"}}
+        {{sSpawnLocationMeshInstanceID, "Child"}, {glm::vec3{1.0f}, "Scale"}}
     });
 
     g_pTheatreManager->CurrentTheatre()->CreateThing({"Editor Viewport",
