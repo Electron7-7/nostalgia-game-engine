@@ -1090,3 +1090,18 @@ Okay, that's all for today; I don't have time to start work on a hierarchy syste
 
 [01/13/26]
 Today, I'm gonna finally tackle the Theatre parser. It's time to throw out the old garbage and re-write the entire thing from scratch.
+
+[01/19/25]
+Back from my trip to Florida. I finished writing the new Theatre file parser, lexer, and data formats and I'm bugfixing now. There seems to be an off by one error with textures and a total error with models (potentially the same issue). It looks like even the map key is set to the wrong ID (e.g: the doom texture's UID is 17 when it should be 18). The issue is that for some reason, everything says that the texture's UID is one number but the texture itself is actually assigned to a different number.
+
+Okay, so the wrong ID is being given to the variable registry; this helps me narrow the problem down even further.
+
+I swear to fucking god....... I had reorganized the `GenerateEmbeddedResources` code and in the process, I'd mixed up the texture UIDs. Two lessons can be learned from this experience:
+    Lesson 1: always look for the simplest source of a problem first (e.g: oh, something's up with the texture IDs? then check the place where you assign those IDs)
+    Lesson 2: when doing busy work or anything that edits multiple lines at once... DOUBLE FUCKING CHECK YOUR WORK!!!!
+
+Okay, looking at the other problems, I think it's come down to the fact that new `ThingData` objects don't have a Theatre registry pointer, so setting `ID` and enum variables fails. My solution comes in two parts. Firstly, `Thing` will have a Theatre pointer variable that's set to its root Theatre (the one that ultimately contains the `Thing` pointer) by the root Theatre. This is then supplied to `ThingData` either in the constructor, or in the `ID` overrides of the  `set_variable`/`get_variable` functions. I'd rather it be the constructor, but it *does* make more sense for it to be the functions.
+
+I could also just add a new variable to `ThingVariable` to store UIDs set by `set_variable` and make sure that `get_variable` checks that UID when attempting to get an ID variable. That originally didn't sound like a good fix, however, it's got a lot less strings attached to it and keeps the responsibility of managing the registry with the Theatre.
+
+Yup, that was one of the biggest problems, because everything is fully back to normal. Time to maybe fix some small problems with the debugger, commit my changes, and work on implementing the new ownership system via `Tree`, `Node`, and `CallSheet`.
