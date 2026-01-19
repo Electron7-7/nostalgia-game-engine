@@ -1,8 +1,11 @@
 #ifndef THEATRE_PARSER_H
 #define THEATRE_PARSER_H
 
+// #include "fwd/theatre.hpp"
 #include "fwd/filesystem.hpp"
-#include "fwd/theatre.hpp"
+#include "theatre/things/thinkers/thinker.hpp"
+#include "theatre/variable_registry.hpp"
+#include "theatre/number_parser.hpp"
 #include "core/id.hpp"
 #include "core/farg.hpp"
 #include "core/error.hpp"
@@ -10,18 +13,15 @@
 #include "core/smart_pointers.hpp"
 #include "math/concepts.hpp"
 #include "math/glm_concepts.hpp"
+#include <math/glm_format.hpp> // used when converting GLM variables to strings
 #include <vector>
+
+#define ASSERT_THING_VARIABLE(ThingVarName, InVarNames, ReturnOnFail...) \
+    Farg<ThingVariable> ThingVarName{_get_variable({inNames...})}; \
+    if(!ThingVarName) { return ReturnOnFail; }
 
 namespace TheatreFile
 {
-    template<typename T>
-        concept ThingVariable_t = Number<T>
-            or GLMContainer<T>
-            or Bool<T>
-            or IsEnum<T>
-            or StringType<T>
-            or ID_t<T>;
-
     enum class ThingVarType
     { String, Bool, Number, Enum, Child, Parent, ID, None };
 
@@ -47,15 +47,29 @@ namespace TheatreFile
 
     struct ThingVariable
     {
-        std::string  name{};  // If Child/Parent, this is the type name
-        std::string  value{}; // If Child/Parent, this is the Child/Parent's name
+        // The name of the variable, or, if this is a Child/Parent variable, the name of the
+        // Child/Parent Thing.
+        std::string  name{};
+        // The variable's value, represented as a string, or, if this is a Child/Parent
+        // variable, the type-name of the Child/Parent Thing.
+        std::string  value{};
+        // The variable's type.
         ThingVarType type{ThingVarType::None};
+        // If `ThingData::set_variable` was used to create a `ThingVariable` with an `ID`
+        // value, `thing_uid` is assigned a value. This avoids errors due to `ThingData` not
+        // having a `VariableRegistry` pointer assigned.
+        //
+        // This variable is ignored if `ThingVariable::type` is not set to `ThingVarType::ID`.
+        ID thing_uid{};
 
         void clear()
         { *this = ThingVariable{}; }
 
-        bool invalid() const
-        { return type == ThingVarType::None or (name.empty() and value.empty()); }
+        bool invalid() const noexcept
+        { return type == ThingVarType::None or name.empty(); }
+
+        bool operator!() const noexcept
+        { return invalid(); }
     };
 
     using TokenArray = std::vector<Token>;
@@ -63,33 +77,167 @@ namespace TheatreFile
 
     struct ThingData
     {
+    private:
+        Farg<ThingVariable> _get_variable(std::initializer_list<std::string>) const;
+
+    public:
         PID           type{};
         std::string   name{};
         ThingVarArray variables{};
+        // Thing uids are generated automatically; `ThingData::uid` should only be used for
+        // assigning "reserved" uids (e.g: `UID::a_Player`).
+        ID            uid{};
+        ThingVariable parent_variable{};
+        ThingVarArray children_variables{};
+        // When a `Theatre` generates its `ThingData` vector, it will set `theatre_registry` to
+        // its `VariableRegistry` member. This is used when attempting to get the value of `ID`,
+        // "Child", and "Parent" variables; if it's `nullptr` when either `get_parent`,
+        // `get_children`, or `get_variable` with an `ID` variable is called, the respective
+        // function will return an error and leave the passed variable reference untouched.
+        Shared<VariableRegistry> theatre_registry{nullptr};
 
         void clear() { *this = ThingData{}; }
 
-        int get_children(ThinkerChildren& outChildren);
+        int get_children(ThinkerChildren& outChildren) const;
         int set_children(Farg<ThinkerChildren> inChildren);
 
-        Error get_parent(ThinkerRelative& outParent);
+        Error get_parent(ThinkerRelative& outParent) const;
         Error set_parent(Farg<ThinkerRelative> inParent);
 
-        template<typename T, StringType... Names> requires ThingVariable_t<T>
-            Error set_variable(Farg<T> inValue, Sarg inName);
-
-        template<typename T, StringType... Names> requires ThingVariable_t<T>
-            Error get_variable(T& outValue, Names... inNames);
 
         template<StringType... Names>
-            int erase_variables(Names... inNames);
+            void set_variable(Sarg inValue, Sarg inName)
+            { variables.emplace_back(inName, inValue, ThingVarType::String); }
+
+        template<StringType... Names>
+            Error set_variable(ID inValue, Sarg inName)
+            {
+                if(!theatre_registry)
+                {
+                    variables.emplace_back(inName, "", ThingVarType::ID, inValue);
+                    return OK;
+                }
+                else if(std::string thing_name{};
+                    theatre_registry->try_GetIDName(inValue[], thing_name))
+                {
+                    variables.emplace_back(inName, thing_name, ThingVarType::ID);
+                    return OK;
+                }
+                return ERR_INVALID_ID;
+            }
+
+        template<StringType... Names>
+            void set_variable(bool inValue, Sarg inName)
+            { variables.emplace_back(inName, std::format("{}", inValue), ThingVarType::Bool); }
+
+        template<NumberOrGLM T, StringType... Names>
+            void set_variable(Farg<T> inValue, Sarg inName)
+            { variables.emplace_back(inName, NumToString(inValue), ThingVarType::Number); }
+
+        template<IsEnum T, StringType... Names>
+            Error set_variable(T inValue, Sarg inName)
+            {
+                std::string enum_name{};
+                if(!theatre_registry)
+                    { return ERR_NULLPTR; }
+                else if(!theatre_registry->try_GetEnumName(inValue, enum_name))
+                    { return ERR_INVALID; }
+                variables.emplace_back(inName, enum_name, ThingVarType::Enum);
+                return OK;
+            }
+
+        template<StringContainer T, StringType... Names>
+            Error get_variable(T& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.value.empty())
+                    { return ERR_EMPTY; }
+                else if(thing_var.type != ThingVarType::String)
+                    { return ERR_MISMATCHED_TYPES; }
+                outValue = thing_var.value;
+                return OK;
+            }
+
+        template<StringType... Names>
+            Error get_variable(ID& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.type != ThingVarType::ID)
+                    { return ERR_MISMATCHED_TYPES; }
+                else if(!thing_var.thing_uid.invalid())
+                    { outValue = thing_var.thing_uid; return OK; }
+                else if(!theatre_registry)
+                    { return ERR_NULLPTR; }
+                else if(uint out; theatre_registry->try_GetID(thing_var.value, out))
+                    { outValue = out; return OK; }
+                return ERR_INVALID;
+            }
+
+        template<IsEnum T, StringType... Names>
+            Error get_variable(T& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(!theatre_registry)
+                    { return ERR_NULLPTR; }
+                else if(thing_var.type != ThingVarType::Enum)
+                    { return ERR_MISMATCHED_TYPES; }
+                else if(!theatre_registry->try_GetEnum(thing_var.value, outValue))
+                    { return ERR_INVALID; }
+                return OK;
+            }
+
+        template<StringType... Names>
+            Error get_variable(bool& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.type != ThingVarType::Bool)
+                    { return ERR_MISMATCHED_TYPES; }
+                else if(!thing_var.value.compare("false"))
+                    { outValue = false; }
+                else if(!thing_var.value.compare("true"))
+                    { outValue = true; }
+                else
+                    { return ERR_INVALID; }
+                return OK;
+            }
+
+        template<NumberOrGLM T, StringType... Names>
+            Error get_variable(T& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.type != ThingVarType::Number)
+                    { return ERR_MISMATCHED_TYPES; }
+                else if(!StringToNum(outValue, thing_var.value))
+                    { return ERR_INVALID; }
+                return OK;
+            }
+
+        template<StringType... Names>
+            int erase_variables(Names... inNames)
+            {
+                int erase_value{0};
+                for(FAUTO name : {inNames...})
+                {
+                    for(auto it{variables.begin()}; it != variables.end();)
+                    {
+                        if(!it->name.compare(name))
+                        {
+                            it = variables.erase(it);
+                            ++erase_value;
+                            continue;
+                        }
+                        ++it;
+                    }
+                }
+                return erase_value;
+            }
     };
 
     using TheatreData = std::vector<ThingData>;
 
-    Error Parser(Farg<TokenArray> inTokens, TheatreData& outData);
-    Error Lexer(Sarg inFilePath, TokenArray& outTokens);
-    Error Lexer(Shared<FileData> inFileData, TokenArray& outTokens);
+    Error Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData);
+    Error Lexer(Farg<FileData> inFileData, TokenArray& outTokens);
 }
 
+#undef ASSERT_THING_VARIABLE
 #endif // THEATRE_PARSER_H
