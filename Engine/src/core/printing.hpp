@@ -36,9 +36,11 @@ template<class... Args>
 
         if(verbosity == VERBOSE0)
         {
-            std::println("{}\x1b[22m{}\x1b[0m",
+            std::println("{}{}{}{}",
                 label(),
-                std::format(fmt, std::forward<Args>(args)...));
+                (label.enable_ansi_sequence) ? "\x1b[22m" : "",
+                std::format(fmt, std::forward<Args>(args)...),
+                (label.enable_ansi_sequence) ? "\x1b[0m" : "");
             return return_value;
         }
 
@@ -50,9 +52,10 @@ template<class... Args>
         if(verbosity & VERBOSE3)
             { verbose_prefix += prefixes[2]; }
 
-        std::println("{}{}\x1b[22m{}\x1b[0m",
+        std::println("{}{}{}{}\x1b[0m",
             label(),
             verbose_prefix,
+            (label.enable_ansi_sequence) ? "\x1b[22m" : "",
             std::format(fmt, std::forward<Args>(args)...));
         return return_value;
     }
@@ -67,7 +70,7 @@ template<class... Args>
 
 // Always returns true. Use with: bad behaviour that doesn't lead to a crash/failure (not great, not terrible)
 #define print_warning(Format, Args...) \
-    __print_verbose(true, VERBOSE1 | VERBOSE2 | VERBOSE3, Format, std::source_location::current(), WarningLabel, ## Args)
+    __print_verbose(true, VERBOSE0, Format, std::source_location::current(), WarningLabel, ## Args)
 
 // Version of `print_warning` that lets you control the verbosity
 #define print_warningv(Verbosity, Format, Args...) \
