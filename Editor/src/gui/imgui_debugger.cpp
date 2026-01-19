@@ -2,8 +2,9 @@
 #include "imgui_editor.hpp"
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
-#include "theatre/parser/theatre_parser.hpp"
+#include "theatre/parser.hpp"
 #include "core/uid.hpp"
+#include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
@@ -84,6 +85,80 @@ void ImGui_Debugger::Input(InputEvent* event)
         sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
             ? !sTheatreInspectorActive
             : false;
+    }
+    else if(event->IsJustPressed(Key::F6))
+    {
+        static TheatreFile::TokenArray tokens{};
+        sLastAttemptedTheatreFilePath = sTheatreFilePath;
+        if(TheatreFile::Lexer(sTheatreFilePath, tokens) == OK)
+        {
+            print_debug("Lexer output for Theatre file '{}':", sTheatreFilePath);
+            for(auto& token : tokens)
+            {
+                if(token.category == TheatreFile::TokenName::Whitespace)
+                    { continue; }
+                debug_print("\t[ TokenName::{:12}\"{}\" ]",
+                    EnumPrettifier::Prettify(token.category) + ",",
+                    (token.token[0] == '\n')
+                        ? "\\n"
+                        : token.token);
+            }
+        }
+        auto cur_data{g_pTheatreManager->CurrentTheatre()->InitialState()};
+        print_debug("Parser output for Theatre file '{}':", sTheatreFilePath);
+        for(FAUTO thing_data : cur_data)
+        {
+            debug_print("\tThingData\n\t\ttype: {}\n\t\tname: {}\n\t\tuid: {}\n\t\tvariables:",
+                thing_data.type.name(),
+                thing_data.name,
+                thing_data.uid[]);
+            for(FAUTO var : thing_data.variables)
+            {
+                debug_print("\t\t\t[name: {}, value: {}, type: {}]",
+                    var.name,
+                    var.value,
+                    EnumPrettifier::Prettify(var.type));
+            }
+            debug_print("\t\tchildren_variables:");
+            for(FAUTO var : thing_data.children_variables)
+            {
+                debug_print("\t\t\t[name: {}, value: {}, type: {}]",
+                    var.name,
+                    var.value,
+                    EnumPrettifier::Prettify(var.type));
+            }
+            debug_print("\t\tparent_variable:\n\t\t\t[name: {}, value: {}, type: {}]\n\t\ttheatre_registry: {}",
+                thing_data.parent_variable.name,
+                thing_data.parent_variable.value,
+                EnumPrettifier::Prettify(thing_data.parent_variable.type),
+                (std::intptr_t)thing_data.theatre_registry.get());
+        }
+        auto reg{g_pTheatreManager->CurrentTheatre()->Registry()};
+        print_debug("Theatre Registered IDs:");
+        for(auto [name, id] : reg.GetRegisteredIDs())
+            { debug_print("\t[ {}, {} ]", name, id); }
+        print_debug("Theatre Registered Enums:");
+        for(auto [name, pair] : reg.GetRegisteredEnums())
+            { debug_print("\t[{}]", name); }
+        print_debug("CHILDREN DEBUG INFORMATION");
+        for(FAUTO id : g_pTheatreManager->CurrentTheatre()->ThingIDs())
+        {
+            auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(id)};
+            if(auto thinker{DCast<Thinker>(thing)};
+                thinker and !thinker->Children().empty())
+            {
+                debug_print("{} children", thinker->name());
+                for(auto child : thinker->Children())
+                {
+                    auto test{g_pTheatreManager->CurrentTheatre()->GetThing(child.id)};
+                    debug_print("\t[{}, {}] ({}, {})",
+                        child.id[],
+                        child.type.name(),
+                        test->name(),
+                        test->type().name());
+                }
+            }
+        }
     }
 }
 
@@ -443,14 +518,14 @@ void ImGui_Debugger::m_ManualStopwatchWindow(float width)
 static void s_TheatreDebuggingWindow()
 {
     BeginChild("Theatre Debugging");
-#ifdef DEBUGGING
-    Text("Theatre File Parser Breakpoint:");
-    PushItemWidth(82.0f);
-    InputUInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-    InputUInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
-    PushItemWidth(0.0f);
-    Separator();
-#endif // DEBUGGING
+// #ifdef DEBUGGING
+    // Text("Theatre File Parser Breakpoint:");
+    // PushItemWidth(82.0f);
+    // InputUInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    // InputUInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
+    // PushItemWidth(0.0f);
+    // Separator();
+// #endif // DEBUGGING
     Checkbox("Debug Theatre File Load Printout", &sPrintLoadedTheatreData);
 
     InputText("Theatre File", &sTheatreFilePath);
@@ -461,8 +536,8 @@ static void s_TheatreDebuggingWindow()
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
-        if(sPrintLoadedTheatreData)
-            { g_pTheatreManager->CurrentTheatre()->InitialState().debug_PrintData(); }
+        /*if(sPrintLoadedTheatreData)
+            { g_pTheatreManager->CurrentTheatre()->InitialState().debug_PrintData(); }*/
     }
     if(IManager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
@@ -471,7 +546,7 @@ static void s_TheatreDebuggingWindow()
     if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         { BeginDisabled(); }
     if(Button("Save Theatre State"))
-        { FileSystem::try_WriteFileFromString(l_TheatreFilePath, g_pTheatreManager->CurrentTheatre()->CurrentState().formatted()); }
+        { /*FileSystem::try_WriteFileFromString(l_TheatreFilePath, g_pTheatreManager->CurrentTheatre()->CurrentState().formatted());*/ }
     SameLine(); InputText("File Path", &l_TheatreFilePath, ImGuiInputTextFlags_CharsNoBlank);
     if(Button("Exit Theatre"))
         { IManager::ShutdownTheatre(); }
@@ -734,7 +809,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     EndPopup();
                 }
                 if(InputText("Name", &selected.name))
-                    { selected.ptr->name(selected.name); }
+                    { selected.ptr->set_name(selected.name); }
             }
             if(selected.ptr)
                 { Text("Type - %s", selected.ptr->type().c_name()); }

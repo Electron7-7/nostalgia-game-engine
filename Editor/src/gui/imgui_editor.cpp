@@ -9,7 +9,7 @@
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
@@ -49,41 +49,34 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    sSpawnLocationMaterialID = g_pTheatreManager->CurrentTheatre()->CreateThing({
-        "ThingAdderSpawnLocation_Material",
-        ThingType::Material,
-        UID::Generate(),
-        {
-            {true, "NoTexture"},
-            {glm::vec3{1.0f, 0.0f, 0.0f}, "Color"},
-            {true, "mat_fullbright"}
-        }
-    });
-    sSpawnLocationMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing({
-        "ThingAdderSpawnLocation_MeshInstance",
-        ThingType::MeshInstance3D,
-        UID::Generate(),
-        {{UID::m_Ramiel, "Mesh"}, {sSpawnLocationMaterialID, "MaterialOverride"}, {true, "Wireframe"}}
-    });
-    sSpawnLocationID = g_pTheatreManager->CurrentTheatre()->CreateThing({
-        "ThingAdderSpawnLocation",
-        ThingType::Actor3D,
-        UID::Generate(),
-        {{sSpawnLocationMeshInstanceID, "Child"}, {glm::vec3{1.0f}, "Scale"}}
-    });
+    TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
+    mat_dat.set_variable(true, "NoTexture");
+    mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
+    mat_dat.set_variable(true, "mat_fullbright");
+    sSpawnLocationMaterialID = g_pTheatreManager->CurrentTheatre()->CreateThing(mat_dat);
 
-    g_pTheatreManager->CurrentTheatre()->CreateThing({"Editor Viewport",
-        ThingType::Viewport,
+    TheatreFile::ThingData mesh_inst_dat{ThingType::MeshInstance3D,"ThingAdderSpawnLocation_MeshInstance"};
+    mesh_inst_dat.set_variable(UID::m_Ramiel, "Mesh");
+    mesh_inst_dat.set_variable(sSpawnLocationMaterialID, "MaterialOverride");
+    mesh_inst_dat.set_variable(true, "Wireframe");
+    sSpawnLocationMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing(mesh_inst_dat);
+
+    TheatreFile::ThingData spawn_dat{ThingType::Actor3D, "ThingAdderSpawnLocation"};
+    spawn_dat.set_variable(sSpawnLocationMeshInstanceID, "Child");
+    spawn_dat.set_variable(glm::vec3{1.0f}, "Scale");
+
+    sSpawnLocationID = g_pTheatreManager->CurrentTheatre()->CreateThing(spawn_dat);
+
+    g_pTheatreManager->CurrentTheatre()->CreateThing({ThingType::Viewport,
+        "Editor Viewport",
+        {},
         UID::a_EditorViewport});
 
-    g_pTheatreManager->CurrentTheatre()->CreateThing({"Editor Camera",
-        ThingType::Camera3D,
-        UID::Generate(),
-        {
-            {true, "UseDefaultSkybox"},
-            {UID::a_EditorViewport, "Viewport"},
-            {true, "Current"},
-        }});
+    TheatreFile::ThingData cam_dat{ThingType::Camera3D,"Editor Camera"};
+    cam_dat.set_variable(true, "UseDefaultSkybox");
+    cam_dat.set_variable(UID::a_EditorViewport, "Viewport");
+    cam_dat.set_variable(true, "Current");
+    g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
 }
 
 void ImGui_Editor::TheatreExited()
@@ -162,7 +155,7 @@ void ImGui_Editor::Update()
             EndMenuBar();
         }
         auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(UID::a_EditorViewport)};
-        if(!viewport->Framebuffer())
+        if(viewport->uid().invalid())
             { End(); return; }
         BeginChild("Viewport",
             {500, 500},
@@ -265,11 +258,9 @@ void s_ThingAdder()
     {
         sNewThingName = sNameBuffer;
         if(sNewThingName.empty()) { sNewThingName = "UntitledSpawnedThing"; }
-        g_pTheatreManager->CurrentTheatre()->CreateThing({(sNewThingName.empty()) ? "New Thing" : sNewThingName,
-            sTypeNames[sSelectedType],
-            UID::Generate(),
-            { {sSpawnLocation, "Position"} }
-        });
+        TheatreFile::ThingData thing_dat{sTypeNames[sSelectedType], (sNewThingName.empty()) ? "New Thing" : sNewThingName};
+        thing_dat.set_variable(sSpawnLocation, "Position");
+        g_pTheatreManager->CurrentTheatre()->CreateThing(thing_dat);
         sNewThingName.clear();
         sNameBuffer.clear();
     }
