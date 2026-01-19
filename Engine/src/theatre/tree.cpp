@@ -27,8 +27,9 @@ Error Tree::remove_node(ID inNodeID) noexcept
 {
     if(auto found_it{all_nodes.find(inNodeID)}; found_it != all_nodes.end())
     {
-        if(!found_it->second.parent.invalid())
-            { all_nodes.at(found_it->second.parent).children->remove_node(inNodeID); }
+        if(auto found_parent{all_nodes.find(found_it->second.parent)};
+            found_parent != all_nodes.end())
+                { found_parent->second.children->remove_node(inNodeID); }
         all_nodes.erase(found_it);
         return OK;
     }
