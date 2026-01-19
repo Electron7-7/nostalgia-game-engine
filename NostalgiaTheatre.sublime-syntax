@@ -10,7 +10,7 @@ scope: source.nt
 variables:
   start_theatre_name: '^(?=@)'
   start_theatre_index: '(?=#)'
-  contexts: '(Resources|Things)'
+  contexts: '(Resources|Thinkers)'
   typenames: >-
     (?x)
     (
