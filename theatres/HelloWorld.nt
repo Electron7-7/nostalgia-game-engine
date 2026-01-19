@@ -10,15 +10,22 @@ Resources
     // Resources are wrappers for file data. As such, they use simple one-line definitions starting with their type, name, an equals
     // sign, a string variable, and finally ended with a semicolon. Strings are delimited by single quotes and will capture absolutely
     // everything inside of them, including whitespace
-    Mesh IcoSphere = 'theatres/testing_resources/IcoSphere.obj';
-    Texture StupidTex = 'theatres/testing_resources/Stupid.png';
+    Mesh IcoSphere
+    {
+        Model = 'theatres/testing_resources/IcoSphere.obj'
+    }
+
+    Texture StupidTex
+    {
+        Image = 'theatres/testing_resources/Stupid.png'
+    }
     // Defining your own resources is currently limited to external files; support for adding your own internally embedded resource
     // data should be coming soon
 }
 
 // Things are, well, everything else. Technically speaking, Resources *are* Things, but they get special treatment. Thing definition
 // follows a syntax that closely resembles a mixture of a C/C++ variable and struct.
-Things
+Thinkers
 {
     // Thing definition starts with the type, followed by a name (similarly to 'Resource'), which is followed by curly braces.
     // Variables are defined inside the curly braces and are Python-esque, being terminated by a newline
