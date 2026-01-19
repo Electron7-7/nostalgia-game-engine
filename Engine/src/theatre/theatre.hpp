@@ -1,11 +1,13 @@
 #ifndef THEATRE_H
 #define THEATRE_H
 
-#include "fwd/theatre.hpp"
 #include "fwd/filesystem.hpp"
+#include "fwd/theatre.hpp"
+#include "theatre/variable_registry.hpp"
+#include "theatre/call_sheet.hpp"
 #include "components/event_handling.hpp"
 #include "components/game_loop.hpp"
-#include "core/id.hpp"
+#include "core/uid.hpp"
 #include "core/error.hpp"
 #include "core/mutex.hpp"
 #include "core/smart_pointers.hpp"
@@ -18,10 +20,8 @@ public:
 
     bool mDoPrintDebugLogs{false};
 
-    Theatre() noexcept;
-    Theatre(Farg<TheatreData>) noexcept;
+    Theatre(Shared<TheatreFile::TheatreData>) noexcept;
     Theatre(Farg<FileData> inTheatreFileData) noexcept;
-    Theatre(Sarg inTheatreFilePath) noexcept;
 
     virtual ~Theatre() noexcept;
 
@@ -33,17 +33,18 @@ public:
     virtual bool Shutdown();
     virtual void Draw();
 
-    Error             InitStatus()   const;
-    bool              IsStarted()    const;
-    Farg<TheatreData> InitialState() const;
-    TheatreData       CurrentState();
+    Error InitStatus() const;
+    bool  IsStarted()  const;
+    Farg<VariableRegistry>         Registry() const;
+    Farg<TheatreFile::TheatreData> InitialState() const;
+    TheatreFile::TheatreData       CurrentState();
 
     IdVec_t   ThingIDs();
     IdSet_arg ViewportIDs();
     bool      ThingExists(ID);
     Farg<PID> TypeOf(ID);
     Error     ChangeThingID(ID inOldID, ID inNewID);
-    ID        CreateThing(Farg<ThingData>);
+    ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
 
     Shared<Thing>    GetThing(ID ObjectID);
@@ -66,21 +67,26 @@ public:
             return MakeShared<T>();
         }
 
-private:
+protected:
     RMutex   mThingsMutex{};
     Things_t mThings{};
     IdSet_t  mLightIDs{},
              mVisual3DIDs{},
              mVisual2DIDs{},
              mViewportIDs{};
+    CallSheet mCallSheet{};
+    UID mUIDs{};
 
-    Unique<TheatreData> mInitialState{nullptr};
+    Shared<VariableRegistry> m_pRegistry{nullptr};
+    Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
+
     Error mInitStatus{ERR_UNINITIALIZED};
-
     bool mIsStarted{false};
 
+    void SetRegistryAndUID(TheatreFile::ThingData&);
     void CreateEmbeddedResources();
-    ID   CreateThingNoReady(Farg<ThingData>);
+    ID   CreateThingNoReady(Farg<TheatreFile::ThingData>);
+    ID   CreateThingNoReady(TheatreFile::ThingData&);
     Things_t::iterator DestroyThing(Things_t::iterator);
 
     void Draw3DThinkers(Shared<Camera3D>);

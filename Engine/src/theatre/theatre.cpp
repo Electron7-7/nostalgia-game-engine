@@ -1,14 +1,15 @@
 #include "theatre.hpp"
-#include "core/uid.hpp"
-#include "managers/render_manager.hpp"
-#include "settings/graphics.hpp"
-#include "theatre/things/thinkers/3d/light_3d.hpp"
+#include "parser.hpp"
 #include "thing_factory.hpp"
+#include "core/uid.hpp"
 #include "filesystem/file_data.hpp"
-#include "theatre/parser/theatre_parser.hpp"
-#include "theatre/parser/theatre_data.hpp"
+#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
+#include "rendering/shader.hpp"
+#include "settings/graphics.hpp"
 #include "theatre/things/thing.hpp"
 #include "theatre/things/thinkers/thinker.hpp"
+#include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/3d/visual_3d.hpp"
@@ -17,30 +18,28 @@
 #include "theatre/things/resources/texture.hpp"
 #include "theatre/things/resources/material.hpp"
 #include "theatre/things/resources/mesh.hpp"
-#include "rendering/renderer_api.hpp"
-#include "rendering/shader.hpp"
 #include <ranges>
 
-Theatre::Theatre() noexcept = default;
+using namespace TheatreFile;
 
-Theatre::Theatre(Farg<TheatreData> inData) noexcept:
-    mInitialState{MakeUnique<TheatreData>(inData)},
+Theatre::Theatre(Shared<TheatreData> inData) noexcept:
+    m_pRegistry{MakeShared<VariableRegistry>()},
+    m_pInitialState{inData},
     mInitStatus{OK} {}
 
 Theatre::Theatre(Farg<FileData> inData) noexcept:
-    mInitialState{MakeUnique<TheatreData>()}
+    m_pRegistry{MakeShared<VariableRegistry>()},
+    m_pInitialState{MakeShared<TheatreData>()}
 {
-    mInitStatus = (TheatreParser::ParseTheatreFileFromMemory(inData, *mInitialState))
-        ? OK
-        : ERR_DATA_LOAD;
-}
-
-Theatre::Theatre(Sarg inPath) noexcept:
-    mInitialState{MakeUnique<TheatreData>()}
-{
-    mInitStatus = (TheatreParser::ParseTheatreFile(inPath, *mInitialState))
-        ? OK
-        : ERR_FILE_LOAD;
+    TokenArray tokens{};
+    if(!print_error_enum(inData.Status()))
+        { mInitStatus = ERR_DATA_LOAD; }
+    else if(!print_error_enum(Lexer(inData, tokens)))
+        { mInitStatus = ERR_THEATRE_LEXER; }
+    else if(!print_error_enum(Parser(tokens, m_pInitialState)))
+        { mInitStatus = ERR_THEATRE_PARSER; }
+    else { mInitStatus = OK; }
+    print_error_enum(mInitStatus);
 }
 
 Theatre::~Theatre() noexcept
@@ -69,31 +68,66 @@ void Theatre::Input(InputEvent* inInput)
 
 bool Theatre::Startup()
 {
-    if(mIsStarted or !mInitStatus)
+    assert(mInitStatus == OK and m_pInitialState and m_pRegistry);
+    if(mIsStarted)
         { return false; }
 
     LockGuard<RMutex> lock{mThingsMutex};
 
-    mInitialState->SetupUIDsAndPriorities();
-    if(mDoPrintDebugLogs)
-        { mInitialState->debug_PrintData(); }
+    mUIDs.Clear();
+    mCallSheet.Clear();
+    m_pRegistry->ClearIDs();
+    m_pRegistry->Init();
 
     CreateEmbeddedResources();
 
-    for(ThingData& data : mInitialState->things_data)
-        { CreateThingNoReady(data); }
+    for(auto& thing_dat : *m_pInitialState)
+        { SetRegistryAndUID(thing_dat); }
+
+    for(auto& thing_dat : *m_pInitialState)
+        { CreateThingNoReady(thing_dat); }
 
     if(!mThings.contains(UID::a_Player))
-        { CreateThingNoReady({"Default NostalgiaPlayer3D", ThingType::NostalgiaPlayer3D, UID::a_Player}); }
+    {
+        CreateThingNoReady({ThingType::NostalgiaPlayer3D,
+            "Default NostalgiaPlayer3D",
+            {},
+            UID::a_Player});
+    }
 
-    CreateThingNoReady({"Global 3D Viewport", ThingType::Viewport, UID::a_Global3DViewport});
-    CreateThingNoReady({"Global 2D Viewport", ThingType::Viewport, UID::a_Global2DViewport});
+    if(!mThings.contains(UID::a_Global3DViewport))
+    {
+        CreateThingNoReady({ThingType::Viewport,
+            "Global 3D Viewport",
+            {},
+            UID::a_Global3DViewport});
+    }
+
+    if(!mThings.contains(UID::a_Global2DViewport))
+    {
+        CreateThingNoReady({ThingType::Viewport,
+            "Global 2D Viewport",
+            {},
+            UID::a_Global2DViewport});
+    }
 
     mViewportIDs.insert(UID::a_Global3DViewport);
     mViewportIDs.insert(UID::a_Global2DViewport);
 
     for(auto& [id, thing] : mThings)
         { thing->Ready(); }
+
+    print_debug("ALL THINGS");
+    debug_print("name                  | uid        | in mUIDs? | in m_pRegistry? | in mCallSheet?");
+    for(FAUTO [id, thing] : mThings)
+    {
+        debug_print("{:<24}{:<13}{:12}{:18}{}",
+            thing->name(),
+            id[],
+            mUIDs.Contains(thing->uid()[]) or mUIDs.IsReserved(thing->uid()[]),
+            m_pRegistry->HasID(thing->uid()[]),
+            mCallSheet.Has(thing->uid()));
+    }
 
     return mIsStarted = true;
 }
@@ -105,6 +139,9 @@ bool Theatre::Shutdown()
     LockGuard<RMutex> lock{mThingsMutex};
     for(auto it{mThings.begin()}; it != mThings.end();)
         { it = DestroyThing(it); }
+    m_pRegistry->ClearIDs();
+    mUIDs.Clear();
+    mCallSheet.Clear();
     return !(mIsStarted = false);
 }
 
@@ -140,16 +177,19 @@ Error Theatre::InitStatus() const
 bool Theatre::IsStarted() const
 { return mIsStarted; }
 
+Farg<VariableRegistry> Theatre::Registry() const
+{ return *m_pRegistry; }
+
 Farg<TheatreData> Theatre::InitialState() const
-{ return *mInitialState; }
+{ return *m_pInitialState; }
 
 TheatreData Theatre::CurrentState()
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    TheatreData data{*mInitialState};
+    TheatreData data{*m_pInitialState};
     data.clear();
-    for(const auto& [id, thing] : mThings)
-        { data.AddData(*thing->GetVariables()); }
+    for(FAUTO [id, thing] : mThings)
+        { data.emplace_back(*thing->GetVariables()); }
     return data;
 }
 
@@ -188,13 +228,13 @@ Error Theatre::ChangeThingID(ID inOldID, ID inNewID)
     else if(!mThings.contains(inOldID))
         { return ERR_NOT_FOUND; }
     auto found_it{mThings.extract(inOldID)};
-    found_it.mapped()->uid(inNewID);
+    found_it.mapped()->mUID = inNewID;
     found_it.key() = inNewID;
     mThings.insert(std::move(found_it));
     return OK;
 }
 
-ID Theatre::CreateThing(Farg<ThingData> inData)
+ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
     ID output{CreateThingNoReady(inData)};
@@ -245,58 +285,75 @@ Shared<Thinker> Theatre::GetThinker(ID inID)
     return MakeShared<Thinker>();
 }
 
-void Theatre::CreateEmbeddedResources()
+void Theatre::SetRegistryAndUID(ThingData& ioData)
 {
-    CreateThingNoReady({"Error Mesh",          ThingType::Mesh,    UID::m_Error});
-    CreateThingNoReady({"Cube Mesh",           ThingType::Mesh,    UID::m_Cube});
-    CreateThingNoReady({"Ramiel Mesh",         ThingType::Mesh,    UID::m_Ramiel});
-    CreateThingNoReady({"Camera3D Mesh",       ThingType::Mesh,    UID::m_Camera3D});
-    CreateThingNoReady({"Missing Texture",     ThingType::Texture, UID::t_Missing});
-    CreateThingNoReady({"LolBit Texture",      ThingType::Texture, UID::t_LolBit});
-    CreateThingNoReady({"Debug Light Texture", ThingType::Texture, UID::t_LightDebug});
-    CreateThingNoReady({"Doom Texture",        ThingType::Texture, UID::t_COMP04_5});
-    CreateThingNoReady({"Shitty SkyBox",       ThingType::Texture, UID::t_ShittySkybox,
-        {{TextureType::TEXTURE_TYPE_CUBE, "Type"}}});
+    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
+        { ioData.uid = UID::a_Player; }
+    if(ioData.uid.invalid())
+        { ioData.uid = mUIDs.Generate(); }
+    if(!mUIDs.Contains(ioData.uid[]))
+        { mUIDs.Push(ioData.uid[]); }
+    if(!m_pRegistry->HasID(ioData.name))
+        { m_pRegistry->RegisterID(ioData.name, ioData.uid[]); }
+    if(!mCallSheet.Has(ioData.uid))
+        { mCallSheet.Add(ioData.uid); }
+    ioData.theatre_registry = m_pRegistry;
 }
 
-ID Theatre::CreateThingNoReady(Farg<ThingData> inData)
+void Theatre::CreateEmbeddedResources()
+{
+    // "Audiowide" UID::f_Audiowide
+    // "DejaVuSans" UID::f_DejaVuSans
+    // "Verdana" UID::f_Verdana
+    CreateThingNoReady({ThingType::Mesh,    "ErrorModel",{},          UID::m_Error});
+    CreateThingNoReady({ThingType::Mesh,    "DefaultCube",{},         UID::m_Cube});
+    CreateThingNoReady({ThingType::Mesh,    "RamielModel",{},         UID::m_Ramiel});
+    CreateThingNoReady({ThingType::Mesh,    "CameraModel",{},         UID::m_Camera3D});
+    CreateThingNoReady({ThingType::Texture, "MissingTexture",{},      UID::t_Missing});
+    CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::t_LightDebug});
+    CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::t_COMP04_5});
+    CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::t_LolBit});
+    CreateThingNoReady({ThingType::Texture,
+        "ShittySkybox",
+        {{"Type",m_pRegistry->GetEnumName(TextureType::TEXTURE_TYPE_CUBE),ThingVarType::Enum}},
+        UID::t_ShittySkybox});
+}
+
+ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData)
+{ auto data{inData}; return CreateThingNoReady(data); }
+
+ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    ThingData data{inData};
 
-    if(mThings.contains(data.uid))
+    SetRegistryAndUID(ioData);
+
+    auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type)};
+    thing->SetVariables(ioData);
+
+    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::Thinker))
     {
-        if(!mThings.at(data.uid)->name().compare(data.name))
+        auto thinker{DCast<Thinker>(thing)};
+        if(!mCallSheet.Reparent(thinker->uid(), thinker->Parent().id))
+            { mCallSheet.Add(thinker->uid(), thinker->Parent().id); }
+        for(FAUTO child : thinker->Children())
         {
-            print_warning("Duplicate Thing '{}' [{}] detected", data.name, data.uid[]);
-            return data.uid[];
-        }
-        else if(!UID::Contains(data.uid[]))
-            { UID::Push(data.uid[]); }
-        else
-        {
-            print_warning("UID#{} is already in use; a new ID will be generated for Thing '{}'",
-                data.uid[],
-                data.name);
-            data.uid = UID::Generate();
+            if(!mCallSheet.Reparent(child.id, thinker->uid()))
+                { print_warning("Invalid Child UID: {}", child.id[]); }
         }
     }
 
-    auto& thing{mThings[data.uid] = ThingFactory::MakeThing(data.type())};
-    thing->SetVariables(data);
-    g_pVariableRegistry->RegisterID(thing->name(), thing->uid()[]);
-
-    if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Viewport))
-        { mViewportIDs.insert(data.uid); }
-    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Visual3D))
+    if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
+        { mViewportIDs.insert(thing->uid()); }
+    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual3D))
     {
-        mVisual3DIDs.insert(data.uid);
-        if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Light3D))
-            { mLightIDs.insert(data.uid); }
+        mVisual3DIDs.insert(thing->uid());
+        if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Light3D))
+            { mLightIDs.insert(thing->uid()); }
     }
-    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::Visual2D))
-        { mVisual2DIDs.insert(data.uid); }
-    else if(ThingFactory::IsDerivedFrom(data.type(), ThingType::NostalgiaPlayer3D))
+    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual2D))
+        { mVisual2DIDs.insert(thing->uid()); }
+    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::NostalgiaPlayer3D))
         { ChangeThingID(thing->uid(), UID::a_Player); }
 
     return thing->uid();
@@ -307,9 +364,11 @@ Theatre::Things_t::iterator Theatre::DestroyThing(Things_t::iterator inIterator)
     LockGuard<RMutex> lock{mThingsMutex};
     if(inIterator == mThings.end())
         { return inIterator; }
-    if(!g_pVariableRegistry->RemoveID(inIterator->first[])
-        and !g_pVariableRegistry->RemoveID(inIterator->second->name()))
+    if(!m_pRegistry->RemoveID(inIterator->first[])
+        and !m_pRegistry->RemoveID(inIterator->second->name()))
         { print_warning("Unable to remove Thing#{} from the variable registry!", inIterator->first[]); }
+    mCallSheet.Remove(inIterator->first);
+    mUIDs.Erase(inIterator->first[]);
     mViewportIDs.erase(inIterator->first);
     mVisual2DIDs.erase(inIterator->first);
     mVisual3DIDs.erase(inIterator->first);
