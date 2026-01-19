@@ -7,15 +7,22 @@ class Theatre;
 
 class VariableRegistry;
 
-enum class ThingVarType : unsigned short;
-
-struct ThingVar;
-struct ThingData;
-struct TheatreParser;
-struct TheatreData;
-struct ThingType;
 struct ThinkerRelative;
 using ThinkerChildren = std::vector<ThinkerRelative>;
+
+namespace TheatreFile
+{
+    enum class ThingVarType;
+    enum class TokenName;
+
+    struct Token;
+    struct ThingVariable;
+    struct ThingData;
+
+    using TokenArray    = std::vector<Token>;
+    using ThingVarArray = std::vector<ThingVariable>;
+    using TheatreData   = std::vector<ThingData>;
+}
 
 ////////////
 // THINGS //
