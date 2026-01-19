@@ -117,18 +117,6 @@ bool Theatre::Startup()
     for(auto& [id, thing] : mThings)
         { thing->Ready(); }
 
-    print_debug("ALL THINGS");
-    debug_print("name                  | uid        | in mUIDs? | in m_pRegistry? | in mCallSheet?");
-    for(FAUTO [id, thing] : mThings)
-    {
-        debug_print("{:<24}{:<13}{:12}{:18}{}",
-            thing->name(),
-            id[],
-            mUIDs.Contains(thing->uid()[]) or mUIDs.IsReserved(thing->uid()[]),
-            m_pRegistry->HasID(thing->uid()[]),
-            mCallSheet.Has(thing->uid()));
-    }
-
     return mIsStarted = true;
 }
 
