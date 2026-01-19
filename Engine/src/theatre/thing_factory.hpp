@@ -5,6 +5,7 @@
 #include "core/id.hpp"
 #include "core/error.hpp"
 #include "core/smart_pointers.hpp"
+#include "theatre/thing_type.hpp"
 #include <map>
 #include <set>
 
