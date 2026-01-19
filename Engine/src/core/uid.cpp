@@ -1,43 +1,43 @@
-#include "id.hpp"
 #include "uid.hpp"
 #include "printing.hpp"
-#include <random>
-#include <set>
 
-static std::set<uint> sActiveIDs{};
-static std::random_device sRandomSeed;
-static std::mt19937 sIdEngine(sRandomSeed());
-static std::uniform_int_distribution<uint> sIdDistribution{UID::front, UID::back};
+std::uniform_int_distribution<uint> UID::m_sIdDistribution{UID::front, UID::back};
 
-constexpr uint cMaxUID{UID::back - UID::reserved_back}; // Probably one less than the real max but it shouldn't matter
+static std::random_device sRandomSeed{};
+static std::mt19937 sIdEngine{sRandomSeed()};
+static constexpr uint cMaxUID{UID::back - UID::reserved_back}; // Probably one less than the real max but it shouldn't matter
 
-uint ID::Generate()
+uint UID::GetRandom()
 {
     sIdEngine.seed(sRandomSeed());
-    return sIdDistribution(sIdEngine);
+    return m_sIdDistribution(sIdEngine);
 }
 
 uint UID::Generate()
 {
-    if(sActiveIDs.size() == cMaxUID)
+    if(mActiveIDs.size() == cMaxUID)
     {
         print_warning("Somehow, you have hit the maximum number of unique IDs ({}), so I'm gonna take the liberty of removing them all from the set :)", cMaxUID);
-        sActiveIDs.clear();
+        mActiveIDs.clear();
     }
-    uint new_id{ID::Generate()};
-    while(!sActiveIDs.insert(new_id).second)
-        { new_id = ID::Generate(); }
+    uint new_id{UID::GetRandom()};
+    while(!mActiveIDs.insert(new_id).second)
+        { new_id = UID::GetRandom(); }
     return new_id;
 }
 
 void UID::Clear()
-{ sActiveIDs.clear(); }
+{ mActiveIDs.clear(); }
 
 bool UID::Push(uint id)
-{ return sActiveIDs.insert(id).second; }
+{
+    return (IsReserved(id))
+        ? false
+        : mActiveIDs.insert(id).second;
+}
 
 bool UID::Erase(uint id)
-{ return sActiveIDs.erase(id); }
+{ return mActiveIDs.erase(id); }
 
 UID::ReservedType UID::GetReservedType(uint id)
 {
@@ -60,4 +60,4 @@ bool UID::IsReserved(uint id)
 { return id < front; }
 
 bool UID::Contains(uint id)
-{ return sActiveIDs.contains(id); }
+{ return mActiveIDs.contains(id); }

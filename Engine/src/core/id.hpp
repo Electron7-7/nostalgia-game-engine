@@ -50,8 +50,6 @@ public:
     static constexpr uint front   {0};
     static constexpr uint back    {Invalid - 1};
 
-    static uint Generate();
-
 protected:
     uint id_{Invalid};
 };

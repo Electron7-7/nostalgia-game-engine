@@ -16,12 +16,7 @@ PID::PID(Farg<std::string> inHashable) noexcept:
 PID::PID(const char* inHashable) noexcept:
     ID{inHashable}, name_{inHashable} {}
 
-PID::~PID() noexcept
-{
-    if(id_ == Invalid or id_ < UID::back)
-        { return; }
-    UID::Erase(id_);
-}
+PID::~PID() noexcept = default;
 
 Farg<std::string> PID::name() const
 { return name_; }
