@@ -15,7 +15,7 @@ public:
 
     // Will not overwrite a previously registered enum
     template<IsEnum T>
-        inline static Error Register(T inEnum, Sarg inName) noexcept
+        static Error Register(T inEnum, Sarg inName) noexcept
         {
             return (m_sEnums[typeid(T)].emplace(static_cast<long>(inEnum), inName).second)
                 ? OK
@@ -24,11 +24,11 @@ public:
 
     // Will overwrite a previously registered enum
     template<IsEnum T>
-        inline static void Assign(T inEnum, Sarg inName) noexcept
+        static void Assign(T inEnum, Sarg inName) noexcept
             { m_sEnums[typeid(T)][static_cast<long>(inEnum)] = inName; }
 
     template<IsEnum T>
-        inline static Sarg Prettify(T inEnum) noexcept
+        static Sarg Prettify(T inEnum) noexcept
         {
             if(auto found_one{m_sEnums.find(typeid(T))};
                 found_one != m_sEnums.end())
@@ -39,10 +39,6 @@ public:
             }
             return m_sEmpty;
         }
-
-    template<IsEnum T>
-        Sarg operator()(T inEnum) const noexcept
-        { return Prettify(inEnum); }
 
 private:
     inline static enums_registry m_sEnums{};
