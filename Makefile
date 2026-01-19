@@ -36,7 +36,7 @@ DYNAMIC_LIBRARIES        := -lglfw -lfreetype
 DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
 
-INCLUDE := -I Engine/src -I Editor/src -I Engine/src/thirdparty -I Engine/src/thirdparty/FreeType
+INCLUDE := -I Engine/src -I Editor/src -I Editor/src/thirdparty -I Engine/src/thirdparty -I Engine/src/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_ENGINE    := Engine
@@ -162,6 +162,7 @@ THIRDPARTY_SRC_DIRS := \
 
 EDITR_SRC_DIRS := \
     $(EDITR_SRC)/app \
+    $(EDITR_SRC)/thirdparty/getargs \
     $(EDITR_SRC)/system \
     $(EDITR_SRC)/tools \
     $(EDITR_SRC)/gui
@@ -269,7 +270,7 @@ editor: static
 	$(eval LD_FLAGS =)
 	$(eval EDITR_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
-	$(eval EDITR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) -lstdc++exp)
+	$(eval EDITR_LD_FLAGS = $(BUILD_LIBRARY)/$(NAME) Editor/src/libraries/libgetargs.a -lstdc++exp)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval BUILD_DIR = $(BUILD_ROOT)/$(DIR_EDITR))
 	$(eval CURRENT_SRC = $(EDITR_SRC))

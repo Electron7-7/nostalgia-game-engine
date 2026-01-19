@@ -1,4 +1,6 @@
+#include "program_arguments.hpp"
 #include "app/nostalgia_goggles.hpp"
+#include "getargs/argument_parser.hpp"
 #include "application/application.hpp"
 
 #ifdef _WIN32
@@ -9,6 +11,32 @@
 
 int DedicatedMain(int argc, char** argv)
 {
+    global_ArgumentParser->AddFlag(&Flags::Help);
+    global_ArgumentParser->AddFlag(&Flags::Version);
+    global_ArgumentParser->AddFlag(&Flags::NoColors);
+
+    int parser_status{global_ArgumentParser->ParseArguments(argc, argv)};
+    if(parser_status == ARG_STATUS_FAILED)
+        { return 1; }
+
+    if(Flags::Help.IsActive())
+    {
+        std::println("{}\n\t{}",
+            _Help_Printout,
+            _Version_Printout);
+        return 0;
+    }
+    else if(Flags::Version.IsActive())
+    {
+        std::println("\t{}\n", _Version_Printout);
+        return 0;
+    }
+    else if(Flags::NoColors.IsActive())
+    {
+        for(int i{0}; i < 7; ++i)
+            { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
+    }
+
     NostalgiaGoggles application{};
     return Application()->Main();
 }
