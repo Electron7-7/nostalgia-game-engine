@@ -1,7 +1,8 @@
 #include "thing.hpp"
-#include "core/uid.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "theatre/thing_factory.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 Thing::Thing()  noexcept = default;
 Thing::~Thing() noexcept = default;
@@ -10,13 +11,17 @@ void Thing::SetVariables(Farg<ThingData> data)
 {
     mUID  = data.uid;
     mName = data.name;
-    mType = data.type();
+    mType = data.type;
     mStartingData = MakeUnique<ThingData>(data);
 }
 
 Shared<ThingData> Thing::GetVariables() const
 {
-    auto data{MakeShared<ThingData>(mName, mType, mUID)};
+    auto data{MakeShared<ThingData>()};
+    data->name = mName;
+    data->uid  = mUID;
+    data->type = mType;
+    data->theatre_registry = mStartingData->theatre_registry;
     return data;
 }
 
@@ -35,21 +40,8 @@ Farg<ThingType> Thing::full_type() const
 Farg<std::string> Thing::name() const
 { return mName; }
 
+void Thing::set_name(Sarg inName)
+{ mName = inName; }
+
 const char* const Thing::c_name() const
 { return mName.data(); }
-
-bool Thing::uid(ID inID)
-{
-    if(inID == mUID)
-        { return true; }
-    else if(inID.invalid())
-        { inID = UID::Generate(); }
-    else if(inID != UID::a_Player)
-        { UID::Push(inID[]); }
-    UID::Erase(mUID[]);
-    mUID = inID;
-    return true;
-}
-
-void Thing::name(Sarg inName)
-{ mName = inName; }

@@ -1,6 +1,8 @@
 #include "visual_3d.hpp"
 #include "core/uid.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Visual3D::SetVariables(Farg<ThingData> data)
 {
@@ -8,7 +10,7 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 
     int render_layers{mVisualLayers.get()};
 
-    if(data.GetVariable(render_layers, "VisualLayers", "RenderLayers", "Layers"))
+    if(data.get_variable(render_layers, "VisualLayers", "RenderLayers", "Layers") == OK)
         { mVisualLayers.set(render_layers); }
 }
 
@@ -16,7 +18,7 @@ Shared<ThingData> Visual3D::GetVariables() const
 {
     auto data{Actor3D::GetVariables()};
 
-    data->AddVariable(mVisualLayers.get(), "VisualLayers");
+    data->set_variable(mVisualLayers.get(), "VisualLayers");
 
     return data;
 }

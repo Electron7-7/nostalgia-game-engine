@@ -1,34 +1,35 @@
 #include "nostalgia_player_3d.hpp"
 #include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>
-#include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
 #include "math/conversion.hpp"
 #include "settings/world.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
 #include "managers/input_manager.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "physics/engine.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    data.GetVariable(mViewPosition, "ViewPosition");
-    data.GetVariable(mCameraID, "Camera", "CameraID", "Camera3D");
-    data.GetVariable(mColliderID, "Collider", "ColliderID", "PlayerCollider");
-    data.GetVariable(Settings::Player::EnableGravity, "EnableGravity", "Gravity", "Fall");
+    data.get_variable(mViewPosition, "ViewPosition");
+    data.get_variable(mCameraID, "Camera", "CameraID", "Camera3D");
+    data.get_variable(mColliderID, "Collider", "ColliderID", "PlayerCollider");
+    data.get_variable(Settings::Player::EnableGravity, "EnableGravity", "Gravity", "Fall");
 }
 
 Shared<ThingData> NostalgiaPlayer3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
 
-    data->AddVariable(mViewPosition, "ViewPosition");
-    data->AddVariable(mCameraID, "Camera");
-    data->AddVariable(mColliderID, "Collider");
-    data->AddVariable(Settings::Player::EnableGravity, "EnableGravity");
+    data->set_variable(mViewPosition, "ViewPosition");
+    data->set_variable(mCameraID, "Camera");
+    data->set_variable(mColliderID, "Collider");
+    data->set_variable(Settings::Player::EnableGravity, "EnableGravity");
 
     return data;
 }
@@ -43,30 +44,25 @@ void NostalgiaPlayer3D::Ready()
         { mScale = glm::vec3{1.0f, 3.0f, 1.0f}; }
     if(mCameraID.invalid())
     {
-        mCameraID = g_pTheatreManager->CurrentTheatre()->CreateThing({"DefaultPlayerCam",
-            ThingType::Camera3D,
-            UID::Generate(),
-            {
-                {mViewPosition, "Origin"},
-                {mQuaternion, "Quaternion"},
-                {true, "Current"},
-                {true, "UseDefaultSkybox"},
-            }});
+        TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
+        cam_dat.set_variable(mViewPosition, "Origin");
+        cam_dat.set_variable(mQuaternion, "Quaternion");
+        cam_dat.set_variable(true, "Current");
+        cam_dat.set_variable(true, "UseDefaultSkybox");
+        mCameraID = g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
     }
     if(mColliderID.invalid())
     {
-        mColliderID = g_pTheatreManager->CurrentTheatre()->CreateThing({"DefaultPlayerCollider",
-            ThingType::Collider3D,
-            UID::Generate(),
-            {
-                {mPosition, "Origin"},
-                {mQuaternion, "Quaternion"},
-                {mScale, "Scale"},
-                {MotionType::Kinematic, "Motion"},
-                {ShapeType::Box, "Shape"},
-            }});
+        TheatreFile::ThingData coll_dat{ThingType::Collider3D, "DefaultPlayerCollider"};
+        coll_dat.set_variable(mPosition, "Origin");
+        coll_dat.set_variable(mQuaternion, "Quaternion");
+        coll_dat.set_variable(mScale, "Scale");
+        coll_dat.set_variable(MotionType::Kinematic, "Motion");
+        coll_dat.set_variable(ShapeType::Box, "Shape");
+        mColliderID = g_pTheatreManager->CurrentTheatre()->CreateThing(coll_dat);
     }
     add_child({mColliderID, ThingType::Collider3D}, true);
+    add_child({mCameraID, ThingType::Collider3D}, true);
 }
 
 void NostalgiaPlayer3D::Tick()
@@ -118,7 +114,11 @@ ID NostalgiaPlayer3D::CameraID() const
 { return mCameraID; }
 
 void NostalgiaPlayer3D::SetCameraID(ID inID)
-{ mCameraID = inID; }
+{
+#pragma message("TODO: get rid of hardcoded camera and collider code")
+    remove_child({mCameraID, ThingType::Camera3D});
+    mCameraID = inID;
+}
 
 Farg<glm::vec3> NostalgiaPlayer3D::Velocity() const
 { return mVelocity; }

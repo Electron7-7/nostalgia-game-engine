@@ -2,13 +2,15 @@
 #include "core/enum_prettifier.hpp"
 #include "physics/engine.hpp"
 #include "math/conversion.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "thirdparty/frozen/map.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 bool gEnableMsg_ContactValidate{false},
     gEnableMsg_ContactAdded{false},
@@ -67,13 +69,13 @@ void Collider3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    data.GetVariable(mShape, "Shape", "ColliderShape", "BodyShape");
-    data.GetVariable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
-    data.GetVariable(mMass, "Mass", "ColliderMass", "BodyMass");
-    data.GetVariable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
-    data.GetVariable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
-    data.GetVariable(mActivateOnNextChange, "StartActive", "Active");
-    if(data.GetVariable(mActivateOnNextChange, "StartInactive", "Inactive"))
+    data.get_variable(mShape, "Shape", "ColliderShape", "BodyShape");
+    data.get_variable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
+    data.get_variable(mMass, "Mass", "ColliderMass", "BodyMass");
+    data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
+    data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
+    data.get_variable(mActivateOnNextChange, "StartActive", "Active");
+    if(data.get_variable(mActivateOnNextChange, "StartInactive", "Inactive") == OK)
         { mActivateOnNextChange = true; }
 
     if(CreateBody(mActivateOnNextChange))
@@ -91,11 +93,11 @@ void Collider3D::SetVariables(Farg<ThingData> data)
 Shared<ThingData> Collider3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
-    data->AddVariable(mShape, "Shape");
-    data->AddVariable(mMotion, "Motion");
-    data->AddVariable(mMass, "Mass");
-    data->AddVariable(mMaterial.friction, "Friction");
-    data->AddVariable(mActivateOnNextChange, "StartActive");
+    data->set_variable(mShape, "Shape");
+    data->set_variable(mMotion, "Motion");
+    data->set_variable(mMass, "Mass");
+    data->set_variable(mMaterial.friction, "Friction");
+    data->set_variable(mActivateOnNextChange, "StartActive");
     return data;
 }
 

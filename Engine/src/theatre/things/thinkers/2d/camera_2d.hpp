@@ -12,8 +12,8 @@ public:
     virtual void Shutdown() override;
     virtual void Ready() override;
 
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual bool Current() const;
     virtual ID ViewportID() const;

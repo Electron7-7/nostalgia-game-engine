@@ -9,8 +9,8 @@ public:
     virtual void Tick() override;
     virtual void Ready() override;
     virtual void Input(InputEvent*) override;
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual ID CameraID() const;
     virtual void SetCameraID(ID);

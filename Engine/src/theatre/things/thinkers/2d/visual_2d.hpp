@@ -7,8 +7,8 @@
 class Visual2D : public Actor2D
 {
 public:
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual void SetLayers(BitMask inVisualLayers);
     virtual BitMask Layers() const;

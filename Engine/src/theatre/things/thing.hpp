@@ -26,28 +26,27 @@ public:
     // Derived classes must call their base class' `::SetVariables` method at the start of their own implementation of `::SetVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetVariables`.
     //
     // See `Material::SetVariables` for an example
-    virtual void SetVariables(Farg<ThingData>);
+    virtual void SetVariables(Farg<TheatreFile::ThingData>);
     // Derived classes must call their base class' `::GetVariables` method at the start of their own implementation of `::GetVariables`.
     //
     // See `Material::GetVariables` for an example.
-    virtual Shared<ThingData> GetVariables() const;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const;
 
-    ThingData GetStartingVariables() const;
+    TheatreFile::ThingData GetStartingVariables() const;
 
     ID uid() const;
-    bool uid(ID inID);
     Sarg name() const;
-    void name(Sarg inName);
+    void set_name(Sarg);
     const char* const c_name() const;
     FPID type() const;
     Farg<ThingType> full_type() const;
 
 protected:
+    friend class Theatre;
     ID mUID{};
-    // ID mParentTheatreID{};
     std::string mName{"Untitled Thing"};
     PID mType{};
-    Unique<ThingData> mStartingData{nullptr};
+    Unique<TheatreFile::ThingData> mStartingData{nullptr};
 };
 
 template<typename T>

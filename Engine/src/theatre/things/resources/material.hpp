@@ -7,8 +7,8 @@
 class Material : public Resource
 {
 public:
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     ID DiffuseTextureID() const;
     void DiffuseTextureID(ID TextureID);

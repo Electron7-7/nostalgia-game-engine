@@ -1,16 +1,18 @@
 #include "camera_2d.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "settings/engine.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Camera2D::SetVariables(Farg<ThingData> data)
 {
     Actor2D::SetVariables(data);
 
-    data.GetVariable(mZoom, "FOV");
-    data.GetVariable(mViewportID, "Viewport", "ViewportID");
-    data.GetVariable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
+    data.get_variable(mZoom, "FOV");
+    data.get_variable(mViewportID, "Viewport", "ViewportID");
+    data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
 
     mVisible = mVisible and Settings::Engine::IsEditorHint;
 }
@@ -19,9 +21,9 @@ Shared<ThingData> Camera2D::GetVariables() const
 {
     Shared<ThingData> data{Actor2D::GetVariables()};
 
-    data->AddVariable(mZoom, "FOV");
-    data->AddVariable(mViewportID, "Viewport");
-    data->AddVariable(mInitCurrent, "Current");
+    data->set_variable(mZoom, "FOV");
+    data->set_variable(mViewportID, "Viewport");
+    data->set_variable(mInitCurrent, "Current");
 
     return data;
 }

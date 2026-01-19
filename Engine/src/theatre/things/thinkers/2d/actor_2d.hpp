@@ -11,8 +11,8 @@ class Actor2D : public Thinker
 {
 public:
     virtual void Ready() override;
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual Farg<glm::vec2> Position() const;
     virtual float           Rotation() const;

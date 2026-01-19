@@ -14,8 +14,8 @@ public:
     virtual void Tick() override;
     virtual void Update() override {}
     virtual void Input(InputEvent*) override {}
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual Farg<glm::vec3> Position() const;
     virtual Farg<glm::quat> Quaternion() const;

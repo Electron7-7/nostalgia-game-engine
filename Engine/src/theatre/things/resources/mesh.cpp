@@ -3,10 +3,12 @@
 #include "rendering/mesh_buffers.hpp"
 #include "rendering/vertex.hpp"
 #include "rendering/vertex_array.hpp"
-#include "theatre/parser/thing_data.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 static bool s_CreateMeshData(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
 static bool s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
@@ -33,7 +35,11 @@ void Mesh::SetVariables(Farg<ThingData> data)
 {
     Resource::SetVariables(data);
 
-    data.GetVariable(mMaterialID, "Material");
+    if(std::string path{};
+        data.get_variable(path, "Model") == OK)
+        { m_pFileData->LoadFile(path); }
+
+    data.get_variable(mMaterialID, "Material");
 
 }
 
@@ -41,7 +47,7 @@ Shared<ThingData> Mesh::GetVariables() const
 {
     auto data{Resource::GetVariables()};
 
-    data->AddVariable(mMaterialID, "Material");
+    data->set_variable(mMaterialID, "Material");
 
     return data;
 }

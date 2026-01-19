@@ -1,8 +1,10 @@
 #include "viewport.hpp"
 #include "application/application.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "core/uid.hpp"
 #include "managers/theatre_manager.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Viewport::Ready()
 {
@@ -24,9 +26,9 @@ void Viewport::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
 
-    if(glm::vec2 size{}; data.GetVariable(size, "Size", "Scale"))
+    if(glm::vec2 size{}; data.get_variable(size, "Size", "Scale") == OK)
         { mSize = size; }
-    if(data.GetVariable(mCurrentCamera, "CurrentCamera", "Camera"))
+    if(data.get_variable(mCurrentCamera, "CurrentCamera", "Camera") == OK)
         { mCameraIDs.insert(mCurrentCamera); }
 }
 
@@ -34,9 +36,9 @@ Shared<ThingData> Viewport::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
 
-    data->AddVariable(glm::vec2{mSize}, "Size");
+    data->set_variable(glm::vec2{mSize}, "Size");
     if(!mCurrentCamera.invalid())
-        { data->AddVariable(mCurrentCamera, "CurrentCamera"); }
+        { data->set_variable(mCurrentCamera, "CurrentCamera"); }
 
     return data;
 }

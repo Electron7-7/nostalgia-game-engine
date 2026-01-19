@@ -1,7 +1,9 @@
 #include "texture.hpp"
 #include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Texture::Ready()
 {
@@ -32,27 +34,27 @@ void Texture::SetVariables(Farg<ThingData> data)
     for(uint i{0}; i < 6; ++i)
     {
         std::string number{(i == 0) ? "" : std::to_string(i+1)};
-        if(data.GetVariable(paths[i], "Image" + number, "File" + number, "Data" + number, "FilePath" + number))
+        if(data.get_variable(paths[i], "Image" + number, "File" + number, "Data" + number, "FilePath" + number) == OK)
             { m_pImages[i] = MakeShared<FileData>(paths[i], FileType::Unknown); }
     }
 
-    data.GetVariable(mFormat.type, "Type");
-    data.GetVariable(mFormat.data_format, "Format");
-    data.GetVariable(mFormat.width, "Width");
-    data.GetVariable(mFormat.height, "Height");
-    data.GetVariable(mFormat.depth, "Depth");
-    data.GetVariable(mFormat.array_layers, "ArrayLayers");
-    data.GetVariable(mFormat.mipmaps, "MipMaps");
-    data.GetVariable(mSampler.min_filter, "SamplerMinFilter", "MinFilter", "Min");
-    data.GetVariable(mSampler.mip_filter_min, "SamplerMipFilterMin", "MipFilterMin", "MipMin");
-    data.GetVariable(mSampler.mag_filter, "SamplerMagFilter", "MagFilter", "Mag");
-    data.GetVariable(mSampler.mip_filter_mag, "SamplerMipFilterMag", "MipFilterMag", "MipMag");
-    data.GetVariable(mSampler.repeat_u, "SamplerRepeatU", "SamplerRepeatX", "RepeatU", "RepeatX");
-    data.GetVariable(mSampler.repeat_v, "SamplerRepeatV", "SamplerRepeatY", "RepeatV", "RepeatY");
-    data.GetVariable(mSampler.repeat_w, "SamplerRepeatW", "SamplerRepeatZ", "RepeatW", "RepeatZ");
-    data.GetVariable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
-    data.GetVariable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
-    // data.GetVariable(mBoundToFramebuffer, "Bound to Framebuffer");
+    data.get_variable(mFormat.type, "Type");
+    data.get_variable(mFormat.data_format, "Format");
+    data.get_variable(mFormat.width, "Width");
+    data.get_variable(mFormat.height, "Height");
+    data.get_variable(mFormat.depth, "Depth");
+    data.get_variable(mFormat.array_layers, "ArrayLayers");
+    data.get_variable(mFormat.mipmaps, "MipMaps");
+    data.get_variable(mSampler.min_filter, "SamplerMinFilter", "MinFilter", "Min");
+    data.get_variable(mSampler.mip_filter_min, "SamplerMipFilterMin", "MipFilterMin", "MipMin");
+    data.get_variable(mSampler.mag_filter, "SamplerMagFilter", "MagFilter", "Mag");
+    data.get_variable(mSampler.mip_filter_mag, "SamplerMipFilterMag", "MipFilterMag", "MipMag");
+    data.get_variable(mSampler.repeat_u, "SamplerRepeatU", "SamplerRepeatX", "RepeatU", "RepeatX");
+    data.get_variable(mSampler.repeat_v, "SamplerRepeatV", "SamplerRepeatY", "RepeatV", "RepeatY");
+    data.get_variable(mSampler.repeat_w, "SamplerRepeatW", "SamplerRepeatZ", "RepeatW", "RepeatZ");
+    data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
+    data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
+    // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
 }
 
 Shared<ThingData> Texture::GetVariables() const
@@ -64,25 +66,25 @@ Shared<ThingData> Texture::GetVariables() const
         if(!image) { continue; }
         std::string number{(i == 0) ? "" : std::to_string(i+1)};
         if(image->HasPath())
-            { data->AddVariable(image->Path(), "Image" + number); }
+            { data->set_variable(image->Path(), "Image" + number); }
     }
-    data->AddVariable(mFormat.type, "Type");
-    data->AddVariable(mFormat.data_format, "Format");
-    data->AddVariable(mFormat.width, "Width");
-    data->AddVariable(mFormat.height, "Height");
-    data->AddVariable(mFormat.depth, "Depth");
-    data->AddVariable(mFormat.array_layers, "ArrayLayers");
-    data->AddVariable(mFormat.mipmaps, "MipMaps");
-    data->AddVariable(mSampler.min_filter, "SamplerMinFilter");
-    data->AddVariable(mSampler.mip_filter_min, "SamplerMipFilterMin");
-    data->AddVariable(mSampler.mag_filter, "SamplerMagFilter");
-    data->AddVariable(mSampler.mip_filter_mag, "SamplerMipFilterMag");
-    data->AddVariable(mSampler.repeat_u, "SamplerRepeatU");
-    data->AddVariable(mSampler.repeat_v, "SamplerRepeatV");
-    data->AddVariable(mSampler.repeat_w, "SamplerRepeatW");
-    data->AddVariable(mSampler.use_anisotropy, "UseAnisotropy");
-    data->AddVariable(mSampler.anisotropy_max, "AnisotropyMax");
-    // data->AddVariable(mBoundToFramebuffer, "Bound to Framebuffer");
+    data->set_variable(mFormat.type, "Type");
+    data->set_variable(mFormat.data_format, "Format");
+    data->set_variable(mFormat.width, "Width");
+    data->set_variable(mFormat.height, "Height");
+    data->set_variable(mFormat.depth, "Depth");
+    data->set_variable(mFormat.array_layers, "ArrayLayers");
+    data->set_variable(mFormat.mipmaps, "MipMaps");
+    data->set_variable(mSampler.min_filter, "SamplerMinFilter");
+    data->set_variable(mSampler.mip_filter_min, "SamplerMipFilterMin");
+    data->set_variable(mSampler.mag_filter, "SamplerMagFilter");
+    data->set_variable(mSampler.mip_filter_mag, "SamplerMipFilterMag");
+    data->set_variable(mSampler.repeat_u, "SamplerRepeatU");
+    data->set_variable(mSampler.repeat_v, "SamplerRepeatV");
+    data->set_variable(mSampler.repeat_w, "SamplerRepeatW");
+    data->set_variable(mSampler.use_anisotropy, "UseAnisotropy");
+    data->set_variable(mSampler.anisotropy_max, "AnisotropyMax");
+    // data->set_variable(mBoundToFramebuffer, "Bound to Framebuffer");
     return data;
 }
 

@@ -1,8 +1,8 @@
 #include "theatre_manager.hpp"
 #include "filesystem/file_data.hpp"
-#include "theatre/parser/theatre_data.hpp"
 #include "theatre/thing_factory.hpp"
 #include "theatre/theatre.hpp"
+#include "theatre/parser.hpp"
 
 using namespace ManagerEnums;
 
@@ -12,7 +12,7 @@ TheatreManager* g_pTheatreManager{&sTheatreManager};
 bool TheatreManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    mCurrentTheatre = MakeUnique<Theatre>();
+    mCurrentTheatre = MakeUnique<Theatre>(MakeShared<TheatreFile::TheatreData>());
     return ThingFactory::Init();
 }
 
@@ -78,12 +78,12 @@ void TheatreManager::DrawCurrentTheatre()
     mCurrentTheatre->Draw();
 }
 
-void TheatreManager::LoadNewTheatre(Farg<TheatreData> inData)
+void TheatreManager::LoadNewTheatre(Unique<Theatre> inTheatre)
 {
     LockGuard<RMutex> lock{mTheatreMutex};
     if(mCurrentTheatre->IsStarted())
         { mCurrentTheatre->Shutdown(); }
-    mCurrentTheatre = MakeUnique<Theatre>(inData);
+    mCurrentTheatre = std::move(inTheatre);
     StartNewTheatre();
 }
 

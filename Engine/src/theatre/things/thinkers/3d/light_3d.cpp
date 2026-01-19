@@ -1,13 +1,15 @@
 #include "light_3d.hpp"
 #include "core/uid.hpp"
 #include "settings/engine.hpp"
-#include "theatre/parser/thing_data.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef DEBUGGING
 #   define TRUE_IF_DEBUGGING(boolean) boolean = true
 #else  // !DEBUGGING
 #   define TRUE_IF_DEBUGGING(boolean) boolean = false
 #endif // DEBUGGING
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 int Light3D::sPointCount       = 0;
 int Light3D::sSpotCount        = 0;
@@ -26,27 +28,19 @@ void Light3D::Ready()
         and Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
-        ID mat_id{g_pTheatreManager->CurrentTheatre()->CreateThing({
-            mName + "-debug-material",
-            ThingType::Material,
-            UID::Generate(),
-            {
-                {mColor, "Color"},
-                {UID::t_LightDebug, "DiffuseTexture"},
-                {true, "FullBright"}
-            }
-        })};
-        mDebugMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing({
-            mName + "-debug-mesh-instance",
-            ThingType::MeshInstance3D,
-            UID::Generate(),
-            {
-                {UID::m_Cube, "Mesh"},
-                {mat_id, "MaterialOverride"},
-                {glm::vec3{0.1f}, "Scale"},
-                {mUID, "Parent"},
-            }
-        });
+        ThingData mat_data{ThingType::Material, mName + "-debug-material"};
+        mat_data.set_variable(mColor, "Color");
+        mat_data.set_variable(UID::t_LightDebug, "DiffuseTexture");
+        mat_data.set_variable(true, "FullBright");
+        ID mat_id{g_pTheatreManager->CurrentTheatre()->CreateThing(mat_data)};
+
+        ThingData mesh_inst_dat{ThingType::MeshInstance3D, mName + "-debug-mesh-instance"};
+        mesh_inst_dat.set_variable(UID::m_Cube, "Mesh");
+        mesh_inst_dat.set_variable(mat_id, "MaterialOverride");
+        mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
+        mesh_inst_dat.set_variable(mUID, "Parent");
+
+        mDebugMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing(mesh_inst_dat);
     }
 }
 
@@ -54,16 +48,16 @@ void Light3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    data.GetVariable(mColor, "Color");
-    data.GetVariable(mEnergy, "Energy");
-    data.GetVariable(mSpecularStrength, "SpecularStrength");
-    data.GetVariable(mAmbientStrength, "AmbientStrength");
-    data.GetVariable(mAttenuation, "FadeIntensity");
-    data.GetVariable(mAttenuation, "Attenuation");
-    data.GetVariable(mRange, "Range");
-    data.GetVariable(mEnabled, "LightVisible");
-    data.GetVariable(mEnabled, "Enabled");
-    if(data.GetVariable(mEnabled, "Disabled"))
+    data.get_variable(mColor, "Color");
+    data.get_variable(mEnergy, "Energy");
+    data.get_variable(mSpecularStrength, "SpecularStrength");
+    data.get_variable(mAmbientStrength, "AmbientStrength");
+    data.get_variable(mAttenuation, "FadeIntensity");
+    data.get_variable(mAttenuation, "Attenuation");
+    data.get_variable(mRange, "Range");
+    data.get_variable(mEnabled, "LightVisible");
+    data.get_variable(mEnabled, "Enabled");
+    if(data.get_variable(mEnabled, "Disabled") == OK)
         { mEnabled = !mEnabled; }
 }
 
@@ -71,16 +65,16 @@ Shared<ThingData> Light3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
 
-    data->AddVariable(mColor, "Color");
-    data->AddVariable(mEnergy, "Energy");
-    data->AddVariable(mSpecularStrength, "SpecularStrength");
-    data->AddVariable(mAmbientStrength, "AmbientStrength");
-    data->AddVariable(mAttenuation, "FadeIntensity");
-    data->AddVariable(mAttenuation, "Attenuation");
-    data->AddVariable(mRange, "Range");
-    data->AddVariable(mEnabled, "LightVisible");
-    data->AddVariable(mEnabled, "Enabled");
-    data->AddVariable(mVisible, "Visible");
+    data->set_variable(mColor, "Color");
+    data->set_variable(mEnergy, "Energy");
+    data->set_variable(mSpecularStrength, "SpecularStrength");
+    data->set_variable(mAmbientStrength, "AmbientStrength");
+    data->set_variable(mAttenuation, "FadeIntensity");
+    data->set_variable(mAttenuation, "Attenuation");
+    data->set_variable(mRange, "Range");
+    data->set_variable(mEnabled, "LightVisible");
+    data->set_variable(mEnabled, "Enabled");
+    data->set_variable(mVisible, "Visible");
 
     return data;
 }
@@ -105,19 +99,19 @@ int SpotLight3D::GetCount()
 void SpotLight3D::SetVariables(Farg<ThingData> data)
 {
     Light3D::SetVariables(data);
-    data.GetVariable(mSpotAngle, "Angle");
-    data.GetVariable(mSpotAngle, "SpotAngle");
-    data.GetVariable(mSpotAngleFade, "AngleFade");
-    data.GetVariable(mSpotAngleFade, "SpotAngleFade");
+    data.get_variable(mSpotAngle, "Angle");
+    data.get_variable(mSpotAngle, "SpotAngle");
+    data.get_variable(mSpotAngleFade, "AngleFade");
+    data.get_variable(mSpotAngleFade, "SpotAngleFade");
 }
 
 Shared<ThingData> SpotLight3D::GetVariables() const
 {
     Shared<ThingData> data{Light3D::GetVariables()};
-    data->AddVariable(mSpotAngle, "Angle");
-    data->AddVariable(mSpotAngle, "SpotAngle");
-    data->AddVariable(mSpotAngleFade, "AngleFade");
-    data->AddVariable(mSpotAngleFade, "SpotAngleFade");
+    data->set_variable(mSpotAngle, "Angle");
+    data->set_variable(mSpotAngle, "SpotAngle");
+    data->set_variable(mSpotAngleFade, "AngleFade");
+    data->set_variable(mSpotAngleFade, "SpotAngleFade");
     return data;
 }
 
@@ -142,7 +136,7 @@ void DirectionalLight3D::SetVariables(Farg<ThingData> data)
 Shared<ThingData> DirectionalLight3D::GetVariables() const
 {
     Shared<ThingData> data{Light3D::GetVariables()};
-    data->AddVariable(false, "Visible");
+    data->set_variable(false, "Visible");
     return data;
 }
 

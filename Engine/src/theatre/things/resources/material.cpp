@@ -1,39 +1,41 @@
 #include "material.hpp"
 #include "core/uid.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Material::SetVariables(Farg<ThingData> data)
 {
     Resource::SetVariables(data);
 
-    data.GetVariable(mDiffuseTextureID, "DiffuseTexture");
-    data.GetVariable(mSpecularTextureID, "SpecularTexture");
-    data.GetVariable(mColor, "Color");
-    data.GetVariable(mAlpha, "Alpha");
-    data.GetVariable(mSpecularSharpness, "SpecularSharpness");
+    data.get_variable(mDiffuseTextureID, "DiffuseTexture");
+    data.get_variable(mSpecularTextureID, "SpecularTexture");
+    data.get_variable(mColor, "Color");
+    data.get_variable(mAlpha, "Alpha");
+    data.get_variable(mSpecularSharpness, "SpecularSharpness");
     // TODO: Pick a better default value?
-    if(!data.GetVariable(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::Invalid)
+    if(!data.get_variable(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::Invalid)
         { mSpecularStrength = 1.0f; }
-    data.GetVariable(mDontUseTexture, "UseVertexColors");
-    data.GetVariable(mDontUseTexture, "OnlyUseVertexColors");
-    data.GetVariable(mDontUseTexture, "NoTexture", "NoTextures");
-    data.GetVariable(mFullBright, "FullBright", "mat_fullbright");
+    data.get_variable(mDontUseTexture, "UseVertexColors");
+    data.get_variable(mDontUseTexture, "OnlyUseVertexColors");
+    data.get_variable(mDontUseTexture, "NoTexture", "NoTextures");
+    data.get_variable(mFullBright, "FullBright", "mat_fullbright");
 }
 
 Shared<ThingData> Material::GetVariables() const
 {
     Shared<ThingData> data{Resource::GetVariables()};
 
-    data->AddVariable(mDiffuseTextureID, "DiffuseTexture");
-    data->AddVariable(mSpecularTextureID, "SpecularTexture");
-    data->AddVariable(mColor, "Color");
-    data->AddVariable(mAlpha, "Alpha");
-    data->AddVariable(mSpecularSharpness, "SpecularSharpness");
-    data->AddVariable(mSpecularStrength, "SpecularStrength");
-    data->AddVariable(mDontUseTexture, "UseVertexColors");
-    data->AddVariable(mDontUseTexture, "OnlyUseVertexColors");
-    data->AddVariable(mDontUseTexture, "NoTexture");
-    data->AddVariable(mFullBright, "FullBright");
+    data->set_variable(mDiffuseTextureID, "DiffuseTexture");
+    data->set_variable(mSpecularTextureID, "SpecularTexture");
+    data->set_variable(mColor, "Color");
+    data->set_variable(mAlpha, "Alpha");
+    data->set_variable(mSpecularSharpness, "SpecularSharpness");
+    data->set_variable(mSpecularStrength, "SpecularStrength");
+    data->set_variable(mDontUseTexture, "UseVertexColors");
+    data->set_variable(mDontUseTexture, "OnlyUseVertexColors");
+    data->set_variable(mDontUseTexture, "NoTexture");
+    data->set_variable(mFullBright, "FullBright");
 
     return data;
 }

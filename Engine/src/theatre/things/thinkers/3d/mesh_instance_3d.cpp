@@ -1,23 +1,25 @@
 #include "mesh_instance_3d.hpp"
 #include "core/uid.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void MeshInstance3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    data.GetVariable(mMeshID, "Mesh");
-    data.GetVariable(mMaterialOverrideID, "MaterialOverride", "Material");
-    data.GetVariable(mWireframe, "Wireframe", "WireFrame");
+    data.get_variable(mMeshID, "Mesh");
+    data.get_variable(mMaterialOverrideID, "MaterialOverride", "Material");
+    data.get_variable(mWireframe, "Wireframe", "WireFrame");
 }
 
 Shared<ThingData> MeshInstance3D::GetVariables() const
 {
     auto data{Actor3D::GetVariables()};
 
-    data->AddVariable(mMeshID, "Mesh");
-    data->AddVariable(mMaterialOverrideID, "MaterialOverride");
-    data->AddVariable(mWireframe, "Wireframe");
+    data->set_variable(mMeshID, "Mesh");
+    data->set_variable(mMaterialOverrideID, "MaterialOverride");
+    data->set_variable(mWireframe, "Wireframe");
 
     return data;
 }

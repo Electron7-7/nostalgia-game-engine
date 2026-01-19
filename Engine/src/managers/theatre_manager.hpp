@@ -1,7 +1,6 @@
 #ifndef THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#include "fwd/theatre.hpp"
 #include "fwd/filesystem.hpp"
 #include "managers/manager.hpp"
 #include "theatre/theatre.hpp"
@@ -24,7 +23,7 @@ public:
     const Theatre* CurrentTheatre() const;
 
     void DrawCurrentTheatre();
-    void LoadNewTheatre(Farg<TheatreData> inTheatreData);
+    void LoadNewTheatre(Unique<Theatre> inTheatre);
     bool LoadNewTheatre(Farg<FileData> inTheatreFileData);
     bool LoadNewTheatre(Sarg inTheatreFilePath);
 

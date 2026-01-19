@@ -8,8 +8,8 @@
 class Resource : public Thing
 {
 public:
-    virtual void SetVariables(Farg<ThingData> inData) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData> inData) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     Error Status() const;
 

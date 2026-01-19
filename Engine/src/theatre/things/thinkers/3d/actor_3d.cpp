@@ -1,37 +1,39 @@
 #include "actor_3d.hpp"
 #include "collider_3d.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Actor3D::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
 
-    data.GetVariable(mPosition, "Position", "Origin");
-    data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
-    if(data.GetVariable(mEulerRotationDegrees, "RotationDegrees", "EulerDegrees"))
+    data.get_variable(mPosition, "Position", "Origin");
+    data.get_variable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.get_variable(mEulerRotationDegrees, "RotationDegrees", "EulerDegrees") == OK)
         { SetRotationDegrees(mEulerRotationDegrees); }
-    if(data.GetVariable(mEulerRotationRadians, "Rotation", "Euler"))
+    if(data.get_variable(mEulerRotationRadians, "Rotation", "Euler") == OK)
         { SetRotation(mEulerRotationRadians); }
-    if(data.GetVariable(mQuaternion, "Quaternion"))
+    if(data.get_variable(mQuaternion, "Quaternion") == OK)
         { SetQuaternion(mQuaternion); }
-    data.GetVariable(mVisible, "Visible");
+    data.get_variable(mVisible, "Visible");
 
-    data.GetVariable(mDebugHighlight, "DebugHighlight");
-    data.GetVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data.get_variable(mDebugHighlight, "DebugHighlight");
+    data.get_variable(mDebugMeshInstanceID, "DebugMeshInstance");
 }
 
 Shared<ThingData> Actor3D::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
 
-    data->AddVariable(mPosition, "Position");
-    data->AddVariable(mQuaternion, "Quaternion");
-    data->AddVariable(mScale, "Scale");
-    data->AddVariable(mVisible, "Visible");
+    data->set_variable(mPosition, "Position");
+    data->set_variable(mQuaternion, "Quaternion");
+    data->set_variable(mScale, "Scale");
+    data->set_variable(mVisible, "Visible");
 
-    data->AddVariable(mDebugHighlight, "DebugHighlight");
-    data->AddVariable(mDebugMeshInstanceID, "DebugMeshInstance");
+    data->set_variable(mDebugHighlight, "DebugHighlight");
+    data->set_variable(mDebugMeshInstanceID, "DebugMeshInstance");
 
     return data;
 }

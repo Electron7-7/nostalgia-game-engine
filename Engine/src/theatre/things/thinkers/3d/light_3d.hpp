@@ -20,8 +20,8 @@ public:
     virtual LightType Type() const { return LightType::NONE; }
 
     virtual void Ready() override;
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     int Index() const;
 
@@ -61,8 +61,8 @@ class SpotLight3D : public Light3D
 public:
     static int GetCount();
 
-    void SetVariables(Farg<ThingData>) override;
-    Shared<ThingData> GetVariables() const override;
+    void SetVariables(Farg<TheatreFile::ThingData>) override;
+    Shared<TheatreFile::ThingData> GetVariables() const override;
 
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::SPOT; }
@@ -73,8 +73,8 @@ class DirectionalLight3D : public Light3D
 public:
     static int GetCount();
 
-    void SetVariables(Farg<ThingData>) override;
-    Shared<ThingData> GetVariables() const override;
+    void SetVariables(Farg<TheatreFile::ThingData>) override;
+    Shared<TheatreFile::ThingData> GetVariables() const override;
 
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::DIRECTIONAL; }

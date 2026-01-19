@@ -23,8 +23,8 @@ class Thinker : public Thing
 public:
     virtual void Free() override;
     virtual void Ready() override;
-    virtual void SetVariables(Farg<ThingData>) override;
-    virtual Shared<ThingData> GetVariables() const override;
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     ThinkerChildren Children() const;
     ThinkerRelative Parent() const;

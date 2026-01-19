@@ -1,31 +1,33 @@
 #include "actor_2d.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Actor2D::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
 
-    data.GetVariable(mPosition, "Position", "Origin");
-    data.GetVariable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
-    if(data.GetVariable(mRotationDegrees, "RotationDegrees"))
+    data.get_variable(mPosition, "Position", "Origin");
+    data.get_variable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.get_variable(mRotationDegrees, "RotationDegrees") == OK)
         { SetRotationDegrees(mRotationDegrees); }
-    if(data.GetVariable(mRotationRadians, "Rotation", "RotationRadians"))
+    if(data.get_variable(mRotationRadians, "Rotation", "RotationRadians") == OK)
         { SetRotation(mRotationRadians); }
-    data.GetVariable(mVisible, "Visible");
+    data.get_variable(mVisible, "Visible");
 
-    data.GetVariable(mDebugHighlight, "DebugHighlight");
+    data.get_variable(mDebugHighlight, "DebugHighlight");
 }
 
 Shared<ThingData> Actor2D::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
 
-    data->AddVariable(mPosition, "Position");
-    data->AddVariable(mScale, "Scale");
-    data->AddVariable(mRotationRadians, "RotationRadians");
-    data->AddVariable(mVisible, "Visible");
+    data->set_variable(mPosition, "Position");
+    data->set_variable(mScale, "Scale");
+    data->set_variable(mRotationRadians, "RotationRadians");
+    data->set_variable(mVisible, "Visible");
 
-    data->AddVariable(mDebugHighlight, "DebugHighlight");
+    data->set_variable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }

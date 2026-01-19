@@ -1,6 +1,8 @@
 #include "thinker.hpp"
 #include "managers/theatre_manager.hpp"
-#include "theatre/parser/thing_data.hpp"
+#include "theatre/parser.hpp"
+
+using namespace TheatreFile;
 
 void Thinker::Free()
 {
@@ -22,15 +24,15 @@ void Thinker::Ready()
 void Thinker::SetVariables(Farg<ThingData> inData)
 {
     Thing::SetVariables(inData);
-    inData.GetChildren(mChildren);
-    inData.GetParent(mParent);
+    inData.get_parent(mParent);
+    inData.get_children(mChildren);
 }
 
 Shared<ThingData> Thinker::GetVariables() const
 {
     auto outData{Thing::GetVariables()};
-    outData->SetChildren(mChildren);
-    outData->SetParent(mParent);
+    outData->set_parent(mParent);
+    outData->set_children(mChildren);
     return outData;
 }
 
