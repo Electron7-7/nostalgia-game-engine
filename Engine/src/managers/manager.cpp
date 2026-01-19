@@ -3,7 +3,6 @@
 #include "core/printing.hpp"
 #include "settings/engine.hpp"
 #include "application/application.hpp"
-#include "theatre/variable_registry.hpp"
 #include <cassert>
 #include <thread>
 
@@ -107,7 +106,6 @@ bool IManager::InitAllManagers()
     m_sFrameNumber = 0;
     if(!InvokeMethod(&IManager::Init))
         { return false; }
-    g_pVariableRegistry->Init();
     m_sIsInitialized = true;
     return true;
 }

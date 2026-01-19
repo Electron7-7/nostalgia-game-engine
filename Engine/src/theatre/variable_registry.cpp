@@ -1,27 +1,22 @@
 #include "variable_registry.hpp"
 #include "core/printing.hpp"
-#include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
 
-static VariableRegistry sVariableRegistry{};
-VariableRegistry* g_pVariableRegistry{&sVariableRegistry};
-
-VariableRegistry::References VariableRegistry::m_sReferences{};
 VariableRegistry::Enums VariableRegistry::m_sEnums{};
 
 VariableRegistry::VariableRegistry() noexcept = default;
 
 Farg<VariableRegistry::References> VariableRegistry::GetRegisteredIDs() const
-{ return m_sReferences; }
+{ return mReferences; }
 
 Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums() const
 { return m_sEnums; }
 
-bool VariableRegistry::try_GetID(Farg<std::string> inName, uint& outID)
+bool VariableRegistry::try_GetID(Farg<std::string> inName, uint& outID) const
 {
-    if(auto found_it{m_sReferences.find(inName)}; found_it != m_sReferences.end())
+    if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
     {
         outID = found_it->second;
         return true;
@@ -29,9 +24,9 @@ bool VariableRegistry::try_GetID(Farg<std::string> inName, uint& outID)
     return false;
 }
 
-bool VariableRegistry::try_GetIDName(uint inID, std::string& outName)
+bool VariableRegistry::try_GetIDName(uint inID, std::string& outName) const
 {
-    for(FARG(auto) [name, id] : m_sReferences)
+    for(FARG(auto) [name, id] : mReferences)
     {
         if(inID == id)
         {
@@ -42,19 +37,46 @@ bool VariableRegistry::try_GetIDName(uint inID, std::string& outName)
     return false;
 }
 
+bool VariableRegistry::HasID(uint inID) const
+{
+    for(FAUTO [name, id] : mReferences)
+    {
+        if(inID == id)
+            { return true; }
+    }
+    return false;
+}
+
+bool VariableRegistry::HasID(Sarg inName) const
+{ return mReferences.contains(inName); }
+
+uint VariableRegistry::GetID(Sarg inName) const
+{
+    uint out{};
+    try_GetID(inName, out);
+    return out;
+}
+
+std::string VariableRegistry::GetIDName(uint inID) const
+{
+    std::string out{};
+    try_GetIDName(inID, out);
+    return out;
+}
+
 Error VariableRegistry::RegisterID(Farg<std::string> inName, uint inID, bool noCopies)
 {
-    if(noCopies && m_sReferences.contains(inName))
-        { return ERR_ALREADY_EXISTS; }
-    m_sReferences[inName] = inID;
+    if(noCopies && mReferences.contains(inName))
+        { print_error("[{}, {}]", inName, inID); return print_error_enum(ERR_ALREADY_EXISTS); }
+    mReferences[inName] = inID;
     return OK;
 }
 
 Error VariableRegistry::RemoveID(Farg<std::string> inName)
 {
-    if(auto found_it{m_sReferences.find(inName)}; found_it != m_sReferences.end())
+    if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
     {
-        m_sReferences.erase(found_it);
+        mReferences.erase(found_it);
         return OK;
     }
     return ERR_NOT_FOUND;
@@ -62,11 +84,11 @@ Error VariableRegistry::RemoveID(Farg<std::string> inName)
 
 Error VariableRegistry::RemoveID(uint inID)
 {
-    for(FARG(auto) [name, id] : m_sReferences)
+    for(FARG(auto) [name, id] : mReferences)
     {
         if(inID == id)
         {
-            m_sReferences.erase(name);
+            mReferences.erase(name);
             return OK;
         }
     }
@@ -76,18 +98,6 @@ Error VariableRegistry::RemoveID(uint inID)
 void VariableRegistry::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    m_sReferences["MissingTexture"] = UID::t_Missing[];
-    m_sReferences["LightTexture"]   = UID::t_LightDebug[];
-    m_sReferences["DoomTexture"]    = UID::t_COMP04_5[];
-    m_sReferences["LolBitTexture"]  = UID::t_LolBit[];
-    m_sReferences["ShittySkybox"]   = UID::t_ShittySkybox[];
-    m_sReferences["ErrorModel"]     = UID::m_Error[];
-    m_sReferences["DefaultCube"]    = UID::m_Cube[];
-    m_sReferences["RamielModel"]    = UID::m_Ramiel[];
-    m_sReferences["CameraModel"]    = UID::m_Camera3D[];
-    m_sReferences["Audiowide"]      = UID::f_Audiowide[];
-    m_sReferences["DejaVuSans"]     = UID::f_DejaVuSans[];
-    m_sReferences["Verdana"]        = UID::f_Verdana[];
     m_sEnums["Static"]              = MotionType::Static;
     m_sEnums["Dynamic"]             = MotionType::Dynamic;
     m_sEnums["Kinematic"]           = MotionType::Kinematic;
@@ -105,7 +115,7 @@ void VariableRegistry::Init()
 void VariableRegistry::ClearIDs()
 {
     PRINT_PRETTY_FUNCTION;
-    m_sReferences.clear();
+    mReferences.clear();
     Init();
 }
 
