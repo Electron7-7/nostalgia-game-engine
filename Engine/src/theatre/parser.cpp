@@ -1,6 +1,5 @@
 #include "parser.hpp"
 #include "thing_factory.hpp"
-#include "common/string_hash.hpp"
 
 static constexpr char cDelimiterStartSandwich  {':'};
 static constexpr char cDelimiterEndResource    {';'};
@@ -20,11 +19,10 @@ using namespace TheatreFile;
 enum Context { TOP_LEVEL = 0, RESOURCES = 1, THINKERS = 2, IN_RESOURCE = 3, IN_THINKER = 4 };
 enum Comment { SINGLE_LINE, MULTI_LINE, NO_COMMENT }; // yes, `NO_COMMENT` is a pun
 
-static ThingVarType s_GetVarTypeFromKeyword(Sarg);
-static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, TheatreFile::TheatreData& outData, Context inContext);
+static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData> outData, Context inContext);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
-Error TheatreFile::Parser(Farg<TokenArray> inTokens, TheatreData& outData)
+Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
 {
 
     ThingData     thing_dat{};
@@ -76,22 +74,9 @@ bool s_CheckIfComment(Comment& ioComment, Farg<Token> inToken)
     return ioComment != NO_COMMENT;
 }
 
-ThingVarType s_GetVarTypeFromKeyword(Sarg inKeyword)
-{
-    switch(ConstexprHash(inKeyword))
-    {
-    case ConstexprHash("Child"):
-        return ThingVarType::Child;
-    case ConstexprHash("Parent"):
-        return ThingVarType::Parent;
-    default:
-        return ThingVarType::None;
-    }
-}
-
 TheatreFile::ThingData s_ParseThing(size_t& inIndex,
     Farg<TokenArray> inTokens,
-    TheatreFile::TheatreData& outData,
+    Shared<TheatreFile::TheatreData> outData,
     Context inContext)
 {
     TheatreFile::ThingData thing_data{};
@@ -119,7 +104,13 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
         case TokenName::MultilineComment:
             [[fallthrough]];
         case TokenName::Literal:
-            [[fallthrough]];
+            if(!in_literal)
+            {
+                thing_var.type = ThingVarType::String;
+                thing_var.value = token.token.substr(1, token.token.size() - 2);
+            }
+            else
+                { thing_var.value += token.token; }
         case TokenName::None:
             [[fallthrough]];
         default:
@@ -146,7 +137,7 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                     }
                     --inIndex;
                 }
-                thing_data.variables.push_back(thing_var);
+                thing_data.children_variables.push_back(thing_var);
                 thing_var.clear();
                 Context new_context{(ThingFactory::IsResource(next_token.token))
                     ? RESOURCES
@@ -156,13 +147,17 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             }
             break;
         case TokenName::Whitespace:
-            if((inContext == IN_RESOURCE or inContext == IN_THINKER)
-                and !thing_var.value.empty()
+            if(!thing_var.value.empty()
                 and !in_string
                 and !in_literal
                 and token.token[0] == '\n')
             {
-                thing_data.variables.push_back(thing_var);
+                if(thing_var.type == ThingVarType::Child)
+                    { thing_data.children_variables.push_back(thing_var); }
+                else if(thing_var.type == ThingVarType::Parent)
+                    { thing_data.parent_variable = thing_var; }
+                else
+                    { thing_data.variables.push_back(thing_var); }
                 thing_var.clear();
             }
             break;
@@ -211,18 +206,22 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 else if(inContext == THINKERS) { inContext = IN_THINKER; }
                 break;
             case cDelimiterExitContext:
-                outData.push_back(thing_data);
+                outData->push_back(thing_data);
                 return thing_data;
             default:
                 break;
             }
             break;
         case TokenName::Keyword:
-            if(!token.token.compare("Child") or !token.token.compare("Parent"))
-                { thing_var.type = s_GetVarTypeFromKeyword(token.token); }
+            if(!token.token.compare("Child"))
+                { thing_var.type = ThingVarType::Child; }
+            else if(!token.token.compare("Parent"))
+                { thing_var.type = ThingVarType::Parent; }
             else if(ThingFactory::IsThing(token.token) and thing_data.type.invalid())
                 { thing_data.type = token.token; }
             else if(thing_var.name.empty())
+                { thing_var.name = token.token; }
+            else if(thing_var.value.empty())
                 { thing_var.name = token.token; }
             break;
         case TokenName::Identifier:

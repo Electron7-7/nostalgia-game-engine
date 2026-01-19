@@ -1,6 +1,5 @@
 #include "parser.hpp"
 #include "thing_factory.hpp"
-#include "core/printing.hpp"
 #include "core/enum_prettifier.hpp"
 #include "filesystem/file_data.hpp"
 #include "thirdparty/frozen/set.h"
@@ -11,14 +10,16 @@ static constexpr char        cCommentDelimiter{'/'};
 static constexpr std::string cCommentDelimiterSingleLine{"//"};
 static constexpr std::string cCommentDelimiterMultiLine{"///"};
 
-static constexpr frozen::set<char, 3>
-    cLiteralDelimiters{'[', '\'', '"'};
+static constexpr frozen::set<char, 2>
+    cStringDelimiters{'\'', '"'};
+static constexpr frozen::set<char, 2>
+    cValidLiterals{'.', '-'};
 static constexpr frozen::set<char, 2>
     cOperators{'=', ':'};
 static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
-static constexpr frozen::set<char, 12>
-    cSeparators{';', ',', '}', ']', '[', '\'', '"', '{', '<', '>', '(', ')'};
+static constexpr frozen::set<char, 10>
+    cSeparators{';', ',', '[', ']', '{', '}', '<', '>', '(', ')'};
 static constexpr frozen::set<std::string, 4>
     cKeywords{"Resources", "Thinkers", "Child", "Parent"};
 
@@ -29,26 +30,15 @@ enum class Comment
 
 using namespace TheatreFile;
 
-Error TheatreFile::Lexer(Sarg inPath, TokenArray& outTokens)
+Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
 {
 #ifdef DEBUGGING
     debug_PrettifyEnums();
 #endif
-    Error status{Lexer(MakeShared<FileData>(inPath), outTokens)};
-    if(!print_error_enum(status))
-        { print_error("Failed to load Theatre from file: '{}'", inPath); }
-    return status;
-}
+    if(!inData.Status())
+        { return inData.Status(); }
 
-Error TheatreFile::Lexer(Shared<FileData> inData, TokenArray& outTokens)
-{
-#ifdef DEBUGGING
-    debug_PrettifyEnums();
-#endif
-    if(!inData->Status())
-        { return inData->Status(); }
-
-    Sarg data_string{inData->DataString()};
+    Sarg data_string{inData.DataString()};
     size_t file_size{data_string.size()};
 
     TokenArray tokens{};
@@ -84,16 +74,17 @@ Error TheatreFile::Lexer(Shared<FileData> inData, TokenArray& outTokens)
         }
         else if(cOperators.contains(character))
             { tokens.emplace_back(TokenName::Operator, std::string{character}); continue; }
-        else if(cSeparators.contains(character)
-            and value_buffer.empty()
-            and !cLiteralDelimiters.contains(character))
+        else if(cStringDelimiters.contains(character))
         {
-            tokens.emplace_back(TokenName::Separator, std::string{character});
-            continue;
-        }
-        else if(cLiteralDelimiters.contains(character) and !value_buffer.empty())
-        {
-            tokens.emplace_back(TokenName::Literal, value_buffer + character);
+            if(i+1 >= data_string.size()) { continue; }
+#pragma message("TODO: clean this up")
+            value_buffer += data_string[i++];
+            while(!cStringDelimiters.contains(data_string[i])
+                and data_string[i] != '\n')
+                { value_buffer += data_string[i++]; }
+            value_buffer += data_string[i];
+
+            tokens.emplace_back(TokenName::Literal, value_buffer);
             value_buffer.clear();
             continue;
         }
@@ -104,6 +95,16 @@ Error TheatreFile::Lexer(Shared<FileData> inData, TokenArray& outTokens)
             {
                 if(cKeywords.contains(value_buffer) or ThingFactory::IsThing({value_buffer}))
                     { name_buffer = TokenName::Keyword; }
+                else
+                {
+                    name_buffer = TokenName::Literal;
+                    for(char character : value_buffer)
+                    {
+                        if(!(character >= '0' and character <= '9')
+                            and !cValidLiterals.contains(character))
+                            { name_buffer = TokenName::Identifier; }
+                    }
+                }
                 tokens.emplace_back(name_buffer, value_buffer);
                 value_buffer.clear();
             }
