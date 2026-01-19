@@ -1,7 +1,7 @@
 #include "gl_renderer_api.hpp"
-#include "core/uid.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
+#include "core/uid.hpp"
 #include "core/printing.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/things/resources/texture.hpp"
@@ -78,7 +78,7 @@ void OpenGLRendererAPI::SetLineWidth(float Width)
 ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 {
     while(inID.invalid() or mShaders.contains(inID))
-        { inID = ID::Generate(); }
+        { inID = UID::GetRandom(); }
     mShaders[inID] = inShader;
     return inID;
 }
