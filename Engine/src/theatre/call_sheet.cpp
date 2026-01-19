@@ -23,3 +23,9 @@ Error CallSheet::Get(ID inNodeID, Node& outNode) noexcept
         { outNode = found_it; return OK; }
     return ERR_NOT_FOUND;
 }
+
+bool CallSheet::Has(ID inNodeID) noexcept
+{ return mTree.all_nodes.contains(inNodeID); }
+
+void CallSheet::Clear() noexcept
+{ mTree.all_nodes.clear(); }

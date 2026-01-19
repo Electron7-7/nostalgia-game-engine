@@ -11,6 +11,8 @@ public:
     Error Reparent(ID inNodeID, ID inParentID) noexcept;
     Farg<Node> Get(ID inNodeID) noexcept;
     Error Get(ID inNodeID, Node& outNode) noexcept;
+    bool Has(ID inNodeID) noexcept;
+    void Clear() noexcept;
 
 private:
     Tree mTree{};
