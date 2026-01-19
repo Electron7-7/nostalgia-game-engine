@@ -148,7 +148,6 @@ ENGINE_SRC_DIRS := \
     $(ENGINE_SRC)/rendering \
     $(ENGINE_SRC)/settings \
     $(ENGINE_SRC)/theatre \
-    $(ENGINE_SRC)/theatre/parser \
     $(ENGINE_SRC)/theatre/things \
     $(ENGINE_SRC)/theatre/things/resources \
     $(ENGINE_SRC)/theatre/things/thinkers \
