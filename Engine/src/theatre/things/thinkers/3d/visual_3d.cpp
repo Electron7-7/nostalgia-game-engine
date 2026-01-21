@@ -1,6 +1,6 @@
 #include "visual_3d.hpp"
-#include "core/uid.hpp"
 #include "theatre/parser.hpp"
+#include "theatre/thing_factory.hpp"
 
 using namespace TheatreFile;
 
@@ -29,36 +29,22 @@ BitMask Visual3D::Layers() const
 void Visual3D::SetLayers(BitMask inVisualLayers)
 { mVisualLayers = inVisualLayers; }
 
-IdSet_t Visual3D::Viewports() const
+ID Visual3D::Viewport() const
+{ return mViewportID; }
+
+void Visual3D::Viewport(ID inID)
+{ mViewportID = inID; }
+
+void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
-    IdSet_t output{mViewportIDs};
-    output.insert(UID::a_Global3DViewport);
-    return output;
+    Actor3D::OnAncestorRemoved(inAncestor);
+    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+        { mViewportID = UID::a_Global3DViewport; }
 }
 
-void Visual3D::Viewports(IdSet_arg inIDs)
-{ mViewportIDs = inIDs; }
-
-Error Visual3D::AddViewport(ID inID)
+void Visual3D::OnAncestorAdded(Relative inAncestor)
 {
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    return (mViewportIDs.insert(inID).second)
-        ? OK
-        : ERR_ALREADY_EXISTS;
+    Actor3D::OnAncestorAdded(inAncestor);
+    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+        { mViewportID = inAncestor.uid; }
 }
-
-Error Visual3D::RemoveViewport(ID inID)
-{
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    return (mViewportIDs.erase(inID))
-        ? OK
-        : ERR_NOT_FOUND;
-}
-
-void Visual3D::ClearViewports()
-{ mViewportIDs.clear(); }
-
-bool Visual3D::IsUsingViewport(ID inID) const
-{ return inID == UID::a_Global3DViewport or mViewportIDs.contains(inID); }

@@ -2,6 +2,7 @@
 #define VISUAL_3D_H
 
 #include "core/bitmask.hpp"
+#include "core/uid.hpp"
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 
 class Visual3D : public Actor3D
@@ -13,16 +14,15 @@ public:
     virtual BitMask Layers() const;
     virtual void SetLayers(BitMask inVisualLayers);
 
-    virtual IdSet_t Viewports() const;
-    virtual void Viewports(IdSet_arg);
-    virtual Error AddViewport(ID);
-    virtual Error RemoveViewport(ID);
-    virtual void ClearViewports();
-    virtual bool IsUsingViewport(ID) const;
+    virtual ID Viewport() const;
+    virtual void Viewport(ID);
 
 protected:
     BitMask mVisualLayers{};
-    IdSet_t mViewportIDs{};
+    ID mViewportID{UID::a_Global3DViewport};
+
+    virtual void OnAncestorRemoved(Relative) override;
+    virtual void OnAncestorAdded(Relative) override;
 };
 
 #endif // VISUAL_3D_H
