@@ -576,6 +576,9 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             auto material{GetResource<Material>(mesh->MaterialID())};
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
+#pragma message("FIXME: implement an easier way of not using materials/textures")
+            if(material->uid().invalid())
+                { material->mDontUseTexture = true; }
             FAUTO renderer_api{g_pRenderManager->GetAPI()};
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
