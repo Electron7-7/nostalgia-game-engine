@@ -47,6 +47,7 @@ protected:
     std::string mName{"Untitled Thing"};
     PID mType{};
     Unique<TheatreFile::ThingData> mStartingData{nullptr};
+    Theatre* m_pRootTheatre{nullptr};
 };
 
 template<typename T>
