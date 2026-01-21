@@ -24,8 +24,7 @@ void Light3D::ClearCounts()
 
 void Light3D::Ready()
 {
-    if(mDebugMeshInstanceID.invalid() // the debug mesh instance shouldn't override a manually specificed one
-        and Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
+    if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
         ThingData mat_data{ThingType::Material, mName + "-debug-material"};

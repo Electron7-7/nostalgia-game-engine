@@ -8,6 +8,9 @@
 class Visual3D : public Actor3D
 {
 public:
+    bool mOverrideEnableDebugHighlight{false};
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 1.0f};
+
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 

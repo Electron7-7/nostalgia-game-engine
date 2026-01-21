@@ -10,10 +10,6 @@
 class Actor3D : public Thinker
 {
 public:
-    virtual void Ready() override;
-    virtual void Tick() override;
-    virtual void Update() override {}
-    virtual void Input(InputEvent*) override {}
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
@@ -30,9 +26,6 @@ public:
     virtual void SetRotationDegrees(Farg<glm::vec3>);
     virtual void SetScale(Farg<glm::vec3>);
     virtual void SetVisible(bool);
-
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
-    ID mDebugMeshInstanceID{};
 
 protected:
     glm::vec3 mPosition{0.0f};

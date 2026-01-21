@@ -1,6 +1,4 @@
 #include "actor_3d.hpp"
-#include "collider_3d.hpp"
-#include "managers/theatre_manager.hpp"
 #include "theatre/parser.hpp"
 
 using namespace TheatreFile;
@@ -18,9 +16,6 @@ void Actor3D::SetVariables(Farg<ThingData> data)
     if(data.get_variable(mQuaternion, "Quaternion") == OK)
         { SetQuaternion(mQuaternion); }
     data.get_variable(mVisible, "Visible");
-
-    data.get_variable(mDebugHighlight, "DebugHighlight");
-    data.get_variable(mDebugMeshInstanceID, "DebugMeshInstance");
 }
 
 Shared<ThingData> Actor3D::GetVariables() const
@@ -32,29 +27,7 @@ Shared<ThingData> Actor3D::GetVariables() const
     data->set_variable(mScale, "Scale");
     data->set_variable(mVisible, "Visible");
 
-    data->set_variable(mDebugHighlight, "DebugHighlight");
-    data->set_variable(mDebugMeshInstanceID, "DebugMeshInstance");
-
     return data;
-}
-
-void Actor3D::Ready()
-{ Thinker::Ready(); }
-
-void Actor3D::Tick()
-{
-    for(auto child : mChildren)
-    {
-        if(auto collider{DCast<Collider3D>(g_pTheatreManager
-                ->CurrentTheatre()
-                    ->GetThinker<Collider3D>(child.id))};
-            !collider->uid().invalid())
-        {
-            SetPosition(collider->Position());
-            SetScale(collider->Scale());
-            SetQuaternion(collider->Quaternion());
-        }
-    }
 }
 
 Farg<glm::vec3> Actor3D::Position() const

@@ -12,6 +12,8 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 
     if(data.get_variable(render_layers, "VisualLayers", "RenderLayers", "Layers") == OK)
         { mVisualLayers.set(render_layers); }
+
+    data.get_variable(mDebugHighlight, "DebugHighlight");
 }
 
 Shared<ThingData> Visual3D::GetVariables() const
@@ -19,6 +21,7 @@ Shared<ThingData> Visual3D::GetVariables() const
     auto data{Actor3D::GetVariables()};
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
+    data->set_variable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }
