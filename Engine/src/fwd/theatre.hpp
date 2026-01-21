@@ -7,9 +7,6 @@ class Theatre;
 
 class VariableRegistry;
 
-struct ThinkerRelative;
-using ThinkerChildren = std::vector<ThinkerRelative>;
-
 namespace TheatreFile
 {
     enum class ThingVarType;
