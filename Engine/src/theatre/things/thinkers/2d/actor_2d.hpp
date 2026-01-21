@@ -24,8 +24,6 @@ public:
     virtual void SetRotationDegrees(float);
     virtual void SetScale(Farg<glm::vec2>);
 
-    virtual bool Visible() const;
-    virtual void SetVisible(bool isVisible);
 
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
 
@@ -36,6 +34,5 @@ protected:
     glm::vec2 mScale{};
 
     BitMask mLayers{};
-    bool mVisible{true};
 };
 #endif // ACTOR_2D_H

@@ -11,10 +11,25 @@ void Thinker::Free()
 }
 
 void Thinker::SetVariables(Farg<ThingData> inData)
-{ Thing::SetVariables(inData); }
+{
+    Thing::SetVariables(inData);
+
+    inData.get_variable(mVisible, "Visible");
+}
 
 Shared<ThingData> Thinker::GetVariables() const
-{ return Thing::GetVariables(); }
+{
+    auto data{Thing::GetVariables()};
+    data->set_variable(mVisible, "Visible");
+    return data;
+}
+
+bool Thinker::Visible() const
+{ return mVisible; }
+
+ // If he's invincible, then how come I can see him?
+void Thinker::SetVisible(bool inVisible)
+{ mVisible = inVisible; }
 
 IdSet_t Thinker::Children() const
 {

@@ -524,13 +524,13 @@ struct thing_data_buffer
     {
         if(auto thinker{DCast<Thinker>(ptr)})
         {
-            parent = thinker->Parent()[];
+            parent  = thinker->Parent()[];
+            visible = thinker->Visible();
             if(auto actor{DCast<Actor3D>(ptr)})
             {
                 position = actor->Position();
                 rotation = actor->RotationDegrees();
                 scale = actor->Scale();
-                visible = actor->Visible();
                 if(auto visual3d{DCast<Visual3D>(ptr)})
                 {
                     layers_status = visual3d->Layers().status();
@@ -784,6 +784,8 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             // THINKERS
             if(auto thinker{DCast<Thinker>(selected.ptr)})
             {
+                if(Checkbox("Visible", &selected.visible))
+                    { thinker->SetVisible(selected.visible); }
                 // PARENT
                 BeginChild("Parent", {}, ImGuiChildFlags_AutoResizeY);
                     SeparatorText("Parent");
@@ -823,8 +825,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { actor->SetRotationDegrees(selected.rotation); }
                     if(DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f"))
                         { actor->SetScale(selected.scale); }
-                    if(Checkbox("Visible", &selected.visible))
-                        { actor->SetVisible(selected.visible); }
                     if(auto visual3d{DCast<Visual3D>(selected.ptr)})
                     {
                         Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);

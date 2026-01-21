@@ -15,7 +15,6 @@ void Actor3D::SetVariables(Farg<ThingData> data)
         { SetRotation(mEulerRotationRadians); }
     if(data.get_variable(mQuaternion, "Quaternion") == OK)
         { SetQuaternion(mQuaternion); }
-    data.get_variable(mVisible, "Visible");
 }
 
 Shared<ThingData> Actor3D::GetVariables() const
@@ -25,7 +24,6 @@ Shared<ThingData> Actor3D::GetVariables() const
     data->set_variable(mPosition, "Position");
     data->set_variable(mQuaternion, "Quaternion");
     data->set_variable(mScale, "Scale");
-    data->set_variable(mVisible, "Visible");
 
     return data;
 }
@@ -44,9 +42,6 @@ Farg<glm::vec3> Actor3D::RotationDegrees() const
 
 Farg<glm::vec3> Actor3D::Scale() const
 { return mScale; }
-
-bool Actor3D::Visible() const
-{ return mVisible; }
 
 void Actor3D::SetPosition(Farg<glm::vec3> inPosition)
 { mPosition = inPosition; }
@@ -75,5 +70,3 @@ void Actor3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 void Actor3D::SetScale(Farg<glm::vec3> inScale)
 { mScale = inScale; }
 
-void Actor3D::SetVisible(bool isVisible)
-{ mVisible = isVisible; }

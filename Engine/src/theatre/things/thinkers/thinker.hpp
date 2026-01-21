@@ -12,6 +12,9 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
+    bool Visible() const;
+    void SetVisible(bool);
+
     IdSet_t Children() const;
     ID Parent() const;
 
@@ -40,6 +43,7 @@ protected:
     };
 
     RMutex mChildrenMutex{};
+    bool mVisible{true};
 
     virtual void OnChildAdded(Relative) {}
     virtual void OnChildRemoved(Relative) {}

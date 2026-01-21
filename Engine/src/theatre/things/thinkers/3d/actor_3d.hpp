@@ -25,7 +25,6 @@ public:
     virtual void SetRotation(Farg<glm::vec3>);
     virtual void SetRotationDegrees(Farg<glm::vec3>);
     virtual void SetScale(Farg<glm::vec3>);
-    virtual void SetVisible(bool);
 
 protected:
     glm::vec3 mPosition{0.0f};
@@ -33,8 +32,6 @@ protected:
     glm::vec3 mEulerRotationRadians{0.0f};
     glm::vec3 mEulerRotationDegrees{0.0f};
     glm::vec3 mScale{1.0f};
-
-    bool mVisible{true};
 };
 
 #endif // ACTOR_3D_H

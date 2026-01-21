@@ -47,8 +47,6 @@ float Actor2D::RotationDegrees() const
 Farg<glm::vec2> Actor2D::Scale() const
 { return mScale; }
 
-bool Actor2D::Visible() const
-{ return mVisible; }
 
 void Actor2D::SetPosition(Farg<glm::vec2> inPosition)
 { mPosition = inPosition; }
@@ -67,6 +65,3 @@ void Actor2D::SetRotationDegrees(float inRotation)
 
 void Actor2D::SetScale(Farg<glm::vec2> inScale)
 { mScale = inScale; }
-
-void Actor2D::SetVisible(bool isVisible)
-{ mVisible = isVisible; }
