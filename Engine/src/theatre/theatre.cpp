@@ -73,6 +73,7 @@ bool Theatre::Startup()
         { return false; }
 
     LockGuard<RMutex> lock{mThingsMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     mUIDs.Clear();
     mCallSheet.Clear();
@@ -82,10 +83,13 @@ bool Theatre::Startup()
     CreateEmbeddedResources();
 
     for(auto& thing_dat : *m_pInitialState)
-        { SetRegistryAndUID(thing_dat); }
+        { SetupUID(thing_dat); }
 
     for(auto& thing_dat : *m_pInitialState)
         { CreateThingNoReady(thing_dat); }
+
+    for(auto& thing_dat : *m_pInitialState)
+        { SetupOwnership(thing_dat); }
 
     if(!mThings.contains(UID::a_Player))
     {
@@ -114,8 +118,9 @@ bool Theatre::Startup()
     mViewportIDs.insert(UID::a_Global3DViewport);
     mViewportIDs.insert(UID::a_Global2DViewport);
 
-    for(auto& [id, thing] : mThings)
-        { thing->Ready(); }
+    auto uids{ThingIDs()};
+    for(ID uid : uids)
+        { mThings.at(uid)->Ready(); }
 
     return mIsStarted = true;
 }
@@ -125,8 +130,13 @@ bool Theatre::Shutdown()
     if(!mIsStarted)
         { return false; }
     LockGuard<RMutex> lock{mThingsMutex};
-    for(auto it{mThings.begin()}; it != mThings.end();)
-        { it = DestroyThing(it); }
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    for(ID uid : ThingIDs())
+    {
+        if(!mThings.contains(uid))
+            { continue; }
+        DestroyThing(uid);
+    }
     m_pRegistry->ClearIDs();
     mUIDs.Clear();
     mCallSheet.Clear();
@@ -142,7 +152,7 @@ void Theatre::Draw()
     for(ID viewport_id : mViewportIDs)
     {
         auto viewport{GetThinker<Viewport>(viewport_id)};
-        auto camera_type{TypeOf(viewport->CurrentCamera())};
+        auto camera_id{viewport->CurrentCamera()};
 
         if(!viewport->Framebuffer())
             { continue; }
@@ -150,9 +160,9 @@ void Theatre::Draw()
         viewport->Framebuffer()->Bind();
         g_pRenderManager->GetAPI()->SetViewport({0, 0}, viewport->Size());
 
-        if(ThingFactory::IsDerivedFrom(camera_type, ThingType::Camera3D))
-            { Draw3DThinkers(GetThinker<Camera3D>(viewport->CurrentCamera())); }
-        else if(ThingFactory::IsDerivedFrom(camera_type, ThingType::Camera2D))
+        if(DerivedFrom(camera_id, ThingType::Camera3D))
+            { Draw3DThinkers(viewport_id, GetThinker<Camera3D>(camera_id)); }
+        else if(DerivedFrom(camera_id, ThingType::Camera2D))
             { /*Draw2DThinkers(GetThinker<Camera2D>(viewport->CurrentCamera()));*/ }
 
         viewport->Framebuffer()->Unbind();
@@ -240,12 +250,19 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 
 Error Theatre::DestroyThing(ID inID)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    return (DestroyThing(mThings.find(inID)) != mThings.end())
-        ? OK
-        : (mThings.empty())
-            ? ERR_EMPTY
-            : ERR_NOT_FOUND;
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+
+    auto children{GetChildren(inID)};
+    for(ID child : children)
+        { DestroyThing(child); }
+
+    GetThing(inID)->Shutdown();
+    auto status{DestroyThingOnly(inID)};
+    print_error_enum(mCallSheet.Remove(inID));
+    return status;
+}
+
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
@@ -355,19 +372,42 @@ Shared<Thinker> Theatre::GetThinker(ID inID)
     return MakeShared<Thinker>();
 }
 
-void Theatre::SetRegistryAndUID(ThingData& ioData)
+void Theatre::SetupUID(ThingData& ioData)
 {
+    ioData.theatre_registry = m_pRegistry;
+
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
         { ioData.uid = UID::a_Player; }
     if(ioData.uid.invalid())
         { ioData.uid = mUIDs.Generate(); }
     if(!mUIDs.Contains(ioData.uid[]))
         { mUIDs.Push(ioData.uid[]); }
-    if(!m_pRegistry->HasID(ioData.name))
+    if(!m_pRegistry->HasID(ioData.uid[]))
         { m_pRegistry->RegisterID(ioData.name, ioData.uid[]); }
-    if(!mCallSheet.Has(ioData.uid))
-        { mCallSheet.Add(ioData.uid); }
-    ioData.theatre_registry = m_pRegistry;
+
+    mCallSheet.Add(ioData.uid);
+}
+
+void Theatre::SetupOwnership(Farg<ThingData> ioData)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+
+    ID parent{ioData.get_parent()};
+    IdSet_t children{ioData.get_children()};
+
+    if(!parent.invalid())
+    {
+        if(!mCallSheet.Has(parent))
+            { mCallSheet.Add(parent); }
+        if(!mCallSheet.Reparent(ioData.uid, parent))
+            { mCallSheet.Add(ioData.uid, parent); }
+    }
+    for(ID child : children)
+    {
+        if(child.invalid()) { continue; }
+        else if(!mCallSheet.Reparent(child, ioData.uid))
+            { mCallSheet.Add(child, ioData.uid); }
+    }
 }
 
 void Theatre::CreateEmbeddedResources()
@@ -396,22 +436,16 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
 
-    SetRegistryAndUID(ioData);
+    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
+        and mThings.contains(UID::a_Player))
+            { print_warning("Only one player at a time, please!"); return UID::a_Player; }
+
+    SetupUID(ioData);
+    SetupOwnership(ioData);
 
     auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type)};
+    thing->m_pRootTheatre = this;
     thing->SetVariables(ioData);
-
-    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::Thinker))
-    {
-        auto thinker{DCast<Thinker>(thing)};
-        if(!mCallSheet.Reparent(thinker->uid(), thinker->Parent().id))
-            { mCallSheet.Add(thinker->uid(), thinker->Parent().id); }
-        for(FAUTO child : thinker->Children())
-        {
-            if(!mCallSheet.Reparent(child.id, thinker->uid()))
-                { print_warning("Invalid Child UID: {}", child.id[]); }
-        }
-    }
 
     if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
@@ -423,28 +457,36 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual2D))
         { mVisual2DIDs.insert(thing->uid()); }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::NostalgiaPlayer3D))
-        { ChangeThingID(thing->uid(), UID::a_Player); }
 
     return thing->uid();
 }
 
-Theatre::Things_t::iterator Theatre::DestroyThing(Things_t::iterator inIterator)
+Error Theatre::DestroyThingOnly(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    if(inIterator == mThings.end())
-        { return inIterator; }
-    if(!m_pRegistry->RemoveID(inIterator->first[])
-        and !m_pRegistry->RemoveID(inIterator->second->name()))
-        { print_warning("Unable to remove Thing#{} from the variable registry!", inIterator->first[]); }
-    mCallSheet.Remove(inIterator->first);
-    mUIDs.Erase(inIterator->first[]);
-    mViewportIDs.erase(inIterator->first);
-    mVisual2DIDs.erase(inIterator->first);
-    mVisual3DIDs.erase(inIterator->first);
-    mLightIDs.erase(inIterator->first);
-    inIterator->second->Shutdown();
-    return mThings.erase(inIterator);
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+
+    if(!mThings.contains(inID))
+    {
+        return (mThings.empty())
+            ? ERR_EMPTY
+            : ERR_NOT_FOUND;
+    }
+
+    mUIDs.Erase(inID[]);
+    mViewportIDs.erase(inID);
+    mVisual2DIDs.erase(inID);
+    mVisual3DIDs.erase(inID);
+    mLightIDs.erase(inID);
+    if(!m_pRegistry->RemoveID(inID[])
+        and !m_pRegistry->RemoveID(mThings.at(inID)->name()))
+    {
+        print_warning("Unable to remove [{}, {}] from the variable registry!",
+            inID[],
+            mThings.at(inID)->name());
+    }
+    mThings.erase(inID);
+    return OK;
 }
 
 void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)

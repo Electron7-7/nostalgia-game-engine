@@ -93,11 +93,13 @@ protected:
     Error mInitStatus{ERR_UNINITIALIZED};
     bool mIsStarted{false};
 
-    void SetRegistryAndUID(TheatreFile::ThingData&);
-    void CreateEmbeddedResources();
-    ID   CreateThingNoReady(Farg<TheatreFile::ThingData>);
-    ID   CreateThingNoReady(TheatreFile::ThingData&);
-    Things_t::iterator DestroyThing(Things_t::iterator);
+    void SetupOwnership(Farg<TheatreFile::ThingData>);
+    void SetupUID(TheatreFile::ThingData&);
+
+    void  CreateEmbeddedResources();
+    ID    CreateThingNoReady(Farg<TheatreFile::ThingData>);
+    ID    CreateThingNoReady(TheatreFile::ThingData&);
+    Error DestroyThingOnly(ID);
 
     void Draw3DThinkers(Shared<Camera3D>);
     // void Draw2DThinkers(Shared<Camera2D>);
