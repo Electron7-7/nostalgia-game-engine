@@ -12,8 +12,8 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
+#pragma message("TODO: get rid of hardcoded camera and collider code")
     virtual ID CameraID() const;
-    virtual void SetCameraID(ID);
 
     virtual Farg<glm::vec3> Velocity() const;
 

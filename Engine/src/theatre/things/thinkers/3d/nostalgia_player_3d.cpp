@@ -16,6 +16,8 @@ void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
+    if(!data.get_variable(mScale, "Scale", "Size", "OuuughImSoBigAndRound"))
+        { mScale = glm::vec3{1.0f, 3.0f, 1.0f}; }
     data.get_variable(mViewPosition, "ViewPosition");
     data.get_variable(mCameraID, "Camera", "CameraID", "Camera3D");
     data.get_variable(mColliderID, "Collider", "ColliderID", "PlayerCollider");
@@ -40,8 +42,6 @@ void NostalgiaPlayer3D::Input(InputEvent* event)
 void NostalgiaPlayer3D::Ready()
 {
     Actor3D::Ready();
-    if(mScale == glm::vec3{1.0f})
-        { mScale = glm::vec3{1.0f, 3.0f, 1.0f}; }
     if(mCameraID.invalid())
     {
         TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
@@ -49,7 +49,8 @@ void NostalgiaPlayer3D::Ready()
         cam_dat.set_variable(mQuaternion, "Quaternion");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
-        mCameraID = g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
+        mCameraID = m_pRootTheatre->CreateThing(cam_dat);
+        m_pRootTheatre->SetParent(mCameraID, mUID);
     }
     if(mColliderID.invalid())
     {
@@ -59,10 +60,10 @@ void NostalgiaPlayer3D::Ready()
         coll_dat.set_variable(mScale, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(ShapeType::Box, "Shape");
-        mColliderID = g_pTheatreManager->CurrentTheatre()->CreateThing(coll_dat);
+        mColliderID = m_pRootTheatre->CreateThing(coll_dat);
+        m_pRootTheatre->SetParent(mColliderID, mUID);
+        mScale = glm::vec3{1.0f};
     }
-    add_child({mColliderID, ThingType::Collider3D}, true);
-    add_child({mCameraID, ThingType::Collider3D}, true);
 }
 
 void NostalgiaPlayer3D::Tick()
@@ -112,13 +113,6 @@ void NostalgiaPlayer3D::Tick()
 
 ID NostalgiaPlayer3D::CameraID() const
 { return mCameraID; }
-
-void NostalgiaPlayer3D::SetCameraID(ID inID)
-{
-#pragma message("TODO: get rid of hardcoded camera and collider code")
-    remove_child({mCameraID, ThingType::Camera3D});
-    mCameraID = inID;
-}
 
 Farg<glm::vec3> NostalgiaPlayer3D::Velocity() const
 { return mVelocity; }
