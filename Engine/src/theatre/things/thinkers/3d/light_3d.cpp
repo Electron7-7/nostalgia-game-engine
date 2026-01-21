@@ -39,7 +39,7 @@ void Light3D::Ready()
         mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
         mesh_inst_dat.set_variable(mUID, "Parent");
 
-        mDebugMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing(mesh_inst_dat);
+        m_pRootTheatre->SetParent(m_pRootTheatre->CreateThing(mesh_inst_dat), mUID);
     }
 }
 
