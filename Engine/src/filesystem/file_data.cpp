@@ -13,6 +13,7 @@ sReservedFileData{
     {UID::m_Cube,             MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)},
     {UID::m_Ramiel,           MakeShared<FileData>(Models::Ramiel,     std::size(Models::Ramiel),     FileType::model_OBJ)},
     {UID::m_Camera3D,         MakeShared<FileData>(Models::Camera,     std::size(Models::Camera),     FileType::model_OBJ)},
+    {UID::m_DebugAxis,        MakeShared<FileData>(Models::DebugAxis,  std::size(Models::DebugAxis),  FileType::model_OBJ)},
     {UID::t_Missing,          MakeShared<FileData>(Images::Missing,    std::size(Images::Missing),    FileType::image_PNG)},
     {UID::t_LolBit,           MakeShared<FileData>(Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG)},
     {UID::t_LightDebug,       MakeShared<FileData>(Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG)},
@@ -49,7 +50,7 @@ Shared<FileData> FileData::s_GetReservedFileData(uint inReservedUID)
 {
     if(auto type{UID::GetReservedType(inReservedUID)};
         type != UID::ReservedType::NotReserved)
-        { return sReservedFileData.at(inReservedUID); }
+            { return sReservedFileData.at(inReservedUID); }
     print_warning("Invalid UID");
     return MakeShared<FileData>();
 }
