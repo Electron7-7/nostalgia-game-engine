@@ -434,6 +434,7 @@ void Theatre::CreateEmbeddedResources()
     CreateThingNoReady({ThingType::Mesh,    "DefaultCube",{},         UID::m_Cube});
     CreateThingNoReady({ThingType::Mesh,    "RamielModel",{},         UID::m_Ramiel});
     CreateThingNoReady({ThingType::Mesh,    "CameraModel",{},         UID::m_Camera3D});
+    CreateThingNoReady({ThingType::Mesh,    "3DAxisModel",{},         UID::m_DebugAxis});
     CreateThingNoReady({ThingType::Texture, "MissingTexture",{},      UID::t_Missing});
     CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::t_LightDebug});
     CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::t_COMP04_5});

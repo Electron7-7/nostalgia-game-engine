@@ -30,6 +30,7 @@ public:
         m_Cube             {0x31}, // 49
         m_Ramiel           {0x32}, // 50
         m_Camera3D         {0x33}, // 51
+        m_DebugAxis        {0x34}, // 52
     // Reserved Font UIDs
         f_Verdana          {0x40}, // 64
         f_DejaVuSans       {0x41}, // 65

@@ -18,6 +18,10 @@ namespace Models
     constexpr unsigned char Camera[]{
         #embed "models/Camera3D.obj"
     };
+
+    constexpr unsigned char DebugAxis[]{
+        #embed "models/DebugAxis.obj"
+    };
 }
 
 #endif // MODELS_H
