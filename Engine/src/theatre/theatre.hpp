@@ -48,6 +48,14 @@ public:
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
 
+    IdSet_t GetChildren(ID inParentID);
+    ID GetParent(ID inChildID);
+    IdSet_t GetAllChildren(ID inParentID);
+    IdSet_t GetAllParents(ID inChildID);
+
+    Error SetParent(ID inChildID, ID inParentID);
+    Error DropParent(ID inChildID);
+
     Shared<Thing>    GetThing(ID ObjectID);
     Shared<Resource> GetResource(ID ObjectID);
     Shared<Thinker>  GetThinker(ID ObjectID);
@@ -69,7 +77,8 @@ public:
         }
 
 protected:
-    RMutex   mThingsMutex{};
+    RMutex   mThingsMutex{},
+             mCallSheetMutex{};
     Things_t mThings{};
     IdSet_t  mLightIDs{},
              mVisual3DIDs{},

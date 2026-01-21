@@ -4,43 +4,50 @@
 #include "theatre/things/thing.hpp"
 #include "core/mutex.hpp"
 
-struct ThinkerRelative
-{
-    ThinkerRelative() = default;
-    ThinkerRelative(ID inID, FPID inType):
-        id{inID}, type{inType} {}
-    ID id{};
-    PID type{};
-    constexpr bool operator==(Farg<ThinkerRelative> other) const noexcept
-    { return id == other.id and type == other.type; }
-};
-
-using ThinkerChildren = std::vector<ThinkerRelative>;
-
 // Similar to Godot's `Node`
 class Thinker : public Thing
 {
 public:
     virtual void Free() override;
-    virtual void Ready() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
-    ThinkerChildren Children() const;
-    ThinkerRelative Parent() const;
+    IdSet_t Children() const;
+    ID Parent() const;
 
-    Error add_child(ThinkerRelative, bool doUpdateChild = true);
-    Error remove_child(ThinkerRelative, bool doUpdateChild = true);
-    Error swap_child(ThinkerRelative, ThinkerRelative, bool doUpdateChildren = true);
-
-    Error set_parent(ThinkerRelative, bool doUpdateParent = true);
-    Error swap_parent(ThinkerRelative, ThinkerRelative, bool doUpdateParents = true);
-    Error remove_parent(ThinkerRelative, bool doUpdateParent = true);
+    Error SetParent(ID inParentID);
+    // Equivalent to calling `SetParent` with the current parent's parent. If the current parent
+    // has no parent (e.g: `ID::Invalid`), nothing happens (if you would consult the graphs).
+    Error DropParent();
 
 protected:
+    friend class Theatre;
+
+    struct Relative
+    {
+        Relative() noexcept {}
+        Relative(Farg<Shared<Thinker>> inThinker) noexcept:
+            uid{inThinker->uid()},
+            type{inThinker->type()},
+            name{inThinker->name()} {}
+
+        ID uid{};
+        PID type{};
+        std::string name{};
+
+        constexpr bool invalid() const noexcept
+        { return uid.invalid() or type.invalid(); }
+    };
+
     RMutex mChildrenMutex{};
-    ThinkerRelative mParent{};
-    ThinkerChildren mChildren{};
+
+    virtual void OnChildAdded(Relative) {}
+    virtual void OnChildRemoved(Relative) {}
+    virtual void OnParentChanged(Relative inNewParent, Relative inOldParent = {}) {}
+    virtual void OnAncestorAdded(Relative) {}
+    virtual void OnAncestorRemoved(Relative) {}
+    virtual void OnDescendantAdded(Relative) {}
+    virtual void OnDescendantRemoved(Relative) {}
 };
 
 #endif // THINKER_H

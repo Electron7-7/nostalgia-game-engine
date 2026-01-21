@@ -246,6 +246,80 @@ Error Theatre::DestroyThing(ID inID)
         : (mThings.empty())
             ? ERR_EMPTY
             : ERR_NOT_FOUND;
+IdSet_t Theatre::GetChildren(ID inParentID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    return mCallSheet.Get(inParentID).children;
+}
+
+ID Theatre::GetParent(ID inChildID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    return mCallSheet.Get(inChildID).parent;
+}
+
+IdSet_t Theatre::GetAllChildren(ID inParentID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    return mCallSheet.Descendants(inParentID);
+}
+
+IdSet_t Theatre::GetAllParents(ID inChildID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    return mCallSheet.Ancestors(inChildID);
+}
+
+Error Theatre::SetParent(ID inChildID, ID inParentID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> things_lock{mThingsMutex};
+
+    // NOTE: Probably redundant. Too bad!
+    if(!mCallSheet.Has(inChildID)
+        or (!inParentID.invalid() and !mCallSheet.Has(inParentID)))
+            { return print_error_enum(ERR_NOT_FOUND); }
+
+    auto old_parent_id{mCallSheet.Get(inChildID).parent};
+    auto old_ancestors{GetAllParents(inChildID)};
+
+    if(auto status{mCallSheet.Reparent(inChildID, inParentID)}; !status)
+        { return print_error_enum(status); }
+
+    auto new_ancestors{GetAllParents(inChildID)};
+    auto descendants{GetAllChildren(inParentID)};
+
+    for(ID descendant : descendants)
+    {
+        auto descendant_thinker{GetThinker(descendant)};
+        for(ID old_ancestor : old_ancestors)
+        {
+            auto old_ancestor_thinker{GetThinker(old_ancestor)};
+            old_ancestor_thinker->OnDescendantRemoved(descendant_thinker);
+            descendant_thinker->OnAncestorRemoved(old_ancestor_thinker);
+        }
+        for(ID new_ancestor : new_ancestors)
+        {
+            auto new_ancestor_thinker{GetThinker(new_ancestor)};
+            new_ancestor_thinker->OnDescendantAdded(descendant_thinker);
+            descendant_thinker->OnAncestorAdded(new_ancestor_thinker);
+        }
+    }
+
+    return OK;
+}
+
+Error Theatre::DropParent(ID inChildID)
+{
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> things_lock{mThingsMutex};
+
+    auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
+
+    if(!mCallSheet.Has(inChildID) or !parent.children.contains(inChildID))
+        { return ERR_NOT_FOUND; }
+
+    return SetParent(inChildID, parent.parent);
 }
 
 Shared<Thing> Theatre::GetThing(ID inID)
