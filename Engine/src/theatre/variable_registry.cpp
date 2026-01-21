@@ -68,7 +68,13 @@ std::string VariableRegistry::GetIDName(uint inID) const
 Error VariableRegistry::RegisterID(Farg<std::string> inName, uint inID, bool noCopies)
 {
     if(noCopies && mReferences.contains(inName))
-        { print_error("[{}, {}]", inName, inID); return print_error_enum(ERR_ALREADY_EXISTS); }
+    {
+        print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
+            inName,
+            mReferences.at(inName),
+            inID);
+        return ERR_ALREADY_EXISTS;
+    }
     mReferences[inName] = inID;
     return OK;
 }
