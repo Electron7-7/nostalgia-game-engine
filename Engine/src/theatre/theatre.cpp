@@ -263,6 +263,12 @@ Error Theatre::DestroyThing(ID inID)
     return status;
 }
 
+IdSet_arg Theatre::GetCameras()
+{
+    LockGuard<RMutex> lock{mThingsMutex};
+    return mCameraIDs;
+}
+
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
@@ -449,6 +455,9 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 
     if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
+    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera3D)
+        or ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera2D))
+            { mCameraIDs.insert(thing->uid()); }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual3D))
     {
         mVisual3DIDs.insert(thing->uid());

@@ -54,7 +54,7 @@ Error Viewport::SetCurrentCamera(ID inID)
     if(inID.invalid())
     {
         descendants = (mUID == UID::a_Global3DViewport or mUID == UID::a_Global2DViewport)
-            ? m_pRootTheatre->GetAllCameras()
+            ? m_pRootTheatre->GetCameras()
             : m_pRootTheatre->GetAllChildren(mUID);
     }
 

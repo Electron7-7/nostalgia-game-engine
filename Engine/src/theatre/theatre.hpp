@@ -48,6 +48,7 @@ public:
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
 
+    IdSet_arg GetCameras();
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
     IdSet_t GetAllChildren(ID inParentID);
@@ -81,6 +82,7 @@ protected:
              mCallSheetMutex{};
     Things_t mThings{};
     IdSet_t  mLightIDs{},
+             mCameraIDs{},
              mVisual3DIDs{},
              mVisual2DIDs{},
              mViewportIDs{};
