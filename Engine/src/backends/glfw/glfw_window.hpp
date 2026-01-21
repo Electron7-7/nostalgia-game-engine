@@ -63,6 +63,7 @@ private:
     static constexpr int mFrameLimitForNoMouseMovement{2};
     static constinit frozen::map<GLFWInputID, KeyID, Key::KeysCount> s_cGLFWInputLookup;
     static uint GetMonitorIndex(GLFWmonitor*);
+    static void AddMonitor(GLFWmonitor*);
 };
 
 extern bool gDebugPrintStateChanges;

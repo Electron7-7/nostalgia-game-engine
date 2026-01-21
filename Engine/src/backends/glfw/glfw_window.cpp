@@ -12,6 +12,7 @@
 #include <vector>
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
+#include <GLFW/glfw3native.h>
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
 static std::vector<Unique<Monitor>> m_sMonitors{};
@@ -21,25 +22,13 @@ bool gDebugPrintStateChanges{false};
 void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonitor, int inEvent)
 {
     if(inEvent == GLFW_CONNECTED)
-    {
-        m_sMonitors.push_back(std::make_unique<Monitor>(inMonitor, glfwGetMonitorName(inMonitor)));
-        auto& outMonitor{m_sMonitors.back()};
-        glfwGetMonitorPos(inMonitor,
-            &outMonitor->virtual_position.x, &outMonitor->virtual_position.y);
-        glfwGetMonitorWorkarea(inMonitor,
-            &outMonitor->work_area.xpos, &outMonitor->work_area.ypos,
-            &outMonitor->work_area.width, &outMonitor->work_area.height);
-        glfwGetMonitorPhysicalSize(inMonitor,
-            &outMonitor->physical_size.width_mm, &outMonitor->physical_size.height_mm);
-        glfwGetMonitorContentScale(inMonitor,
-            &outMonitor->content_scale.x, &outMonitor->content_scale.y);
-    }
+        { AddMonitor(inMonitor); }
     else if(inEvent == GLFW_DISCONNECTED)
     {
         // Pun intended
         if(auto found_it{std::find(m_sMonitors.begin(), m_sMonitors.end(), Monitor{inMonitor})};
             found_it != m_sMonitors.end())
-            { m_sMonitors.erase(found_it); }
+                { m_sMonitors.erase(found_it); }
     }
 }
 
@@ -109,6 +98,21 @@ void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWin
     }
 }
 
+void WindowGLFW::AddMonitor(GLFWmonitor* inMonitor)
+{
+    m_sMonitors.push_back(MakeUnique<Monitor>(inMonitor, glfwGetMonitorName(inMonitor)));
+    auto& outMonitor{m_sMonitors.back()};
+    glfwGetMonitorPos(inMonitor,
+        &outMonitor->virtual_position.x, &outMonitor->virtual_position.y);
+    glfwGetMonitorWorkarea(inMonitor,
+        &outMonitor->work_area.xpos, &outMonitor->work_area.ypos,
+        &outMonitor->work_area.width, &outMonitor->work_area.height);
+    glfwGetMonitorPhysicalSize(inMonitor,
+        &outMonitor->physical_size.width_mm, &outMonitor->physical_size.height_mm);
+    glfwGetMonitorContentScale(inMonitor,
+        &outMonitor->content_scale.x, &outMonitor->content_scale.y);
+}
+
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
@@ -141,6 +145,15 @@ Error WindowGLFW::Init(const WindowProperties& inProperties)
         { glfwTerminate(); return ERR_INIT_FAILED; }
     print_error_enum(InitializeCallbacks());
     ++sShittyWindowTrackerPleaseMakeSomethingBetter;
+
+    if(m_sMonitors.empty())
+    {
+        int count{};
+        auto monitors{glfwGetMonitors(&count)};
+        for(int i{0}; i < count; ++i)
+            { AddMonitor(monitors[i]); }
+        mFullscreenMonitorIndex = 0;
+    }
     return OK;
 }
 
@@ -243,6 +256,7 @@ Error WindowGLFW::SetWindowMode(WindowMode inMode)
     default:
         return ERR_SWITCH_DEFAULT;
     }
+    mData.window_mode = inMode;
     glfwSetWindowMonitor(m_pWindow, monitor, mData.x_pos, mData.y_pos, mData.width, mData.height, GLFW_DONT_CARE);
     return OK;
 }
