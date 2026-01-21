@@ -25,7 +25,11 @@ Shared<ThingData> Thinker::GetVariables() const
 }
 
 bool Thinker::Visible() const
-{ return mVisible; }
+{
+    if(Parent().invalid() or m_pRootTheatre->GetThinker(Parent())->Visible())
+        { return mVisible; }
+    return false;
+}
 
  // If he's invincible, then how come I can see him?
 void Thinker::SetVisible(bool inVisible)
