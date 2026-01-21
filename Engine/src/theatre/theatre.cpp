@@ -207,12 +207,6 @@ IdVec_t Theatre::ThingIDs()
     return {keys.begin(), keys.end()};
 }
 
-IdSet_arg Theatre::ViewportIDs()
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    return mViewportIDs;
-}
-
 bool Theatre::ThingExists(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
@@ -276,6 +270,12 @@ IdSet_arg Theatre::GetCameras()
 {
     LockGuard<RMutex> lock{mThingsMutex};
     return mCameraIDs;
+}
+
+IdSet_arg Theatre::GetViewports()
+{
+    LockGuard<RMutex> lock{mThingsMutex};
+    return mViewportIDs;
 }
 
 IdSet_t Theatre::GetChildren(ID inParentID)

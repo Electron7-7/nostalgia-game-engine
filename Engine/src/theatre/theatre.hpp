@@ -43,7 +43,6 @@ public:
     TheatreFile::TheatreData       CurrentState();
 
     IdVec_t   ThingIDs();
-    IdSet_arg ViewportIDs();
     bool      ThingExists(ID);
     Farg<PID> TypeOf(ID);
     bool      DerivedFrom(ID, FPID);
@@ -52,6 +51,8 @@ public:
     Error     DestroyThing(ID);
 
     IdSet_arg GetCameras();
+    IdSet_arg GetViewports();
+
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
     IdSet_t GetAllChildren(ID inParentID);
