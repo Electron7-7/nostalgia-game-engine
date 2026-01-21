@@ -3,6 +3,7 @@
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
 #include "core/uid.hpp"
+#include "core/bitmask.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
@@ -530,19 +531,25 @@ struct thing_data_buffer
                 rotation = actor->RotationDegrees();
                 scale = actor->Scale();
                 visible = actor->Visible();
-                if(auto camera3d{DCast<Camera3D>(ptr)})
+                if(auto visual3d{DCast<Visual3D>(ptr)})
                 {
+                    layers_status = visual3d->Layers().status();
+
+                    if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
+                    {
+                        mesh = mesh_instance->MeshID()[];
+                        material_override = mesh_instance->MaterialOverrideID()[];
+                        wireframe = mesh_instance->Wireframe();
+                    }
+                }
+                else if(auto camera3d{DCast<Camera3D>(ptr)})
+                {
+                    layers_status = camera3d->LayersMask().status();
                     is_camera_current = camera3d->Current();
                     fov = camera3d->mFOV;
                     view_near = camera3d->mViewCutoffNear;
                     view_far = camera3d->mViewCutoffFar;
                     env_type = camera3d->mEnvironment.mType;
-                }
-                else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
-                {
-                    mesh = mesh_instance->MeshID()[];
-                    material_override = mesh_instance->MaterialOverrideID()[];
-                    wireframe = mesh_instance->Wireframe();
                 }
                 else if(auto collider{DCast<Collider3D>(ptr)})
                 {
@@ -592,6 +599,7 @@ struct thing_data_buffer
         wireframe{false},
         activate_on_change{false},
         is_camera_current{false};
+    BitMask::StatusArray layers_status{};
     Environment::BackgroundType env_type{Environment::BackgroundType::BG_CLEAR_COLOR};
     ColliderMaterial collider_material{};
 };
@@ -817,23 +825,67 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { actor->SetScale(selected.scale); }
                     if(Checkbox("Visible", &selected.visible))
                         { actor->SetVisible(selected.visible); }
-                    if(auto light{DCast<Light3D>(actor)})
+                    if(auto visual3d{DCast<Visual3D>(selected.ptr)})
                     {
-                        Checkbox("Enabled", &light->mEnabled);
-                        ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
-                        InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                        if(DCast<SpotLight3D>(light))
+                        Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);
+                        ColorEditGLMv4("Editor Highlight Color",
+                            &visual3d->mDebugHighlight,
+                            ImGuiColorEditFlags_Float
+                                | ImGuiColorEditFlags_DisplayRGB
+                                | ImGuiColorEditFlags_InputRGB);
+
+                        for(int layer_i{BitMask::min}; layer_i < BitMask::max; ++layer_i)
                         {
-                            InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
-                            InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            std::string layer_name{std::format("Layer #{:#02}", layer_i+1)};
+                            if(Checkbox(layer_name.data(), &selected.layers_status[layer_i]))
+                            {
+                                visual3d->SetLayers(selected.layers_status);
+                                selected = {visual3d};
+                            }
+                            if((layer_i+1) % 10 and layer_i != BitMask::max - 1)
+                                { SameLine(); }
+                        }
+
+                        if(auto light{DCast<Light3D>(actor)})
+                        {
+                            Checkbox("Enabled", &light->mEnabled);
+                            ColorEditGLMv3("Color", &light->mColor, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB);
+                            InputFloat("Energy", &light->mEnergy, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            InputFloat("Specular Strength", &light->mSpecularStrength, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            InputFloat("Ambient Strength", &light->mAmbientStrength, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            InputFloat("Attenuation Scalar", &light->mAttenuation, 0.01f, 0.05f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            InputFloat("Range", &light->mRange, 1.0f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            if(DCast<SpotLight3D>(light))
+                            {
+                                InputFloat("SpotAngle", &light->mSpotAngle, 0.1f, 0.5f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                                InputFloat("SpotAngleFade", &light->mSpotAngleFade, 0.5f, 1.0f, "%.3f", ImGuiInputTextFlags_CharsDecimal);
+                            }
+                        }
+                        else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
+                        {
+                            if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
+                                { mesh_instance->SetMeshID(selected.mesh); }
+                            if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
+                                { mesh_instance->SetMaterialOverrideID(selected.material); }
+                            if(Checkbox("Wireframe", &selected.wireframe))
+                                { mesh_instance->SetWireframe(selected.wireframe); }
+                            if(IsItemHovered())
+                                { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                         }
                     }
                     else if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                     {
+                        for(int layers_mask_i{BitMask::min}; layers_mask_i < BitMask::max; ++layers_mask_i)
+                        {
+                            std::string layer_name{std::format("Layer #{:#02}", layers_mask_i+1)};
+                            if(Checkbox(layer_name.data(), &selected.layers_status[layers_mask_i]))
+                            {
+                                camera3d->SetLayersMask(selected.layers_status);
+                                selected = {camera3d};
+                            }
+                            if((layers_mask_i+1) % 10 and layers_mask_i != BitMask::max - 1)
+                                { SameLine(); }
+                        }
                         auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera3d->ViewportID())};
                         TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
                         if(Checkbox("Current", &selected.is_camera_current))
@@ -916,26 +968,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             { collider->SetActive(true); }
                         else if(collider->Active() and Button("Deactivate"))
                             { collider->SetActive(false); }
-                    }
-                    else if(auto visual3d{DCast<Visual3D>(selected.ptr)})
-                    {
-                        Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);
-                        ColorEditGLMv4("Editor Highlight Color",
-                            &visual3d->mDebugHighlight,
-                            ImGuiColorEditFlags_Float
-                                | ImGuiColorEditFlags_DisplayRGB
-                                | ImGuiColorEditFlags_InputRGB);
-                        if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
-                        {
-                            if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
-                                { mesh_instance->SetMeshID(selected.mesh); }
-                            if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
-                                { mesh_instance->SetMaterialOverrideID(selected.material); }
-                            if(Checkbox("Wireframe", &selected.wireframe))
-                                { mesh_instance->SetWireframe(selected.wireframe); }
-                            if(IsItemHovered())
-                                { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
-                        }
                     }
                 }
                 // CHILDREN
