@@ -816,6 +816,14 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 // 3D ACTORS
                 else if(auto actor{DCast<Actor3D>(selected.ptr)})
                 {
+                    selected.position = actor->GlobalPosition();
+                    selected.rotation = actor->GlobalRotationDegrees();
+                    selected.scale    = actor->GlobalScale();
+                    BeginDisabled();
+                        DragGLMv3("Global Position", &selected.position, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                        DragGLMv3("Global Rotation", &selected.rotation, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                        DragGLMv3("Global Scale", &selected.scale, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                    EndDisabled();
                     selected.position = actor->Position();
                     selected.rotation = actor->RotationDegrees();
                     selected.scale    = actor->Scale();

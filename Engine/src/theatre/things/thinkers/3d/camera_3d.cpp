@@ -112,9 +112,10 @@ void Camera3D::SetLayersMask(BitMask inLayersMask)
 
 glm::mat4 Camera3D::ViewMatrix() const
 {
-    return glm::lookAt(mPosition,
-        mPosition + (mQuaternion * Settings::World::Front()),
-        mQuaternion * Settings::World::Up());
+    glm::quat global_quat{GlobalRotation()};
+    return glm::lookAt(GlobalPosition(),
+        GlobalPosition() + (global_quat * Settings::World::Front()),
+        global_quat * Settings::World::Up());
 }
 
 glm::mat4 Camera3D::ProjectionMatrix() const

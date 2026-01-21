@@ -514,6 +514,8 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    auto view_matrix{inCamera->ViewMatrix()};
+    auto projection_matrix{inCamera->ProjectionMatrix()};
 
     switch(inCamera->mEnvironment.mType)
     {
@@ -525,8 +527,8 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID)->GetBuffer(),
             0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
-        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{inCamera->ViewMatrix()}});
-        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
+        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
+        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
         renderer_api->DrawSkybox(GetResource<Mesh>(UID::m_Cube)->MeshData());
         break;
@@ -543,32 +545,13 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
     for(ID v3d_id : mVisual3DIDs)
     {
         auto visual3d{GetThinker<Visual3D>(v3d_id)};
-        auto parents{GetAllParents(v3d_id)};
         if(!visual3d->Visible()
-            or parents.contains(inCamera->uid())
+            or inCamera->Children().contains(v3d_id)
             or !inCamera->LayersMask().contains(visual3d->Layers())
             or (!UID::IsReserved(inViewportID[])
                     and !UID::IsReserved(visual3d->Viewport()[])
                     and inViewportID != visual3d->Viewport()))
                         { continue; }
-
-        auto global_scale{visual3d->Scale()};
-        auto global_position{visual3d->Position()};
-        glm::mat4 global_rotation{visual3d->Quaternion()};
-
-        bool skip_this{false};
-        for(ID parent : parents)
-        {
-            if(!ThingFactory::IsDerivedFrom(TypeOf(parent), ThingType::Actor3D))
-                { continue; }
-            auto actor{GetThinker<Actor3D>(parent)};
-            if(!actor->Visible())
-                { skip_this = true; break; }
-            global_scale    *= actor->Scale();
-            global_position += actor->Position();
-            global_rotation *= glm::mat4_cast(actor->Quaternion());
-        }
-        if(skip_this) { continue; }
 
         if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
         {
@@ -584,11 +567,10 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-            glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, global_scale)},
-                transMat          {glm::translate(glm::mat4{1.0f}, global_position)},
-                model_matrix      {transMat * global_rotation * scaleMat},
-                projection_matrix {inCamera->ProjectionMatrix()},
-                view_matrix       {inCamera->ViewMatrix()};
+            glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, visual3d->GlobalScale())},
+                transMat          {glm::translate(glm::mat4{1.0f}, visual3d->GlobalPosition())},
+                rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
+                model_matrix      {transMat * rotMat * scaleMat};
 
             renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
@@ -603,7 +585,7 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
             shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
             shader->SetUniform("view_matrix", view_matrix);
-            shader->SetUniform("view_position", inCamera->Position());
+            shader->SetUniform("view_position", inCamera->GlobalPosition());
             shader->SetUniform("current_material.texture_diffuse",  0);
             shader->SetUniform("current_material.texture_specular", 1);
             shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
