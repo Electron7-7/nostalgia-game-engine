@@ -8,6 +8,8 @@
 #include "settings/player.hpp"
 #include "managers/input_manager.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
+#include "theatre/things/thinkers/3d/camera_3d.hpp"
+#include "theatre/things/thinkers/3d/visual_3d.hpp"
 #include "physics/engine.hpp"
 #include "theatre/parser.hpp"
 
@@ -46,12 +48,13 @@ void NostalgiaPlayer3D::Ready()
     if(mCameraID.invalid())
     {
         TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
-        cam_dat.set_variable(mViewPosition, "Origin");
-        cam_dat.set_variable(mQuaternion, "Quaternion");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
         mCameraID = m_pRootTheatre->CreateThing(cam_dat);
         m_pRootTheatre->SetParent(mCameraID, mUID);
+        BitMask cam_layers{};
+        cam_layers.disable(1);
+        m_pRootTheatre->GetThinker<Camera3D>(mCameraID)->SetLayersMask(cam_layers);
     }
     if(mColliderID.invalid())
     {
@@ -70,7 +73,11 @@ void NostalgiaPlayer3D::Ready()
         TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, "PlayerDebugAxisMesh"};
         axis_dat.set_variable(mUID, "Parent");
         axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
-        m_pRootTheatre->SetParent(m_pRootTheatre->CreateThing(axis_dat), mUID);
+        ID axis_mesh{};
+        m_pRootTheatre->SetParent(axis_mesh = m_pRootTheatre->CreateThing(axis_dat), mUID);
+        BitMask layers{false};
+        layers.enable(1);
+        m_pRootTheatre->GetThinker<Visual3D>(axis_mesh)->SetLayers(layers);
     }
 }
 
@@ -84,8 +91,8 @@ void NostalgiaPlayer3D::Tick()
 
     SetRotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
     auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(mCameraID)};
-    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
-    camera->SetPosition(mPosition + mViewPosition);
+    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
+    camera->SetPosition(mPosition);
 
     auto collider{g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(mColliderID)};
 
