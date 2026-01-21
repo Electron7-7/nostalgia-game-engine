@@ -302,7 +302,7 @@ static void s_GeneralDebuggingWindow()
         bool fullscreen{MainWindow()->IsFullscreen()};
         if(Checkbox("Fullscreen", &fullscreen))
         {
-            MainWindow()->SetWindowMode((fullscreen)
+            MainWindow()->SetWindowMode((MainWindow()->IsFullscreen())
                 ? IWindow::WINDOW_MODE_WINDOWED
                 : IWindow::WINDOW_MODE_FULLSCREEN);
         }
