@@ -1107,3 +1107,6 @@ I could also just add a new variable to `ThingVariable` to store UIDs set by `se
 Yup, that was one of the biggest problems, because everything is fully back to normal. Time to maybe fix some small problems with the debugger, commit my changes, and work on implementing the new ownership system via `Tree`, `Node`, and `CallSheet`.
 
 Okay, now I can start working on the new ownership implementation.
+
+[01/21/26]
+Okay, I need to actually implement global transform values, because the weird way I calculate them only for renderable instances and shit is just not good.
