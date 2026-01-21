@@ -91,7 +91,7 @@ void NostalgiaPlayer3D::Tick()
 
     SetRotationDegrees(mEulerRotationDegrees -= glm::vec3{0.0f, mLookWish.x, 0.0f});
     auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(mCameraID)};
-    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
+    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
     camera->SetPosition(mPosition);
 
     auto collider{g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(mColliderID)};
