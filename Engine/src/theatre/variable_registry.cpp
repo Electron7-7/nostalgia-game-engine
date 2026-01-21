@@ -1,5 +1,6 @@
 #include "variable_registry.hpp"
 #include "core/printing.hpp"
+#include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
@@ -98,30 +99,48 @@ Error VariableRegistry::RemoveID(uint inID)
 void VariableRegistry::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    m_sEnums["Static"]              = MotionType::Static;
-    m_sEnums["Dynamic"]             = MotionType::Dynamic;
-    m_sEnums["Kinematic"]           = MotionType::Kinematic;
-    m_sEnums["Box"]                 = ShapeType::Box;
-    m_sEnums["Capsule"]             = ShapeType::Capsule;
-    m_sEnums["Cylinder"]            = ShapeType::Cylinder;
-    m_sEnums["Sphere"]              = ShapeType::Sphere;
-    m_sEnums["2DTexture"]           = TextureType::TEXTURE_TYPE_2D;
-    m_sEnums["CubeMapTexture"]      = TextureType::TEXTURE_TYPE_CUBE;
-    m_sEnums["CustomColor"]         = Environment::BG_CUSTOM_COLOR;
-    m_sEnums["ClearColor"]          = Environment::BG_CLEAR_COLOR;
-    m_sEnums["Skybox"]              = Environment::BG_SKYBOX;
+    RegisterEngineEnums();
+    RegisterEngineReferences();
 }
 
 void VariableRegistry::ClearIDs()
 {
     PRINT_PRETTY_FUNCTION;
     mReferences.clear();
-    Init();
+    RegisterEngineReferences();
 }
 
 void VariableRegistry::ClearEnums()
 {
     PRINT_PRETTY_FUNCTION;
     m_sEnums.clear();
-    Init();
+    RegisterEngineEnums();
+}
+
+void VariableRegistry::RegisterEngineEnums()
+{
+    m_sEnums["Static"]         = MotionType::Static;
+    m_sEnums["Dynamic"]        = MotionType::Dynamic;
+    m_sEnums["Kinematic"]      = MotionType::Kinematic;
+    m_sEnums["Box"]            = ShapeType::Box;
+    m_sEnums["Capsule"]        = ShapeType::Capsule;
+    m_sEnums["Cylinder"]       = ShapeType::Cylinder;
+    m_sEnums["Sphere"]         = ShapeType::Sphere;
+    m_sEnums["2DTexture"]      = TextureType::TEXTURE_TYPE_2D;
+    m_sEnums["CubeMapTexture"] = TextureType::TEXTURE_TYPE_CUBE;
+    m_sEnums["CustomColor"]    = Environment::BG_CUSTOM_COLOR;
+    m_sEnums["ClearColor"]     = Environment::BG_CLEAR_COLOR;
+    m_sEnums["Skybox"]         = Environment::BG_SKYBOX;
+}
+
+void VariableRegistry::RegisterEngineReferences()
+{
+    mReferences["ErrorModel"]      = UID::m_Error[];
+    mReferences["DefaultCube"]     = UID::m_Cube[];
+    mReferences["RamielModel"]     = UID::m_Ramiel[];
+    mReferences["CameraModel"]     = UID::m_Camera3D[];
+    mReferences["MissingTexture"]  = UID::t_Missing[];
+    mReferences["LightTexture"]    = UID::t_LightDebug[];
+    mReferences["DoomTexture"]     = UID::t_COMP04_5[];
+    mReferences["LolBitTexture"]   = UID::t_LolBit[];
 }

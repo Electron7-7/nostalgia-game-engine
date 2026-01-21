@@ -40,9 +40,10 @@ public:
     Error RemoveID(Farg<std::string> inName);
     Error RemoveID(uint inID);
     void  ClearIDs();
-    void  ClearEnums();
     bool  HasID(uint inID) const;
     bool  HasID(Sarg inName) const;
+
+    static void ClearEnums();
 
     template<IsEnum T>
         static bool try_GetEnum(Farg<std::string> inName, T& outValue)
@@ -140,6 +141,9 @@ public:
 private:
     References mReferences{};
     static Enums m_sEnums;
+
+    static void RegisterEngineEnums();
+    void RegisterEngineReferences();
 };
 
 #endif // THEATRE_VARIABLE_REGISTRY_H
