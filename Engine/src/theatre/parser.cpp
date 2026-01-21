@@ -1,6 +1,8 @@
 #include "parser.hpp"
 #include "thing_factory.hpp"
 
+static constexpr char cDelimiterTheatreName    {'@'};
+static constexpr char cDelimiterTheatreIndex   {'#'};
 static constexpr char cDelimiterStartSandwich  {':'};
 static constexpr char cDelimiterEndResource    {';'};
 static constexpr char cDelimiterEnterContext   {'{'};
@@ -24,7 +26,6 @@ static bool s_CheckIfComment(Comment&, Farg<Token>);
 
 Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
 {
-
     ThingData     thing_dat{};
     ThingVariable thing_var{};
 
@@ -36,6 +37,18 @@ Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData
         Farg<Token> token{inTokens.at(i)};
         if(s_CheckIfComment(in_comment, token))
             { continue; }
+        else if(token.category == TokenName::Separator
+            and i+1 < inTokens.size()
+            and context == TOP_LEVEL)
+        {
+            if(token.token[0] == cDelimiterTheatreName)
+                { outData->name = inTokens.at(++i).token; }
+            else if(token.token[0] == cDelimiterTheatreIndex)
+            {
+                try { outData->index = std::stoi(inTokens.at(++i).token); }
+                catch(std::invalid_argument const& e) {}
+            }
+        }
         else if(token.category == TokenName::Keyword)
         {
             if(context == TOP_LEVEL)

@@ -33,6 +33,9 @@ public:
     virtual bool Shutdown();
     virtual void Draw();
 
+    Sarg Name() const;
+    uint Index() const;
+
     Error InitStatus() const;
     bool  IsStarted()  const;
     Farg<VariableRegistry>         Registry() const;
@@ -78,6 +81,9 @@ public:
         }
 
 protected:
+    std::string mName{"Untitled Theatre"};
+    uint mIndex{ID::Invalid};
+
     RMutex   mThingsMutex{},
              mCallSheetMutex{};
     Things_t mThings{};

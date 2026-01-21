@@ -75,6 +75,9 @@ bool Theatre::Startup()
     LockGuard<RMutex> lock{mThingsMutex};
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
+    mName  = m_pInitialState->name;
+    mIndex = m_pInitialState->index;
+
     mUIDs.Clear();
     mCallSheet.Clear();
     m_pRegistry->ClearIDs();
@@ -168,6 +171,12 @@ void Theatre::Draw()
         viewport->Framebuffer()->Unbind();
     }
 }
+
+Sarg Theatre::Name() const
+{ return mName; }
+
+uint Theatre::Index() const
+{ return mIndex; }
 
 Error Theatre::InitStatus() const
 { return mInitStatus; }

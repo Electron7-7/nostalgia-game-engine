@@ -4,8 +4,6 @@
 #include "filesystem/file_data.hpp"
 #include "thirdparty/frozen/set.h"
 
-// static constexpr char                         cTheatreNameDelimiter{'@'};
-// static constexpr char                         cTheatreIndexDelimiter{'#'};
 static constexpr char        cCommentDelimiter{'/'};
 static constexpr std::string cCommentDelimiterSingleLine{"//"};
 static constexpr std::string cCommentDelimiterMultiLine{"///"};
@@ -18,8 +16,8 @@ static constexpr frozen::set<char, 2>
     cOperators{'=', ':'};
 static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
-static constexpr frozen::set<char, 10>
-    cSeparators{';', ',', '[', ']', '{', '}', '<', '>', '(', ')'};
+static constexpr frozen::set<char, 12>
+    cSeparators{';', ',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
 static constexpr frozen::set<std::string, 4>
     cKeywords{"Resources", "Thinkers", "Child", "Parent"};
 

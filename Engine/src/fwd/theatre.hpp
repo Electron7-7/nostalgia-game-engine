@@ -15,10 +15,10 @@ namespace TheatreFile
     struct Token;
     struct ThingVariable;
     struct ThingData;
+    struct TheatreData;
 
     using TokenArray    = std::vector<Token>;
     using ThingVarArray = std::vector<ThingVariable>;
-    using TheatreData   = std::vector<ThingData>;
 }
 
 ////////////
