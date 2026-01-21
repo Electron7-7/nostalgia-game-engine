@@ -2,6 +2,7 @@
 #include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>
 #include "managers/theatre_manager.hpp"
 #include "math/conversion.hpp"
+#include "settings/engine.hpp"
 #include "settings/world.hpp"
 #include "events/event.hpp"
 #include "settings/player.hpp"
@@ -63,6 +64,13 @@ void NostalgiaPlayer3D::Ready()
         mColliderID = m_pRootTheatre->CreateThing(coll_dat);
         m_pRootTheatre->SetParent(mColliderID, mUID);
         mScale = glm::vec3{1.0f};
+    }
+    if(Settings::Engine::IsEditorHint)
+    {
+        TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, "PlayerDebugAxisMesh"};
+        axis_dat.set_variable(mUID, "Parent");
+        axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
+        m_pRootTheatre->SetParent(m_pRootTheatre->CreateThing(axis_dat), mUID);
     }
 }
 
