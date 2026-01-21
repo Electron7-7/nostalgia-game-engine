@@ -103,8 +103,8 @@ protected:
     ID    CreateThingNoReady(TheatreFile::ThingData&);
     Error DestroyThingOnly(ID);
 
-    void Draw3DThinkers(Shared<Camera3D>);
-    // void Draw2DThinkers(Shared<Camera2D>);
+    void Draw3DThinkers(ID, Shared<Camera3D>);
+    // void Draw2DThinkers(ID, Shared<Camera2D>);
 };
 
 #endif // THEATRE_H

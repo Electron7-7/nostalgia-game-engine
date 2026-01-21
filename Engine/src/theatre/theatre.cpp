@@ -498,9 +498,11 @@ Error Theatre::DestroyThingOnly(ID inID)
     return OK;
 }
 
-void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
+void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
 
     switch(inCamera->mEnvironment.mType)
@@ -531,43 +533,59 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
     for(ID v3d_id : mVisual3DIDs)
     {
         auto visual3d{GetThinker<Visual3D>(v3d_id)};
-        // HACKY SOLUTION UNTIL I IMPLEMENT SCENE TREES
-        auto parent{GetThinker<Actor3D>(visual3d->Parent().id)};
-        if(!inCamera->LayersMask().contains(visual3d->Layers())
-            or parent->uid() == inCamera->uid())
-            { continue; }
-        else if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
+        auto parents{GetAllParents(v3d_id)};
+        if(!visual3d->Visible()
+            or parents.contains(inCamera->uid())
+            or !inCamera->LayersMask().contains(visual3d->Layers())
+            or (!UID::IsReserved(inViewportID[])
+                    and !UID::IsReserved(visual3d->Viewport()[])
+                    and inViewportID != visual3d->Viewport()))
+                        { continue; }
+
+        auto global_scale{visual3d->Scale()};
+        auto global_position{visual3d->Position()};
+        glm::mat4 global_rotation{visual3d->Quaternion()};
+
+        bool skip_this{false};
+        for(ID parent : parents)
+        {
+            if(!ThingFactory::IsDerivedFrom(TypeOf(parent), ThingType::Actor3D))
+                { continue; }
+            auto actor{GetThinker<Actor3D>(parent)};
+            if(!actor->Visible())
+                { skip_this = true; break; }
+            global_scale    *= actor->Scale();
+            global_position += actor->Position();
+            global_rotation *= glm::mat4_cast(actor->Quaternion());
+        }
+        if(skip_this) { continue; }
+
+        if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
         {
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
-            auto mesh{GetResource<Mesh>(mesh_instance->MeshID()[])};
+            auto mesh{GetResource<Mesh>(mesh_instance->MeshID())};
             auto material{GetResource<Material>(mesh->MaterialID())};
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
             FAUTO renderer_api{g_pRenderManager->GetAPI()};
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
-            if(mesh->uid().invalid())
-                { mesh = GetResource<Mesh>(UID::m_Error); }
-
             // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-            glm::mat4 scaleMat     {glm::scale(glm::mat4{1.0f}, parent->Scale() * mesh_instance->Scale())};
-            glm::mat4 rotMat       {glm::mat4_cast(parent->Quaternion())};
-            glm::mat4 rotMat2      {glm::mat4_cast(mesh_instance->Quaternion())};
-            glm::mat4 transMat     {glm::translate(glm::mat4{1.0f}, parent->Position() + mesh_instance->Position())};
-            glm::mat4 model_matrix {transMat * rotMat * rotMat2 * scaleMat};
-            glm::mat4 projection_matrix{inCamera->ProjectionMatrix()};
-            glm::mat4 view_matrix{inCamera->ViewMatrix()};
+            glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, global_scale)},
+                transMat          {glm::translate(glm::mat4{1.0f}, global_position)},
+                model_matrix      {transMat * global_rotation * scaleMat},
+                projection_matrix {inCamera->ProjectionMatrix()},
+                view_matrix       {inCamera->ViewMatrix()};
 
             renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
-            renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID()[])->GetBuffer(), 0);
-            renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID()[])->GetBuffer(), 1);
+            renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID())->GetBuffer(),  0);
+            renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID())->GetBuffer(), 1);
 
             shader->SetUniform("model_matrix", model_matrix);
             shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
             shader->SetUniform("projection_matrix", projection_matrix);
             shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
-            shader->SetUniform("debug_highlight", parent->mDebugHighlight * parent->mDebugHighlight.a);
             shader->SetUniform("point_lights_count", PointLight3D::GetCount());
             shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
             shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
@@ -579,7 +597,11 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
             shader->SetUniform("current_material.diffuse_color", material->mColor);
             shader->SetUniform("current_material.alpha", material->mAlpha);
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-            shader->SetUniform("current_material.specular_strength", material->mSpecularStrength);
+            shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
+
+            glm::vec4 debug_highlight{visual3d->mDebugHighlight};
+            debug_highlight *= (visual3d->mIsHoveredInDebugger or visual3d->mOverrideEnableDebugHighlight);
+            shader->SetUniform("debug_highlight", debug_highlight);
 
             shader->Bind();
             renderer_api->DrawIndexed(mesh->MeshData());
