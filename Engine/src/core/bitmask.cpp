@@ -25,7 +25,7 @@ void BitMask::enable(ushort index) noexcept
 { layers_ |= (1 << index); }
 
 void BitMask::disable(ushort index) noexcept
-{ layers_ |= ~(1 << index); }
+{ layers_ &= ~(1 << index); }
 
 bool BitMask::toggle(ushort index) noexcept
 {
