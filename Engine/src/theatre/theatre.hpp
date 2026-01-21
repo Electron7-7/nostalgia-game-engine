@@ -44,7 +44,7 @@ public:
 
     IdVec_t   ThingIDs();
     bool      ThingExists(ID);
-    Farg<PID> TypeOf(ID);
+    FPID      TypeOf(ID);
     bool      DerivedFrom(ID, FPID);
     Error     ChangeThingID(ID inOldID, ID inNewID);
     ID        CreateThing(Farg<TheatreFile::ThingData>);

@@ -440,7 +440,7 @@ void Theatre::CreateEmbeddedResources()
     CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::t_LolBit});
     CreateThingNoReady({ThingType::Texture,
         "ShittySkybox",
-        {{"Type",m_pRegistry->GetEnumName(TextureType::TEXTURE_TYPE_CUBE),ThingVarType::Enum}},
+        {{"Type", "CubeMapTexture", ThingVarType::Enum}},
         UID::t_ShittySkybox});
 }
 

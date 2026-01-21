@@ -8,8 +8,8 @@
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
-#include "rendering/vertex_array.hpp" // IWYU pragma: keep // idk why clangd says these are unused
-#include "rendering/frame_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/vertex_array.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/frame_buffer.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
 #include "settings/world.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

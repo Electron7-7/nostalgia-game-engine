@@ -48,7 +48,7 @@ protected:
     ID mUID{};
     std::string mName{"Untitled Thing"};
     PID mType{};
-    Unique<TheatreFile::ThingData> mStartingData{nullptr};
+    Unique<TheatreFile::ThingData> m_pStartingData{nullptr};
     Theatre* m_pRootTheatre{nullptr};
 };
 

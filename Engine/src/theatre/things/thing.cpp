@@ -12,7 +12,7 @@ void Thing::SetVariables(Farg<ThingData> data)
     mUID  = data.uid;
     mName = data.name;
     mType = data.type;
-    mStartingData = MakeUnique<ThingData>(data);
+    m_pStartingData = MakeUnique<ThingData>(data);
 }
 
 Shared<ThingData> Thing::GetVariables() const
@@ -21,12 +21,12 @@ Shared<ThingData> Thing::GetVariables() const
     data->name = mName;
     data->uid  = mUID;
     data->type = mType;
-    data->theatre_registry = mStartingData->theatre_registry;
+    data->theatre_registry = m_pStartingData->theatre_registry;
     return data;
 }
 
 ThingData Thing::GetStartingVariables() const
-{ return *mStartingData; }
+{ return *m_pStartingData; }
 
 ID Thing::uid() const
 { return mUID; }
