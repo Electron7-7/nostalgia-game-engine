@@ -46,7 +46,7 @@ void Light3D::Ready()
 
 void Light3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
+    Visual3D::SetVariables(data);
 
     data.get_variable(mColor, "Color");
     data.get_variable(mEnergy, "Energy");
@@ -63,7 +63,7 @@ void Light3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Light3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor3D::GetVariables()};
+    Shared<ThingData> data{Visual3D::GetVariables()};
 
     data->set_variable(mColor, "Color");
     data->set_variable(mEnergy, "Energy");

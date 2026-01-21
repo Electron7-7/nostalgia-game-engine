@@ -1,7 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "theatre/things/thinkers/3d/actor_3d.hpp"
+#include "theatre/things/thinkers/3d/visual_3d.hpp"
 
 enum class LightType : int
 {
@@ -11,7 +11,7 @@ enum class LightType : int
     NONE,
 };
 
-class Light3D : public Actor3D
+class Light3D : public Visual3D
 {
 public:
     static void ClearCounts();

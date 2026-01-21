@@ -48,7 +48,7 @@ public:
                     TYPE_ID(MeshInstance3D)
                 TYPE_ID(NostalgiaPlayer3D)
                 TYPE_ID(Camera3D)
-                TYPE_ID(Light3D)
+                    TYPE_ID(Light3D)
                     TYPE_ID(PointLight3D)
                     TYPE_ID(SpotLight3D)
                     TYPE_ID(DirectionalLight3D)
