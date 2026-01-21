@@ -13,6 +13,8 @@
 class Thing : public OnInput, public OnTick, public OnUpdate
 {
 public:
+    bool mIsHoveredInDebugger{false};
+
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
