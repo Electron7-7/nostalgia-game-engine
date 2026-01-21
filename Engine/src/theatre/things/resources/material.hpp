@@ -16,16 +16,19 @@ public:
     ID SpecularTextureID() const;
     void SpecularTextureID(ID TextureID);
 
+    float SpecularStrength() const;
+    void SpecularStrength(float);
+
     glm::vec3 mColor{1.0f};
     float     mAlpha{1.0f};
     int       mSpecularSharpness{16};
-    float     mSpecularStrength{0.0f};
     bool      mDontUseTexture{false};
     bool      mFullBright{false};
 
 protected:
     ID mDiffuseTextureID{},
         mSpecularTextureID{};
+    float mSpecularStrength{0.0f};
 };
 
 #endif // MATERIAL_H

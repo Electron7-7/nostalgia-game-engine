@@ -14,8 +14,7 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mAlpha, "Alpha");
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
     // TODO: Pick a better default value?
-    if(!data.get_variable(mSpecularStrength, "SpecularStrength") && mSpecularTextureID != ID::Invalid)
-        { mSpecularStrength = 1.0f; }
+    data.get_variable(mSpecularStrength, "SpecularStrength");
     data.get_variable(mDontUseTexture, "UseVertexColors");
     data.get_variable(mDontUseTexture, "OnlyUseVertexColors");
     data.get_variable(mDontUseTexture, "NoTexture", "NoTextures");
@@ -59,3 +58,13 @@ ID Material::SpecularTextureID() const
 
 void Material::SpecularTextureID(ID texture_id)
 { mSpecularTextureID = texture_id; }
+
+float Material::SpecularStrength() const
+{
+    return (SpecularTextureID() == UID::t_Missing)
+        ? 0.0f
+        : mSpecularStrength;
+}
+
+void Material::SpecularStrength(float inStrength)
+{ mSpecularStrength = inStrength; }
