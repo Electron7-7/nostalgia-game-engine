@@ -1110,3 +1110,7 @@ Okay, now I can start working on the new ownership implementation.
 
 [01/21/26]
 Okay, I need to actually implement global transform values, because the weird way I calculate them only for renderable instances and shit is just not good.
+
+Okay, I'm at work now; I'm gonna get to working on that global transform implementation.
+
+Finished the implementation and rendering is now fucking perfect!
