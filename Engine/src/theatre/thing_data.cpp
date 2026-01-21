@@ -17,54 +17,37 @@ Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> 
     return invalid_variable;
 }
 
-int ThingData::get_children(ThinkerChildren& outChildren) const
+Error ThingData::_get_id_variable(ID& outValue,
+    Farg<ThingVariable> inVariable,
+    ThingVarType inType) const
 {
-    if(!theatre_registry) { return -1; }
-    int child_count{0};
-    for(FAUTO var : children_variables)
+    if(inVariable.type != inType)
+        { return ERR_MISMATCHED_TYPES; }
+    else if(!inVariable.thing_uid.invalid())
+        { outValue = inVariable.thing_uid; return OK; }
+    else if(!theatre_registry)
+        { return ERR_NULLPTR; }
+    else if(uint out; theatre_registry->try_GetID(inVariable.value, out))
+        { outValue = out; return OK; }
+    return ERR_INVALID;
+}
+
+ID ThingData::get_parent() const
+{
+    ID out{};
+    _get_id_variable(out, parent_variable, ThingVarType::Parent);
+    return out;
+}
+
+IdSet_t ThingData::get_children() const
+{
+    IdSet_t children{};
+    for(FAUTO child : children_variables)
     {
-        uint child_id{};
-        if(!theatre_registry->try_GetID(var.value, child_id))
-            { print_error("invalid child: {}", var.value); continue; }
-        outChildren.emplace_back(child_id, var.name);
-        ++child_count;
+        ID uid{};
+        _get_id_variable(uid, child, ThingVarType::Child);
+        if(!uid.invalid())
+            { children.insert(uid); }
     }
-    return child_count;
-}
-
-int ThingData::set_children(Farg<ThinkerChildren> inChildren)
-{
-    if(!theatre_registry) { return -1; }
-    int child_count{0};
-    for(FAUTO child : inChildren)
-    {
-        std::string child_name{};
-        if(child.id.invalid()
-            or !theatre_registry->try_GetIDName(child.id[], child_name))
-            { continue; }
-        children_variables.emplace_back(child.type.name(), child_name, ThingVarType::Child);
-        ++child_count;
-    }
-    return child_count;
-}
-
-Error ThingData::get_parent(ThinkerRelative& outParent) const
-{
-    if(!theatre_registry) { return ERR_NULLPTR; }
-    uint parent_id{};
-    if(!theatre_registry->try_GetID(parent_variable.value, parent_id))
-        { return ERR_INVALID_ID; }
-    outParent = {parent_id, parent_variable.name};
-    return OK;
-}
-
-Error ThingData::set_parent(Farg<ThinkerRelative> inParent)
-{
-    if(!theatre_registry) { return ERR_NULLPTR; }
-    std::string parent_name{};
-    if(inParent.id.invalid()
-        or !theatre_registry->try_GetIDName(inParent.id[], parent_name))
-        { return ERR_INVALID_ID; }
-    parent_variable = {inParent.type.name(), parent_name, ThingVarType::Parent};
-    return OK;
+    return children;
 }

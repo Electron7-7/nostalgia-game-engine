@@ -1,9 +1,7 @@
 #ifndef THEATRE_PARSER_H
 #define THEATRE_PARSER_H
 
-// #include "fwd/theatre.hpp"
 #include "fwd/filesystem.hpp"
-#include "theatre/things/thinkers/thinker.hpp"
 #include "theatre/variable_registry.hpp"
 #include "theatre/number_parser.hpp"
 #include "core/id.hpp"
@@ -79,6 +77,7 @@ namespace TheatreFile
     {
     private:
         Farg<ThingVariable> _get_variable(std::initializer_list<std::string>) const;
+        Error _get_id_variable(ID&, Farg<ThingVariable>, ThingVarType) const;
 
     public:
         PID           type{};
@@ -98,12 +97,8 @@ namespace TheatreFile
 
         void clear() { *this = ThingData{}; }
 
-        int get_children(ThinkerChildren& outChildren) const;
-        int set_children(Farg<ThinkerChildren> inChildren);
-
-        Error get_parent(ThinkerRelative& outParent) const;
-        Error set_parent(Farg<ThinkerRelative> inParent);
-
+        ID get_parent() const;
+        IdSet_t get_children() const;
 
         template<StringType... Names>
             void set_variable(Sarg inValue, Sarg inName)
@@ -112,18 +107,23 @@ namespace TheatreFile
         template<StringType... Names>
             Error set_variable(ID inValue, Sarg inName)
             {
-                if(!theatre_registry)
-                {
-                    variables.emplace_back(inName, "", ThingVarType::ID, inValue);
-                    return OK;
-                }
-                else if(std::string thing_name{};
-                    theatre_registry->try_GetIDName(inValue[], thing_name))
-                {
-                    variables.emplace_back(inName, thing_name, ThingVarType::ID);
-                    return OK;
-                }
-                return ERR_INVALID_ID;
+                ThingVariable temp{inName, "", ThingVarType::ID, inValue};
+                if(!inName.compare("Parent"))
+                    { temp.type = ThingVarType::Parent; }
+                else if(!inName.compare("Child"))
+                    { temp.type = ThingVarType::Child; }
+
+                if(theatre_registry
+                    and !theatre_registry->try_GetIDName(inValue[], temp.value))
+                    { return ERR_INVALID_ID; }
+
+                if(temp.type == ThingVarType::Child)
+                    { children_variables.push_back(temp); }
+                else if(temp.type == ThingVarType::Parent)
+                    { parent_variable = temp; }
+                else
+                    { variables.push_back(temp); }
+                return OK;
             }
 
         template<StringType... Names>
@@ -138,9 +138,7 @@ namespace TheatreFile
             Error set_variable(T inValue, Sarg inName)
             {
                 std::string enum_name{};
-                if(!theatre_registry)
-                    { return ERR_NULLPTR; }
-                else if(!theatre_registry->try_GetEnumName(inValue, enum_name))
+                if(!VariableRegistry::try_GetEnumName(inValue, enum_name))
                     { return ERR_INVALID; }
                 variables.emplace_back(inName, enum_name, ThingVarType::Enum);
                 return OK;
@@ -162,26 +160,16 @@ namespace TheatreFile
             Error get_variable(ID& outValue, Names... inNames) const
             {
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
-                if(thing_var.type != ThingVarType::ID)
-                    { return ERR_MISMATCHED_TYPES; }
-                else if(!thing_var.thing_uid.invalid())
-                    { outValue = thing_var.thing_uid; return OK; }
-                else if(!theatre_registry)
-                    { return ERR_NULLPTR; }
-                else if(uint out; theatre_registry->try_GetID(thing_var.value, out))
-                    { outValue = out; return OK; }
-                return ERR_INVALID;
+                return _get_id_variable(outValue, thing_var, ThingVarType::ID);
             }
 
         template<IsEnum T, StringType... Names>
             Error get_variable(T& outValue, Names... inNames) const
             {
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
-                if(!theatre_registry)
-                    { return ERR_NULLPTR; }
-                else if(thing_var.type != ThingVarType::Enum)
+                if(thing_var.type != ThingVarType::Enum)
                     { return ERR_MISMATCHED_TYPES; }
-                else if(!theatre_registry->try_GetEnum(thing_var.value, outValue))
+                else if(!VariableRegistry::try_GetEnum(thing_var.value, outValue))
                     { return ERR_INVALID; }
                 return OK;
             }
