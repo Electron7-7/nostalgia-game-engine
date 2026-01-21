@@ -8,20 +8,23 @@ inline constinit const uint MaxBitMaskPlaces{30};
 struct BitMask
 {
 public:
-    static constexpr uint min{1};
+    static constexpr uint min{0};
     static constexpr uint max{MaxBitMaskPlaces};
-    static constexpr int all_enabled  {0b1111111111111111111111111111111};
-    static constexpr int all_disabled {0b0000000000000000000000000000000}; // hopefully u get the point
+    static constexpr int all_enabled  {0b111111111111111111111111111111};
+    static constexpr int all_disabled {0b000000000000000000000000000000}; // hopefully u get the point
     using StatusArray = std::array<bool, max>;
 
     BitMask(bool inAllLayersEnabled = true) noexcept;
+    BitMask(const StatusArray& inStatusArray) noexcept;
 
     int get() const noexcept;
     void set(int inLayers) noexcept;
+    void set(const StatusArray& inStatusArray) noexcept;
     bool contains(int inLayers) const noexcept;
     bool contains(BitMask inLayers) const noexcept;
     bool status(ushort inLayerIndex) const noexcept;
     StatusArray status() const noexcept;
+    void set_layer(ushort inLayerIndex, bool inStatus) noexcept;
     void enable(ushort inLayerIndex) noexcept;
     void disable(ushort inLayerIndex) noexcept;
     bool toggle(ushort inLayerIndex) noexcept;
