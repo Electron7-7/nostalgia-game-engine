@@ -10,6 +10,8 @@
 class Actor2D : public Thinker
 {
 public:
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
+
     virtual void Ready() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
@@ -23,7 +25,6 @@ public:
     float           RotationDegrees() const;
     Farg<glm::vec2> Scale() const;
 
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
     glm::vec2 GlobalPosition() const;
     float GlobalRotation() const;
     float GlobalRotationDegrees() const;

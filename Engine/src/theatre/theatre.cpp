@@ -523,8 +523,8 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
         renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
         renderer_api->Clear();
         renderer_api->SetWireframe(false);
-        renderer_api->BindTexture(
-            GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID)->GetBuffer(),
+        renderer_api->BindTexture(GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID)
+            ->GetBuffer(),
             0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
@@ -563,7 +563,6 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
 #pragma message("FIXME: implement an easier way of not using materials/textures")
             if(material->uid().invalid())
                 { material->mDontUseTexture = true; }
-            FAUTO renderer_api{g_pRenderManager->GetAPI()};
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc

@@ -41,6 +41,7 @@ public:
     virtual void SetRotation(Farg<glm::vec3>) override;
     virtual void SetRotationDegrees(Farg<glm::vec3>) override;
     virtual void SetScale(Farg<glm::vec3>) override;
+
     virtual Error SetMaterial(Farg<ColliderMaterial>);
     virtual void  SetMass(float);
     virtual Error SetShape(ShapeType, bool setActive = false);

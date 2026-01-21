@@ -68,8 +68,6 @@ void Camera3D::SetVariables(Farg<ThingData> data)
         mEnvironment.mCustomColor = color;
     }
     data.get_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha", "EnvironmentAlpha");
-
-    mVisible = mVisible and Settings::Engine::IsEditorHint;
 }
 
 Shared<ThingData> Camera3D::GetVariables() const

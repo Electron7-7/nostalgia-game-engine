@@ -19,7 +19,9 @@
 bool gPrintDrawLogs{false};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::None};
 
+#ifdef DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
+#endif // DEBUGGING
 
 bool OpenGLRendererAPI::Init()
 {
@@ -182,7 +184,6 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount
 
 void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
 {
-    // glDepthFunc(GL_LEQUAL);
     glDepthMask(GL_FALSE);
     inVAO->Bind();
     inVAO->GetIndexBuffer()->Bind();
@@ -192,7 +193,6 @@ void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
         nullptr);
     inVAO->Unbind();
     glDepthMask(GL_TRUE);
-    // glDepthFunc(GL_LESS);
 }
 
 //----------------------------------------------------------------------------------
@@ -289,6 +289,4 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
     print_debug("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);
 }
 
-#else // !DEBUGGING
-void APIENTRY OpenGL_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*) {}
 #endif // DEBUGGING
