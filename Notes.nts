@@ -1105,3 +1105,5 @@ Okay, looking at the other problems, I think it's come down to the fact that new
 I could also just add a new variable to `ThingVariable` to store UIDs set by `set_variable` and make sure that `get_variable` checks that UID when attempting to get an ID variable. That originally didn't sound like a good fix, however, it's got a lot less strings attached to it and keeps the responsibility of managing the registry with the Theatre.
 
 Yup, that was one of the biggest problems, because everything is fully back to normal. Time to maybe fix some small problems with the debugger, commit my changes, and work on implementing the new ownership system via `Tree`, `Node`, and `CallSheet`.
+
+Okay, now I can start working on the new ownership implementation.
