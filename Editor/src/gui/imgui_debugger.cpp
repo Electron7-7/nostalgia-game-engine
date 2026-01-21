@@ -2,9 +2,7 @@
 #include "imgui_editor.hpp"
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
-#include "theatre/parser.hpp"
 #include "core/uid.hpp"
-#include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
@@ -19,7 +17,6 @@
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
-#include "filesystem/filesystem.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
@@ -85,80 +82,6 @@ void ImGui_Debugger::Input(InputEvent* event)
         sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
             ? !sTheatreInspectorActive
             : false;
-    }
-    else if(event->IsJustPressed(Key::F6))
-    {
-        static TheatreFile::TokenArray tokens{};
-        sLastAttemptedTheatreFilePath = sTheatreFilePath;
-        if(TheatreFile::Lexer(sTheatreFilePath, tokens) == OK)
-        {
-            print_debug("Lexer output for Theatre file '{}':", sTheatreFilePath);
-            for(auto& token : tokens)
-            {
-                if(token.category == TheatreFile::TokenName::Whitespace)
-                    { continue; }
-                debug_print("\t[ TokenName::{:12}\"{}\" ]",
-                    EnumPrettifier::Prettify(token.category) + ",",
-                    (token.token[0] == '\n')
-                        ? "\\n"
-                        : token.token);
-            }
-        }
-        auto cur_data{g_pTheatreManager->CurrentTheatre()->InitialState()};
-        print_debug("Parser output for Theatre file '{}':", sTheatreFilePath);
-        for(FAUTO thing_data : cur_data)
-        {
-            debug_print("\tThingData\n\t\ttype: {}\n\t\tname: {}\n\t\tuid: {}\n\t\tvariables:",
-                thing_data.type.name(),
-                thing_data.name,
-                thing_data.uid[]);
-            for(FAUTO var : thing_data.variables)
-            {
-                debug_print("\t\t\t[name: {}, value: {}, type: {}]",
-                    var.name,
-                    var.value,
-                    EnumPrettifier::Prettify(var.type));
-            }
-            debug_print("\t\tchildren_variables:");
-            for(FAUTO var : thing_data.children_variables)
-            {
-                debug_print("\t\t\t[name: {}, value: {}, type: {}]",
-                    var.name,
-                    var.value,
-                    EnumPrettifier::Prettify(var.type));
-            }
-            debug_print("\t\tparent_variable:\n\t\t\t[name: {}, value: {}, type: {}]\n\t\ttheatre_registry: {}",
-                thing_data.parent_variable.name,
-                thing_data.parent_variable.value,
-                EnumPrettifier::Prettify(thing_data.parent_variable.type),
-                (std::intptr_t)thing_data.theatre_registry.get());
-        }
-        auto reg{g_pTheatreManager->CurrentTheatre()->Registry()};
-        print_debug("Theatre Registered IDs:");
-        for(auto [name, id] : reg.GetRegisteredIDs())
-            { debug_print("\t[ {}, {} ]", name, id); }
-        print_debug("Theatre Registered Enums:");
-        for(auto [name, pair] : reg.GetRegisteredEnums())
-            { debug_print("\t[{}]", name); }
-        print_debug("CHILDREN DEBUG INFORMATION");
-        for(FAUTO id : g_pTheatreManager->CurrentTheatre()->ThingIDs())
-        {
-            auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(id)};
-            if(auto thinker{DCast<Thinker>(thing)};
-                thinker and !thinker->Children().empty())
-            {
-                debug_print("{} children", thinker->name());
-                for(auto child : thinker->Children())
-                {
-                    auto test{g_pTheatreManager->CurrentTheatre()->GetThing(child.id)};
-                    debug_print("\t[{}, {}] ({}, {})",
-                        child.id[],
-                        child.type.name(),
-                        test->name(),
-                        test->type().name());
-                }
-            }
-        }
     }
 }
 
@@ -600,14 +523,13 @@ struct thing_data_buffer
     {
         if(auto thinker{DCast<Thinker>(ptr)})
         {
-            parent = thinker->Parent().id[];
+            parent = thinker->Parent()[];
             if(auto actor{DCast<Actor3D>(ptr)})
             {
                 position = actor->Position();
                 rotation = actor->RotationDegrees();
                 scale = actor->Scale();
                 visible = actor->Visible();
-                debug_mesh_instance = actor->mDebugMeshInstanceID[];
                 if(auto camera3d{DCast<Camera3D>(ptr)})
                 {
                     is_camera_current = camera3d->Current();
@@ -619,6 +541,7 @@ struct thing_data_buffer
                 else if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
                 {
                     mesh = mesh_instance->MeshID()[];
+                    material_override = mesh_instance->MaterialOverrideID()[];
                     wireframe = mesh_instance->Wireframe();
                 }
                 else if(auto collider{DCast<Collider3D>(ptr)})
@@ -634,8 +557,9 @@ struct thing_data_buffer
         {
             if(auto mat{DCast<Material>(ptr)})
             {
-                diffuseTexture  = mat->DiffuseTextureID()[];
-                specularTexture = mat->SpecularTextureID()[];
+                diffuseTexture   = mat->DiffuseTextureID()[];
+                specularTexture  = mat->SpecularTextureID()[];
+                specularStrength = mat->SpecularStrength();
             }
             else if(auto mesh{DCast<Mesh>(ptr)})
             {
@@ -652,6 +576,7 @@ struct thing_data_buffer
     uint parent{},
         mesh{},
         material{},
+        material_override{},
         diffuseTexture{},
         specularTexture{},
         debug_mesh_instance{};
@@ -661,7 +586,8 @@ struct thing_data_buffer
         view_near{0.001f},
         view_far{1000.0f},
         density{02.0f},
-        friction{0.0f};
+        friction{0.0f},
+        specularStrength{0.0f};
     bool visible{true},
         wireframe{false},
         activate_on_change{false},
@@ -670,18 +596,34 @@ struct thing_data_buffer
     ColliderMaterial collider_material{};
 };
 
+static void s_ThingTreeBranch(ID inUID)
+{
+    auto* theatre{g_pTheatreManager->CurrentTheatre()};
+    auto children{theatre->GetChildren(inUID)};
+    if(TreeNodeEx(theatre->GetThing(inUID)->c_name(),
+        (children.empty())
+            ? ImGuiTreeNodeFlags_Leaf
+            : ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        for(ID child : children)
+            { s_ThingTreeBranch(child); }
+        TreePop();
+    }
+}
+
 void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
 {
+    static std::unordered_map<ID, bool> is_hovered{};
     static uint mNewChildUID{0};
     static thing_data_buffer selected{};
     static int sMaxPerRow{3};
     static float thing_button_color[3]{},
         actor_button_color[3]    {0.063f, 0.392f, 0.6f},
-        light_button_color[3]    {0.494f, 0.494f, 0.494f},
-        thinker_button_color[3]  {0.447f, 0.125f, 0.361f},
+        light_button_color[3]    {0.808f, 0.707f, 0.086f},
+        visual3d_button_color[3] {0.447f, 0.125f, 0.361f},
         viewport_button_color[3] {0.500f, 0.300f, 0.800f},
         resource_button_color[3] {0.608f, 0.204f, 0.165f},
-        camera_button_color[3]   {0.808f, 0.707f, 0.086f};
+        camera_button_color[3]   {0.494f, 0.494f, 0.494f};
     static bool show_type_on_button{true};
     if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
         { selected = thing_data_buffer{}; return; }
@@ -689,13 +631,24 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
     {
         if(Begin("Theatre Inspector", is_active))
         {
+            auto* theatre{g_pTheatreManager->CurrentTheatre()};
+            if(CollapsingHeader("Test Graph View"))
+            {
+                if(TreeNodeEx(theatre->Name().data(), ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    auto top_level_ids{theatre->GetChildren({})};
+                    for(ID uid : top_level_ids)
+                        { s_ThingTreeBranch(uid); }
+                    TreePop();
+                }
+            }
             if(CollapsingHeader("Selector Settings"))
             {
                 InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
                 ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Actor3D Color",  actor_button_color,    ImGuiColorEditFlags_Float);
                 ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
-                ColorEdit3("Thinker Color",  thinker_button_color,  ImGuiColorEditFlags_Float);
+                ColorEdit3("Visual3D Color", visual3d_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Resource Color", resource_button_color, ImGuiColorEditFlags_Float);
                 ColorEdit3("Camera Color",   camera_button_color, ImGuiColorEditFlags_Float);
@@ -708,9 +661,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 int item_counter{0}, name_counter{0};
                 for(ID uid : uids)
                 {
-                    auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(uid)};
+                    auto thing{theatre->GetThing(uid)};
                     auto resource{DCast<Resource>(thing)};
                     auto thinker{DCast<Thinker>(thing)};
+                    auto visual3d{DCast<Visual3D>(thing)};
                     auto actor{DCast<Actor3D>(thing)};
                     ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
                     ImGuiCol push_color_where{ImGuiCol_Button};
@@ -729,6 +683,11 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
                                 type_symbol = "(C) ";
                             }
+                            else if(visual3d)
+                            {
+                                push_color = {visual3d_button_color[0],visual3d_button_color[1],visual3d_button_color[2],1.0f};
+                                type_symbol = "(V3D) ";
+                            }
                             else
                             {
                                 push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
@@ -738,7 +697,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         else if(DCast<Viewport>(thing))
                         {
                             push_color = {viewport_button_color[0],viewport_button_color[1],viewport_button_color[2],1.0f};
-                            type_symbol = "(V) ";
+                            type_symbol = "(VP) ";
                         }
                     }
                     else if(resource)
@@ -754,9 +713,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     PushID(++name_counter);
                     if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
                         { selected = thing_data_buffer{thing}; mNewChildUID = 0; }
+                    thing->mIsHoveredInDebugger = (is_hovered[uid] = IsItemHovered())
+                        or is_hovered[theatre->GetParent(thing->uid())];
                     PopID();
-                    if(actor)
-                        { actor->mDebugHighlight.a = IsItemHovered(); }
                     PopStyleColor();
                     if(++item_counter < sMaxPerRow) { SameLine(); }
                     else { item_counter = 0; }
@@ -835,7 +794,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     InputUInt("Parent UID", &selected.parent, 0, 0);
                     if(IsItemDeactivatedAfterEdit())
                     {
-                        thinker->remove_parent(thinker->Parent(), true);
+                        thinker->SetParent(selected.parent);
                         selected = {thinker};
                     }
                 EndChild();
@@ -843,19 +802,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     TextF("Size: {}", viewport->Size().data_log());
                     TextF("Framebuffer ID: {}", (viewport->Framebuffer()) ? std::to_string(viewport->Framebuffer()->ID()) : "nullptr");
-                    SeparatorText("Cameras");
-                    for(ID id : viewport->CameraIDs())
-                    {
-                        if(viewport->IsCurrentCamera(id))
-                            { Text("\t%s (current)", g_pTheatreManager->CurrentTheatre()->GetThing(id)->c_name()); }
-                        else
-                        {
-                            Text("\t%s", g_pTheatreManager->CurrentTheatre()->GetThing(id)->c_name());
-                            SameLine();
-                            if(Button("Make Current"))
-                                { viewport->SetCurrentCamera(id); }
-                        }
-                    }
                 }
                 // 3D ACTORS
                 else if(auto actor{DCast<Actor3D>(selected.ptr)})
@@ -871,7 +817,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { actor->SetScale(selected.scale); }
                     if(Checkbox("Visible", &selected.visible))
                         { actor->SetVisible(selected.visible); }
-                    ColorEditGLMv4("DebugHighlight", &actor->mDebugHighlight, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoAlpha);
                     if(auto light{DCast<Light3D>(actor)})
                     {
                         Checkbox("Enabled", &light->mEnabled);
@@ -889,31 +834,12 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     }
                     else if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                     {
-                        auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThing(camera3d->ViewportID())};
-                        auto viewports{g_pTheatreManager->CurrentTheatre()->ViewportIDs()};
-                        std::string current_viewport{std::format("{} [{}]",
-                            cur_vp->name(),
-                            cur_vp->uid()[])};
-                        if(BeginCombo("Viewport", current_viewport.data()))
-                        {
-                            for(ID id : viewports)
-                            {
-                                const bool is_selected{cur_vp->uid() == id};
-                                std::string label{std::format("{} [{}]",
-                                    g_pTheatreManager->CurrentTheatre()->GetThing(id)->name(),
-                                    id[])};
-                                if(Selectable(label.data())
-                                    and camera3d->SetViewportID(id) == OK)
-                                    { selected = thing_data_buffer{camera3d}; }
-                                if(is_selected)
-                                    { SetItemDefaultFocus(); }
-                            }
-                            EndCombo();
-                        }
+                        auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera3d->ViewportID())};
+                        TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
                         if(Checkbox("Current", &selected.is_camera_current))
                         {
-                            camera3d->SetCurrent(!camera3d->Current());
-                            selected.is_camera_current = camera3d->Current();
+                            print_error_enum(camera3d->SetCurrent(selected.is_camera_current));
+                            selected = {camera3d};
                         }
                         if(SliderFloat("Vertical FOV", &selected.fov, 0.0f, 180.0f))
                             { camera3d->mFOV = selected.fov; }
@@ -929,7 +855,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 { Environment::BG_CUSTOM_COLOR, "Custom Color"},
                             };
                         Environment::BackgroundType current_type{camera3d->mEnvironment.mType};
-                        if(BeginCombo("Viewport", bg_type.at(current_type)))
+                        if(BeginCombo("Environment", bg_type.at(current_type)))
                         {
                             for(FAUTO [bg, name] : bg_type)
                             {
@@ -991,28 +917,35 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         else if(collider->Active() and Button("Deactivate"))
                             { collider->SetActive(false); }
                     }
-                    else if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
+                    else if(auto visual3d{DCast<Visual3D>(selected.ptr)})
                     {
-                        if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
-                            { mesh_instance->SetMeshID(selected.mesh); }
-                        if(Checkbox("Wireframe", &selected.wireframe))
-                            { mesh_instance->SetWireframe(selected.wireframe); }
-                        if(IsItemHovered())
-                            { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                        Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);
+                        ColorEditGLMv4("Editor Highlight Color",
+                            &visual3d->mDebugHighlight,
+                            ImGuiColorEditFlags_Float
+                                | ImGuiColorEditFlags_DisplayRGB
+                                | ImGuiColorEditFlags_InputRGB);
+                        if(auto mesh_instance{DCast<MeshInstance3D>(selected.ptr)})
+                        {
+                            if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
+                                { mesh_instance->SetMeshID(selected.mesh); }
+                            if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
+                                { mesh_instance->SetMaterialOverrideID(selected.material); }
+                            if(Checkbox("Wireframe", &selected.wireframe))
+                                { mesh_instance->SetWireframe(selected.wireframe); }
+                            if(IsItemHovered())
+                                { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                        }
                     }
                 }
                 // CHILDREN
                 BeginChild("Children", {}, ImGuiChildFlags_AutoResizeY);
                     SeparatorText("Children");
-                    if(auto actor{DCast<Actor3D>(selected.ptr)})
-                    {
-                        if(InputUInt("Debug MeshInstance3D UID", &selected.debug_mesh_instance, 0, 0))
-                            { actor->mDebugMeshInstanceID = selected.debug_mesh_instance; }
-                    }
                     auto children{thinker->Children()};
                     if(Button("+"))
                     {
-                        thinker->add_child({mNewChildUID, g_pTheatreManager->CurrentTheatre()->GetThing(mNewChildUID)->type()}, true);
+                        print_error_enum(g_pTheatreManager->CurrentTheatre()
+                            ->SetParent(mNewChildUID, thinker->uid()));
                         selected = {thinker};
                         mNewChildUID = 0;
                     }
@@ -1021,14 +954,19 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     uint child_counter{0};
                     for(FAUTO child : children)
                     {
-                        auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(child.id)};
-                        if(thing->uid().invalid())
+                        if(child.invalid())
                             { TextF("[Invalid Child UID]##{}", ++child_counter); }
                         else
                         {
+                            auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(child)};
                             PushID(++child_counter + thing->uid()[]);
                             if(Button("-"))
-                                { thinker->remove_child(child, true); selected = {selected.ptr}; PopID(); EndChild(); EndChild(); End(); return; }
+                            {
+                                print_error_enum(g_pTheatreManager->CurrentTheatre()
+                                    ->DropParent(child));
+                                selected = {selected.ptr};
+                                PopID(); EndChild(); EndChild(); End(); return;
+                            }
                             SameLine();
                             TextF("Child: {} [Type:{}] [UID:{}]",
                                 thing->name(),
@@ -1065,7 +1003,8 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             ImGuiColorEditFlags_DisplayRGB |
                             ImGuiColorEditFlags_InputRGB);
                     InputInt("Specular Sharpness", &material->mSpecularSharpness, 2, 8);
-                    InputFloat("Specular Strength", &material->mSpecularStrength, 0.05f, 0.1f, "%.3f");
+                    if(InputFloat("Specular Strength", &selected.specularStrength, 0.05f, 0.1f, "%.3f"))
+                        { material->SpecularStrength(selected.specularStrength); selected = {material}; }
                 }
             }
             EndChild();

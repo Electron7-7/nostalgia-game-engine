@@ -74,7 +74,7 @@ void ImGui_Editor::TheatreEntered()
 
     TheatreFile::ThingData cam_dat{ThingType::Camera3D,"Editor Camera"};
     cam_dat.set_variable(true, "UseDefaultSkybox");
-    cam_dat.set_variable(UID::a_EditorViewport, "Viewport");
+    cam_dat.set_variable(UID::a_EditorViewport, "Parent");
     cam_dat.set_variable(true, "Current");
     g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
 }
