@@ -208,6 +208,14 @@ FPID Theatre::TypeOf(ID inID)
     return ThingType::Invalid;
 }
 
+bool Theatre::DerivedFrom(ID inID, FPID inType)
+{
+    LockGuard<RMutex> lock{mThingsMutex};
+    if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
+        { return ThingFactory::IsDerivedFrom(found_it->second->mType, inType); }
+    return false;
+}
+
 Error Theatre::ChangeThingID(ID inOldID, ID inNewID)
 {
     LockGuard<RMutex> lock{mThingsMutex};

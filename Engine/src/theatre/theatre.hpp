@@ -43,6 +43,7 @@ public:
     IdSet_arg ViewportIDs();
     bool      ThingExists(ID);
     Farg<PID> TypeOf(ID);
+    bool      DerivedFrom(ID, FPID);
     Error     ChangeThingID(ID inOldID, ID inNewID);
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
