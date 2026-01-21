@@ -4,23 +4,21 @@
 #include "core/uid.hpp"
 #include "core/bitmask.hpp"
 #include "theatre/things/thinkers/2d/actor_2d.hpp"
-#include "rendering/environment.hpp"
 
 class Camera2D : public Actor2D
 {
 public:
-    virtual void Shutdown() override;
     virtual void Ready() override;
 
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
-    virtual bool Current() const;
     virtual ID ViewportID() const;
-    virtual BitMask LayersMask() const;
 
-    virtual bool SetCurrent(bool);
-    virtual Error SetViewportID(ID);
+    virtual bool Current() const;
+    virtual Error SetCurrent(bool);
+
+    virtual BitMask LayersMask() const;
     virtual void SetLayersMask(BitMask inRenderLayersMask);
 
     // glm::mat4 ViewMatrix() const;
@@ -31,6 +29,9 @@ protected:
     bool mInitCurrent{false};
     ID mViewportID{UID::a_Global2DViewport};
     BitMask mLayersMask{};
+
+    virtual void OnAncestorRemoved(Relative) override;
+    virtual void OnAncestorAdded(Relative) override;
 };
 
 #endif // CAMERA_2D_H
