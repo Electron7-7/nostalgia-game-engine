@@ -2,8 +2,6 @@
 #define EDITOR_WINDOW_H
 
 #include "ui/solution.hpp"
-#include "rendering/frame_buffer.hpp"
-#include "rendering/texture_buffer.hpp"
 
 class ImGui_Editor : public UI_Solution
 {
@@ -14,9 +12,6 @@ public:
     void Input(InputEvent*) final;
     void TheatreEntered() final;
     void TheatreExited()  final;
-
-private:
-    Shared<TextureBuffer> mTextureBuffer{nullptr};
 };
 
 extern bool gShowDebugWindow;

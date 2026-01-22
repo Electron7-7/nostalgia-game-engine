@@ -16,7 +16,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 bool gPrintDrawLogs{false};
-DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::None};
+DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::Medium};
 
 #ifdef DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);

@@ -114,13 +114,12 @@ static Error s_GenerateTexture(uint& ioID,
         if(data)
         {
             stbi_set_flip_vertically_on_load(true);
-            int channels{};
 
             image_data = stbi_load_from_memory(data->Data(),
                 data->Size(),
                 &ioFormat.width,
                 &ioFormat.height,
-                &channels,
+                &ioFormat.channels,
                 STBI_rgb);
             if(!image_data)
             {

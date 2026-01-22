@@ -8,7 +8,6 @@ static Error s_CheckFramebufferStatus(uint inID)
     switch(glCheckFramebufferStatus(GL_FRAMEBUFFER))
     {
     case GL_FRAMEBUFFER_COMPLETE:
-        print_debug("Successfully created FrameBuffer#{}", inID);
         return OK;
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
         print_warning("FrameBuffer#{} incomplete (GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT): Attachment is NOT complete.", inID);

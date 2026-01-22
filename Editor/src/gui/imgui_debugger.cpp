@@ -261,7 +261,7 @@ static void s_GeneralDebuggingWindow()
         {
             SeparatorText("OpenGL");
             const char* gl_debug_severities{"None\0Notification\0Low\0Medium\0High\0"};
-            static int gl_debug_selection{0};
+            static int gl_debug_selection{(int)gOpenGLMessageFilter};
             if(Combo("Message Minimum Severity", &gl_debug_selection, gl_debug_severities))
                 { gOpenGLMessageFilter = static_cast<DebugMessageSeverityFilter>(gl_debug_selection); }
         }
@@ -646,7 +646,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     auto top_level_ids{theatre->GetChildren({})};
                     for(ID uid : top_level_ids)
-                        { s_ThingTreeBranch(uid); }
+                    {
+                        if(theatre->DerivedFrom(uid, ThingType::Resource)) { continue; }
+                        s_ThingTreeBranch(uid);
+                    }
                     TreePop();
                 }
             }

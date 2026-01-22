@@ -9,8 +9,8 @@
 
 enum TextureType : int
 {
-    TEXTURE_TYPE_1D,       TEXTURE_TYPE_2D,       TEXTURE_TYPE_3D,
-    TEXTURE_TYPE_1D_ARRAY, TEXTURE_TYPE_2D_ARRAY, TEXTURE_TYPE_3D_ARRAY,
+    TEXTURE_TYPE_1D,       TEXTURE_TYPE_2D,         TEXTURE_TYPE_3D,
+    TEXTURE_TYPE_1D_ARRAY, TEXTURE_TYPE_2D_ARRAY,   TEXTURE_TYPE_3D_ARRAY,
     TEXTURE_TYPE_CUBE,     TEXTURE_TYPE_CUBE_ARRAY,
     TEXTURE_TYPE_NONE
 };
@@ -59,7 +59,7 @@ struct TextureFormat
 
     TextureType type{TEXTURE_TYPE_2D};
     DataFormat data_format{DATA_FORMAT_SRGB_ALPHA};
-    int  width{1}, height{1};
+    int  width{1}, height{1}, channels{0};
     uint depth{1}, array_layers{1}, mipmaps{1};
 
     constexpr bool operator==(Farg<TextureFormat> tf) const

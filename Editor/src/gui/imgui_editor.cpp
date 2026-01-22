@@ -40,12 +40,10 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 { g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
 
 void ImGui_Editor::Init()
-{
-    PRINT_PRETTY_FUNCTION;
-}
+{ PRINT_PRETTY_FUNCTION; }
 
 void ImGui_Editor::Shutdown()
-{ PRINT_PRETTY_FUNCTION; mTextureBuffer.reset(); }
+{ PRINT_PRETTY_FUNCTION; }
 
 void ImGui_Editor::TheatreEntered()
 {
@@ -73,6 +71,8 @@ void ImGui_Editor::TheatreEntered()
         UID::a_EditorViewport});
 
     TheatreFile::ThingData cam_dat{ThingType::Camera3D,"Editor Camera"};
+    cam_dat.set_variable(glm::vec3{0.0f, 5.0f, 1.0f}, "Position");
+    cam_dat.set_variable(glm::vec3{-90.0f, 0.0f, 0.0f}, "RotationDegrees");
     cam_dat.set_variable(true, "UseDefaultSkybox");
     cam_dat.set_variable(UID::a_EditorViewport, "Parent");
     cam_dat.set_variable(true, "Current");
