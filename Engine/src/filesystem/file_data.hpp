@@ -1,10 +1,6 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
-#include "core/error.hpp"
-#include "core/farg.hpp"
-#include "core/smart_pointers.hpp"
-#include <string>
 
 enum class FileType : ushort
 {

@@ -2,9 +2,6 @@
 #include "imgui_editor.hpp"
 #include "fwd/managers.hpp"
 #include "fwd/theatre.hpp"
-#include "core/uid.hpp"
-#include "core/bitmask.hpp"
-#include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
@@ -32,12 +29,7 @@
 #include "DearImGui/imgui.h"
 #include "DearImGui/imgui_stdlib.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
-#include <set>
-#include <format>
-#include <memory>
 
 // Because DearImGui loves c-strings and I don't
 #define _fmtBool(BOOL) std::format("{}", static_cast<bool>(BOOL)).data()

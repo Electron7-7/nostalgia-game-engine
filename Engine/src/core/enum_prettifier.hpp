@@ -3,7 +3,7 @@
 
 #include "core/farg.hpp"
 #include "core/error.hpp"
-#include "math/concepts.hpp"
+#include "core/concepts.hpp"
 #include <unordered_map>
 #include <typeindex>
 

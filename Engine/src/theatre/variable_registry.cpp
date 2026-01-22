@@ -1,6 +1,4 @@
 #include "variable_registry.hpp"
-#include "core/printing.hpp"
-#include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"

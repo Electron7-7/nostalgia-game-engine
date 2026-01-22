@@ -2,8 +2,6 @@
 #define INPUT_ACTION_H
 
 #include "fwd/core.hpp"
-#include "core/id.hpp"
-#include <unordered_map>
 
 // can't be fucked to find the max width of `uint` and, tbh, you don't really need more than 20 keys in an action
 inline constinit const ushort MaxActions{20};

@@ -3,7 +3,6 @@
 
 #include "managers/manager.hpp"
 #include "fwd/rendering.hpp"
-#include "core/smart_pointers.hpp"
 
 enum class ShaderDebugOutput : ushort
 {

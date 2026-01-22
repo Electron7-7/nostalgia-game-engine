@@ -3,7 +3,6 @@
 
 #include "fwd/theatre.hpp"
 #include "theatre/tree.hpp"
-#include "core/smart_pointers.hpp"
 
 using Things_t = std::unordered_map<ID, Shared<Thing>>;
 

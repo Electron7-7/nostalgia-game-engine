@@ -1,11 +1,8 @@
 #include "file_data.hpp"
 #include "filesystem.hpp"
-#include "core/uid.hpp"
-#include "core/printing.hpp"
 #include "embedded/models.hpp"
 #include "embedded/images.hpp"
 #include "thirdparty/frozen/map.h"
-#include <map>
 
 static std::map<ID, Shared<FileData>>
 sReservedFileData{

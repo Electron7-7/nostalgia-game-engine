@@ -1,6 +1,4 @@
 #include "stopwatch_log.hpp"
-#include "core/time.hpp"
-#include "core/printing.hpp"
 
 StopwatchLog StopwatchLog::Invalid(true);
 

@@ -1,5 +1,4 @@
-#include "uid.hpp"
-#include "printing.hpp"
+#include <nostalgia_pch.hpp>
 
 std::uniform_int_distribution<uint> UID::m_sIdDistribution{UID::front, UID::back};
 

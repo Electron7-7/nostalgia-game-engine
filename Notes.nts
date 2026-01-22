@@ -1117,3 +1117,5 @@ Finished the implementation and rendering is now fucking perfect!
 
 [01/22/26]
 Made a few tweaks and some minor fixes. I think I might want to take a look at the lighting code to see what I can do about light passing through objects. This might be a dynamic light issue and correcting it will be intensive, thus leading to me needing to implement light baking and shit, so perhaps I won't do this just yet as I still need to work on 2D rendering, fonts, and text.
+
+Oh, actually, let's make that precompiled header first.

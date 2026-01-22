@@ -1,5 +1,4 @@
 #include "imgui_implementor.hpp"
-#include "core/printing.hpp"
 #include "application/window.hpp"
 #include "application/application.hpp"
 #include "rendering/renderer_api.hpp"

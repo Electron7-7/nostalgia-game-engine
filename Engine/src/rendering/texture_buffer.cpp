@@ -1,6 +1,5 @@
 #include "texture_buffer.hpp"
 #include "renderer_api.hpp"
-#include "core/printing.hpp"
 #include "filesystem/file_data.hpp"
 // Implementations
 #include "backends/opengl/gl_texture_buffer.hpp"

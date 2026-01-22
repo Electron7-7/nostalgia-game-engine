@@ -1,5 +1,4 @@
 #include "renderer_api.hpp"
-#include "core/printing.hpp"
 
 // Implementations
 #include "backends/opengl/gl_renderer_api.hpp"

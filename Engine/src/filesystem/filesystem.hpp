@@ -2,7 +2,6 @@
 #define FILESYSTEM_H
 
 #include "fwd/core.hpp"
-#include "core/farg.hpp"
 
 namespace FileSystem
 {

@@ -1,6 +1,4 @@
-#include "id.hpp"
-#include "uid.hpp"
-#include <format>
+#include <nostalgia_pch.hpp>
 
 // uint ID::Generate() -> Defined in 'uid.cpp' so it can use that file's static random number generator
 

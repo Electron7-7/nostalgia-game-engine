@@ -1,6 +1,5 @@
 #include "input_manager.hpp"
 #include "ui_manager.hpp"
-#include "core/printing.hpp"
 #include "application/application.hpp"
 #include "events/event_queue.hpp"
 #include "events/action.hpp"

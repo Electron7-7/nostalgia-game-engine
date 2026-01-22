@@ -1,8 +1,6 @@
 #ifndef CAMERA_3D_H
 #define CAMERA_3D_H
 
-#include "core/uid.hpp"
-#include "core/bitmask.hpp"
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 #include "rendering/environment.hpp"
 

@@ -1,5 +1,4 @@
 #include "gl_texture_buffer.hpp"
-#include "core/printing.hpp"
 #include "filesystem/file_data.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "thirdparty/stb_image/stb_image.h"

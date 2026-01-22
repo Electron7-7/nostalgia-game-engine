@@ -1,4 +1,4 @@
-#include "error.hpp"
+#include <nostalgia_pch.hpp>
 
 #define Case(ERROR, MESSAGE) \
     case ERROR: return #ERROR" (" MESSAGE ")";
@@ -39,4 +39,20 @@ const char* __get_print_message(Error error)
     }
 }
 
-#undef Case
+Error __print_error_enum(Error error, const std::source_location location)
+{
+    const char* msg{__get_print_message(error)};
+    if(!msg)
+        { return OK; }
+    __print_verbose(false,
+        VERBOSE1 | VERBOSE2 | VERBOSE3,
+        "{}",
+        location,
+        (error == UNIMPLEMENTED)
+            ? WarningLabel
+            : ErrorLabel,
+        msg);
+    return (error == UNIMPLEMENTED)
+        ? OK
+        : error;
+}

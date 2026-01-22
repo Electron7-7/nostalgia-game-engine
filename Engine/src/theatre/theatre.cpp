@@ -2,7 +2,6 @@
 #include "parser.hpp"
 #include "settings/world.hpp"
 #include "thing_factory.hpp"
-#include "core/uid.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/render_manager.hpp"
 #include "rendering/renderer_api.hpp"

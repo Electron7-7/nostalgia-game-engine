@@ -1,6 +1,5 @@
 #include "event.hpp"
 #include "action.hpp"
-#include "core/printing.hpp"
 
 ////////////////
 // InputEvent //

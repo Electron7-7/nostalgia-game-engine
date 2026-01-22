@@ -36,7 +36,7 @@ DYNAMIC_LIBRARIES        := -lglfw -lfreetype
 DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
 
-INCLUDE := -I Engine/src -I Editor/src -I Editor/src/thirdparty -I Engine/src/thirdparty -I Engine/src/thirdparty/FreeType
+INCLUDE := -I Engine/src -I Editor/src -I Engine/src/precompiled_headers -I Editor/src/precompiled_headers -I Editor/src/thirdparty -I Engine/src/thirdparty -I Engine/src/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_ENGINE    := Engine
@@ -75,6 +75,7 @@ ifneq ($(OS),Windows_NT)
 	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX)
 	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
+	export PCH_FLAGS       ?= -include-pch $(PCH_OUT)
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_LINUX)
 	export EDITR_LD_FLAGS  ?= $(EDITR_LD_FLAGS_LINUX)
@@ -90,6 +91,7 @@ else # WINDOWS
 	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS)
 	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
+	export PCH_FLAGS       ?= -I $(dir $(PCH_OUT))
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
 	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
 	export EDITR_LD_FLAGS  ?= $(EDITR_LD_FLAGS_WINDOWS)
@@ -180,6 +182,11 @@ EDITR_SRCS := $(call getfiles,$(EDITR_SRC_DIRS),*.cpp)
 # TODO: Make better API headers
 HEADER_FILES := $(call getfiles,$(ENGINE_SRC_DIRS),*.hpp)
 
+export PCH_DIR    ?= $(ENGINE_SRC)/precompiled_headers
+export PCH_OUT    ?= $(BUILD_OBJS)/precompiled_headers
+ENGINE_PCH_NAME   := nostalgia.pch
+ENGINE_PCH_H_NAME := nostalgia_pch.hpp
+
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(ENGINE_SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(ENGINE_SRC)/%=%)))
 export DEPS_OUT ?= $(notdir $(CC_SRCS:.c=.d)) $(notdir $(CXX_SRCS:.cpp=.d))
@@ -218,7 +225,7 @@ run: editor
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
 	@ if [ -n "$(BUILDING_EDITR)" ]; then printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object files> $(BOLD)-o $(BUILD_DIR)/$(EDITR) $(EDITR_LD_FLAGS)$(RESET)\n"; fi
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
@@ -239,6 +246,7 @@ clangd: ;@:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
 
 static: headers
+	$(eval PCH_DIR = $(ENGINE_SRC)/precompiled_headers)
 	$(eval LD_FLAGS =)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
@@ -249,10 +257,12 @@ static: headers
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
+	@ $(MAKE) -s $(PCH_OUT)/$(ENGINE_PCH_NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
 dynamic: headers
+	$(eval PCH_DIR = $(ENGINE_SRC)/precompiled_headers)
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
@@ -261,12 +271,14 @@ dynamic: headers
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
+	@ $(MAKE) -s $(PCH_OUT)/$(ENGINE_PCH_NAME)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
 libraries: static dynamic ;@:
 
 editor: static
+	$(eval PCH_OUT = $(BUILD_ROOT)/$(DIR_ENGINE)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/precompiled_headers)
 	$(eval LD_FLAGS =)
 	$(eval EDITR_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
@@ -296,6 +308,7 @@ linux: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
+	$(eval PCH_FLAGS       = -include-pch $(PCH_OUT))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS        = $(DYNAMIC_LDFLAGS_LINUX))
 	$(eval EDITR_LD_FLAGS  = $(EDITR_LD_FLAGS_LINUX))
@@ -314,6 +327,7 @@ windows: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
+	$(eval PCH_FLAGS       = -I $(dir $(PCH_OUT)))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
 	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
 	$(eval EDITR_LD_FLAGS  = $(EDITR_LD_FLAGS_WINDOWS))
@@ -408,11 +422,18 @@ disable_colors:
 	$(eval DEFAULT = "")
 	@ printf "::Output styles disabled\n"
 
+# Pre-Compiled Headers
+$(PCH_OUT)/%.pch: $(PCH_DIR)/%_pch.hpp
+	@ printf "::Building Pre-Compiled Header: $(BOLD)$(BLUE)$@$(RESET)\n"
+	@ -mkdir -p $(dir $@)
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -xc++-header -c $< -o $@
+	@ -mv $(@:.pch=.d) $(BUILD_DEPS)/$(notdir $(@:.pch=.d))
+
 # C++ Object Files
 $(BUILD_OBJS)/%.obj: $(CURRENT_SRC)/%.cpp
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $< -o $@
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $< -o $@
 	@ -mv $(@:.obj=.d) $(BUILD_DEPS)/$(notdir $(@:.obj=.d))
 
 # C Object Files
@@ -449,7 +470,7 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS
 # Editor
 $(BUILD_DIR)/$(EDITR): $(EDITR_OBJS)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $^ -o $@ $(EDITR_LD_FLAGS)
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(PCH_FLAGS) $^ -o $@ $(EDITR_LD_FLAGS)
 
 # Prints a unique cleanup message
 NOTHING_TO_CLEAN.clean:

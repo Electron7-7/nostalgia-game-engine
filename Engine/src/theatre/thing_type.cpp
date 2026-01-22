@@ -1,5 +1,4 @@
 #include "thing_type.hpp"
-#include <format>
 
 ThingType::ThingType(FPID inTypeID) noexcept:
     _type_id{inTypeID} {}

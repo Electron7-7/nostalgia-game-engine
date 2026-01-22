@@ -3,8 +3,6 @@
 
 #include "fwd/core.hpp"
 #include "fwd/theatre.hpp"
-#include "core/smart_pointers.hpp"
-#include "core/id.hpp"
 #include "components/game_loop.hpp"
 #include "components/event_handling.hpp"
 #include "theatre/thing_type.hpp"

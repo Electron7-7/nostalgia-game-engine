@@ -1,9 +1,6 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-#include "core/farg.hpp"
-#include "core/macros.hpp"
-#include "core/smart_pointers.hpp"
 
 struct Monitor
 {

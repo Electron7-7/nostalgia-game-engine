@@ -1,5 +1,4 @@
 #include "gl_graphics_context.hpp"
-#include "core/printing.hpp"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 

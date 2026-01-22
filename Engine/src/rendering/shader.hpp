@@ -1,8 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include "core/id.hpp"
-#include "core/smart_pointers.hpp"
 #include <glm/fwd.hpp>
 
 #pragma message("TODO: remove/move namespace 'Shaders'")

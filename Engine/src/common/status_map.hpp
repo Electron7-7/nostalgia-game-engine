@@ -1,7 +1,6 @@
 #ifndef STATUS_MAP_H
 #define STATUS_MAP_H
 
-#include <print>
 
 template<typename T, ushort Amount, typename Hasher = std::hash<T>>
 struct StatusMap

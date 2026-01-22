@@ -1,9 +1,6 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include "core/id.hpp"
-#include "core/error.hpp"
-#include <unordered_map>
 
 struct Tree; // Forward Declaration
 

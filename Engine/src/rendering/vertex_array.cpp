@@ -1,6 +1,5 @@
 #include "vertex_array.hpp"
 #include "renderer_api.hpp"
-#include "core/printing.hpp"
 // Implementations
 #include "backends/opengl/gl_vertex_array.hpp"
 

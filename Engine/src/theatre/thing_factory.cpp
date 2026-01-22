@@ -17,7 +17,6 @@
 #include "things/resources/material.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/mesh.hpp"
-#include "core/printing.hpp"
 #include <cassert>
 
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \

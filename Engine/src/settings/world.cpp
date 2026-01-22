@@ -1,7 +1,5 @@
 #include "world.hpp"
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
 using namespace Settings;
 

@@ -2,7 +2,6 @@
 #define THINKER_H
 
 #include "theatre/things/thing.hpp"
-#include "core/mutex.hpp"
 
 // Similar to Godot's `Node`
 class Thinker : public Thing

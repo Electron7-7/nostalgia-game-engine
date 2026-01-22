@@ -2,11 +2,8 @@
 #define INPUT_MANAGER_H
 
 #include "managers/manager.hpp"
-#include "core/farg.hpp"
-#include "core/error.hpp"
 #include "fwd/math.hpp"
 #include "fwd/events.hpp"
-#include <unordered_map>
 #include <mutex>
 
 typedef void (*pInputCallback_f)(InputEvent*);

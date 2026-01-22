@@ -1,4 +1,4 @@
-#include "bitmask.hpp"
+#include <nostalgia_pch.hpp>
 
 BitMask::BitMask(bool inState) noexcept:
     layers_{(inState) ? all_enabled : all_disabled} {}

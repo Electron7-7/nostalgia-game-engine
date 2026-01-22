@@ -2,12 +2,10 @@
 #define CONTAINERS_H
 
 #include "fwd/math.hpp"
-#include "math/concepts.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <cxxabi.h>
-#include <memory>
 #include <cstdlib>
 
 #define ONLY_IF(VM) requires (M == VectorMembers::VM)

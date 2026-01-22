@@ -1,12 +1,7 @@
 #ifndef ANSI_CODES_H
 #define ANSI_CODES_H
 
-#include <concepts>
-
 using ansi_t = int;
-
-template<typename T>
-    concept ansi_t_strict = std::same_as<T, ansi_t> and not std::same_as<T, bool>;
 
 namespace ANSI
 {

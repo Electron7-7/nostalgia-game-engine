@@ -1,11 +1,9 @@
 #ifndef GLM_OPERATORS_H
 #define GLM_OPERATORS_H
 
-#include "math/concepts.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
 template<typename T> requires Number<T>
 glm::vec3 operator*(const T& lhs, const glm::vec3& rhs)

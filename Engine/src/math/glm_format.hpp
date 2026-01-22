@@ -1,11 +1,8 @@
 #ifndef GLM_FORMAT_H
 #define GLM_FORMAT_H
 
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
-#include <format>
 
 template<>
 struct std::formatter<glm::vec2> : std::formatter<std::string>

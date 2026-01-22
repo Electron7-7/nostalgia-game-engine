@@ -4,7 +4,6 @@
 #elif !defined STOPWATCH_LOG_H
 #define STOPWATCH_LOG_H
 
-#include <string>
 
 class StopwatchLog
 {

@@ -1,8 +1,6 @@
 #ifndef THING_TYPE_H
 #define THING_TYPE_H
 
-#include "core/id.hpp"
-#include <set>
 
 #define TYPE_ID(TYPE) inline static const PID TYPE{#TYPE};
 

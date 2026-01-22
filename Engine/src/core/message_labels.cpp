@@ -1,5 +1,4 @@
-#include "message_labels.hpp"
-#include "farg.hpp"
+#include <nostalgia_pch.hpp>
 
 MessageLabel ErrorLabel{"[ERROR]",
     ANSI_Sequence{ANSI::begin,

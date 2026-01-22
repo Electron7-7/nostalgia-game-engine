@@ -1,5 +1,4 @@
 #include "texture.hpp"
-#include "core/uid.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "theatre/parser.hpp"
 

@@ -1,8 +1,8 @@
 #ifndef ID_H
 #define ID_H
 
-#include "farg.hpp"
-#include "common/string_hash.hpp"
+#include "core/farg.hpp"
+#include "core/constexpr_string_hash.hpp"
 #include <vector>
 #include <unordered_set>
 
@@ -101,7 +101,7 @@ template<ID_t T>
     };
 
 
-using FPID = const PID&;
+using FPID      = const PID&;
 using IdSet_t   = std::unordered_set<ID>;
 using IdSet_arg = const std::unordered_set<ID>&;
 using IdVec_t   = std::vector<ID>;

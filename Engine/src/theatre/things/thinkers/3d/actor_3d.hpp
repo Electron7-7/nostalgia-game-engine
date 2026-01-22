@@ -4,7 +4,6 @@
 #include "theatre/things/thinkers/thinker.hpp"
 #include <glm/vec3.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
 // Similar to Godot's `Node3D`
 class Actor3D : public Thinker

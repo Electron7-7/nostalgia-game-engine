@@ -2,7 +2,6 @@
 #define APPLICATION_H
 
 #include "window.hpp"
-#include "core/smart_pointers.hpp"
 #include "components/event_handling.hpp"
 
 class IApplication : public OnInput, public OnAppEvent

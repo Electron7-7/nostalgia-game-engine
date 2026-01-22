@@ -1,7 +1,5 @@
 #include "conversion.hpp"
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 #include "Jolt/Jolt.h" // IWYU pragma: keep
 #include "Jolt/Math/MathTypes.h"
 

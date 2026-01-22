@@ -2,11 +2,8 @@
 #include "settings/graphics.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
-#include "core/printing.hpp"
 #include "rendering/renderer_api.hpp"
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
 using namespace ManagerEnums;
 

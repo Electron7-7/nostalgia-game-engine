@@ -3,9 +3,6 @@
 
 #include "fwd/filesystem.hpp"
 #include "rendering/common.hpp"
-#include "core/error.hpp"
-#include "core/farg.hpp"
-#include "core/smart_pointers.hpp"
 
 enum TextureType : int
 {

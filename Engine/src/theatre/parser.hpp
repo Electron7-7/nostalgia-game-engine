@@ -4,16 +4,8 @@
 #include "fwd/filesystem.hpp"
 #include "theatre/variable_registry.hpp"
 #include "theatre/number_parser.hpp"
-#include "core/id.hpp"
-#include "core/farg.hpp"
-#include "core/error.hpp"
-#include "core/concepts.hpp"
-#include "core/enum_prettifier.hpp"
-#include "core/smart_pointers.hpp"
-#include "math/concepts.hpp"
 #include "math/glm_concepts.hpp"
 #include <math/glm_format.hpp> // used when converting GLM variables to strings
-#include <vector>
 
 #define ASSERT_THING_VARIABLE(ThingVarName, InVarNames, ReturnOnFail...) \
     Farg<ThingVariable> ThingVarName{_get_variable({inNames...})}; \

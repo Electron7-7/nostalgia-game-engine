@@ -1,5 +1,4 @@
 #include "camera_3d.hpp"
-#include "core/uid.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/thing_factory.hpp"

@@ -1,6 +1,4 @@
 #include "manager.hpp"
-#include "core/time.hpp"
-#include "core/printing.hpp"
 #include "settings/engine.hpp"
 #include "application/application.hpp"
 #include <cassert>

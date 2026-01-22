@@ -4,10 +4,6 @@
 #include "fwd/rendering.hpp"
 #include "fwd/theatre.hpp"
 #include "fwd/math.hpp"
-#include "core/id.hpp"
-#include "core/farg.hpp"
-#include "core/error.hpp"
-#include "core/smart_pointers.hpp"
 #include <glm/fwd.hpp>
 
 enum class GraphicsAPI

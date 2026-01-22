@@ -4,11 +4,7 @@
 #include "fwd/math.hpp"
 #include "fwd/rendering.hpp"
 #include "application/monitor.hpp"
-#include "core/farg.hpp"
-#include "core/smart_pointers.hpp"
-#include "core/error.hpp"
 #include "components/game_loop.hpp"
-#include <vector>
 
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION

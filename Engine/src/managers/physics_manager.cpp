@@ -1,5 +1,4 @@
 #include "physics_manager.hpp"
-#include "core/printing.hpp"
 #include "settings/engine.hpp"
 #include "physics/engine.hpp"
 

@@ -1,5 +1,4 @@
 #include "gl_frame_buffer.hpp"
-#include "core/printing.hpp"
 #include "rendering/texture_buffer.hpp"
 #include <glad/glad.h>
 

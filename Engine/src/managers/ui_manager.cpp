@@ -1,7 +1,6 @@
 #include "ui_manager.hpp"
 #include "ui/implementor.hpp"
 #include "ui/solution.hpp"
-#include "core/printing.hpp"
 
 using namespace ManagerEnums;
 

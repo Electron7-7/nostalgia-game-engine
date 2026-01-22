@@ -1,9 +1,7 @@
 #ifndef GLM_CONCEPTS_H
 #define GLM_CONCEPTS_H
 
-#include <glm/glm.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
 
 template<typename T>
     concept GLM_Vec2 = std::same_as<T,glm::vec2>;

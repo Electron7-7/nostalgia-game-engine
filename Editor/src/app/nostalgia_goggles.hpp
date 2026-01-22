@@ -4,7 +4,6 @@
 #include "application/application.hpp"
 #include "components/event_handling.hpp"
 
-#include <string>
 
 class NostalgiaGoggles final : public IApplication
 {

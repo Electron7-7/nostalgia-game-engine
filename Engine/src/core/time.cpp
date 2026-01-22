@@ -1,7 +1,4 @@
-#include "core/time.hpp"
-#include <float.h>
-#include <format>
-#include <chrono>
+#include <nostalgia_pch.hpp>
 
 static const std::chrono::time_point cProgramStartSteady = std::chrono::steady_clock::now();
 static const std::chrono::time_point cProgramStartSystem = std::chrono::system_clock::now();

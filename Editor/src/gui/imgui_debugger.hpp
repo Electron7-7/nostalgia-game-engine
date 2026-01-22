@@ -3,8 +3,6 @@
 
 #include "ui/solution.hpp"
 #include "tools/stopwatch_log.hpp"
-#include "core/mutex.hpp"
-#include <string>
 
 class ImGui_Debugger : public UI_Solution
 {

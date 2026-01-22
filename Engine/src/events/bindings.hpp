@@ -1,7 +1,6 @@
 #ifndef INPUT_BINDINGS_H
 #define INPUT_BINDINGS_H
 
-#include "core/id.hpp"
 #include "frozen/set.h"
 
 struct KeyID : public ID { using ID::ID; };

@@ -3,7 +3,6 @@
 
 #include "components/game_loop.hpp"
 #include "components/event_handling.hpp"
-#include <vector>
 
 namespace ManagerEnums
 {

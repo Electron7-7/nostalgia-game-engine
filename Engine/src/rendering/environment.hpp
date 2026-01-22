@@ -2,7 +2,6 @@
 #define ENVIRONMENT_H
 
 #include "math/containers.hpp"
-#include "core/id.hpp"
 
 class Environment
 {

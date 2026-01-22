@@ -1,7 +1,6 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-#include <string>
 
 // Style
 namespace Sty

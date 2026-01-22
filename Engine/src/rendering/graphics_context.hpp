@@ -1,8 +1,6 @@
 #ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
-#include "core/error.hpp"
-#include "core/smart_pointers.hpp"
 
 class IGraphicsContext
 {

@@ -2,12 +2,7 @@
 #define THING_FACTORY_H
 
 #include "fwd/theatre.hpp"
-#include "core/id.hpp"
-#include "core/error.hpp"
-#include "core/smart_pointers.hpp"
 #include "theatre/thing_type.hpp"
-#include <map>
-#include <set>
 
 typedef Shared<Thing> (*pThingMakerTemplate_t)();
 

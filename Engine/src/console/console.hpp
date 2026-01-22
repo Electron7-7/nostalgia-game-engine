@@ -2,8 +2,6 @@
 #define CONSOLE_H
 
 #include "fwd/core.hpp"
-#include "core/farg.hpp"
-#include "core/smart_pointers.hpp"
 
 typedef Error (*ConsoleCommandCallback_f)(Sarg inCommand);
 

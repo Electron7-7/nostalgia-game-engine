@@ -1,8 +1,6 @@
 #ifndef VISUAL_3D_H
 #define VISUAL_3D_H
 
-#include "core/bitmask.hpp"
-#include "core/uid.hpp"
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
 
 class Visual3D : public Actor3D

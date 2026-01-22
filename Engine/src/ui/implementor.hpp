@@ -2,8 +2,6 @@
 #define UI_IMPLEMENTOR_H
 
 #include "ui/solution.hpp"
-#include "core/smart_pointers.hpp"
-#include <map>
 #include <typeindex>
 #include <mutex>
 

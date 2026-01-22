@@ -4,9 +4,6 @@
 #include "fwd/filesystem.hpp"
 #include "managers/manager.hpp"
 #include "theatre/theatre.hpp"
-#include "core/smart_pointers.hpp"
-#include "core/mutex.hpp"
-#include "core/farg.hpp"
 
 class TheatreManager : public Manager
 {

@@ -2,8 +2,6 @@
 #define EVENTS_FWD_H
 
 #include "fwd/event_types.hpp"
-#include "core/smart_pointers.hpp"
-#include <vector>
 
 extern constinit const unsigned short MaxActions;
 class InputAction;

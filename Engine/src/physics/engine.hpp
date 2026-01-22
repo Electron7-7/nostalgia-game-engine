@@ -1,9 +1,6 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
-#include "core/id.hpp"
-#include "core/error.hpp"
-#include "core/smart_pointers.hpp"
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Vec3.h>
 #include <Jolt/Math/Quat.h>

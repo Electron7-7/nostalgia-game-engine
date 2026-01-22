@@ -2,7 +2,6 @@
 #define EVENT_QUEUE_H
 
 #include "event.hpp"
-#include "core/smart_pointers.hpp"
 #include <mutex>
 
 using event_queue_t = std::vector<Shared<IEvent>>;

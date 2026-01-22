@@ -6,11 +6,11 @@
 #include <string>
 #include <initializer_list>
 
-// string ex: '\x1b[1;31m'
 using ansi_code_t = std::vector<ansi_t>;
-
-// string ex: '\x1b[1;31m\x1b[0m\x1b[42m'
 using ansi_sequence_t = std::vector<ansi_code_t>;
+
+template<typename T>
+    concept ansi_t_strict = std::same_as<T, ansi_t> and not std::same_as<T, bool>;
 
 struct ANSI_Sequence
 {

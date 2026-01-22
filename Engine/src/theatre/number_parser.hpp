@@ -1,9 +1,7 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
-#include "math/concepts.hpp"
 #include "math/glm_concepts.hpp"
-#include <format>
 #include <stdexcept>
 
 template<GLMContainer T>

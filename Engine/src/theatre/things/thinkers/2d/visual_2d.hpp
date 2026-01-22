@@ -1,7 +1,6 @@
 #ifndef VISUAL_2D_H
 #define VISUAL_2D_H
 
-#include "core/bitmask.hpp"
 #include "theatre/things/thinkers/2d/actor_2d.hpp"
 
 class Visual2D : public Actor2D

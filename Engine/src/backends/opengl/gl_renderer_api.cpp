@@ -1,8 +1,6 @@
 #include "gl_renderer_api.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
-#include "core/uid.hpp"
-#include "core/printing.hpp"
 #include "theatre/things/resources/texture.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"

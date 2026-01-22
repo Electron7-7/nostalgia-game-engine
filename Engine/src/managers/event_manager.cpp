@@ -1,5 +1,4 @@
 #include "event_manager.hpp"
-#include "core/printing.hpp"
 #include "events/event_queue.hpp"
 #include "application/application.hpp"
 

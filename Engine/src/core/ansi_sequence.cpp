@@ -1,6 +1,3 @@
-#include "ansi_sequence.hpp"
-#include <stdexcept>
-
 ANSI_Sequence::ANSI_Sequence() noexcept = default;
 
 ANSI_Sequence::ANSI_Sequence(ansi_t inColor, bool isForeground, bool isBold) noexcept

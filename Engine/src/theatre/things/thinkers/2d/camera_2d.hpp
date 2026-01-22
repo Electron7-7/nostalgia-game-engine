@@ -1,8 +1,6 @@
 #ifndef CAMERA_2D_H
 #define CAMERA_2D_H
 
-#include "core/uid.hpp"
-#include "core/bitmask.hpp"
 #include "theatre/things/thinkers/2d/actor_2d.hpp"
 
 class Camera2D : public Actor2D

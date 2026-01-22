@@ -7,11 +7,6 @@
 #include "theatre/call_sheet.hpp"
 #include "components/event_handling.hpp"
 #include "components/game_loop.hpp"
-#include "core/uid.hpp"
-#include "core/error.hpp"
-#include "core/mutex.hpp"
-#include "core/smart_pointers.hpp"
-#include <unordered_map>
 
 class Theatre : public OnUpdate, public OnTick, public OnInput
 {

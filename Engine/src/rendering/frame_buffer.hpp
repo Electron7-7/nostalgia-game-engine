@@ -2,9 +2,6 @@
 #define FRAME_BUFFER_H
 
 #include "fwd/rendering.hpp"
-#include "core/farg.hpp"
-#include "core/error.hpp"
-#include "core/smart_pointers.hpp"
 #include "math/containers.hpp"
 
 class FrameBuffer

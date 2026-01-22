@@ -1,22 +1,19 @@
 #ifndef PRINTING_H
 #define PRINTING_H
 
-#include "message_labels.hpp"
+#include "core/error.hpp"
+#include "core/message_labels.hpp"
 #include <print>
 #include <source_location>
 
-enum VERBOSITY : int {
-    /// Nothing
-    VERBOSE0 = 0b000,
-    /// `file <filename>`
-    VERBOSE1 = 0b001,
-    /// `(<line>:<column>)`
-    VERBOSE2 = 0b010,
-    /// `<function_name>`
-    VERBOSE3 = 0b100,
-    /// `VERBOSE1 | VERBOSE2 | VERBOSE3`
-    FULLY_VERBOSE = 0b111,
-};
+/// Nothing
+inline constexpr int VERBOSE0{0b000};
+/// `file <filename>`
+inline constexpr int VERBOSE1{0b001};
+/// `(<line>:<column>)`
+inline constexpr int VERBOSE2{0b010};
+/// `<function_name>`
+inline constexpr int VERBOSE3{0b100};
 
 using VerbosityFlag = int;
 
@@ -59,6 +56,12 @@ template<class... Args>
             std::format(fmt, std::forward<Args>(args)...));
         return return_value;
     }
+
+const char* __get_print_message(Error error);
+Error __print_error_enum(Error, const std::source_location);
+
+#define print_error_enum(ERROR) \
+    __print_error_enum(ERROR, std::source_location::current())
 
 // Always returns false. Use with: bad behaviour that leads to a crash/failure
 #define print_error(Format, Args...) \

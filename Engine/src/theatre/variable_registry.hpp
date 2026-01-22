@@ -1,10 +1,6 @@
 #ifndef THEATRE_VARIABLE_REGISTRY_H
 #define THEATRE_VARIABLE_REGISTRY_H
 
-#include "math/concepts.hpp"
-#include "core/farg.hpp"
-#include "core/error.hpp"
-#include <map>
 #include <typeindex>
 
 class VariableRegistry

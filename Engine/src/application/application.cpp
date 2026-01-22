@@ -1,5 +1,4 @@
 #include "application.hpp"
-#include "core/printing.hpp"
 
 #include <cassert>
 

@@ -1,9 +1,6 @@
 #ifndef MESH_BUFFERS_H
 #define MESH_BUFFERS_H
 
-#include "core/farg.hpp"
-#include "core/smart_pointers.hpp"
-#include <vector>
 
 // Taken from Hazel [https:://github.com/TheCherno/Hazel]
 
