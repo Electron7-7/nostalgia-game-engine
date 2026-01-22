@@ -879,7 +879,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
                                 { mesh_instance->SetMaterialOverrideID(selected.material); }
                             SameLine();
-                            if(Button("Inspect"))
+                            if(Button("Inspect##1"))
                                 { selected = {theatre->GetThing(selected.material_override)}; }
                             if(Checkbox("Wireframe", &selected.wireframe))
                                 { mesh_instance->SetWireframe(selected.wireframe); }
@@ -1050,7 +1050,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     if(InputUInt("Specular Texture UID", &selected.specularTexture, 0, 0))
                         { material->SpecularTextureID(selected.specularTexture); }
                     SameLine();
-                    if(Button("Inspect"))
+                    if(Button("Inspect##1"))
                         { selected = {theatre->GetThing(selected.specularTexture)}; }
 
                     Checkbox("Ignore Lighting", &material->mFullBright);
