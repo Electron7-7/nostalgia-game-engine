@@ -17,6 +17,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;[Building the Library](#building-the-library)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Building the Testing App](#building-the-testing-app)<br>
 &nbsp;&nbsp;&nbsp;&nbsp;[Cleaning the Build Directory](#cleaning-the-build-directory)<br>
+[Theatre Files](#theatre-files)<br>
 *Coming Soon...*
 
 # A New Old Game Engine
@@ -34,3 +35,6 @@ Nostalgia compiles to either a static or dynamic C++ library, which can then be 
 You can also compile a test app for quick debugging, testing, or just to demo the engine. The testing app can be built to test the static library or the dynamic library, using `testapp_static` or `testapp_dynamic` respectively.
 ### Cleaning the Build Directory
 There are two targets for cleaning the build directory: `clean` and `mostlyclean`. `clean` removes the entire build directory and `mostlyclean` removes everything except for certain `.obj`/`.o` files (their directories are defined in the variable `DIRTY_SRC_DIRS`). `mostlyclean` is useful for clean-building without re-compiling things like thirdparty files which don't change and don't need to be re-compiled. Both `clean` and `mostlyclean` can be run alone or with options; when run alone, they act on the entire build directory but when run with options, they act on the directory specified by the options. For example, running `make linux clean` will remove the directory `build/Linux` instead of the entire build directory. 
+
+# Theatre Files
+NostalgiaTheatre (also called "Theatre") files are based on my custom "GraphXTheatre" file format that I wrote for (GraphX)[https://github.com/Electron7-7/graphx]; they're essentially "game scene" files and are used to initialize a Theatre (scene). Nostalgia's Theatre files are much more robust, easier to write, and use a completely new lexer+parser that I wrote from scratch. Detailed documentation will be coming to this repository's wiki page soon; until then, the (HelloWorld.nt)[https://github.com/Electron7-7/nostalgia-game-engine/blob/trunk/theatres/HelloWorld.nt] file is heavily documented with plenty of examples and comments. Syntax highlighting for Sublime Text is available in this repo (and in its own repo soon) but shouldn't be too difficult to translate to your IDE of choice.
