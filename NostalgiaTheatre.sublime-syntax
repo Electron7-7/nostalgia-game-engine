@@ -236,6 +236,9 @@ contexts:
         pop: true
 
   comment:
+    - match: '///'
+      scope: comment.block
+      push: comment_block
     - match: '//'
       scope: comment.line.double-slash
       push: comment_line
@@ -265,3 +268,10 @@ contexts:
       scope: comment.line.double-slash
     - match: '$'
       pop: true
+
+  comment_block:
+    - match: '///'
+      scope: comment.block
+      pop: true
+    - match: '.'
+      scope: comment.block

@@ -2,41 +2,44 @@
 // index. While it's not a requirement, it *is* a strong recommendation.
 @HelloWorld#0
 
-// Everything is a Thing. Really, that's what the base class for all game objects is called.
-// Thing definition follows a syntax that closely resembles a mixture of a C/C++ struct.
-// The two main sub-classes of Thing are "Resource" and "Thinker".
+///
+    Everything is a Thing. Really, that's what the base class for all game objects is called.
+    Thing definition follows a syntax that closely resembles a mixture of a C/C++ struct.
+    The two main sub-classes of Thing are "Resource" and "Thinker".
 
-// Thing definition starts with the type, followed by a name. Thing variables are defined
-// inside a pair of curly braces and are Python-esque, being terminated by a newline.
+    Thing definition starts with the type, followed by a name. Thing variables are defined
+    inside a pair of curly braces and are Python-esque, being terminated by a newline.
 
-// Resources are, at their core, wrappers for file data. As such, they all have one or more
-// variables that take a path to a file which will be loaded. The base class, Resource, only
-// has one of these variables, but other derived Resources (such as Texture) may have more.
+    Resources are, at their core, wrappers for file data. As such, they all have one or more
+    variables that take a path to a file which will be loaded. The base class, Resource, only
+    has one of these variables, but other derived Resources (such as Texture) may have more.
 
-// Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
+    Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
+///
 
 Texture StupidTex
 {
-    // This is a string variable. Strings are delimited by quotes (single or double) and
-    // will capture absolutely everything. Even whitespace.
+    /// This is a string variable. Strings are delimited by quotes (single or double) and
+        will capture absolutely everything. Even whitespace. ///
     File = 'theatres/testing_resources/Stupid.png'
 }
 
 Mesh IcoSphere
 {
-    // While "File" is the default name for Resource's file data variable, other derived
-    // Resources may add additional aliases depending on the context of the data. For
-    // example, Mesh accepts "Model" as well as "File".
+    /// While "File" is the default name for Resource's file data variable, other derived
+        Resources may add additional aliases depending on the context of the data. For example,
+        Mesh accepts "Model" as well as "File". ///
     Model = 'theatres/testing_resources/IcoSphere.obj'
-    // This is a "reference" variable, referencing some other Thing in the Theatre. They can
-    // also reference embedded Resources, like the default cube mesh or missing texture.
+
+    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
+        also reference embedded Resources, like the default cube mesh or missing texture. ///
     Material = <StupidMaterial>
 }
 
 Material LolBitMaterial
 {
-    // This reference variable is referencing an embedded Thing that isn't defined in this
-    // file, but still exists in every Theater. Specifically, it's the "LolBit" texture.
+    /// This reference variable is referencing an embedded Thing that isn't defined in this
+        file, but still exists in every Theater. Specifically, it's the "LolBit" texture. ///
     DiffuseTexture = <LolBitTexture>
 }
 
@@ -48,8 +51,8 @@ MeshInstance3D LolBitCubeMeshInstance3D
 
 Material RedMaterial
 {
-    // These are all "number" variables, which can be either a single number, a vector of
-    // up to four numbers (separated by commas), or a boolean value.
+    /// These are all "number" variables, which can be either a single number, a vector of
+        up to four numbers (separated by commas), or a boolean value. ///
     NoTexture = [trUe] // Booleans are not case-sensitive.
     Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
     SpecularStrength = [0.6]
@@ -57,10 +60,10 @@ Material RedMaterial
 
 Actor3D LolBitCube
 {
-    // This is a "Child" variable, which parents another Thinker defined within the Theatre
-    // file to this Thinker. Child variables only work with other Thinkers, not Resources.
-    // Child variables always start with "Child", followed by the type of the child Thing;
-    // after that, it's just like a reference variable.
+    /// This is a "Child" variable, which parents another Thinker defined within the Theatre
+        file to this Thinker. Child variables only work with other Thinkers, not Resources.
+        Child variables always start with "Child", followed by the type of the child Thing;
+        after that, it's just like a reference variable. ///
     Child MeshInstance3D = <LolBitCubeMeshInstance3D>
     Position = [-0.25, 2, -3.5]
     RotationDegrees = [25, 0, 1]
@@ -68,12 +71,12 @@ Actor3D LolBitCube
 
 Actor3D Ramiel
 {
-    // This is a "Sandwich" variable, which is just a way of defining a Thing inside of
-    // another Thing for your sanity's sake. It's only used with child variables, to avoid
-    // defining them somewhere else in the file and losing track of them. At least, that's
-    // why I use them.
-    // The syntax for a Sandwich stars with "Child" and a colon instead of an equals sign;
-    // afterwards, it follows the same syntax as defining a Thing (type, name, braces, etc).
+    /// This is a "Sandwich" variable, which is just a way of defining a Thing inside of
+        another Thing for your sanity's sake. It's only used with child variables, to avoid
+        defining them somewhere else in the file and losing track of them. At least, that's
+        why I use them. The syntax for a Sandwich stars with "Child" and a colon instead of
+        an equals sign; afterwards, it follows the same syntax as defining a Thing (type,
+        name, braces, etc). ///
     Child : MeshInstance3D RamielMeshInstance3D
     {
         Mesh = <RamielModel>
@@ -84,9 +87,9 @@ Actor3D Ramiel
     Visible = [true]
 }
 
-// Thinkers that are referenced by other Thinkers don't need to be defined before being
-// referenced. This material was referenced by the previous Thinker before it was defined,
-// but that's totally valid!
+/// Thinkers that are referenced by other Thinkers don't need to be defined before being
+    referenced. This material was referenced by the previous Thinker before it was defined,
+    but that's totally valid! ///
 Material RamielMaterial
 {
     NoTexture = [true]
@@ -123,9 +126,9 @@ Collider3D DoomCube
         Mesh = <DefaultCube>
         MaterialOverride = <DoomMaterial>
     }
-    // This is an "Enum" variable. It references enums that are registered to the
-    // VariableRegistry's global enum registry. The string name used to register an enum is
-    // what is used when defining an enum variable.
+    /// This is an "Enum" variable. It references enums that are registered to the
+        VariableRegistry's global enum registry. The string name used to register an enum is
+        what is used when defining an enum variable. ///
     Motion = (Dynamic) // "Dynamic" is what PhysicsBodyMotion::Dynamic is registered under.
     Position = [3, 0, -3]
     RotationDegrees = [-20, 20, 50]
@@ -206,8 +209,8 @@ SpotLight3D SpotLight
     AngleFade = [2]
 }
 
-// Quick note about DirectionalLight3D: its debug mesh isn't ever visible because its
-// position doesn't matter, so why bother?
+/// Quick note about DirectionalLight3D: its debug mesh isn't ever visible because its
+    position doesn't matter, so why bother? ///
 DirectionalLight3D TheSun
 {
     Visible = [true]
