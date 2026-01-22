@@ -36,13 +36,13 @@ ID Material::DiffuseTextureID() const
 { return mDiffuseTextureID; }
 
 void Material::DiffuseTextureID(ID texture_id)
-{ mDiffuseTextureID = (texture_id.invalid()) ? UID::t_Missing : texture_id; }
+{ mDiffuseTextureID = texture_id; }
 
 ID Material::SpecularTextureID() const
 { return mSpecularTextureID; }
 
 void Material::SpecularTextureID(ID texture_id)
-{ mSpecularTextureID = (texture_id.invalid()) ? UID::t_Missing : texture_id; }
+{ mSpecularTextureID = texture_id; }
 
 float Material::SpecularStrength() const
 { return mSpecularStrength; }
