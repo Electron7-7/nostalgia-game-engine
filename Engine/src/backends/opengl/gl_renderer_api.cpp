@@ -16,7 +16,8 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 bool gPrintDrawLogs{false};
-DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::Medium};
+bool gOpenGLEnableNotificationMesssages{false};
+DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
 #ifdef DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
@@ -282,7 +283,7 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
         _severity = "LOW";
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        if(gOpenGLMessageFilter < DebugMessageSeverityFilter::Notification)
+        if(!gOpenGLEnableNotificationMesssages)
             { return; }
         _severity = "NOTIFICATION";
         break;

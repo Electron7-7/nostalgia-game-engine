@@ -42,13 +42,13 @@ private:
 enum class DebugMessageSeverityFilter
 {
     None = 0,
-    Notification,
     Low,
     Medium,
     High,
 };
 
 extern bool gPrintDrawLogs;
+extern bool gOpenGLEnableNotificationMesssages;
 extern DebugMessageSeverityFilter gOpenGLMessageFilter;
 
 #endif // OPENGL_RENDERER_H

@@ -291,9 +291,10 @@ static void s_GeneralDebuggingWindow()
         if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
         {
             SeparatorText("OpenGL");
-            const char* gl_debug_severities{"None\0Notification\0Low\0Medium\0High\0"};
+            Checkbox("Enable Notification Messages", &gOpenGLEnableNotificationMesssages);
+            const char* gl_debug_severities{"None\0Low\0Medium\0High\0"};
             static int gl_debug_selection{(int)gOpenGLMessageFilter};
-            if(Combo("Message Minimum Severity", &gl_debug_selection, gl_debug_severities))
+            if(Combo("Minimum Message Severity Filter", &gl_debug_selection, gl_debug_severities))
                 { gOpenGLMessageFilter = static_cast<DebugMessageSeverityFilter>(gl_debug_selection); }
         }
         SeparatorText("Jolt Physics");
