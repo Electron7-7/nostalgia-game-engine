@@ -1,211 +1,216 @@
-// The first bit of text (that isn't a comment or whitespace) should be the Theatre name and index. While it's not a requirement, it
-// *is* a strong recommendation
+// The first bit of text (that isn't a comment or whitespace) should be the Theatre name and
+// index. While it's not a requirement, it *is* a strong recommendation.
 @HelloWorld#0
 
-// All definitions are contained in one or both "contexts". These contexts don't serve any functional purpose, and are simply a way
-// of keeping the file format clean, distinct, and separated. Contexts may be dropped in the future, if and when I decide to refine
-// the parser some more
-Resources
-{
-    // Resources are wrappers for file data. As such, they use simple one-line definitions starting with their type, name, an equals
-    // sign, a string variable, and finally ended with a semicolon. Strings are delimited by single quotes and will capture absolutely
-    // everything inside of them, including whitespace
-    Mesh IcoSphere
-    {
-        Model = 'theatres/testing_resources/IcoSphere.obj'
-        Material = <StupidMaterial>
-    }
+// Everything is a Thing. Really, that's what the base class for all game objects is called.
+// Thing definition follows a syntax that closely resembles a mixture of a C/C++ struct.
+// The two main sub-classes of Thing are "Resource" and "Thinker".
 
-    Texture StupidTex
-    {
-        Image = 'theatres/testing_resources/Stupid.png'
-    }
-    // Defining your own resources is currently limited to external files; support for adding your own internally embedded resource
-    // data should be coming soon
+// Thing definition starts with the type, followed by a name. Thing variables are defined
+// inside a pair of curly braces and are Python-esque, being terminated by a newline.
+
+// Resources are, at their core, wrappers for file data. As such, they all have one or more
+// variables that take a path to a file which will be loaded. The base class, Resource, only
+// has one of these variables, but other derived Resources (such as Texture) may have more.
+
+// Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
+
+Texture StupidTex
+{
+    // This is a string variable. Strings are delimited by quotes (single or double) and
+    // will capture absolutely everything. Even whitespace.
+    File = 'theatres/testing_resources/Stupid.png'
 }
 
-// Things are, well, everything else. Technically speaking, Resources *are* Things, but they get special treatment. Thing definition
-// follows a syntax that closely resembles a mixture of a C/C++ variable and struct.
-Thinkers
+Mesh IcoSphere
 {
-    // Thing definition starts with the type, followed by a name (similarly to 'Resource'), which is followed by curly braces.
-    // Variables are defined inside the curly braces and are Python-esque, being terminated by a newline
-    Material LolBitMaterial
-    {
-        // This is a "Reference" variable; specifically, it's a reference to some internally defined data (in this case, a texture)
-        // and are delimited by square brackets ([])
-        DiffuseTexture = <LolBitTexture>
-    }
+    // While "File" is the default name for Resource's file data variable, other derived
+    // Resources may add additional aliases depending on the context of the data. For
+    // example, Mesh accepts "Model" as well as "File".
+    Model = 'theatres/testing_resources/IcoSphere.obj'
+    // This is a "reference" variable, referencing some other Thing in the Theatre. They can
+    // also reference embedded Resources, like the default cube mesh or missing texture.
+    Material = <StupidMaterial>
+}
 
-    MeshInstance3D LolBitCubeMeshInstance3D
+Material LolBitMaterial
+{
+    // This reference variable is referencing an embedded Thing that isn't defined in this
+    // file, but still exists in every Theater. Specifically, it's the "LolBit" texture.
+    DiffuseTexture = <LolBitTexture>
+}
+
+MeshInstance3D LolBitCubeMeshInstance3D
+{
+    MaterialOverride = <LolBitMaterial>
+    Mesh = <DefaultCube>
+}
+
+Material RedMaterial
+{
+    // These are all "number" variables, which can be either a single number, a vector of
+    // up to four numbers (separated by commas), or a boolean value.
+    NoTexture = [trUe] // Booleans are not case-sensitive.
+    Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
+    SpecularStrength = [0.6]
+}
+
+Actor3D LolBitCube
+{
+    // This is a "Child" variable, which parents another Thinker defined within the Theatre
+    // file to this Thinker. Child variables only work with other Thinkers, not Resources.
+    // Child variables always start with "Child", followed by the type of the child Thing;
+    // after that, it's just like a reference variable.
+    Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+    Position = [-0.25, 2, -3.5]
+    RotationDegrees = [25, 0, 1]
+}
+
+Actor3D Ramiel
+{
+    // This is a "Sandwich" variable, which is just a way of defining a Thing inside of
+    // another Thing for your sanity's sake. It's only used with child variables, to avoid
+    // defining them somewhere else in the file and losing track of them. At least, that's
+    // why I use them.
+    // The syntax for a Sandwich stars with "Child" and a colon instead of an equals sign;
+    // afterwards, it follows the same syntax as defining a Thing (type, name, braces, etc).
+    Child : MeshInstance3D RamielMeshInstance3D
     {
-        // This is also a reference, but it references a Thing/Resource defined in the current Theatre. It is delimited by angled
-        // brackets (<>)
-        MaterialOverride = <LolBitMaterial>
+        Mesh = <RamielModel>
+        MaterialOverride = <RamielMaterial>
+    }
+    Scale = [120, 120, 120]
+    Position = [-30, 18.152, -215] // An example of various number types working together!
+    Visible = [true]
+}
+
+// Thinkers that are referenced by other Thinkers don't need to be defined before being
+// referenced. This material was referenced by the previous Thinker before it was defined,
+// but that's totally valid!
+Material RamielMaterial
+{
+    NoTexture = [true]
+    SpecularStrength = [2.6]
+}
+
+Material StupidMaterial
+{
+    Color = [0.9, 1, 1]
+    SpecularStrength = [0.2]
+    DiffuseTexture = <StupidTex>
+}
+
+Material DoomMaterial
+{
+    DiffuseTexture = <DoomTexture>
+}
+
+Collider3D Floor
+{
+    Position = [3, -5, -3]
+    Scale = [20, 2, 20]
+    Child : MeshInstance3D FloorMesh
+    {
         Mesh = <DefaultCube>
+        MaterialOverride = <RedMaterial>
     }
+}
 
-    Material RedMaterial
+Collider3D DoomCube
+{
+    Child : MeshInstance3D DoomCubeMeshInstance3D
     {
-        // These are all "Numerical" variables, one being a boolean and the other two being numbers. Numerical variables are delimited
-        // by square brackets ([])
-        NoTexture = [trUe] // Booleans are not case-sensitive
-        // Number variables can contain up to four numbers (separated by commas)
-        Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
-        SpecularStrength = [0.6]
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
     }
+    // This is an "Enum" variable. It references enums that are registered to the
+    // VariableRegistry's global enum registry. The string name used to register an enum is
+    // what is used when defining an enum variable.
+    Motion = (Dynamic) // "Dynamic" is what PhysicsBodyMotion::Dynamic is registered under.
+    Position = [3, 0, -3]
+    RotationDegrees = [-20, 20, 50]
+    Visible = [true]
+}
 
-    Actor3D Ramiel
+Collider3D DoomCube2
+{
+    Child : MeshInstance3D DoomCubeMeshInstance3D2
     {
-        // This is a "Sandwich" variable, which is just a way of defining a Thing inside of another Thing. It's used to help keep
-        // things looking cleaner (as well as keep smaller Things grouped more nicely). The syntax for a Sandwich is simply the
-        // variable name, a colon instead of an equals sign, followed by a typical Thing definition
-        Child : MeshInstance3D RamielMeshInstance3D
-        {
-            Mesh = <RamielModel>
-            MaterialOverride = <RamielMaterial>
-        }
-        Scale = [120, 120, 120]
-        Origin = [-30, 18.152, -215] // An example of various number types working together!
-        Visible = [true]
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
     }
+    Motion = (Dynamic)
+    Position = [2.35, 6.95, -2.95]
+    RotationDegrees = [-36.6, 25, 0.1]
+    Scale = [0.3, 1, 1.7]
+    Visible = [true]
+}
 
-    // Things that are referenced by other Things don't need to be defined before being referenced, as seen in the case of
-    // this Material being referenced before it has been defined
-    Material RamielMaterial
+Collider3D DoomCube3
+{
+    Motion = (Dynamic)
+    Position = [3, 5, -3]
+    RotationDegrees = [20, -20, -50]
+    Scale = [0.5, 1, 0.7]
+    Visible = [true]
+
+    Child : MeshInstance3D DoomCubeMeshInstance3D3
     {
-        NoTexture = [true]
-        SpecularStrength = [2.6]
+        Mesh = <DefaultCube>
+        MaterialOverride = <LolBitMaterial>
     }
+}
 
-    Material StupidMaterial
+Actor3D RedCube
+{
+    Child : MeshInstance3D RedCubeMeshInstance3D
     {
-        Color = [0.9, 1, 1]
-        SpecularStrength = [0.2]
-        DiffuseTexture = <StupidTex>
+        Mesh = <DefaultCube>
+        MaterialOverride = <RedMaterial>
     }
+    Position = [1.35, 1, -4.45]
+    RotationDegrees = [-0.3, -64.6, -17.4]
+    OuuughImSoBigAndRound = [0.48, 0.58, 0.27] // funny alias for "Scale"
+    Visible = [true]
+}
 
-    Material DoomMaterial
+Actor3D IcoSphereActor3D
+{
+    Child : MeshInstance3D IcoSphereMeshInstance3D
     {
-        DiffuseTexture = <DoomTexture>
+        Mesh = <IcoSphere>
     }
+    Position = [-2.55, 0.15, -1.3]
+    RotationDegrees = [15.2, 38.6, 0]
+}
 
-    Collider3D Floor
-    {
-        Position = [3, -5, -3]
-        Scale = [20, 2, 20]
-        Child : MeshInstance3D FloorMesh
-        {
-            Mesh = <DefaultCube>
-            MaterialOverride = <RedMaterial>
-        }
-    }
+NostalgiaPlayer3D Player
+{
+    Position = [0, 0.3, 6]
+}
 
-    Collider3D DoomCube
-    {
-        Child : MeshInstance3D DoomCubeMeshInstance3D
-        {
-            Mesh = <DefaultCube>
-            MaterialOverride = <DoomMaterial>
-        }
-        Motion = (Dynamic)
-        Origin = [3, 0, -3]
-        RotationDegrees = [-20, 20, 50]
-        Visible = [true]
-    }
+PointLight3D PointLight
+{
+    Position = [1.6, 0.1, -2.1]
+    Color = [1, 0.8, 0.2]
+}
 
-    Collider3D DoomCube2
-    {
-        Child : MeshInstance3D DoomCubeMeshInstance3D2
-        {
-            Mesh = <DefaultCube>
-            MaterialOverride = <DoomMaterial>
-        }
-        Motion = (Dynamic)
-        Origin = [2.35, 6.95, -2.95]
-        RotationDegrees = [-36.6, 25, 0.1]
-        Scale  = [0.3, 1, 1.7]
-        Visible = [true]
-    }
+SpotLight3D SpotLight
+{
+    Position = [-0.32, 0.29, -0.45]
+    RotationDegrees = [27.6, 1.10, 10.1]
+    Color = [0.287, 1.0, 0.368]
+    Energy = [0.95]
+    Attenuation = [0.9]
+    Angle = [12.3]
+    AngleFade = [2]
+}
 
-    Collider3D DoomCube3
-    {
-        Motion = (Dynamic)
-        Origin = [3, 5, -3]
-        RotationDegrees = [20, -20, -50]
-        Scale  = [0.5, 1, 0.7]
-        Visible = [true]
-
-        Child : MeshInstance3D DoomCubeMeshInstance3D3
-        {
-            Mesh = <DefaultCube>
-            MaterialOverride = <LolBitMaterial>
-        }
-    }
-
-    Actor3D LolBitCube
-    {
-        Child MeshInstance3D = <LolBitCubeMeshInstance3D>
-        Origin = [-0.25, 2, -3.5]
-        RotationDegrees = [25, 0, 1]
-    }
-
-    Actor3D RedCube
-    {
-        Child : MeshInstance3D RedCubeMeshInstance3D
-        {
-            Mesh = <DefaultCube>
-            MaterialOverride = <RedMaterial>
-        }
-        Origin = [1.35, 1, -4.45]
-        RotationDegrees = [-0.3, -64.6, -17.4]
-        OuuughImSoBigAndRound = [0.48, 0.58, 0.27] // funny alias for "Scale"
-        Visible = [true]
-    }
-
-    Actor3D IcoSphereActor3D
-    {
-        Child : MeshInstance3D IcoSphereMeshInstance3D
-        {
-            Mesh = <IcoSphere>
-        }
-        Origin = [-2.55, 0.15, -1.3]
-        RotationDegrees = [15.2, 38.6, 0]
-    }
-
-    NostalgiaPlayer3D Player
-    {
-        Origin = [0, 0.3, 6]
-    }
-
-    PointLight3D Test_PointLight
-    {
-        Visible = [true]
-        Origin = [1.6, 0.1, -2.1]
-        Color = [1, 0.8, 0.2]
-    }
-
-    SpotLight3D Test_SpotLight
-    {
-        Visible = [true]
-        Origin = [-0.32, 0.29, -0.45]
-        RotationDegrees = [27.6, 1.10, 10.1]
-        Color = [0.287, 1.0, 0.368]
-        Energy = [0.95]
-        Attenuation = [0.9]
-        Angle = [12.3]
-        AngleFade = [2]
-    }
-
-    DirectionalLight3D The_Sun
-    {
-        RotationDegrees = [180, 100, -25]
-        Energy = [0.6]
-    }
-
-    Camera3D test_camera
-    {
-        Origin  = [-1, 1, 2]
-        Current = [false]
-    }
+// Quick note about DirectionalLight3D: its debug mesh isn't ever visible because its
+// position doesn't matter, so why bother?
+DirectionalLight3D TheSun
+{
+    Visible = [true]
+    RotationDegrees = [180, 100, -25]
+    Energy = [0.6]
 }
