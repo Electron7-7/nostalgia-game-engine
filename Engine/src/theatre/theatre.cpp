@@ -565,14 +565,15 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
             auto mesh{GetResource<Mesh>(mesh_instance->MeshID())};
             auto material{GetResource<Material>(mesh->MaterialID())};
-            auto diffuse_texture{GetResource<Texture>(material->DiffuseTextureID())};
-            auto specular_texture{GetResource<Texture>(material->DiffuseTextureID())};
 
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
 
             if(!mesh->MeshData())
                 { mesh = error_mesh; }
+
+            auto diffuse_texture{GetResource<Texture>(material->DiffuseTextureID())};
+            auto specular_texture{GetResource<Texture>(material->SpecularTextureID())};
 
             if(!material->DiffuseTextureID().invalid() and !diffuse_texture->GetBuffer())
                 { diffuse_texture = missing_texture; }
