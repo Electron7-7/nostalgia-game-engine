@@ -456,6 +456,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
         and mThings.contains(UID::a_Player))
             { print_warning("Only one player at a time, please!"); return UID::a_Player; }
+    else if(UID::IsReserved(ioData.uid[]) and mThings.contains(ioData.uid[]))
+        { return ioData.uid; }
 
     SetupUID(ioData);
     SetupOwnership(ioData);
@@ -518,6 +520,12 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
     auto view_matrix{inCamera->ViewMatrix()};
     auto projection_matrix{inCamera->ProjectionMatrix()};
 
+    if(!mThings.contains(UID::m_Error) or !mThings.contains(UID::t_Missing))
+        { CreateEmbeddedResources(); }
+
+    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto error_mesh{GetResource<Mesh>(UID::m_Error)};
+
     switch(inCamera->mEnvironment.mType)
     {
     case Environment::BG_SKYBOX:
@@ -557,8 +565,21 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
             auto mesh{GetResource<Mesh>(mesh_instance->MeshID())};
             auto material{GetResource<Material>(mesh->MaterialID())};
+            auto diffuse_texture{GetResource<Texture>(material->DiffuseTextureID())};
+            auto specular_texture{GetResource<Texture>(material->DiffuseTextureID())};
+
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
+
+            if(!mesh->MeshData())
+                { mesh = error_mesh; }
+
+            if(!material->DiffuseTextureID().invalid() and !diffuse_texture->GetBuffer())
+                { diffuse_texture = missing_texture; }
+
+            if(!material->SpecularTextureID().invalid() and !specular_texture->GetBuffer())
+                { specular_texture = missing_texture; }
+
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
@@ -567,10 +588,8 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
                 rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
                 model_matrix      {transMat * rotMat * scaleMat};
 
-            bool use_diffuse, use_specular;
-
-            use_diffuse  = renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID()),  0);
-            use_specular = renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID()), 1);
+            bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
+            bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
 
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
             renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
