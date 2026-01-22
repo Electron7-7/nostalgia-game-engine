@@ -71,7 +71,7 @@ void ImGui_Debugger::Input(InputEvent* event)
 {
     if(event->IsJustPressed(Key::F4) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
-        { IManager::ShutdownTheatre(); }
+            { IManager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
     else if(event->IsJustPressed(Key::F5) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
     {
@@ -873,8 +873,14 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         {
                             if(InputUInt("Mesh UID", &selected.mesh, 0, 0))
                                 { mesh_instance->SetMeshID(selected.mesh); }
+                            SameLine();
+                            if(Button("Inspect"))
+                                { selected = {theatre->GetThing(selected.mesh)}; }
                             if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
                                 { mesh_instance->SetMaterialOverrideID(selected.material); }
+                            SameLine();
+                            if(Button("Inspect"))
+                                { selected = {theatre->GetThing(selected.material_override)}; }
                             if(Checkbox("Wireframe", &selected.wireframe))
                                 { mesh_instance->SetWireframe(selected.wireframe); }
                             if(IsItemHovered())
@@ -896,6 +902,9 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         }
                         auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera3d->ViewportID())};
                         TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
+                        SameLine();
+                        if(Button("Inspect"))
+                            { selected = {cur_vp}; }
                         if(Checkbox("Current", &selected.is_camera_current))
                         {
                             print_error_enum(camera3d->SetCurrent(selected.is_camera_current));
@@ -1027,13 +1036,22 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                 {
                     if(InputUInt("Material UID", &selected.material, 0, 0))
                         { mesh->MaterialID(selected.material); }
+                    SameLine();
+                    if(Button("Inspect"))
+                        { selected = {theatre->GetThing(selected.material)}; }
                 }
                 else if(auto material{DCast<Material>(selected.ptr)})
                 {
                     if(InputUInt("Diffuse Texture UID", &selected.diffuseTexture, 0, 0))
                         { material->DiffuseTextureID(selected.diffuseTexture); }
+                    SameLine();
+                    if(Button("Inspect"))
+                        { selected = {theatre->GetThing(selected.diffuseTexture)}; }
                     if(InputUInt("Specular Texture UID", &selected.specularTexture, 0, 0))
                         { material->SpecularTextureID(selected.specularTexture); }
+                    SameLine();
+                    if(Button("Inspect"))
+                        { selected = {theatre->GetThing(selected.specularTexture)}; }
 
                     Checkbox("Ignore Lighting", &material->mFullBright);
                     ColorEditGLMv3("Diffuse Color",
