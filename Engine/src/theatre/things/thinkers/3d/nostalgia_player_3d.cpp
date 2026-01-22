@@ -48,6 +48,7 @@ void NostalgiaPlayer3D::Ready()
     if(mCameraID.invalid())
     {
         TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
+        cam_dat.set_variable(glm::vec3{0.0f, 2.0f, -1.0f}, "Position");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
         mCameraID = m_pRootTheatre->CreateThing(cam_dat);
@@ -89,7 +90,9 @@ void NostalgiaPlayer3D::Tick()
     });
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
-    SetRotationDegrees(mEulerRotationDegrees -= glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
+    SetRotationDegrees(RotationDegrees() - glm::vec3{0.0f, mLookWish.x, 0.0f});
+    auto camera{m_pRootTheatre->GetThinker<Actor3D>(mCameraID)};
+    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
 
     auto collider{g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(mColliderID)};
 
