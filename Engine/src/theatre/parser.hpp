@@ -8,6 +8,7 @@
 #include "core/farg.hpp"
 #include "core/error.hpp"
 #include "core/concepts.hpp"
+#include "core/enum_prettifier.hpp"
 #include "core/smart_pointers.hpp"
 #include "math/concepts.hpp"
 #include "math/glm_concepts.hpp"
@@ -68,6 +69,15 @@ namespace TheatreFile
 
         bool operator!() const noexcept
         { return invalid(); }
+
+        std::string debug_log() const noexcept
+        {
+            return std::format("[{}, {}, {}, {}]",
+                name,
+                value,
+                EnumPrettifier::Prettify(type),
+                thing_uid[]);
+        }
     };
 
     using TokenArray = std::vector<Token>;

@@ -10,7 +10,6 @@ scope: source.nt
 variables:
   start_theatre_name: '^(?=@)'
   start_theatre_index: '(?=#)'
-  contexts: '(Resources|Thinkers)'
   typenames: >-
     (?x)
     (
@@ -73,28 +72,9 @@ contexts:
       push: theatre_name
     - match: '{{start_theatre_index}}'
       push: theatre_index
-    - match: '{{contexts}}'
-      scope: support.constant
-      push:
-      - include: comment
-      - match: '}' # End of context
-        scope: punctuation.section.block.end.bracket.curly
-        pop: true
-      - match: '[^{\s]'
-        scope: invalid.illegal.unexpected-text
-      - match: '{' # Start of context
-        scope: punctuation.section.block.begin.bracket.curly
-        push: context
-    - match: '\S'
-      scope: invalid.illegal.unexpected-text
-
-  context:
-    - include: comment
     - match: '{{typenames}}'
       scope: storage.type.variable
       push: definition
-    - match: '(?=})'
-      pop: true
 
   definition:
     - include: comment

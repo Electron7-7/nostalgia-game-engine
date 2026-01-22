@@ -16,15 +16,14 @@ static constexpr frozen::set<char, 2>
     cOperators{'=', ':'};
 static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
-static constexpr frozen::set<char, 12>
-    cSeparators{';', ',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
-static constexpr frozen::set<std::string, 4>
-    cKeywords{"Resources", "Thinkers", "Child", "Parent"};
+static constexpr frozen::set<char, 11>
+    cSeparators{',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
+static constexpr frozen::set<std::string, 2>
+    cKeywords{"Child", "Parent"};
+
+enum Comment { SINGLE, MULTI, NO_COMMENT };
 
 static void debug_PrettifyEnums();
-
-enum class Comment
-{ SingleLine, MultiLine, None };
 
 using namespace TheatreFile;
 
@@ -41,6 +40,8 @@ Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
 
     TokenArray tokens{};
     std::string value_buffer{};
+
+    Comment in_comment{NO_COMMENT};
 
     for(size_t i{0}; i < file_size; ++i)
     {
@@ -60,12 +61,18 @@ Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
                             i+=2;
                             tokens.emplace_back(TokenName::MultilineComment,
                                 try_multiline_comment);
+                            if(in_comment == NO_COMMENT)
+                                { in_comment = MULTI; }
+                            else if(in_comment == MULTI)
+                                { in_comment = NO_COMMENT; }
                             continue;
                         }
                     }
                     ++i;
                     tokens.emplace_back(TokenName::SinglelineComment,
                         try_singleline_comment);
+                    if(in_comment == NO_COMMENT)
+                        { in_comment = SINGLE; }
                     continue;
                 }
             }
@@ -74,7 +81,12 @@ Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
             { tokens.emplace_back(TokenName::Operator, std::string{character}); continue; }
         else if(cStringDelimiters.contains(character))
         {
-            if(i+1 >= data_string.size()) { continue; }
+            if(in_comment != NO_COMMENT)
+            {
+                tokens.emplace_back(TokenName::Identifier, std::string{character});
+                continue;
+            }
+            else if(i+1 >= data_string.size()) { continue; }
 #pragma message("TODO: clean this up")
             value_buffer += data_string[i++];
             while(!cStringDelimiters.contains(data_string[i])
@@ -100,14 +112,18 @@ Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
                     {
                         if(!(character >= '0' and character <= '9')
                             and !cValidLiterals.contains(character))
-                            { name_buffer = TokenName::Identifier; }
+                                { name_buffer = TokenName::Identifier; }
                     }
                 }
                 tokens.emplace_back(name_buffer, value_buffer);
                 value_buffer.clear();
             }
             if(cWhitespace.contains(character))
-                { name_buffer = TokenName::Whitespace; }
+            {
+                name_buffer = TokenName::Whitespace;
+                if(character == '\n' and in_comment == SINGLE)
+                    { in_comment = NO_COMMENT; }
+            }
             else
                 { name_buffer = TokenName::Separator; }
             tokens.emplace_back(name_buffer, std::string{character});

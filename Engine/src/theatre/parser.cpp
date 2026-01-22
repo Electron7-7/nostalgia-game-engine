@@ -4,8 +4,6 @@
 static constexpr char cDelimiterTheatreName    {'@'};
 static constexpr char cDelimiterTheatreIndex   {'#'};
 static constexpr char cDelimiterStartSandwich  {':'};
-static constexpr char cDelimiterEndResource    {';'};
-static constexpr char cDelimiterEnterContext   {'{'};
 static constexpr char cDelimiterExitContext    {'}'};
 static constexpr char cDelimiterEnterNumber    {'['};
 static constexpr char cDelimiterExitNumber     {']'};
@@ -13,8 +11,6 @@ static constexpr char cDelimiterEnterEnum      {'('};
 static constexpr char cDelimiterEnterRefOrEnum {'<'};
 static constexpr char cDelimiterWeakString     {'"'};
 static constexpr char cDelimiterStrongString   {'\''};
-static constexpr const char* cContextResources {"Resources"};
-static constexpr const char* cContextThinkers  {"Thinkers"};
 
 using namespace TheatreFile;
 
@@ -49,16 +45,8 @@ Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData
                 catch(std::invalid_argument const& e) {}
             }
         }
-        else if(token.category == TokenName::Keyword)
-        {
-            if(context == TOP_LEVEL)
-            {
-                if(!token.token.compare(cContextResources))     { context = RESOURCES; }
-                else if(!token.token.compare(cContextThinkers)) { context = THINKERS;  }
-            }
-            else if(ThingFactory::IsThing(token.token))
-                { s_ParseThing(i, inTokens, outData, context); }
-        }
+        else if(token.category == TokenName::Keyword and ThingFactory::IsThing(token.token))
+            { s_ParseThing(i, inTokens, outData, context); }
     }
     return OK;
 }
@@ -116,6 +104,8 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             [[fallthrough]];
         case TokenName::MultilineComment:
             [[fallthrough]];
+        case TokenName::None:
+            break;
         case TokenName::Literal:
             if(!in_literal)
             {
@@ -124,9 +114,6 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             }
             else
                 { thing_var.value += token.token; }
-        case TokenName::None:
-            [[fallthrough]];
-        default:
             break;
         case TokenName::Operator:
             if(token.token[0] == cDelimiterStartSandwich)
@@ -207,17 +194,6 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             case cDelimiterStrongString:
                 in_string = !in_string;
                 break;
-            case cDelimiterEndResource:
-                if(inContext == IN_RESOURCE)
-                {
-                    thing_data.variables.push_back(thing_var);
-                    return thing_data;
-                }
-                break;
-            case cDelimiterEnterContext:
-                if(inContext == RESOURCES) { inContext = IN_RESOURCE; }
-                else if(inContext == THINKERS) { inContext = IN_THINKER; }
-                break;
             case cDelimiterExitContext:
                 outData->push_back(thing_data);
                 return thing_data;
@@ -244,6 +220,8 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 { thing_var.name = token.token; }
             else if(thing_var.value.empty())
                 { thing_var.value = token.token; }
+            break;
+        default:
             break;
         }
     }
