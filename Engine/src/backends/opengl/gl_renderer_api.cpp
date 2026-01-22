@@ -3,7 +3,6 @@
 #include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "core/uid.hpp"
 #include "core/printing.hpp"
-#include "managers/theatre_manager.hpp"
 #include "theatre/things/resources/texture.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
@@ -150,18 +149,25 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
-void OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inTexture, uint inUnit) const
+bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    if(inTexture and inTexture->Status() == OK)
-        { glBindTextureUnit(inUnit, inTexture->ID()); return; }
-    else if(auto missing{g_pTheatreManager->CurrentTheatre()->GetResource<Texture>(UID::t_Missing)->GetBuffer()})
-        { glBindTextureUnit(inUnit, missing->ID()); }
+    if(inTexture->uid().invalid()
+        or !inTexture->GetBuffer()
+        or !inTexture->GetBuffer()->Status()
+        or !inTexture->GetBuffer()->ID())
+            { return false; }
+    glBindTextureUnit(inUnit, inTexture->GetBuffer()->ID());
+    return true;
 }
 
-void OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inTexture, texture_units inUnits) const
+bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, texture_units inUnits) const
 {
     for(uint unit : inUnits)
-        { BindTexture(inTexture, unit); }
+    {
+        if(!BindTexture(inTexture, unit))
+            { return false; }
+    }
+    return true;
 }
 
 void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const

@@ -1035,7 +1035,6 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     if(InputUInt("Specular Texture UID", &selected.specularTexture, 0, 0))
                         { material->SpecularTextureID(selected.specularTexture); }
 
-                    Checkbox("Don't Use Textures", &material->mDontUseTexture);
                     Checkbox("Ignore Lighting", &material->mFullBright);
                     ColorEditGLMv3("Diffuse Color",
                         &material->mColor,

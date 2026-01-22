@@ -13,11 +13,7 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mColor, "Color");
     data.get_variable(mAlpha, "Alpha");
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
-    // TODO: Pick a better default value?
     data.get_variable(mSpecularStrength, "SpecularStrength");
-    data.get_variable(mDontUseTexture, "UseVertexColors");
-    data.get_variable(mDontUseTexture, "OnlyUseVertexColors");
-    data.get_variable(mDontUseTexture, "NoTexture", "NoTextures");
     data.get_variable(mFullBright, "FullBright", "mat_fullbright");
 }
 
@@ -31,40 +27,25 @@ Shared<ThingData> Material::GetVariables() const
     data->set_variable(mAlpha, "Alpha");
     data->set_variable(mSpecularSharpness, "SpecularSharpness");
     data->set_variable(mSpecularStrength, "SpecularStrength");
-    data->set_variable(mDontUseTexture, "UseVertexColors");
-    data->set_variable(mDontUseTexture, "OnlyUseVertexColors");
-    data->set_variable(mDontUseTexture, "NoTexture");
     data->set_variable(mFullBright, "FullBright");
 
     return data;
 }
 
 ID Material::DiffuseTextureID() const
-{
-    return (mDiffuseTextureID.invalid())
-        ? UID::t_Missing
-        : mDiffuseTextureID;
-}
+{ return mDiffuseTextureID; }
 
 void Material::DiffuseTextureID(ID texture_id)
-{ mDiffuseTextureID = texture_id; }
+{ mDiffuseTextureID = (texture_id.invalid()) ? UID::t_Missing : texture_id; }
 
 ID Material::SpecularTextureID() const
-{
-    return (mSpecularTextureID.invalid())
-        ? UID::t_Missing
-        : mSpecularTextureID;
-}
+{ return mSpecularTextureID; }
 
 void Material::SpecularTextureID(ID texture_id)
-{ mSpecularTextureID = texture_id; }
+{ mSpecularTextureID = (texture_id.invalid()) ? UID::t_Missing : texture_id; }
 
 float Material::SpecularStrength() const
-{
-    return (SpecularTextureID() == UID::t_Missing)
-        ? 0.0f
-        : mSpecularStrength;
-}
+{ return mSpecularStrength; }
 
 void Material::SpecularStrength(float inStrength)
 { mSpecularStrength = inStrength; }

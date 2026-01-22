@@ -22,7 +22,6 @@ public:
     glm::vec3 mColor{1.0f};
     float     mAlpha{1.0f};
     int       mSpecularSharpness{16};
-    bool      mDontUseTexture{false};
     bool      mFullBright{false};
 
 protected:

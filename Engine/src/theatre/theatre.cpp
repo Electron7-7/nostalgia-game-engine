@@ -1,5 +1,6 @@
 #include "theatre.hpp"
 #include "parser.hpp"
+#include "settings/world.hpp"
 #include "thing_factory.hpp"
 #include "core/uid.hpp"
 #include "filesystem/file_data.hpp"
@@ -523,9 +524,7 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
         renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
         renderer_api->Clear();
         renderer_api->SetWireframe(false);
-        renderer_api->BindTexture(GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID)
-            ->GetBuffer(),
-            0);
+        renderer_api->BindTexture(GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID), 0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
@@ -560,9 +559,6 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             auto material{GetResource<Material>(mesh->MaterialID())};
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
-#pragma message("FIXME: implement an easier way of not using materials/textures")
-            if(material->uid().invalid())
-                { material->mDontUseTexture = true; }
             auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
 
             // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
@@ -571,10 +567,13 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
                 rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
                 model_matrix      {transMat * rotMat * scaleMat};
 
-            renderer_api->SetFramebufferSRGB(!material->mDontUseTexture);
+            bool use_diffuse, use_specular;
+
+            use_diffuse  = renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID()),  0);
+            use_specular = renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID()), 1);
+
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
-            renderer_api->BindTexture(GetResource<Texture>(material->DiffuseTextureID())->GetBuffer(),  0);
-            renderer_api->BindTexture(GetResource<Texture>(material->SpecularTextureID())->GetBuffer(), 1);
+            renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
 
             shader->SetUniform("model_matrix", model_matrix);
             shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
@@ -587,7 +586,8 @@ void Theatre::Draw3DThinkers(ID inViewportID, Shared<Camera3D> inCamera)
             shader->SetUniform("view_position", inCamera->GlobalPosition());
             shader->SetUniform("current_material.texture_diffuse",  0);
             shader->SetUniform("current_material.texture_specular", 1);
-            shader->SetUniform("current_material.use_textures", !material->mDontUseTexture);
+            shader->SetUniform("current_material.use_diffuse",  use_diffuse);
+            shader->SetUniform("current_material.use_specular", use_specular);
             shader->SetUniform("current_material.diffuse_color", material->mColor);
             shader->SetUniform("current_material.alpha", material->mAlpha);
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);

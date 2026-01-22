@@ -40,8 +40,8 @@ public:
 
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 
-    virtual void BindTexture(Shared<TextureBuffer> inTexture, uint inTextureUnit) const = 0;
-    virtual void BindTexture(Shared<TextureBuffer> inTexture, texture_units) const = 0;
+    virtual bool BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;
+    virtual bool BindTexture(Shared<Texture> inTexture, texture_units) const = 0;
     virtual void UnbindTexture(texture_units inTextureUnits) const = 0;
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;

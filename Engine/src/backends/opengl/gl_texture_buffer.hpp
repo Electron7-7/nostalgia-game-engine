@@ -16,7 +16,7 @@ public:
     Farg<SamplerState> Sampler() const final;
 
 private:
-    uint mBufferID{};
+    uint mBufferID{0};
     TextureFormat mFormat{};
     SamplerState  mSampler{};
     Error mStatus{ERR_UNINITIALIZED};

@@ -17,13 +17,13 @@ struct Material
 	vec3 diffuse_color;
 	float alpha;
 	sampler2D texture_diffuse;
+	int use_diffuse;
 
 	// Until I implement metallic, roughness, etc I'll just directly affect the specular
 	float specular_strength;
 	int specular_sharpness;
 	sampler2D texture_specular;
-
-	int use_textures;
+	int use_specular;
 
 	// These will eventually replace the specular variables, as they'll each affect the specular highlights in different ways
 	// sampler2D texture_metallic;
@@ -100,9 +100,10 @@ void main()
 		break;
 	}
 
-	vec3 use_texture_vec3 = vec3(1.0f - current_material.use_textures);
-	diffuse_texture  = vec3(texture(current_material.texture_diffuse,  vertex_uv).rgb * current_material.use_textures) + use_texture_vec3;
-	specular_texture = vec3(texture(current_material.texture_specular, vertex_uv).rgb * current_material.use_textures) + use_texture_vec3;
+	vec3 use_diffuse_vec3  = vec3(1.0f - current_material.use_diffuse);
+	vec3 use_specular_vec3 = vec3(1.0f - current_material.use_specular);
+	diffuse_texture  = vec3(texture(current_material.texture_diffuse,  vertex_uv).rgb * current_material.use_diffuse) + use_diffuse_vec3;
+	specular_texture = vec3(texture(current_material.texture_specular, vertex_uv).rgb * current_material.use_specular) + use_specular_vec3;
 
 	vec3 output_color = vec3(0.0f);
 
