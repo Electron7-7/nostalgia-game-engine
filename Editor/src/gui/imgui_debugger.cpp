@@ -4,12 +4,14 @@
 #include "fwd/theatre.hpp"
 #include "core/uid.hpp"
 #include "core/bitmask.hpp"
+#include "core/enum_prettifier.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "physics/engine.hpp"
 #include "settings/engine.hpp"
 #include "settings/graphics.hpp"
 #include "settings/player.hpp"
+#include "theatre/parser.hpp"
 #include "theatre/things/resources/mesh.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
@@ -69,7 +71,13 @@ void ImGui_Debugger::Shutdown()
 
 void ImGui_Debugger::Input(InputEvent* event)
 {
-    if(event->IsJustPressed(Key::F4) or
+    if(event->IsJustPressed(Key::F3))
+    {
+        sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+            ? !sTheatreInspectorActive
+            : false;
+    }
+    else if(event->IsJustPressed(Key::F4) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
             { IManager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
     else if(event->IsJustPressed(Key::F5) or
@@ -78,11 +86,34 @@ void ImGui_Debugger::Input(InputEvent* event)
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
     }
-    else if(event->IsJustPressed(Key::F3))
+    else if(event->IsJustPressed(Key::F6))
     {
-        sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-            ? !sTheatreInspectorActive
-            : false;
+        TheatreFile::TokenArray tokens{};
+        TheatreFile::Lexer({sLastAttemptedTheatreFilePath}, tokens);
+        print_debug("Lexer Output");
+        for(FAUTO token : tokens)
+        {
+            if(token.category == TheatreFile::TokenName::Whitespace)
+                { continue; }
+            debug_print("\t[{}, '{}']",
+                EnumPrettifier::Prettify(token.category),
+                (token.token[0] == '\n')
+                    ? "\\n"
+                    : token.token);
+        }
+        auto data{g_pTheatreManager->CurrentTheatre()->InitialState()};
+        print_debug("Parser Output");
+        for(FAUTO thing_data : data.data)
+        {
+            debug_print("THING DATA");
+            debug_print("\tname:   {}", thing_data.name);
+            debug_print("\tuid:    {}", thing_data.uid[]);
+            debug_print("\ttype:   {}", thing_data.type.name());
+            if(!thing_data.parent_variable.invalid())
+                { debug_print("\tparent: {}", thing_data.parent_variable.debug_log()); }
+            for(FAUTO child : thing_data.children_variables)
+                { debug_print("\tchild: {}", child.debug_log()); }
+        }
     }
 }
 
