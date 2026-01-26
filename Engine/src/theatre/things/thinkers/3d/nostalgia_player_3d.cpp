@@ -55,7 +55,7 @@ void NostalgiaPlayer3D::Ready()
         m_pRootTheatre->SetParent(mCameraID, mUID);
         BitMask cam_layers{};
         cam_layers.disable(1);
-        m_pRootTheatre->GetThinker<Camera3D>(mCameraID)->SetLayersMask(cam_layers);
+        my_theatre()->SetParent(mCameraID, mUID);
     }
     if(mColliderID.invalid())
     {
@@ -65,8 +65,8 @@ void NostalgiaPlayer3D::Ready()
         coll_dat.set_variable(mScale, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(ShapeType::Box, "Shape");
-        mColliderID = m_pRootTheatre->CreateThing(coll_dat);
-        m_pRootTheatre->SetParent(mColliderID, mUID);
+        mColliderID = my_theatre()->CreateThing(coll_dat);
+        my_theatre()->SetParent(mColliderID, mUID);
         mScale = glm::vec3{1.0f};
     }
     if(Settings::Engine::IsEditorHint)
@@ -78,7 +78,7 @@ void NostalgiaPlayer3D::Ready()
         m_pRootTheatre->SetParent(axis_mesh = m_pRootTheatre->CreateThing(axis_dat), mUID);
         BitMask layers{false};
         layers.enable(1);
-        m_pRootTheatre->GetThinker<Visual3D>(axis_mesh)->SetLayers(layers);
+        my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
     }
 }
 
@@ -91,7 +91,7 @@ void NostalgiaPlayer3D::Tick()
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
     SetRotationDegrees(RotationDegrees() - glm::vec3{0.0f, mLookWish.x, 0.0f});
-    auto camera{m_pRootTheatre->GetThinker<Actor3D>(mCameraID)};
+    auto camera{my_theatre()->GetThinker<Actor3D>(mCameraID)};
     camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
 
     auto collider{g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(mColliderID)};

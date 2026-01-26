@@ -1,6 +1,7 @@
 #include "thing.hpp"
 #include "theatre/thing_factory.hpp"
 #include "theatre/parser.hpp"
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 
@@ -45,3 +46,11 @@ void Thing::set_name(Sarg inName)
 
 const char* const Thing::c_name() const
 { return mName.data(); }
+
+Theatre* Thing::my_theatre() const
+{
+    static Theatre* empty_theatre{new Theatre{}};
+    return(m_pRootTheatre)
+        ? m_pRootTheatre
+        : empty_theatre;
+}

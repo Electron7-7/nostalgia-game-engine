@@ -7,7 +7,7 @@ using namespace TheatreFile;
 void Thinker::Free()
 {
     LockGuard<RMutex> lock{mChildrenMutex};
-    m_pRootTheatre->DestroyThing(mUID);
+    my_theatre()->DestroyThing(mUID);
 }
 
 void Thinker::SetVariables(Farg<ThingData> inData)
@@ -26,7 +26,7 @@ Shared<ThingData> Thinker::GetVariables() const
 
 bool Thinker::Visible() const
 {
-    if(Parent().invalid() or m_pRootTheatre->GetThinker(Parent())->Visible())
+    if(Parent().invalid() or my_theatre()->GetThinker(Parent())->Visible())
         { return mVisible; }
     return false;
 }
@@ -37,24 +37,24 @@ void Thinker::SetVisible(bool inVisible)
 
 IdSet_t Thinker::Children() const
 {
-    if(!m_pRootTheatre) { return {}; }
-    return m_pRootTheatre->GetChildren(mUID);
+    if(!my_theatre()) { return {}; }
+    return my_theatre()->GetChildren(mUID);
 }
 
 ID Thinker::Parent() const
 {
-    if(!m_pRootTheatre) { return {}; }
-    return m_pRootTheatre->GetParent(mUID);
+    if(!my_theatre()) { return {}; }
+    return my_theatre()->GetParent(mUID);
 }
 
 Error Thinker::SetParent(ID inParentID)
 {
-    if(!m_pRootTheatre) { return ERR_NULLPTR; }
-    return m_pRootTheatre->SetParent(mUID, inParentID);
+    if(!my_theatre()) { return ERR_NULLPTR; }
+    return my_theatre()->SetParent(mUID, inParentID);
 }
 
 Error Thinker::DropParent()
 {
-    if(!m_pRootTheatre) { return ERR_NULLPTR; }
-    return m_pRootTheatre->DropParent(mUID);
+    if(!my_theatre()) { return ERR_NULLPTR; }
+    return my_theatre()->DropParent(mUID);
 }

@@ -10,7 +10,7 @@ using namespace TheatreFile;
 void Camera2D::Ready()
 {
     if(mInitCurrent)
-        { m_pRootTheatre->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(mUID); }
+        { my_theatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera2D(mUID); }
 }
 
 void Camera2D::SetVariables(Farg<ThingData> data)
@@ -39,12 +39,12 @@ ID Camera2D::ViewportID() const
 { return mViewportID; }
 
 bool Camera2D::Current() const
-{ return m_pRootTheatre->GetThinker<Viewport>(mViewportID)->CurrentCamera() == mUID; }
+{ return my_theatre()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == mUID; }
 
 Error Camera2D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
-    return m_pRootTheatre
+    return my_theatre()
         ->GetThinker<Viewport>(mViewportID)
             ->SetCurrentCamera((isCurrent) ? mUID : ID::Invalid);
 }

@@ -73,72 +73,64 @@ Farg<glm::vec3> Actor3D::Scale() const
 
 glm::vec3 Actor3D::GlobalPosition() const
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { return Position(); }
-    return Position() + m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalPosition();
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { return Position() + my_theatre()->GetThinker<Actor3D>(parent)->GlobalPosition(); }
+    return Position();
 }
 
 glm::vec3 Actor3D::GlobalRotation() const
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { return Rotation(); }
-    return Rotation() + m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalRotation();
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { return Rotation() + my_theatre()->GetThinker<Actor3D>(parent)->GlobalRotation(); }
+    return Rotation();
 }
 
 glm::vec3 Actor3D::GlobalRotationDegrees() const
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { return RotationDegrees(); }
-    return RotationDegrees() + m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalRotationDegrees();
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { return RotationDegrees() + my_theatre()->GetThinker<Actor3D>(parent)->GlobalRotationDegrees(); }
+    return RotationDegrees();
 }
 
 glm::vec3 Actor3D::GlobalScale() const
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { return Scale(); }
-    return Scale() * m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalScale();
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { return Scale() * my_theatre()->GetThinker<Actor3D>(parent)->GlobalScale(); }
+    return Scale();
 }
 
 void Actor3D::SetGlobalPosition(Farg<glm::vec3> inPosition)
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { SetPosition(inPosition); }
-    SetPosition(inPosition - m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalPosition());
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { SetPosition(inPosition - my_theatre()->GetThinker<Actor3D>(parent)->GlobalPosition()); }
+    SetPosition(inPosition);
 }
 
 void Actor3D::SetGlobalRotation(Farg<glm::vec3> inRotation)
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { SetRotation(inRotation); }
-    SetRotation(inRotation - m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalRotation());
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { SetRotation(inRotation - my_theatre()->GetThinker<Actor3D>(parent)->GlobalRotation()); }
+    SetRotation(inRotation);
 }
 
 void Actor3D::SetGlobalRotationDegrees(Farg<glm::vec3> inRotationDegrees)
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { SetRotationDegrees(inRotationDegrees); }
-    SetRotationDegrees(inRotationDegrees - m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalRotationDegrees());
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { SetRotationDegrees(inRotationDegrees - my_theatre()->GetThinker<Actor3D>(parent)->GlobalRotationDegrees()); }
+    SetRotationDegrees(inRotationDegrees);
 }
 
 void Actor3D::SetGlobalScale(Farg<glm::vec3> inScale)
 {
-    auto parent{m_pRootTheatre->GetParent(mUID)};
-    if(parent.invalid()
-        or !m_pRootTheatre->DerivedFrom(parent, ThingType::Actor3D))
-            { SetScale(inScale); }
-    SetScale(inScale - m_pRootTheatre->GetThinker<Actor3D>(parent)->GlobalScale());
+    if(auto parent{my_theatre()->GetParent(mUID)};
+        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor3D))
+            { SetScale(inScale - my_theatre()->GetThinker<Actor3D>(parent)->GlobalScale()); }
+    SetScale(inScale);
 }

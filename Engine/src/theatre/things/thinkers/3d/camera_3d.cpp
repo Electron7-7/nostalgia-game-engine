@@ -14,7 +14,7 @@ void Camera3D::Ready()
     if(Settings::Engine::IsEditorHint)
     {
         PID cam_mat{"camera-mat"};
-        if(!m_pRootTheatre->ThingExists(cam_mat))
+        if(!my_theatre()->ThingExists(cam_mat))
         {
             ThingData mat_data{ThingType::Material,
                 "camera-debug-material",
@@ -23,25 +23,25 @@ void Camera3D::Ready()
             mat_data.set_variable(true, "FullBright");
             mat_data.set_variable(true, "NoTextures");
             mat_data.set_variable(glm::vec3{200.0f, 80.0f, 255.0f}, "Color");
-            m_pRootTheatre->CreateThing(mat_data);
+            my_theatre()->CreateThing(mat_data);
         }
 
         ThingData mesh_inst_data{ThingType::MeshInstance3D,{mName + "-debug-mesh-instance"}};
         print_error_enum(mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh"));
         print_error_enum(mesh_inst_data.set_variable(cam_mat, "MaterialOverride"));
         ID mesh_id{m_pRootTheatre->CreateThing(mesh_inst_data)};
-        m_pRootTheatre->SetParent(mesh_id, mUID);
+        my_theatre()->SetParent(my_theatre()->CreateThing(mesh_inst_data), mUID);
     }
 
-    auto ancestors{m_pRootTheatre->GetAllParents(mUID)};
+    auto ancestors{my_theatre()->GetAllParents(mUID)};
     for(ID parent : ancestors)
     {
-        if(m_pRootTheatre->DerivedFrom(parent, ThingType::Viewport))
+        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; break; }
     }
 
     if(mInitCurrent)
-        { m_pRootTheatre->GetThinker<Viewport>(mViewportID)->SetCurrentCamera(mUID); }
+        { my_theatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera3D(mUID); }
 }
 
 void Camera3D::SetVariables(Farg<ThingData> data)
@@ -91,12 +91,12 @@ ID Camera3D::ViewportID() const
 { return mViewportID; }
 
 bool Camera3D::Current() const
-{ return m_pRootTheatre->GetThinker<Viewport>(mViewportID)->CurrentCamera() == mUID; }
+{ return my_theatre()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == mUID; }
 
 Error Camera3D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
-    return m_pRootTheatre
+    return my_theatre()
         ->GetThinker<Viewport>(mViewportID)
             ->SetCurrentCamera((isCurrent) ? mUID : ID::Invalid);
 }
@@ -118,7 +118,7 @@ glm::mat4 Camera3D::ViewMatrix() const
 glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
-        static_cast<float>(m_pRootTheatre->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
+        static_cast<float>(my_theatre()->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
     );
