@@ -502,7 +502,7 @@ Error Theatre::DestroyThingOnly(ID inID)
     mCamera3DIDs.erase(inID);
     mCamera2DIDs.erase(inID);
     mLightIDs.erase(inID);
-    if(!m_pRegistry->RemoveID(inID[])
+    if(!m_pRegistry->RemoveID(inID)
         and !m_pRegistry->RemoveID(mThings.at(inID)->name()))
     {
         print_warning("Unable to remove [{}, {}] from the variable registry!",

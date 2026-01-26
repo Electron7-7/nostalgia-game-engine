@@ -116,7 +116,7 @@ namespace TheatreFile
                     { temp.type = ThingVarType::Child; }
 
                 if(theatre_registry
-                    and !theatre_registry->try_GetIDName(inValue[], temp.value))
+                    and !theatre_registry->try_GetIDName(inValue, temp.value))
                     { return ERR_INVALID_ID; }
 
                 if(temp.type == ThingVarType::Child)
