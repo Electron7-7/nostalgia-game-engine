@@ -4,6 +4,7 @@
 #include "things/thinkers/2d/actor_2d.hpp"
 #include "things/thinkers/2d/visual_2d.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
+#include "things/thinkers/2d/sprite_2d.hpp"
 #include "things/thinkers/2d/mesh_instance_2d.hpp"
 #include "things/thinkers/3d/actor_3d.hpp"
 #include "things/thinkers/3d/nostalgia_player_3d.hpp"
@@ -52,6 +53,7 @@ bool ThingFactory::Init()
         ADD_THING(Actor2D, Thinker)
             ADD_THING(Camera2D, Actor2D)
             ADD_THING(Visual2D, Actor2D)
+                ADD_THING(Sprite2D, Visual2D)
                 ADD_THING(MeshInstance2D, Visual2D)
 
     return m_sIsInitialized = true;
