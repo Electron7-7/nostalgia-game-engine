@@ -27,7 +27,7 @@ Error ThingData::_get_id_variable(ID& outValue,
         { outValue = inVariable.thing_uid; return OK; }
     else if(!theatre_registry)
         { return ERR_NULLPTR; }
-    else if(uint out; theatre_registry->try_GetID(inVariable.value, out))
+    else if(ID out; theatre_registry->try_GetID(inVariable.value, out))
         { outValue = out; return OK; }
     return ERR_INVALID;
 }
