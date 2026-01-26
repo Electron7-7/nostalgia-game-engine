@@ -28,7 +28,7 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_
 
 void RenderManager::Update()
 {
-    if(mCanClearWindow and mRendererAPI and GetTheatreState() != IN_LEVEL)
+    if(mCanClearWindow and mRendererAPI)
     {
         mRendererAPI->SetClearColor(Settings::Graphics::ClearColor.glm());
         mRendererAPI->Clear();

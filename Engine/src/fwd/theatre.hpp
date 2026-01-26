@@ -1,7 +1,6 @@
 #ifndef THEATRE_FWD_H
 #define THEATRE_FWD_H
 
-
 class Theatre;
 
 class VariableRegistry;

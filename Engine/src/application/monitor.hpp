@@ -1,7 +1,6 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-
 struct Monitor
 {
     MAKE_STRUCT_ARG(
