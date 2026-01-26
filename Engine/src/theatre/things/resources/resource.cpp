@@ -7,8 +7,8 @@ void Resource::SetVariables(Farg<ThingData> inData)
 {
     Thing::SetVariables(inData);
     if(std::string path{};
-        inData.get_variable(path, "File", "Data", "FilePath") == OK)
-        { m_pFileData->LoadFile(path); }
+        inData.get_variable(path, "File", "Data", "Path") == OK)
+            { m_pFileData->LoadFile(path); }
     mStatus = m_pFileData->Status();
 }
 
