@@ -1119,3 +1119,18 @@ Finished the implementation and rendering is now fucking perfect!
 Made a few tweaks and some minor fixes. I think I might want to take a look at the lighting code to see what I can do about light passing through objects. This might be a dynamic light issue and correcting it will be intensive, thus leading to me needing to implement light baking and shit, so perhaps I won't do this just yet as I still need to work on 2D rendering, fonts, and text.
 
 Oh, actually, let's make that precompiled header first.
+
+Finally finished up with the precompiled header. Compilation should be much faster now. Okay, now it's time to work on 2D rendering.
+
+I think... I think I want to split the Makefile into separate files for the editor and engine and put them in their respective directories.
+
+I did the engine's makefile but I'm gonna put that on pause and move back to the 2D rendering.
+
+[01/23/26]
+While debugging my attempt at a 2D rendering implementation, I've discovered that the problem isn't with the rendering code per-se, but rather with the maths behind it. Basically, it renders fine when I disable the matrices, so those are causing some issue. However, when starting to dive into this, I realized that I didn't like how I implemented embedded resource data and decided to move it all into `VariableRegistry`. Now that I've finished that, I can continue debugging my rendering code.
+
+Hmm, the global 3D and 2D viewports are actually the same viewport. This causes a few issues (e.g: it gets cleared twice when rendering 3D and 2D, so whichever comes last always draws over the previous one). I have a small solution for now but it needs to be fixed.
+
+Okay, I think the problems with 2D rendering were actually due to me not account for the global 2D viewport in the viewport code. Which is another reason why I should change my approach to the global viewport. I think this is exactly why Godot uses a global 'canvas' for 2D rendering.
+
+All right, I thought my engine was fucked with the resizing and camera spaces but that's actually similar to Godot... well, one of the methods it uses. See, Godot lets you change its stretch mode, aspect, scale, and scale mode; setting the mode to 'disabled' and the aspect to 'ignore' will cause the window to behave like my engine does, currently. I need to implement stretch modes as well as change how I handle the global viewport. Godot uses a root viewport as an abstraction of the global viewport (e.g: `glViewport`); I think I'll do the same and implement these stretch modes into the debugger and see what happens. It's important to note that while I *think* this can be updated while the game is running, stretch modes that retain aspect ratios rely on the root viewport's initial size.
