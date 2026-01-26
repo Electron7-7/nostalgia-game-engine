@@ -78,6 +78,12 @@ public:
     ID_UINT_OPERATOR(==)
     ID_UINT_OPERATOR(!=)
 
+    constexpr bool operator==(Farg<ID> inID) const noexcept
+    { return id_ == inID[]; }
+
+    constexpr bool operator==(Sarg inName) const noexcept
+    { return !name_.compare(inName); }
+
 protected:
     std::string name_{"N/A"};
 };

@@ -5,10 +5,10 @@
 PID::PID() noexcept:
     ID{Invalid}, name_{"N/A"} {}
 
-PID::PID(uint inID, Farg<std::string> inName) noexcept:
+PID::PID(uint inID, Sarg inName) noexcept:
     ID{inID}, name_{inName} {}
 
-PID::PID(Farg<std::string> inHashable) noexcept:
+PID::PID(Sarg inHashable) noexcept:
     ID{inHashable}, name_{inHashable} {}
 
 PID::PID(const char* inHashable) noexcept:
@@ -16,7 +16,7 @@ PID::PID(const char* inHashable) noexcept:
 
 PID::~PID() noexcept = default;
 
-Farg<std::string> PID::name() const
+Sarg PID::name() const
 { return name_; }
 
 const char* PID::c_name() const
