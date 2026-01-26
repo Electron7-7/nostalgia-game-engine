@@ -13,14 +13,16 @@
 #include "tools/stopwatch_log.hpp"
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
-#include "math/containers.hpp"
 #include "managers/manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/theatre_manager.hpp"
+#include "theatre/things/thinkers/2d/sprite_2d.hpp"
+#include "theatre/things/thinkers/2d/camera_2d.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/things/resources/material.hpp"
+#include "theatre/things/resources/texture.hpp"
 #include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "theatre/things/resources/resource.hpp"
@@ -300,6 +302,8 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
+        Checkbox("Render 3D Thinkers", &gDebugEnable3DRendering);
+        Checkbox("Render 2D Thinkers", &gDebugEnable2DRendering);
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
@@ -329,6 +333,42 @@ static void s_GeneralDebuggingWindow()
             MainWindow()->SetWindowMode((MainWindow()->IsFullscreen())
                 ? IWindow::WINDOW_MODE_WINDOWED
                 : IWindow::WINDOW_MODE_FULLSCREEN);
+        }
+        static const std::map<Settings::Graphics::StretchMode, const char*>
+            stretch_mode{
+                { Settings::Graphics::StretchMode::Disabled, "Disabled"},
+                { Settings::Graphics::StretchMode::Viewport, "Viewport"},
+            };
+        if(BeginCombo("Stretch Mode", stretch_mode.at(Settings::Graphics::Stretch::Mode)))
+        {
+            for(FAUTO [mode, name] : stretch_mode)
+            {
+                const bool is_selected{mode == Settings::Graphics::Stretch::Mode};
+                if(Selectable(name))
+                    { Settings::Graphics::Stretch::Mode = mode; }
+                if(is_selected)
+                    { SetItemDefaultFocus(); }
+            }
+            EndCombo();
+        }
+        static const std::map<Settings::Graphics::StretchAspect, const char*>
+            stretch_aspect{
+                { Settings::Graphics::StretchAspect::Ignore,     "Ignore"},
+                { Settings::Graphics::StretchAspect::Keep,       "Keep"},
+                { Settings::Graphics::StretchAspect::KeepWidth,  "KeepWidth"},
+                { Settings::Graphics::StretchAspect::KeepHeight, "KeepHeight"},
+            };
+        if(BeginCombo("Stretch Aspect", stretch_aspect.at(Settings::Graphics::Stretch::Aspect)))
+        {
+            for(FAUTO [aspect, name] : stretch_aspect)
+            {
+                const bool is_selected{aspect == Settings::Graphics::Stretch::Aspect};
+                if(Selectable(name))
+                    { Settings::Graphics::Stretch::Aspect = aspect; }
+                if(is_selected)
+                    { SetItemDefaultFocus(); }
+            }
+            EndCombo();
         }
 
 #       ifndef WAYLAND_DISPLAY
@@ -555,6 +595,7 @@ struct thing_data_buffer
                 position = actor->Position();
                 rotation = actor->RotationDegrees();
                 scale = actor->Scale();
+                combined_scale = actor->Scale().x;
                 if(auto visual3d{DCast<Visual3D>(ptr)})
                 {
                     layers_status = visual3d->Layers().status();
@@ -583,6 +624,30 @@ struct thing_data_buffer
                     activate_on_change = collider->ActivateOnNextChange();
                 }
             }
+            else if(auto actor{DCast<Actor2D>(ptr)})
+            {
+                pos2d = actor->Position();
+                rot2d = actor->RotationDegrees();
+                scale2d = actor->Scale();
+                combined_scale = actor->Scale().x;
+                if(auto visual2d{DCast<Visual2D>(ptr)})
+                {
+                    layers_status = visual2d->Layers().status();
+
+                    if(auto sprite{DCast<Sprite2D>(ptr)})
+                    {
+                        diffuseTexture = sprite->TextureID()[];
+                        wireframe = sprite->Wireframe();
+                    }
+                }
+                else if(auto camera2d{DCast<Camera2D>(ptr)})
+                {
+                    layers_status = camera2d->LayersMask().status();
+                    is_camera_current = camera2d->Current();
+                    zoom = camera2d->Zoom();
+                    combined_zoom = camera2d->Zoom().x;
+                }
+            }
         }
         else if(auto resource{DCast<Resource>(ptr)})
         {
@@ -601,6 +666,10 @@ struct thing_data_buffer
     Shared<Thing> ptr{nullptr};
     uint id{};
     std::string name{};
+    glm::vec2 zoom{},
+        pos2d{},
+        scale2d{};
+    float rot2d{};
     glm::vec3 position{},
         rotation{},
         scale{};
@@ -616,6 +685,8 @@ struct thing_data_buffer
     float fov{75.0f},
         view_near{0.001f},
         view_far{1000.0f},
+        combined_zoom{1.0f},
+        combined_scale{1.0f},
         density{02.0f},
         friction{0.0f},
         specularStrength{0.0f};
@@ -648,6 +719,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
     static std::unordered_map<ID, bool> is_hovered{};
     static uint mNewChildUID{0};
     static thing_data_buffer selected{};
+    static thing_data_buffer last_selected{};
     static int sMaxPerRow{3};
     static float thing_button_color[3]{},
         actor_button_color[3]    {0.063f, 0.392f, 0.6f},
@@ -747,7 +819,11 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     PushStyleColor(push_color_where, push_color);
                     PushID(++name_counter);
                     if(Button(button_name.data(), {(GetWindowWidth() / sMaxPerRow) - 5.0f, 0.0f}))
-                        { selected = thing_data_buffer{thing}; mNewChildUID = 0; }
+                    {
+                        last_selected = {};
+                        selected = {thing};
+                        mNewChildUID = 0;
+                    }
                     thing->mIsHoveredInDebugger = (is_hovered[uid] = IsItemHovered())
                         or is_hovered[theatre->GetParent(thing->uid())];
                     PopID();
@@ -759,11 +835,20 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             }
             if(!selected.ptr)
                 { End(); return; }
+
             BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
             // THINGS
+            BeginDisabled(!last_selected.ptr);
+                if(Button(std::format("Back{}", (last_selected.ptr) ? " (" + last_selected.name + ")" : "").data()))
+                {
+                    auto hold_me{selected};
+                    selected = last_selected;
+                    last_selected = hold_me;
+                }
+            EndDisabled();
             if(Button(std::format("Destroy {}", selected.ptr->name()).data())
                 and g_pTheatreManager->CurrentTheatre()->DestroyThing(selected.ptr->uid()))
-                { EndChild(); End(); selected = {}; return; }
+                { EndChild(); End(); selected = last_selected; return; }
             SeparatorText("Properties");
             if(UID::IsReserved(selected.id))
             {
@@ -824,7 +909,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             parent_ptr->type().name());
                         SameLine();
                         if(Button("Inspect"))
-                            { selected = thing_data_buffer{parent_ptr}; }
+                        {
+                            last_selected = selected;
+                            selected = {parent_ptr};
+                        }
                     }
                     else
                         { TextF("Invalid Parent"); }
@@ -854,12 +942,14 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     selected.position = actor->Position();
                     selected.rotation = actor->RotationDegrees();
                     selected.scale    = actor->Scale();
-                    if(DragGLMv3("Position", &selected.position, 0.05f, -200.0f, 200.0f, "%.2f"))
+                    if(DragGLMv3("Position", &selected.position, 0.05f, -2000.0f, 2000.0f, "%.2f"))
                         { actor->SetPosition(selected.position); }
                     if(DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
                         { actor->SetRotationDegrees(selected.rotation); }
-                    if(DragGLMv3("Scale", &selected.scale, 0.01f, -100.0f, 100.0f, "%.2f"))
+                    if(DragGLMv3("Scale", &selected.scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
                         { actor->SetScale(selected.scale); }
+                    if(DragFloat("Combined Scale", &selected.combined_scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
+                        { actor->SetScale(glm::vec3{selected.combined_scale}); }
                     if(auto visual3d{DCast<Visual3D>(selected.ptr)})
                     {
                         Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);
@@ -869,6 +959,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 | ImGuiColorEditFlags_DisplayRGB
                                 | ImGuiColorEditFlags_InputRGB);
 
+                        TextF("Layers Bitmask: {}", visual3d->Layers().get());
                         for(int layer_i{BitMask::min}; layer_i < BitMask::max; ++layer_i)
                         {
                             std::string layer_name{std::format("Layer #{:#02}", layer_i+1)};
@@ -902,12 +993,18 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 { mesh_instance->SetMeshID(selected.mesh); }
                             SameLine();
                             if(Button("Inspect"))
-                                { selected = {theatre->GetThing(selected.mesh)}; }
+                            {
+                                last_selected = selected;
+                                selected = {theatre->GetThing(selected.mesh)};
+                            }
                             if(InputUInt("Material Override UID", &selected.material_override, 0, 0))
                                 { mesh_instance->SetMaterialOverrideID(selected.material); }
                             SameLine();
                             if(Button("Inspect##1"))
-                                { selected = {theatre->GetThing(selected.material_override)}; }
+                            {
+                                last_selected = selected;
+                                selected = {theatre->GetThing(selected.material_override)};
+                            }
                             if(Checkbox("Wireframe", &selected.wireframe))
                                 { mesh_instance->SetWireframe(selected.wireframe); }
                             if(IsItemHovered())
@@ -916,6 +1013,7 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                     }
                     else if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                     {
+                        TextF("Layers Bitmask: {}", camera3d->LayersMask().get());
                         for(int layers_mask_i{BitMask::min}; layers_mask_i < BitMask::max; ++layers_mask_i)
                         {
                             std::string layer_name{std::format("Layer #{:#02}", layers_mask_i+1)};
@@ -931,7 +1029,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
                         SameLine();
                         if(Button("Inspect"))
-                            { selected = {cur_vp}; }
+                        {
+                            last_selected = selected;
+                            selected = {cur_vp};
+                        }
                         if(Checkbox("Current", &selected.is_camera_current))
                         {
                             print_error_enum(camera3d->SetCurrent(selected.is_camera_current));
@@ -1014,6 +1115,97 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                             { collider->SetActive(false); }
                     }
                 }
+                // 2D ACTORS
+                else if(auto actor{DCast<Actor2D>(selected.ptr)})
+                {
+                    selected.pos2d = actor->GlobalPosition();
+                    selected.rot2d = actor->GlobalRotationDegrees();
+                    selected.scale2d = actor->GlobalScale();
+                    BeginDisabled();
+                        DragGLMv2("Global Position", &selected.pos2d, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                        DragFloat("Global Rotation", &selected.rot2d, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                        DragGLMv2("Global Scale", &selected.scale2d, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
+                    EndDisabled();
+                    selected.pos2d = actor->Position();
+                    selected.rot2d = actor->RotationDegrees();
+                    selected.scale2d    = actor->Scale();
+                    if(DragGLMv2("Position", &selected.pos2d, 0.05f, -2000.0f, 2000.0f, "%.2f"))
+                        { actor->SetPosition(selected.pos2d); }
+                    if(DragFloat("Rotation", &selected.rot2d, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
+                        { actor->SetRotationDegrees(selected.rot2d); }
+                    if(DragGLMv2("Scale", &selected.scale2d, 0.01f, -1000.0f, 1000.0f, "%.2f"))
+                        { actor->SetScale(selected.scale2d); }
+                    if(DragFloat("Combined Scale", &selected.combined_scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
+                        { actor->SetScale(glm::vec2{selected.combined_scale}); }
+                    if(auto visual2d{DCast<Visual2D>(selected.ptr)})
+                    {
+                        ColorEditGLMv4("Editor Highlight Color",
+                            &visual2d->mDebugHighlight,
+                            ImGuiColorEditFlags_Float
+                                | ImGuiColorEditFlags_DisplayRGB
+                                | ImGuiColorEditFlags_InputRGB);
+
+                        TextF("Layers Bitmask: {}", visual2d->Layers().get());
+                        for(int layer_i{BitMask::min}; layer_i < BitMask::max; ++layer_i)
+                        {
+                            std::string layer_name{std::format("Layer #{:#02}", layer_i+1)};
+                            if(Checkbox(layer_name.data(), &selected.layers_status[layer_i]))
+                            {
+                                visual2d->SetLayers(selected.layers_status);
+                                selected = {visual2d};
+                            }
+                            if((layer_i+1) % 10 and layer_i != BitMask::max - 1)
+                                { SameLine(); }
+                        }
+                        if(auto sprite{DCast<Sprite2D>(selected.ptr)})
+                        {
+                            if(InputUInt("Texture UID", &selected.diffuseTexture, 0, 0))
+                                { sprite->SetTextureID(selected.diffuseTexture); }
+                            SameLine();
+                            if(Button("Inspect"))
+                            {
+                                last_selected = selected;
+                                selected = {theatre->GetThing(selected.diffuseTexture)};
+                            }
+                            if(Checkbox("Wireframe", &selected.wireframe))
+                                { sprite->SetWireframe(selected.wireframe); }
+                            if(IsItemHovered())
+                                { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
+                        }
+                    }
+                    else if(auto camera2d{DCast<Camera2D>(selected.ptr)})
+                    {
+                        TextF("Layers Bitmask: {}", camera2d->LayersMask().get());
+                        for(int layers_mask_i{BitMask::min}; layers_mask_i < BitMask::max; ++layers_mask_i)
+                        {
+                            std::string layer_name{std::format("Layer #{:#02}", layers_mask_i+1)};
+                            if(Checkbox(layer_name.data(), &selected.layers_status[layers_mask_i]))
+                            {
+                                camera2d->SetLayersMask(selected.layers_status);
+                                selected = {camera2d};
+                            }
+                            if((layers_mask_i+1) % 10 and layers_mask_i != BitMask::max - 1)
+                                { SameLine(); }
+                        }
+                        auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera2d->ViewportID())};
+                        TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
+                        SameLine();
+                        if(Button("Inspect"))
+                        {
+                            last_selected = selected;
+                            selected = {cur_vp};
+                        }
+                        if(Checkbox("Current", &selected.is_camera_current))
+                        {
+                            print_error_enum(camera2d->SetCurrent(selected.is_camera_current));
+                            selected = {camera2d};
+                        }
+                        if(DragGLMv2("Zoom", &selected.zoom, 0.1f, -100.0f, 100.0f))
+                            { camera2d->SetZoom(selected.zoom); }
+                        if(DragFloat("Combined Zoom", &selected.combined_zoom, 0.1f, -100.0f, 100.0f))
+                            { camera2d->SetZoom(selected.combined_zoom); selected.zoom = camera2d->Zoom(); }
+                    }
+                }
                 // CHILDREN
                 BeginChild("Children", {}, ImGuiChildFlags_AutoResizeY);
                     SeparatorText("Children");
@@ -1050,7 +1242,10 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                                 thing->uid()[]);
                             SameLine();
                             if(Button("Inspect"))
-                                { selected = thing_data_buffer{thing}; }
+                            {
+                                last_selected = selected;
+                                selected = {thing};
+                            }
                             PopID();
                         }
                     }
@@ -1059,13 +1254,26 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
             // RESOURCES
             else if(auto resource{DCast<Resource>(selected.ptr)})
             {
-                if(auto mesh{DCast<Mesh>(selected.ptr)})
+                if(auto texture{DCast<Texture>(selected.ptr)})
+                {
+                    auto format{texture->GetBuffer()->Format()};
+                    // auto sampler{texture->GetBuffer()->Sampler()};
+                    // TextF("Texture Buffer Name: {}", texture->GetBuffer()->ID());
+                    TextF("Width/Height: [{}, {}]", format.width, format.height);
+                    TextF("Color Channels: {}", format.channels);
+                    TextF("Type: {}", EnumPrettifier::Prettify(format.type));
+                    TextF("MipMaps: {}", format.mipmaps);
+                }
+                else if(auto mesh{DCast<Mesh>(selected.ptr)})
                 {
                     if(InputUInt("Material UID", &selected.material, 0, 0))
                         { mesh->MaterialID(selected.material); }
                     SameLine();
                     if(Button("Inspect"))
-                        { selected = {theatre->GetThing(selected.material)}; }
+                    {
+                        last_selected = selected;
+                        selected = {theatre->GetThing(selected.material)};
+                    }
                 }
                 else if(auto material{DCast<Material>(selected.ptr)})
                 {
@@ -1073,12 +1281,18 @@ void ImGui_Debugger::s_InspectTheatreWindow(bool* is_active)
                         { material->DiffuseTextureID(selected.diffuseTexture); }
                     SameLine();
                     if(Button("Inspect"))
-                        { selected = {theatre->GetThing(selected.diffuseTexture)}; }
+                    {
+                        last_selected = selected;
+                        selected = {theatre->GetThing(selected.diffuseTexture)};
+                    }
                     if(InputUInt("Specular Texture UID", &selected.specularTexture, 0, 0))
                         { material->SpecularTextureID(selected.specularTexture); }
                     SameLine();
                     if(Button("Inspect##1"))
-                        { selected = {theatre->GetThing(selected.specularTexture)}; }
+                    {
+                        last_selected = selected;
+                        selected = {theatre->GetThing(selected.specularTexture)};
+                    }
 
                     Checkbox("Ignore Lighting", &material->mFullBright);
                     ColorEditGLMv3("Diffuse Color",

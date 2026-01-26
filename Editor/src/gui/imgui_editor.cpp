@@ -177,7 +177,7 @@ void ImGui_Editor::Update()
                 { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
             if(InputManager::IsKeyDown(Key::MouseLeft))
             {
-                auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera())};
+                auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
                 auto motion{InputManager::MouseMotion()};
                 camera->SetRotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
