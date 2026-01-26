@@ -1,14 +1,13 @@
 #ifndef GRAPHICS_SETTINGS_H
 #define GRAPHICS_SETTINGS_H
 
-#include "math/containers.hpp"
-
 namespace Settings
 {
     namespace Graphics
     {
-        extern bool GlobalWireframe;
-        extern ColorRGBA ClearColor;
+
+        inline bool GlobalWireframe{false};
+        inline ColorRGBA ClearColor{0.29f, 0.34f, 0.26f, 1.0f};
     }
 }
 

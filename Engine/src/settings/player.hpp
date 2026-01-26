@@ -5,13 +5,13 @@ namespace Settings
 {
     namespace Player
     {
-        extern bool  RawMouseMotion;
-        extern float MouseSensitivity;
-        extern float MouseSensitivityScale;
-        extern float MovementSpeed;
-        extern float MovementAcceleration;
-        extern float Mass;
-        extern bool  EnableGravity;
+        inline bool  RawMouseMotion{true};
+        inline bool  EnableGravity{true};
+        inline float MouseSensitivity{0.15f};
+        inline float MouseSensitivityScale{0.5f};
+        inline float MovementSpeed{8.0f};
+        inline float MovementAcceleration{10.0f};
+        inline float Mass{10.0f};
     }
 }
 

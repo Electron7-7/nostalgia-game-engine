@@ -7,9 +7,9 @@ namespace Settings
 {
     namespace World
     {
-        extern const glm::vec3& Up();
-        extern const glm::vec3& Right();
-        extern const glm::vec3& Front();
+        extern Farg<glm::vec3> Up();
+        extern Farg<glm::vec3> Right();
+        extern Farg<glm::vec3> Front();
     }
 }
 

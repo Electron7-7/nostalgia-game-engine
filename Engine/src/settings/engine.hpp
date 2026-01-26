@@ -5,9 +5,11 @@ namespace Settings
 {
     namespace Engine
     {
-        extern int   TickRate;
-        extern float TickInterval();
-        extern bool  IsEditorHint;
+        inline int  TickRate{70};
+        inline bool IsEditorHint{false};
+
+        inline float TickInterval()
+        { return (1.0f / TickRate); }
     }
 }
 
