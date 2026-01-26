@@ -103,13 +103,6 @@ bool Theatre::Startup()
     for(auto& thing_dat : *m_pInitialState)
         { SetupOwnership(thing_dat); }
 
-    if(!mThings.contains(UID::a_Player))
-    {
-        CreateThingNoReady({ThingType::NostalgiaPlayer3D,
-            "Default NostalgiaPlayer3D",
-            {},
-            UID::a_Player});
-    }
     auto uids{ThingIDs()};
     for(ID uid : uids)
         { mThings.at(uid)->Ready(); }

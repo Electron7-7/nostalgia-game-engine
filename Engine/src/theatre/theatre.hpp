@@ -87,8 +87,8 @@ protected:
     std::string mName{"Untitled Theatre"};
     uint mIndex{ID::Invalid};
 
-    RMutex   mThingsMutex{},
-             mCallSheetMutex{};
+    RMutex mThingsMutex{},
+        mCallSheetMutex{};
     Things_t mThings{};
     IdSet_t mLightIDs{},
         mCamera3DIDs{},
