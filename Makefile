@@ -182,10 +182,10 @@ EDITR_SRCS := $(call getfiles,$(EDITR_SRC_DIRS),*.cpp)
 # TODO: Make better API headers
 HEADER_FILES := $(call getfiles,$(ENGINE_SRC_DIRS),*.hpp)
 
-export PCH_DIR    ?= $(ENGINE_SRC)/precompiled_headers
-export PCH_OUT    ?= $(BUILD_OBJS)/precompiled_headers
-ENGINE_PCH_NAME   := nostalgia.pch
-ENGINE_PCH_H_NAME := nostalgia_pch.hpp
+export PCH_DIR ?= $(ENGINE_SRC)/precompiled_headers
+export PCH_OUT ?= $(BUILD_OBJS)/precompiled_headers
+export PCH_H   := $(wildcard $(PCH_DIR)/*.hpp)
+export PCH     := $(PCH_H:$(PCH_DIR)/%_pch.hpp=$(PCH_OUT)/%.pch)
 
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(ENGINE_SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(ENGINE_SRC)/%=%)))
@@ -220,7 +220,7 @@ export DEFAULT ?= \\x1b[39m
 all: editor ;@:
 
 compile_commands: clangd
-	$(eval PCH_FLAGS = -include Engine/src/precompiled_headers/nostalgia_pch.hpp)
+	$(eval PCH_FLAGS = $(PCH_H:$(PCH_DIR)%=-include $(PCH_DIR)%)
 
 run: editor
 	@ $(BUILD_DIR)/$(EDITR)
@@ -260,7 +260,7 @@ static: headers
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(PCH_OUT)/$(ENGINE_PCH_NAME)
+	@ $(MAKE) -s $(PCH)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
@@ -274,7 +274,7 @@ dynamic: headers
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(PCH_OUT)/$(ENGINE_PCH_NAME)
+	@ $(MAKE) -s $(PCH)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
