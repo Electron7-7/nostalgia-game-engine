@@ -1,16 +1,29 @@
 #include "visual_2d.hpp"
 #include "theatre/parser.hpp"
+#include "theatre/theatre.hpp"
+#include "theatre/thing_factory.hpp"
 
 using namespace TheatreFile;
+
+void Visual2D::Ready()
+{
+    Actor2D::Ready();
+    auto ancestors{my_theatre()->GetAllParents(mUID)};
+    for(ID parent : ancestors)
+    {
+        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+            { mViewportID = parent; break; }
+    }
+}
 
 void Visual2D::SetVariables(Farg<ThingData> data)
 {
     Actor2D::SetVariables(data);
 
-    int render_layers{mVisualLayers.get()};
+    if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
+        { mVisualLayers.set(layers); }
 
-    if(data.get_variable(render_layers, "VisualLayers", "RenderLayers", "Layers") == OK)
-        { mVisualLayers.set(render_layers); }
+    data.get_variable(mDebugHighlight, "DebugHighlight");
 }
 
 Shared<ThingData> Visual2D::GetVariables() const
@@ -18,6 +31,7 @@ Shared<ThingData> Visual2D::GetVariables() const
     auto data{Actor2D::GetVariables()};
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
+    data->set_variable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }
@@ -28,36 +42,22 @@ BitMask Visual2D::Layers() const
 void Visual2D::SetLayers(BitMask inVisualLayers)
 { mVisualLayers = inVisualLayers; }
 
-IdSet_t Visual2D::Viewports() const
+ID Visual2D::Viewport() const
+{ return mViewportID; }
+
+void Visual2D::Viewport(ID inID)
+{ mViewportID = inID; }
+
+void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
-    IdSet_t output{mViewportIDs};
-    output.insert(UID::a_Global2DViewport);
-    return output;
+    Actor2D::OnAncestorRemoved(inAncestor);
+    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+        { mViewportID = UID::a_RootViewport; }
 }
 
-void Visual2D::Viewports(IdSet_arg inIDs)
-{ mViewportIDs = inIDs; }
-
-Error Visual2D::AddViewport(ID inID)
+void Visual2D::OnAncestorAdded(Relative inAncestor)
 {
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    return (mViewportIDs.insert(inID).second)
-        ? OK
-        : ERR_ALREADY_EXISTS;
+    Actor2D::OnAncestorAdded(inAncestor);
+    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+        { mViewportID = inAncestor.uid; }
 }
-
-Error Visual2D::RemoveViewport(ID inID)
-{
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    return (mViewportIDs.erase(inID))
-        ? OK
-        : ERR_NOT_FOUND;
-}
-
-void Visual2D::ClearViewports()
-{ mViewportIDs.clear(); }
-
-bool Visual2D::IsUsingViewport(ID inID) const
-{ return inID == UID::a_Global2DViewport or mViewportIDs.contains(inID); }

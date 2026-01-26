@@ -114,8 +114,8 @@ protected:
     ID    CreateThingNoReady(TheatreFile::ThingData&);
     Error DestroyThingOnly(ID);
 
-    // void Draw2DThinkers(ID, Shared<Camera2D>);
     void Draw3DThinkers(Shared<Viewport>);
+    void Draw2DThinkers(Shared<Viewport>);
 };
 
 #endif // THEATRE_H

@@ -1,23 +1,24 @@
 #include "theatre.hpp"
 #include "parser.hpp"
-#include "settings/world.hpp"
 #include "thing_factory.hpp"
+#include "things/thing.hpp"
+#include "things/thinkers/thinker.hpp"
+#include "things/thinkers/2d/camera_2d.hpp"
+#include "things/thinkers/2d/sprite_2d.hpp"
+#include "things/thinkers/3d/light_3d.hpp"
+#include "things/thinkers/3d/mesh_instance_3d.hpp"
+#include "things/thinkers/3d/camera_3d.hpp"
+#include "things/thinkers/3d/visual_3d.hpp"
+#include "things/thinkers/viewport.hpp"
+#include "things/resources/resource.hpp"
+#include "things/resources/texture.hpp"
+#include "things/resources/material.hpp"
+#include "things/resources/mesh.hpp"
 #include "filesystem/file_data.hpp"
 #include "managers/render_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
 #include "settings/graphics.hpp"
-#include "theatre/things/thing.hpp"
-#include "theatre/things/thinkers/thinker.hpp"
-#include "theatre/things/thinkers/3d/light_3d.hpp"
-#include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
-#include "theatre/things/thinkers/3d/camera_3d.hpp"
-#include "theatre/things/thinkers/3d/visual_3d.hpp"
-#include "theatre/things/thinkers/viewport.hpp"
-#include "theatre/things/resources/resource.hpp"
-#include "theatre/things/resources/texture.hpp"
-#include "theatre/things/resources/material.hpp"
-#include "theatre/things/resources/mesh.hpp"
 #include <ranges>
 
 using namespace TheatreFile;
@@ -158,6 +159,8 @@ void Theatre::Draw()
 
         if(gDebugEnable3DRendering)
             { Draw3DThinkers(viewport); }
+        if(gDebugEnable2DRendering)
+            { Draw2DThinkers(viewport); }
 
         viewport->Framebuffer()->Unbind();
     }
@@ -435,6 +438,7 @@ void Theatre::CreateEmbeddedResources()
     // "Verdana" UID::f_Verdana
     CreateThingNoReady({ThingType::Mesh,    "ErrorModel",{},          UID::m_Error});
     CreateThingNoReady({ThingType::Mesh,    "DefaultCube",{},         UID::m_Cube});
+    CreateThingNoReady({ThingType::Mesh,    "DefaultQuad",{},         UID::m_Quad});
     CreateThingNoReady({ThingType::Mesh,    "RamielModel",{},         UID::m_Ramiel});
     CreateThingNoReady({ThingType::Mesh,    "CameraModel",{},         UID::m_Camera3D});
     CreateThingNoReady({ThingType::Mesh,    "3DAxisModel",{},         UID::m_DebugAxis});
@@ -628,3 +632,66 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     }
 }
 
+void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
+{
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+
+    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
+    auto view_matrix{camera->ViewMatrix()};
+    auto projection_matrix{camera->ProjectionMatrix()};
+    auto shader{renderer_api->GetShader(Shaders::Fast2D)};
+
+    if(!mThings.contains(UID::t_Missing))
+        { CreateEmbeddedResources(); }
+
+    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
+
+    for(ID v2d_id : mVisual2DIDs)
+    {
+        auto visual2d{GetThinker<Visual2D>(v2d_id)};
+        if(!visual2d->Visible()
+            or !camera->LayersMask().contains(visual2d->Layers())
+            or (visual2d->Viewport() != UID::a_RootViewport
+                    and visual2d->Viewport() != inViewport->uid()))
+                        { continue; }
+
+        if(ThingFactory::IsDerivedFrom(visual2d->type(), ThingType::Sprite2D))
+        {
+            auto sprite{DCast<Sprite2D>(visual2d)};
+            auto texture{GetResource<Texture>(sprite->TextureID())};
+
+            if(!sprite->TextureID().invalid() and !texture->GetBuffer())
+                { texture = missing_texture; }
+
+            auto size{sprite->GlobalScale() * glm::vec2{texture->GetBuffer()->Format().width, texture->GetBuffer()->Format().height}};
+
+            auto model_matrix{glm::translate(glm::mat4{1.0f}, glm::vec3{sprite->GlobalPosition(), 0.0f})};
+            model_matrix = glm::rotate(model_matrix, sprite->GlobalRotation(), glm::vec3{0.0f, 0.0f, -1.0f});
+            model_matrix = glm::scale(model_matrix, glm::vec3{size, 1.0f});
+
+            bool use_texture {renderer_api->BindTexture(texture, 0)};
+
+            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or sprite->Wireframe());
+            renderer_api->SetFramebufferSRGB(use_texture);
+
+            shader->SetUniform("model_matrix", model_matrix);
+            shader->SetUniform("projection_matrix", projection_matrix);
+            shader->SetUniform("view_matrix", view_matrix);
+            shader->SetUniform("view_position", camera->GlobalPosition());
+            shader->SetUniform("sprite_texture",  0);
+            shader->SetUniform("use_texture",  use_texture);
+            shader->SetUniform("sprite_color", glm::vec3{1.0f});
+
+            glm::vec4 debug_highlight{sprite->mDebugHighlight};
+            debug_highlight *= (sprite->mIsHoveredInDebugger);
+            shader->SetUniform("debug_highlight", debug_highlight);
+
+            shader->Bind();
+            renderer_api->DrawIndexed(quad_mesh->MeshData());
+            renderer_api->SetFramebufferSRGB(false);
+        }
+    }
+}

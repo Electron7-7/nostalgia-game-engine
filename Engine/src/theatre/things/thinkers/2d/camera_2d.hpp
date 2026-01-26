@@ -11,6 +11,10 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
+    Farg<glm::vec2> Zoom() const;
+    void SetZoom(Farg<glm::vec2>);
+    void SetZoom(float);
+
     virtual ID ViewportID() const;
 
     virtual bool Current() const;
@@ -19,8 +23,8 @@ public:
     virtual BitMask LayersMask() const;
     virtual void SetLayersMask(BitMask inRenderLayersMask);
 
-    // glm::mat4 ViewMatrix() const;
-    // glm::mat4 ProjectionMatrix() const;
+    glm::mat4 ViewMatrix() const;
+    glm::mat4 ProjectionMatrix() const;
 
 protected:
     glm::vec2 mZoom{1.0f, 1.0f};

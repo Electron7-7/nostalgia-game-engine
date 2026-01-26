@@ -14,6 +14,7 @@ public:
     virtual void Ready() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+
     virtual void SetPosition(Farg<glm::vec2>);
     virtual void SetRotation(float);
     virtual void SetRotationDegrees(float);
@@ -38,7 +39,7 @@ protected:
     glm::vec2 mPosition{};
     float     mRotationRadians{};
     float     mRotationDegrees{};
-    glm::vec2 mScale{};
+    glm::vec2 mScale{1.0f};
 
     BitMask mLayers{};
 };

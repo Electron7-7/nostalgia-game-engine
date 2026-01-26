@@ -6,22 +6,22 @@
 class Visual2D : public Actor2D
 {
 public:
+    virtual void Ready() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
-    virtual void SetLayers(BitMask inVisualLayers);
     virtual BitMask Layers() const;
+    virtual void SetLayers(BitMask inVisualLayers);
 
-    virtual IdSet_t Viewports() const;
-    virtual void Viewports(IdSet_arg);
-    virtual Error AddViewport(ID);
-    virtual Error RemoveViewport(ID);
-    virtual void ClearViewports();
-    virtual bool IsUsingViewport(ID) const;
+    virtual ID Viewport() const;
+    virtual void Viewport(ID);
 
 protected:
     BitMask mVisualLayers{};
-    IdSet_t mViewportIDs{};
+    ID mViewportID{UID::a_RootViewport};
+
+    virtual void OnAncestorRemoved(Relative) override;
+    virtual void OnAncestorAdded(Relative) override;
 };
 
 #endif // VISUAL_2D_H
