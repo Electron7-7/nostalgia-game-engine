@@ -38,6 +38,7 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::BlinnPhong] = Shader::Create();
     mShaders[Shaders::Fullbright] = Shader::Create();
     mShaders[Shaders::SkyBox]     = Shader::Create();
+    mShaders[Shaders::Fast2D]     = Shader::Create();
 
     SetViewport(0, 0, MainWindow()->GetScale().w(), MainWindow()->GetScale().h());
 
@@ -45,6 +46,7 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
     mShaders[Shaders::Fullbright]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
     mShaders[Shaders::SkyBox]->CompileShader(GLSL_SkyBox_Vert, GLSL_SkyBox_Frag);
+    mShaders[Shaders::Fast2D]->CompileShader(GLSL_Fast2D_Vert, GLSL_Fast2D_Frag);
 #endif
     return true;
 }

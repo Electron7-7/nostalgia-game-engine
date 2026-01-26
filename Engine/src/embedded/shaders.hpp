@@ -19,6 +19,18 @@ constexpr const char GLSL_FullBright_Frag[]{
         0
 };
 
+constexpr const char GLSL_Fast2D_Vert[]{
+    #embed "shaders/GLSL/Fast2D.vert" \
+        suffix(,)
+        0
+};
+
+constexpr const char GLSL_Fast2D_Frag[]{
+    #embed "shaders/GLSL/Fast2D.frag" \
+        suffix(,)
+        0
+};
+
 constexpr const char GLSL_SkyBox_Vert[]{
     #embed "shaders/GLSL/SkyBox.vert" \
         suffix(,)

@@ -9,6 +9,7 @@ namespace Shaders
     inline constinit const uint BlinnPhong {ConstexprHash("BlinnPhong")};
     inline constinit const uint Fullbright {ConstexprHash("Fullbright")};
     inline constinit const uint SkyBox     {ConstexprHash("SkyBox")};
+    inline constinit const uint Fast2D     {ConstexprHash("Fast2D")};
     inline constinit const uint Fonts      {ConstexprHash("Fonts")};
 }
 
