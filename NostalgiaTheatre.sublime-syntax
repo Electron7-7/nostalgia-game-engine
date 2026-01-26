@@ -17,6 +17,8 @@ variables:
         \bActor2D\b |
           \bCamera2D\b |
           \bVisual2D\b |
+            \bMeshInstance2D\b |
+            \bSprite2D\b |
         \bActor3D\b |
           \bCamera3D\b |
           \bCollider3D\b |
