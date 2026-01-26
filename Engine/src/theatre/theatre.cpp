@@ -22,6 +22,9 @@
 
 using namespace TheatreFile;
 
+Theatre::Theatre() noexcept:
+    m_pRegistry{MakeShared<VariableRegistry>()} {}
+
 Theatre::Theatre(Shared<TheatreData> inData) noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{inData},
@@ -30,17 +33,7 @@ Theatre::Theatre(Shared<TheatreData> inData) noexcept:
 Theatre::Theatre(Farg<FileData> inData) noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
-{
-    TokenArray tokens{};
-    if(!print_error_enum(inData.Status()))
-        { mInitStatus = ERR_DATA_LOAD; }
-    else if(!print_error_enum(Lexer(inData, tokens)))
-        { mInitStatus = ERR_THEATRE_LEXER; }
-    else if(!print_error_enum(Parser(tokens, m_pInitialState)))
-        { mInitStatus = ERR_THEATRE_PARSER; }
-    else { mInitStatus = OK; }
-    print_error_enum(mInitStatus);
-}
+{ Load(inData); }
 
 Theatre::~Theatre() noexcept
 { Shutdown(); }
@@ -64,6 +57,19 @@ void Theatre::Input(InputEvent* inInput)
     LockGuard<RMutex> lock{mThingsMutex};
     for(auto& [id, thing] : mThings)
         { thing->Input(inInput); }
+}
+
+Error Theatre::Load(Farg<FileData> inData)
+{
+    TokenArray tokens{};
+    if(!print_error_enum(inData.Status()))
+        { mInitStatus = ERR_DATA_LOAD; }
+    else if(!print_error_enum(Lexer(inData, tokens)))
+        { mInitStatus = ERR_THEATRE_LEXER; }
+    else if(!print_error_enum(Parser(tokens, m_pInitialState)))
+        { mInitStatus = ERR_THEATRE_PARSER; }
+    else { mInitStatus = OK; }
+    return print_error_enum(mInitStatus);
 }
 
 bool Theatre::Startup()

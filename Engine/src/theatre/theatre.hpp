@@ -15,6 +15,7 @@ public:
 
     bool mDoPrintDebugLogs{false};
 
+    Theatre() noexcept;
     Theatre(Shared<TheatreFile::TheatreData>) noexcept;
     Theatre(Farg<FileData> inTheatreFileData) noexcept;
 
