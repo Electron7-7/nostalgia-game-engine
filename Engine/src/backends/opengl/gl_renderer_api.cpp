@@ -48,6 +48,27 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::SkyBox]->CompileShader(GLSL_SkyBox_Vert, GLSL_SkyBox_Frag);
     mShaders[Shaders::Fast2D]->CompileShader(GLSL_Fast2D_Vert, GLSL_Fast2D_Frag);
 #endif
+
+    EnumPrettifier::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");
+    EnumPrettifier::Assign(TEXTURE_TYPE_2D,         "TEXTURE_TYPE_2D");
+    EnumPrettifier::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
+    EnumPrettifier::Assign(TEXTURE_TYPE_1D_ARRAY,   "TEXTURE_TYPE_1D_ARRAY");
+    EnumPrettifier::Assign(TEXTURE_TYPE_2D_ARRAY,   "TEXTURE_TYPE_2D_ARRAY");
+    EnumPrettifier::Assign(TEXTURE_TYPE_3D_ARRAY,   "TEXTURE_TYPE_3D_ARRAY");
+    EnumPrettifier::Assign(TEXTURE_TYPE_CUBE,       "TEXTURE_TYPE_CUBE");
+    EnumPrettifier::Assign(TEXTURE_TYPE_CUBE_ARRAY, "TEXTURE_TYPE_CUBE_ARRAY");
+    EnumPrettifier::Assign(TEXTURE_TYPE_NONE,       "TEXTURE_TYPE_NONE");
+
+    EnumPrettifier::Assign(SAMPLER_FILTER_NEAREST, "SAMPLER_FILTER_NEAREST");
+    EnumPrettifier::Assign(SAMPLER_FILTER_LINEAR,  "SAMPLER_FILTER_LINEAR");
+    EnumPrettifier::Assign(SAMPLER_FILTER_NONE,    "SAMPLER_FILTER_NONE");
+
+    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_REPEAT,               "SAMPLER_REPEAT_MODE_REPEAT");
+    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SAMPLER_REPEAT_MODE_MIRRORED_REPEAT");
+    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE");
+    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
+    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
+
     return true;
 }
 
