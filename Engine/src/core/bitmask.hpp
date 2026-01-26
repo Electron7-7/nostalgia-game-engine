@@ -18,16 +18,20 @@ public:
     BitMask(const StatusArray& inStatusArray) noexcept;
 
     int get() const noexcept;
-    void set(int inLayers) noexcept;
+    void set(int inBits) noexcept;
     void set(const StatusArray& inStatusArray) noexcept;
-    bool contains(int inLayers) const noexcept;
+    bool contains(int inBits) const noexcept;
     bool contains(BitMask inLayers) const noexcept;
     bool status(ushort inLayerIndex) const noexcept;
     StatusArray status() const noexcept;
-    void set_layer(ushort inLayerIndex, bool inStatus) noexcept;
-    void enable(ushort inLayerIndex) noexcept;
-    void disable(ushort inLayerIndex) noexcept;
-    bool toggle(ushort inLayerIndex) noexcept;
+    void set_index(ushort inLayerIndex, bool inStatus) noexcept;
+    void enable_index(ushort inLayerIndex) noexcept;
+    void disable_index(ushort inLayerIndex) noexcept;
+    bool toggle_index(ushort inLayerIndex) noexcept;
+    void set(int inBits, bool inStatus) noexcept;
+    void enable(int inBits) noexcept;
+    void disable(int inBits) noexcept;
+    void toggle(int inBits) noexcept;
 
     std::string log(bool noLayersStatus = false) const noexcept;
 

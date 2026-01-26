@@ -16,7 +16,7 @@ void BitMask::set(int inLayers) noexcept
 void BitMask::set(const StatusArray& inArray) noexcept
 {
     for(int i{0}; i < inArray.size(); ++i)
-        { set_layer(i, inArray[i]); }
+        { set_index(i, inArray[i]); }
 }
 
 bool BitMask::contains(int inLayers) const noexcept
@@ -39,23 +39,38 @@ BitMask::StatusArray BitMask::status() const noexcept
     return output;
 }
 
-void BitMask::set_layer(ushort index, bool state) noexcept
+void BitMask::set_index(ushort index, bool state) noexcept
 {
-    if(state) { enable(index); }
-    else { disable(index); }
+    if(state) { enable_index(index); }
+    else { disable_index(index); }
 }
 
-void BitMask::enable(ushort index) noexcept
-{ layers_ |= (1 << index); }
+void BitMask::enable_index(ushort index) noexcept
+{ enable(1 << index); }
 
-void BitMask::disable(ushort index) noexcept
-{ layers_ &= ~(1 << index); }
+void BitMask::disable_index(ushort index) noexcept
+{ disable(1 << index); }
 
-bool BitMask::toggle(ushort index) noexcept
+bool BitMask::toggle_index(ushort index) noexcept
 {
-    layers_ ^= (1 << index);
+    toggle(1 << index);
     return status(index);
 }
+
+void BitMask::set(int inBits, bool inStatus) noexcept
+{
+    if(inStatus) { enable(inBits); }
+    else { disable(inBits); }
+}
+
+void BitMask::enable(int inBits) noexcept
+{ layers_ |= inBits; }
+
+void BitMask::disable(int inBits) noexcept
+{ layers_ &= ~inBits; }
+
+void BitMask::toggle(int inBits) noexcept
+{ layers_ ^= inBits; }
 
 std::string BitMask::log(bool noLayersStatus) const noexcept
 {
