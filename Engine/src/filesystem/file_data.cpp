@@ -1,27 +1,6 @@
 #include "file_data.hpp"
 #include "filesystem.hpp"
-#include "embedded/models.hpp"
-#include "embedded/images.hpp"
-#include "thirdparty/frozen/map.h"
-
-static std::map<ID, Shared<FileData>>
-sReservedFileData{
-    {UID::m_Error,            MakeShared<FileData>(Models::Error,      std::size(Models::Error),      FileType::model_OBJ)},
-    {UID::m_Cube,             MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)},
-    {UID::m_Ramiel,           MakeShared<FileData>(Models::Ramiel,     std::size(Models::Ramiel),     FileType::model_OBJ)},
-    {UID::m_Camera3D,         MakeShared<FileData>(Models::Camera,     std::size(Models::Camera),     FileType::model_OBJ)},
-    {UID::m_DebugAxis,        MakeShared<FileData>(Models::DebugAxis,  std::size(Models::DebugAxis),  FileType::model_OBJ)},
-    {UID::t_Missing,          MakeShared<FileData>(Images::Missing,    std::size(Images::Missing),    FileType::image_PNG)},
-    {UID::t_LolBit,           MakeShared<FileData>(Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG)},
-    {UID::t_LightDebug,       MakeShared<FileData>(Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG)},
-    {UID::t_COMP04_5,         MakeShared<FileData>(Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG)},
-    {UID::t_ShittySkybox,     MakeShared<FileData>(Images::SkyboxXn,   std::size(Images::SkyboxXn),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+1, MakeShared<FileData>(Images::SkyboxXp,   std::size(Images::SkyboxXp),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+2, MakeShared<FileData>(Images::SkyboxYp,   std::size(Images::SkyboxYp),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+3, MakeShared<FileData>(Images::SkyboxYn,   std::size(Images::SkyboxYn),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+4, MakeShared<FileData>(Images::SkyboxZn,   std::size(Images::SkyboxZn),   FileType::image_PNG)},
-    {UID::t_ShittySkybox[]+5, MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)},
-};
+#include "frozen/map.h"
 
 static constexpr frozen::map<std::string, FileType, 8>
 s_FileTypesByExtension{
@@ -41,15 +20,6 @@ FileType FileData::s_DetectFileType(Farg<std::string> path)
     if(!s_FileTypesByExtension.contains(extension))
         { return FileType::Unknown; }
     return s_FileTypesByExtension.at(extension);
-}
-
-Shared<FileData> FileData::s_GetReservedFileData(uint inReservedUID)
-{
-    if(auto type{UID::GetReservedType(inReservedUID)};
-        type != UID::ReservedType::NotReserved)
-            { return sReservedFileData.at(inReservedUID); }
-    print_warning("Invalid UID");
-    return MakeShared<FileData>();
 }
 
 FileData::FileData() = default;

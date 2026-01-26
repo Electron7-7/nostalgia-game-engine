@@ -6,17 +6,12 @@ using namespace TheatreFile;
 
 void Texture::Ready()
 {
-    switch(UID::GetReservedType(mUID[]))
+    VariableRegistry::try_GetResourceData(mUID, m_pImages[0]);
+    if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
     {
-    case UID::ReservedType::Texture:
-        m_pImages[0] = FileData::s_GetReservedFileData(mUID[]);
-        break;
-    case UID::ReservedType::Cubemap:
-        for(uint i{0}; i < 6; ++i)
-            { m_pImages[i] = FileData::s_GetReservedFileData(mUID[] + i); }
-        break;
-    default:
-        break;
+        // Start at `1`, because the previous `try_GetResourceData` would've started us off
+        for(uint i{1}; i < 6; ++i)
+            {VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
     }
     if(m_pImages.empty())
         { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData); }

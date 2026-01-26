@@ -1,7 +1,6 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
-
 enum class FileType : ushort
 {
     Unknown = 0,
@@ -19,7 +18,6 @@ struct FileData
 {
 public:
     static FileType s_DetectFileType(Farg<std::string> FilePath);
-    static Shared<FileData> s_GetReservedFileData(uint inReservedUID);
 
     FileData();
     FileData(const unsigned char* Data, int Size, FileType Type);
