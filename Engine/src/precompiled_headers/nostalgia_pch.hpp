@@ -11,6 +11,7 @@
 #include <format>           // IWYU pragma: keep
 #include <chrono>           // IWYU pragma: keep
 #include <concepts>         // IWYU pragma: keep
+#include <typeindex>        // IWYU pragma: keep
 #include <stdexcept>        // IWYU pragma: keep
 #include <type_traits>      // IWYU pragma: keep
 #include <sys/types.h>      // IWYU pragma: keep

@@ -1,21 +1,46 @@
 #include "variable_registry.hpp"
+#include "filesystem/file_data.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
+#include "embedded/models.hpp"
+#include "embedded/images.hpp"
+
+static auto s_pError      {MakeShared<FileData>(Models::Error,      std::size(Models::Error),      FileType::model_OBJ)};
+static auto s_pCube       {MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)};
+static auto s_pQuad       {MakeShared<FileData>(Models::Quad,       std::size(Models::Quad),       FileType::model_OBJ)};
+static auto s_pRamiel     {MakeShared<FileData>(Models::Ramiel,     std::size(Models::Ramiel),     FileType::model_OBJ)};
+static auto s_pCamera     {MakeShared<FileData>(Models::Camera,     std::size(Models::Camera),     FileType::model_OBJ)};
+static auto s_pDebugAxis  {MakeShared<FileData>(Models::DebugAxis,  std::size(Models::DebugAxis),  FileType::model_OBJ)};
+static auto s_pMissing    {MakeShared<FileData>(Images::Missing,    std::size(Images::Missing),    FileType::image_PNG)};
+static auto s_pLolBit     {MakeShared<FileData>(Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG)};
+static auto s_pLightDebug {MakeShared<FileData>(Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG)};
+static auto s_pCOMP04_5   {MakeShared<FileData>(Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG)};
+static auto s_pSkyboxXn   {MakeShared<FileData>(Images::SkyboxXn,   std::size(Images::SkyboxXn),   FileType::image_PNG)};
+static auto s_pSkyboxXp   {MakeShared<FileData>(Images::SkyboxXp,   std::size(Images::SkyboxXp),   FileType::image_PNG)};
+static auto s_pSkyboxYp   {MakeShared<FileData>(Images::SkyboxYp,   std::size(Images::SkyboxYp),   FileType::image_PNG)};
+static auto s_pSkyboxYn   {MakeShared<FileData>(Images::SkyboxYn,   std::size(Images::SkyboxYn),   FileType::image_PNG)};
+static auto s_pSkyboxZn   {MakeShared<FileData>(Images::SkyboxZn,   std::size(Images::SkyboxZn),   FileType::image_PNG)};
+static auto s_pSkyboxZp   {MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)};
 
 VariableRegistry::Enums VariableRegistry::m_sEnums{};
+VariableRegistry::ResourceData VariableRegistry::m_sResourceData{};
 
 VariableRegistry::VariableRegistry() noexcept = default;
 
 Farg<VariableRegistry::References> VariableRegistry::GetRegisteredIDs() const
 { return mReferences; }
 
-Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums() const
+Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums()
 { return m_sEnums; }
 
-bool VariableRegistry::try_GetID(Farg<std::string> inName, uint& outID) const
+Farg<VariableRegistry::ResourceData> VariableRegistry::GetRegisteredResourceData()
+{ return m_sResourceData; }
+
+bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
 {
-    if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
+    if(auto found_it{mReferences.find(inName)};
+        found_it != mReferences.end())
     {
         outID = found_it->second;
         return true;
@@ -23,20 +48,20 @@ bool VariableRegistry::try_GetID(Farg<std::string> inName, uint& outID) const
     return false;
 }
 
-bool VariableRegistry::try_GetIDName(uint inID, std::string& outName) const
+bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
 {
-    for(FARG(auto) [name, id] : mReferences)
+    for(FAUTO [name, id] : mReferences)
     {
-        if(inID == id)
+        if(id == inID)
         {
-            outName = name;
+            outName = name.name();
             return true;
         }
     }
     return false;
 }
 
-bool VariableRegistry::HasID(uint inID) const
+bool VariableRegistry::HasID(ID inID) const
 {
     for(FAUTO [name, id] : mReferences)
     {
@@ -49,35 +74,39 @@ bool VariableRegistry::HasID(uint inID) const
 bool VariableRegistry::HasID(Sarg inName) const
 { return mReferences.contains(inName); }
 
-uint VariableRegistry::GetID(Sarg inName) const
+ID VariableRegistry::GetID(Sarg inName) const
 {
-    uint out{};
+    ID out{};
     try_GetID(inName, out);
     return out;
 }
 
-std::string VariableRegistry::GetIDName(uint inID) const
+Sarg VariableRegistry::GetIDName(ID inID) const
 {
-    std::string out{};
-    try_GetIDName(inID, out);
-    return out;
+    static PID invalid{};
+    for(FAUTO [name, id] : mReferences)
+    {
+        if(inID == id)
+            { return name.name(); }
+    }
+    return invalid.name();
 }
 
-Error VariableRegistry::RegisterID(Farg<std::string> inName, uint inID, bool noCopies)
+Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
 {
     if(noCopies && mReferences.contains(inName))
     {
         print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
             inName,
-            mReferences.at(inName),
-            inID);
+            mReferences.at(inName)[],
+            inID[]);
         return ERR_ALREADY_EXISTS;
     }
     mReferences[inName] = inID;
     return OK;
 }
 
-Error VariableRegistry::RemoveID(Farg<std::string> inName)
+Error VariableRegistry::RemoveID(Sarg inName)
 {
     if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
     {
@@ -87,7 +116,7 @@ Error VariableRegistry::RemoveID(Farg<std::string> inName)
     return ERR_NOT_FOUND;
 }
 
-Error VariableRegistry::RemoveID(uint inID)
+Error VariableRegistry::RemoveID(ID inID)
 {
     for(FARG(auto) [name, id] : mReferences)
     {
@@ -105,6 +134,7 @@ void VariableRegistry::Init()
     PRINT_PRETTY_FUNCTION;
     RegisterEngineEnums();
     RegisterEngineReferences();
+    RegisterEngineResourceData();
 }
 
 void VariableRegistry::ClearIDs()
@@ -119,6 +149,85 @@ void VariableRegistry::ClearEnums()
     PRINT_PRETTY_FUNCTION;
     m_sEnums.clear();
     RegisterEngineEnums();
+}
+
+bool VariableRegistry::try_GetResourceData(Sarg inName, Shared<FileData>& outData)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { outData = data; return true; } }
+    return false;
+}
+
+bool VariableRegistry::try_GetResourceData(ID inID, Shared<FileData>& outData)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { outData = data; return true; } }
+    return false;
+}
+
+Shared<FileData> VariableRegistry::GetResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { return data; } }
+    return MakeShared<FileData>();
+}
+
+Shared<FileData> VariableRegistry::GetResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { return data; } }
+    return MakeShared<FileData>();
+}
+
+bool VariableRegistry::HasResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { return true; } }
+    return false;
+}
+
+bool VariableRegistry::HasResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { return true; } }
+    return false;
+}
+
+Error VariableRegistry::RegisterResourceData(ID inID,
+    Sarg inName,
+    Farg<Shared<FileData>> inData,
+    bool doNoCopies)
+{
+    if(doNoCopies)
+    {
+        for(FAUTO [pid, data] : m_sResourceData)
+        {
+            if(pid == inID[] or pid == inName)
+                { return ERR_ALREADY_EXISTS; }
+        }
+    }
+    m_sResourceData[{inID[], inName}] = inData;
+    return OK;
+}
+
+Error VariableRegistry::RemoveResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { m_sResourceData.erase(pid); return OK; } }
+    return ERR_NOT_FOUND;
+}
+
+Error VariableRegistry::RemoveResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID[]) { m_sResourceData.erase(pid); return OK; } }
+    return ERR_NOT_FOUND;
+}
+
+void VariableRegistry::ClearResourceData()
+{
+    m_sResourceData.clear();
+    RegisterEngineResourceData();
 }
 
 void VariableRegistry::RegisterEngineEnums()
@@ -139,12 +248,35 @@ void VariableRegistry::RegisterEngineEnums()
 
 void VariableRegistry::RegisterEngineReferences()
 {
-    mReferences["ErrorModel"]      = UID::m_Error[];
-    mReferences["DefaultCube"]     = UID::m_Cube[];
-    mReferences["RamielModel"]     = UID::m_Ramiel[];
-    mReferences["CameraModel"]     = UID::m_Camera3D[];
-    mReferences["MissingTexture"]  = UID::t_Missing[];
-    mReferences["LightTexture"]    = UID::t_LightDebug[];
-    mReferences["DoomTexture"]     = UID::t_COMP04_5[];
-    mReferences["LolBitTexture"]   = UID::t_LolBit[];
+    mReferences["ErrorModel"]      = UID::m_Error;
+    mReferences["DefaultCube"]     = UID::m_Cube;
+    mReferences["DefaultQuad"]     = UID::m_Quad;
+    mReferences["RamielModel"]     = UID::m_Ramiel;
+    mReferences["CameraModel"]     = UID::m_Camera3D;
+    mReferences["DebugAxis"]       = UID::m_DebugAxis;
+    mReferences["MissingTexture"]  = UID::t_Missing;
+    mReferences["LolBitTexture"]   = UID::t_LolBit;
+    mReferences["LightTexture"]    = UID::t_LightDebug;
+    mReferences["DoomTexture"]     = UID::t_COMP04_5;
+    mReferences["ShittySkyboxCubemap"] = UID::t_ShittySkybox;
+}
+
+void VariableRegistry::RegisterEngineResourceData()
+{
+    m_sResourceData[{ UID::m_Error[],          "ErrorModel"     }] = s_pError;
+    m_sResourceData[{ UID::m_Cube[],           "DefaultCube"    }] = s_pCube;
+    m_sResourceData[{ UID::m_Quad[],           "DefaultQuad"    }] = s_pQuad;
+    m_sResourceData[{ UID::m_Ramiel[],         "RamielModel"    }] = s_pRamiel;
+    m_sResourceData[{ UID::m_Camera3D[],       "CameraModel"    }] = s_pCamera;
+    m_sResourceData[{ UID::m_DebugAxis[],      "DebugAxis"      }] = s_pDebugAxis;
+    m_sResourceData[{ UID::t_Missing[],        "MissingTexture" }] = s_pMissing;
+    m_sResourceData[{ UID::t_LolBit[],         "LolBitTexture"  }] = s_pLolBit;
+    m_sResourceData[{ UID::t_LightDebug[],     "LightTexture"   }] = s_pLightDebug;
+    m_sResourceData[{ UID::t_COMP04_5[],       "DoomTexture"    }] = s_pCOMP04_5;
+    m_sResourceData[{ UID::t_ShittySkybox[],   "ShittySkybox01" }] = s_pSkyboxXn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+1, "ShittySkybox02" }] = s_pSkyboxXp;
+    m_sResourceData[{ UID::t_ShittySkybox[]+2, "ShittySkybox03" }] = s_pSkyboxYp;
+    m_sResourceData[{ UID::t_ShittySkybox[]+3, "ShittySkybox04" }] = s_pSkyboxYn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+4, "ShittySkybox05" }] = s_pSkyboxZn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+5, "ShittySkybox06" }] = s_pSkyboxZp;
 }

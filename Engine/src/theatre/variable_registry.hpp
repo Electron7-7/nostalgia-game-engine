@@ -1,7 +1,7 @@
 #ifndef THEATRE_VARIABLE_REGISTRY_H
 #define THEATRE_VARIABLE_REGISTRY_H
 
-#include <typeindex>
+#include "fwd/filesystem.hpp"
 
 class VariableRegistry
 {
@@ -18,31 +18,44 @@ public:
         std::type_index index{typeid(std::nullptr_t)};
     };
 
+    using ResourceData = std::map<PID, Shared<FileData>>;
+    using References   = std::map<PID, ID>;
+    using Enums        = std::map<std::string, enum_pair>;
+
     VariableRegistry() noexcept;
 
-    using References = std::map<std::string, uint>;
-    using Enums      = std::map<std::string, enum_pair>;
-
-    Farg<References> GetRegisteredIDs() const;
-    Farg<Enums>      GetRegisteredEnums() const;
+    Farg<References>   GetRegisteredIDs() const;
+    static Farg<Enums>        GetRegisteredEnums();
+    static Farg<ResourceData> GetRegisteredResourceData();
 
     void Init();
 
-    bool  try_GetID(Farg<std::string> inName, uint& outID) const;
-    bool  try_GetIDName(uint inID, std::string& outName) const;
-    uint  GetID(Sarg inName) const;
-    std::string GetIDName(uint inID) const;
-    Error RegisterID(Farg<std::string> inName, uint inID, bool doNoCopies = true);
-    Error RemoveID(Farg<std::string> inName);
-    Error RemoveID(uint inID);
+    bool  try_GetID(Sarg inName, ID& outID) const;
+    bool  try_GetIDName(ID inID, std::string& outName) const;
+    ID    GetID(Sarg inName) const;
+    Sarg  GetIDName(ID inID) const;
+    Error RegisterID(Sarg inName, ID inID, bool doNoCopies = true);
+    Error RemoveID(Sarg inName);
+    Error RemoveID(ID);
     void  ClearIDs();
-    bool  HasID(uint inID) const;
+    bool  HasID(ID) const;
     bool  HasID(Sarg inName) const;
+
+    static bool try_GetResourceData(Sarg inName, Shared<FileData>& outData);
+    static bool try_GetResourceData(ID inID, Shared<FileData>& outData);
+    static Shared<FileData> GetResourceData(Sarg inName);
+    static Shared<FileData> GetResourceData(ID inID);
+    static bool HasResourceData(Sarg inName);
+    static bool HasResourceData(ID inID);
+    static Error RegisterResourceData(ID inID, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
+    static Error RemoveResourceData(Sarg inName);
+    static Error RemoveResourceData(ID inID);
+    static void ClearResourceData();
 
     static void ClearEnums();
 
     template<IsEnum T>
-        static bool try_GetEnum(Farg<std::string> inName, T& outValue)
+        static bool try_GetEnum(Sarg inName, T& outValue)
         {
             if(auto found_it{m_sEnums.find(inName)}; found_it != m_sEnums.end())
             {
@@ -69,7 +82,7 @@ public:
         }
 
     template<IsEnum T>
-        static T GetEnum(Farg<std::string> inName)
+        static T GetEnum(Sarg inName)
         {
             T out{};
             try_GetEnum(inName, out);
@@ -85,7 +98,7 @@ public:
         }
 
     template<IsEnum T>
-        static Error RegisterEnum(Farg<std::string> inName, T inValue, bool doNoCopies = true)
+        static Error RegisterEnum(Sarg inName, T inValue, bool doNoCopies = true)
         {
             if(doNoCopies)
             {
@@ -118,7 +131,7 @@ public:
         }
 
     template<IsEnum T>
-        static Error RemoveEnum(Farg<std::string> inName, bool doRemoveCollisions = false)
+        static Error RemoveEnum(Sarg inName, bool doRemoveCollisions = false)
         {
             if(doRemoveCollisions)
             {
@@ -137,9 +150,11 @@ public:
 private:
     References mReferences{};
     static Enums m_sEnums;
+    static ResourceData m_sResourceData;
 
-    static void RegisterEngineEnums();
     void RegisterEngineReferences();
+    static void RegisterEngineEnums();
+    static void RegisterEngineResourceData();
 };
 
 #endif // THEATRE_VARIABLE_REGISTRY_H
