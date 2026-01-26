@@ -4,7 +4,6 @@
 #include "core/farg.hpp"
 #include "core/constexpr_string_hash.hpp"
 #include <vector>
-#include <unordered_set>
 
 #define __id_operator(OPERATION, TYPE, COMPARE_TO...) \
     constexpr bool operator OPERATION(TYPE inOther) const noexcept \
@@ -100,12 +99,13 @@ template<ID_t T>
         { return static_cast<size_t>(inID[]); }
     };
 
-
 using FPID      = const PID&;
-using IdSet_t   = std::unordered_set<ID>;
-using IdSet_arg = const std::unordered_set<ID>&;
+using IdSet_t   = std::set<ID>;
+using IdSet_arg = const IdSet_t&;
+using IdSetRev_t   = std::set<ID, std::greater<ID>>;
+using IdSetRev_arg = const IdSetRev_t&;
 using IdVec_t   = std::vector<ID>;
-using IdVec_arg = const std::vector<ID>&;
+using IdVec_arg = const IdVec_t&;
 
 #undef __id_operator
 #undef ID_UINT_OPERATOR
