@@ -4,7 +4,6 @@
 #include "events/event_queue.hpp"
 #include "events/action.hpp"
 #include "events/bindings.hpp"
-#include "math/containers.hpp"
 
 static std::unordered_map<std::string, InputAction> sInputActions{};
 static std::unordered_map<KeyID, std::vector<std::string>> sInputActionBindingsLookup{};

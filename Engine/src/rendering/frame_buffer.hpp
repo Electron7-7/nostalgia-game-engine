@@ -2,7 +2,6 @@
 #define FRAME_BUFFER_H
 
 #include "fwd/rendering.hpp"
-#include "math/containers.hpp"
 
 class FrameBuffer
 {
@@ -21,7 +20,7 @@ public:
     // virtual void ClearDepth(float inDepth) const = 0;
 
     static Shared<FrameBuffer> Create();
-    static Shared<FrameBuffer> Create(Farg<Scale2D> inSize);
+    static Shared<FrameBuffer> Create(Farg<Size2D> inSize);
 };
 
 #endif // FRAME_BUFFER_H

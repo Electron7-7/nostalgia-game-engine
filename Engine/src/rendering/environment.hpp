@@ -1,7 +1,6 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
-#include "math/containers.hpp"
 
 class Environment
 {

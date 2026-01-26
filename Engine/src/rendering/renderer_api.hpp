@@ -3,7 +3,6 @@
 
 #include "fwd/rendering.hpp"
 #include "fwd/theatre.hpp"
-#include "fwd/math.hpp"
 #include <glm/fwd.hpp>
 
 enum class GraphicsAPI
@@ -25,7 +24,7 @@ public:
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
 
-    virtual void SetViewport(Farg<Position2D> inPosition, Farg<Scale2D> inSize) = 0;
+    virtual void SetViewport(Farg<Position2D> inPosition, Farg<Size2D> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
     virtual void SetClearColor(double Red, double Green, double Blue, double Alpha) = 0;
     virtual void SetClearColor(Farg<glm::vec4> Color) = 0;

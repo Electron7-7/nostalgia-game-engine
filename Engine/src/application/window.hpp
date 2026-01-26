@@ -1,7 +1,6 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "fwd/math.hpp"
 #include "fwd/rendering.hpp"
 #include "application/monitor.hpp"
 #include "components/game_loop.hpp"
@@ -10,12 +9,12 @@
 #   define WINDOW_SET_POSITION_DECLARATION
 #   define WINDOW_SET_SCALE_DECLARATION
 #   define WINDOW_SET_POSITION_DEFINITION(VAR_NAME) static Error __removed(const Position2D& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Scale2D& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Size2D& VAR_NAME)
 #else  // !WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION          Error SetPosition(const Position2D&) override;
-#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Scale2D&) override;
+#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Size2D&) override;
 #   define WINDOW_SET_POSITION_DEFINITION(CLASS, VAR_NAME) Error CLASS::SetPosition(const Position2D& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Scale2D& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Size2D& VAR_NAME)
 #endif // WAYLAND_DISPLAY
 
 enum NativeWindowType : int
@@ -85,7 +84,7 @@ public:
     virtual void Update() override = 0;
 
     virtual Error SetPosition(Farg<Position2D>) { return UNIMPLEMENTED; }
-    virtual Error SetScale(Farg<Scale2D>)       { return UNIMPLEMENTED; }
+    virtual Error SetScale(Farg<Size2D>)       { return UNIMPLEMENTED; }
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;

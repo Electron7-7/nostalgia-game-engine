@@ -2,7 +2,6 @@
 #define INPUT_MANAGER_H
 
 #include "managers/manager.hpp"
-#include "fwd/math.hpp"
 #include "fwd/events.hpp"
 #include <mutex>
 

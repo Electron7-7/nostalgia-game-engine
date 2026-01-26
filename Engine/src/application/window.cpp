@@ -1,5 +1,4 @@
 #include "window.hpp"
-#include "math/containers.hpp"
 
 Size2D IWindow::GetScale() const
 { return Size2D{mData.width, mData.height}; }

@@ -54,7 +54,7 @@ void OpenGLRendererAPI::Shutdown() {}
 void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
 { SetViewport({XPosition, YPosition}, {Width, Height}); }
 
-void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Scale2D> inSize)
+void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Size2D> inSize)
 { glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
 void OpenGLRendererAPI::SetClearColor(double Red, double Green, double Blue, double Alpha)

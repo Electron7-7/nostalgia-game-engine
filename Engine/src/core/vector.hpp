@@ -1,8 +1,8 @@
-#ifndef CONTAINERS_H
-#define CONTAINERS_H
+#ifndef NOSTALGIA_VECTOR_H
+#define NOSTALGIA_VECTOR_H
 
-#include "fwd/math.hpp"
 #include "thirdparty/DearImGui/imgui.h"
+#include "core/concepts.hpp"
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <cxxabi.h>
@@ -14,12 +14,6 @@
     T  NAME() const ONLY_IF(VM) { return array_[INDEX]; }
 #define NO_OVERFLOW(INDEX) \
     (Length > INDEX) ? INDEX : (Length - 1)
-
-template<typename T, typename Base>
-    concept Derived = std::derived_from<T, Base>;
-
-template<typename T, typename U>
-    concept Same = std::same_as<T, U>;
 
 // https://stackoverflow.com/a/12877598
 template<typename T>
@@ -33,7 +27,14 @@ template<typename T>
 
 struct __vector_base {};
 
-template<ushort Length, class T, ushort M = VectorMembers::None>
+enum class VectorMembers : ushort
+{
+    None,
+    XYZ, WHL, RGBA,
+    RGB = RGBA, WH  = WHL, XY  = XYZ,
+};
+
+template<ushort Length, class T, VectorMembers M = VectorMembers::None>
         requires (Length > 1) and std::is_arithmetic_v<T>
     struct vector : __vector_base
     {
@@ -51,7 +52,7 @@ template<ushort Length, class T, ushort M = VectorMembers::None>
             constexpr vector(Args... inArgs) noexcept:
                 array_{static_cast<T>(inArgs)...} {}
 
-        template<ushort Length2, Number T2, ushort M2 = VectorMembers::None>
+        template<ushort Length2, Number T2, VectorMembers M2 = VectorMembers::None>
                 requires (Length2 > 1)
             constexpr vector(const vector<Length2,T2,M2>& inVec) noexcept
                 {
@@ -158,8 +159,8 @@ template<ushort Length, class T, ushort M = VectorMembers::None>
             return status;
         }
 
-        double AspectRatio() const noexcept ONLY_IF(WHL)
-        { return static_cast<double>(w()) / h(); }
+        double AspectRatio() const noexcept ONLY_IF(WHL or M == VectorMembers::XYZ)
+        { return static_cast<double>(array_[0]) / array_[1]; }
 
         template<glm::length_t L, typename U>
             constexpr operator glm::vec<L,U>() noexcept
@@ -252,21 +253,18 @@ template<ushort Length, class T, ushort M = VectorMembers::None>
 template<typename T>
     concept IsVector = std::derived_from<T, __vector_base>;
 
-typedef vector<2,double,VectorMembers::XYZ>  Position2D;
-typedef vector<2,double,VectorMembers::XYZ>  Motion2D;
-typedef vector<2,int,VectorMembers::WHL>     Size2D;
-typedef vector<2,int,VectorMembers::WHL>     Scale2D;
+typedef vector<2,double,VectorMembers::XY>   Position2D;
+typedef vector<2,double,VectorMembers::XY>   Motion2D;
+typedef vector<2,int,VectorMembers::WH>      Size2D;
+typedef vector<2,float,VectorMembers::XY>    Scale2D;
 typedef vector<3,double,VectorMembers::XYZ>  Position3D;
 typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
 typedef vector<3,int,VectorMembers::WHL>     Size3D;
-typedef vector<3,int,VectorMembers::WHL>     Scale3D;
+typedef vector<3,float,VectorMembers::XYZ>   Scale3D;
 typedef vector<3,double,VectorMembers::RGB>  ColorRGB;
 typedef vector<4,double,VectorMembers::RGBA> ColorRGBA;
 
-#undef Derived
-#undef Same
 #undef ONLY_IF
-#undef __INDEX_ACCESSOR
 #undef INDEX_ACCESSOR
 #undef NO_OVERFLOW
-#endif // CONTAINERS_H
+#endif // NOSTALGIA_VECTOR_H

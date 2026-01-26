@@ -32,6 +32,7 @@
 #include "core/time.hpp"                  // IWYU pragma: keep
 #include "core/error.hpp"                 // IWYU pragma: keep
 #include "core/mutex.hpp"                 // IWYU pragma: keep
+#include "core/vector.hpp"                // IWYU pragma: keep
 #include "core/macros.hpp"                // IWYU pragma: keep
 #include "core/bitmask.hpp"               // IWYU pragma: keep
 #include "core/concepts.hpp"              // IWYU pragma: keep

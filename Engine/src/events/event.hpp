@@ -3,7 +3,6 @@
 
 #include "fwd/events.hpp"
 #include "events/bindings.hpp"
-#include "math/containers.hpp"
 
 #define APP_EVENT(NAME) inline static constinit const std::string NAME{#NAME};
 #define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }

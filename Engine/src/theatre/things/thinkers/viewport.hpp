@@ -2,7 +2,6 @@
 #define VIEWPORT_H
 
 #include "theatre/things/thinkers/thinker.hpp"
-#include "math/containers.hpp"
 #include "rendering/frame_buffer.hpp"
 
 class Viewport : public Thinker

@@ -3,7 +3,6 @@
 
 #include "events/bindings.hpp"
 #include "application/window.hpp"
-#include "math/containers.hpp"
 #include "thirdparty/frozen/map.h"
 #include <GLFW/glfw3.h>
 
