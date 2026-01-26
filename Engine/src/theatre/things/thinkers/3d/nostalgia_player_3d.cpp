@@ -9,7 +9,6 @@
 #include "managers/input_manager.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
-#include "theatre/things/thinkers/3d/visual_3d.hpp"
 #include "physics/engine.hpp"
 #include "theatre/parser.hpp"
 
@@ -51,10 +50,8 @@ void NostalgiaPlayer3D::Ready()
         cam_dat.set_variable(glm::vec3{0.0f, 2.0f, -1.0f}, "Position");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
-        mCameraID = m_pRootTheatre->CreateThing(cam_dat);
-        m_pRootTheatre->SetParent(mCameraID, mUID);
-        BitMask cam_layers{};
-        cam_layers.disable(1);
+        cam_dat.set_variable(BitMask::all_enabled &~ 0b11, "LayersMask");
+        mCameraID = my_theatre()->CreateThing(cam_dat);
         my_theatre()->SetParent(mCameraID, mUID);
     }
     if(mColliderID.invalid())
@@ -74,10 +71,7 @@ void NostalgiaPlayer3D::Ready()
         TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, "PlayerDebugAxisMesh"};
         axis_dat.set_variable(mUID, "Parent");
         axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
-        ID axis_mesh{};
-        m_pRootTheatre->SetParent(axis_mesh = m_pRootTheatre->CreateThing(axis_dat), mUID);
-        BitMask layers{false};
-        layers.enable(1);
+        axis_dat.set_variable(0b1, "Layers");
         my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
     }
 }

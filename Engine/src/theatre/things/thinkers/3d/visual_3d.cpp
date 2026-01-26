@@ -20,10 +20,8 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
-    int render_layers{mVisualLayers.get()};
-
-    if(data.get_variable(render_layers, "VisualLayers", "RenderLayers", "Layers") == OK)
-        { mVisualLayers.set(render_layers); }
+    if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
+        { mVisualLayers.set(layers); }
 
     data.get_variable(mDebugHighlight, "DebugHighlight");
 }

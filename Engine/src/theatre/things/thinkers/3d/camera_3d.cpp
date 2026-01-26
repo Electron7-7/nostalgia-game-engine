@@ -27,9 +27,10 @@ void Camera3D::Ready()
         }
 
         ThingData mesh_inst_data{ThingType::MeshInstance3D,{mName + "-debug-mesh-instance"}};
-        print_error_enum(mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh"));
-        print_error_enum(mesh_inst_data.set_variable(cam_mat, "MaterialOverride"));
-        ID mesh_id{m_pRootTheatre->CreateThing(mesh_inst_data)};
+        mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
+        mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
+        mesh_inst_data.set_variable(0b1, "RenderLayers");
+        mLayersMask.disable(0b1);
         my_theatre()->SetParent(my_theatre()->CreateThing(mesh_inst_data), mUID);
     }
 
@@ -48,6 +49,8 @@ void Camera3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
 
+    if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
+        { mLayersMask.set(bitmask); }
     data.get_variable(mFOV, "FOV");
     data.get_variable(mViewCutoffNear, "Near", "CutoffNear");
     data.get_variable(mViewCutoffFar, "Far", "CutoffFar");
@@ -73,6 +76,7 @@ Shared<ThingData> Camera3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
 
+    data->set_variable(mLayersMask.get(), "RenderLayersMask");
     data->set_variable(mFOV, "FOV");
     data->set_variable(mViewCutoffNear, "Near");
     data->set_variable(mViewCutoffFar, "Far");
