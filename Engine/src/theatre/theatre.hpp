@@ -8,6 +8,9 @@
 #include "components/event_handling.hpp"
 #include "components/game_loop.hpp"
 
+inline bool gDebugEnable3DRendering{true},
+    gDebugEnable2DRendering{true};
+
 class Theatre : public OnUpdate, public OnTick, public OnInput
 {
 public:
@@ -25,9 +28,10 @@ public:
     virtual void Tick() override;
     virtual void Input(InputEvent*) override;
 
-    virtual bool Startup();
-    virtual bool Shutdown();
-    virtual void Draw();
+    virtual Error Load(Farg<FileData> inTheatreFileData);
+    virtual bool  Startup();
+    virtual bool  Shutdown();
+    virtual void  Draw();
 
     Sarg Name() const;
     uint Index() const;
@@ -46,8 +50,10 @@ public:
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
 
-    IdSet_arg GetCameras();
-    IdSet_arg GetViewports();
+    Shared<Viewport> GetRootViewport();
+    IdSet_arg GetViewports(); // Does not include the root viewport
+    IdSet_arg Get3DCameras();
+    IdSet_arg Get2DCameras();
 
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
@@ -84,14 +90,16 @@ protected:
     RMutex   mThingsMutex{},
              mCallSheetMutex{};
     Things_t mThings{};
-    IdSet_t  mLightIDs{},
-             mCameraIDs{},
-             mVisual3DIDs{},
-             mVisual2DIDs{},
-             mViewportIDs{};
+    IdSet_t mLightIDs{},
+        mCamera3DIDs{},
+        mCamera2DIDs{},
+        mVisual3DIDs{},
+        mVisual2DIDs{},
+        mViewportIDs{};
     CallSheet mCallSheet{};
     UID mUIDs{};
 
+    Shared<Viewport> m_pRootViewport{nullptr};
     Shared<VariableRegistry> m_pRegistry{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
 
@@ -106,8 +114,8 @@ protected:
     ID    CreateThingNoReady(TheatreFile::ThingData&);
     Error DestroyThingOnly(ID);
 
-    void Draw3DThinkers(ID, Shared<Camera3D>);
     // void Draw2DThinkers(ID, Shared<Camera2D>);
+    void Draw3DThinkers(Shared<Viewport>);
 };
 
 #endif // THEATRE_H

@@ -15,8 +15,11 @@ public:
     Farg<Shared<FrameBuffer>> Framebuffer() const;
     void SetFramebuffer(Shared<FrameBuffer>);
 
-    ID CurrentCamera();
-    Error SetCurrentCamera(ID);
+    ID CurrentCamera3D();
+    Error SetCurrentCamera3D(ID = ID::Invalid);
+
+    ID CurrentCamera2D();
+    Error SetCurrentCamera2D(ID = ID::Invalid);
 
     Size2D Size() const;
     void SetSize(Farg<Size2D>);
@@ -24,7 +27,8 @@ public:
 protected:
     Shared<FrameBuffer> mFramebuffer{nullptr};
     Size2D mSize{512, 512};
-    ID mCurrentCamera{};
+    ID mCurrentCamera3D{},
+        mCurrentCamera2D{};
 };
 
 #endif // VIEWPORT_H

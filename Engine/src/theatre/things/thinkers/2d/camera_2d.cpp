@@ -59,7 +59,7 @@ void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor2D::OnAncestorRemoved(inAncestor);
     if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
-        { mViewportID = UID::a_Global2DViewport; }
+        { mViewportID = UID::a_RootViewport; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)

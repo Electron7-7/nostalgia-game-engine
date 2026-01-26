@@ -25,7 +25,7 @@ public:
 protected:
     glm::vec2 mZoom{1.0f, 1.0f};
     bool mInitCurrent{false};
-    ID mViewportID{UID::a_Global2DViewport};
+    ID mViewportID{UID::a_RootViewport};
     BitMask mLayersMask{};
 
     virtual void OnAncestorRemoved(Relative) override;

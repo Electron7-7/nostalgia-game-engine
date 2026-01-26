@@ -30,7 +30,7 @@ public:
 
 protected:
     bool mInitCurrent{true};
-    ID mViewportID{UID::a_Global3DViewport};
+    ID mViewportID{UID::a_RootViewport};
     BitMask mLayersMask{};
 
     virtual void OnAncestorRemoved(Relative) override;

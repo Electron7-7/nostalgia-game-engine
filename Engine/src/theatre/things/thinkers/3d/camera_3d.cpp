@@ -98,7 +98,7 @@ Error Camera3D::SetCurrent(bool isCurrent)
     if(isCurrent == Current()) { return OK; }
     return my_theatre()
         ->GetThinker<Viewport>(mViewportID)
-            ->SetCurrentCamera((isCurrent) ? mUID : ID::Invalid);
+            ->SetCurrentCamera3D((isCurrent) ? mUID : ID::Invalid);
 }
 
 BitMask Camera3D::LayersMask() const
@@ -128,7 +128,7 @@ void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
     if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
-        { mViewportID = UID::a_Global3DViewport; }
+        { mViewportID = UID::a_RootViewport; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)

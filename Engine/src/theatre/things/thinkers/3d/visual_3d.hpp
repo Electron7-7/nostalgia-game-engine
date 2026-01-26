@@ -9,6 +9,7 @@ public:
     bool mOverrideEnableDebugHighlight{false};
     glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 1.0f};
 
+    virtual void Ready() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
@@ -20,7 +21,7 @@ public:
 
 protected:
     BitMask mVisualLayers{};
-    ID mViewportID{UID::a_Global3DViewport};
+    ID mViewportID{UID::a_RootViewport};
 
     virtual void OnAncestorRemoved(Relative) override;
     virtual void OnAncestorAdded(Relative) override;

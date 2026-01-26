@@ -9,10 +9,15 @@ using namespace TheatreFile;
 
 void Viewport::Ready()
 {
-    if(mUID == UID::a_Global3DViewport or mUID == UID::a_Global2DViewport)
-        { mFramebuffer = FrameBuffer::Create(); }
-    else
+    if(mUID != UID::a_RootViewport)
         { mFramebuffer = FrameBuffer::Create(mSize); }
+    else
+        { mFramebuffer = FrameBuffer::Create(); }
+
+    if(mCurrentCamera3D.invalid())
+        { SetCurrentCamera3D(); }
+    if(mCurrentCamera2D.invalid())
+        { SetCurrentCamera2D(); }
 }
 
 void Viewport::Shutdown()
@@ -35,34 +40,52 @@ Shared<ThingData> Viewport::GetVariables() const
     return data;
 }
 
-ID Viewport::CurrentCamera()
-{ return mCurrentCamera; }
+ID Viewport::CurrentCamera3D()
+{ return mCurrentCamera3D; }
 
-static bool s_IsValidCamera(Theatre* inTheatre, ID inCameraID, ID inViewportID)
-{
-    if(inTheatre->DerivedFrom(inCameraID, ThingType::Camera3D))
-        { return inTheatre->GetThinker<Camera3D>(inCameraID)->ViewportID() == inViewportID; }
-    else if(inTheatre->DerivedFrom(inCameraID, ThingType::Camera2D))
-        { return inTheatre->GetThinker<Camera2D>(inCameraID)->ViewportID() == inViewportID; }
-    return false;
-}
+ID Viewport::CurrentCamera2D()
+{ return mCurrentCamera2D; }
 
-Error Viewport::SetCurrentCamera(ID inID)
+Error Viewport::SetCurrentCamera3D(ID inID)
 {
     IdSet_t descendants{inID};
     if(inID.invalid())
     {
-        descendants = (mUID == UID::a_Global3DViewport or mUID == UID::a_Global2DViewport)
-            ? my_theatre()->GetCameras()
-            : my_theatre()->GetAllChildren(mUID);
+        if(mUID == UID::a_RootViewport)
+            { descendants = my_theatre()->Get3DCameras(); }
+        else
+            { descendants = my_theatre()->GetAllChildren(mUID); }
     }
 
     for(ID descendant : descendants)
     {
-        if(s_IsValidCamera(m_pRootTheatre, descendant, mUID)
-            and mCurrentCamera != descendant)
+        if(mCurrentCamera3D != descendant
+            and my_theatre()->GetThinker<Camera3D>(descendant)->ViewportID() == mUID)
         {
-            mCurrentCamera = descendant;
+            mCurrentCamera3D = descendant;
+            return OK;
+        }
+    }
+    return ERR_NOT_FOUND;
+}
+
+Error Viewport::SetCurrentCamera2D(ID inID)
+{
+    IdSet_t descendants{inID};
+    if(inID.invalid())
+    {
+        if(mUID == UID::a_RootViewport)
+            { descendants = my_theatre()->Get2DCameras(); }
+        else
+            { descendants = my_theatre()->GetAllChildren(mUID); }
+    }
+
+    for(ID descendant : descendants)
+    {
+        if(mCurrentCamera2D != descendant
+            and my_theatre()->GetThinker<Camera2D>(descendant)->ViewportID() == mUID)
+        {
+            mCurrentCamera2D = descendant;
             return OK;
         }
     }
@@ -71,7 +94,7 @@ Error Viewport::SetCurrentCamera(ID inID)
 
 Size2D Viewport::Size() const
 {
-    return (mUID == UID::a_Global3DViewport)
+    return (mUID == UID::a_RootViewport)
         ? MainWindow()->GetScale()
         : mSize;
 }
@@ -83,14 +106,13 @@ void Viewport::SetSize(Farg<Size2D> inSize)
 {
     if(mSize == inSize)
         { return; }
-    else if(mUID != UID::a_Global3DViewport)
-        { mFramebuffer = FrameBuffer::Create(inSize); }
+    mFramebuffer = FrameBuffer::Create(inSize);
     mSize = inSize;
 }
 
 void Viewport::SetFramebuffer(Shared<FrameBuffer> inFramebuffer)
 {
-    if(mUID == UID::a_Global3DViewport)
+    if(mUID == UID::a_RootViewport)
         { return; }
     mFramebuffer = inFramebuffer;
 }

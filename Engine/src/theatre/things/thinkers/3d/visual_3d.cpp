@@ -1,8 +1,20 @@
 #include "visual_3d.hpp"
 #include "theatre/parser.hpp"
+#include "theatre/theatre.hpp"
 #include "theatre/thing_factory.hpp"
 
 using namespace TheatreFile;
+
+void Visual3D::Ready()
+{
+    Actor3D::Ready();
+    auto ancestors{my_theatre()->GetAllParents(mUID)};
+    for(ID parent : ancestors)
+    {
+        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+            { mViewportID = parent; break; }
+    }
+}
 
 void Visual3D::SetVariables(Farg<ThingData> data)
 {
@@ -42,7 +54,7 @@ void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
     if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
-        { mViewportID = UID::a_Global3DViewport; }
+        { mViewportID = UID::a_RootViewport; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)

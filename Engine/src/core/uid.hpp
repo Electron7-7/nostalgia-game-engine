@@ -14,10 +14,9 @@ public:
 
     static constexpr ID
     // Reserved Non-Specific UIDs
-        a_Player           {0x01},
-        a_EditorViewport   {0x02},
-        a_Global2DViewport {0x03},
-        a_Global3DViewport {0x04},
+        a_Player         {0x01},
+        a_EditorViewport {0x02},
+        a_RootViewport   {0x03},
     // Reserved Texture UIDs
         t_Missing          {0x10}, // 16
         t_LightDebug       {0x11}, // 17
