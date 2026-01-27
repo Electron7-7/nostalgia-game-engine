@@ -1,7 +1,6 @@
 #ifndef THING_TYPE_H
 #define THING_TYPE_H
 
-
 #define TYPE_ID(TYPE) inline static const PID TYPE{#TYPE};
 
 struct ThingType

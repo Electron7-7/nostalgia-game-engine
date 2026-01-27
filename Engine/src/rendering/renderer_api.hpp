@@ -2,8 +2,7 @@
 #define RENDERER_API_H
 
 #include "fwd/rendering.hpp"
-#include "fwd/theatre.hpp"
-#include <glm/fwd.hpp>
+#include "fwd/things.hpp"
 
 enum class GraphicsAPI
 {

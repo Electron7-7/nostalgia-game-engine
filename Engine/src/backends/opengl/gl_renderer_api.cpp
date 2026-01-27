@@ -10,8 +10,6 @@
 #include "settings/world.hpp"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/vec4.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
 
 bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{false};
@@ -39,6 +37,7 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::Fullbright] = Shader::Create();
     mShaders[Shaders::SkyBox]     = Shader::Create();
     mShaders[Shaders::Fast2D]     = Shader::Create();
+    mShaders[Shaders::Fonts]      = Shader::Create();
 
     SetViewport(0, 0, MainWindow()->GetScale().w(), MainWindow()->GetScale().h());
 

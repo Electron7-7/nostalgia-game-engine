@@ -2,7 +2,6 @@
 #define MESH_H
 
 #include "fwd/rendering.hpp"
-#include "theatre/things/resources/resource.hpp"
 
 class Mesh : public Resource
 {

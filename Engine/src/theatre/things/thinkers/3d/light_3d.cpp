@@ -6,7 +6,6 @@
 #else  // !DEBUGGING
 #   define TRUE_IF_DEBUGGING(boolean) boolean = false
 #endif // DEBUGGING
-#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 

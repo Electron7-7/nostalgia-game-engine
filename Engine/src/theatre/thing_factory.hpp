@@ -1,9 +1,6 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#include "fwd/theatre.hpp"
-#include "theatre/thing_type.hpp"
-
 typedef Shared<Thing> (*pThingMakerTemplate_t)();
 
 // This is a class instead of a namespace because fuck typing anything

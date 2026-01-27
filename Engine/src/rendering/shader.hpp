@@ -1,8 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <glm/fwd.hpp>
-
 #pragma message("TODO: remove/move namespace 'Shaders'")
 namespace Shaders
 {

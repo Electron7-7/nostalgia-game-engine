@@ -1,5 +1,4 @@
 #include "sprite_2d.hpp"
-#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 

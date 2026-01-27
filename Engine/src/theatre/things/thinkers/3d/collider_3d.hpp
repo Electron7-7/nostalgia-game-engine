@@ -2,7 +2,6 @@
 #define COLLIDER_H
 
 #include "theatre/things/thinkers/3d/actor_3d.hpp"
-#include <glm/fwd.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/Body.h>
 

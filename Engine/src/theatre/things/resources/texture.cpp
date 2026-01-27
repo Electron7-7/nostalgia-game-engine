@@ -1,6 +1,6 @@
 #include "texture.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "theatre/parser.hpp"
+#include "theatre/variable_registry.hpp"
 
 using namespace TheatreFile;
 

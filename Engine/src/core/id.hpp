@@ -4,6 +4,7 @@
 #include "core/farg.hpp"
 #include "core/constexpr_string_hash.hpp"
 #include <vector>
+#include <set>
 
 #define __id_operator(OPERATION, TYPE, COMPARE_TO...) \
     constexpr bool operator OPERATION(TYPE inOther) const noexcept \

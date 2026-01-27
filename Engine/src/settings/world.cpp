@@ -1,5 +1,4 @@
 #include "world.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
 
 using namespace Settings;
 

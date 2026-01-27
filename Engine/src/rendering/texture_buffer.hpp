@@ -1,7 +1,6 @@
 #ifndef TEXTURE_BUFFER_H
 #define TEXTURE_BUFFER_H
 
-#include "fwd/filesystem.hpp"
 #include "rendering/common.hpp"
 
 enum TextureType : int

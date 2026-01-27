@@ -1,10 +1,6 @@
 #ifndef ACTOR_3D_H
 #define ACTOR_3D_H
 
-#include "theatre/things/thinkers/thinker.hpp"
-#include <glm/vec3.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-
 // Similar to Godot's `Node3D`
 class Actor3D : public Thinker
 {

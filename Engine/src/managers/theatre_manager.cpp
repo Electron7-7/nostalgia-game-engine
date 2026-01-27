@@ -1,8 +1,6 @@
 #include "theatre_manager.hpp"
-#include "filesystem/file_data.hpp"
-#include "theatre/thing_factory.hpp"
 #include "theatre/theatre.hpp"
-#include "theatre/parser.hpp"
+#include "theatre/theatre_data.hpp"
 
 using namespace ManagerEnums;
 

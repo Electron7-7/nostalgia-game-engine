@@ -1,5 +1,3 @@
-#include "thing.hpp"
-#include "theatre/thing_factory.hpp"
 #include "theatre/parser.hpp"
 #include "theatre/theatre.hpp"
 

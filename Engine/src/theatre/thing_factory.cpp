@@ -1,5 +1,3 @@
-#include "thing_factory.hpp"
-#include "thing_type.hpp"
 #include "things/thinkers/thinker.hpp"
 #include "things/thinkers/2d/actor_2d.hpp"
 #include "things/thinkers/2d/visual_2d.hpp"

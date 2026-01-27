@@ -1,17 +1,15 @@
 #ifndef THEATRE_H
 #define THEATRE_H
 
-#include "fwd/filesystem.hpp"
 #include "fwd/theatre.hpp"
-#include "theatre/variable_registry.hpp"
+#include "fwd/things.hpp"
 #include "theatre/call_sheet.hpp"
-#include "components/event_handling.hpp"
-#include "components/game_loop.hpp"
+#include "theatre/variable_registry.hpp"
 
 inline bool gDebugEnable3DRendering{true},
     gDebugEnable2DRendering{true};
 
-class Theatre : public OnUpdate, public OnTick, public OnInput
+class Theatre
 {
 public:
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
@@ -24,9 +22,9 @@ public:
 
     virtual ~Theatre() noexcept;
 
-    virtual void Update() override;
-    virtual void Tick() override;
-    virtual void Input(InputEvent*) override;
+    virtual void Update();
+    virtual void Tick();
+    virtual void Input(InputEvent*);
 
     virtual Error Load(Farg<FileData> inTheatreFileData);
     virtual bool  Startup();

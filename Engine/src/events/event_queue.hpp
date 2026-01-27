@@ -2,7 +2,6 @@
 #define EVENT_QUEUE_H
 
 #include "event.hpp"
-#include <mutex>
 
 using event_queue_t = std::vector<Shared<IEvent>>;
 
@@ -17,7 +16,7 @@ public:
     template<is_event T, class... Args> requires std::is_constructible_v<T, Args...>
         void add(Args... inArgs)
         {
-            const std::lock_guard<std::recursive_mutex> lock{mEventsMutex};
+            LockGuard<RMutex> lock{mEventsMutex};
             if(!mEvents.empty())
             {
                 for(auto it{mEvents.cbegin()}; it != mEvents.cend(); ++it)
@@ -33,7 +32,7 @@ public:
     template<is_event T>
         void erase(Farg<T> inEvent, bool beThoroughButAlsoSlow = false) noexcept
         {
-            const std::lock_guard<std::recursive_mutex> lock{mEventsMutex};
+            LockGuard<RMutex> lock{mEventsMutex};
             for(auto it{mEvents.begin()}; it != mEvents.end();)
             {
                 if(auto event_ptr{DCast<T>(it->get())}; event_ptr && *event_ptr == inEvent)
@@ -49,7 +48,7 @@ public:
 
 private:
     event_queue_t mEvents{};
-    std::recursive_mutex mEventsMutex{};
+    RMutex mEventsMutex{};
 };
 
 #endif // EVENT_QUEUE_H

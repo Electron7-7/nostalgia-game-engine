@@ -1,8 +1,6 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#include "fwd/core.hpp"
-
 namespace FileSystem
 {
     std::string GetProgramDirectory();

@@ -1,6 +1,7 @@
-#include "parser.hpp"
-
 using namespace TheatreFile;
+
+void ThingData::set_variable(Sarg inValue, Sarg inName)
+{ variables.emplace_back(inName, inValue, ThingVarType::String); }
 
 Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> inNames) const
 {
@@ -32,6 +33,17 @@ Error ThingData::_get_id_variable(ID& outValue,
     return ERR_INVALID;
 }
 
+void ThingData::clear()
+{
+    type = {};
+    uid  = {};
+    name.clear();
+    variables.clear();
+    parent_variable.clear();
+    children_variables.clear();
+    theatre_registry.reset();
+}
+
 ID ThingData::get_parent() const
 {
     ID out{};
@@ -51,3 +63,26 @@ IdSet_t ThingData::get_children() const
     }
     return children;
 }
+
+Error ThingData::set_variable(ID inValue, Sarg inName)
+{
+    ThingVariable temp{inName, "", ThingVarType::ID, inValue};
+    if(!inName.compare("Parent"))
+        { temp.type = ThingVarType::Parent; }
+    else if(!inName.compare("Child"))
+        { temp.type = ThingVarType::Child; }
+
+    if(theatre_registry and !theatre_registry->try_GetIDName(inValue, temp.value))
+        { return ERR_INVALID_ID; }
+
+    if(temp.type == ThingVarType::Child)
+        { children_variables.push_back(temp); }
+    else if(temp.type == ThingVarType::Parent)
+        { parent_variable = temp; }
+    else
+        { variables.push_back(temp); }
+    return OK;
+}
+
+void ThingData::set_variable(bool inValue, Sarg inName)
+{ variables.emplace_back(inName, std::format("{}", inValue), ThingVarType::Bool); }

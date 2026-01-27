@@ -1,8 +1,6 @@
 #ifndef THINKER_H
 #define THINKER_H
 
-#include "theatre/things/thing.hpp"
-
 // Similar to Godot's `Node`
 class Thinker : public Thing
 {

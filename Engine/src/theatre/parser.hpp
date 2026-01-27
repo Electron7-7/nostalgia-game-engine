@@ -1,12 +1,6 @@
 #ifndef THEATRE_PARSER_H
 #define THEATRE_PARSER_H
 
-#include "fwd/filesystem.hpp"
-#include "theatre/variable_registry.hpp"
-#include "theatre/number_parser.hpp"
-#include "math/glm_concepts.hpp"
-#include <math/glm_format.hpp> // used when converting GLM variables to strings
-
 namespace TheatreFile
 {
     /// Forward Declaration

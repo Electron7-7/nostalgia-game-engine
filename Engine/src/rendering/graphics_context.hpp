@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
-
 class IGraphicsContext
 {
 public:

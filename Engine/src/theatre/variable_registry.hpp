@@ -1,8 +1,6 @@
 #ifndef THEATRE_VARIABLE_REGISTRY_H
 #define THEATRE_VARIABLE_REGISTRY_H
 
-#include "fwd/filesystem.hpp"
-
 class VariableRegistry
 {
 public:
@@ -70,7 +68,7 @@ public:
         {
             long val{static_cast<long>(inValue)};
             std::type_index ind{typeid(T)};
-            for(FARG(auto) [name, pair] : m_sEnums)
+            for(FAUTO [name, pair] : m_sEnums)
             {
                 if(val == pair.value and ind == pair.index)
                 {

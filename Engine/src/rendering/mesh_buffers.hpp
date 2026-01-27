@@ -1,7 +1,6 @@
 #ifndef MESH_BUFFERS_H
 #define MESH_BUFFERS_H
 
-
 // Taken from Hazel [https:://github.com/TheCherno/Hazel]
 
 class IBuffer

@@ -1,9 +1,6 @@
 #ifndef GLM_FORMAT_H
 #define GLM_FORMAT_H
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-
 template<>
 struct std::formatter<glm::vec2> : std::formatter<std::string>
 {

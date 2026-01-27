@@ -1,14 +1,11 @@
 #ifndef THING_H
 #define THING_H
 
-#include "fwd/core.hpp"
 #include "fwd/theatre.hpp"
-#include "components/game_loop.hpp"
-#include "components/event_handling.hpp"
-#include "theatre/thing_type.hpp"
+#include "fwd/event_types.hpp"
 
 // Similar to Godot's `Object`
-class Thing : public OnInput, public OnTick, public OnUpdate
+class Thing
 {
 public:
     bool mIsHoveredInDebugger{false};
@@ -19,9 +16,9 @@ public:
     virtual void Free() {}
     virtual void Ready() {}
     virtual void Shutdown() {}
-    virtual void Tick() override {}
-    virtual void Update() override {}
-    virtual void Input(InputEvent*) override {}
+    virtual void Tick() {}
+    virtual void Update() {}
+    virtual void Input(InputEvent*) {}
 
     // Derived classes must call their base class' `::SetVariables` method at the start of their own implementation of `::SetVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetVariables`.
     //

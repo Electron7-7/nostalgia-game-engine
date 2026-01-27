@@ -1,4 +1,3 @@
-#include "thinker.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/parser.hpp"
 

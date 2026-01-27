@@ -3,8 +3,6 @@
 
 // Heavily plagiarizing Godot's rendering device systems
 
-#include <sys/types.h>
-
 // NOT YET IMPLEMENTED:
 // enum VertexFrequency - when I implement instanced rendering(?)
 // static const uint ATTACHMENT_UNUSED{-1} - used by other objects when not attaching to a framebuffer

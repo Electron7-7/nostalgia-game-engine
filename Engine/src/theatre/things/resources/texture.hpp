@@ -2,7 +2,6 @@
 #define TEXTURE_H
 
 #include "fwd/rendering.hpp"
-#include "theatre/things/resources/resource.hpp"
 #include "rendering/texture_buffer.hpp"
 
 class Texture : public Resource

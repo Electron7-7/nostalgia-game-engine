@@ -1,5 +1,3 @@
-#include "file_data.hpp"
-#include "filesystem.hpp"
 #include "frozen/map.h"
 
 static constexpr frozen::map<std::string, FileType, 8>

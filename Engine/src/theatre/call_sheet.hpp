@@ -1,7 +1,6 @@
 #ifndef CALL_SHEET_H
 #define CALL_SHEET_H
 
-#include "fwd/theatre.hpp"
 #include "theatre/tree.hpp"
 
 using Things_t = std::unordered_map<ID, Shared<Thing>>;

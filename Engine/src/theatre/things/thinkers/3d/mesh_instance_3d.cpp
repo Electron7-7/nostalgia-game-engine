@@ -1,5 +1,4 @@
 #include "mesh_instance_3d.hpp"
-#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 

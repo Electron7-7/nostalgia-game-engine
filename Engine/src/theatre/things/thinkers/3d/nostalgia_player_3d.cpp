@@ -1,16 +1,12 @@
 #include "nostalgia_player_3d.hpp"
-#include "camera_3d.hpp" // IWYU pragma: keep // used by g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>
-#include "managers/theatre_manager.hpp"
-#include "math/conversion.hpp"
+#include "collider_3d.hpp"
+#include "events/event.hpp"
+#include "managers/input_manager.hpp"
+#include "physics/engine.hpp"
 #include "settings/engine.hpp"
 #include "settings/world.hpp"
-#include "events/event.hpp"
 #include "settings/player.hpp"
-#include "managers/input_manager.hpp"
-#include "theatre/things/thinkers/3d/collider_3d.hpp"
-#include "theatre/things/thinkers/3d/camera_3d.hpp"
-#include "physics/engine.hpp"
-#include "theatre/parser.hpp"
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 
@@ -88,7 +84,7 @@ void NostalgiaPlayer3D::Tick()
     auto camera{my_theatre()->GetThinker<Actor3D>(mCameraID)};
     camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
 
-    auto collider{g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(mColliderID)};
+    auto collider{my_theatre()->GetThinker<Collider3D>(mColliderID)};
 
     glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
         mMovementDirection.z * Settings::Player::MovementSpeed};

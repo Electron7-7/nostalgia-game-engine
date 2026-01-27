@@ -1,8 +1,6 @@
 #ifndef WORLD_SETTINGS_H
 #define WORLD_SETTINGS_H
 
-#include <glm/fwd.hpp>
-
 namespace Settings
 {
     namespace World

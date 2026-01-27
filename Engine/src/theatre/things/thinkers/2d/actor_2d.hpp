@@ -1,10 +1,6 @@
 #ifndef ACTOR_2D_H
 #define ACTOR_2D_H
 
-#include "theatre/things/thinkers/thinker.hpp"
-#include <glm/vec4.hpp>
-#include <glm/vec2.hpp>
-
 // Similar to Godot's `Node2D`
 class Actor2D : public Thinker
 {
@@ -40,7 +36,5 @@ protected:
     float     mRotationRadians{};
     float     mRotationDegrees{};
     glm::vec2 mScale{1.0f};
-
-    BitMask mLayers{};
 };
 #endif // ACTOR_2D_H

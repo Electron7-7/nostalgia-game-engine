@@ -1,9 +1,6 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "theatre/things/resources/resource.hpp"
-#include <glm/vec3.hpp>
-
 class Material : public Resource
 {
 public:

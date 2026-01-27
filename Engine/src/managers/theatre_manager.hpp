@@ -1,7 +1,6 @@
 #ifndef THEATRE_MANAGER_H
 #define THEATRE_MANAGER_H
 
-#include "fwd/filesystem.hpp"
 #include "managers/manager.hpp"
 #include "theatre/theatre.hpp"
 

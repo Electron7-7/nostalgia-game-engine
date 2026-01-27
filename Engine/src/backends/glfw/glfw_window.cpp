@@ -8,7 +8,6 @@
 #include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
 #include <glad/glad.h>
-#include <glm/vec2.hpp>
 #include <GLFW/glfw3native.h>
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};

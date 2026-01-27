@@ -1,13 +1,11 @@
 #include "collider_3d.hpp"
 #include "physics/engine.hpp"
-#include "math/conversion.hpp"
 #include "thirdparty/frozen/map.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
-#include "theatre/parser.hpp"
 
 using namespace Math;
 using namespace TheatreFile;

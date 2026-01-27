@@ -1,7 +1,5 @@
 #include "visual_2d.hpp"
-#include "theatre/parser.hpp"
 #include "theatre/theatre.hpp"
-#include "theatre/thing_factory.hpp"
 
 using namespace TheatreFile;
 

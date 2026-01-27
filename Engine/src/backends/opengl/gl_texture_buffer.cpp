@@ -1,5 +1,4 @@
 #include "gl_texture_buffer.hpp"
-#include "filesystem/file_data.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include "thirdparty/stb_image/stb_image.h"
 #include <glad/glad.h>
