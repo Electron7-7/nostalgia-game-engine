@@ -20,7 +20,7 @@ enum Comment { SINGLE_LINE, MULTI_LINE, NO_COMMENT }; // yes, `NO_COMMENT` is a 
 static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData> outData, Context inContext);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
-Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
+Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData>& outData)
 {
     ThingData     thing_dat{};
     ThingVariable thing_var{};
