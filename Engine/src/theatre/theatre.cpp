@@ -483,6 +483,10 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
 
+    if(inViewport->CurrentCamera3D().invalid()
+        and !inViewport->SetCurrentCamera3D())
+            { return; }
+
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera3D>(inViewport->CurrentCamera3D())};
     auto view_matrix{camera->ViewMatrix()};
@@ -594,6 +598,11 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
 
+    if(inViewport->uid() != UID::a_RootViewport
+        and inViewport->CurrentCamera2D().invalid()
+        and !inViewport->SetCurrentCamera2D())
+            { return; }
+
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
     auto shader{renderer_api->GetShader(Shaders::Fast2D)};
@@ -618,10 +627,15 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             auto sprite{DCast<Sprite2D>(visual2d)};
             auto texture{GetResource<Texture>(sprite->TextureID())};
 
+            glm::vec2 texture_size{(texture->GetBuffer())
+                ? glm::vec2{texture->GetBuffer()->Format().width,
+                    texture->GetBuffer()->Format().height}
+                : glm::vec2{16.0f}};
+
             if(!sprite->TextureID().invalid() and !texture->GetBuffer())
                 { texture = missing_texture; }
 
-            auto size{sprite->GlobalScale() * glm::vec2{texture->GetBuffer()->Format().width, texture->GetBuffer()->Format().height}};
+            auto size{sprite->GlobalScale() * texture_size};
 
             auto model_matrix{glm::translate(glm::mat4{1.0f}, glm::vec3{sprite->GlobalPosition(), 0.0f})};
             model_matrix = glm::rotate(model_matrix, sprite->GlobalRotation(), glm::vec3{0.0f, 0.0f, -1.0f});

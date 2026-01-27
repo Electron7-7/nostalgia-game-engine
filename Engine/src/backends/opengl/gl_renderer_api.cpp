@@ -199,6 +199,7 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
 
 void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
+    if(!inVAO) { return; }
     inVAO->Bind();
     inVAO->GetIndexBuffer()->Bind();
     glDrawElements(GL_TRIANGLES,
@@ -211,6 +212,7 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount
 
 void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
 {
+    if(!inVAO) { return; }
     glDepthMask(GL_FALSE);
     inVAO->Bind();
     inVAO->GetIndexBuffer()->Bind();
