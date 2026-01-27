@@ -9,6 +9,7 @@
 #include "managers/event_manager.hpp"
 #include "managers/ui_manager.hpp"
 #include "settings/engine.hpp"
+#include "system/program_arguments.hpp"
 #include "ui/implementor.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
@@ -25,9 +26,11 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    Settings::Engine::IsEditorHint = true;
-
-    mMainWindow = IWindow::CreateWindow<WindowGLFW>(); // Using the default `WindowProperties` constructor
+    mMainWindow = IWindow::CreateWindow<WindowGLFW>(IWindow::Properties{std::format("{}{}",
+        _Version_Printout,
+        (Settings::Engine::IsEditorHint)
+            ? ""
+            : " (Settings::Engine::IsEditorHint == false)")});
 
     auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};
     imgui_impl->CreateSolution<ImGui_Editor>();

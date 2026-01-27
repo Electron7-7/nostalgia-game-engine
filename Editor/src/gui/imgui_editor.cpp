@@ -4,6 +4,7 @@
 #include "managers/input_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
+#include "settings/engine.hpp"
 #include "settings/world.hpp"
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
@@ -45,6 +46,8 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
+    if(!Settings::Engine::IsEditorHint)
+        { return; }
     TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
     mat_dat.set_variable(true, "NoTexture");
     mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
@@ -86,11 +89,11 @@ void ImGui_Editor::TheatreExited()
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
-    if(player->mCaptureKeyboard)
+    if(MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_DISABLED)
     {
         if(event->IsJustPressed(Key::Escape))
         {
+            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
             UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             player->mCaptureMouse    = false;
@@ -98,8 +101,10 @@ void ImGui_Editor::Input(InputEvent* event)
         }
         return;
     }
-    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift))
+    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)
+        and Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
     {
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -120,6 +125,8 @@ static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
 
 void ImGui_Editor::Update()
 {
+    if(!Settings::Engine::IsEditorHint)
+        { return; }
     static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
         ImGuiChildFlags_ResizeY |
         ImGuiChildFlags_ResizeX};
@@ -205,6 +212,8 @@ void ImGui_Editor::Update()
 
 void s_ThingAdder()
 {
+    if(!Settings::Engine::IsEditorHint)
+        { return; }
     static std::string sNewThingName{};
     static std::string sNameBuffer{};
     static glm::vec3 sSpawnLocation{0.0f};

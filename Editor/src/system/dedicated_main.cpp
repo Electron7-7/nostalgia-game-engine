@@ -2,6 +2,7 @@
 #include "app/nostalgia_goggles.hpp"
 #include "getargs/argument_parser.hpp"
 #include "application/application.hpp"
+#include "settings/engine.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -14,6 +15,7 @@ int DedicatedMain(int argc, char** argv)
     global_ArgumentParser->AddFlag(&Flags::Help);
     global_ArgumentParser->AddFlag(&Flags::Version);
     global_ArgumentParser->AddFlag(&Flags::NoColors);
+    global_ArgumentParser->AddFlag(&Flags::DisableEditorHint);
 
     int parser_status{global_ArgumentParser->ParseArguments(argc, argv)};
     if(parser_status == ARG_STATUS_FAILED)
@@ -36,6 +38,8 @@ int DedicatedMain(int argc, char** argv)
         for(int i{0}; i < 7; ++i)
             { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
     }
+
+    Settings::Engine::IsEditorHint = !Flags::DisableEditorHint.IsActive();
 
     NostalgiaGoggles application{};
     return Application()->Main();
