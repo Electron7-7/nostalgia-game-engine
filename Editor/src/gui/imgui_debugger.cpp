@@ -752,8 +752,6 @@ static void s_ThingTreeBranch(ID inUID)
     }
 }
 
-
-
 void ImGui_Debugger::InspectTheatreWindow()
 {
     static std::unordered_map<ID, bool> is_hovered{};
