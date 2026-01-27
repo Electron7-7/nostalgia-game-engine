@@ -218,11 +218,22 @@ DirectionalLight3D TheSun
     Energy = [0.6]
 }
 
-Camera2D TestCamera2D {}
-
-Sprite2D TestSprite
+Texture TestTexture1
 {
-    Texture = <MissingTexture>
+    Image = 'theatres/testing_resources/TestTexture1.png'
+}
+
+Texture TestTexture2
+{
+    Image = 'theatres/testing_resources/TestTexture2.png'
+}
+
+TestAnimatedSprite2D TestSprite
+{
+    Texture0 = <TestTexture1>
+    Texture1 = <TestTexture2>
+    Texture2 = <DoomTexture>
     Position = [1100, 550]
     Size = [2, 2]
+    Interval = [50]
 }
