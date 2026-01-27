@@ -217,3 +217,12 @@ DirectionalLight3D TheSun
     RotationDegrees = [180, 100, -25]
     Energy = [0.6]
 }
+
+Camera2D TestCamera2D {}
+
+Sprite2D TestSprite
+{
+    Texture = <MissingTexture>
+    Position = [1100, 550]
+    Size = [2, 2]
+}
