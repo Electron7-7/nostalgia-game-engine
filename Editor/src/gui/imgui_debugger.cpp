@@ -30,8 +30,22 @@
 #include "DearImGui/imgui_stdlib.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 
-// Because DearImGui loves c-strings and I don't
-#define _fmtBool(BOOL) std::format("{}", static_cast<bool>(BOOL)).data()
+#define QUICK_COMBO_THING_VAR(NAME, MAP, SELECTED_VAR, THING_SETTER) \
+if(BeginCombo(#NAME, MAP.at(selected.SELECTED_VAR))) \
+{ \
+    for(FAUTO [Enum, Name] : MAP) \
+    { \
+        const bool is_selected{Enum == selected.SELECTED_VAR}; \
+        if(Selectable(Name)) \
+        { \
+            selected.SELECTED_VAR = Enum; \
+            THING_SETTER; \
+        } \
+        if(is_selected) \
+            { SetItemDefaultFocus(); } \
+    } \
+    EndCombo(); \
+}
 
 using namespace ImGui;
 
@@ -592,7 +606,13 @@ struct thing_data_buffer
                 position = actor->Position();
                 rotation = actor->RotationDegrees();
                 scale = actor->Scale();
-                combined_scale = actor->Scale().x;
+                combined_scale = (scale.x > scale.y)
+                    ? (scale.x > scale.z)
+                        ? scale.x
+                        : scale.z
+                    : (scale.y > scale.z)
+                        ? scale.y
+                        : scale.z;
                 global_position = actor->GlobalPosition();
                 global_rotation = actor->GlobalRotationDegrees();
                 global_scale = actor->GlobalScale();
@@ -629,7 +649,9 @@ struct thing_data_buffer
                 pos2d = actor->Position();
                 rot2d = actor->RotationDegrees();
                 scale2d = actor->Scale();
-                combined_scale = actor->Scale().x;
+                combined_scale = (scale2d.x > scale2d.y)
+                    ? scale2d.x
+                    : scale2d.y;
                 global_pos2d = actor->GlobalPosition();
                 global_rot2d = actor->GlobalRotationDegrees();
                 global_scale2d = actor->GlobalScale();
@@ -663,6 +685,11 @@ struct thing_data_buffer
             else if(auto mesh{DCast<Mesh>(ptr)})
             {
                 material = mesh->MaterialID()[];
+            }
+            else if(auto texture{DCast<Texture>(ptr)})
+            {
+                texture_format = texture->Format();
+                sampler_state = texture->Sampler();
             }
         }
     }
@@ -702,6 +729,8 @@ struct thing_data_buffer
         wireframe{false},
         activate_on_change{false},
         is_camera_current{false};
+    TextureFormat texture_format{};
+    SamplerState sampler_state{};
     BitMask::StatusArray layers_status{};
     Environment::BackgroundType env_type{Environment::BackgroundType::BG_CLEAR_COLOR};
     ColliderMaterial collider_material{};
@@ -721,6 +750,8 @@ static void s_ThingTreeBranch(ID inUID)
         TreePop();
     }
 }
+
+
 
 void ImGui_Debugger::InspectTheatreWindow()
 {
@@ -922,13 +953,22 @@ void ImGui_Debugger::InspectTheatreWindow()
                     DragGLMv3("Global Scale", &selected.global_scale, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
                 EndDisabled();
                 if(DragGLMv3("Position", &selected.position, 0.05f, -2000.0f, 2000.0f, "%.2f"))
-                    { actor->SetPosition(selected.position); }
+                    { actor->SetPosition(selected.position); selected = {actor}; }
                 if(DragGLMv3("Rotation", &selected.rotation, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                    { actor->SetRotationDegrees(selected.rotation); }
+                    { actor->SetRotationDegrees(selected.rotation); selected = {actor}; }
                 if(DragGLMv3("Scale", &selected.scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
-                    { actor->SetScale(selected.scale); }
+                {
+                    actor->SetScale(selected.scale);
+                    int which_scale{(selected.scale.x != actor->Scale().x)
+                        ? 0
+                        : (selected.scale.y != actor->Scale().y)
+                            ? 1
+                            : 2};
+                    selected = {actor};
+                    selected.combined_scale = selected.scale[which_scale];
+                }
                 if(DragFloat("Combined Scale", &selected.combined_scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
-                    { actor->SetScale(glm::vec3{selected.combined_scale}); }
+                    { actor->SetScale(glm::vec3{selected.combined_scale}); selected = {actor}; }
                 if(auto visual3d{DCast<Visual3D>(selected.ptr)})
                 {
                     Checkbox("Override Editor Highlight", &visual3d->mOverrideEnableDebugHighlight);
@@ -1103,13 +1143,18 @@ void ImGui_Debugger::InspectTheatreWindow()
                     DragGLMv2("Global Scale", &selected.global_scale2d, 0, 0, 0, "%.2f", ImGuiSliderFlags_NoInput);
                 EndDisabled();
                 if(DragGLMv2("Position", &selected.pos2d, 0.05f, -2000.0f, 2000.0f, "%.2f"))
-                    { actor->SetPosition(selected.pos2d); }
+                    { actor->SetPosition(selected.pos2d); selected = {actor}; }
                 if(DragFloat("Rotation", &selected.rot2d, 0.1f, -359.995f, 359.995f, "%.2f", ImGuiSliderFlags_WrapAround))
-                    { actor->SetRotationDegrees(selected.rot2d); }
+                    { actor->SetRotationDegrees(selected.rot2d); selected = {actor}; }
                 if(DragGLMv2("Scale", &selected.scale2d, 0.01f, -1000.0f, 1000.0f, "%.2f"))
-                    { actor->SetScale(selected.scale2d); }
+                {
+                    int which_scale{(selected.scale2d.x != actor->Scale().x) ? 0 : 1};
+                    actor->SetScale(selected.scale2d);
+                    selected = {actor};
+                    selected.combined_scale = selected.scale2d[which_scale];
+                }
                 if(DragFloat("Combined Scale", &selected.combined_scale, 0.01f, -1000.0f, 1000.0f, "%.2f"))
-                    { actor->SetScale(glm::vec2{selected.combined_scale}); }
+                    { actor->SetScale(glm::vec2{selected.combined_scale}); selected = {actor}; }
                 if(auto visual2d{DCast<Visual2D>(selected.ptr)})
                 {
                     ColorEditGLMv4("Editor Highlight Color",
@@ -1229,13 +1274,26 @@ void ImGui_Debugger::InspectTheatreWindow()
         {
             if(auto texture{DCast<Texture>(selected.ptr)})
             {
-                auto format{texture->GetBuffer()->Format()};
-                // auto sampler{texture->GetBuffer()->Sampler()};
-                // TextF("Texture Buffer Name: {}", texture->GetBuffer()->ID());
-                TextF("Width/Height: [{}, {}]", format.width, format.height);
-                TextF("Color Channels: {}", format.channels);
-                TextF("Type: {}", EnumPrettifier::Prettify(format.type));
-                TextF("MipMaps: {}", format.mipmaps);
+                if(Button("ReImport Image"))
+                {
+                    if(!print_error_enum(texture->Import()))
+                        { selected = last_selected; last_selected = {}; EndChild(); End(); return; }
+                    selected = {texture};
+                }
+                TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
+                TextF("Color Channels: {}", selected.texture_format.channels);
+                TextF("Type: {}", EnumPrettifier::Prettify(selected.texture_format.type));
+                TextF("MipMaps: {}", selected.texture_format.mipmaps);
+                static const std::map<SamplerFilter, const char*> sampler_filter
+                {
+                    {SAMPLER_FILTER_NEAREST, EnumPrettifier::Prettify(SAMPLER_FILTER_NEAREST).data()},
+                    {SAMPLER_FILTER_LINEAR,  EnumPrettifier::Prettify(SAMPLER_FILTER_LINEAR).data()},
+                    {SAMPLER_FILTER_NONE,    EnumPrettifier::Prettify(SAMPLER_FILTER_NONE).data()},
+                };
+                SeparatorText("Sampler");
+                QUICK_COMBO_THING_VAR(mSampler.min_filter, sampler_filter, sampler_state.min_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
+                QUICK_COMBO_THING_VAR(mSampler.mip_filter_min, sampler_filter, sampler_state.mip_filter_min, texture->SetSampler(selected.sampler_state); selected = {texture})
+                QUICK_COMBO_THING_VAR(mSampler.mag_filter, sampler_filter, sampler_state.mag_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
             }
             else if(auto mesh{DCast<Mesh>(selected.ptr)})
             {
