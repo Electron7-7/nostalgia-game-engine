@@ -20,7 +20,7 @@ public:
     void StartTheatreTiming(bool IsTheatreLoading);
     void StopTheatreTiming(bool IsTheatreLoading);
 
-    static void s_InspectTheatreWindow(bool* is_active);
+    static void InspectTheatreWindow();
 private:
     RMutex mStopwatchMutex{};
 
