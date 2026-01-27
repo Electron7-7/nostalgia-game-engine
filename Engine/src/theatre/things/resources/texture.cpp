@@ -8,7 +8,7 @@ void Texture::Ready()
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
-    Thing::SetVariables(data);
+    Resource::SetVariables(data);
     std::string paths[6]{"","","","","",""};
     for(uint i{0}; i < 6; ++i)
     {
