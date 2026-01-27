@@ -46,7 +46,8 @@ void NostalgiaPlayer3D::Ready()
         cam_dat.set_variable(glm::vec3{0.0f, 2.0f, -1.0f}, "Position");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
-        cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask");
+        if(Settings::Engine::IsEditorHint)
+            { cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask"); }
         mCameraID = my_theatre()->CreateThing(cam_dat);
         my_theatre()->SetParent(mCameraID, mUID);
     }
