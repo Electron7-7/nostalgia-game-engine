@@ -26,9 +26,8 @@ enum SamplerRepeat : int
 struct SamplerState
 {
     SamplerFilter min_filter{SAMPLER_FILTER_LINEAR},
-        mip_filter_min{SAMPLER_FILTER_NONE},
-        mag_filter{SAMPLER_FILTER_LINEAR},
-        mip_filter_mag{SAMPLER_FILTER_NONE};
+        mip_filter_min{SAMPLER_FILTER_LINEAR},
+        mag_filter{SAMPLER_FILTER_NEAREST};
     SamplerRepeat repeat_u{SAMPLER_REPEAT_MODE_REPEAT},
         repeat_v{SAMPLER_REPEAT_MODE_REPEAT},
         repeat_w{SAMPLER_REPEAT_MODE_REPEAT};
@@ -39,9 +38,10 @@ struct SamplerState
 };
 
 inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
-    SAMPLER_FILTER_LINEAR,  SAMPLER_FILTER_LINEAR,
-    SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE, SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE, SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_NEAREST,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
     true, 16.0f
 };
 

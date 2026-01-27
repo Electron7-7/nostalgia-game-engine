@@ -158,14 +158,14 @@ static Error s_GenerateTexture(uint& ioID,
         stbi_image_free(image_data);
         ++i;
     }
-    if(ioSampler.mip_filter_mag != SAMPLER_FILTER_NONE or ioSampler.mip_filter_min != SAMPLER_FILTER_NONE)
+    if(ioSampler.mip_filter_min != SAMPLER_FILTER_NONE)
         { glGenerateTextureMipmap(ioID); }
     glTextureParameteri(ioID, GL_TEXTURE_WRAP_S, s_GLWrap(ioSampler.repeat_u));
     glTextureParameteri(ioID, GL_TEXTURE_WRAP_T, s_GLWrap(ioSampler.repeat_v));
     glTextureParameteri(ioID, GL_TEXTURE_WRAP_R, s_GLWrap(ioSampler.repeat_w));
     glTextureParameterf(ioID, GL_TEXTURE_MAX_ANISOTROPY, ioSampler.use_anisotropy * ioSampler.anisotropy_max);
     glTextureParameteri(ioID, GL_TEXTURE_MIN_FILTER, s_GLFilter(ioSampler.min_filter, ioSampler.mip_filter_min));
-    glTextureParameteri(ioID, GL_TEXTURE_MAG_FILTER, s_GLFilter(ioSampler.mag_filter, ioSampler.mip_filter_mag));
+    glTextureParameteri(ioID, GL_TEXTURE_MAG_FILTER, s_GLFilter(ioSampler.mag_filter, SAMPLER_FILTER_NONE));
     glBindTexture(gl_type, 0);
     return OK;
 }

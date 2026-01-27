@@ -42,7 +42,6 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.min_filter, "SamplerMinFilter", "MinFilter", "Min");
     data.get_variable(mSampler.mip_filter_min, "SamplerMipFilterMin", "MipFilterMin", "MipMin");
     data.get_variable(mSampler.mag_filter, "SamplerMagFilter", "MagFilter", "Mag");
-    data.get_variable(mSampler.mip_filter_mag, "SamplerMipFilterMag", "MipFilterMag", "MipMag");
     data.get_variable(mSampler.repeat_u, "SamplerRepeatU", "SamplerRepeatX", "RepeatU", "RepeatX");
     data.get_variable(mSampler.repeat_v, "SamplerRepeatV", "SamplerRepeatY", "RepeatV", "RepeatY");
     data.get_variable(mSampler.repeat_w, "SamplerRepeatW", "SamplerRepeatZ", "RepeatW", "RepeatZ");
@@ -72,7 +71,6 @@ Shared<ThingData> Texture::GetVariables() const
     data->set_variable(mSampler.min_filter, "SamplerMinFilter");
     data->set_variable(mSampler.mip_filter_min, "SamplerMipFilterMin");
     data->set_variable(mSampler.mag_filter, "SamplerMagFilter");
-    data->set_variable(mSampler.mip_filter_mag, "SamplerMipFilterMag");
     data->set_variable(mSampler.repeat_u, "SamplerRepeatU");
     data->set_variable(mSampler.repeat_v, "SamplerRepeatV");
     data->set_variable(mSampler.repeat_w, "SamplerRepeatW");
