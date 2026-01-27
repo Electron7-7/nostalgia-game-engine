@@ -8,7 +8,6 @@
 #include "ui/implementor.hpp"
 #include "rendering/renderer_api.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
-#include "theatre/parser.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp" // IWYU pragma: keep
 #include "DearImGui/imgui.h"
@@ -179,17 +178,17 @@ void ImGui_Editor::Update()
             {
                 auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
                 auto motion{InputManager::MouseMotion()};
-                camera->SetRotationDegrees(camera->RotationDegrees() - (0.1f * glm::vec3{motion.y(), motion.x(), 0.0f}));
+                camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
                 glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
                     InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
                 camera->SetPosition(camera->Position() +
-                    (0.1f * (
+                    ((
                         ((camera->Quaternion() * Settings::World::Front()) *
                             movement_direction[1]) +
                         ((camera->Quaternion() * Settings::World::Right()) *
                             movement_direction[0])
-                    ))
+                    ) * 0.1f)
                 );
             }
         }
