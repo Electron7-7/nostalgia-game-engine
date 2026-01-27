@@ -69,7 +69,9 @@ public:
         {
             if(auto resource{DCast<T>(GetResource(ObjectID))})
                 { return resource; }
-            return MakeShared<T>();
+            auto output{MakeShared<T>()};
+            output->m_pRootTheatre = this;
+            return output;
         }
 
     template<typename T> requires std::derived_from<T,Thinker>
@@ -77,7 +79,9 @@ public:
         {
             if(auto thinker{DCast<T>(GetThinker(ObjectID))})
                 { return thinker; }
-            return MakeShared<T>();
+            auto output{MakeShared<T>()};
+            output->m_pRootTheatre = this;
+            return output;
         }
 
 protected:
