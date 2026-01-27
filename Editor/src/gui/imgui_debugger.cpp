@@ -18,6 +18,7 @@
 #include "theatre/things/thinkers/2d/sprite_2d.hpp"
 #include "theatre/things/thinkers/2d/camera_2d.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
+#include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/things/resources/material.hpp"
@@ -761,12 +762,15 @@ void ImGui_Debugger::InspectTheatreWindow()
     static thing_data_buffer last_selected{};
     static int sMaxPerRow{3};
     static float thing_button_color[3]{},
-        actor_button_color[3]    {0.063f, 0.392f, 0.6f},
+        thinker_button_color[3]  {0.185,  1.0f,   0.388f},
+        actor3d_button_color[3]  {0.779f, 0.225f, 0.242f},
+        actor2d_button_color[3]  {0.063f, 0.392f, 0.6f},
         light_button_color[3]    {0.808f, 0.707f, 0.086f},
-        visual3d_button_color[3] {0.447f, 0.125f, 0.361f},
-        viewport_button_color[3] {0.500f, 0.300f, 0.800f},
-        resource_button_color[3] {0.608f, 0.204f, 0.165f},
-        camera_button_color[3]   {0.494f, 0.494f, 0.494f};
+        visual3d_button_color[3] {0.578f, 0.159f, 0.466f},
+        viewport_button_color[3] {0.509f, 0.662f, 0.581f},
+        resource_button_color[3] {0.392f, 0.392f, 0.392f},
+        camera3d_button_color[3] {0.216f, 0.0f,   0.0f},
+        camera2d_button_color[3] {0.0f,   0.083f, 0.353f};
     static bool show_type_on_button{true};
     if(!sTheatreInspectorActive
         or Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
@@ -796,12 +800,15 @@ void ImGui_Debugger::InspectTheatreWindow()
         {
             InputInt("Max Buttons Per Row", &sMaxPerRow, 1, 5);
             ColorEdit3("Thing Color",    thing_button_color,    ImGuiColorEditFlags_Float);
-            ColorEdit3("Actor3D Color",  actor_button_color,    ImGuiColorEditFlags_Float);
+            ColorEdit3("Thinker Color",  thinker_button_color,  ImGuiColorEditFlags_Float);
+            ColorEdit3("Actor3D Color",  actor3d_button_color,  ImGuiColorEditFlags_Float);
+            ColorEdit3("Actor2D Color",  actor2d_button_color,  ImGuiColorEditFlags_Float);
             ColorEdit3("Light Color",    light_button_color,    ImGuiColorEditFlags_Float);
             ColorEdit3("Visual3D Color", visual3d_button_color, ImGuiColorEditFlags_Float);
             ColorEdit3("Viewport Color", viewport_button_color, ImGuiColorEditFlags_Float);
             ColorEdit3("Resource Color", resource_button_color, ImGuiColorEditFlags_Float);
-            ColorEdit3("Camera Color",   camera_button_color, ImGuiColorEditFlags_Float);
+            ColorEdit3("Camera3D Color", camera3d_button_color, ImGuiColorEditFlags_Float);
+            ColorEdit3("Camera2D Color", camera2d_button_color, ImGuiColorEditFlags_Float);
             Checkbox("Show Type Abbreviation", &show_type_on_button);
         }
         if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
@@ -815,13 +822,14 @@ void ImGui_Debugger::InspectTheatreWindow()
                 auto resource{DCast<Resource>(thing)};
                 auto thinker{DCast<Thinker>(thing)};
                 auto visual3d{DCast<Visual3D>(thing)};
-                auto actor{DCast<Actor3D>(thing)};
+                auto actor3d{DCast<Actor3D>(thing)};
+                auto actor2d{DCast<Actor3D>(thing)};
                 ImVec4 push_color{thing_button_color[0],thing_button_color[1],thing_button_color[2],1.0f};
                 ImGuiCol push_color_where{ImGuiCol_Button};
                 std::string type_symbol{"(T) "};
                 if(thinker)
                 {
-                    if(actor)
+                    if(actor3d)
                     {
                         if(DCast<Light3D>(thing))
                         {
@@ -830,8 +838,8 @@ void ImGui_Debugger::InspectTheatreWindow()
                         }
                         else if(DCast<Camera3D>(thing))
                         {
-                            push_color = {camera_button_color[0],camera_button_color[1],camera_button_color[2],1.0f};
-                            type_symbol = "(C) ";
+                            push_color = {camera3d_button_color[0],camera3d_button_color[1],camera3d_button_color[2],1.0f};
+                            type_symbol = "(C3D) ";
                         }
                         else if(visual3d)
                         {
@@ -840,8 +848,21 @@ void ImGui_Debugger::InspectTheatreWindow()
                         }
                         else
                         {
-                            push_color = {actor_button_color[0],actor_button_color[1],actor_button_color[2],1.0f};
-                            type_symbol = "(A) ";
+                            push_color = {actor3d_button_color[0],actor3d_button_color[1],actor3d_button_color[2],1.0f};
+                            type_symbol = "(A3D) ";
+                        }
+                    }
+                    else if(DCast<Actor2D>(thing))
+                    {
+                        if(DCast<Camera3D>(thing))
+                        {
+                            push_color = {camera3d_button_color[0],camera3d_button_color[1],camera3d_button_color[2],1.0f};
+                            type_symbol = "(C2D) ";
+                        }
+                        else
+                        {
+                            push_color = {actor2d_button_color[0],actor2d_button_color[1],actor2d_button_color[2],1.0f};
+                            type_symbol = "(A2D) ";
                         }
                     }
                     else if(DCast<Viewport>(thing))
@@ -849,11 +870,16 @@ void ImGui_Debugger::InspectTheatreWindow()
                         push_color = {viewport_button_color[0],viewport_button_color[1],viewport_button_color[2],1.0f};
                         type_symbol = "(VP) ";
                     }
+                    else
+                    {
+                        push_color = {thinker_button_color[0],thinker_button_color[1],thinker_button_color[2],1.0f};
+                        type_symbol = "(TK) ";
+                    }
                 }
                 else if(resource)
                 {
                     push_color = {resource_button_color[0],resource_button_color[1],resource_button_color[2],1.0f};
-                    type_symbol = "(R) ";
+                    type_symbol = "(RS) ";
                 }
                 else { push_color_where = ImGuiCol_TextDisabled; } // Basically "don't use"
                 std::string button_name{std::format("{}{}",
