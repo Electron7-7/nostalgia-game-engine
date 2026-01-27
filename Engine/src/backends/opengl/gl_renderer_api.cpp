@@ -12,7 +12,7 @@
 #include <GLFW/glfw3.h>
 
 bool gPrintDrawLogs{false};
-bool gOpenGLEnableNotificationMesssages{false};
+bool gOpenGLEnableNotificationMesssages{true};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
 #ifdef DEBUGGING
