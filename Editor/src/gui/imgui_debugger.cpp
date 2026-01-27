@@ -978,7 +978,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             | ImGuiColorEditFlags_DisplayRGB
                             | ImGuiColorEditFlags_InputRGB);
 
-                    TextF("Layers Bitmask: {}", visual3d->Layers().get());
+                    TextF("Layers Bitmask: {:#0b}", visual3d->Layers().get());
                     for(int layer_i{BitMask::min}; layer_i < BitMask::max; ++layer_i)
                     {
                         std::string layer_name{std::format("Layer #{:#02}", layer_i+1)};
