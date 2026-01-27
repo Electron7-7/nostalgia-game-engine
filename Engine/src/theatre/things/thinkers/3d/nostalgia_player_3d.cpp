@@ -46,7 +46,7 @@ void NostalgiaPlayer3D::Ready()
         cam_dat.set_variable(glm::vec3{0.0f, 2.0f, -1.0f}, "Position");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
-        cam_dat.set_variable(BitMask::all_enabled &~ 0b11, "LayersMask");
+        cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask");
         mCameraID = my_theatre()->CreateThing(cam_dat);
         my_theatre()->SetParent(mCameraID, mUID);
     }
@@ -67,7 +67,7 @@ void NostalgiaPlayer3D::Ready()
         TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, "PlayerDebugAxisMesh"};
         axis_dat.set_variable(mUID, "Parent");
         axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
-        axis_dat.set_variable(0b1, "Layers");
+        axis_dat.set_variable(0b10, "Layers");
         my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
     }
 }
