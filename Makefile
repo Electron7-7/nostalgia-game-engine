@@ -75,7 +75,7 @@ ifneq ($(OS),Windows_NT)
 	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX)
 	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
-	export PCH_FLAGS       ?= -include-pch $(PCH_OUT)
+	export PCH_FLAGS       ?= $(PCH:$(PCH_OUT)/%=-include-pch $(PCH_OUT)/%)
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
 	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_LINUX)
 	export EDITR_LD_FLAGS  ?= $(EDITR_LD_FLAGS_LINUX)
@@ -184,8 +184,8 @@ HEADER_FILES := $(call getfiles,$(ENGINE_SRC_DIRS),*.hpp)
 
 export PCH_DIR ?= $(ENGINE_SRC)/precompiled_headers
 export PCH_OUT ?= $(BUILD_OBJS)/precompiled_headers
-export PCH_H   := $(wildcard $(PCH_DIR)/*.hpp)
-export PCH     := $(PCH_H:$(PCH_DIR)/%_pch.hpp=$(PCH_OUT)/%.pch)
+export PCH_H   ?= $(wildcard $(PCH_DIR)/*.hpp)
+export PCH     ?= $(addprefix $(PCH_OUT)/,$(subst _pch.hpp,.pch,$(PCH_H:$(PCH_DIR)/%=%)))
 
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(ENGINE_SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(ENGINE_SRC)/%=%)))
@@ -220,7 +220,7 @@ export DEFAULT ?= \\x1b[39m
 all: editor ;@:
 
 compile_commands: clangd
-	$(eval PCH_FLAGS = $(PCH_H:$(PCH_DIR)%=-include $(PCH_DIR)%)
+	$(eval PCH_FLAGS = $(PCH_H:$(PCH_DIR)%=-include $(PCH_DIR)%))
 
 run: editor
 	@ $(BUILD_DIR)/$(EDITR)
@@ -244,7 +244,7 @@ printout:
 build_dir:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
-# Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
+# Fix a problem with LSP-clangd that is (most likely) due to the massive #embed for shader files
 clangd: ;@:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
 
@@ -311,7 +311,7 @@ linux: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
-	$(eval PCH_FLAGS       = -include-pch $(PCH_OUT))
+	$(eval PCH_FLAGS       = $(PCH:$(PCH_OUT)/%=-include-pch $(PCH_OUT)/%))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS        = $(DYNAMIC_LDFLAGS_LINUX))
 	$(eval EDITR_LD_FLAGS  = $(EDITR_LD_FLAGS_LINUX))
