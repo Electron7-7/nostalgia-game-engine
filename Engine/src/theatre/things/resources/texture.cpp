@@ -1,25 +1,10 @@
 #include "texture.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "theatre/variable_registry.hpp"
 
 using namespace TheatreFile;
 
 void Texture::Ready()
-{
-    VariableRegistry::try_GetResourceData(mUID, m_pImages[0]);
-    if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
-    {
-        // Start at `1`, because the previous `try_GetResourceData` would've started us off
-        for(uint i{1}; i < 6; ++i)
-            {VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
-    }
-    if(m_pImages.empty())
-        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData); }
-    else
-        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pImages); }
-    if(!print_error_enum(mStatus = mTextureBuffer->Status()))
-        { print_error("Failed to buffer texture#{}", mUID[]); }
-}
+{ print_error_enum(Import()); }
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
@@ -79,6 +64,36 @@ Shared<ThingData> Texture::GetVariables() const
     // data->set_variable(mBoundToFramebuffer, "Bound to Framebuffer");
     return data;
 }
+
+Error Texture::Import()
+{
+    VariableRegistry::try_GetResourceData(mUID, m_pImages[0]);
+    if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
+    {
+        // Start at `1`, because the previous `try_GetResourceData` would've started us off
+        for(uint i{1}; i < 6; ++i)
+            {VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
+    }
+    if(m_pImages.empty())
+        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData); }
+    else
+        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pImages); }
+    if(!(mStatus = mTextureBuffer->Status()))
+        { print_error("Failed to buffer texture#{}", mUID[]); }
+    return mStatus;
+}
+
+Farg<TextureFormat> Texture::Format() const
+{ return mFormat; }
+
+void Texture::SetFormat(Farg<TextureFormat> inFormat)
+{ mFormat = inFormat; }
+
+Farg<SamplerState> Texture::Sampler() const
+{ return mSampler; }
+
+void Texture::SetSampler(Farg<SamplerState> inSampler)
+{ mSampler = inSampler; }
 
 Shared<TextureBuffer> Texture::GetBuffer() const
 { return mTextureBuffer; }

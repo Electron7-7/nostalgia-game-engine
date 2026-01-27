@@ -11,6 +11,13 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
+    virtual Error Import();
+
+    virtual Farg<TextureFormat> Format() const;
+    virtual void SetFormat(Farg<TextureFormat>);
+    virtual Farg<SamplerState> Sampler() const;
+    virtual void SetSampler(Farg<SamplerState>);
+
     virtual Shared<TextureBuffer> GetBuffer() const;
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
