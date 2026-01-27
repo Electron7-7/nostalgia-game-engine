@@ -32,8 +32,7 @@ Theatre::Theatre(Farg<FileData> inData) noexcept:
     m_pInitialState{MakeShared<TheatreData>()}
 { Load(inData); }
 
-Theatre::~Theatre() noexcept
-{ Shutdown(); }
+Theatre::~Theatre() noexcept = default;
 
 void Theatre::Update()
 {
@@ -73,10 +72,9 @@ bool Theatre::Startup()
 {
     assert(mInitStatus == OK and m_pInitialState and m_pRegistry);
     if(mIsStarted)
-        { return false; }
+        { return true; }
 
-    LockGuard<RMutex> lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> things_lock{mThingsMutex};
 
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
@@ -109,9 +107,8 @@ bool Theatre::Startup()
 bool Theatre::Shutdown()
 {
     if(!mIsStarted)
-        { return false; }
-    LockGuard<RMutex> lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+        { return true; }
+    LockGuard<RMutex> things_lock{mThingsMutex};
     for(ID uid : ThingIDs())
     {
         if(!mThings.contains(uid))
@@ -127,7 +124,6 @@ bool Theatre::Shutdown()
 void Theatre::Draw()
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
@@ -212,20 +208,6 @@ bool Theatre::DerivedFrom(ID inID, FPID inType)
     return false;
 }
 
-Error Theatre::ChangeThingID(ID inOldID, ID inNewID)
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(mThings.contains(inNewID))
-        { return ERR_ALREADY_EXISTS; }
-    else if(!mThings.contains(inOldID))
-        { return ERR_NOT_FOUND; }
-    auto found_it{mThings.extract(inOldID)};
-    found_it.mapped()->mUID = inNewID;
-    found_it.key() = inNewID;
-    mThings.insert(std::move(found_it));
-    return OK;
-}
-
 ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
@@ -237,7 +219,6 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 Error Theatre::DestroyThing(ID inID)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     auto children{GetChildren(inID)};
     for(ID child : children)
@@ -245,61 +226,48 @@ Error Theatre::DestroyThing(ID inID)
 
     GetThing(inID)->Shutdown();
     auto status{DestroyThingOnly(inID)};
-    print_error_enum(mCallSheet.Remove(inID));
     return status;
 }
 
 Shared<Viewport> Theatre::GetRootViewport()
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    return m_pRootViewport;
-}
+{ return m_pRootViewport; }
 
 IdSet_arg Theatre::GetViewports()
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    return mViewportIDs;
-}
+{ return mViewportIDs; }
 
 IdSet_arg Theatre::Get3DCameras()
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    return mCamera3DIDs;
-}
+{ return mCamera3DIDs; }
 
 IdSet_arg Theatre::Get2DCameras()
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    return mCamera2DIDs;
-}
+{ return mCamera2DIDs; }
 
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Get(inParentID).children;
 }
 
 ID Theatre::GetParent(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Get(inChildID).parent;
 }
 
 IdSet_t Theatre::GetAllChildren(ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Descendants(inParentID);
 }
 
 IdSet_t Theatre::GetAllParents(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Ancestors(inChildID);
 }
 
 Error Theatre::SetParent(ID inChildID, ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     // NOTE: Probably redundant. Too bad!
@@ -308,13 +276,13 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
             { return print_error_enum(ERR_NOT_FOUND); }
 
     auto old_parent_id{mCallSheet.Get(inChildID).parent};
-    auto old_ancestors{GetAllParents(inChildID)};
+    auto old_ancestors{mCallSheet.Ancestors(inChildID)};
 
     if(auto status{mCallSheet.Reparent(inChildID, inParentID)}; !status)
         { return print_error_enum(status); }
 
-    auto new_ancestors{GetAllParents(inChildID)};
-    auto descendants{GetAllChildren(inParentID)};
+    auto new_ancestors{mCallSheet.Ancestors(inChildID)};
+    auto descendants{mCallSheet.Descendants(inParentID)};
 
     for(ID descendant : descendants)
     {
@@ -338,7 +306,7 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 
 Error Theatre::DropParent(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
@@ -400,7 +368,7 @@ void Theatre::SetupUID(ThingData& ioData)
 
 void Theatre::SetupOwnership(Farg<ThingData> ioData)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
 
     ID parent{ioData.get_parent()};
     IdSet_t children{ioData.get_children()};
@@ -482,7 +450,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 Error Theatre::DestroyThingOnly(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
 
     if(!mThings.contains(inID))
     {
@@ -498,6 +466,7 @@ Error Theatre::DestroyThingOnly(ID inID)
     mCamera3DIDs.erase(inID);
     mCamera2DIDs.erase(inID);
     mLightIDs.erase(inID);
+    print_error_enum(mCallSheet.Remove(inID));
     if(!m_pRegistry->RemoveID(inID)
         and !m_pRegistry->RemoveID(mThings.at(inID)->name()))
     {
@@ -512,7 +481,6 @@ Error Theatre::DestroyThingOnly(ID inID)
 void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera3D>(inViewport->CurrentCamera3D())};
@@ -624,7 +592,6 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};

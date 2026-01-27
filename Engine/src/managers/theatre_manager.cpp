@@ -79,8 +79,6 @@ void TheatreManager::DrawCurrentTheatre()
 void TheatreManager::LoadNewTheatre(Unique<Theatre> inTheatre)
 {
     LockGuard<RMutex> lock{mTheatreMutex};
-    if(mCurrentTheatre->IsStarted())
-        { mCurrentTheatre->Shutdown(); }
     mCurrentTheatre = std::move(inTheatre);
     StartNewTheatre();
 }
@@ -88,8 +86,6 @@ void TheatreManager::LoadNewTheatre(Unique<Theatre> inTheatre)
 bool TheatreManager::LoadNewTheatre(Farg<FileData> inData)
 {
     LockGuard<RMutex> lock{mTheatreMutex};
-    if(mCurrentTheatre->IsStarted())
-        { mCurrentTheatre->Shutdown(); }
     mCurrentTheatre = MakeUnique<Theatre>(inData);
     if(!print_error_enum(mCurrentTheatre->InitStatus()))
     {
@@ -103,8 +99,8 @@ bool TheatreManager::LoadNewTheatre(Farg<FileData> inData)
 bool TheatreManager::LoadNewTheatre(Sarg inPath)
 {
     LockGuard<RMutex> lock{mTheatreMutex};
-    if(mCurrentTheatre->IsStarted())
-        { mCurrentTheatre->Shutdown(); }
+    if(!mCurrentTheatre->Shutdown())
+        { print_warning("Theatre::Shutdown failed!"); }
     mCurrentTheatre = MakeUnique<Theatre>(inPath);
     if(!print_error_enum(mCurrentTheatre->InitStatus()))
         { return print_error("Failed to create Theatre from file at '{}'", inPath); }

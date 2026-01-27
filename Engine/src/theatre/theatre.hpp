@@ -44,7 +44,6 @@ public:
     bool      ThingExists(ID);
     FPID      TypeOf(ID);
     bool      DerivedFrom(ID, FPID);
-    Error     ChangeThingID(ID inOldID, ID inNewID);
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
 
@@ -85,8 +84,8 @@ protected:
     std::string mName{"Untitled Theatre"};
     uint mIndex{ID::Invalid};
 
-    RMutex mThingsMutex{},
-        mCallSheetMutex{};
+    Mutex mCallSheetMutex{};
+    RMutex mThingsMutex{};
     Things_t mThings{};
     IdSet_t mLightIDs{},
         mCamera3DIDs{},
