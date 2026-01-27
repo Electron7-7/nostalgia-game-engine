@@ -9,7 +9,6 @@ public:
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     Error Status() const;
-
     Shared<FileData> Data();
 
 protected:

@@ -1,7 +1,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "fwd/rendering.hpp"
 #include "rendering/texture_buffer.hpp"
 
 class Texture : public Resource

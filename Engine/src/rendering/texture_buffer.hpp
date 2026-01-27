@@ -48,10 +48,12 @@ inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
 struct TextureFormat
 {
     constexpr TextureFormat() noexcept = default;
-    constexpr TextureFormat(int inWidth, int inHeight, DataFormat inDataFormat = DATA_FORMAT_SRGB_ALPHA):
-        data_format{inDataFormat},
-        width{inWidth},
-        height{inHeight} {}
+    constexpr TextureFormat(int inWidth,
+        int inHeight,
+        DataFormat inDataFormat = DATA_FORMAT_SRGB_ALPHA):
+            data_format{inDataFormat},
+            width{inWidth},
+            height{inHeight} {}
 
     TextureType type{TEXTURE_TYPE_2D};
     DataFormat data_format{DATA_FORMAT_SRGB_ALPHA};
@@ -83,8 +85,12 @@ public:
     virtual Farg<SamplerState> Sampler() const = 0;
 
     static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState> = {});
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState>, Shared<FileData>);
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState>, Farg<cubemap_images_t>);
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>,
+        Farg<SamplerState>,
+        Shared<FileData>);
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>,
+        Farg<SamplerState>,
+        Farg<cubemap_images_t>);
 };
 
 #endif // TEXTURE_BUFFER_H

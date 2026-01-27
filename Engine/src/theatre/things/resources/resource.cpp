@@ -1,5 +1,3 @@
-#include "theatre/parser.hpp"
-
 using namespace TheatreFile;
 
 void Resource::SetVariables(Farg<ThingData> inData)

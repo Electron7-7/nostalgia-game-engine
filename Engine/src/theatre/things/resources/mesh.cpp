@@ -5,7 +5,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
-#include "theatre/variable_registry.hpp"
 
 using namespace TheatreFile;
 
