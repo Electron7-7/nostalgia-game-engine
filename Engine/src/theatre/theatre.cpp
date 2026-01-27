@@ -596,8 +596,6 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
-    auto view_matrix{camera->ViewMatrix()};
-    auto projection_matrix{camera->ProjectionMatrix()};
     auto shader{renderer_api->GetShader(Shaders::Fast2D)};
 
     if(!mThings.contains(UID::t_Missing))
@@ -635,8 +633,8 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             renderer_api->SetFramebufferSRGB(use_texture);
 
             shader->SetUniform("model_matrix", model_matrix);
-            shader->SetUniform("projection_matrix", projection_matrix);
-            shader->SetUniform("view_matrix", view_matrix);
+            shader->SetUniform("projection_matrix", camera->ProjectionMatrix());
+            shader->SetUniform("view_matrix", camera->ViewMatrix());
             shader->SetUniform("view_position", camera->GlobalPosition());
             shader->SetUniform("sprite_texture",  0);
             shader->SetUniform("use_texture",  use_texture);

@@ -3,7 +3,6 @@
 #include "theatre/theatre.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/2d/camera_2d.hpp"
-#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 
@@ -20,8 +19,6 @@ void Viewport::Ready()
         { SetCurrentCamera2D(); }
 }
 
-void Viewport::Shutdown()
-{}
 
 void Viewport::SetVariables(Farg<ThingData> data)
 {

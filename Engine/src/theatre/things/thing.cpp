@@ -1,4 +1,3 @@
-#include "theatre/parser.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
@@ -32,9 +31,6 @@ ID Thing::uid() const
 
 FPID Thing::type() const
 { return mType; }
-
-Farg<ThingType> Thing::full_type() const
-{ return ThingFactory::GetType(mType); }
 
 Farg<std::string> Thing::name() const
 { return mName; }

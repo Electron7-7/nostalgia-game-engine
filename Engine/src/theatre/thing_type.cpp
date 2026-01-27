@@ -1,4 +1,3 @@
-
 ThingType::ThingType(FPID inTypeID) noexcept:
     _type_id{inTypeID} {}
 

@@ -18,7 +18,6 @@
 #include "theatre/things/thinkers/2d/sprite_2d.hpp"
 #include "theatre/things/thinkers/2d/camera_2d.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
-#include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/things/resources/material.hpp"

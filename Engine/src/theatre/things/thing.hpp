@@ -36,7 +36,6 @@ public:
     void set_name(Sarg);
     const char* const c_name() const;
     FPID type() const;
-    Farg<ThingType> full_type() const;
 
 protected:
     friend class Theatre;
