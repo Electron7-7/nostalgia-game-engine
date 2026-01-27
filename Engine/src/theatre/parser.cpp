@@ -1,5 +1,6 @@
-#include "parser.hpp"
-#include "theatre_data.hpp"
+#include "./parser.hpp"
+#include "./theatre_data.hpp"
+#include "./thing_factory.hpp"
 
 static constexpr char cDelimiterTheatreName    {'@'};
 static constexpr char cDelimiterTheatreIndex   {'#'};

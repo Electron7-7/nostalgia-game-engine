@@ -1,4 +1,5 @@
-#include "parser.hpp"
+#include "./parser.hpp"
+#include "./thing_factory.hpp"
 #include "thirdparty/frozen/set.h"
 
 static constexpr char        cCommentDelimiter{'/'};

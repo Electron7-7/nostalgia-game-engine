@@ -69,14 +69,14 @@ void Camera2D::SetLayersMask(BitMask inLayersMask)
 void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor2D::OnAncestorRemoved(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::a_RootViewport; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
 {
     Actor2D::OnAncestorAdded(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }
 

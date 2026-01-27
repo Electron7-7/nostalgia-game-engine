@@ -49,13 +49,13 @@ void Visual3D::Viewport(ID inID)
 void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::a_RootViewport; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)
 {
     Actor3D::OnAncestorAdded(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

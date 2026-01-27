@@ -129,13 +129,13 @@ glm::mat4 Camera3D::ProjectionMatrix() const
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::a_RootViewport; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)
 {
     Actor3D::OnAncestorAdded(inAncestor);
-    if(ThingFactory::IsDerivedFrom(inAncestor.type, ThingType::Viewport))
+    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

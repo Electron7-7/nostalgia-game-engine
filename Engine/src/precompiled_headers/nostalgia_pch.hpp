@@ -56,6 +56,5 @@
 #include "theatre/things/thing.hpp"                 // IWYU pragma: keep
 #include "theatre/things/resources/resource.hpp"    // IWYU pragma: keep
 #include "theatre/things/thinkers/thinker.hpp"      // IWYU pragma: keep
-#include "theatre/thing_factory.hpp"                // IWYU pragma: keep
 
 #endif // NOSTALGIA_PRE_COMPILED_HEADER_H
