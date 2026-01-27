@@ -47,7 +47,14 @@ void ImGui_Editor::Shutdown()
 void ImGui_Editor::TheatreEntered()
 {
     if(!Settings::Engine::IsEditorHint)
-        { return; }
+    {
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+        UI_Implementor::SetGlobalCanHandleEvents(false);
+        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
+        player->mCaptureKeyboard = true;
+        player->mCaptureMouse    = true;
+        return;
+    }
     TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
     mat_dat.set_variable(true, "NoTexture");
     mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
@@ -85,6 +92,11 @@ void ImGui_Editor::TheatreExited()
     sSpawnLocationMaterialID = ID{};
     sSpawnLocationMeshInstanceID = ID{};
     sSpawnLocationID = ID{};
+    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+    UI_Implementor::SetGlobalCanHandleEvents(true);
+    MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
+    player->mCaptureMouse    = false;
+    player->mCaptureKeyboard = false;
 }
 
 void ImGui_Editor::Input(InputEvent* event)
