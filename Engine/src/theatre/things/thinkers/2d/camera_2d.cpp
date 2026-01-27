@@ -1,4 +1,4 @@
-#include "camera_2d.hpp"
+#include "./camera_2d.hpp"
 #include "../viewport.hpp"
 #include "settings/graphics.hpp"
 #include "settings/world.hpp"
@@ -82,16 +82,20 @@ void Camera2D::OnAncestorAdded(Relative inAncestor)
 
 glm::mat4 Camera2D::ViewMatrix() const
 {
-    return glm::lookAt(glm::vec3{GlobalPosition(), 0.0f},
-        {GlobalPosition(), -1.0f},
+    glm::vec2 global_position{(mUID.invalid())
+        ? glm::vec2{0.0f}
+        : GlobalPosition()};
+    return glm::lookAt(glm::vec3{global_position, 0.0f},
+        {global_position, -1.0f},
         Settings::World::Up());
 }
 
 glm::mat4 Camera2D::ProjectionMatrix() const
 {
-    Scale2D viewport_size{my_theatre()->GetThinker<Viewport>(mViewportID)->Size()},
-        upper{},
-        lower{};
+    Scale2D upper{}, lower{},
+        viewport_size{(mViewportID == UID::a_RootViewport)
+            ? my_theatre()->GetRootViewport()->Size()
+            : my_theatre()->GetThinker<Viewport>(mViewportID)->Size()};
     if(mViewportID == UID::a_RootViewport
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)
     {
