@@ -25,7 +25,7 @@ protected:
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     RMutex mTextureBufferMutex{};
     TextureFormat mFormat{};
-    SamplerState  mSampler{};
+    SamplerState  mSampler{SamplerState::JuliansPreferredDefaults};
     // bool mBoundToFramebuffer{false};
 };
 
