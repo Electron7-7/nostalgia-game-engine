@@ -9,6 +9,7 @@
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include "theatre/parser.hpp"
 
+using namespace Math;
 using namespace TheatreFile;
 
 bool gEnableMsg_ContactValidate{false},
@@ -117,10 +118,10 @@ void Collider3D::Shutdown()
 void Collider3D::Tick()
 {
     ASSERT_BODYID()
-    Actor3D::SetQuaternion(JoltToGlm<glm::quat>(PhysicsEngine::Instance()
+    Actor3D::SetQuaternion(Convert<glm::quat>(PhysicsEngine::Instance()
         ->BodyInterface()
             .GetRotation(mBodyID)));
-    Actor3D::SetPosition(JoltToGlm<glm::vec3>(PhysicsEngine::Instance()
+    Actor3D::SetPosition(Convert<glm::vec3>(PhysicsEngine::Instance()
             ->BodyInterface()
                 .GetCenterOfMassPosition(mBodyID)));
 }
@@ -153,8 +154,8 @@ void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
     Actor3D::SetPosition(inPosition);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        GlmToJolt<Quat>(mQuaternion),
+        Math::Convert<Vec3>(mPosition),
+        Math::Convert<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
@@ -162,8 +163,8 @@ void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
     Actor3D::SetQuaternion(inQuaternion);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        GlmToJolt<Quat>(mQuaternion),
+        Math::Convert<Vec3>(mPosition),
+        Math::Convert<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
@@ -171,8 +172,8 @@ void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotation(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        GlmToJolt<Quat>(mQuaternion),
+        Math::Convert<Vec3>(mPosition),
+        Math::Convert<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
@@ -180,8 +181,8 @@ void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotationDegrees(inRotation);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        GlmToJolt<Quat>(mQuaternion),
+        Math::Convert<Vec3>(mPosition),
+        Math::Convert<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
@@ -189,8 +190,8 @@ void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
     Actor3D::SetScale(inScale);
     PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
-        GlmToJolt<Quat>(mQuaternion),
+        Math::Convert<Vec3>(mPosition),
+        Math::Convert<Quat>(mQuaternion),
         s_Activation(mActivateOnNextChange));
 }
 
@@ -211,11 +212,11 @@ Error Collider3D::SetShape(ShapeType inShape, bool isActive)
     ASSERT_BODYID(ERR_INVALID_ID)
     mShape = inShape;
     PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mScale))->Create().Get(),
         true,
         s_Activation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
+        Math::Convert<Vec3>(mPosition),
         true,
         s_Activation(isActive));
     return OK;
@@ -226,11 +227,11 @@ Error Collider3D::SetMotion(MotionType inMotion, bool isActive)
     ASSERT_BODYID(ERR_INVALID_ID)
     mMotion = inMotion;
     PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale))->Create().Get(),
+        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mScale))->Create().Get(),
         true,
         s_Activation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        GlmToJolt<Vec3>(mPosition),
+        Math::Convert<Vec3>(mPosition),
         true,
         s_Activation(isActive));
     return OK;
@@ -252,9 +253,9 @@ bool Collider3D::CreateBody(bool setActive)
 {
     m_pBodyCreationSettings =
         MakeShared<BodyCreationSettings>(
-            s_ShapeSettingsMakers.at(mShape)(GlmToJolt<Vec3>(mScale)),
-            GlmToJolt<Vec3>(mPosition),
-            GlmToJolt<Quat>(mQuaternion),
+            s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mScale)),
+            Math::Convert<Vec3>(mPosition),
+            Math::Convert<Quat>(mQuaternion),
             PhysicsEngine::ConvertMotionType(mMotion),
             PhysicsEngine::GetObjectLayer(mMotion));
 
@@ -287,27 +288,27 @@ void Collider3D::AddImpulse(Farg<glm::vec3> inImpulse)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddImpulse(mBodyID,
-        GlmToJolt<Vec3>(inImpulse));
+        Math::Convert<Vec3>(inImpulse));
 }
 
 void Collider3D::AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddImpulse(mBodyID,
-        GlmToJolt<Vec3>(inImpulse),
-        GlmToJolt<Vec3>(inPoint));
+        Math::Convert<Vec3>(inImpulse),
+        Math::Convert<Vec3>(inPoint));
 }
 
 void Collider3D::AddAngularImpulse(Farg<glm::vec3> inAngularImpulse)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().AddAngularImpulse(mBodyID,
-        GlmToJolt<Vec3>(inAngularImpulse));
+        Math::Convert<Vec3>(inAngularImpulse));
 }
 
 void Collider3D::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
 {
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(mBodyID,
-        GlmToJolt<Vec3>(inLinearVelocity));
+        Math::Convert<Vec3>(inLinearVelocity));
 }

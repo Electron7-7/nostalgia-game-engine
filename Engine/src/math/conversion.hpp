@@ -1,15 +1,12 @@
 #ifndef CONVERSION_H
 #define CONVERSION_H
 
-#pragma message("FIXME: These aren't great")
-template<typename G, typename J>
-    G JoltToGlm(const J& Jolt);
-template<typename G, typename J>
-    void JoltToGlm(const J& Jolt, G& Glm);
-
-template<typename J, typename G>
-    J GlmToJolt(const G& Glm);
-template<typename J, typename G>
-    void GlmToJolt(const G& Glm, J& Jolt);
+namespace Math
+{
+    template<typename Lhs, typename Rhs>
+        void Convert(Lhs&, Farg<Rhs>) noexcept;
+    template<typename Lhs, typename Rhs>
+        Lhs Convert(Farg<Rhs>) noexcept;
+}
 
 #endif // CONVERSION_H

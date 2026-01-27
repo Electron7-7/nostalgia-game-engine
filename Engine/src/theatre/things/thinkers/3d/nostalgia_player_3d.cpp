@@ -116,7 +116,7 @@ void NostalgiaPlayer3D::Tick()
     mVelocity[1] = 0.0f;
 
     PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
-        GlmToJolt<JPH::Vec3>(mVelocity));
+        Math::Convert<JPH::Vec3>(mVelocity));
     mPosition = collider->Position();
 }
 
