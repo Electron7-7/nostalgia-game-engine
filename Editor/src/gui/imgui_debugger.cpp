@@ -1032,7 +1032,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 }
                 else if(auto camera3d{DCast<Camera3D>(selected.ptr)})
                 {
-                    TextF("Layers Bitmask: {}", camera3d->LayersMask().get());
+                    TextF("Layers Bitmask: {:#0b}", camera3d->LayersMask().get());
                     for(int layers_mask_i{BitMask::min}; layers_mask_i < BitMask::max; ++layers_mask_i)
                     {
                         std::string layer_name{std::format("Layer #{:#02}", layers_mask_i+1)};
@@ -1163,7 +1163,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             | ImGuiColorEditFlags_DisplayRGB
                             | ImGuiColorEditFlags_InputRGB);
 
-                    TextF("Layers Bitmask: {}", visual2d->Layers().get());
+                    TextF("Layers Bitmask: {:#0b}", visual2d->Layers().get());
                     for(int layer_i{BitMask::min}; layer_i < BitMask::max; ++layer_i)
                     {
                         std::string layer_name{std::format("Layer #{:#02}", layer_i+1)};
@@ -1193,7 +1193,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 }
                 else if(auto camera2d{DCast<Camera2D>(selected.ptr)})
                 {
-                    TextF("Layers Bitmask: {}", camera2d->LayersMask().get());
+                    TextF("Layers Bitmask: {:#0b}", camera2d->LayersMask().get());
                     for(int layers_mask_i{BitMask::min}; layers_mask_i < BitMask::max; ++layers_mask_i)
                     {
                         std::string layer_name{std::format("Layer #{:#02}", layers_mask_i+1)};
