@@ -26,11 +26,11 @@ enum SamplerRepeat : int
 struct SamplerState
 {
     SamplerFilter min_filter{SAMPLER_FILTER_LINEAR},
-        mip_filter_min{SAMPLER_FILTER_LINEAR},
-        mag_filter{SAMPLER_FILTER_NEAREST};
-    SamplerRepeat repeat_u{SAMPLER_REPEAT_MODE_REPEAT},
-        repeat_v{SAMPLER_REPEAT_MODE_REPEAT},
-        repeat_w{SAMPLER_REPEAT_MODE_REPEAT};
+        mip_filter_min{SAMPLER_FILTER_NONE},
+        mag_filter{SAMPLER_FILTER_LINEAR};
+    SamplerRepeat repeat_u{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE},
+        repeat_v{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE},
+        repeat_w{SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE};
     bool use_anisotropy{false};
     float anisotropy_max{1.0f};
 
@@ -39,9 +39,9 @@ struct SamplerState
 
 inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
     SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_LINEAR, SAMPLER_FILTER_NEAREST,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
-    SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,
+    SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,
+    SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,
+    SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,
     true, 16.0f
 };
 
