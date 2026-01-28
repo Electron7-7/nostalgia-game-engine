@@ -38,7 +38,9 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Size2D> inSize) noexcept:
     glGenFramebuffers(1, &mBufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, mBufferID);
 
-    mTextureBuffer = TextureBuffer::Create({inSize.w(), inSize.h(), DATA_FORMAT_SRGB_ALPHA});
+    mTextureBuffer = TextureBuffer::Create();
+    mTextureBuffer->Load(nullptr, {inSize.w(), inSize.h(), DATA_FORMAT_SRGB_ALPHA});
+    mTextureBuffer->GenerateMipMaps();
 
     glGenRenderbuffers(1, &mRenderBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);

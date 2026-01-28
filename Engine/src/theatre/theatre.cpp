@@ -628,8 +628,8 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             auto texture{GetResource<Texture>(sprite->TextureID())};
 
             glm::vec2 texture_size{(texture->GetBuffer())
-                ? glm::vec2{texture->GetBuffer()->Format().width,
-                    texture->GetBuffer()->Format().height}
+                ? glm::vec2{texture->Format().width,
+                    texture->Format().height}
                 : glm::vec2{16.0f}};
 
             if(!sprite->TextureID().invalid() and !texture->GetBuffer())

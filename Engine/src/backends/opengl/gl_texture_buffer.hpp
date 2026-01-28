@@ -6,20 +6,21 @@
 class OpenGLTextureBuffer final : public TextureBuffer
 {
 public:
-#pragma message("TODO: should each side of the cubemap have its own `TextureFormat` and `SamplerState`?")
-    OpenGLTextureBuffer(Farg<TextureFormat>, Farg<SamplerState>, Farg<cubemap_images_t>);
+    OpenGLTextureBuffer();
     ~OpenGLTextureBuffer();
 
+    Error GenerateMipMaps() final;
+    Error SetSamplerState(Farg<SamplerState>) const final;
+    Error Load(InputData, Farg<TextureFormat>) final;
+    TextureType Type() const final;
     Error Status() const final;
     uint ID() const final;
-    Farg<TextureFormat> Format() const final;
-    Farg<SamplerState> Sampler() const final;
 
 private:
     uint mBufferID{0};
-    TextureFormat mFormat{};
-    SamplerState  mSampler{};
+    TextureType mType{TEXTURE_TYPE_NONE};
     Error mStatus{ERR_UNINITIALIZED};
+    int mCubemapOffsetIterator{0};
 };
 
 #endif // GL_TEXTURE_BUFFER_H

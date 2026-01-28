@@ -1,6 +1,4 @@
 #include "gl_texture_buffer.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#include "thirdparty/stb_image/stb_image.h"
 #include <glad/glad.h>
 
 static GLenum s_GLType(TextureType inType)
@@ -27,38 +25,25 @@ static GLenum s_GLType(TextureType inType)
     }
 }
 
-static GLint s_GLInternalFormat(DataFormat inFormat)
+static GLint s_GLFormat(DataFormat inFormat, bool getInternal = false)
 {
     switch(inFormat)
     {
+    case DATA_FORMAT_RED:
+        return GL_RED;
     case DATA_FORMAT_RGB:
-        return GL_RGB8;
+        if(getInternal) { return GL_RGB8; }
+        else            { return GL_RGB;  }
     case DATA_FORMAT_RGBA:
     case DATA_FORMAT_RGBA8:
-        return GL_RGBA8;
+        if(getInternal) { return GL_RGBA8; }
+        else            { return GL_RGBA;  }
     case DATA_FORMAT_SRGB_ALPHA:
-        return GL_SRGB_ALPHA;
+        if(getInternal) { return GL_SRGB_ALPHA; }
+        else            { return GL_RGB;        }
     case DATA_FORMAT_NONE:
     default:
-        print_warning("Invalid data format! Returning `GL_NONE` (this will probably cause a crash!)");
-        return GL_NONE;
-    }
-}
-
-static GLenum s_GLFormat(DataFormat inFormat)
-{
-    switch(inFormat)
-    {
-    case DATA_FORMAT_RGB:
-        return GL_RGB;
-    case DATA_FORMAT_RGBA:
-    case DATA_FORMAT_RGBA8:
-        return GL_RGBA;
-    case DATA_FORMAT_SRGB_ALPHA:
-        return GL_RGB;
-    case DATA_FORMAT_NONE:
-    default:
-        print_warning("Invalid data format! Returning `GL_NONE` (this will probably cause a crash!)");
+        print_error("Invalid data format! Returning `GL_NONE` (this could cause a crash!)");
         return GL_NONE;
     }
 }
@@ -95,91 +80,57 @@ static GLenum s_GLWrap(SamplerRepeat inRepeat)
     }
 }
 
-static Error s_GenerateTexture(uint& ioID,
-    TextureFormat& ioFormat,
-    SamplerState& ioSampler,
-    Farg<cubemap_images_t> inData)
+Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat)
 {
-    GLenum gl_type{s_GLType(ioFormat.type)};
+    GLenum gl_type{s_GLType(mType = inFormat.type)};
+    GLenum gl_target{(gl_type == GL_TEXTURE_CUBE_MAP)
+        ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + mCubemapOffsetIterator++
+        : gl_type};
 
-    glGenTextures(1, &ioID);
-    glBindTexture(gl_type, ioID);
+    glBindTexture(gl_type, mBufferID);
 
-    bool has_image{false};
-    uint i{0};
-    for(Farg<Shared<FileData>> data : inData)
-    {
-        unsigned char* image_data{nullptr};
-        if(data)
-        {
-            stbi_set_flip_vertically_on_load(true);
+    glTexImage2D(gl_target,
+        0,
+        s_GLFormat(inFormat.data_format, true),
+        inFormat.width,
+        inFormat.height,
+        0,
+        s_GLFormat(inFormat.data_format),
+        GL_UNSIGNED_BYTE,
+        inData);
 
-            image_data = stbi_load_from_memory(data->Data(),
-                data->Size(),
-                &ioFormat.width,
-                &ioFormat.height,
-                &ioFormat.channels,
-                STBI_rgb);
-            if(!image_data)
-            {
-                print_warning("STBI failed to load image data for TextureBuffer#{}", ioID);
-                stbi_image_free(image_data);
-                return ERR_DATA_LOAD;
-            }
-            has_image = true;
-        }
-        switch(gl_type)
-        {
-        case GL_TEXTURE_2D:
-            glTexImage2D(GL_TEXTURE_2D,
-                0,
-                s_GLInternalFormat(ioFormat.data_format),
-                ioFormat.width,
-                ioFormat.height,
-                0,
-                s_GLFormat(ioFormat.data_format),
-                GL_UNSIGNED_BYTE,
-                image_data);
-            break;
-        case GL_TEXTURE_CUBE_MAP:
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                0,
-                s_GLInternalFormat(ioFormat.data_format),
-                ioFormat.width,
-                ioFormat.height,
-                0,
-                s_GLFormat(ioFormat.data_format),
-                GL_UNSIGNED_BYTE,
-                image_data);
-            break;
-        default:
-            print_warning("The requested OpenGL texture format is unimplemented, sorry");
-            stbi_image_free(image_data);
-            return UNIMPLEMENTED;
-        }
-        stbi_image_free(image_data);
-        ++i;
-    }
-    glGenerateTextureMipmap(ioID);
-    if(has_image and ioSampler.mip_filter_min != SAMPLER_FILTER_NONE)
-    {
-        glTextureParameterf(ioID, GL_TEXTURE_MAX_ANISOTROPY, ioSampler.use_anisotropy * ioSampler.anisotropy_max);
-        glTextureParameteri(ioID, GL_TEXTURE_MIN_FILTER, s_GLFilter(ioSampler.min_filter, ioSampler.mip_filter_min));
-        glTextureParameteri(ioID, GL_TEXTURE_MAG_FILTER, s_GLFilter(ioSampler.mag_filter, SAMPLER_FILTER_NONE));
-    }
-    glTextureParameteri(ioID, GL_TEXTURE_WRAP_S, s_GLWrap(ioSampler.repeat_u));
-    glTextureParameteri(ioID, GL_TEXTURE_WRAP_T, s_GLWrap(ioSampler.repeat_v));
-    glTextureParameteri(ioID, GL_TEXTURE_WRAP_R, s_GLWrap(ioSampler.repeat_w));
     glBindTexture(gl_type, 0);
+    return mStatus = OK;
+}
+
+Error OpenGLTextureBuffer::GenerateMipMaps()
+{
+    glBindTexture(s_GLType(mType), mBufferID);
+    glGenerateTextureMipmap(mBufferID);
+    glBindTexture(s_GLType(mType), 0);
     return OK;
 }
 
-OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat,
-    Farg<SamplerState> inSampler,
-    Farg<cubemap_images_t> inData):
-        mFormat{inFormat},
-        mSampler{inSampler},
-        mStatus{s_GenerateTexture(mBufferID, mFormat, mSampler, inData)} {}
+Error OpenGLTextureBuffer::SetSamplerState(Farg<SamplerState> inSamplerState) const
+{
+    glBindTexture(s_GLType(mType), mBufferID);
+    glTextureParameterf(mBufferID, GL_TEXTURE_MAX_ANISOTROPY, inSamplerState.use_anisotropy * inSamplerState.anisotropy_max);
+    glTextureParameteri(mBufferID, GL_TEXTURE_MIN_FILTER, s_GLFilter(inSamplerState.min_filter, inSamplerState.mip_filter_min));
+    glTextureParameteri(mBufferID, GL_TEXTURE_MAG_FILTER, s_GLFilter(inSamplerState.mag_filter, SAMPLER_FILTER_NONE));
+    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_S, s_GLWrap(inSamplerState.repeat_u));
+    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_T, s_GLWrap(inSamplerState.repeat_v));
+    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_R, s_GLWrap(inSamplerState.repeat_w));
+    glBindTexture(s_GLType(mType), 0);
+
+    if(mType == TEXTURE_TYPE_NONE)
+        { return FAILED; }
+    else if(!mStatus)
+        { return mStatus; }
+    return OK;
+}
+
+OpenGLTextureBuffer::OpenGLTextureBuffer()
+{ glGenTextures(1, &mBufferID); }
 
 OpenGLTextureBuffer::~OpenGLTextureBuffer()
 { glDeleteTextures(1, &mBufferID); }
@@ -190,8 +141,5 @@ Error OpenGLTextureBuffer::Status() const
 uint OpenGLTextureBuffer::ID() const
 { return mBufferID; }
 
-Farg<TextureFormat> OpenGLTextureBuffer::Format() const
-{ return mFormat; }
-
-Farg<SamplerState> OpenGLTextureBuffer::Sampler() const
-{ return mSampler; }
+TextureType OpenGLTextureBuffer::Type() const
+{ return mType; }

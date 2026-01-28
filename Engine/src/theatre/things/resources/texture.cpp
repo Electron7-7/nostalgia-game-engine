@@ -1,21 +1,20 @@
 #include "texture.hpp"
 #include "rendering/texture_buffer.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "thirdparty/stb_image/stb_image.h"
 
 using namespace TheatreFile;
 
 void Texture::Ready()
-{ print_error_enum(Import()); }
+{ Import(); }
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
     Resource::SetVariables(data);
-    std::string paths[6]{"","","","","",""};
-    for(uint i{0}; i < 6; ++i)
-    {
-        std::string number{(i == 0) ? "" : std::to_string(i+1)};
-        if(data.get_variable(paths[i], "Image" + number, "File" + number, "Data" + number, "FilePath" + number) == OK)
-            { m_pImages[i] = MakeShared<FileData>(paths[i], FileType::Unknown); }
-    }
+    if(m_pFileData->HasPath())
+        { m_pImages[0] = m_pFileData; }
+    else if(std::string path{}; data.get_variable(path, "Image") == OK)
+        { m_pImages[0] = MakeShared<FileData>(path); }
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -33,6 +32,15 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
     // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
+
+    for(uint i{0}; i < 6; ++i)
+    {
+        if(std::string path{}; data.get_variable(path, "Image" + std::to_string(i)) == OK)
+        {
+            m_pImages[i] = MakeShared<FileData>();
+            print_error_enum(m_pImages[i]->LoadFile(path));
+        }
+    }
 }
 
 Shared<ThingData> Texture::GetVariables() const
@@ -67,19 +75,47 @@ Shared<ThingData> Texture::GetVariables() const
 
 Error Texture::Import()
 {
-    VariableRegistry::try_GetResourceData(mUID, m_pImages[0]);
-    if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
+    mStatus = FAILED;
+    mTextureBuffer = TextureBuffer::Create();
+    VariableRegistry::try_GetResourceData(mUID[], m_pImages[0]);
+
+    for(int i{0}; i < 6; ++i)
     {
-        // Start at `1`, because the previous `try_GetResourceData` would've started us off
-        for(uint i{1}; i < 6; ++i)
-            {VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
+        if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
+            { VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
+
+        if(auto data{m_pImages[i]})
+        {
+            stbi_set_flip_vertically_on_load(true);
+
+            auto image_data{stbi_load_from_memory(data->Data(),
+                data->Size(),
+                &mFormat.width,
+                &mFormat.height,
+                &mFormat.channels,
+                STBI_rgb)};
+
+            if(!image_data)
+            {
+                print_error("STBI failed to load image data for Texture ['{}', {}]",
+                    mName,
+                    mUID[]);
+                mStatus = ERR_DATA_LOAD;
+            }
+            else if(mTextureBuffer->Load(image_data, mFormat) == OK)
+                { mStatus = OK; }
+            stbi_image_free(image_data);
+        }
     }
-    if(m_pImages.empty())
-        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pFileData); }
+
+    if(!print_error_enum(mStatus))
+        { print_error("Failed to create Texture ['{}', {}]", mName, mUID[]); }
     else
-        { mTextureBuffer = TextureBuffer::Create(mFormat, mSampler, m_pImages); }
-    if(!(mStatus = mTextureBuffer->Status()))
-        { print_error("Failed to buffer texture#{}", mUID[]); }
+    {
+        mTextureBuffer->GenerateMipMaps();
+        mTextureBuffer->SetSamplerState(mSampler);
+    }
+
     return mStatus;
 }
 
@@ -102,7 +138,11 @@ Error Texture::SetBuffer(Shared<TextureBuffer> inBuffer)
 {
     mStatus = inBuffer->Status();
     if(!print_error_enum(mStatus))
-        { print_warning("Failed to replace Texture#{}'s TextureBuffer", mUID[]); }
+    {
+        print_warning("Failed to replace the TextureBuffer in Texture ['{}', {}]",
+            mName,
+            mUID[]);
+    }
     else
         { mTextureBuffer = inBuffer; }
     return mStatus;

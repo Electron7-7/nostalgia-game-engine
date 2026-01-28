@@ -77,20 +77,18 @@ using cubemap_images_t = std::array<Shared<FileData>, 6>;
 class TextureBuffer
 {
 public:
+    using InputData = const u_char*;
+
     virtual ~TextureBuffer() = default;
 
+    virtual Error GenerateMipMaps() = 0;
+    virtual Error SetSamplerState(Farg<SamplerState>) const = 0;
+    virtual Error Load(InputData, Farg<TextureFormat>) = 0;
+    virtual TextureType Type() const = 0;
     virtual Error Status() const = 0;
     virtual uint ID() const = 0;
-    virtual Farg<TextureFormat> Format() const = 0;
-    virtual Farg<SamplerState> Sampler() const = 0;
 
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>, Farg<SamplerState> = {});
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>,
-        Farg<SamplerState>,
-        Shared<FileData>);
-    static Shared<TextureBuffer> Create(Farg<TextureFormat>,
-        Farg<SamplerState>,
-        Farg<cubemap_images_t>);
+    static Shared<TextureBuffer> Create();
 };
 
 #endif // TEXTURE_BUFFER_H
