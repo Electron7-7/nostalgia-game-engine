@@ -17,11 +17,12 @@ public:
     void SetLineWidth(float) override;
     void SetFramebufferSRGB(bool) const final;
     void SetWireframe(bool inValue) const final;
+    void SetBlend(bool) const final;
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 
     virtual bool BindTexture(Shared<Texture>, uint) const final;
-    virtual bool BindTexture(Shared<Texture>, texture_units) const final;
+    virtual bool BindTexture(Shared<TextureBuffer>, uint) const final;
     virtual void UnbindTexture(texture_units) const final;
 
     ID AddShader(Shared<Shader>, ID) final;

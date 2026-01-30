@@ -31,11 +31,12 @@ public:
     virtual void SetLineWidth(float Width) = 0;
     virtual void SetFramebufferSRGB(bool inValue) const = 0;
     virtual void SetWireframe(bool inValue) const = 0;
+    virtual void SetBlend(bool isEnabled) const = 0;
 
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 
     virtual bool BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;
-    virtual bool BindTexture(Shared<Texture> inTexture, texture_units) const = 0;
+    virtual bool BindTexture(Shared<TextureBuffer> inBuffer, uint inTextureUnit) const = 0;
     virtual void UnbindTexture(texture_units inTextureUnits) const = 0;
 
     virtual ID AddShader(Shared<Shader> inShader, ID inID = ID::Invalid) = 0;

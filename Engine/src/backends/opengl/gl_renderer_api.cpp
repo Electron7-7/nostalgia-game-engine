@@ -171,25 +171,27 @@ void OpenGLRendererAPI::SetWireframe(bool isOn) const
         { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 }
 
-bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
+void OpenGLRendererAPI::SetBlend(bool isEnabled) const
 {
-    if(inTexture->uid().invalid()
-        or !inTexture->GetBuffer()
-        or !inTexture->GetBuffer()->Status()
-        or !inTexture->GetBuffer()->ID())
+    if(isEnabled) { glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }
+    else { glDisable(GL_BLEND); }
+}
+
+bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const
+{
+    if(!inBuffer
+        or !inBuffer->Status()
+        or !inBuffer->ID())
             { return false; }
-    glBindTextureUnit(inUnit, inTexture->GetBuffer()->ID());
+    glBindTextureUnit(inUnit, inBuffer->ID());
     return true;
 }
 
-bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, texture_units inUnits) const
+bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    for(uint unit : inUnits)
-    {
-        if(!BindTexture(inTexture, unit))
-            { return false; }
-    }
-    return true;
+    if(!inTexture->uid().invalid())
+        { return BindTexture(inTexture->GetBuffer(), inUnit); }
+    return false;
 }
 
 void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
