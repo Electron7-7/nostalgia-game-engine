@@ -50,13 +50,13 @@ struct TextureFormat
     constexpr TextureFormat() noexcept = default;
     constexpr TextureFormat(int inWidth,
         int inHeight,
-        DataFormat inDataFormat = DATA_FORMAT_SRGB_ALPHA):
+        DataFormat inDataFormat = DATA_FORMAT_SRGB):
             data_format{inDataFormat},
             width{inWidth},
             height{inHeight} {}
 
     TextureType type{TEXTURE_TYPE_2D};
-    DataFormat data_format{DATA_FORMAT_SRGB_ALPHA};
+    DataFormat data_format{DATA_FORMAT_SRGB};
     int  width{1}, height{1}, channels{0};
     uint depth{1}, array_layers{1}, mipmaps{1};
 

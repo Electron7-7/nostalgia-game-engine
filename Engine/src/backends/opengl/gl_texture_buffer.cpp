@@ -34,13 +34,16 @@ static GLint s_GLFormat(DataFormat inFormat, bool getInternal = false)
     case DATA_FORMAT_RGB:
         if(getInternal) { return GL_RGB8; }
         else            { return GL_RGB;  }
+    case DATA_FORMAT_SRGB:
+        if(getInternal) { return GL_SRGB8; }
+        else            { return GL_RGB;   }
     case DATA_FORMAT_RGBA:
     case DATA_FORMAT_RGBA8:
         if(getInternal) { return GL_RGBA8; }
         else            { return GL_RGBA;  }
     case DATA_FORMAT_SRGB_ALPHA:
-        if(getInternal) { return GL_SRGB_ALPHA; }
-        else            { return GL_RGB;        }
+        if(getInternal) { return GL_SRGB8_ALPHA8; }
+        else            { return GL_RGBA;         }
     case DATA_FORMAT_NONE:
     default:
         print_error("Invalid data format! Returning `GL_NONE` (this could cause a crash!)");
