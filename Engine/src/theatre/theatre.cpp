@@ -4,6 +4,7 @@
 #include "./thing_factory.hpp"
 #include "./things/thinkers/2d/camera_2d.hpp"
 #include "./things/thinkers/2d/sprite_2d.hpp"
+#include "./things/thinkers/2d/text_2d.hpp"
 #include "./things/thinkers/3d/light_3d.hpp"
 #include "./things/thinkers/3d/mesh_instance_3d.hpp"
 #include "./things/thinkers/3d/camera_3d.hpp"
@@ -606,7 +607,6 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
-    auto shader{renderer_api->GetShader(Shaders::Fast2D)};
 
     if(!mThings.contains(UID::t_Missing))
         { CreateEmbeddedResources(); }
@@ -616,6 +616,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     for(ID v2d_id : mVisual2DIDs)
     {
+        auto shader{renderer_api->GetShader(Shaders::Fast2D)};
         auto visual2d{GetThinker<Visual2D>(v2d_id)};
         if(!visual2d->Visible()
             or !camera->LayersMask().contains(visual2d->Layers())
@@ -662,6 +663,39 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             shader->Bind();
             renderer_api->DrawIndexed(quad_mesh->MeshData());
             renderer_api->SetFramebufferSRGB(false);
+        }
+        else if(ThingFactory::IsDerivedFrom(visual2d->type(), ThingType::Text2D))
+        {
+            auto text2d{DCast<Text2D>(visual2d)};
+            auto font{GetResource<Font>(text2d->Font())};
+            auto shader{renderer_api->GetShader(Shaders::Fonts)};
+
+            glm::mat4 default_model{1.0f};
+            default_model = glm::translate(default_model, {text2d->GlobalPosition(), 0.0f});
+            default_model = glm::rotate(default_model, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
+            default_model = glm::scale(default_model, {text2d->GlobalScale(), 0.0f});
+
+            shader->SetUniform("debug_highlight", text2d->mDebugHighlight
+                * static_cast<float>(text2d->mIsHoveredInDebugger));
+            shader->SetUniform("projection_matrix", camera->ProjectionMatrix());
+            shader->SetUniform("model_matrix", default_model);
+            shader->SetUniform("view_matrix", camera->ViewMatrix());
+            shader->SetUniform("view_position", camera->GlobalPosition());
+            shader->SetUniform("glyph", 0);
+            shader->SetUniform("text_color", text2d->Color().glm());
+            shader->SetUniform("debug_solid", 0);
+            shader->Bind();
+
+            renderer_api->SetWireframe(false);
+            renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+
+            if(text2d->mDebugSolid)
+            {
+                shader->SetUniform("debug_solid", 1);
+                shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f});
+                renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
+                renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+            }
         }
     }
 }
