@@ -76,6 +76,12 @@ template<ushort Length, class T, VectorMembers M = VectorMembers::None>
         constexpr vector(const glm::vec3& inVec3) noexcept:
             array_{static_cast<T>(inVec3[0]), static_cast<T>(inVec3[1]), static_cast<T>(inVec3[2])} {}
 
+        constexpr glm::vec2 glm() const noexcept requires (Length == 2)
+        {
+            return {static_cast<float>(array_[0]),
+                static_cast<float>(array_[1])};
+        }
+
         constexpr glm::vec3 glm() const noexcept requires (Length == 3)
         {
             return {static_cast<float>(array_[0]),
