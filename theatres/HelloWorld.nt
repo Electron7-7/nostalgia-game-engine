@@ -228,21 +228,6 @@ Texture TestTexture2
     Image = 'theatres/testing_resources/TestTexture2.png'
 }
 
-Font TestFont1
-{
-    Font = 'theatres/testing_resources/Flynn.otf'
-}
-
-Text2D TestText
-{
-    Font = <Verdana>
-    Position = [100, -100]
-    Size = [1, 1]
-    Color = [0.2, 1.0, 0.1]
-    Text = "He was gay, Gary Cooper?"
-    Solid = [true]
-}
-
 TestAnimatedSprite2D TestSprite
 {
     Texture0 = <TestTexture1>
@@ -251,4 +236,66 @@ TestAnimatedSprite2D TestSprite
     Position = [1100, -550]
     Size = [2, 2]
     Interval = [50]
+}
+
+Text2D TestSpriteCaption
+{
+    Position = [972, -700]
+    Color = [1, 1, 1]
+    Size = [0.5, 0.5]
+    Text = 'This texture is animated.'
+}
+
+Font TestFont1
+{
+    Font = 'theatres/testing_resources/Flynn.otf'
+}
+
+Text2D TestText1
+{
+    Font = <TestFont1>
+    Position = [100, -50]
+    Color = [0.2, 1.0, 0.1]
+    Text = 'Some text in an imported font.'
+}
+
+Text2D TestText2
+{
+    Position = [100, -100]
+    Color = [0.2, 1.0, 0.1]
+    Text = "Some text in the default font."
+}
+
+Text2D TestText3
+{
+    Position = [100, -150]
+    Color = [0.2, 1.0, 0.1]
+    Text = 'Some text with debug outlines.'
+    Outline = [true]
+}
+
+Text2D TestText4
+{
+    Position = [100, -200]
+    Color = [0.2, 1.0, 0.1]
+    Text = 'Some text rendered solid.'
+    Solid = [true]
+}
+
+Text2D TestText5
+{
+    Position = [100, -250]
+    Color = [0.2, 1.0, 0.1]
+    Text = 'Some text rendered solid and in wireframe.'
+    Solid = [true]
+    Wireframe = [true]
+}
+
+Text2D TheSopranos
+{
+    Font = <Verdana>
+    Position = [1275, -750]
+    Size = [0.9,1]
+    Color = [0.2, 1.0, 0.1]
+    Text = "He was gay, Gary Cooper?"
 }
