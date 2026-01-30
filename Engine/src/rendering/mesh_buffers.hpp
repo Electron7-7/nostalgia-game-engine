@@ -64,7 +64,6 @@ public:
     virtual void Bind()   const = 0;
     virtual void Unbind() const = 0;
     virtual void SetData(const void* inData, size_t inSize) = 0;
-
     virtual uint GetID() const = 0;
     virtual Farg<Layout> GetLayout() const = 0;
     virtual void SetLayout(Farg<Layout> inLayout) = 0;

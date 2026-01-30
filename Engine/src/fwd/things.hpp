@@ -12,16 +12,17 @@
         class Actor2D;
             class Camera2D;
             class Visual2D;
+                class Sprite2D;
                 class Text2D;
         class Actor3D;
+            class NostalgiaPlayer3D;
             class Camera3D;
             class Collider3D;
             class Visual3D;
+                class MeshInstance3D;
                 class Light3D;
                 class PointLight3D;
                 class SpotLight3D;
                 class DirectionalLight3D;
-                class NostalgiaPlayer3D;
-                class MeshInstance3D;
 
 #endif // THINGS_FWD_H

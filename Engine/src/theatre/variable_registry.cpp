@@ -251,16 +251,16 @@ void VariableRegistry::RegisterEngineEnums()
 
 void VariableRegistry::RegisterEngineReferences()
 {
-    mReferences["ErrorModel"]      = UID::m_Error;
-    mReferences["DefaultCube"]     = UID::m_Cube;
-    mReferences["DefaultQuad"]     = UID::m_Quad;
-    mReferences["RamielModel"]     = UID::m_Ramiel;
-    mReferences["CameraModel"]     = UID::m_Camera3D;
-    mReferences["DebugAxis"]       = UID::m_DebugAxis;
-    mReferences["MissingTexture"]  = UID::t_Missing;
-    mReferences["LolBitTexture"]   = UID::t_LolBit;
-    mReferences["LightTexture"]    = UID::t_LightDebug;
-    mReferences["DoomTexture"]     = UID::t_COMP04_5;
+    mReferences["ErrorModel"]          = UID::m_Error;
+    mReferences["DefaultCube"]         = UID::m_Cube;
+    mReferences["DefaultQuad"]         = UID::m_Quad;
+    mReferences["RamielModel"]         = UID::m_Ramiel;
+    mReferences["CameraModel"]         = UID::m_Camera3D;
+    mReferences["DebugAxis"]           = UID::m_DebugAxis;
+    mReferences["MissingTexture"]      = UID::t_Missing;
+    mReferences["LolBitTexture"]       = UID::t_LolBit;
+    mReferences["LightTexture"]        = UID::t_LightDebug;
+    mReferences["DoomTexture"]         = UID::t_COMP04_5;
     mReferences["ShittySkyboxCubemap"] = UID::t_ShittySkybox;
 }
 

@@ -37,7 +37,6 @@ public:
     virtual Shared<TheatreFile::ThingData> GetVariables() const;
 
     TheatreFile::ThingData GetStartingVariables() const;
-
     ID uid() const;
     Sarg name() const;
     void set_name(Sarg);
