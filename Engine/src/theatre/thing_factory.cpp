@@ -5,6 +5,7 @@
 #include "./things/resources/font.hpp"
 #include "./things/thinkers/viewport.hpp"
 #include "./things/thinkers/2d/actor_2d.hpp"
+#include "./things/thinkers/2d/text_2d.hpp"
 #include "./things/thinkers/2d/visual_2d.hpp"
 #include "./things/thinkers/2d/camera_2d.hpp"
 #include "./things/thinkers/2d/sprite_2d.hpp"
@@ -52,6 +53,7 @@ bool ThingFactory::Init()
         ADD_THING(Actor2D, Thinker)
             ADD_THING(Camera2D, Actor2D)
             ADD_THING(Visual2D, Actor2D)
+                ADD_THING(Text2D, Visual2D)
                 ADD_THING(Sprite2D, Visual2D)
                     ADD_THING(TestAnimatedSprite2D, Sprite2D)
                 ADD_THING(MeshInstance2D, Visual2D)

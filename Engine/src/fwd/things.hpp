@@ -12,6 +12,7 @@
         class Actor2D;
             class Camera2D;
             class Visual2D;
+                class Text2D;
         class Actor3D;
             class Camera3D;
             class Collider3D;
