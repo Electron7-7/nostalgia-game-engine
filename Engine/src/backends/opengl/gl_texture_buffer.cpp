@@ -117,7 +117,8 @@ Error OpenGLTextureBuffer::GenerateMipMaps()
 Error OpenGLTextureBuffer::SetSamplerState(Farg<SamplerState> inSamplerState) const
 {
     glBindTexture(s_GLType(mType), mBufferID);
-    glTextureParameterf(mBufferID, GL_TEXTURE_MAX_ANISOTROPY, inSamplerState.use_anisotropy * inSamplerState.anisotropy_max);
+    if(inSamplerState.use_anisotropy)
+        { glTextureParameterf(mBufferID, GL_TEXTURE_MAX_ANISOTROPY, inSamplerState.anisotropy_max); }
     glTextureParameteri(mBufferID, GL_TEXTURE_MIN_FILTER, s_GLFilter(inSamplerState.min_filter, inSamplerState.mip_filter_min));
     glTextureParameteri(mBufferID, GL_TEXTURE_MAG_FILTER, s_GLFilter(inSamplerState.mag_filter, SAMPLER_FILTER_NONE));
     glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_S, s_GLWrap(inSamplerState.repeat_u));
