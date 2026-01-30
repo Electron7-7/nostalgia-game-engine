@@ -629,10 +629,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             auto sprite{DCast<Sprite2D>(visual2d)};
             auto texture{GetResource<Texture>(sprite->TextureID())};
 
-            glm::vec2 texture_size{(texture->GetBuffer())
-                ? glm::vec2{texture->Format().width,
-                    texture->Format().height}
-                : glm::vec2{16.0f}};
+            glm::vec2 texture_size{texture->Format().width, texture->Format().height};
 
             if(!sprite->TextureID().invalid() and !texture->GetBuffer())
                 { texture = missing_texture; }
