@@ -4,6 +4,13 @@
 #include "fwd/theatre.hpp"
 #include "fwd/event_types.hpp"
 
+#define SET_VARIABLES_OVERRIDE \
+    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+#define GET_VARIABLES_OVERRIDE \
+    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+#define READY_OVERRIDE \
+    virtual void Ready() override;
+
 // Similar to Godot's `Object`
 class Thing
 {
