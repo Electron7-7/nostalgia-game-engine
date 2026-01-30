@@ -12,12 +12,8 @@ public:
     virtual ID TextureID() const;
     virtual void SetTextureID(ID);
 
-    virtual bool Wireframe() const;
-    virtual void SetWireframe(bool);
-
 protected:
     ID mTextureID{};
-    bool mWireframe{false};
 };
 
 class TestAnimatedSprite2D : public Sprite2D

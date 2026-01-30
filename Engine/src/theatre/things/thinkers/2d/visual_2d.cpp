@@ -22,6 +22,7 @@ void Visual2D::SetVariables(Farg<ThingData> data)
         { mVisualLayers.set(layers); }
 
     data.get_variable(mDebugHighlight, "DebugHighlight");
+    data.get_variable(mWireframe, "Wireframe", "WireFrame");
 }
 
 Shared<ThingData> Visual2D::GetVariables() const
@@ -30,6 +31,7 @@ Shared<ThingData> Visual2D::GetVariables() const
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
     data->set_variable(mDebugHighlight, "DebugHighlight");
+    data->set_variable(mWireframe, "Wireframe");
 
     return data;
 }
@@ -45,6 +47,12 @@ ID Visual2D::Viewport() const
 
 void Visual2D::Viewport(ID inID)
 { mViewportID = inID; }
+
+bool Visual2D::Wireframe() const
+{ return mWireframe; }
+
+void Visual2D::SetWireframe(bool inWireframe)
+{ mWireframe = inWireframe; }
 
 void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
