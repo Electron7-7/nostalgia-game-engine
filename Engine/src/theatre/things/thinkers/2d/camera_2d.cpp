@@ -86,8 +86,8 @@ glm::mat4 Camera2D::ViewMatrix() const
         ? glm::vec2{0.0f}
         : GlobalPosition()};
     return glm::lookAt(glm::vec3{global_position, 0.0f},
-        {global_position, -1.0f},
-        Settings::World::Up());
+        {global_position, 1.0f},
+        {0.0f, -1.0f, 0.0f});
 }
 
 glm::mat4 Camera2D::ProjectionMatrix() const
@@ -122,8 +122,8 @@ glm::mat4 Camera2D::ProjectionMatrix() const
 
     return glm::ortho(lower.x(),
         upper.x(),
-        lower.y(),
         upper.y(),
+        lower.y(),
         -1.0f,
         1.0f);
 }
