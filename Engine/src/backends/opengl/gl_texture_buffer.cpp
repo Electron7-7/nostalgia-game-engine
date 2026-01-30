@@ -91,7 +91,7 @@ Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat)
         : gl_type};
 
     glBindTexture(gl_type, mBufferID);
-
+    if(inFormat.data_format == DATA_FORMAT_RED) { glPixelStorei(GL_UNPACK_ALIGNMENT, 1); }
     glTexImage2D(gl_target,
         0,
         s_GLFormat(inFormat.data_format, true),
