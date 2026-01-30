@@ -19,6 +19,8 @@ variables:
           \bVisual2D\b |
             \bMeshInstance2D\b |
             \bSprite2D\b |
+              \bTestAnimatedSprite2D\b |
+            \bText2D\b |
         \bActor3D\b |
           \bCamera3D\b |
           \bCollider3D\b |
@@ -51,9 +53,9 @@ variables:
       \bLightTexture\b |
       \bLolBitTexture\b |
       \bDoomTexture\b |
-      \bVerdanaFont\b |
-      \bAudiowideRegularFont\b |
-      \bDejaVuSansMonoFont\b |
+      \bVerdana\b |
+      \bAudiowide\b |
+      \bDejaVuSans\b |
     )
   pretty_enums: >-
     (?x)
@@ -82,22 +84,9 @@ contexts:
     - include: comment
     - match: '\w+' # Variable name
       scope: entity.name
-      branch_point: define_variable
-      branch:
-        - multiline
-        - singleline
+      push: multiline
     - match: '$'
       pop: true
-
-  singleline:
-    - include: comment
-    - match: '{'
-      fail: define_variable
-    - match: '(?==)'
-      push:
-      - include: variable
-      - match: '$'
-        pop: 2
 
   multiline:
     - include: comment
@@ -235,6 +224,11 @@ contexts:
       push:
       - meta_scope: string.quoted.single
       - match: \'
+        pop: true
+    - match: \"
+      push:
+      - meta_scope: string.quoted.double
+      - match: \"
         pop: true
 
   comment:
