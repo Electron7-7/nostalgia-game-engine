@@ -200,6 +200,76 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
         { glBindTextureUnit(unit, 0); }
 }
 
+
+void OpenGLRendererAPI::DrawText(Sarg inText,
+    Shared<Font> inFont, glm::vec2 inPos, glm::vec2 inScale)
+{
+    static uint VAO{0},
+        VBO{0};
+
+    if(!VAO or !VBO)
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 66, nullptr, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(0));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+    }
+
+    glm::vec2 initial_position{inPos};
+    inScale = {1.0f,1.0f};
+
+    for(auto c{inText.cbegin()}; c != inText.cend(); ++c)
+    {
+        FAUTO glyph{inFont->GetGlyph(*c)};
+        if(!glyph.texture) { continue; }
+
+        glm::vec2 pos{
+            inPos.x + glyph.bitmap_left * inScale.x,
+            inPos.y - (glyph.bitmap_height - glyph.bitmap_top) * inScale.y,
+        };
+
+        glm::vec2 scale{
+            inScale.x * glyph.bitmap_width,
+            inScale.y * glyph.bitmap_height,
+        };
+
+        if(*c == '\n')
+        {
+            inPos.x  = initial_position.x;
+            inPos.y -= glyph.bitmap_height * inScale.y;
+            continue;
+        }
+
+        float vertices[66] =
+        {
+            pos.x          , pos.y + scale.y, 0, 1,1,1, 0,0,0, 0.0f, 1.0f,
+            pos.x          , pos.y          , 0, 1,1,1, 0,0,0, 0.0f, 0.0f,
+            pos.x + scale.x, pos.y          , 0, 1,1,1, 0,0,0, 1.0f, 0.0f,
+            pos.x          , pos.y + scale.y, 0, 1,1,1, 0,0,0, 0.0f, 1.0f,
+            pos.x + scale.x, pos.y          , 0, 1,1,1, 0,0,0, 1.0f, 0.0f,
+            pos.x + scale.x, pos.y + scale.y, 0, 1,1,1, 0,0,0, 1.0f, 1.0f,
+        };
+
+        inPos.x += (glyph.advance_x >> 6) * inScale.x;
+        inPos.y -= (glyph.advance_y >> 6) * inScale.y;
+
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindTextureUnit(0, glyph.texture->ID());
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+}
+
 void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
     if(!inVAO) { return; }

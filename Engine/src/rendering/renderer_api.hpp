@@ -43,6 +43,8 @@ public:
     virtual Shared<Shader> GetShader(ID inID) = 0;
     virtual Error RemoveShader(ID inID) = 0;
 
+    virtual void DrawText(Sarg inText,
+        Shared<Font> inFont, glm::vec2 inPos, glm::vec2 inScale) = 0;
     virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0) = 0;
     virtual void DrawSkybox(Shared<VertexArray>) = 0;
     virtual void Clear() = 0;

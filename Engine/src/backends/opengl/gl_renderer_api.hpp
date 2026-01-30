@@ -29,6 +29,7 @@ public:
     Shared<Shader> GetShader(ID) final;
     Error RemoveShader(ID) final;
 
+    void DrawText(Sarg, Shared<Font>, glm::vec2, glm::vec2) final;
     void DrawIndexed(Shared<VertexArray>, uint) final;
     void DrawSkybox(Shared<VertexArray>) final;
     void Clear() final;
