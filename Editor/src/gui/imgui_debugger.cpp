@@ -668,6 +668,7 @@ struct thing_data_buffer
                     }
                     else if(auto text2d{DCast<Text2D>(ptr)})
                     {
+                        text_color = text2d->Color().glm();
                         font = text2d->Font()[];
                         text = text2d->Text();
                     }
@@ -719,7 +720,8 @@ struct thing_data_buffer
         scale{},
         global_position{},
         global_rotation{},
-        global_scale{};
+        global_scale{},
+        text_color{};
     uint parent{},
         mesh{},
         material{},
@@ -1233,6 +1235,8 @@ void ImGui_Debugger::InspectTheatreWindow()
                     {
                         if(InputText("Text", &selected.text))
                             { text2d->SetText(selected.text); }
+                        if(ColorEditGLMv3("Color", &selected.text_color))
+                            { text2d->SetColor(selected.text_color); }
                         if(InputUInt("Font UID", &selected.font, 0, 0))
                             { text2d->SetFont(selected.font); }
                         SameLine();

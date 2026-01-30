@@ -7,6 +7,7 @@ void Text2D::SetVariables(Farg<ThingData> data)
     Visual2D::SetVariables(data);
 
     data.get_variable(mDebugSolid, "Solid");
+    data.get_variable(mDebugOutline, "Outline");
     data.get_variable(mFontID, "Font");
     data.get_variable(mText, "Text");
     if(glm::vec3 color{}; data.get_variable(color, "Color") == OK)
@@ -18,6 +19,7 @@ Shared<ThingData> Text2D::GetVariables() const
     auto data{Visual2D::GetVariables()};
 
     data->set_variable(mDebugSolid, "Solid");
+    data->set_variable(mDebugOutline, "Outline");
     data->set_variable(mFontID, "Font");
     data->set_variable(mText, "Text");
     data->set_variable(mColor.glm(), "Color");

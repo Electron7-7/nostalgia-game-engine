@@ -7,6 +7,7 @@ class Text2D : public Visual2D
 {
 public:
     bool mDebugSolid{false};
+    bool mDebugOutline{false};
 
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
