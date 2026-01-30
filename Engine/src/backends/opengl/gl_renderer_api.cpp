@@ -46,6 +46,7 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::Fullbright]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_FullBright_Frag);
     mShaders[Shaders::SkyBox]->CompileShader(GLSL_SkyBox_Vert, GLSL_SkyBox_Frag);
     mShaders[Shaders::Fast2D]->CompileShader(GLSL_Fast2D_Vert, GLSL_Fast2D_Frag);
+    mShaders[Shaders::Fonts]->CompileShader(GLSL_Font_Vert, GLSL_Font_Frag);
 #endif
 
     EnumPrettifier::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");

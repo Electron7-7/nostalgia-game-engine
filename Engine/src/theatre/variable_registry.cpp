@@ -4,7 +4,11 @@
 #include "rendering/environment.hpp"
 #include "embedded/models.hpp"
 #include "embedded/images.hpp"
+#include "embedded/fonts.hpp"
 
+static auto s_pAudiowide  {MakeShared<FileData>(Fonts::Audiowide,   std::size(Fonts::Audiowide),   FileType::font_TTF )};
+static auto s_pVerdana    {MakeShared<FileData>(Fonts::Verdana,     std::size(Fonts::Verdana),     FileType::font_TTF )};
+static auto s_pDejaVuSans {MakeShared<FileData>(Fonts::DejaVuSans,  std::size(Fonts::DejaVuSans),  FileType::font_TTF )};
 static auto s_pError      {MakeShared<FileData>(Models::Error,      std::size(Models::Error),      FileType::model_OBJ)};
 static auto s_pCube       {MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)};
 static auto s_pQuad       {MakeShared<FileData>(Models::Quad,       std::size(Models::Quad),       FileType::model_OBJ)};
@@ -262,6 +266,9 @@ void VariableRegistry::RegisterEngineReferences()
 
 void VariableRegistry::RegisterEngineResourceData()
 {
+    m_sResourceData[{ UID::f_Audiowide[],      "Audiowide"      }] = s_pAudiowide;
+    m_sResourceData[{ UID::f_Verdana[],        "Verdana"        }] = s_pVerdana;
+    m_sResourceData[{ UID::f_DejaVuSans[],     "DejaVuSans"     }] = s_pDejaVuSans;
     m_sResourceData[{ UID::m_Error[],          "ErrorModel"     }] = s_pError;
     m_sResourceData[{ UID::m_Cube[],           "DefaultCube"    }] = s_pCube;
     m_sResourceData[{ UID::m_Quad[],           "DefaultQuad"    }] = s_pQuad;

@@ -12,6 +12,7 @@
 #include "./things/resources/texture.hpp"
 #include "./things/resources/material.hpp"
 #include "./things/resources/mesh.hpp"
+#include "./things/resources/font.hpp"
 #include "managers/render_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
@@ -391,9 +392,9 @@ void Theatre::SetupOwnership(Farg<ThingData> ioData)
 
 void Theatre::CreateEmbeddedResources()
 {
-    // "Audiowide" UID::f_Audiowide
-    // "DejaVuSans" UID::f_DejaVuSans
-    // "Verdana" UID::f_Verdana
+    CreateThingNoReady({ThingType::Font,    "Audiowide",{},           UID::f_Audiowide});
+    CreateThingNoReady({ThingType::Font,    "DejaVuSans",{},          UID::f_DejaVuSans});
+    CreateThingNoReady({ThingType::Font,    "Verdana",{},             UID::f_Verdana});
     CreateThingNoReady({ThingType::Mesh,    "ErrorModel",{},          UID::m_Error});
     CreateThingNoReady({ThingType::Mesh,    "DefaultCube",{},         UID::m_Cube});
     CreateThingNoReady({ThingType::Mesh,    "DefaultQuad",{},         UID::m_Quad});

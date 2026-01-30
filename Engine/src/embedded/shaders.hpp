@@ -31,6 +31,18 @@ constexpr const char GLSL_Fast2D_Frag[]{
         0
 };
 
+constexpr const char GLSL_Font_Vert[]{
+    #embed "shaders/GLSL/Font.vert" \
+        suffix(,)
+        0
+};
+
+constexpr const char GLSL_Font_Frag[]{
+    #embed "shaders/GLSL/Font.frag" \
+        suffix(,)
+        0
+};
+
 constexpr const char GLSL_SkyBox_Vert[]{
     #embed "shaders/GLSL/SkyBox.vert" \
         suffix(,)
