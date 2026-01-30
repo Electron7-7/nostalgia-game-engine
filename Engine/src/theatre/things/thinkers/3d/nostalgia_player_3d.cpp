@@ -81,9 +81,7 @@ void NostalgiaPlayer3D::Tick()
     });
     Look(InputManager::MouseMotion() * mCaptureMouse);
 
-    SetRotationDegrees(RotationDegrees() - glm::vec3{0.0f, mLookWish.x, 0.0f});
-    auto camera{my_theatre()->GetThinker<Actor3D>(mCameraID)};
-    camera->SetRotationDegrees(camera->RotationDegrees() - glm::vec3{mLookWish.y, 0.0f, 0.0f});
+    SetRotationDegrees(RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
 
     auto collider{my_theatre()->GetThinker<Collider3D>(mColliderID)};
 
@@ -110,7 +108,6 @@ void NostalgiaPlayer3D::Tick()
                 { mVelocity[i] = wish_velocity[i]; }
         }
     }
-    mVelocity[1] = 0.0f;
 
     PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
         Math::Convert<JPH::Vec3>(mVelocity));
