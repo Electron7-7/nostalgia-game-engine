@@ -2,6 +2,7 @@
 #include "./things/resources/material.hpp"
 #include "./things/resources/texture.hpp"
 #include "./things/resources/mesh.hpp"
+#include "./things/resources/font.hpp"
 #include "./things/thinkers/viewport.hpp"
 #include "./things/thinkers/2d/actor_2d.hpp"
 #include "./things/thinkers/2d/visual_2d.hpp"
@@ -32,6 +33,7 @@ bool ThingFactory::Init()
 
     ADD_THING(Thing, Thing)
         ADD_THING(Resource, Thing)
+            ADD_THING(Font, Resource)
             ADD_THING(Mesh, Resource)
             ADD_THING(Texture, Resource)
             ADD_THING(Material, Resource)

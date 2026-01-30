@@ -4,6 +4,7 @@
 // class Thing; // Already in the pch
     // class Resource; // Already in the pch
         class Material;
+        class Font;
         class Mesh;
         class Texture;
     // class Thinker; // Already in the pch
