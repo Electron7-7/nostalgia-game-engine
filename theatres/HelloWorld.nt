@@ -228,12 +228,27 @@ Texture TestTexture2
     Image = 'theatres/testing_resources/TestTexture2.png'
 }
 
+Font TestFont1
+{
+    Font = 'theatres/testing_resources/Flynn.otf'
+}
+
+Text2D TestText
+{
+    Font = <Verdana>
+    Position = [100, -100]
+    Size = [1, 1]
+    Color = [0.2, 1.0, 0.1]
+    Text = "He was gay, Gary Cooper?"
+    Solid = [true]
+}
+
 TestAnimatedSprite2D TestSprite
 {
     Texture0 = <TestTexture1>
     Texture1 = <TestTexture2>
     Texture2 = <DoomTexture>
-    Position = [1100, 550]
+    Position = [1100, -550]
     Size = [2, 2]
     Interval = [50]
 }
