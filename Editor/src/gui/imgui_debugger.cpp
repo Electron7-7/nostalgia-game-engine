@@ -15,12 +15,14 @@
 #include "events/event.hpp"
 #include "rendering/renderer_api.hpp"
 #include "theatre/things/resources/mesh.hpp"
+#include "theatre/things/thinkers/2d/text_2d.hpp"
 #include "theatre/things/thinkers/2d/sprite_2d.hpp"
 #include "theatre/things/thinkers/2d/camera_2d.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "theatre/things/thinkers/3d/camera_3d.hpp"
 #include "theatre/things/thinkers/viewport.hpp"
 #include "theatre/things/resources/material.hpp"
+#include "theatre/things/resources/font.hpp"
 #include "theatre/things/resources/texture.hpp"
 #include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
@@ -664,6 +666,11 @@ struct thing_data_buffer
                         diffuseTexture = sprite->TextureID()[];
                         wireframe = sprite->Wireframe();
                     }
+                    else if(auto text2d{DCast<Text2D>(ptr)})
+                    {
+                        font = text2d->Font()[];
+                        text = text2d->Text();
+                    }
                 }
                 else if(auto camera2d{DCast<Camera2D>(ptr)})
                 {
@@ -685,6 +692,11 @@ struct thing_data_buffer
             else if(auto mesh{DCast<Mesh>(ptr)})
             {
                 material = mesh->MaterialID()[];
+            }
+            else if(auto font{DCast<Font>(ptr)})
+            {
+                font_size = font->GetSize();
+                font_glyphs = font->GetGlyphs();
             }
             else if(auto texture{DCast<Texture>(ptr)})
             {
@@ -714,6 +726,7 @@ struct thing_data_buffer
         material_override{},
         diffuseTexture{},
         specularTexture{},
+        font{},
         debug_mesh_instance{};
     int motion{static_cast<int>(MotionType::None)},
         shape{static_cast<int>(ShapeType::None)};
@@ -734,6 +747,9 @@ struct thing_data_buffer
     BitMask::StatusArray layers_status{};
     Environment::BackgroundType env_type{Environment::BackgroundType::BG_CLEAR_COLOR};
     ColliderMaterial collider_material{};
+    int font_size{};
+    std::unordered_map<char, Font::Glyph> font_glyphs{};
+    std::string text{};
 };
 
 static void s_ThingTreeBranch(ID inUID)
@@ -1213,6 +1229,19 @@ void ImGui_Debugger::InspectTheatreWindow()
                         if(IsItemHovered())
                             { SetTooltip("%s", "Enabling the global wireframe setting will override this option"); }
                     }
+                    else if(auto text2d{DCast<Text2D>(selected.ptr)})
+                    {
+                        if(InputText("Text", &selected.text))
+                            { text2d->SetText(selected.text); }
+                        if(InputUInt("Font UID", &selected.font, 0, 0))
+                            { text2d->SetFont(selected.font); }
+                        SameLine();
+                        if(Button("Inspect"))
+                        {
+                            last_selected = selected;
+                            selected = {theatre->GetThing(selected.font)};
+                        }
+                    }
                 }
                 else if(auto camera2d{DCast<Camera2D>(selected.ptr)})
                 {
@@ -1317,6 +1346,27 @@ void ImGui_Debugger::InspectTheatreWindow()
                 QUICK_COMBO_THING_VAR(mSampler.min_filter, sampler_filter, sampler_state.min_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
                 QUICK_COMBO_THING_VAR(mSampler.mip_filter_min, sampler_filter, sampler_state.mip_filter_min, texture->SetSampler(selected.sampler_state); selected = {texture})
                 QUICK_COMBO_THING_VAR(mSampler.mag_filter, sampler_filter, sampler_state.mag_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
+            }
+            else if(auto font{DCast<Font>(selected.ptr)})
+            {
+                TextF("Font Size: {}", selected.font_size);
+                SeparatorText("Glyphs");
+                for(auto& [character, glyph] : font->mGlyphs)
+                {
+                    if(TreeNodeEx(std::format("Glyph '{}'", character).data()))
+                    {
+                        BeginDisabled();
+                            DragInt("Bitmap Height", &glyph.bitmap_height);
+                            DragInt("Bitmap Width",  &glyph.bitmap_width);
+                            DragInt("Bitmap Left",   &glyph.bitmap_left);
+                            DragInt("Bitmap Top",    &glyph.bitmap_top);
+                            DragInt("Advance X",     &glyph.advance_x);
+                            DragInt("Advance Y",     &glyph.advance_y);
+                        EndDisabled();
+                        TextF("Bitshift Advance: [{}, {}]", glyph.advance_x >> 6, glyph.advance_y >> 6);
+                        TreePop();
+                    }
+                }
             }
             else if(auto mesh{DCast<Mesh>(selected.ptr)})
             {
