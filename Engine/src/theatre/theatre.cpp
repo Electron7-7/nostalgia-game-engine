@@ -529,8 +529,9 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         if(!visual3d->Visible()
             or !camera->LayersMask().contains(visual3d->Layers())
             or (visual3d->Viewport() != UID::a_RootViewport
-                    and visual3d->Viewport() != inViewport->uid()))
-                        { continue; }
+                    and visual3d->Viewport() != inViewport->uid())
+            or camera->EditorMeshInstanceID() == v3d_id)
+                { continue; }
 
         if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
         {

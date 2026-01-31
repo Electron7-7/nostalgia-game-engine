@@ -27,9 +27,9 @@ void Camera3D::Ready()
         ThingData mesh_inst_data{ThingType::MeshInstance3D,{mName + "-debug-mesh-instance"}};
         mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
         mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
-        mesh_inst_data.set_variable(0b1, "RenderLayers");
-        mLayersMask.disable(0b1);
-        my_theatre()->SetParent(my_theatre()->CreateThing(mesh_inst_data), mUID);
+        my_theatre()->SetParent(mEditorMeshInstanceID =
+            my_theatre()->CreateThing(mesh_inst_data),
+            mUID);
     }
 
     auto ancestors{my_theatre()->GetAllParents(mUID)};
@@ -67,7 +67,8 @@ void Camera3D::SetVariables(Farg<ThingData> data)
         mEnvironment.mType = Environment::BG_SKYBOX;
         mEnvironment.mCustomColor = color;
     }
-    data.get_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha", "EnvironmentAlpha");
+    data.get_variable(mEnvironment.mCustomColorAlpha,
+        "EnvironmentColorAlpha", "EnvironmentAlpha");
 }
 
 Shared<ThingData> Camera3D::GetVariables() const
@@ -120,11 +121,15 @@ glm::mat4 Camera3D::ViewMatrix() const
 glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
-        static_cast<float>(my_theatre()->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
+        static_cast<float>(my_theatre()
+            ->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
     );
 }
+
+ID Camera3D::EditorMeshInstanceID() const
+{ return mEditorMeshInstanceID; }
 
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
