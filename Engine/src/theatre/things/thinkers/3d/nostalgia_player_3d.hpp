@@ -12,11 +12,6 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
-#pragma message("TODO: get rid of hardcoded camera and collider code")
-    virtual ID CameraID() const;
-
-    virtual Farg<glm::vec3> Velocity() const;
-
     virtual void Move(Farg<glm::vec2> Direction);
     virtual void Look(Farg<glm::vec2> Position);
 
@@ -28,8 +23,10 @@ protected:
         mVelocity{0.0f};
     glm::vec3 mMovementDirection{0.0f};
     glm::vec2 mLookWish{0.0f};
-    ID mCameraID{};
-    ID mColliderID{};
+
+    ID mMainColliderID{};
+
+    bool mEnableCollision{true};
 };
 
 #endif // NOSTALGIA_PLAYER_H
