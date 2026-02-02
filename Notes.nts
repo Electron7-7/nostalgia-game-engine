@@ -1159,3 +1159,7 @@ i don't fucking get it. nothing i do makes sense. implemented the shitty version
 I'm gonna fucking get this tonight. I fixed the problem with the y-alignment. Now I need to figure out why the size + x-alignment is off. Almost there... I can fucking taste it.
 
 Welp, during my attempts at solving the matrix version I fixed the shitty version. Now it properly scales and rotates. I'll be keeping it as the default for now, so I actually *have* a form of text rendering now. It's just shitty.
+
+TODO: 2D things shouldn't actually need cameras to be seen.
+
+OHHHHH TODOTODOTODOTODOTODO: THE RELEASE HEADERS NEED TO START INCLUDES WITH 'Nostalgia/' BC IT NEEDS TO ASSUME THE LIBRARY IS INSTALLED!!!

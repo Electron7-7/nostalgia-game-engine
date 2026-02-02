@@ -1,7 +1,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
-#include "getargs/argument.hpp"
+#include <getargs/argument.hpp>
 
 namespace Flags
 {

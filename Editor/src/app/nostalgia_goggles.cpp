@@ -1,20 +1,20 @@
-#include "nostalgia_goggles.hpp"
-#include "application/window.hpp"
-#include "events/event_queue.hpp"
-#include "events/action.hpp"
-#include "managers/physics_manager.hpp"
-#include "managers/theatre_manager.hpp"
-#include "managers/render_manager.hpp"
-#include "managers/input_manager.hpp"
-#include "managers/event_manager.hpp"
-#include "managers/ui_manager.hpp"
-#include "settings/engine.hpp"
-#include "system/program_arguments.hpp"
-#include "ui/implementor.hpp"
+#include "./nostalgia_goggles.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
-#include "backends/glfw/glfw_window.hpp" // GLFW is the main windowing solution (most likely permanently)
-#include "backends/imgui/imgui_implementor.hpp"
+#include "system/program_arguments.hpp"
+#include <Nostalgia/application/window.hpp>
+#include <Nostalgia/events/event_queue.hpp>
+#include <Nostalgia/events/action.hpp>
+#include <Nostalgia/managers/physics_manager.hpp>
+#include <Nostalgia/managers/theatre_manager.hpp>
+#include <Nostalgia/managers/render_manager.hpp>
+#include <Nostalgia/managers/input_manager.hpp>
+#include <Nostalgia/managers/event_manager.hpp>
+#include <Nostalgia/managers/ui_manager.hpp>
+#include <Nostalgia/settings/engine.hpp>
+#include <Nostalgia/ui/implementor.hpp>
+#include <Nostalgia/backends/glfw/glfw_window.hpp> // GLFW is the main windowing solution (most likely permanently)
+#include <Nostalgia/backends/imgui/imgui_implementor.hpp>
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};

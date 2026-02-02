@@ -1,18 +1,19 @@
 #include "imgui_editor.hpp"
-#include "application/application.hpp"
-#include "events/event.hpp"
-#include "managers/input_manager.hpp"
-#include "managers/render_manager.hpp"
-#include "managers/theatre_manager.hpp"
-#include "settings/engine.hpp"
-#include "settings/world.hpp"
-#include "ui/implementor.hpp"
-#include "rendering/renderer_api.hpp"
-#include "theatre/things/thinkers/viewport.hpp"
-#include "theatre/things/thinkers/3d/camera_3d.hpp"
-#include "theatre/things/thinkers/3d/nostalgia_player_3d.hpp" // IWYU pragma: keep
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_stdlib.h"
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/application/application.hpp>
+#include <Nostalgia/events/event.hpp>
+#include <Nostalgia/managers/input_manager.hpp>
+#include <Nostalgia/managers/render_manager.hpp>
+#include <Nostalgia/managers/theatre_manager.hpp>
+#include <Nostalgia/settings/engine.hpp>
+#include <Nostalgia/settings/world.hpp>
+#include <Nostalgia/ui/implementor.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
+#include <Nostalgia/theatre/things/thinkers/viewport.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/nostalgia_player_3d.hpp>
+#include <Nostalgia/thirdparty/DearImGui/imgui.h>
+#include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 
 using namespace ImGui;
 
@@ -181,7 +182,7 @@ void ImGui_Editor::Update()
                 ImGuiWindowFlags_NoScrollWithMouse);
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
             Image((ImTextureID)viewport->Framebuffer()->TextureID(),
-                (ImVec2)viewport->Size(),
+                {(float)viewport->Size().w(), (float)viewport->Size().h()},
                 {0, 1},
                 {1, 0});
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);

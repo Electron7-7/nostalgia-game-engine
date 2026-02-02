@@ -1,7 +1,8 @@
 #ifndef IMGUI_DEBUGGER_H
 #define IMGUI_DEBUGGER_H
 
-#include "ui/solution.hpp"
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/ui/solution.hpp>
 #include "tools/stopwatch_log.hpp"
 
 class ImGui_Debugger : public UI_Solution

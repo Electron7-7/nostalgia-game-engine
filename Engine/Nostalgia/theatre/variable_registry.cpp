@@ -1,0 +1,288 @@
+#include "variable_registry.hpp"
+#include <Nostalgia/rendering/texture_buffer.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/collider_3d.hpp>
+#include <Nostalgia/rendering/environment.hpp>
+#include <Nostalgia/embedded/models.hpp>
+#include <Nostalgia/embedded/images.hpp>
+#include <Nostalgia/embedded/fonts.hpp>
+
+static auto s_pAudiowide  {MakeShared<FileData>(Fonts::Audiowide,   std::size(Fonts::Audiowide),   FileType::font_TTF )};
+static auto s_pVerdana    {MakeShared<FileData>(Fonts::Verdana,     std::size(Fonts::Verdana),     FileType::font_TTF )};
+static auto s_pDejaVuSans {MakeShared<FileData>(Fonts::DejaVuSans,  std::size(Fonts::DejaVuSans),  FileType::font_TTF )};
+static auto s_pError      {MakeShared<FileData>(Models::Error,      std::size(Models::Error),      FileType::model_OBJ)};
+static auto s_pCube       {MakeShared<FileData>(Models::Cube,       std::size(Models::Cube),       FileType::model_OBJ)};
+static auto s_pQuad       {MakeShared<FileData>(Models::Quad,       std::size(Models::Quad),       FileType::model_OBJ)};
+static auto s_pRamiel     {MakeShared<FileData>(Models::Ramiel,     std::size(Models::Ramiel),     FileType::model_OBJ)};
+static auto s_pCamera     {MakeShared<FileData>(Models::Camera,     std::size(Models::Camera),     FileType::model_OBJ)};
+static auto s_pDebugAxis  {MakeShared<FileData>(Models::DebugAxis,  std::size(Models::DebugAxis),  FileType::model_OBJ)};
+static auto s_pMissing    {MakeShared<FileData>(Images::Missing,    std::size(Images::Missing),    FileType::image_PNG)};
+static auto s_pLolBit     {MakeShared<FileData>(Images::LolBit,     std::size(Images::LolBit),     FileType::image_PNG)};
+static auto s_pLightDebug {MakeShared<FileData>(Images::LightDebug, std::size(Images::LightDebug), FileType::image_JPG)};
+static auto s_pCOMP04_5   {MakeShared<FileData>(Images::COMP04_5,   std::size(Images::COMP04_5),   FileType::image_PNG)};
+static auto s_pSkyboxXn   {MakeShared<FileData>(Images::SkyboxXn,   std::size(Images::SkyboxXn),   FileType::image_PNG)};
+static auto s_pSkyboxXp   {MakeShared<FileData>(Images::SkyboxXp,   std::size(Images::SkyboxXp),   FileType::image_PNG)};
+static auto s_pSkyboxYp   {MakeShared<FileData>(Images::SkyboxYp,   std::size(Images::SkyboxYp),   FileType::image_PNG)};
+static auto s_pSkyboxYn   {MakeShared<FileData>(Images::SkyboxYn,   std::size(Images::SkyboxYn),   FileType::image_PNG)};
+static auto s_pSkyboxZn   {MakeShared<FileData>(Images::SkyboxZn,   std::size(Images::SkyboxZn),   FileType::image_PNG)};
+static auto s_pSkyboxZp   {MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)};
+
+VariableRegistry::Enums VariableRegistry::m_sEnums{};
+VariableRegistry::ResourceData VariableRegistry::m_sResourceData{};
+
+VariableRegistry::VariableRegistry() noexcept = default;
+
+Farg<VariableRegistry::References> VariableRegistry::GetRegisteredIDs() const
+{ return mReferences; }
+
+Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums()
+{ return m_sEnums; }
+
+Farg<VariableRegistry::ResourceData> VariableRegistry::GetRegisteredResourceData()
+{ return m_sResourceData; }
+
+bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
+{
+    if(auto found_it{mReferences.find(inName)};
+        found_it != mReferences.end())
+    {
+        outID = found_it->second;
+        return true;
+    }
+    return false;
+}
+
+bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
+{
+    for(FAUTO [name, id] : mReferences)
+    {
+        if(id == inID)
+        {
+            outName = name.name();
+            return true;
+        }
+    }
+    return false;
+}
+
+bool VariableRegistry::HasID(ID inID) const
+{
+    for(FAUTO [name, id] : mReferences)
+    {
+        if(inID == id)
+            { return true; }
+    }
+    return false;
+}
+
+bool VariableRegistry::HasID(Sarg inName) const
+{ return mReferences.contains(inName); }
+
+ID VariableRegistry::GetID(Sarg inName) const
+{
+    ID out{};
+    try_GetID(inName, out);
+    return out;
+}
+
+Sarg VariableRegistry::GetIDName(ID inID) const
+{
+    static PID invalid{};
+    for(FAUTO [name, id] : mReferences)
+    {
+        if(inID == id)
+            { return name.name(); }
+    }
+    return invalid.name();
+}
+
+Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
+{
+    if(noCopies && mReferences.contains(inName))
+    {
+        print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
+            inName,
+            mReferences.at(inName)[],
+            inID[]);
+        return ERR_ALREADY_EXISTS;
+    }
+    mReferences[inName] = inID;
+    return OK;
+}
+
+Error VariableRegistry::RemoveID(Sarg inName)
+{
+    if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
+    {
+        mReferences.erase(found_it);
+        return OK;
+    }
+    return ERR_NOT_FOUND;
+}
+
+Error VariableRegistry::RemoveID(ID inID)
+{
+    for(FARG(auto) [name, id] : mReferences)
+    {
+        if(inID == id)
+        {
+            mReferences.erase(name);
+            return OK;
+        }
+    }
+    return ERR_NOT_FOUND;
+}
+
+void VariableRegistry::Init()
+{
+    PRINT_PRETTY_FUNCTION;
+    RegisterEngineEnums();
+    RegisterEngineReferences();
+    RegisterEngineResourceData();
+}
+
+void VariableRegistry::ClearIDs()
+{
+    PRINT_PRETTY_FUNCTION;
+    mReferences.clear();
+    RegisterEngineReferences();
+}
+
+void VariableRegistry::ClearEnums()
+{
+    PRINT_PRETTY_FUNCTION;
+    m_sEnums.clear();
+    RegisterEngineEnums();
+}
+
+bool VariableRegistry::try_GetResourceData(Sarg inName, Shared<FileData>& outData)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { outData = data; return true; } }
+    return false;
+}
+
+bool VariableRegistry::try_GetResourceData(ID inID, Shared<FileData>& outData)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { outData = data; return true; } }
+    return false;
+}
+
+Shared<FileData> VariableRegistry::GetResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { return data; } }
+    return MakeShared<FileData>();
+}
+
+Shared<FileData> VariableRegistry::GetResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { return data; } }
+    return MakeShared<FileData>();
+}
+
+bool VariableRegistry::HasResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { return true; } }
+    return false;
+}
+
+bool VariableRegistry::HasResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID) { return true; } }
+    return false;
+}
+
+Error VariableRegistry::RegisterResourceData(ID inID,
+    Sarg inName,
+    Farg<Shared<FileData>> inData,
+    bool doNoCopies)
+{
+    if(doNoCopies)
+    {
+        for(FAUTO [pid, data] : m_sResourceData)
+        {
+            if(pid == inID[] or pid == inName)
+                { return ERR_ALREADY_EXISTS; }
+        }
+    }
+    m_sResourceData[{inID[], inName}] = inData;
+    return OK;
+}
+
+Error VariableRegistry::RemoveResourceData(Sarg inName)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inName) { m_sResourceData.erase(pid); return OK; } }
+    return ERR_NOT_FOUND;
+}
+
+Error VariableRegistry::RemoveResourceData(ID inID)
+{
+    for(FAUTO [pid, data] : m_sResourceData)
+        { if(pid == inID[]) { m_sResourceData.erase(pid); return OK; } }
+    return ERR_NOT_FOUND;
+}
+
+void VariableRegistry::ClearResourceData()
+{
+    m_sResourceData.clear();
+    RegisterEngineResourceData();
+}
+
+void VariableRegistry::RegisterEngineEnums()
+{
+    m_sEnums["Static"]         = MotionType::Static;
+    m_sEnums["Dynamic"]        = MotionType::Dynamic;
+    m_sEnums["Kinematic"]      = MotionType::Kinematic;
+    m_sEnums["Box"]            = ShapeType::Box;
+    m_sEnums["Capsule"]        = ShapeType::Capsule;
+    m_sEnums["Cylinder"]       = ShapeType::Cylinder;
+    m_sEnums["Sphere"]         = ShapeType::Sphere;
+    m_sEnums["2DTexture"]      = TextureType::TEXTURE_TYPE_2D;
+    m_sEnums["CubeMapTexture"] = TextureType::TEXTURE_TYPE_CUBE;
+    m_sEnums["CustomColor"]    = Environment::BG_CUSTOM_COLOR;
+    m_sEnums["ClearColor"]     = Environment::BG_CLEAR_COLOR;
+    m_sEnums["Skybox"]         = Environment::BG_SKYBOX;
+}
+
+void VariableRegistry::RegisterEngineReferences()
+{
+    mReferences["ErrorModel"]          = UID::m_Error;
+    mReferences["DefaultCube"]         = UID::m_Cube;
+    mReferences["DefaultQuad"]         = UID::m_Quad;
+    mReferences["RamielModel"]         = UID::m_Ramiel;
+    mReferences["CameraModel"]         = UID::m_Camera3D;
+    mReferences["DebugAxis"]           = UID::m_DebugAxis;
+    mReferences["MissingTexture"]      = UID::t_Missing;
+    mReferences["LolBitTexture"]       = UID::t_LolBit;
+    mReferences["LightTexture"]        = UID::t_LightDebug;
+    mReferences["DoomTexture"]         = UID::t_COMP04_5;
+    mReferences["ShittySkyboxCubemap"] = UID::t_ShittySkybox;
+}
+
+void VariableRegistry::RegisterEngineResourceData()
+{
+    m_sResourceData[{ UID::f_Audiowide[],      "Audiowide"      }] = s_pAudiowide;
+    m_sResourceData[{ UID::f_Verdana[],        "Verdana"        }] = s_pVerdana;
+    m_sResourceData[{ UID::f_DejaVuSans[],     "DejaVuSans"     }] = s_pDejaVuSans;
+    m_sResourceData[{ UID::m_Error[],          "ErrorModel"     }] = s_pError;
+    m_sResourceData[{ UID::m_Cube[],           "DefaultCube"    }] = s_pCube;
+    m_sResourceData[{ UID::m_Quad[],           "DefaultQuad"    }] = s_pQuad;
+    m_sResourceData[{ UID::m_Ramiel[],         "RamielModel"    }] = s_pRamiel;
+    m_sResourceData[{ UID::m_Camera3D[],       "CameraModel"    }] = s_pCamera;
+    m_sResourceData[{ UID::m_DebugAxis[],      "DebugAxis"      }] = s_pDebugAxis;
+    m_sResourceData[{ UID::t_Missing[],        "MissingTexture" }] = s_pMissing;
+    m_sResourceData[{ UID::t_LolBit[],         "LolBitTexture"  }] = s_pLolBit;
+    m_sResourceData[{ UID::t_LightDebug[],     "LightTexture"   }] = s_pLightDebug;
+    m_sResourceData[{ UID::t_COMP04_5[],       "DoomTexture"    }] = s_pCOMP04_5;
+    m_sResourceData[{ UID::t_ShittySkybox[],   "ShittySkybox01" }] = s_pSkyboxXn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+1, "ShittySkybox02" }] = s_pSkyboxXp;
+    m_sResourceData[{ UID::t_ShittySkybox[]+2, "ShittySkybox03" }] = s_pSkyboxYp;
+    m_sResourceData[{ UID::t_ShittySkybox[]+3, "ShittySkybox04" }] = s_pSkyboxYn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+4, "ShittySkybox05" }] = s_pSkyboxZn;
+    m_sResourceData[{ UID::t_ShittySkybox[]+5, "ShittySkybox06" }] = s_pSkyboxZp;
+}

@@ -1,7 +1,8 @@
 #ifndef EDITOR_WINDOW_H
 #define EDITOR_WINDOW_H
 
-#include "ui/solution.hpp"
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/ui/solution.hpp>
 
 class ImGui_Editor : public UI_Solution
 {

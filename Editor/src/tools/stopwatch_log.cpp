@@ -1,4 +1,7 @@
 #include "stopwatch_log.hpp"
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/core/time.hpp>
+#include <Nostalgia/core/log.hpp>
 
 StopwatchLog StopwatchLog::Invalid(true);
 
@@ -7,8 +10,8 @@ bool StopwatchLog::Start(const std::string& message)
     if(mIsRunning || mIsFinished)
         { return false; }
     mMessage = message;
-    mFormattedStartTime = Time::CurrentFormatted();
-    mHighResStartTime   = Time::Current();
+    mFormattedStartTime = Runtime::CurrentFormatted();
+    mHighResStartTime   = Runtime::Current();
     return mIsRunning   = !(mIsFinished = false);
 }
 
@@ -16,8 +19,8 @@ bool StopwatchLog::Stop()
 {
     if(!mIsRunning || mIsFinished)
         { return false; }
-    mHighResStopTime   = Time::Current();
-    mFormattedStopTime = Time::CurrentFormatted();
+    mHighResStopTime   = Runtime::Current();
+    mFormattedStopTime = Runtime::CurrentFormatted();
     return mIsFinished = !(mIsRunning = false);
 }
 
@@ -36,7 +39,7 @@ double StopwatchLog::HiResStopTime() const
 double StopwatchLog::Duration() const
 {
     if(mIsRunning || !mIsFinished)
-        { return (Time::Current() - mHighResStartTime); }
+        { return (Runtime::Current() - mHighResStartTime); }
     return mHighResStopTime - mHighResStartTime;
 }
 

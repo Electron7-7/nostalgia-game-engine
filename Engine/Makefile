@@ -1,3 +1,7 @@
+# https://stackoverflow.com/a/18137056
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
+
 LINUX_CXX := clang++
 LINUX_CC  := clang
 LINUX_AR  := llvm-ar
@@ -12,24 +16,23 @@ else
 	WINDOWS_AR  := ar
 endif
 
-FLAGS_DEBUG_COMMON    := -g -O0 -D DEBUGGING
-FLAGS_DEBUG_LINUX     := -fsanitize=address
-FLAGS_RELEASE_COMMON  := -O3
-FLAGS_DYNAMIC         := -shared -fPIC
+FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING
+FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
+FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
+FLAGS_DYNAMIC         := -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions -D CPP_RTTI_ENABLED -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_DEBUG_RENDERER -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=Nostalgia/embedded -Wno-c23-extensions -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D NOSTALGIA_WINDOWS
 FLAGS_LINUX           := -D NOSTALGIA_LINUX
 
 # Archives & Libraries
-ARCHIVES_DIR_LINUX       := Engine/src/static_libraries/linux
-ARCHIVES_DIR_WINDOWS     := Engine/src/static_libraries/windows
-DYNAMIC_LIBRARIES        := -lglfw -lfreetype
-DYNAMIC_LDFLAGS_LINUX    := -shared $(DYNAMIC_LIBRARIES)
-DYNAMIC_LDFLAGS_WINDOWS  := -shared --out-implib $(DYNAMIC_LIBRARIES)
+ARCHIVES_DIR_LINUX        := Nostalgia/static_libraries/linux
+ARCHIVES_DIR_WINDOWS      := Nostalgia/static_libraries/windows
+DYNAMIC_LIB_FLAGS_LINUX   := -shared
+DYNAMIC_LIB_FLAGS_WINDOWS := -shared --out-implib
 
-INCLUDE := -I src -I src/precompiled_headers -I src/thirdparty -I src/thirdparty/FreeType
+INCLUDE := -I Nostalgia -I Nostalgia/thirdparty -I Nostalgia/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux
@@ -62,10 +65,11 @@ ifneq ($(OS),Windows_NT)
 	export BUILD_ARCH      ?= $(DIR_LINUX)
 	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX)
 	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX)
+	export LINKER_FLAGS    ?= $(DYNAMIC_LIB_FLAGS_LINUX)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_LINUX)
-	export PCH_FLAGS       ?= -include-pch $(PCH_OUT)
+	export PCH_FLAGS       ?= -include-pch $(BUILD_OBJS)
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_LINUX)
-	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_LINUX)
+	export LD_FLAGS        ?= $(DYNAMIC_LIBRARIES)
 	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_LINUX)
 	export CXX_COMPILER    ?= $(LINUX_CXX)
 	export C_COMPILER      ?= $(LINUX_CC)
@@ -76,19 +80,17 @@ else # WINDOWS
 	export BUILD_ARCH      ?= $(DIR_WINDOWS)
 	export DEBUG_FLAGS     ?= $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS)
 	export RELEASE_FLAGS   ?= $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS)
+	export LINKER_FLAGS    ?= $(DYNAMIC_LIB_FLAGS_WINDOWS)
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
-	export PCH_FLAGS       ?= -I $(dir $(PCH_OUT))
+	export PCH_FLAGS       ?= -I $(dir $(BUILD_OBJS))
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
-	export LD_FLAGS        ?= $(DYNAMIC_LDFLAGS_WINDOWS) -fuse-ld=x86_64-w64-mingw32-ld
+	export LD_FLAGS        ?= -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LIBRARIES)
 	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER    ?= $(WINDOWS_CXX)
 	export C_COMPILER      ?= $(WINDOWS_CC)
 	export ARCHIVER        ?= $(WINDOWS_AR)
 endif
 
-export JOLT_DEBUG    ?= $(ARCHIVES_DIR)/Jolt_Debug/libJolt.a
-export JOLT_RELEASE  ?= $(ARCHIVES_DIR)/Jolt_Distribution/libJolt.a
-export JOLT_LIBRARY  ?= $(JOLT_RELEASE)
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
@@ -112,20 +114,22 @@ export CLEAN_VERSION ?= .+
 
 VPATH := $(SRC_DIRS):$(DIR_ROOT)
 
-SRC := src
+SRC := Nostalgia
 
 SRC_DIRS := \
     $(SRC)/application \
     $(SRC)/backends \
     $(SRC)/backends/glfw \
-    $(SRC)/backends/opengl \
     $(SRC)/backends/imgui \
-    $(SRC)/components \
+    $(SRC)/backends/opengl \
     $(SRC)/common \
+    $(SRC)/components \
+    $(SRC)/console \
     $(SRC)/core \
     $(SRC)/embedded \
-    $(SRC)/filesystem \
     $(SRC)/events \
+    $(SRC)/filesystem \
+    $(SRC)/fwd \
     $(SRC)/managers \
     $(SRC)/math \
     $(SRC)/physics \
@@ -141,11 +145,17 @@ SRC_DIRS := \
 
 THIRDPARTY_SRC_DIRS := \
 	$(SRC)/thirdparty/DearImGui \
+	$(SRC)/thirdparty/frozen \
+	$(SRC)/thirdparty/frozen/bits \
 	$(SRC)/thirdparty/glm/detail \
 	$(SRC)/thirdparty/glad
 
 DIRTY_SRC_DIRS := \
 	thirdparty
+
+API_HEADER_DIRS := \
+	$(SRC_DIRS) \
+    $(SRC)/thirdparty/DearImGui
 
 getfiles = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
@@ -153,12 +163,16 @@ CC_SRCS  ?= $(call getfiles,$(SRC_DIRS),*.c)   $(call getfiles,$(THIRDPARTY_SRC_
 CXX_SRCS ?= $(call getfiles,$(SRC_DIRS),*.cpp) $(call getfiles,$(THIRDPARTY_SRC_DIRS),*.cpp)
 
 # TODO: Make better API headers
-HEADER_FILES := $(call getfiles,$(SRC_DIRS),*.hpp)
+HEADER_FILES := $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h) Nostalgia.hpp
 
-PCH_DIR    := $(SRC)/precompiled_headers
-PCH_NAME   := nostalgia.pch
-PCH_H_NAME := nostalgia_pch.hpp
-export PCH_OUT ?= $(BUILD_OBJS)/precompiled_headers
+PCH   := Nostalgia.pch
+PCH_H := Nostalgia.hpp
+
+export JOLT_DEBUG    ?= $(ARCHIVES_DIR)/Jolt_Debug/libJolt.a
+export JOLT_RELEASE  ?= $(ARCHIVES_DIR)/Jolt_Debug/libJolt.a
+# export JOLT_RELEASE  ?= $(ARCHIVES_DIR)/Jolt_Distribution/libJolt.a
+export JOLT_LIBRARY  ?= $(JOLT_RELEASE)
+export DYNAMIC_LIBRARIES  ?= -lglfw -lfreetype
 
 export CC_OBJS  ?= $(addprefix $(BUILD_OBJS)/,$(subst .c,.o,$(CC_SRCS:$(SRC)/%=%)))
 export CXX_OBJS ?= $(addprefix $(BUILD_OBJS)/,$(subst .cpp,.obj,$(CXX_SRCS:$(SRC)/%=%)))
@@ -185,18 +199,21 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all run printout BUILD_ROOT clangd static dynamic headers linux windows release debug clean mostlyclean disable_colors
+.PHONY: all run compile_commands printout build_root clangd static dynamic headers linux windows release debug clean mostlyclean disable_colors
 
 all: editor ;@:
 
 run: editor
 	@ $(BUILD_ROOT)/$(EDITR)
 
+compile_commands: clangd
+	$(eval PCH_FLAGS = -include $(PCH_H))
+
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(LD_FLAGS)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(RESET)\n"
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
 		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
 	; fi
@@ -207,7 +224,7 @@ printout:
 	; fi
 
 # TODO: Remove this
-BUILD_ROOT:
+build_root:
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 
 # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
@@ -215,7 +232,6 @@ clangd: ;@:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
 
 static: headers
-	$(eval LD_FLAGS =)
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
@@ -223,9 +239,8 @@ static: headers
 	$(eval BUILDING_STATIC_LIBRARY = 1)
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
 	@ -mkdir -p $(BUILD_ARCHIVES)
-	@ -mkdir -p $(PCH_OUT)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(PCH_OUT)/$(PCH_NAME)
+	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
@@ -236,9 +251,8 @@ dynamic: headers
 	$(eval CURRENT_SRC = $(SRC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -mkdir -p $(PCH_OUT)
 	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(PCH_OUT)/$(PCH_NAME)
+	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
 
@@ -246,6 +260,7 @@ headers:
 	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"
 	@ -mkdir -p $(BUILD_HEADERS)
 	@ $(MAKE) -s $(HEADERS_OUT)
+	@ $(MAKE) -s $(BUILD_HEADERS)/Nostalgia.hpp
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
@@ -255,9 +270,9 @@ linux: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_LINUX))
-	$(eval PCH_FLAGS       = -include-pch $(PCH_OUT))
+	$(eval PCH_FLAGS       = -include-pch $(BUILD_OBJS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
-	$(eval LD_FLAGS        = $(DYNAMIC_LDFLAGS_LINUX))
+	$(eval LD_FLAGS        = $(DYNAMIC_LIBRARIES))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER    = $(LINUX_CXX))
 	$(eval C_COMPILER      = $(LINUX_CC))
@@ -272,9 +287,9 @@ windows: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
-	$(eval PCH_FLAGS       = -I $(dir $(PCH_OUT)))
+	$(eval PCH_FLAGS       = -I $(BUILD_OBJS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
-	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LDFLAGS_WINDOWS))
+	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LIBRARIES))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER    = $(WINDOWS_CXX))
 	$(eval C_COMPILER      = $(WINDOWS_CC))
@@ -302,8 +317,6 @@ DIRTY       = $(foreach dir,$(1),-not -path "*$(dir)*")
 CLEAN_PRINT = \
 $(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
 $(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
-
-RM ::= printf
 
 # Cleans directories based on previous targets
 # (e.g: 'make windows clean' will clean 'build/Windows/', but 'make windows debug clean' will only clean 'build/Windows/Debug/')
@@ -368,10 +381,9 @@ disable_colors:
 	$(eval DEFAULT = "")
 	@ printf "::Output styles disabled\n"
 
-# Pre-Compiled Headers
-$(PCH_OUT)/%.pch: $(PCH_DIR)/%_pch.hpp
+# Pre-Compiled Header
+$(BUILD_OBJS)/$(PCH): $(PCH_H)
 	@ printf "::Building Pre-Compiled Header: $(BOLD)$(BLUE)$@$(RESET)\n"
-	@ -mkdir -p $(dir $@)
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -xc++-header -c $< -o $@
 	@ -mv $(@:.pch=.d) $(BUILD_DEPS)/$(notdir $(@:.pch=.d))
 
@@ -395,6 +407,18 @@ $(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
 
+# Header Files
+$(BUILD_HEADERS)/%.h: $(SRC)/%.h
+	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
+	@ -mkdir -p $(dir $@)
+	@ cp $< $@
+
+# Main Header File (becomes pch)
+$(BUILD_HEADERS)/%.hpp: %.hpp
+	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
+	@ -mkdir -p $(dir $@)
+	@ cp $< $@
+
 # Archive Object Files
 $(BUILD_ARCHIVES)/%.o: $(ARCHIVES_DIR)/%.a
 	@ printf "::Compiling $(BOLD)$(BLUE)$@$(NORM)$(GREEN) (Static Library)$(RESET)\n"
@@ -408,10 +432,10 @@ $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC): $(CC_OBJS) $(CXX_OBJS)
 	@ $(ARCHIVER) rcs $@ $^
 
 # Dynamic Library
-$(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS)
+$(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC): $(CC_OBJS) $(CXX_OBJS) $(JOLT_LIBRARY)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
-	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $^ -o $@ $(LD_FLAGS)
+	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(LINKER_FLAGS) $^ -o $@ $(LD_FLAGS)
 
 # Prints a unique cleanup message
 NOTHING_TO_CLEAN.clean:

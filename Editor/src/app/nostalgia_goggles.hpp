@@ -1,9 +1,9 @@
 #ifndef NOSTALGIA_GOGGLES_H
 #define NOSTALGIA_GOGGLES_H
 
-#include "application/application.hpp"
-#include "components/event_handling.hpp"
-
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/application/application.hpp>
+#include <Nostalgia/components/event_handling.hpp>
 
 class NostalgiaGoggles final : public IApplication
 {

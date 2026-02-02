@@ -1,36 +1,36 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
-#include "backends/opengl/gl_renderer_api.hpp"
-#include "managers/input_manager.hpp"
-#include "managers/event_manager.hpp"
-#include "managers/render_manager.hpp"
-#include "managers/theatre_manager.hpp"
-#include "theatre/theatre_data.hpp"
-#include "physics/engine.hpp"
-#include "settings/engine.hpp"
-#include "settings/graphics.hpp"
-#include "settings/player.hpp"
-#include "theatre/parser.hpp"
-#include "events/event.hpp"
-#include "rendering/renderer_api.hpp"
-#include "theatre/things/resources/mesh.hpp"
-#include "theatre/things/thinkers/2d/text_2d.hpp"
-#include "theatre/things/thinkers/2d/sprite_2d.hpp"
-#include "theatre/things/thinkers/2d/camera_2d.hpp"
-#include "theatre/things/thinkers/3d/light_3d.hpp"
-#include "theatre/things/thinkers/3d/camera_3d.hpp"
-#include "theatre/things/thinkers/viewport.hpp"
-#include "theatre/things/resources/material.hpp"
-#include "theatre/things/resources/font.hpp"
-#include "theatre/things/resources/texture.hpp"
-#include "theatre/things/thinkers/3d/mesh_instance_3d.hpp"
-#include "theatre/things/thinkers/3d/collider_3d.hpp"
-#include "application/application.hpp"
-#include "application/window.hpp"
-#include "DearImGui/imgui.h"
-#include "DearImGui/imgui_stdlib.h"
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
+// #include "../../../Engine/Nostalgia/backends/opengl/gl_renderer_api.hpp"
+#include <Nostalgia/thirdparty/DearImGui/imgui.h>
+#include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
+#include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/managers/input_manager.hpp>
+#include <Nostalgia/managers/event_manager.hpp>
+#include <Nostalgia/managers/render_manager.hpp>
+#include <Nostalgia/managers/theatre_manager.hpp>
+#include <Nostalgia/theatre/theatre_data.hpp>
+#include <Nostalgia/physics/engine.hpp>
+#include <Nostalgia/settings/engine.hpp>
+#include <Nostalgia/settings/graphics.hpp>
+#include <Nostalgia/settings/player.hpp>
+#include <Nostalgia/theatre/parser.hpp>
+#include <Nostalgia/events/event.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
+#include <Nostalgia/theatre/things/resources/mesh.hpp>
+#include <Nostalgia/theatre/things/thinkers/2d/text_2d.hpp>
+#include <Nostalgia/theatre/things/thinkers/2d/sprite_2d.hpp>
+#include <Nostalgia/theatre/things/thinkers/2d/camera_2d.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/light_3d.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
+#include <Nostalgia/theatre/things/thinkers/viewport.hpp>
+#include <Nostalgia/theatre/things/resources/material.hpp>
+#include <Nostalgia/theatre/things/resources/font.hpp>
+#include <Nostalgia/theatre/things/resources/texture.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/mesh_instance_3d.hpp>
+#include <Nostalgia/theatre/things/thinkers/3d/collider_3d.hpp>
+#include <Nostalgia/application/application.hpp>
+#include <Nostalgia/application/window.hpp>
 
 #define QUICK_COMBO_THING_VAR(NAME, MAP, SELECTED_VAR, THING_SETTER) \
 if(BeginCombo(#NAME, MAP.at(selected.SELECTED_VAR))) \
@@ -1143,11 +1143,6 @@ void ImGui_Debugger::InspectTheatreWindow()
                             JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetX()),
                             JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetY()),
                             JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
-                        auto scale{collider->CreationSettings()->GetShape()->GetLocalBounds().GetSize()};
-                        TextF("Scale: [{}, {}, {}]",
-                            scale.GetX(),
-                            scale.GetY(),
-                            scale.GetZ());
                     }
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};

@@ -1,8 +1,8 @@
-#include "program_arguments.hpp"
+#include "./program_arguments.hpp"
 #include "app/nostalgia_goggles.hpp"
-#include "getargs/argument_parser.hpp"
-#include "application/application.hpp"
-#include "settings/engine.hpp"
+#include <getargs/argument_parser.hpp>
+#include <Nostalgia/application/application.hpp>
+#include <Nostalgia/settings/engine.hpp>
 
 #ifdef _WIN32
 #include <windows.h>

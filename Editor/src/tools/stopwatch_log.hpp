@@ -1,9 +1,7 @@
-#ifdef FWD_DCL
-    class StopwatchLog;
-    struct TheatreLog;
-#elif !defined STOPWATCH_LOG_H
+#ifndef STOPWATCH_LOG_H
 #define STOPWATCH_LOG_H
 
+#include <string>
 
 class StopwatchLog
 {
