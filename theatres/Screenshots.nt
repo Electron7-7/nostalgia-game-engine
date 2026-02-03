@@ -1,0 +1,169 @@
+@Screenshots#1
+
+Texture StupidTex
+{
+    File = 'theatres/testing_resources/Stupid.png'
+}
+
+Mesh IcoSphere
+{
+    Model = 'theatres/testing_resources/IcoSphere.obj'
+
+    Material = <StupidMaterial>
+}
+
+Material LolBitMaterial
+{
+    DiffuseTexture = <LolBitTexture>
+}
+
+MeshInstance3D LolBitCubeMeshInstance3D
+{
+    MaterialOverride = <LolBitMaterial>
+    Mesh = <DefaultCube>
+}
+
+Actor3D LolBitCube
+{
+    Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+    Position = [-0.25, 2, -3.5]
+    RotationDegrees = [25, 0, 1]
+}
+
+Actor3D Ramiel
+{
+    Child : MeshInstance3D RamielMeshInstance3D
+    {
+        Mesh = <RamielModel>
+        MaterialOverride = <RamielMaterial>
+    }
+    Scale = [120, 120, 120]
+    Position = [-30, 18.152, -215]
+    Visible = [true]
+}
+
+Material RamielMaterial
+{
+    NoTexture = [true]
+    SpecularStrength = [2.6]
+}
+
+Material StupidMaterial
+{
+    Color = [0.9, 1, 1]
+    SpecularStrength = [0.2]
+    DiffuseTexture = <StupidTex>
+}
+
+Material DoomMaterial
+{
+    DiffuseTexture = <DoomTexture>
+}
+
+Material ColorMat
+{
+    Color = [1, 0.1, 0.2]
+}
+
+Texture TestTex1
+{
+    File = "theatres/testing_resources/TestTexture1.png"
+}
+
+Material ColorMat2
+{
+    DiffuseTexture = <TestTex1>
+}
+
+Collider3D DoomCube
+{
+    Child : MeshInstance3D DoomCubeMeshInstance3D
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
+    }
+
+    Position = [3, 0, -3]
+    RotationDegrees = [-20, 20, 50]
+    Visible = [true]
+}
+
+Collider3D DoomCube2
+{
+    Child : MeshInstance3D DoomCubeMeshInstance3D2
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
+    }
+    Position = [2.35, 6.95, -2.95]
+    RotationDegrees = [-36.6, 25, 0.1]
+    Scale = [0.3, 1, 1.7]
+    Visible = [true]
+}
+
+Collider3D DoomCube3
+{
+    Position = [3, 5, -3]
+    RotationDegrees = [20, -20, -50]
+    Scale = [0.5, 1, 0.7]
+    Visible = [true]
+
+    Child : MeshInstance3D DoomCubeMeshInstance3D3
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <ColorMat2>
+    }
+}
+
+Actor3D OtherCube
+{
+    Child : MeshInstance3D RedCubeMeshInstance3D
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <ColorMat>
+    }
+    Position = [1.35, 1, -4.45]
+    RotationDegrees = [-0.3, -64.6, -17.4]
+    OuuughImSoBigAndRound = [0.48, 0.58, 0.27]
+    Visible = [true]
+}
+
+Actor3D IcoSphereActor3D
+{
+    Child : MeshInstance3D IcoSphereMeshInstance3D
+    {
+        Mesh = <IcoSphere>
+    }
+    Position = [-2.55, 0.15, -1.3]
+    RotationDegrees = [15.2, 38.6, 0]
+}
+
+NostalgiaPlayer3D Player
+{
+    Position = [0.22, -1.43, 3.35]
+    RotationDegrees = [8.48, 0.67, 0]
+}
+
+PointLight3D PointLight
+{
+    Position = [1.6, 0.1, -2.1]
+    Color = [1, 0.8, 0.2]
+}
+
+SpotLight3D SpotLight
+{
+    Position = [-0.32, 0.29, -0.45]
+    RotationDegrees = [27.6, 1.10, 10.1]
+    Color = [0.287, 1.0, 0.368]
+    Energy = [0.95]
+    Attenuation = [0.9]
+    Angle = [12.3]
+    AngleFade = [2]
+}
+
+DirectionalLight3D TheSun
+{
+    Visible = [true]
+    RotationDegrees = [180, 100, -25]
+    Energy = [0.6]
+}
