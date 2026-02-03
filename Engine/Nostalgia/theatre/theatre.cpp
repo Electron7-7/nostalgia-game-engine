@@ -682,12 +682,69 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             shader->SetUniform("glyph", 0);
             shader->Bind();
 
-            if(text2d->mDebugOutline)
+            if(!gDebugToggleTextRenderingMethod)
             {
-                shader->SetUniform("debug_solid", 1);
-                shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f});
-                renderer_api->SetWireframe(true);
+                if(text2d->mDebugOutline)
+                {
+                    shader->SetUniform("debug_solid", 1);
+                    shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f});
+                    renderer_api->SetWireframe(true);
+                    renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+                }
+
+                shader->SetUniform("debug_solid", text2d->mDebugSolid);
+                shader->SetUniform("text_color", text2d->Color().glm());
+
+                renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
                 renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+            }
+            else
+            {
+                FAUTO text{text2d->Text()};
+                glm::vec2 position{0.0f, 0.0f};
+                auto glyph_top{font->GetGlyph('H').bitmap_top};
+                for(auto c{text.cbegin()}; c != text.cend(); ++c)
+                {
+                    FAUTO glyph{font->GetGlyph(*c)};
+                    if(!glyph.texture) { continue; }
+
+                    glm::vec2 pos{
+                        (c != text.cbegin()) * position.x + glyph.bitmap_left,
+                        (c != text.cbegin()) * position.y - (glyph_top - glyph.bitmap_top),
+                    },
+                    scale{
+                        glyph.bitmap_width,
+                        glyph.bitmap_height,
+                    };
+
+                    glm::mat4 model_matrix{1.0f};
+                    model_matrix = glm::translate(model_matrix, {text2d->GlobalPosition(), 0.0f});
+                    model_matrix = glm::rotate(model_matrix, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
+                    model_matrix = glm::scale(model_matrix, {text2d->GlobalScale(), 0.0f});
+
+                    model_matrix = glm::translate(model_matrix, {pos, 0.0f});
+                    model_matrix = glm::scale(model_matrix, {scale, 0.0f});
+
+                    shader->SetUniform("debug_solid", 0);
+                    shader->SetUniform("text_color", text2d->Color().glm());
+                    shader->SetUniform("model_matrix", model_matrix);
+
+                    renderer_api->BindTexture(glyph.texture, 0);
+                    renderer_api->SetWireframe(false);
+                    renderer_api->DrawIndexed(quad_mesh->MeshData());
+
+                    if(text2d->mDebugSolid)
+                    {
+                        shader->SetUniform("debug_solid", 1);
+                        if(text2d->Wireframe() and text2d->mDebugSolid)
+                            { shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f}); }
+                        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
+                        renderer_api->DrawIndexed(quad_mesh->MeshData());
+                    }
+
+                    position.x += (glyph.advance_x >> 6);
+                    position.y -= (glyph.advance_y >> 6);
+                }
             }
         }
     }

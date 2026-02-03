@@ -315,6 +315,7 @@ static void s_GeneralDebuggingWindow()
 #endif // DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
+        Checkbox("Use New WIP Text Rendering Method", &gDebugToggleTextRenderingMethod);
         Checkbox("Render 3D Thinkers", &gDebugEnable3DRendering);
         Checkbox("Render 2D Thinkers", &gDebugEnable2DRendering);
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
