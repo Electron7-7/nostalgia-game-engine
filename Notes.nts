@@ -1163,3 +1163,6 @@ Welp, during my attempts at solving the matrix version I fixed the shitty versio
 TODO: 2D things shouldn't actually need cameras to be seen.
 
 OHHHHH TODOTODOTODOTODOTODO: THE RELEASE HEADERS NEED TO START INCLUDES WITH 'Nostalgia/' BC IT NEEDS TO ASSUME THE LIBRARY IS INSTALLED!!!
+
+[02/02/26]
+So I spent a fuck ton of time changing the build system and project structure. The editor now more closely represents a fresh application project utilizing my engine and the engine is now built better (as well as the API headers). Lots of stuff todo still, but one important one is to decide whether or not I want to keep the ImGui implementor and solution in the engine and include 'thirdparty/DearImGui' in the API headers, or leave implementing that up to you. I might choose the latter later on, since I might also implement my own UI system in the future.
