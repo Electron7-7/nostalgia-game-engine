@@ -1,7 +1,3 @@
-# https://stackoverflow.com/a/18137056
-mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
-
 LINUX_CXX := clang++
 LINUX_CC  := clang
 LINUX_AR  := llvm-ar
@@ -93,6 +89,7 @@ endif
 
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
+export PRINTOUT_TYPE ?= $(PRETTY_STRING_STATIC)
 
 export BUILD_ROOT     ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
 export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
@@ -199,14 +196,13 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all run compile_commands printout build_root clangd static dynamic headers linux windows release debug clean mostlyclean disable_colors
+.PHONY: __none compile_commands printout build static dynamic headers linux windows release debug clean mostlyclean disable_colors .__clean_target .__clean_all .__mostlyclean_target .__mostlyclean_all
 
-all: editor ;@:
+__none: ;@:
+	$(info Nothing done; you need to include the 'build' target, lol)
 
-run: editor
-	@ $(BUILD_ROOT)/$(EDITR)
-
-compile_commands: clangd
+compile_commands:
+	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
 	$(eval PCH_FLAGS = -include $(PCH_H))
 
 printout:
@@ -223,38 +219,31 @@ printout:
 		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object files> <archive object files>$(RESET)\n" \
 	; fi
 
-# TODO: Remove this
-build_root:
+build: headers
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
+	@ -mkdir -p $(BUILD_ARCHIVES)
+	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
+	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
+	@ printf "$(BOLD)$(DEFAULT)::$(PRINTOUT_TYPE) Library Built Successfully$(RESET)\n"
 
-# Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
-clangd: ;@:
-	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE)
-
-static: headers
+static: ;@:
+	$(eval PRINTOUT_TYPE = $(PRETTY_STRING_STATIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_STATIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC))
 	$(eval CURRENT_SRC = $(SRC))
+	$(eval BUILDING_DYNAMIC_LIBRARY =)
 	$(eval BUILDING_STATIC_LIBRARY = 1)
-	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -mkdir -p $(BUILD_ARCHIVES)
-	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
-	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
-	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
 
-dynamic: headers
+dynamic: ;@:
+	$(eval PRINTOUT_TYPE = $(PRETTY_STRING_DYNAMIC))
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval LIBRARY_FLAGS = $(FLAGS_DYNAMIC))
 	$(eval NAME = $(STRING_LIB)$(NAME_BASE)$(NAME_DYNAMIC))
 	$(eval CURRENT_SRC = $(SRC))
 	$(eval BUILDING_DYNAMIC_LIBRARY = 1)
-	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -rm -f $(BUILD_LIBRARY)/$(NAME)
-	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
-	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
-	@ printf "$(BOLD)$(DEFAULT)::Dynamic Library Built Successfully$(RESET)\n"
+	$(eval BUILDING_STATIC_LIBRARY =)
+	$(eval BUILD_ARCHIVES =)
 
 headers:
 	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"

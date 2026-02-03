@@ -131,9 +131,10 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all compile_commands printout build_dir static dynamic linux windows release debug clean mostlyclean disable_colors
+.PHONY: __none compile_commands printout build static dynamic linux windows release debug clean mostlyclean disable_colors .__clean_target .__clean_all .__mostlyclean_target .__mostlyclean_all
 
-all: editor ;@:
+__none: ;@:
+	$(info Nothing done; you need to include the 'build' target, lol)
 
 compile_commands:
 	$(eval PCH_FLAGS = $(PCH_H:$(PCH_DIR)%=-include $(PCH_DIR)%))
@@ -145,25 +146,20 @@ printout:
 	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $(NORM)<source>$(BOLD)$(YELLOW) -o $(NORM)<object>$(YELLOW)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<objects> $(BOLD)-o $(BUILD_DIR)/$(NAME) $(LD_FLAGS)$(RESET)\n"
 
-# TODO: Remove this
-build_dir:
+build:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
+	@ $(MAKE) -s printout $(BUILD_DIR)/$(NAME)
+	@ printf "$(BOLD)$(DEFAULT)::Test Application/Editor Built Successfully$(RESET)\n"
 
-static:
+static: ;@:
 	$(eval DIR_OBJS_TYPE = $(STRING_STATIC))
 	$(eval NAME = $(NAME_STATIC))
-	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -rm -f $(BUILD_DIR)/$(NAME)
-	$(MAKE) -s printout $(BUILD_DIR)/$(NAME)
-	@ printf "$(BOLD)$(DEFAULT)::Static Library Built Successfully$(RESET)\n"
+	$(eval LD_FLAGS = $(STATIC_LDFLAGS))
 
-dynamic:
+dynamic: ;@:
 	$(eval DIR_OBJS_TYPE = $(STRING_DYNAMIC))
 	$(eval NAME = $(NAME_DYNAMIC))
-	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -rm -f $(BUILD_DIR)/$(NAME)
-	$(MAKE) -s printout $(BUILD_DIR)/$(NAME)
-	@ printf "$(BOLD)$(DEFAULT)::Dynamic Editor Built Successfully$(RESET)\n"
+	$(eval LD_FLAGS = $(DYNAMIC_LDFLAGS))
 
 linux: ;@:
 	$(eval NAME_DYNAMIC    = $(PRETTY_STRING_DYNAMIC)_$(NAME_BASE))
