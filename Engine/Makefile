@@ -17,18 +17,18 @@ FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
 FLAGS_DYNAMIC         := -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=src/embedded -Wno-c23-extensions -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=$(SRC)/embedded -Wno-c23-extensions -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp -D NOSTALGIA_WINDOWS
 FLAGS_LINUX           := -D NOSTALGIA_LINUX
 
 # Archives & Libraries
-ARCHIVES_DIR_LINUX        := src/static_libraries/linux
-ARCHIVES_DIR_WINDOWS      := src/static_libraries/windows
+ARCHIVES_DIR_LINUX        := $(SRC)/static_libraries/linux
+ARCHIVES_DIR_WINDOWS      := $(SRC)/static_libraries/windows
 DYNAMIC_LIB_FLAGS_LINUX   := -shared
 DYNAMIC_LIB_FLAGS_WINDOWS := -shared --out-implib
 
-INCLUDE := -I src -I src/thirdparty -I src/thirdparty/FreeType
+INCLUDE := -I $(SRC) -I $(SRC)/thirdparty -I $(SRC)/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux
@@ -111,7 +111,7 @@ export CLEAN_VERSION ?= .+
 
 VPATH := $(SRC_DIRS):$(DIR_ROOT)
 
-SRC := src
+SRC := Nostalgia
 
 SRC_DIRS := \
     $(SRC)/application \
