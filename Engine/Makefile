@@ -221,7 +221,6 @@ printout:
 
 build: headers
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ -mkdir -p $(BUILD_ARCHIVES)
 	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
 	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::$(PRINTOUT_TYPE) Library Built Successfully$(RESET)\n"
