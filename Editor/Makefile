@@ -10,7 +10,7 @@ else
 endif
 
 FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING
-FLAGS_DEBUG_LINUX     := -D_GLIBCXX_DEBUG -fsanitize=address,undefined
+FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
 FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
 FLAGS_RELEASE_WINDOWS := # Nothing yet
