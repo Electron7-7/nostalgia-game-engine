@@ -12,6 +12,8 @@ else
 	WINDOWS_AR  := ar
 endif
 
+SRC := Nostalgia
+
 FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING
 FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
@@ -87,6 +89,9 @@ else # WINDOWS
 	export ARCHIVER        ?= $(WINDOWS_AR)
 endif
 
+export INSTALL_LIB_DIR  ?= /usr/local/lib
+export INSTALL_INCL_DIR ?= /usr/local/include
+
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 export PRINTOUT_TYPE ?= $(PRETTY_STRING_STATIC)
@@ -110,8 +115,6 @@ export CLEAN_ARCH    ?= .+
 export CLEAN_VERSION ?= .+
 
 VPATH := $(SRC_DIRS):$(DIR_ROOT)
-
-SRC := Nostalgia
 
 SRC_DIRS := \
     $(SRC)/application \
@@ -196,10 +199,17 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: __none compile_commands printout build static dynamic headers linux windows release debug clean mostlyclean disable_colors .__clean_target .__clean_all .__mostlyclean_target .__mostlyclean_all
+.PHONY: __none install compile_commands printout build static dynamic headers linux windows release debug clean mostlyclean disable_colors .__clean_target .__clean_all .__mostlyclean_target .__mostlyclean_all
 
 __none: ;@:
 	$(info Nothing done; you need to include the 'build' target, lol)
+
+install:
+	@ cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/
+	@ printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_LIB_DIR)/$(NAME)$(RESET)\n"
+	@ cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/
+	@ printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_INCL_DIR)/$(NAME_BASE)/$(RESET)\n"
+
 
 compile_commands:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
