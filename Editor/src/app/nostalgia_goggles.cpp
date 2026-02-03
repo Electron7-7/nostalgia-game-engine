@@ -13,7 +13,6 @@
 #include <Nostalgia/managers/ui_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/ui/implementor.hpp>
-#include <Nostalgia/backends/glfw/glfw_window.hpp> // GLFW is the main windowing solution (most likely permanently)
 #include <Nostalgia/backends/imgui/imgui_implementor.hpp>
 
 static ImGui_Editor sImGui_Editor{};
@@ -26,7 +25,7 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    mMainWindow = IWindow::CreateWindow<WindowGLFW>(IWindow::Properties{std::format("{}{}",
+    mMainWindow = IWindow::CreateWindow(IWindow::Properties{std::format("{}{}",
         _Version_Printout,
         (Settings::Engine::IsEditorHint)
             ? ""

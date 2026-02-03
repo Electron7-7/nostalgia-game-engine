@@ -1,5 +1,4 @@
 #include "application.hpp"
-
 #include <cassert>
 
 IApplication* sInstance{nullptr};

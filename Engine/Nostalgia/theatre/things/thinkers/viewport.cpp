@@ -1,8 +1,8 @@
 #include "viewport.hpp"
-#include <Nostalgia/application/application.hpp>
-#include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/theatre/things/thinkers/2d/camera_2d.hpp>
+#include "application/application.hpp"
+#include "theatre/theatre.hpp"
+#include "theatre/things/thinkers/3d/camera_3d.hpp"
+#include "theatre/things/thinkers/2d/camera_2d.hpp"
 
 using namespace TheatreFile;
 

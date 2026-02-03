@@ -1,5 +1,5 @@
 #include "gl_mesh_buffers.hpp"
-#include <glad/glad.h>
+#include "thirdparty/glad/glad.h"
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize)
 {

@@ -1,6 +1,6 @@
 #include "ui_manager.hpp"
-#include <Nostalgia/ui/implementor.hpp>
-#include <Nostalgia/ui/solution.hpp>
+#include "ui/implementor.hpp"
+#include "ui/solution.hpp"
 
 using namespace ManagerEnums;
 

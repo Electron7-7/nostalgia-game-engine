@@ -1,6 +1,6 @@
 #include "manager.hpp"
-#include <Nostalgia/settings/engine.hpp>
-#include <Nostalgia/application/application.hpp>
+#include "settings/engine.hpp"
+#include "application/application.hpp"
 #include <cassert>
 #include <thread>
 

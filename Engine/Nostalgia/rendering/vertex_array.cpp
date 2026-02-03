@@ -1,7 +1,7 @@
 #include "vertex_array.hpp"
 #include "renderer_api.hpp"
 // Implementations
-#include <Nostalgia/backends/opengl/gl_vertex_array.hpp>
+#include "backends/opengl/gl_vertex_array.hpp"
 
 Shared<VertexArray> VertexArray::Create()
 {

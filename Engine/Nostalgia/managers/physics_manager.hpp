@@ -2,7 +2,6 @@
 #define PHYSICS_MANAGER_H
 
 #include <Nostalgia/managers/manager.hpp>
-#include <glm/fwd.hpp>
 
 class PhysicsManager : public Manager
 {

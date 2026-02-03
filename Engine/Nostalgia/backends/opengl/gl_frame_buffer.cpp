@@ -1,6 +1,6 @@
 #include "gl_frame_buffer.hpp"
-#include <Nostalgia/rendering/texture_buffer.hpp>
-#include <glad/glad.h>
+#include "rendering/texture_buffer.hpp"
+#include "thirdparty/glad/glad.h"
 
 static Error s_CheckFramebufferStatus(uint inID)
 {

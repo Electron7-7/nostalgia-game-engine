@@ -1,7 +1,7 @@
 #include "mesh_buffers.hpp"
-#include <Nostalgia/rendering/renderer_api.hpp>
+#include "rendering/renderer_api.hpp"
 // Implementations
-#include <Nostalgia/backends/opengl/gl_mesh_buffers.hpp>
+#include "backends/opengl/gl_mesh_buffers.hpp"
 
 const IBuffer::Layout IBuffer::Layout::cIndexBufferLayout{{Element::Type::Int, "FaceIndex"}};
 const IBuffer::Layout IBuffer::Layout::cDefaultMeshLayout{

@@ -1,5 +1,5 @@
-#include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/theatre/parser.hpp>
+#include "theatre/theatre.hpp"
+#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 

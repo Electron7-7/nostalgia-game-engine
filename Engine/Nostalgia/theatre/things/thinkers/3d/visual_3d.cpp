@@ -1,5 +1,5 @@
 #include "visual_3d.hpp"
-#include <Nostalgia/theatre/theatre.hpp>
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 

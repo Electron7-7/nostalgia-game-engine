@@ -1,7 +1,7 @@
 #include "gl_shader.hpp"
-#include <Nostalgia/common/colors.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/glad.h>
+#include "common/colors.hpp"
+#include "thirdparty/glm/gtc/type_ptr.hpp"
+#include "thirdparty/glad/glad.h"
 
 bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::string& fragment_shader_code)
 {

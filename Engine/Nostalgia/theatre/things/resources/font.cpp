@@ -1,5 +1,5 @@
 #include "./font.hpp"
-#include <Nostalgia/rendering/texture_buffer.hpp>
+#include "rendering/texture_buffer.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

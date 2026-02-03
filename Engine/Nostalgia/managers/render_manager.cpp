@@ -1,8 +1,8 @@
 #include "render_manager.hpp"
-#include <Nostalgia/settings/graphics.hpp>
+#include "settings/graphics.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
-#include <Nostalgia/rendering/renderer_api.hpp>
+#include "rendering/renderer_api.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
 using namespace ManagerEnums;

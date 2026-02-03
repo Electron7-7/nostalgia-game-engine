@@ -1,9 +1,9 @@
 #include "./camera_2d.hpp"
 #include "../viewport.hpp"
-#include <Nostalgia/settings/graphics.hpp>
-#include <Nostalgia/settings/world.hpp>
-#include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/settings/engine.hpp>
+#include "settings/graphics.hpp"
+#include "settings/world.hpp"
+#include "theatre/theatre.hpp"
+#include "settings/engine.hpp"
 
 using namespace TheatreFile;
 

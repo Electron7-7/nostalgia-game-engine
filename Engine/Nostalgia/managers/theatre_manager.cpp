@@ -1,7 +1,7 @@
 #include "./theatre_manager.hpp"
-#include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/theatre/theatre_data.hpp>
-#include <Nostalgia/theatre/thing_factory.hpp>
+#include "theatre/theatre.hpp"
+#include "theatre/theatre_data.hpp"
+#include "theatre/thing_factory.hpp"
 
 using namespace ManagerEnums;
 

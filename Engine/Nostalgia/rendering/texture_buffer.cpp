@@ -1,7 +1,7 @@
 #include "texture_buffer.hpp"
 #include "renderer_api.hpp"
 // Implementations
-#include <Nostalgia/backends/opengl/gl_texture_buffer.hpp>
+#include "backends/opengl/gl_texture_buffer.hpp"
 
 Shared<TextureBuffer> TextureBuffer::Create()
 {

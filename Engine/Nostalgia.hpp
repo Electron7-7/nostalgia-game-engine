@@ -31,34 +31,34 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 // Nostalgia
-#include "Nostalgia/core/farg.hpp"                            // IWYU pragma: keep
-#include "Nostalgia/core/constexpr_string_hash.hpp"           // IWYU pragma: keep
-#include "Nostalgia/core/id.hpp"                              // IWYU pragma: keep
-#include "Nostalgia/core/uid.hpp"                             // IWYU pragma: keep
-#include "Nostalgia/core/ansi_codes.hpp"                      // IWYU pragma: keep
-#include "Nostalgia/core/ansi_sequence.hpp"                   // IWYU pragma: keep
-#include "Nostalgia/core/message_labels.hpp"                  // IWYU pragma: keep
-#include "Nostalgia/core/error.hpp"                           // IWYU pragma: keep
-#include "Nostalgia/core/log.hpp"                             // IWYU pragma: keep
-#include "Nostalgia/core/time.hpp"                            // IWYU pragma: keep
-#include "Nostalgia/core/mutex.hpp"                           // IWYU pragma: keep
-#include "Nostalgia/core/concepts.hpp"                        // IWYU pragma: keep
-#include "Nostalgia/core/vector.hpp"                          // IWYU pragma: keep
-#include "Nostalgia/core/macros.hpp"                          // IWYU pragma: keep
-#include "Nostalgia/core/bitmask.hpp"                         // IWYU pragma: keep
-#include "Nostalgia/core/smart_pointers.hpp"                  // IWYU pragma: keep
-#include "Nostalgia/core/enum_prettifier.hpp"                 // IWYU pragma: keep
-#include "Nostalgia/math/conversion.hpp"                      // IWYU pragma: keep
-#include "Nostalgia/math/glm_concepts.hpp"                    // IWYU pragma: keep
-#include "Nostalgia/math/glm_format.hpp"                      // IWYU pragma: keep
-#include "Nostalgia/filesystem/filesystem.hpp"                // IWYU pragma: keep
-#include "Nostalgia/filesystem/file_data.hpp"                 // IWYU pragma: keep
-#include "Nostalgia/theatre/number_parser.hpp"                // IWYU pragma: keep
-#include "Nostalgia/theatre/thing_type.hpp"                   // IWYU pragma: keep
-#include "Nostalgia/theatre/variable_registry.hpp"            // IWYU pragma: keep
-#include "Nostalgia/theatre/thing_data.hpp"                   // IWYU pragma: keep
-#include "Nostalgia/theatre/things/thing.hpp"                 // IWYU pragma: keep
-#include "Nostalgia/theatre/things/resources/resource.hpp"    // IWYU pragma: keep
-#include "Nostalgia/theatre/things/thinkers/thinker.hpp"      // IWYU pragma: keep
+#include <Nostalgia/core/farg.hpp>                            // IWYU pragma: keep
+#include <Nostalgia/core/constexpr_string_hash.hpp>           // IWYU pragma: keep
+#include <Nostalgia/core/id.hpp>                              // IWYU pragma: keep
+#include <Nostalgia/core/uid.hpp>                             // IWYU pragma: keep
+#include <Nostalgia/core/ansi_codes.hpp>                      // IWYU pragma: keep
+#include <Nostalgia/core/ansi_sequence.hpp>                   // IWYU pragma: keep
+#include <Nostalgia/core/message_labels.hpp>                  // IWYU pragma: keep
+#include <Nostalgia/core/error.hpp>                           // IWYU pragma: keep
+#include <Nostalgia/core/log.hpp>                             // IWYU pragma: keep
+#include <Nostalgia/core/time.hpp>                            // IWYU pragma: keep
+#include <Nostalgia/core/mutex.hpp>                           // IWYU pragma: keep
+#include <Nostalgia/core/concepts.hpp>                        // IWYU pragma: keep
+#include <Nostalgia/core/vector.hpp>                          // IWYU pragma: keep
+#include <Nostalgia/core/macros.hpp>                          // IWYU pragma: keep
+#include <Nostalgia/core/bitmask.hpp>                         // IWYU pragma: keep
+#include <Nostalgia/core/smart_pointers.hpp>                  // IWYU pragma: keep
+#include <Nostalgia/core/enum_prettifier.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/math/conversion.hpp>                      // IWYU pragma: keep
+#include <Nostalgia/math/glm_concepts.hpp>                    // IWYU pragma: keep
+#include <Nostalgia/math/glm_format.hpp>                      // IWYU pragma: keep
+#include <Nostalgia/filesystem/filesystem.hpp>                // IWYU pragma: keep
+#include <Nostalgia/filesystem/file_data.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/theatre/number_parser.hpp>                // IWYU pragma: keep
+#include <Nostalgia/theatre/thing_type.hpp>                   // IWYU pragma: keep
+#include <Nostalgia/theatre/variable_registry.hpp>            // IWYU pragma: keep
+#include <Nostalgia/theatre/thing_data.hpp>                   // IWYU pragma: keep
+#include <Nostalgia/theatre/things/thing.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/theatre/things/resources/resource.hpp>    // IWYU pragma: keep
+#include <Nostalgia/theatre/things/thinkers/thinker.hpp>      // IWYU pragma: keep
 
 #endif // NOSTALGIA_PRE_COMPILED_HEADER_H

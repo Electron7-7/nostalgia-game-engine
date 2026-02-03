@@ -1,7 +1,7 @@
 #include "shader.hpp"
 #include "renderer_api.hpp"
 // Implementations
-#include <Nostalgia/backends/opengl/gl_shader.hpp>
+#include "backends/opengl/gl_shader.hpp"
 
 Shared<Shader> Shader::Create()
 {

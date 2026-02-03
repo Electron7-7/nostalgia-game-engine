@@ -1,7 +1,7 @@
 #include "graphics_context.hpp"
 #include "renderer_api.hpp"
 // Implementations
-#include <Nostalgia/backends/opengl/gl_graphics_context.hpp>
+#include "backends/opengl/gl_graphics_context.hpp"
 
 Unique<IGraphicsContext> IGraphicsContext::CreateContext(void* inNativeWindowPointer)
 {

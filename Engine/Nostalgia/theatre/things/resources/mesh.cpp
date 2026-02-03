@@ -1,7 +1,7 @@
 #include "mesh.hpp"
-#include <Nostalgia/rendering/mesh_buffers.hpp>
-#include <Nostalgia/rendering/vertex.hpp>
-#include <Nostalgia/rendering/vertex_array.hpp>
+#include "rendering/mesh_buffers.hpp"
+#include "rendering/vertex.hpp"
+#include "rendering/vertex_array.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"

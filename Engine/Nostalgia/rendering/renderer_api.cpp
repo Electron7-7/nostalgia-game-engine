@@ -1,7 +1,7 @@
 #include "renderer_api.hpp"
 
 // Implementations
-#include <Nostalgia/backends/opengl/gl_renderer_api.hpp>
+#include "backends/opengl/gl_renderer_api.hpp"
 
 Unique<RendererAPI> RendererAPI::Activate()
 {

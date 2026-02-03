@@ -1,6 +1,6 @@
 #include "physics_manager.hpp"
-#include <Nostalgia/settings/engine.hpp>
-#include <Nostalgia/physics/engine.hpp>
+#include "settings/engine.hpp"
+#include "physics/engine.hpp"
 
 static PhysicsManager sPhysicsManager;
 PhysicsManager* g_pPhysicsManager{&sPhysicsManager};

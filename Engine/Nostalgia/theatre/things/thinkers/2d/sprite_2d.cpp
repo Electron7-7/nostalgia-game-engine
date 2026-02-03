@@ -1,5 +1,5 @@
 #include "sprite_2d.hpp"
-#include <Nostalgia/managers/manager.hpp>
+#include "managers/manager.hpp"
 
 using namespace TheatreFile;
 

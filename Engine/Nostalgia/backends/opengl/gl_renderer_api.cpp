@@ -1,16 +1,16 @@
 #include "gl_renderer_api.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
-#include <Nostalgia/embedded/shaders.hpp> // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
-#include <Nostalgia/theatre/things/resources/texture.hpp>
-#include <Nostalgia/theatre/things/resources/font.hpp>
-#include <Nostalgia/theatre/things/thinkers/3d/light_3d.hpp>
-#include <Nostalgia/application/application.hpp>
-#include <Nostalgia/rendering/texture_buffer.hpp> // IWYU pragma: keep // idk why clangd says these are unused
-#include <Nostalgia/rendering/vertex_array.hpp>   // IWYU pragma: keep // idk why clangd says these are unused
-#include <Nostalgia/rendering/frame_buffer.hpp>   // IWYU pragma: keep // idk why clangd says these are unused
-#include <Nostalgia/settings/world.hpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "embedded/shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
+#include "theatre/things/resources/texture.hpp"
+#include "theatre/things/resources/font.hpp"
+#include "theatre/things/thinkers/3d/light_3d.hpp"
+#include "application/application.hpp"
+#include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/vertex_array.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
+#include "rendering/frame_buffer.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
+#include "settings/world.hpp"
+#include "thirdparty/glad/glad.h"
+#include "thirdparty/GLFW/glfw3.h"
 
 bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{true};

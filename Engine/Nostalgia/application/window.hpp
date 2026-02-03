@@ -114,9 +114,7 @@ public:
     Error GetInitStatus()      const { return mInitStatus; }
     Farg<WindowProperties> GetProperties() const { return mData; }
 
-    template<typename T> requires std::derived_from<T,IWindow>
-        static Unique<IWindow> CreateWindow(Farg<WindowProperties> inProperties = {})
-        { return MakeUnique<T>(inProperties); }
+    static Unique<IWindow> CreateWindow(Farg<WindowProperties> inProperties = {});
 
     static std::vector<Monitor> GetMonitors();
 

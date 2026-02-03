@@ -1,5 +1,5 @@
 #include "gl_vertex_array.hpp"
-#include <glad/glad.h>
+#include "thirdparty/glad/glad.h"
 
 // Also stolen from Hazel [https://github.com/TheCherno/Hazel]
 

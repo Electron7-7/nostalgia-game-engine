@@ -1166,3 +1166,8 @@ OHHHHH TODOTODOTODOTODOTODO: THE RELEASE HEADERS NEED TO START INCLUDES WITH 'No
 
 [02/02/26]
 So I spent a fuck ton of time changing the build system and project structure. The editor now more closely represents a fresh application project utilizing my engine and the engine is now built better (as well as the API headers). Lots of stuff todo still, but one important one is to decide whether or not I want to keep the ImGui implementor and solution in the engine and include 'thirdparty/DearImGui' in the API headers, or leave implementing that up to you. I might choose the latter later on, since I might also implement my own UI system in the future.
+
+[02/03/26]
+Tweaking the build system some more; I've been recompiling the project from scratch with none of the dependencies in my '/usr/local/lib' or '/usr/local/include' directories so I can find all the little roadbumps. All the header files in the engine code will use angled brackets and 'Nostalgia/' paths, but the source files can use double quotes and paths like "theatre/theatre.hpp" instead of "Nostalgia/theatre/theatre.hpp". Basically, anything forward-facing needs to be written as if the various '-I <directory>' lines don't exist in the Makefile. They're only there for very specific includes in some source files (e.g: '<glad/glad.h>').
+
+Eventually, I'd like to not require users to have Jolt headers in their includes path when interfacing with Nostalgia's physics. However, that's gonna be a decent amount of work and since physics aren't even fully fleshed out yet, I'd rather wait until I have a decent system in place.

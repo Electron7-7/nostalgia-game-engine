@@ -1,5 +1,5 @@
 #include "gl_texture_buffer.hpp"
-#include <glad/glad.h>
+#include "thirdparty/glad/glad.h"
 
 static GLenum s_GLType(TextureType inType)
 {

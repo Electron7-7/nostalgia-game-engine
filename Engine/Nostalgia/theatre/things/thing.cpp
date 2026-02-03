@@ -1,4 +1,4 @@
-#include <Nostalgia/theatre/theatre.hpp>
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 

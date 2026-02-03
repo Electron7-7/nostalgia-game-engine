@@ -1,6 +1,6 @@
 #include "event_manager.hpp"
-#include <Nostalgia/events/event_queue.hpp>
-#include <Nostalgia/application/application.hpp>
+#include "events/event_queue.hpp"
+#include "application/application.hpp"
 
 static EventQueue sEventQueue{};
 static EventManager sEventManager{};

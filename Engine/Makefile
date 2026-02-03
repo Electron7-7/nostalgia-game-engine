@@ -116,12 +116,15 @@ export CLEAN_VERSION ?= .+
 
 VPATH := $(SRC_DIRS):$(DIR_ROOT)
 
+BACKEND_DIRS := \
+	$(SRC)/backends \
+	$(SRC)/backends/glfw \
+	$(SRC)/backends/imgui \
+	$(SRC)/backends/opengl
+
 SRC_DIRS := \
     $(SRC)/application \
-    $(SRC)/backends \
-    $(SRC)/backends/glfw \
-    $(SRC)/backends/imgui \
-    $(SRC)/backends/opengl \
+    $(BACKEND_DIRS) \
     $(SRC)/common \
     $(SRC)/components \
     $(SRC)/console \
@@ -154,22 +157,15 @@ DIRTY_SRC_DIRS := \
 	thirdparty
 
 API_HEADER_DIRS := \
-	$(SRC_DIRS) \
+	$(filter-out $(BACKEND_DIRS),$(SRC_DIRS)) \
     $(SRC)/thirdparty/DearImGui \
-    $(SRC)/thirdparty/Jolt \
-    $(SRC)/thirdparty/Jolt/Physics \
-    $(SRC)/thirdparty/Jolt/Physics/Constraints \
-    $(SRC)/thirdparty/Jolt/Physics/Constraints/ConstraintPart \
-    $(SRC)/thirdparty/Jolt/Physics/Ragdoll \
-    $(SRC)/thirdparty/Jolt/Physics/SoftBody \
-    $(SRC)/thirdparty/Jolt/Physics/Collision \
-    $(SRC)/thirdparty/Jolt/Physics/Collision/BroadPhase \
-    $(SRC)/thirdparty/Jolt/Physics/Collision/Shape \
-    $(SRC)/thirdparty/Jolt/Physics/Character \
-    $(SRC)/thirdparty/Jolt/Physics/Body \
-    $(SRC)/thirdparty/Jolt/Physics/Vehicle \
-    $(SRC)/thirdparty/Jolt/Math \
-    $(SRC)/thirdparty/Jolt/Skeleton
+    $(SRC)/thirdparty/frozen \
+    $(SRC)/thirdparty/frozen/bits \
+    $(SRC)/thirdparty/glm \
+    $(SRC)/thirdparty/glm/gtc \
+    $(SRC)/thirdparty/glm/gtx \
+    $(SRC)/thirdparty/glm/ext \
+    $(SRC)/thirdparty/glm/detail
 
 getfiles = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 

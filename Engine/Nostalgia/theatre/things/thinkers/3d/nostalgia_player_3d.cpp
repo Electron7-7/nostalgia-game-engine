@@ -1,13 +1,13 @@
 #include "nostalgia_player_3d.hpp"
 #include "collider_3d.hpp"
-#include <Nostalgia/events/event.hpp>
-#include <Nostalgia/managers/input_manager.hpp>
-#include <Nostalgia/physics/engine.hpp>
-#include <Nostalgia/settings/engine.hpp>
-#include <Nostalgia/settings/world.hpp>
-#include <Nostalgia/settings/player.hpp>
-#include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/theatre/thing_factory.hpp>
+#include "events/event.hpp"
+#include "managers/input_manager.hpp"
+#include "physics/engine.hpp"
+#include "settings/engine.hpp"
+#include "settings/world.hpp"
+#include "settings/player.hpp"
+#include "theatre/theatre.hpp"
+#include "theatre/thing_factory.hpp"
 
 using namespace TheatreFile;
 

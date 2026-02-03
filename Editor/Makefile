@@ -27,7 +27,7 @@ DYNAMIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_
 STATIC_LDFLAGS_LINUX   := -l:libNostalgia.a
 STATIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -l:libNostalgia.a
 
-INCLUDE := -I src -I src/thirdparty -I Nostalgia/thirdparty
+INCLUDE := -I src -I src/thirdparty
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux

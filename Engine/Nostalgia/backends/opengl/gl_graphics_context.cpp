@@ -1,6 +1,6 @@
 #include "gl_graphics_context.hpp"
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include "thirdparty/GLFW/glfw3.h"
+#include "thirdparty/glad/glad.h"
 
 OpenGLContext::OpenGLContext(GLFWwindow* inNativeWindow):
     mWindow{inNativeWindow}

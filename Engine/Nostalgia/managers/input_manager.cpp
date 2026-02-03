@@ -1,9 +1,9 @@
 #include "input_manager.hpp"
 #include "ui_manager.hpp"
-#include <Nostalgia/application/application.hpp>
-#include <Nostalgia/events/event_queue.hpp>
-#include <Nostalgia/events/action.hpp>
-#include <Nostalgia/events/bindings.hpp>
+#include "application/application.hpp"
+#include "events/event_queue.hpp"
+#include "events/action.hpp"
+#include "events/bindings.hpp"
 
 static std::unordered_map<std::string, InputAction> sInputActions{};
 static std::unordered_map<KeyID, std::vector<std::string>> sInputActionBindingsLookup{};

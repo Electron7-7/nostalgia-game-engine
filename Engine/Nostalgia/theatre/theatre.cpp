@@ -14,10 +14,10 @@
 #include "./things/resources/material.hpp"
 #include "./things/resources/mesh.hpp"
 #include "./things/resources/font.hpp"
-#include <Nostalgia/managers/render_manager.hpp>
-#include <Nostalgia/rendering/renderer_api.hpp>
-#include <Nostalgia/rendering/shader.hpp>
-#include <Nostalgia/settings/graphics.hpp>
+#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
+#include "rendering/shader.hpp"
+#include "settings/graphics.hpp"
 #include <ranges>
 
 using namespace TheatreFile;
