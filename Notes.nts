@@ -1171,3 +1171,5 @@ So I spent a fuck ton of time changing the build system and project structure. T
 Tweaking the build system some more; I've been recompiling the project from scratch with none of the dependencies in my '/usr/local/lib' or '/usr/local/include' directories so I can find all the little roadbumps. All the header files in the engine code will use angled brackets and 'Nostalgia/' paths, but the source files can use double quotes and paths like "theatre/theatre.hpp" instead of "Nostalgia/theatre/theatre.hpp". Basically, anything forward-facing needs to be written as if the various '-I <directory>' lines don't exist in the Makefile. They're only there for very specific includes in some source files (e.g: '<glad/glad.h>').
 
 Eventually, I'd like to not require users to have Jolt headers in their includes path when interfacing with Nostalgia's physics. However, that's gonna be a decent amount of work and since physics aren't even fully fleshed out yet, I'd rather wait until I have a decent system in place.
+
+Okay, finally got the build system all fleshed out; at least, I hope so (lol).
