@@ -30,7 +30,7 @@ ARCHIVES_DIR_WINDOWS      := $(SRC)/static_libraries/windows
 DYNAMIC_LIB_FLAGS_LINUX   := -shared
 DYNAMIC_LIB_FLAGS_WINDOWS := -shared --out-implib
 
-INCLUDE := -I $(SRC) -I $(SRC)/thirdparty -I $(SRC)/thirdparty/FreeType
+INCLUDE := -I ./ -I $(SRC) -I $(SRC)/thirdparty -I $(SRC)/thirdparty/FreeType
 
 DIR_ROOT      := build
 DIR_LINUX     := Linux
