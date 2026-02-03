@@ -158,6 +158,7 @@ DIRTY_SRC_DIRS := \
 
 API_HEADER_DIRS := \
 	$(filter-out $(BACKEND_DIRS),$(SRC_DIRS)) \
+	$(SRC)/backends/imgui \
     $(SRC)/thirdparty/DearImGui \
     $(SRC)/thirdparty/frozen \
     $(SRC)/thirdparty/frozen/bits \
