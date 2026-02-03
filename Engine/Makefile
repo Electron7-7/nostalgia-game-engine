@@ -208,15 +208,15 @@ compile_commands:
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source file>$(BOLD)$(YELLOW) -o $(NORM)<object file>$(YELLOW)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
 		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
 	; fi
 
 	@ if [ -n "$(BUILDING_STATIC_LIBRARY)" ]; then \
-		printf "$(BOLD)$(DEFAULT)::Archives Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) -r -o $(NORM)<archive object file>$(BOLD) -Xlinker --whole-archive $(NORM)<archive>$(RESET)\n"; \
-		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object files> <archive object files>$(RESET)\n" \
+		printf "$(BOLD)$(DEFAULT)::Archives Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) -r -o $(NORM)<compiled_archive_file>$(BOLD) -Xlinker --whole-archive $(NORM)<archive_file>$(RESET)\n"; \
+		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object_files> <compiled_archive_file>$(RESET)\n" \
 	; fi
 
 build: headers

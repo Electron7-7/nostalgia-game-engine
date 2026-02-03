@@ -142,9 +142,9 @@ compile_commands:
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::Version - $(BOLD)$(BLUE)$(BUILD_VERSION)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $(NORM)<source>$(BOLD)$(YELLOW) -o $(NORM)<object>$(YELLOW)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $(NORM)<source>$(BOLD)$(YELLOW) -o $(NORM)<object>$(YELLOW)$(RESET)\n"
-	@ printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<objects> $(BOLD)-o $(BUILD_DIR)/$(NAME) $(LD_FLAGS)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(INCLUDE) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
+	@ printf "$(BOLD)$(DEFAULT)::Linking Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(INCLUDE) $(NORM)<object_files> $(BOLD)-o $(BUILD_DIR)/$(NAME) $(LD_FLAGS)$(RESET)\n"
 
 build:
 	@ -mkdir -p $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
