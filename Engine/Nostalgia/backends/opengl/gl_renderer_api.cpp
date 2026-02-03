@@ -201,7 +201,6 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
         { glBindTextureUnit(unit, 0); }
 }
 
-
 void OpenGLRendererAPI::DrawText(Sarg inText,
     Shared<Font> inFont, glm::vec2 inPos, glm::vec2 inScale)
 {
