@@ -30,16 +30,29 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 ## Function Descriptions
 ### virtual void Free()
 When called, will shutdown and destroy the current **Thing**.
+----
 ### virtual void Ready()
+----
 ### virtual void Shutdown()
+----
 ### virtual void Tick()
+----
 ### virtual void Update()
+----
 ### virtual void Input([InputEvent]()\*)
+----
 ### virtual void SetVariables(const [TheatreFile::ThingData]()&)
+----
 ### virtual std::shared_ptr<[TheatreFile::ThingData]()> GetVariables() const
+----
 ### [TheatreFile::ThingData]() GetStartingVariables() const
+----
 ### [ID]() uid() const
+----
 ### const std::string& name() const
+----
 ### void set_name(Sarg)
+----
 ### const char* const c_name() const
+----
 ### const [PID]()& type() const
