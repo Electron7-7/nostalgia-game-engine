@@ -20,11 +20,11 @@ FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp
 FLAGS_LINUX           := # Nothing yet
 
-DYNAMIC_LIBRARIES       := -lglfw -lfreetype -l:libgetargs.so -l:libNostalgia.so
+DYNAMIC_LIBRARIES       := -lglfw -lfreetype -L src/libraries -l:libgetargs.so -l:libNostalgia.so
 DYNAMIC_LDFLAGS_LINUX   := $(DYNAMIC_LIBRARIES)
 DYNAMIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
 
-STATIC_LDFLAGS_LINUX   := -l:libgetargs.a -l:libNostalgia.a
+STATIC_LDFLAGS_LINUX   := -L src/libraries -l:libNostalgia.a -l:libgetargs.a
 STATIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -l:libgetargs.a -l:libNostalgia.a
 
 INCLUDE := -I src -I src/thirdparty
