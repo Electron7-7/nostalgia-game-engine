@@ -1,4 +1,7 @@
 [return to the wiki](/wiki/Home)
+
+_This documentation is heavily inspired by/plagiarizes Godot's [GDScript documentation](https://docs.godotengine.org/en/stable/classes) (specifically, the class reference)._
+
 # Index
 - [Thing](thing.md)
     - [Resource](resource.md)
