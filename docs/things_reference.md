@@ -44,13 +44,13 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 
 | Return Type | Function Signature |
 | --- | --- |
-| void | virtual [Free](#virtual-void-free)() |
-| void | virtual [Ready](#virtual-void-ready)() |
-| void | virtual [Shutdown](#virtual-void-shutdown)() |
-| void | virtual [Tick](#virtual-void-tick)() |
-| void | virtual [Update](#virtual-void-update)() |
-| void | virtual [Input](#virtual-void-inputinputevent)([InputEvent]()\*) |
-| void | virtual [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata)(const[TheatreFile::ThingData]()&) |
+| void | [Free](#virtual-void-free)() <sub>virtual</sub>|
+| void | [Ready](#virtual-void-ready)() <sub>virtual</sub>|
+| void | [Shutdown](#virtual-void-shutdown)() <sub>virtual</sub>|
+| void | [Tick](#virtual-void-tick)() <sub>virtual</sub>|
+| void | [Update](#virtual-void-update)() <sub>virtual</sub>|
+| void | [Input](#virtual-void-inputinputevent)([InputEvent]()\*) <sub>virtual</sub>|
+| void | [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata)(const[TheatreFile::ThingData]()&) <sub>virtual</sub>|
 | std::shared_ptr<[TheatreFile::ThingData]()> | virtual [GetVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
 | [TheatreFile::ThingData]() | [GetStartingVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
 | [ID]() | [uid](#id-uid-const)() const |
