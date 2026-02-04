@@ -12,20 +12,20 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 
 | Return Type | Function Signature |
 | --- | --- |
-| void | virtual [Free](#free)() |
-| void | virtual [Ready](#ready)() |
-| void | virtual [Shutdown](#shutdown)() |
-| void | virtual [Tick](#tick)() |
-| void | virtual [Update](#update)() |
-| void | virtual [Input](#input)([InputEvent]()\*) |
-| void | virtual [SetVariables](#set-variables)(const[TheatreFile::ThingData]()&) |
-| std::shared_ptr<[TheatreFile::ThingData]()> | virtual [GetVariables](#get-variables)() const |
-| [TheatreFile::ThingData]() | [GetStartingVariables](#get-starting-variables)() const |
-| [ID]() | [uid](#uid)() const |
-| const std::string& | [name](#name)() const |
-| void | [set_name](#set_name)(Sarg) |
-| const char* const | [c_name](#c_name)() const |
-| const [PID]()& | [type](#type)() const |
+| void | virtual [Free](#virtual-void-free)() |
+| void | virtual [Ready](#virtual-void-ready)() |
+| void | virtual [Shutdown](#virtual-void-shutdown)() |
+| void | virtual [Tick](#virtual-void-tick)() |
+| void | virtual [Update](#virtual-void-update)() |
+| void | virtual [Input](#virtual-void-inputinputevent)([InputEvent]()\*) |
+| void | virtual [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata)(const[TheatreFile::ThingData]()&) |
+| std::shared_ptr<[TheatreFile::ThingData]()> | virtual [GetVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
+| [TheatreFile::ThingData]() | [GetStartingVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
+| [ID]() | [uid](#id-uid-const)() const |
+| const std::string& | [name](#const-stdstring-name-const)() const |
+| void | [set_name](#void-set_namesarg)(Sarg) |
+| const char* const | [c_name](#const-char-const-c_name-const)() const |
+| const [PID]()& | [type](#const-pid-type-const)() const |
 
 ## Function Descriptions
 ### virtual void Free()
