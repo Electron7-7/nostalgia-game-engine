@@ -3,12 +3,6 @@
 
 using namespace TheatreFile;
 
-void Thinker::Free()
-{
-    LockGuard<RMutex> lock{mChildrenMutex};
-    my_theatre()->DestroyThing(mUID);
-}
-
 void Thinker::SetVariables(Farg<ThingData> inData)
 {
     Thing::SetVariables(inData);

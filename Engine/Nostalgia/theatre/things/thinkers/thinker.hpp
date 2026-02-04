@@ -5,7 +5,6 @@
 class Thinker : public Thing
 {
 public:
-    virtual void Free() override;
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
