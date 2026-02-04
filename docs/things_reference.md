@@ -1,5 +1,31 @@
-# Things Reference
 [return to the wiki](/wiki/Home)
+# Index
+- [Thing](thing.md)
+    - [Resource](resource.md)
+        - [Font](font.md)
+        - [Mesh](mesh.md)
+        - [Texture](texture.md)
+        - [Material](material.md)
+    - [Thinker](thinker.md)
+        - [Viewport](viewport.md)
+        - [Actor3D](actor_3d.md)
+            - [NostalgiaPlayer3D](nostalgia_player_3d.md)
+            - [Camera3D](camera_3d.md)
+            - [Collider3D](collider_3d.md)
+            - [Visual3D](visual_3d.md)
+                - [MeshInstance3D](mesh_instance_3d.md)
+                - [Light3D](light_3d.md)
+                    - [PointLight3D](point_light_3d.md)
+                    - [SpotLight3D](spot_light_3d.md)
+                    - [DirectionalLight3D](directional_light_3d.md)
+        - [Actor2D](actor_2d.md)
+            - [Camera2D](camera_2d.md)
+            - [Visual2D](visual_2d.md)
+                - [Sprite2D](sprite_2d.md)
+                - [Text2D](text_2d.md)
+                - [MeshInstance2D](mesh_instance_2d.md)
+
+----
 
 # Thing
 
@@ -34,29 +60,30 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 ### virtual void Free()
 When called, will shutdown and destroy the current **Thing**.
 
-----
+---
 ### virtual void Ready()
-----
+---
 ### virtual void Shutdown()
-----
+---
 ### virtual void Tick()
-----
+---
 ### virtual void Update()
-----
+---
 ### virtual void Input([InputEvent]()\*)
-----
+---
 ### virtual void SetVariables(const [TheatreFile::ThingData]()&)
-----
+---
 ### virtual std::shared_ptr<[TheatreFile::ThingData]()> GetVariables() const
-----
+---
 ### [TheatreFile::ThingData]() GetStartingVariables() const
-----
+---
 ### [ID]() uid() const
-----
+---
 ### const std::string& name() const
-----
+---
 ### void set_name(Sarg)
-----
+---
 ### const char* const c_name() const
-----
+---
 ### const [PID]()& type() const
+----
