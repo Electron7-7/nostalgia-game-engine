@@ -22,7 +22,6 @@ public:
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
-    virtual void Free() {}
     virtual void Ready() {}
     virtual void Shutdown() {}
     virtual void Tick() {}
@@ -38,6 +37,7 @@ public:
     // See `Material::GetVariables` for an example.
     virtual Shared<TheatreFile::ThingData> GetVariables() const;
 
+    void Free();
     TheatreFile::ThingData GetStartingVariables() const;
     ID uid() const;
     Sarg name() const;

@@ -23,6 +23,9 @@ Shared<ThingData> Thing::GetVariables() const
     return data;
 }
 
+void Thing::Free()
+{ print_error_enum(m_pRootTheatre->DestroyThing(mUID)); }
+
 ThingData Thing::GetStartingVariables() const
 { return *m_pStartingData; }
 
