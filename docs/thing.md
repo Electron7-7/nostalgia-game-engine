@@ -30,6 +30,7 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 ## Function Descriptions
 ### virtual void Free()
 When called, will shutdown and destroy the current **Thing**.
+
 ----
 ### virtual void Ready()
 ----
