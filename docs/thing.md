@@ -25,7 +25,7 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 | const std::string& | [name](#name)() const |
 | void | [set_name](#set_name)(Sarg) |
 | const char* const | [c_name](#c_name)() const |
-| const[PID]()& | [type](#type)() const |
+| const [PID]()& | [type](#type)() const |
 
 ## Function Descriptions
 ### virtual void Free()
