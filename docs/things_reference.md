@@ -51,7 +51,7 @@ Since Nostalgia is partially based on Godot, **Thing** can be compared to Godot'
 | void | [Update](#virtual-void-update)() <sub>virtual</sub>|
 | void | [Input](#virtual-void-inputinputevent)([InputEvent]()\*) <sub>virtual</sub>|
 | void | [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata)(const[TheatreFile::ThingData]()&) <sub>virtual</sub>|
-| std::shared_ptr<[TheatreFile::ThingData]()> | virtual [GetVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
+| std::shared_ptr<[TheatreFile::ThingData]()> | [GetVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const <sub>virtual</sub> |
 | [TheatreFile::ThingData]() | [GetStartingVariables](#virtual-stdshared_ptrtheatrefilethingdata-getvariables-const)() const |
 | [ID]() | [uid](#id-uid-const)() const |
 | const std::string& | [name](#const-stdstring-name-const)() const |
