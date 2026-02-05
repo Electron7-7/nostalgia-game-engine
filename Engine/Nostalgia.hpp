@@ -1,6 +1,12 @@
 #ifndef NOSTALGIA_PRE_COMPILED_HEADER_H
 #define NOSTALGIA_PRE_COMPILED_HEADER_H
 
+#define NOSTALGIA_VERSION_MAJOR "0"
+#define NOSTALGIA_VERSION_MINOR "1"
+#define NOSTALGIA_VERSION_PATCH "0"
+#define NOSTALGIA_VERSION_FULL \
+    NOSTALGIA_VERSION_MAJOR "." NOSTALGIA_VERSION_MINOR "." NOSTALGIA_VERSION_PATCH
+
 // C++ STL
 #include <set>              // IWYU pragma: keep
 #include <map>              // IWYU pragma: keep
