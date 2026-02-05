@@ -1,6 +1,7 @@
 #include "./program_arguments.hpp"
 #include "app/nostalgia_goggles.hpp"
 #include <getargs/argument_parser.hpp>
+#include <Nostalgia/filesystem/filesystem.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/settings/engine.hpp>
 
@@ -21,16 +22,18 @@ int DedicatedMain(int argc, char** argv)
     if(parser_status == ARG_STATUS_FAILED)
         { return 1; }
 
+    std::string program_name{"Nostalgia_Goggles"};
+
     if(Flags::Help.IsActive())
     {
         std::println("{}\n\t{}",
-            _Help_Printout,
-            _Version_Printout);
+            GetHelpMessage(program_name.data()),
+            GetVersionMessage(program_name.data()));
         return 0;
     }
     else if(Flags::Version.IsActive())
     {
-        std::println("\t{}\n", _Version_Printout);
+        std::println("{}", GetVersionMessage(program_name.data()));
         return 0;
     }
     else if(Flags::NoColors.IsActive())

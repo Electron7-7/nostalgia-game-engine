@@ -1,6 +1,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
+#include <Nostalgia/Nostalgia.hpp>
 #include <getargs/argument.hpp>
 
 namespace Flags
@@ -14,15 +15,25 @@ namespace Flags
 namespace Options
 {}
 
-constexpr const char* _Help_Printout =
-R"(    Usage: Nostalgia_Goggles [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
+constexpr const char* _Help_Format_String{
+R"(    Usage: {} [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
     Options:
         -h, --help           print help document
         -v, --version        print program version
             --no-colors      disable printout colors
-            --no-editor-hint disable `Engine::IsEditorHint` (this will cause the engine to treat the editor as if it were a game)
-)";
+            --no-editor-hint sets `Engine::IsEditorHint` to false
+)"};
 
-constexpr const char* _Version_Printout = "Nostalgia_Goggles v0.1-alpha";
+constexpr const char* _Version_Format_String{"\t{} v{}"};
+
+inline std::string GetHelpMessage(const char* inProgramName)
+{ return std::format(_Help_Format_String, inProgramName); }
+
+inline std::string GetVersionMessage(const char* inProgramName)
+{
+    return std::format(_Version_Format_String,
+        inProgramName,
+        NOSTALGIA_VERSION_FULL);
+}
 
 #endif // ARGUMENTS_H

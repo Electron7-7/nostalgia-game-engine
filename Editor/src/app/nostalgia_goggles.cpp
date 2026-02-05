@@ -31,11 +31,11 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    mMainWindow = IWindow::CreateWindow(IWindow::Properties{std::format("{}{}",
-        _Version_Printout,
+    mMainWindow = IWindow::CreateWindow(IWindow::Properties{std::format("Nostalgia_Goggles v{} {}",
+        NOSTALGIA_VERSION_FULL,
         (Settings::Engine::IsEditorHint)
             ? ""
-            : " (Settings::Engine::IsEditorHint == false)")});
+            : "(Settings::Engine::IsEditorHint == false)")});
 
     auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};
     imgui_impl->CreateSolution<ImGui_Editor>();
