@@ -59,7 +59,7 @@
 #include <Nostalgia/math/glm_format.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/filesystem/filesystem.hpp>                // IWYU pragma: keep
 #include <Nostalgia/filesystem/file_data.hpp>                 // IWYU pragma: keep
-#include <Nostalgia/theatre/number_parser.hpp>                // IWYU pragma: keep
+#include <Nostalgia/theatre/parser/number_parser.hpp>         // IWYU pragma: keep
 #include <Nostalgia/theatre/thing_type.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/theatre/variable_registry.hpp>            // IWYU pragma: keep
 #include <Nostalgia/theatre/thing_data.hpp>                   // IWYU pragma: keep

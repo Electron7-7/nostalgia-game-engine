@@ -123,6 +123,7 @@ BACKEND_DIRS := \
 	$(SRC)/backends/opengl
 
 SRC_DIRS := \
+	$(SRC) \
     $(SRC)/application \
     $(BACKEND_DIRS) \
     $(SRC)/common \
@@ -175,7 +176,7 @@ CC_SRCS  ?= $(call getfiles,$(SRC_DIRS),*.c)   $(call getfiles,$(THIRDPARTY_SRC_
 CXX_SRCS ?= $(call getfiles,$(SRC_DIRS),*.cpp) $(call getfiles,$(THIRDPARTY_SRC_DIRS),*.cpp)
 
 # TODO: Make better API headers
-HEADER_FILES := $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h) Nostalgia.hpp
+HEADER_FILES := $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h)
 
 PCH   := Nostalgia.pch
 PCH_H := Nostalgia.hpp
@@ -228,7 +229,7 @@ install:
 
 compile_commands:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
-	$(eval PCH_FLAGS = -include $(PCH_H))
+	$(eval PCH_FLAGS = -include $(SRC)/$(PCH_H))
 
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
@@ -273,7 +274,6 @@ headers:
 	@ printf "$(BOLD)$(RED)[TODO] Make header files that are designed for API use and only copy those into '$(BUILD_HEADERS)'$(RESET)\n"
 	@ -mkdir -p $(BUILD_HEADERS)
 	@ $(MAKE) -s $(HEADERS_OUT)
-	@ $(MAKE) -s $(BUILD_HEADERS)/Nostalgia.hpp
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
@@ -395,7 +395,7 @@ disable_colors:
 	@ printf "::Output styles disabled\n"
 
 # Pre-Compiled Header
-$(BUILD_OBJS)/$(PCH): $(PCH_H)
+$(BUILD_OBJS)/$(PCH): $(SRC)/$(PCH_H)
 	@ printf "::Building Pre-Compiled Header: $(BOLD)$(BLUE)$@$(RESET)\n"
 	$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -xc++-header -c $< -o $@
 	@ -mv $(@:.pch=.d) $(BUILD_DEPS)/$(notdir $(@:.pch=.d))
