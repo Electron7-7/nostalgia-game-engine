@@ -1,7 +1,6 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
-// #include "../../../Engine/Nostalgia/backends/opengl/gl_renderer_api.hpp"
 #include <Nostalgia/thirdparty/DearImGui/imgui.h>
 #include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 #include <Nostalgia/Nostalgia.hpp>
@@ -409,7 +408,7 @@ static void s_GeneralDebuggingWindow()
     {
         SeparatorText("Movement");
         SliderFloat("Movement Speed", &Settings::Player::MovementSpeed, 0.0f, 10.0f);
-        DragFloat("Movement Acceleration", &Settings::Player::MovementAcceleration, 0.01f, 0.0f, 10.0f);
+        DragFloat("Movement Acceleration", &Settings::Player::MovementAcceleration, 0.01f, 0.0f);
         SeparatorText("Mouse");
 #pragma message("TODO: re-implement raw mouse motion")
         if(Checkbox("Raw Mouse Motion", &Settings::Player::RawMouseMotion))

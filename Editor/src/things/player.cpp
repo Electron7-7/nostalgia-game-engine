@@ -78,11 +78,7 @@ void EditorPlayer3D::Tick()
         if(wish_velocity[i] == mVelocity[i])
             { continue; }
         else if(wish_velocity[i] == 0.0f)
-        {
-            mVelocity[i] *= mVelocity[i] / Settings::Player::MovementAcceleration;
-            if(glm::abs(mVelocity[i]) <= 0.001f)
-                { mVelocity[i] = 0.0f; }
-        }
+            { mVelocity[i] = 0.0f; }
         else
         {
             mVelocity[i] += wish_velocity[i] / Settings::Player::MovementAcceleration;
