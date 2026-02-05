@@ -39,16 +39,4 @@ private:
     std::array<double, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
 };
 
-enum class DebugMessageSeverityFilter
-{
-    None = 0,
-    Low,
-    Medium,
-    High,
-};
-
-extern bool gPrintDrawLogs;
-extern bool gOpenGLEnableNotificationMesssages;
-extern DebugMessageSeverityFilter gOpenGLMessageFilter;
-
 #endif // OPENGL_RENDERER_H

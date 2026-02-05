@@ -15,6 +15,7 @@
 #include <Nostalgia/settings/player.hpp>
 #include <Nostalgia/theatre/parser.hpp>
 #include <Nostalgia/events/event.hpp>
+#include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/theatre/things/resources/mesh.hpp>
 #include <Nostalgia/theatre/things/thinkers/2d/text_2d.hpp>
@@ -264,7 +265,7 @@ void ImGui_Debugger::StopTheatreTiming(bool loading)
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
-#ifdef DEBUGGING
+#ifdef NOSTALGIA_DEBUGGING
     if(CollapsingHeader("Message Labels"))
     {
         ushort i{0};
@@ -311,7 +312,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Body Activated",    &gJoltDebugMessageAllow_BodyActivated);    SameLine();
             Checkbox("Body Deactivated",  &gJoltDebugMessageAllow_BodyDeactivated);
     }
-#endif // DEBUGGING
+#endif // NOSTALGIA_DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
         Checkbox("Use New WIP Text Rendering Method", &gDebugToggleTextRenderingMethod);
@@ -519,14 +520,14 @@ void ImGui_Debugger::m_ManualStopwatchWindow(float width)
 static void s_TheatreDebuggingWindow()
 {
     BeginChild("Theatre Debugging");
-// #ifdef DEBUGGING
+// #ifdef NOSTALGIA_DEBUGGING
     // Text("Theatre File Parser Breakpoint:");
     // PushItemWidth(82.0f);
     // InputUInt("Line", &gBreakOnLine, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     // InputUInt("Column", &gBreakOnColumn, 0, 10, ImGuiInputTextFlags_AutoSelectAll);
     // PushItemWidth(0.0f);
     // Separator();
-// #endif // DEBUGGING
+// #endif // NOSTALGIA_DEBUGGING
     Checkbox("Debug Theatre File Load Printout", &sPrintLoadedTheatreData);
 
     InputText("Theatre File", &sTheatreFilePath);

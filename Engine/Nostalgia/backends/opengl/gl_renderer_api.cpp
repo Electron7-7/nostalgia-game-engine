@@ -5,12 +5,12 @@
 #include "theatre/things/resources/font.hpp"
 #include "theatre/things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
+#include "rendering/debugging.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/vertex_array.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/frame_buffer.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
 #include "settings/world.hpp"
 #include "thirdparty/glad/glad.h"
-#include "thirdparty/GLFW/glfw3.h"
 
 bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{true};
