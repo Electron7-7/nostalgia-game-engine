@@ -20,7 +20,7 @@ FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp
 FLAGS_LINUX           := # Nothing yet
 
-export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -L ../Engine/Nostalgia/$(BUILD_DIR) -L src/libraries -l:libgetargs.so -l:libNostalgia.so
+export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -L ../Engine/Nostalgia/$(BUILD_DIR)/lib -L src/libraries -l:libgetargs.so -l:libNostalgia.so
 export DYNAMIC_LDFLAGS_LINUX   ?= $(DYNAMIC_LIBRARIES)
 export DYNAMIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
 
