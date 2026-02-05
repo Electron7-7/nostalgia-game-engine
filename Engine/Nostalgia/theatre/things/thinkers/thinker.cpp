@@ -1,5 +1,4 @@
 #include "theatre/theatre.hpp"
-#include "theatre/parser.hpp"
 
 using namespace TheatreFile;
 

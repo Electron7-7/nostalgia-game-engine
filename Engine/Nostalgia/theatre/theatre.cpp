@@ -1,6 +1,5 @@
 #include "./theatre.hpp"
 #include "./theatre_file.hpp"
-#include "./theatre_data.hpp"
 #include "./thing_factory.hpp"
 #include "./things/thinkers/2d/camera_2d.hpp"
 #include "./things/thinkers/2d/sprite_2d.hpp"
@@ -65,7 +64,7 @@ void Theatre::Input(InputEvent* inInput)
 
 Error Theatre::Load(Sarg inFilePath)
 {
-    if(Error status{ParseTheatreFile(inFilePath, m_pInitialState)}; !status)
+    if(Error status{TheatreFile::Load(inFilePath, m_pInitialState)}; !status)
         { mInitStatus = status; }
     else { mInitStatus = OK; }
     return print_error_enum(mInitStatus);
@@ -75,7 +74,7 @@ Error Theatre::Load(Farg<FileData> inData)
 {
     if(!inData.Status())
         { mInitStatus = ERR_DATA_LOAD; }
-    else if(Error status{ParseTheatreFile(inData, m_pInitialState)}; !status)
+    else if(Error status{TheatreFile::Load(inData, m_pInitialState)}; !status)
         { mInitStatus = status; }
     else { mInitStatus = OK; }
     return print_error_enum(mInitStatus);

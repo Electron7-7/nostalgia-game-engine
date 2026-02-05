@@ -13,7 +13,6 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/graphics.hpp>
 #include <Nostalgia/settings/player.hpp>
-#include <Nostalgia/theatre/parser.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>

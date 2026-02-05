@@ -139,6 +139,7 @@ SRC_DIRS := \
     $(SRC)/rendering \
     $(SRC)/settings \
     $(SRC)/theatre \
+    $(SRC)/theatre/parser \
     $(SRC)/theatre/things \
     $(SRC)/theatre/things/resources \
     $(SRC)/theatre/things/thinkers \

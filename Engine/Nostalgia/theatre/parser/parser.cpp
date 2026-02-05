@@ -1,6 +1,5 @@
-#include "./parser.hpp"
-#include "./theatre_data.hpp"
-#include "./thing_factory.hpp"
+#include "../theatre_file.hpp"
+#include "../thing_factory.hpp"
 
 static constexpr char cDelimiterTheatreName    {'@'};
 static constexpr char cDelimiterTheatreIndex   {'#'};
@@ -21,7 +20,7 @@ enum Comment { SINGLE_LINE, MULTI_LINE, NO_COMMENT }; // yes, `NO_COMMENT` is a 
 static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData> outData, Context inContext);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
-Error TheatreFile::Parser(Farg<TokenArray> inTokens, Shared<TheatreData>& outData)
+Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData)
 {
     ThingData     thing_dat{};
     ThingVariable thing_var{};

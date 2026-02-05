@@ -1,5 +1,5 @@
-#include "./parser.hpp"
-#include "./thing_factory.hpp"
+#include "../theatre_file.hpp"
+#include "../thing_factory.hpp"
 #include "thirdparty/frozen/set.h"
 
 static constexpr char        cCommentDelimiter{'/'};
@@ -25,7 +25,7 @@ static void debug_PrettifyEnums();
 
 using namespace TheatreFile;
 
-Error TheatreFile::Lexer(Farg<FileData> inData, TokenArray& outTokens)
+Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
 {
 #ifdef NOSTALGIA_DEBUGGING
     debug_PrettifyEnums();

@@ -1,11 +1,9 @@
 #include "./theatre_file.hpp"
-#include "./theatre_data.hpp"
-#include "./parser.hpp"
 #include "filesystem/filesystem.hpp"
 
 using namespace TheatreFile;
 
-Error TheatreFile::ParseTheatreFile(Sarg inPathToFile,
+Error TheatreFile::Load(Sarg inPathToFile,
     Shared<TheatreData>& outData)
 {
     std::string file_path{inPathToFile};
@@ -15,16 +13,16 @@ Error TheatreFile::ParseTheatreFile(Sarg inPathToFile,
         if(!FileSystem::IsFile(file_path))
             { return ERR_NOT_FOUND; }
     }
-    return ParseTheatreFile(FileData{file_path}, outData);
+    return Load(FileData{file_path}, outData);
 }
 
-Error TheatreFile::ParseTheatreFile(Farg<FileData> inFileData,
+Error TheatreFile::Load(Farg<FileData> inFileData,
     Shared<TheatreData>& outData)
 {
     TokenArray tokens{};
-    if(!print_error_enum(Lexer(inFileData, tokens)))
+    if(!print_error_enum(Lex(inFileData, tokens)))
         { return ERR_THEATRE_LEXER; }
-    else if(!print_error_enum(Parser(tokens, outData)))
+    else if(!print_error_enum(Parse(tokens, outData)))
         { return ERR_THEATRE_PARSER; }
     return OK;
 }
