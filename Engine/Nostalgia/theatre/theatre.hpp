@@ -20,6 +20,7 @@ public:
     Theatre() noexcept;
     Theatre(Shared<TheatreFile::TheatreData>) noexcept;
     Theatre(Farg<FileData> inTheatreFileData) noexcept;
+    Theatre(Sarg inTheatreFilePath) noexcept;
 
     virtual ~Theatre() noexcept;
 
@@ -28,6 +29,7 @@ public:
     virtual void Input(InputEvent*);
 
     virtual Error Load(Farg<FileData> inTheatreFileData);
+    virtual Error Load(Sarg inTheatreFilePath);
     virtual bool  Startup();
     virtual bool  Shutdown();
     virtual void  Draw();

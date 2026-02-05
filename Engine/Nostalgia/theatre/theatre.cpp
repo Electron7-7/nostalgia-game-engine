@@ -1,5 +1,5 @@
 #include "./theatre.hpp"
-#include "./parser.hpp"
+#include "./theatre_file.hpp"
 #include "./theatre_data.hpp"
 #include "./thing_factory.hpp"
 #include "./things/thinkers/2d/camera_2d.hpp"
@@ -30,6 +30,11 @@ Theatre::Theatre(Shared<TheatreData> inData) noexcept:
     m_pInitialState{inData},
     mInitStatus{OK} {}
 
+Theatre::Theatre(Sarg inPath) noexcept:
+    m_pRegistry{MakeShared<VariableRegistry>()},
+    m_pInitialState{MakeShared<TheatreData>()}
+{ Load(inPath); }
+
 Theatre::Theatre(Farg<FileData> inData) noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
@@ -58,15 +63,20 @@ void Theatre::Input(InputEvent* inInput)
         { thing->Input(inInput); }
 }
 
+Error Theatre::Load(Sarg inFilePath)
+{
+    if(Error status{ParseTheatreFile(inFilePath, m_pInitialState)}; !status)
+        { mInitStatus = status; }
+    else { mInitStatus = OK; }
+    return print_error_enum(mInitStatus);
+}
+
 Error Theatre::Load(Farg<FileData> inData)
 {
-    TokenArray tokens{};
-    if(!print_error_enum(inData.Status()))
+    if(!inData.Status())
         { mInitStatus = ERR_DATA_LOAD; }
-    else if(!print_error_enum(Lexer(inData, tokens)))
-        { mInitStatus = ERR_THEATRE_LEXER; }
-    else if(!print_error_enum(Parser(tokens, m_pInitialState)))
-        { mInitStatus = ERR_THEATRE_PARSER; }
+    else if(Error status{ParseTheatreFile(inData, m_pInitialState)}; !status)
+        { mInitStatus = status; }
     else { mInitStatus = OK; }
     return print_error_enum(mInitStatus);
 }
