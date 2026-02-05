@@ -187,7 +187,7 @@ Actor3D IcoSphereActor3D
     RotationDegrees = [15.2, 38.6, 0]
 }
 
-NostalgiaPlayer3D Player
+EditorPlayer3D Player
 {
     Position = [0, 0.3, 6]
 }

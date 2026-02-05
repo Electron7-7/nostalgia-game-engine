@@ -94,6 +94,7 @@ SRC := src
 SRC_DIRS := \
     $(SRC)/app \
     $(SRC)/system \
+    $(SRC)/things \
     $(SRC)/tools \
     $(SRC)/gui
 

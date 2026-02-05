@@ -1,4 +1,5 @@
 #include "imgui_editor.hpp"
+#include "things/player.hpp"
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/events/event.hpp>
@@ -11,7 +12,6 @@
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/theatre/things/thinkers/viewport.hpp>
 #include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/theatre/things/thinkers/3d/nostalgia_player_3d.hpp>
 #include <Nostalgia/thirdparty/DearImGui/imgui.h>
 #include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 
@@ -49,7 +49,7 @@ void ImGui_Editor::TheatreEntered()
 {
     if(!Settings::Engine::IsEditorHint)
     {
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -93,7 +93,7 @@ void ImGui_Editor::TheatreExited()
     sSpawnLocationMaterialID = ID{};
     sSpawnLocationMeshInstanceID = ID{};
     sSpawnLocationID = ID{};
-    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
     UI_Implementor::SetGlobalCanHandleEvents(true);
     MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
     player->mCaptureMouse    = false;
@@ -106,7 +106,7 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
-            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
             UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             player->mCaptureMouse    = false;
@@ -117,7 +117,7 @@ void ImGui_Editor::Input(InputEvent* event)
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)
         and Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
     {
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -188,7 +188,7 @@ void ImGui_Editor::Update()
             GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
         EndChild();
         static bool camera_moving{false};
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<NostalgiaPlayer3D>(UID::a_Player)};
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
         if((IsItemHovered() or camera_moving)
             and !player->mCaptureMouse)
         {

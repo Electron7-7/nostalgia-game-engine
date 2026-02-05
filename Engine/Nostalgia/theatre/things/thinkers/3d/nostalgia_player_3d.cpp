@@ -1,11 +1,5 @@
 #include "nostalgia_player_3d.hpp"
-#include "collider_3d.hpp"
-#include "events/event.hpp"
-#include "managers/input_manager.hpp"
-#include "physics/engine.hpp"
 #include "settings/engine.hpp"
-#include "settings/world.hpp"
-#include "settings/player.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/thing_factory.hpp"
 
@@ -14,45 +8,29 @@ using namespace TheatreFile;
 void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
-
-    if(!data.get_variable(mScale, "Scale", "Size", "OuuughImSoBigAndRound"))
-        { mScale = glm::vec3{1.0f, 3.0f, 1.0f}; }
-    data.get_variable(mViewPosition, "ViewPosition");
-    data.get_variable(Settings::Player::EnableGravity, "EnableGravity", "Gravity", "Fall");
 }
 
 Shared<ThingData> NostalgiaPlayer3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
-
-    data->set_variable(mViewPosition, "ViewPosition");
-    data->set_variable(Settings::Player::EnableGravity, "EnableGravity");
-
     return data;
 }
-
-void NostalgiaPlayer3D::Input(InputEvent* event)
-{}
 
 void NostalgiaPlayer3D::Ready()
 {
     Actor3D::Ready();
 
     bool _debug_axis_mesh_made{false},
-        _has_camera{false},
-        _has_collider{false};
+        _has_camera{false};
     for(ID child : Children())
     {
-        FPID child_type{my_theatre()->TypeOf(child)};
-        if(ThingFactory::IsDerivedFrom(child_type, ThingType::Camera3D))
+        if(ThingFactory::IsDerivedFrom(my_theatre()->TypeOf(child), ThingType::Camera3D))
             { _has_camera = true; }
-        else if(ThingFactory::IsDerivedFrom(child_type, ThingType::Collider3D))
-            { _has_collider = true; mMainColliderID = child; }
     }
     if(!_has_camera)
     {
         TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
-        cam_dat.set_variable(glm::vec3{0.0f, 2.0f, 0.0f}, "Position");
+        cam_dat.set_variable(glm::vec3{0.0f, 0.75f, 0.0f}, "Position");
         cam_dat.set_variable(true, "Current");
         cam_dat.set_variable(true, "UseDefaultSkybox");
         if(Settings::Engine::IsEditorHint)
@@ -68,67 +46,6 @@ void NostalgiaPlayer3D::Ready()
                 _debug_axis_mesh_made = true;
             }
         }
-        my_theatre()->SetParent(my_theatre()->CreateThing(cam_dat), mUID);
-    }
-    if(!_has_collider)
-    {
-        TheatreFile::ThingData coll_dat{ThingType::Collider3D, "DefaultPlayerCollider"};
-        coll_dat.set_variable(mPosition, "Origin");
-        coll_dat.set_variable(mQuaternion, "Quaternion");
-        coll_dat.set_variable(mScale, "Scale");
-        coll_dat.set_variable(MotionType::Kinematic, "Motion");
-        coll_dat.set_variable(ShapeType::Box, "Shape");
-        my_theatre()->SetParent(mMainColliderID = my_theatre()->CreateThing(coll_dat), mUID);
-        mScale = glm::vec3{1.0f};
+        my_theatre()->SetParent(mCameraID = my_theatre()->CreateThing(cam_dat), mUID);
     }
 }
-
-void NostalgiaPlayer3D::Tick()
-{
-    Move({
-        mCaptureKeyboard * (InputManager::IsActionDown("+right")   - InputManager::IsActionDown("+left")),
-        mCaptureKeyboard * (InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward"))
-    });
-    Look(InputManager::MouseMotion() * mCaptureMouse);
-
-    SetRotationDegrees(RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
-
-    auto collider{my_theatre()->GetThinker<Collider3D>(mMainColliderID)};
-
-    glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
-        mMovementDirection.z * Settings::Player::MovementSpeed};
-    glm::vec3 l_LeftRightVelocity{(mQuaternion * Settings::World::Right()) *
-        mMovementDirection.x * Settings::Player::MovementSpeed};
-    glm::vec3 wish_velocity{l_FrontBackVelocity + l_LeftRightVelocity};
-
-    for(int i{0}; i < 3; ++i)
-    {
-        if(wish_velocity[i] == mVelocity[i])
-            { continue; }
-        else if(wish_velocity[i] == 0.0f)
-        {
-            mVelocity[i] *= mVelocity[i] / Settings::Player::MovementAcceleration;
-            if(glm::abs(mVelocity[i]) <= 0.001f)
-                { mVelocity[i] = 0.0f; }
-        }
-        else
-        {
-            mVelocity[i] += wish_velocity[i] / Settings::Player::MovementAcceleration;
-            if(glm::abs(mVelocity[i]) > glm::abs(wish_velocity[i]))
-                { mVelocity[i] = wish_velocity[i]; }
-        }
-    }
-
-    PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
-        Math::Convert<JPH::Vec3>(mVelocity));
-    mPosition = collider->Position();
-}
-
-void NostalgiaPlayer3D::Move(const glm::vec2& direction)
-{
-    mMovementDirection.x = direction.x;
-    mMovementDirection.z = direction.y;
-}
-
-void NostalgiaPlayer3D::Look(const glm::vec2& motion)
-{ mLookWish = motion * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale; }
