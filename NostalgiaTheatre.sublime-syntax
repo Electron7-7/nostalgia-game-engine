@@ -73,71 +73,35 @@ variables:
 contexts:
   main:
     - include: comment
+    - include: definition
     - match: '{{start_theatre_name}}'
       push: theatre_name
     - match: '{{start_theatre_index}}'
       push: theatre_index
-    - match: '{{typenames}}'
-      scope: storage.type.variable
-      push: definition
 
   definition:
-    - include: comment
-    - match: '\w+' # Variable name
-      scope: entity.name
-      push: multiline
-    - match: '$'
-      pop: true
-
-  multiline:
-    - include: comment
-    - match: '='
-      fail: define_variable
+    - match: '{{typenames}}'
+      scope: storage.type.variable
     - match: '{'
       scope: punctuation.section.block.begin.bracket.curly
       push:
       - include: variable
+      - include: definition
       - match: '}'
         scope: punctuation.section.block.end.bracket.curly
-        pop: 2
+        pop: true
 
   variable:
     - include: comment
-    - match: '(Child) ({{typenames}})'
-      captures:
-        1: entity.name.function
-        2: storage.type.variable
-    - match: 'Child (?=:)'
-      scope: entity.name.function
-    - match: '(?!Child)\w+'
-      scope: variable
+    - match: '(Child|{{typenames}})'
+      scope: storage.type.variable
     - match: ':'
       scope: punctuation.accessor
-      push: sandwich
+    - match: '\w+'
+      scope: variable
     - match: '='
       scope: keyword.operator.assignment
       push: assignment
-
-  sandwich:
-    - include: comment
-    - match: '{{typenames}}'
-      scope: storage.type.variable
-    - match: '\w+'
-      scope: entity.name
-    - match: '{'
-      scope: punctuation.section.block.begin.bracket.curly
-      push:
-        - include: comment
-        - match: '\w+'
-          scope: variable
-        - match: '='
-          scope: keyword.operator.assignment
-          push: assignment
-        - match: '{'
-          scope: invalid.illegal.stray
-        - match: '}'
-          scope: punctuation.section.block.end.bracket.curly
-          pop: 2
 
   assignment:
     - include: comment
