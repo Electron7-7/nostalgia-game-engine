@@ -24,7 +24,7 @@ export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -L ../Engine/Nostalgia/$(BUI
 export DYNAMIC_LDFLAGS_LINUX   ?= $(DYNAMIC_LIBRARIES)
 export DYNAMIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
 
-export STATIC_LDFLAGS_LINUX ?= -L src/libraries -L ../Engine/Nostalgia/$(BUILD_DIR) -l:libNostalgia.a -l:libgetargs.a
+export STATIC_LDFLAGS_LINUX ?= -L src/libraries -L ../Engine/Nostalgia/$(BUILD_DIR)/lib -l:libNostalgia.a -l:libgetargs.a
 export STATIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -L src/libraries -L ../Engine/Nostalgia/$(BUILD_DIR) -l:libgetargs.a -l:libNostalgia.a
 
 INCLUDE := -I src -I src/thirdparty
