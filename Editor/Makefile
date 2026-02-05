@@ -20,12 +20,12 @@ FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp
 FLAGS_LINUX           := # Nothing yet
 
-DYNAMIC_LIBRARIES       := -lglfw -lfreetype -L src/libraries -l:libgetargs.so -l:libNostalgia.so
-DYNAMIC_LDFLAGS_LINUX   := $(DYNAMIC_LIBRARIES)
-DYNAMIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
+export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -L ../Engine/Nostalgia/$(BUILD_DIR) -L src/libraries -l:libgetargs.so -l:libNostalgia.so
+export DYNAMIC_LDFLAGS_LINUX   ?= $(DYNAMIC_LIBRARIES)
+export DYNAMIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
 
-STATIC_LDFLAGS_LINUX   := -L src/libraries -l:libNostalgia.a -l:libgetargs.a
-STATIC_LDFLAGS_WINDOWS := -fuse-ld=x86_64-w64-mingw32-ld -l:libgetargs.a -l:libNostalgia.a
+export STATIC_LDFLAGS_LINUX ?= -L src/libraries -L ../Engine/Nostalgia/$(BUILD_DIR) -l:libNostalgia.a -l:libgetargs.a
+export STATIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -L src/libraries -L ../Engine/Nostalgia/$(BUILD_DIR) -l:libgetargs.a -l:libNostalgia.a
 
 INCLUDE := -I src -I src/thirdparty
 
@@ -79,7 +79,7 @@ export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
 
 export BUILD_ROOT     ?= $(DIR_ROOT)/$(BUILD_ARCH)/$(BUILD_VERSION)
-export BUILD_DIR      ?= $(BUILD_ROOT)/Editor
+export BUILD_DIR      ?= $(BUILD_ROOT)
 export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
 export BUILD_OBJS     ?= $(BUILD_DIR)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
