@@ -216,11 +216,14 @@ __none: ;@:
 	$(info Nothing done; you need to include the 'build' target, lol)
 
 install:
-	@ cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/
-	@ printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_LIB_DIR)/$(NAME)$(RESET)\n"
-	@ cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/
-	@ printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_INCL_DIR)/$(NAME_BASE)/$(RESET)\n"
-
+	@ if [ -e $(BUILD_LIBRARY)/$(NAME) ]; then \
+		cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/; \
+		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_LIB_DIR)/$(NAME)$(RESET)\n" \
+	;fi
+	@ if [ -d $(BUILD_HEADERS) ]; then \
+		cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/; \
+		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_INCL_DIR)/$(NAME_BASE)/$(RESET)\n" \
+	;fi
 
 compile_commands:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
