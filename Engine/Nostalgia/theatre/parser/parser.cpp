@@ -207,9 +207,9 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             break;
         case TokenName::Keyword:
             if(!token.token.compare("Child"))
-                { thing_var.type = ThingVarType::Child; }
+                { thing_var.type = ThingVarType::Child; thing_var.name = token.token; }
             else if(!token.token.compare("Parent"))
-                { thing_var.type = ThingVarType::Parent; }
+                { thing_var.type = ThingVarType::Parent; thing_var.name = token.token; }
             else if(ThingFactory::IsThing(token.token) and thing_data.type.invalid())
                 { thing_data.type = token.token; }
             else if(thing_var.name.empty())

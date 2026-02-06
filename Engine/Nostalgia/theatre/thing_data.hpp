@@ -79,6 +79,10 @@ namespace TheatreFile
         ID get_parent() const;
         IdSet_t get_children() const;
 
+        Error remove_variable(Sarg inName);
+        Error remove_child(ID inID);
+        Error remove_child(Sarg inName);
+
         void  set_variable(Sarg inValue, Sarg inName);
         Error set_variable(ID inValue, Sarg inName);
         void  set_variable(bool inValue, Sarg inName);

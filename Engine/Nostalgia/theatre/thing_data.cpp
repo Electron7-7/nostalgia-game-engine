@@ -68,6 +68,47 @@ IdSet_t ThingData::get_children() const
     return children;
 }
 
+Error ThingData::remove_variable(Sarg inName)
+{
+    for(auto iter{variables.begin()}; iter != variables.end(); ++iter)
+    {
+        if(!iter->name.compare(inName))
+        {
+            variables.erase(iter);
+            return OK;
+        }
+    }
+    return ERR_NOT_FOUND;
+}
+
+Error ThingData::remove_child(ID inID)
+{
+    if(inID.invalid())
+        { return ERR_INVALID_ID; }
+    for(auto iter{children_variables.begin()}; iter != children_variables.end(); ++iter)
+    {
+        if(iter->thing_uid == inID)
+        {
+            children_variables.erase(iter);
+            return OK;
+        }
+    }
+    return ERR_NOT_FOUND;
+}
+
+Error ThingData::remove_child(Sarg inName)
+{
+    for(auto iter{children_variables.begin()}; iter != children_variables.end(); ++iter)
+    {
+        if(iter->name.compare(inName))
+        {
+            children_variables.erase(iter);
+            return OK;
+        }
+    }
+    return ERR_NOT_FOUND;
+}
+
 Error ThingData::set_variable(ID inValue, Sarg inName)
 {
     ThingVariable temp{inName, "", ThingVarType::ID, inValue};
