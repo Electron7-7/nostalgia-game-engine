@@ -13,6 +13,7 @@ enum Error : int {
     ERR_INDEX_OUT_OF_BOUNDS,
     ERR_NOT_FOUND, // Generic search failure
     ERR_FILE, // Generic file error
+    ERR_FILE_EXISTS, // A file already exists at a given path
     ERR_FILE_LOAD, // Specifically, a `FileData::LoadFile` error
     ERR_FILE_READ,
     ERR_FILE_WRITE,
