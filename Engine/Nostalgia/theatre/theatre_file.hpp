@@ -7,6 +7,11 @@
 
 namespace TheatreFile
 {
+    extern bool gDebugPrintLexerLogs,
+        gDebugPrintParserLogs,
+        gDebugDontPrintWhitespaceInLexerLogs,
+        gDebugDontPrintCommentsInLexerLogs;
+
     // https://en.wikipedia.org/wiki/Lexical_analysis#Lexical_token_and_lexical_tokenization
     enum class TokenName
     {
