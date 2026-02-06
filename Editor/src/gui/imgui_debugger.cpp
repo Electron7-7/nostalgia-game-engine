@@ -1,14 +1,14 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
+#include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/thirdparty/DearImGui/imgui.h>
 #include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
-#include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/managers/event_manager.hpp>
 #include <Nostalgia/managers/render_manager.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>
-#include <Nostalgia/theatre/theatre_data.hpp>
+#include <Nostalgia/theatre/theatre_file.hpp>
 #include <Nostalgia/physics/engine.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/graphics.hpp>
@@ -58,6 +58,7 @@ static bool sTheatreInspectorActive{false};
 static bool sAutoStopwatchEnabled{true};
 
 static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
+static std::string               sTheatreFileSavePath{"theatres/SavedTheatre.nt"};
 static std::string               sLastAttemptedTheatreFilePath{sTheatreFilePath};
 static std::string               sDemoFileOut{"demo"};
 static std::string               sDemoFileIn{std::format("{}.dem", sDemoFileOut)};
@@ -65,6 +66,7 @@ static std::vector<TheatreLog>   sTheatreLogs{};
 static std::vector<StopwatchLog> sManualStopwatchLogs{};
 static std::vector<StopwatchLog> sStopwatchLogs{};
 static std::set<int>             sStopwatchLogIds{};
+static Theatre::FileOverwriteAction sCurrentFileOverwriteAction{Theatre::RENAME};
 
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
@@ -93,35 +95,9 @@ void ImGui_Debugger::Input(InputEvent* event)
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
     }
-    else if(event->IsJustPressed(Key::F6))
-    {
-        TheatreFile::TokenArray tokens{};
-        TheatreFile::Lexer({sLastAttemptedTheatreFilePath}, tokens);
-        print_debug("Lexer Output");
-        for(FAUTO token : tokens)
-        {
-            if(token.category == TheatreFile::TokenName::Whitespace)
-                { continue; }
-            debug_print("\t[{}, '{}']",
-                EnumPrettifier::Prettify(token.category),
-                (token.token[0] == '\n')
-                    ? "\\n"
-                    : token.token);
-        }
-        auto data{g_pTheatreManager->CurrentTheatre()->InitialState()};
-        print_debug("Parser Output");
-        for(FAUTO thing_data : data.data)
-        {
-            debug_print("THING DATA");
-            debug_print("\tname:   {}", thing_data.name);
-            debug_print("\tuid:    {}", thing_data.uid[]);
-            debug_print("\ttype:   {}", thing_data.type.name());
-            if(!thing_data.parent_variable.invalid())
-                { debug_print("\tparent: {}", thing_data.parent_variable.debug_log()); }
-            for(FAUTO child : thing_data.children_variables)
-                { debug_print("\tchild: {}", child.debug_log()); }
-        }
-    }
+    else if(event->IsJustPressed(Key::F6) or
+        (event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control)))
+            { g_pTheatreManager->CurrentTheatre()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -291,7 +267,10 @@ static void s_GeneralDebuggingWindow()
             SameLine();
             Checkbox("Print Tick#", &gDebugPrintTickNumbers);
         SeparatorText("Theatre");
-            Checkbox("Print Theatre Parser Log", &sPrintLoadedTheatreData);
+            Checkbox("Print TheatreFile Lexer Logs", &TheatreFile::gDebugPrintLexerLogs);
+            Checkbox("Print TheatreFile Parser Logs", &TheatreFile::gDebugPrintParserLogs);
+            Checkbox("Disable Whitespace In Lexer Logs", &TheatreFile::gDebugDontPrintWhitespaceInLexerLogs);
+            Checkbox("Disable Comments In Lexer Logs", &TheatreFile::gDebugDontPrintCommentsInLexerLogs);
         SeparatorText("Rendering");
             Checkbox("Draw Command", &gPrintDrawLogs);
         if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
@@ -537,22 +516,37 @@ static void s_TheatreDebuggingWindow()
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
-        /*if(sPrintLoadedTheatreData)
-            { g_pTheatreManager->CurrentTheatre()->InitialState().debug_PrintData(); }*/
     }
     if(IManager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
 
-    static std::string l_TheatreFilePath{"SavedTheatre.nt"};
-    if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-        { BeginDisabled(); }
+    BeginDisabled(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL);
+
+    static const std::map<Theatre::FileOverwriteAction, const char*>
+        action_type{
+            { Theatre::OVERWRITE, "Overwrite"},
+            { Theatre::RENAME, "Rename"},
+            { Theatre::CANCEL, "Cancel"},
+        };
+    if(BeginCombo("Duplicate File Name Action", action_type.at(sCurrentFileOverwriteAction), ImGuiComboFlags_WidthFitPreview))
+    {
+        for(FAUTO [action, name] : action_type)
+        {
+            const bool is_selected{action == sCurrentFileOverwriteAction};
+            if(Selectable(name))
+                { sCurrentFileOverwriteAction = action; }
+            if(is_selected)
+                { SetItemDefaultFocus(); }
+        }
+        EndCombo();
+    }
+
     if(Button("Save Theatre State"))
-        { /*FileSystem::try_WriteFileFromString(l_TheatreFilePath, g_pTheatreManager->CurrentTheatre()->CurrentState().formatted());*/ }
-    SameLine(); InputText("File Path", &l_TheatreFilePath, ImGuiInputTextFlags_CharsNoBlank);
+        { g_pTheatreManager->CurrentTheatre()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
+    SameLine(); InputText("File Path", &sTheatreFileSavePath, ImGuiInputTextFlags_CharsNoBlank);
     if(Button("Exit Theatre"))
         { IManager::ShutdownTheatre(); }
-    if(IManager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-        { EndDisabled(); }
+    EndDisabled();
 
     bool not_in_level = (IManager::GetTheatreState() != ManagerEnums::IN_LEVEL);
 
