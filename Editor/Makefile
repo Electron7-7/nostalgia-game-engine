@@ -15,17 +15,17 @@ FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
 FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP -Wno-c23-extensions
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
 FLAGS_WINDOWS         := -mwindows -lstdc++exp
-FLAGS_LINUX           := # Nothing yet
+FLAGS_LINUX           := -Wno-c23-extensions
 
-export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -L src/libraries -l:libgetargs.so -l:libNostalgia.so
-export DYNAMIC_LDFLAGS_LINUX   ?= $(DYNAMIC_LIBRARIES)
-export DYNAMIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -lstdc++exp $(DYNAMIC_LIBRARIES)
+export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -l:libgetargs.so -l:libNostalgia.so
+export DYNAMIC_LDFLAGS_LINUX   ?= -L src/libraries/linux $(DYNAMIC_LIBRARIES)
+export DYNAMIC_LDFLAGS_WINDOWS ?= -lstdc++exp -L src/libraries/windows $(DYNAMIC_LIBRARIES)
 
-export STATIC_LDFLAGS_LINUX ?= -L src/libraries -l:libNostalgia.a -l:libgetargs.a
-export STATIC_LDFLAGS_WINDOWS ?= -fuse-ld=x86_64-w64-mingw32-ld -L src/libraries -l:libgetargs.a -l:libNostalgia.a
+export STATIC_LDFLAGS_LINUX   ?= -L src/libraries/linux -l:libNostalgia.a -l:libgetargs.a
+export STATIC_LDFLAGS_WINDOWS ?= -L src/libraries/windows -l:libNostalgia.a -l:libgetargs.a
 
 INCLUDE := -I src -I src/thirdparty
 
@@ -166,6 +166,7 @@ linux: ;@:
 	$(eval NAME_DYNAMIC    = $(PRETTY_STRING_DYNAMIC)_$(NAME_BASE))
 	$(eval NAME_STATIC     = $(PRETTY_STRING_STATIC)_$(NAME_BASE))
 	$(eval DYNAMIC_LDFLAGS = $(DYNAMIC_LDFLAGS_LINUX))
+	$(eval STATIC_LDFLAGS  = $(STATIC_LDFLAGS_LINUX))
 	$(eval BUILD_ARCH      = $(DIR_LINUX))
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_LINUX))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_LINUX))
@@ -185,6 +186,7 @@ windows: ;@:
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
 	$(eval DYNAMIC_LDFLAGS = $(DYNAMIC_LDFLAGS_WINDOWS))
+	$(eval STATIC_LDFLAGS  = $(STATIC_LDFLAGS_WINDOWS))
 	$(eval CXX_COMPILER    = $(WINDOWS_CXX))
 	$(eval C_COMPILER      = $(WINDOWS_CC))
 	$(eval TARGET_CALLED   = 1)
