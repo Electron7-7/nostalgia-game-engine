@@ -80,8 +80,18 @@ contexts:
       push: theatre_index
 
   definition:
-    - match: '{{typenames}}'
-      scope: storage.type.variable
+    - match: '({{typenames}})(\s+)?'
+      captures:
+        1: storage.type.variable
+      push:
+        - match: '$'
+          pop: true
+        - match: '(?=})'
+          pop: true
+        - match: '\w+'
+          scope: variable
+        - match: '\s'
+          scope: invalid.illegal.whitespace
     - match: '{'
       scope: punctuation.section.block.begin.bracket.curly
       push:
@@ -93,10 +103,11 @@ contexts:
 
   variable:
     - include: comment
-    - match: '(Child|{{typenames}})'
-      scope: storage.type.variable
-    - match: ':'
-      scope: punctuation.accessor
+    - match: '(Child|Parent)(?:\s+)?(:)(?:\s+)?({{typenames}})'
+      captures:
+        1: storage.type.variable
+        2: punctuation.accessor
+        3: storage.type.variable
     - match: '\w+'
       scope: variable
     - match: '='
@@ -123,9 +134,9 @@ contexts:
         pop: true
       - match: '{{reserved_resources}}'
         scope: variable.language
-      - match: '\w'
+      - match: '[\S]'
         scope: entity.name.class
-      - match: '.'
+      - match: '\s'
         scope: invalid.illegal.unexpected-text
 
   pretty_enum:

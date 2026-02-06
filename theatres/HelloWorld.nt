@@ -64,7 +64,7 @@ Actor3D LolBitCube
         file to this Thinker. Child variables only work with other Thinkers, not Resources.
         Child variables always start with "Child", followed by the type of the child Thing;
         after that, it's just like a reference variable. ///
-    Child MeshInstance3D = <LolBitCubeMeshInstance3D>
+    Child = <LolBitCubeMeshInstance3D>
     Position = [-0.25, 2, -3.5]
     RotationDegrees = [25, 0, 1]
 }
