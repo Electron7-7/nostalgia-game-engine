@@ -1,6 +1,10 @@
 #ifndef INPUT_BINDINGS_H
 #define INPUT_BINDINGS_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 struct KeyID : public ID { using ID::ID; };
 
 // I split up the namespace member definitions so if you need to focus on a specific member/members, you can

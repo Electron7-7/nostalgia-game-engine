@@ -1,6 +1,10 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include <Nostalgia/events/bindings.hpp>
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/thirdparty/GLFW/glfw3.h>

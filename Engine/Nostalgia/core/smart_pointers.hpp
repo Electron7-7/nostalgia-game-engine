@@ -1,6 +1,9 @@
 #ifndef SMART_POINTERS_H
 #define SMART_POINTERS_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 #define DCast std::dynamic_pointer_cast
 #define SCast std::static_pointer_cast

@@ -1,3 +1,6 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;

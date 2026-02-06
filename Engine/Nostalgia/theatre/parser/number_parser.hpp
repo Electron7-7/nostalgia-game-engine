@@ -1,6 +1,10 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include <stdexcept>
 
 template<GLMContainer T>

@@ -1,6 +1,9 @@
 #ifndef ID_H
 #define ID_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 #define __id_operator(OPERATION, TYPE, COMPARE_TO...) \
     constexpr bool operator OPERATION(TYPE inOther) const noexcept \

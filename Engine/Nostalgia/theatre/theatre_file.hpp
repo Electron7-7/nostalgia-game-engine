@@ -1,6 +1,10 @@
 #ifndef THEATRE_FILE_H
 #define THEATRE_FILE_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 namespace TheatreFile
 {
     // https://en.wikipedia.org/wiki/Lexical_analysis#Lexical_token_and_lexical_tokenization

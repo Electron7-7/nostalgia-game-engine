@@ -1,6 +1,10 @@
 #ifndef THINKER_H
 #define THINKER_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 // Similar to Godot's `Node`
 class Thinker : public Thing
 {

@@ -1,6 +1,10 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/Vec3.h>
 #include <Jolt/Math/Quat.h>

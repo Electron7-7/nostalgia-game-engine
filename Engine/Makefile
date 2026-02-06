@@ -1,12 +1,20 @@
+# Installation directories. Change these variables in order to change where the `install` target
+# chooses to install the library + headers.
+INSTALL_DIR_LINUX   := /usr/local
+INSTALL_DIR_MINGW   := /usr/x86_64-w64-mingw32
+INSTALL_DIR_WINDOWS := # For the time being, compiling on Windows involves using MSYS2 & MinGW
+
 LINUX_CXX := clang++
 LINUX_CC  := clang
 LINUX_AR  := llvm-ar
 
 ifneq ($(OS),Windows_NT)
+# Compiling for Windows on Linux
 	WINDOWS_CXX := x86_64-w64-mingw32-g++
 	WINDOWS_CC  := x86_64-w64-mingw32-gcc
 	WINDOWS_AR  := x86_64-w64-mingw32-ar
 else
+# Compiling for Windows on Windows
 	WINDOWS_CXX := g++
 	WINDOWS_CC  := gcc
 	WINDOWS_AR  := ar
@@ -14,15 +22,15 @@ endif
 
 SRC := Nostalgia
 
-FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING
+FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING -Winvalid-pch
 FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
 FLAGS_DYNAMIC         := -fPIC
 FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=$(SRC)/embedded -Wno-c23-extensions -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
+FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=$(SRC)/embedded -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -lstdc++exp -D NOSTALGIA_WINDOWS
-FLAGS_LINUX           := -D NOSTALGIA_LINUX
+FLAGS_WINDOWS         := -mwindows -lstdc++exp -include $(SRC)/core/types.hpp -D NOSTALGIA_WINDOWS -D NOSTALGIA_GCC_PCH
+FLAGS_LINUX           := -D NOSTALGIA_LINUX -Wno-c23-extensions
 
 # Archives & Libraries
 ARCHIVES_DIR_LINUX        := $(SRC)/static_libraries/linux
@@ -229,7 +237,7 @@ install:
 
 compile_commands:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
-	$(eval PCH_FLAGS = -include $(SRC)/$(PCH_H))
+	$(eval PCH_FLAGS = -U NOSTALGIA_GCC_PCH -include $(SRC)/$(PCH_H))
 
 printout:
 	@ printf "$(BOLD)$(DEFAULT)::Architecture - $(BOLD)$(BLUE)$(BUILD_ARCH)$(RESET)\n"
@@ -300,7 +308,7 @@ windows: ;@:
 	$(eval DEBUG_FLAGS     = $(FLAGS_DEBUG_COMMON) $(FLAGS_DEBUG_WINDOWS))
 	$(eval RELEASE_FLAGS   = $(FLAGS_RELEASE_COMMON) $(FLAGS_RELEASE_WINDOWS))
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
-	$(eval PCH_FLAGS       = -I $(BUILD_OBJS))
+	$(eval PCH_FLAGS       = -D NOSTALGIA_GCC_PCH -I $(BUILD_OBJS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
 	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LIBRARIES))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_WINDOWS))

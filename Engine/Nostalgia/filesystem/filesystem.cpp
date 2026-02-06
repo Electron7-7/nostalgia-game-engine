@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include <fstream>
 #include <filesystem>
 

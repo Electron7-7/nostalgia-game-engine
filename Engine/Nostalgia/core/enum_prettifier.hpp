@@ -1,6 +1,9 @@
 #ifndef ENUM_PRETTIFIER_H
 #define ENUM_PRETTIFIER_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 class EnumPrettifier
 {

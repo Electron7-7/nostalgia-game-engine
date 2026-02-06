@@ -1,6 +1,10 @@
 #ifndef ACTOR_2D_H
 #define ACTOR_2D_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 // Similar to Godot's `Node2D`
 class Actor2D : public Thinker
 {

@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 BitMask::BitMask(bool inState) noexcept:
     layers_{(inState) ? all_enabled : all_disabled} {}
 

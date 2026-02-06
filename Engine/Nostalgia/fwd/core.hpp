@@ -1,6 +1,10 @@
 #ifndef CORE_FWD_H
 #define CORE_FWD_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 enum Error : int;
 
 struct ID;

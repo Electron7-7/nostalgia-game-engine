@@ -1,6 +1,10 @@
 #ifndef RENDERER_COMMON_H
 #define RENDERER_COMMON_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 // Heavily plagiarizing Godot's rendering device systems
 
 // NOT YET IMPLEMENTED:

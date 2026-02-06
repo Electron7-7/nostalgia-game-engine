@@ -1,6 +1,9 @@
 #ifndef SAFE_RETURN_H
 #define SAFE_RETURN_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 namespace
 {

@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 ANSI_Sequence::ANSI_Sequence() noexcept = default;
 
 ANSI_Sequence::ANSI_Sequence(ansi_t inColor, bool isForeground, bool isBold) noexcept

@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 ThingType::ThingType(FPID inTypeID) noexcept:
     _type_id{inTypeID} {}
 

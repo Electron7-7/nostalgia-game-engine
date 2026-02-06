@@ -1,6 +1,9 @@
 #ifndef COMMON_CONCEPTS_H
 #define COMMON_CONCEPTS_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 // Math Concepts
 template<typename T>

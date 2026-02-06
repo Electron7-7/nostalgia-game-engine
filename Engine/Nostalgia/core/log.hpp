@@ -1,6 +1,9 @@
 #ifndef PRINTING_H
 #define PRINTING_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 /// Nothing
 inline constexpr int VERBOSE0{0b000};

@@ -1,6 +1,10 @@
 #ifndef FILE_DATA_H
 #define FILE_DATA_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 enum class FileType : ushort
 {
     Unknown = 0,

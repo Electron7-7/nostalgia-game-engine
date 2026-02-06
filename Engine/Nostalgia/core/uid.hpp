@@ -1,6 +1,9 @@
 #ifndef UID_H
 #define UID_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 class UID
 {

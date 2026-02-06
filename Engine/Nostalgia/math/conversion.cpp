@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include "conversion.hpp"
 #include <Jolt/Jolt.h>
 #include <Jolt/Math/MathTypes.h>

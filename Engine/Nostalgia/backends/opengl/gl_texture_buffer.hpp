@@ -1,6 +1,10 @@
 #ifndef GL_TEXTURE_BUFFER_H
 #define GL_TEXTURE_BUFFER_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #include <Nostalgia/rendering/texture_buffer.hpp>
 
 class OpenGLTextureBuffer final : public TextureBuffer

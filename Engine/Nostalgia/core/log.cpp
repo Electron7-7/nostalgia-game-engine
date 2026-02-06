@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 #define Case(ERROR, MESSAGE) \
     case ERROR: return #ERROR" (" MESSAGE ")";
 

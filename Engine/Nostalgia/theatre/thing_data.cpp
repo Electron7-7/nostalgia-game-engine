@@ -1,3 +1,7 @@
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
+
 using namespace TheatreFile;
 
 void ThingData::set_variable(Sarg inValue, Sarg inName)

@@ -1,6 +1,9 @@
 #ifndef NOSTALGIA_VECTOR_H
 #define NOSTALGIA_VECTOR_H
 
+#ifdef NOSTALGIA_GCC_PCH
+#   include <Nostalgia/Nostalgia.hpp>
+#endif
 
 #define ONLY_IF(VM) requires (M == VectorMembers::VM)
 #define INDEX_ACCESSOR(NAME, VM, INDEX) \
