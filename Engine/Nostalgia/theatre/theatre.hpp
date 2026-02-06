@@ -13,6 +13,8 @@ inline bool gDebugEnable3DRendering{true},
 class Theatre
 {
 public:
+    enum FileOverwriteAction { OVERWRITE, RENAME, CANCEL };
+
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
 
     bool mDoPrintDebugLogs{false};
@@ -30,6 +32,7 @@ public:
 
     virtual Error Load(Farg<FileData> inTheatreFileData);
     virtual Error Load(Sarg inTheatreFilePath);
+    virtual Error Save(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();
     virtual void  Draw();

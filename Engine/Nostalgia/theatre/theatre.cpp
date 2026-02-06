@@ -80,6 +80,49 @@ Error Theatre::Load(Farg<FileData> inData)
     return print_error_enum(mInitStatus);
 }
 
+Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
+{
+    std::string file_path{inOutputFilePath};
+    if(FileSystem::IsFile(inOutputFilePath))
+    {
+        switch(inAction)
+        {
+        case CANCEL:
+            print_warning("A file already exists at '{}'", inOutputFilePath);
+            return ERR_FILE_EXISTS;
+        case RENAME:
+            {
+                uint i{0};
+                std::string file_directory{FileSystem::GetDir(file_path)};
+                std::string file_stem{FileSystem::GetStem(file_path, true)};
+                std::string file_extension{FileSystem::GetExtension(file_path)};
+                while(FileSystem::Exists(file_path))
+                {
+                    file_path = std::format("{}/{}_{:#0}{}",
+                        file_directory,
+                        file_stem,
+                        ++i,
+                        file_extension);
+                }
+                break;
+            }
+        case OVERWRITE:
+            print_warning("The file at '{}' will be overwritten", inOutputFilePath);
+            break;
+        }
+    }
+    std::string output{std::format("@{}#{}\n", mName, mIndex)};
+
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    for(FAUTO [id, thing] : mThings)
+    {
+        if(id[] != UID::a_Player and UID::IsReserved(id[])) { continue; }
+        print_debug("Saving [{}, {}]", thing->name(), id[]);
+        output += thing->GetVariables()->get_parsable_string();
+    }
+    return print_error_enum(FileSystem::try_WriteFileFromString(file_path, output));
+}
+
 bool Theatre::Startup()
 {
     assert(mInitStatus == OK and m_pInitialState and m_pRegistry);
