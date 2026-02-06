@@ -113,7 +113,7 @@ export DIR_OBJS_TYPE  ?= $(STRING_STATIC)
 export BUILD_LIBRARY  ?= $(BUILD_ROOT)/$(DIR_LIBRARY)
 export BUILD_HEADERS  ?= $(BUILD_ROOT)/$(DIR_HEADERS)/$(NAME_BASE)
 export BUILD_OBJS     ?= $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)
-export BUILD_ARCHIVES ?= $(BUILD_OBJS)/$(DIR_ARCHIVES)
+export BUILD_ARCHIVES ?= $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_ARCHIVES)
 export BUILD_DEPS     ?= $(BUILD_OBJS)/$(DIR_DEPS)
 
 export NAME  ?= $(STRING_LIB)$(NAME_BASE)$(NAME_STATIC)
@@ -180,7 +180,8 @@ API_HEADER_DIRS := \
     $(SRC)/thirdparty/glm/gtc \
     $(SRC)/thirdparty/glm/gtx \
     $(SRC)/thirdparty/glm/ext \
-    $(SRC)/thirdparty/glm/detail
+    $(SRC)/thirdparty/glm/detail \
+    $(SRC)/thirdparty/glm/simd
 
 getfiles = $(foreach directory,$(1),$(wildcard $(directory)/$(2)))
 
@@ -188,7 +189,7 @@ CC_SRCS  ?= $(call getfiles,$(SRC_DIRS),*.c)   $(call getfiles,$(THIRDPARTY_SRC_
 CXX_SRCS ?= $(call getfiles,$(SRC_DIRS),*.cpp) $(call getfiles,$(THIRDPARTY_SRC_DIRS),*.cpp)
 
 # TODO: Make better API headers
-HEADER_FILES := $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h)
+HEADER_FILES := $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h) $(call getfiles,$(API_HEADER_DIRS),*.inl)
 
 PCH   := Nostalgia.pch
 PCH_H := Nostalgia.hpp
@@ -434,13 +435,7 @@ $(BUILD_OBJS)/%.o: $(SRC)/%.c
 	@ -mv $(@:.o=.d) $(BUILD_DEPS)/$(notdir $(@:.o=.d))
 
 # Header Files
-$(BUILD_HEADERS)/%.hpp: $(SRC)/%.hpp
-	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
-	@ -mkdir -p $(dir $@)
-	@ cp $< $@
-
-# Header Files
-$(BUILD_HEADERS)/%.h: $(SRC)/%.h
+$(BUILD_HEADERS)/%: $(SRC)/%
 	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
