@@ -1173,3 +1173,10 @@ Tweaking the build system some more; I've been recompiling the project from scra
 Eventually, I'd like to not require users to have Jolt headers in their includes path when interfacing with Nostalgia's physics. However, that's gonna be a decent amount of work and since physics aren't even fully fleshed out yet, I'd rather wait until I have a decent system in place.
 
 Okay, finally got the build system all fleshed out; at least, I hope so (lol).
+
+[02/05/26]
+All right, I think this will mark version 0.1.0 of Nostalgia! I just gotta do a once-over on the editor/debugger before making the first official minor release!
+
+Hmm... maybe I wanna try getting the Windows binaries compiling, first. Hmm...
+
+Okay, while working on the Windows builds I stumbled into some problems with GCC and pre-compiled headers. Basically, GCC requires you to include the actual header in any file that you wanna use the pre-compiled header in. However, Clang doesn't require this (and iirc doing so might actually stop clang from using the pre-compiled header entirely). To solve this issue, I just had to insert a simple `#ifdef <macro>...#include <header>...#endif` block everywhere the pre-compiled header file was needed. Now, this means that I *did* have to spend a lot of time compiling, inserting the header where compilation failed, compiling again, etc etc, **but** the end result of achieving parity between clang and gcc is well worth it in my opinion.
