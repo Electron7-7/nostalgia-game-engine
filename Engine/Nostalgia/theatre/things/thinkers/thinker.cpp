@@ -10,12 +10,20 @@ void Thinker::SetVariables(Farg<ThingData> inData)
     Thing::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
+    my_theatre()->SetParent(mUID, inData.get_parent());
+    for(FAUTO child : inData.get_children())
+        { my_theatre()->SetParent(child, mUID); }
 }
 
 Shared<ThingData> Thinker::GetVariables() const
 {
     auto data{Thing::GetVariables()};
     data->set_variable(mVisible, "Visible");
+    data->set_variable(my_theatre()->GetParent(mUID), "Parent");
+    auto children{my_theatre()->GetChildren(mUID)};
+    for(FAUTO child_id : children)
+        { data->set_variable(child_id, "Child"); }
+
     return data;
 }
 
