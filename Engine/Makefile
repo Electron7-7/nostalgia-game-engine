@@ -66,6 +66,7 @@ NAME_DYNAMIC_WINDOWS := .dll
 
 # LINUX
 ifneq ($(OS),Windows_NT)
+	export INSTALL_DIR     ?= $(INSTALL_DIR_LINUX)
 	export NAME_STATIC     ?= $(NAME_STATIC_LINUX)
 	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_LINUX)
 	export BUILD_ARCH      ?= $(DIR_LINUX)
@@ -81,6 +82,9 @@ ifneq ($(OS),Windows_NT)
 	export C_COMPILER      ?= $(LINUX_CC)
 	export ARCHIVER        ?= $(LINUX_AR)
 else # WINDOWS
+# Again, installing on Windows is a manual process for the time being, so the installation
+# target assumes you're compiling for Windows on Linux, using MinGW
+	export INSTALL_DIR     ?= $(INSTALL_DIR_MINGW)
 	export NAME_STATIC     ?= $(NAME_STATIC_WINDOWS)
 	export NAME_DYNAMIC    ?= $(NAME_DYNAMIC_WINDOWS)
 	export BUILD_ARCH      ?= $(DIR_WINDOWS)
@@ -97,8 +101,8 @@ else # WINDOWS
 	export ARCHIVER        ?= $(WINDOWS_AR)
 endif
 
-export INSTALL_LIB_DIR  ?= /usr/local/lib
-export INSTALL_INCL_DIR ?= /usr/local/include
+export INSTALL_LIB_DIR  ?= $(INSTALL_DIR)/lib
+export INSTALL_INCL_DIR ?= $(INSTALL_DIR)/include
 
 export BUILD_VERSION ?= $(DIR_RELEASE)
 export VERSION_FLAGS ?= $(RELEASE_FLAGS)
@@ -225,15 +229,21 @@ export DEFAULT ?= \\x1b[39m
 __none: ;@:
 	$(info Nothing done; you need to include the 'build' target, lol)
 
-install:
+install: headers
 	@ if [ -e $(BUILD_LIBRARY)/$(NAME) ]; then \
-		cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/; \
+		printf "$(BOLD)$(MAGENTA)::Requesting root permissions in order to access \\x1b[4m$(INSTALL_DIR)\\x1b[24m"; \
+		printf "$(BLUE) (see lines \\x1b[4m224\\x1b[24m, \\x1b[4m228\\x1b[24m, and \\x1b[4m229\\x1b[24m in the Makefile if you wish to verify for yourself)$(RESET)\n"; \
+		sudo cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/; \
 		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_LIB_DIR)/$(NAME)$(RESET)\n" \
-	;fi
+	; fi
 	@ if [ -d $(BUILD_HEADERS) ]; then \
-		cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/; \
+		sudo $(RM) -r $(INSTALL_INCL_DIR)/$(BUILD_HEADERS); \
+		sudo cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/; \
 		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_INCL_DIR)/$(NAME_BASE)/$(RESET)\n" \
-	;fi
+	; fi
+	@ if [ ! -d $(INSTALL_INCL_DIR)/Jolt ]; then \
+		printf "$(BOLD)$(YELLOW)::IMPORTANT NOTE - In order to use the Jolt headers properly, you'll need to install them to \\x1b[4m$(INSTALL_INCL_DIR)/Jolt\\x1b[24m. An easy shortcut you could use is just copying/linking \\x1b[4mEngine/Nostalgia/thirdparty/Jolt\\x1b[24m from the source code.$(RESET)\n" \
+	; fi
 
 compile_commands:
 	$(eval CXX_FLAGS += -D CLANGD_KEEPS_CRASHING_HERE) # Fix a problem with LSP-clangd that's (most likely) due to the massive #embed for shader files
@@ -253,10 +263,9 @@ printout:
 		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(ARCHIVER) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object_files> <compiled_archive_file>$(RESET)\n" \
 	; fi
 
-build: headers
+build:
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
-	@ $(MAKE) -s $(BUILD_OBJS)/$(PCH)
-	@ $(MAKE) -s printout $(BUILD_LIBRARY)/$(NAME)
+	@ $(MAKE) -s printout $(BUILD_OBJS)/$(PCH) $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::$(PRINTOUT_TYPE) Library Built Successfully$(RESET)\n"
 
 static: ;@:
@@ -285,6 +294,7 @@ headers:
 	@ printf "$(BOLD)$(GREEN)::Header files copied into '$(BUILD_HEADERS)'$(RESET)\n"
 
 linux: ;@:
+	$(eval INSTALL_DIR     = $(INSTALL_DIR_LINUX))
 	$(eval NAME_STATIC     = $(NAME_STATIC_LINUX))
 	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_LINUX))
 	$(eval BUILD_ARCH      = $(DIR_LINUX))
@@ -302,6 +312,7 @@ linux: ;@:
 	$(eval CLEAN_ARCH      = $(DIR_LINUX))
 
 windows: ;@:
+	$(eval INSTALL_DIR     = $(INSTALL_DIR_MINGW))
 	$(eval NAME_STATIC     = $(NAME_STATIC_WINDOWS))
 	$(eval NAME_DYNAMIC    = $(NAME_DYNAMIC_WINDOWS))
 	$(eval BUILD_ARCH      = $(DIR_WINDOWS))
