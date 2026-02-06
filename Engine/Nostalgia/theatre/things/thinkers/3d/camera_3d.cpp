@@ -92,6 +92,8 @@ Shared<ThingData> Camera3D::GetVariables() const
     if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
         { data->set_variable(mEnvironment.mCustomColor.glm(), "EnvironmentColor"); }
     data->set_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
+    if(!mViewportID.invalid())
+        { data->set_variable(mViewportID, "Parent"); }
 
     return data;
 }

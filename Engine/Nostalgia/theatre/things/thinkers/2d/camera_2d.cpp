@@ -42,6 +42,8 @@ Shared<ThingData> Camera2D::GetVariables() const
     data->set_variable(mZoom, "FOV");
     data->set_variable(mViewportID, "Viewport");
     data->set_variable(mInitCurrent, "Current");
+    if(!mViewportID.invalid())
+        { data->set_variable(mViewportID, "Parent"); }
 
     return data;
 }
