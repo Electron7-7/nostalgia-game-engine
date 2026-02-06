@@ -44,6 +44,8 @@ namespace TheatreFile
 
         void push_back(Farg<ThingData> inData) noexcept { data.push_back(inData); }
         void clear() noexcept { data.clear(); }
+        std::string get_log(bool doIndentation = false, bool doANSIColors = false) const;
+        std::string get_parsable_string() const;
 
         auto begin()        noexcept { return data.begin();  }
         auto end()          noexcept { return data.end();    }

@@ -4,6 +4,43 @@
 
 using namespace TheatreFile;
 
+std::string ThingData::get_log() const noexcept
+{
+    std::string output{std::format("<ThingData>\n\ttype: {}\n\tname: {}\n\tuid: {}\n\tvariables:",
+        type.name(), name, uid[])};
+    for(FAUTO var : variables)
+        { output += std::format("\n\t\t{}", var.get_log()); }
+    if(!children_variables.empty())
+    {
+        output += "\n\tchildren_variables:";
+        for(FAUTO var : children_variables)
+            { output += std::format("\n\t\t{}", var.get_log()); }
+    }
+    if(!parent_variable.invalid())
+        { output += std::format("\n\t\n\tparent_variable: {}", parent_variable.get_log()); }
+    return output + "\n";
+}
+
+std::string ThingData::get_parsable_string() const noexcept
+{
+    std::string output{std::format("\n{} {}\n{{", type.name(), name)};
+    for(FAUTO var : variables)
+    {
+        if(var.invalid())
+            { continue; }
+        output += std::format("\n{}", var.get_parsable_string());
+    }
+    for(FAUTO var : children_variables)
+    {
+        if(var.invalid())
+            { continue; }
+        output += std::format("\n{}", var.get_parsable_string());
+    }
+    if(!parent_variable.invalid())
+        { output += std::format("\n{}", parent_variable.get_parsable_string()); }
+    return std::format("{}\n}}\n", output);
+}
+
 void ThingData::set_variable(Sarg inValue, Sarg inName)
 { variables.emplace_back(inName, inValue, ThingVarType::String); }
 

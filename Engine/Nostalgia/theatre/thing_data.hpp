@@ -40,14 +40,9 @@ namespace TheatreFile
         bool operator!() const noexcept
         { return invalid(); }
 
-        std::string debug_log() const noexcept
-        {
-            return std::format("[{}, {}, {}, {}]",
-                name,
-                value,
-                EnumPrettifier::Prettify(type),
-                thing_uid[]);
-        }
+        std::string get_log() const noexcept;
+        std::string get_parsable_string() const noexcept;
+
     };
 
     using ThingVarArray = std::vector<ThingVariable>;
@@ -73,6 +68,9 @@ namespace TheatreFile
         // `get_children`, or `get_variable` with an `ID` variable is called, the respective
         // function will return an error and leave the passed variable reference untouched.
         Shared<VariableRegistry> theatre_registry{nullptr};
+
+        std::string get_log() const noexcept;
+        std::string get_parsable_string() const noexcept;
 
         void clear();
 
