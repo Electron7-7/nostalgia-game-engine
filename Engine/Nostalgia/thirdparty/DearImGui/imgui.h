@@ -79,11 +79,11 @@ Index of this file:
 #include <string.h>                 // memset, memmove, memcpy, strlen, strchr, strcpy, strcmp
 #include <format>
 
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
+#include <Nostalgia/thirdparty/glm/vec2.hpp>
+#include <Nostalgia/thirdparty/glm/vec3.hpp>
+#include <Nostalgia/thirdparty/glm/vec4.hpp>
+#include <Nostalgia/thirdparty/glm/gtc/quaternion.hpp>
 
 // Define attributes of all API symbols declarations (e.g. for DLL under Windows)
 // IMGUI_API is used for core imgui functions, IMGUI_IMPL_API is used for the default backends files (imgui_impl_xxx.h)

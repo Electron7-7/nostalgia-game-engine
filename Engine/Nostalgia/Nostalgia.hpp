@@ -29,7 +29,6 @@
 #include <typeindex>        // IWYU pragma: keep
 #include <stdexcept>        // IWYU pragma: keep
 #include <type_traits>      // IWYU pragma: keep
-#include <sys/types.h>      // IWYU pragma: keep
 #include <unordered_map>    // IWYU pragma: keep
 #include <unordered_set>    // IWYU pragma: keep
 #include <source_location>  // IWYU pragma: keep
@@ -37,11 +36,12 @@
 
 // GLM
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
+#include <Nostalgia/thirdparty/glm/glm.hpp>
+#include <Nostalgia/thirdparty/glm/gtc/quaternion.hpp>
+#include <Nostalgia/thirdparty/glm/ext/matrix_clip_space.hpp>
 
 // Nostalgia
+#include <Nostalgia/core/types.hpp>                           // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                            // IWYU pragma: keep
 #include <Nostalgia/core/constexpr_string_hash.hpp>           // IWYU pragma: keep
 #include <Nostalgia/core/id.hpp>                              // IWYU pragma: keep

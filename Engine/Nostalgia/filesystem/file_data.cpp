@@ -3,8 +3,9 @@
 #endif
 
 #include "frozen/map.h"
+#include "frozen/string.h"
 
-static constexpr frozen::map<std::string, FileType, 8>
+static constexpr frozen::map<frozen::string, FileType, 8>
 s_FileTypesByExtension{
     { ".otf",  FileType::font_OTF  },
     { ".ttf",  FileType::font_TTF  },
@@ -19,9 +20,9 @@ s_FileTypesByExtension{
 FileType FileData::s_DetectFileType(Farg<std::string> path)
 {
     std::string extension = FileSystem::GetExtension(path);
-    if(!s_FileTypesByExtension.contains(extension))
+    if(!s_FileTypesByExtension.contains(frozen::string{extension}))
         { return FileType::Unknown; }
-    return s_FileTypesByExtension.at(extension);
+    return s_FileTypesByExtension.at(frozen::string{extension});
 }
 
 FileData::FileData() = default;

@@ -4,6 +4,7 @@
 #include "../theatre_file.hpp"
 #include "../thing_factory.hpp"
 #include "thirdparty/frozen/set.h"
+#include "thirdparty/frozen/string.h"
 
 static constexpr char        cCommentDelimiter{'/'};
 static constexpr std::string cCommentDelimiterSingleLine{"//"};
@@ -19,7 +20,7 @@ static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
 static constexpr frozen::set<char, 11>
     cSeparators{',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
-static constexpr frozen::set<std::string, 2>
+static constexpr frozen::set<frozen::string, 2>
     cKeywords{"Child", "Parent"};
 
 enum Comment { SINGLE, MULTI, NO_COMMENT };
@@ -104,8 +105,9 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
             TokenName name_buffer{TokenName::Identifier};
             if(!value_buffer.empty())
             {
-                if(cKeywords.contains(value_buffer) or ThingFactory::IsThing({value_buffer}))
-                    { name_buffer = TokenName::Keyword; }
+                if(cKeywords.contains(frozen::string{value_buffer})
+                    or ThingFactory::IsThing({value_buffer}))
+                        { name_buffer = TokenName::Keyword; }
                 else
                 {
                     name_buffer = TokenName::Literal;

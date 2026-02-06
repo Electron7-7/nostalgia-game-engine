@@ -3,7 +3,7 @@
 
 #include <Nostalgia/fwd/event_types.hpp>
 
-extern constinit const unsigned short MaxActions;
+extern constinit const ushort MaxActions;
 class InputAction;
 
 struct KeyID;
@@ -11,7 +11,7 @@ namespace Key
 {
     struct Modifier;
     struct Modifiers;
-    extern constinit const unsigned long KeysCount;
+    extern constinit const size_t KeysCount;
 }
 
 using event_queue_t = std::vector<Shared<IEvent>>;

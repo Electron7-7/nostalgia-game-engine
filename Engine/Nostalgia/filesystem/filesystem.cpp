@@ -9,6 +9,10 @@
 
 namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit errytime
 
+// I have to define this function before the code below it to avoid conflicts with MinGW's `GetCurrentDirectory` macro
+std::string FileSystem::GetCurrentDirectory()
+{ return fs::current_path().string(); }
+
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
 #ifdef NOSTALGIA_WINDOWS
 #   include <windows.h>
@@ -40,9 +44,6 @@ namespace fs = std::filesystem; // Fuck you, I'm not writing allat bullshit erry
     std::string FileSystem::GetProgramDirectory()
     { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string(); }
 #endif // NOSTALGIA_WINDOWS
-
-std::string FileSystem::GetCurrentDirectory()
-{ return fs::current_path().string(); }
 
 Error FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
 {

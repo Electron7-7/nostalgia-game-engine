@@ -19,10 +19,10 @@ class RendererAPI;
 class Shader;
 namespace Shaders
 {
-    extern constinit const unsigned int BlinnPhong;
-    extern constinit const unsigned int Fullbright;
-    extern constinit const unsigned int SkyBox;
-    extern constinit const unsigned int Fonts;
+    extern constinit const uint BlinnPhong;
+    extern constinit const uint Fullbright;
+    extern constinit const uint SkyBox;
+    extern constinit const uint Fonts;
 }
 
 enum TextureType : int;

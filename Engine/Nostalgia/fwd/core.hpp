@@ -29,7 +29,7 @@ namespace EnumSet
     extern constinit const char* PhysicsBodyMotion;
 }
 
-extern constinit const unsigned int MaxBitMaskPlaces;
+extern constinit const uint MaxBitMaskPlaces;
 struct BitMask;
 
 #endif // CORE_FWD_H

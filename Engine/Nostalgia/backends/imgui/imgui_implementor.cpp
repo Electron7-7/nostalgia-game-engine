@@ -14,9 +14,6 @@
 #define ErrorGraphicsAPI print_error("invalid/unknown window handler detected!"); return
 #define ErrorWindowingLibrary print_error("invalid/unknown graphics API detected!"); return
 #define ReturnIf(CONDITION, RETURN_VALUE...) if(CONDITION) { return RETURN_VALUE; }
-#define BadPrint(FUNC, COND, MSG) FUNC("Fail condition met: '" #COND "'. " MSG);
-#define WarnIf(CONDITION, MESSAGE...)  if(CONDITION) { BadPrint(print_warning, CONDITION, ## MESSAGE); }
-#define ErrorIf(CONDITION, MESSAGE...) if(CONDITION) { BadPrint(print_error, CONDITION, ## MESSAGE); }
 
 static GraphicsAPI sGraphicsAPI() { return RendererAPI::GetAPI(); }
 static NativeWindowType sWindowType() { return MainWindow()->GetNativeWindowType(); }
@@ -79,7 +76,8 @@ void ImGui_Implementor::Detach()
 
 void ImGui_Implementor::Begin()
 {
-    WarnIf(!mAttached)
+    if(!mAttached)
+        { print_warning("!mAttached"); }
     mState = STATE_BEGINNING_FRAME;
     ImGui::GetIO().WantCaptureKeyboard = mCanHandleEvents;
     ImGui::GetIO().WantCaptureMouse    = mCanHandleEvents;
@@ -113,7 +111,8 @@ void ImGui_Implementor::Begin()
 
 void ImGui_Implementor::End()
 {
-    ErrorIf(!mAttached)
+    if(!mAttached)
+        { print_error("!mAttached"); }
     mState = STATE_ENDING_FRAME;
     ImGuiIO& io{ImGui::GetIO()};
     io.DisplaySize = ImVec2{static_cast<float>(MainWindow()->GetWidth()), static_cast<float>(MainWindow()->GetHeight())};
@@ -142,6 +141,3 @@ void ImGui_Implementor::End()
 #undef ErrorGraphicsAPI
 #undef ErrorWindowingLibrary
 #undef ReturnIf
-#undef BadPrint
-#undef WarnIf
-#undef ErrorIf
