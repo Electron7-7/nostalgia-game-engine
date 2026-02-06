@@ -2,8 +2,6 @@
 #define UI_IMPLEMENTOR_H
 
 #include <Nostalgia/ui/solution.hpp>
-#include <typeindex>
-#include <mutex>
 
 #define STATE_STRING(STATE) case STATE: return #STATE;
 

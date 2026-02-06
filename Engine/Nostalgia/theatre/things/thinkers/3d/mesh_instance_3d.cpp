@@ -1,4 +1,4 @@
-#include "mesh_instance_3d.hpp"
+#include "./mesh_instance_3d.hpp"
 
 using namespace TheatreFile;
 

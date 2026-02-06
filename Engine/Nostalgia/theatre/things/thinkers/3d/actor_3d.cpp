@@ -1,4 +1,4 @@
-#include "actor_3d.hpp"
+#include "./actor_3d.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;

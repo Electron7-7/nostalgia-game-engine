@@ -1,4 +1,4 @@
-#include "solution.hpp"
+#include "./solution.hpp"
 
 void UI_Solution::Init()
 { PRINT_PRETTY_FUNCTION; }

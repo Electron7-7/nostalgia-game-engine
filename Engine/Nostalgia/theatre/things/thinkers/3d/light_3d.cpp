@@ -1,4 +1,4 @@
-#include "light_3d.hpp"
+#include "./light_3d.hpp"
 #include "settings/engine.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef NOSTALGIA_DEBUGGING

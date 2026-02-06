@@ -3,7 +3,6 @@
 
 #include <Nostalgia/managers/manager.hpp>
 #include <Nostalgia/fwd/events.hpp>
-#include <mutex>
 
 typedef void (*pInputCallback_f)(InputEvent*);
 

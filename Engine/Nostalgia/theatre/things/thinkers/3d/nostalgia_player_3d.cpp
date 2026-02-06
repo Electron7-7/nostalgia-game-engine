@@ -1,4 +1,4 @@
-#include "nostalgia_player_3d.hpp"
+#include "./nostalgia_player_3d.hpp"
 #include "settings/engine.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/thing_factory.hpp"

@@ -1,5 +1,5 @@
-#include "implementor.hpp"
-#include "solution.hpp"
+#include "./implementor.hpp"
+#include "./solution.hpp"
 
 UI_Implementor::Instances UI_Implementor::m_sInstances{};
 std::recursive_mutex UI_Implementor::m_sInstancesMutex{};

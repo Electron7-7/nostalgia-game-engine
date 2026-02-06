@@ -1,4 +1,4 @@
-#include "tree.hpp"
+#include "./tree.hpp"
 
 bool Node::invalid() const noexcept
 { return id.invalid(); }

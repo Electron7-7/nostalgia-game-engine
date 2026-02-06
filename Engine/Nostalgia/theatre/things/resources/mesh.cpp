@@ -1,4 +1,4 @@
-#include "mesh.hpp"
+#include "./mesh.hpp"
 #include "rendering/mesh_buffers.hpp"
 #include "rendering/vertex.hpp"
 #include "rendering/vertex_array.hpp"

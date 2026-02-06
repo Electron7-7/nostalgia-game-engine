@@ -1,4 +1,4 @@
-#include "camera_3d.hpp"
+#include "./camera_3d.hpp"
 #include "../viewport.hpp"
 #include "theatre/theatre.hpp"
 #include "settings/engine.hpp"

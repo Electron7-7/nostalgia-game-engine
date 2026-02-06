@@ -1,4 +1,4 @@
-#include "material.hpp"
+#include "./material.hpp"
 
 using namespace TheatreFile;
 
