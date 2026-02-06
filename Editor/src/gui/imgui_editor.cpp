@@ -27,6 +27,7 @@ static void s_ThingAdder();
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
 static ID sSpawnLocationID{};
+static ID sEditorViewportID{};
 static float sSpawnLocationRotationSpeed{1.0f};
 static float sSpawnLocationScaleSpeedStore{0.0085f};
 static float sSpawnLocationScaleSpeed{sSpawnLocationScaleSpeedStore};
@@ -74,16 +75,14 @@ void ImGui_Editor::TheatreEntered()
 
     sSpawnLocationID = g_pTheatreManager->CurrentTheatre()->CreateThing(spawn_dat);
 
-    g_pTheatreManager->CurrentTheatre()->CreateThing({ThingType::Viewport,
-        "Editor Viewport",
-        {},
-        UID::a_EditorViewport});
+    sEditorViewportID = g_pTheatreManager->CurrentTheatre()
+        ->CreateThing({ThingType::Viewport, "EditorViewport"});
 
-    TheatreFile::ThingData cam_dat{ThingType::Camera3D,"Editor Camera"};
+    TheatreFile::ThingData cam_dat{ThingType::Camera3D,"EditorCamera"};
     cam_dat.set_variable(glm::vec3{0.0f, 5.0f, 1.0f}, "Position");
     cam_dat.set_variable(glm::vec3{-90.0f, 0.0f, 0.0f}, "RotationDegrees");
     cam_dat.set_variable(true, "UseDefaultSkybox");
-    cam_dat.set_variable(UID::a_EditorViewport, "Parent");
+    cam_dat.set_variable(sEditorViewportID, "Parent");
     cam_dat.set_variable(true, "Current");
     g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
 }
@@ -93,6 +92,7 @@ void ImGui_Editor::TheatreExited()
     sSpawnLocationMaterialID = ID{};
     sSpawnLocationMeshInstanceID = ID{};
     sSpawnLocationID = ID{};
+    sEditorViewportID = ID{};
     auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
     UI_Implementor::SetGlobalCanHandleEvents(true);
     MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
@@ -172,7 +172,7 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
-        auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(UID::a_EditorViewport)};
+        auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(sEditorViewportID)};
         if(viewport->uid().invalid())
             { End(); return; }
         BeginChild("Viewport",

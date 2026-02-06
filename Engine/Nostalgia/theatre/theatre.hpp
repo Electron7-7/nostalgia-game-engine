@@ -45,6 +45,7 @@ public:
 
     IdVec_t   ThingIDs();
     bool      ThingExists(ID);
+    bool      ThingExists(Sarg inName);
     FPID      TypeOf(ID);
     bool      DerivedFrom(ID, FPID);
     ID        CreateThing(Farg<TheatreFile::ThingData>);
@@ -63,6 +64,8 @@ public:
     Error SetParent(ID inChildID, ID inParentID);
     Error DropParent(ID inChildID);
 
+    /// Note: This will return the *first* `Thing` that has the name `ThingName`.
+    Shared<Thing>    GetThing(Sarg ThingName);
     Shared<Thing>    GetThing(ID ObjectID);
     Shared<Resource> GetResource(ID ObjectID);
     Shared<Thinker>  GetThinker(ID ObjectID);

@@ -20,8 +20,7 @@ void NostalgiaPlayer3D::Ready()
 {
     Actor3D::Ready();
 
-    bool _debug_axis_mesh_made{false},
-        _has_camera{false};
+    bool _has_camera{false};
     for(ID child : Children())
     {
         if(ThingFactory::IsDerivedFrom(my_theatre()->TypeOf(child), ThingType::Camera3D))
@@ -29,23 +28,30 @@ void NostalgiaPlayer3D::Ready()
     }
     if(!_has_camera)
     {
-        TheatreFile::ThingData cam_dat{ThingType::Camera3D, "DefaultPlayerCam"};
-        cam_dat.set_variable(glm::vec3{0.0f, 0.75f, 0.0f}, "Position");
-        cam_dat.set_variable(true, "Current");
-        cam_dat.set_variable(true, "UseDefaultSkybox");
-        if(Settings::Engine::IsEditorHint)
+        std::string cam_name{"DefaultPlayerCam"};
+        if(!my_theatre()->ThingExists(cam_name))
         {
-            cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask");
-            if(!_debug_axis_mesh_made)
+            TheatreFile::ThingData cam_dat{ThingType::Camera3D, cam_name};
+            cam_dat.set_variable(glm::vec3{0.0f, 0.75f, 0.0f}, "Position");
+            cam_dat.set_variable(true, "Current");
+            cam_dat.set_variable(true, "UseDefaultSkybox");
+            if(Settings::Engine::IsEditorHint)
             {
-                TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, "PlayerDebugAxisMesh"};
-                axis_dat.set_variable(mUID, "Parent");
-                axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
-                axis_dat.set_variable(0b10, "Layers");
-                my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
-                _debug_axis_mesh_made = true;
+                cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask");
+                std::string axis_name{"PlayerDebugAxisMesh"};
+                if(!my_theatre()->ThingExists(axis_name))
+                {
+                    TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, axis_name};
+                    axis_dat.set_variable(mUID, "Parent");
+                    axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
+                    axis_dat.set_variable(0b10, "Layers");
+                    my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
+                }
             }
+            mCameraID = my_theatre()->CreateThing(cam_dat);
         }
-        my_theatre()->SetParent(mCameraID = my_theatre()->CreateThing(cam_dat), mUID);
+        else
+            { mCameraID = my_theatre()->GetThing(cam_name)->uid(); }
+        my_theatre()->SetParent(mCameraID, mUID);
     }
 }

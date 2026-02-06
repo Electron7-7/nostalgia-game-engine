@@ -12,10 +12,11 @@ void Camera3D::Ready()
     if(Settings::Engine::IsEditorHint)
     {
         PID cam_mat{"camera-mat"};
-        if(!my_theatre()->ThingExists(cam_mat))
+        std::string cam_mat_name{"camera-debug-material"};
+        if(!my_theatre()->ThingExists(cam_mat_name))
         {
             ThingData mat_data{ThingType::Material,
-                "camera-debug-material",
+                cam_mat_name,
                 {},
                 cam_mat};
             mat_data.set_variable(true, "FullBright");
@@ -24,12 +25,17 @@ void Camera3D::Ready()
             my_theatre()->CreateThing(mat_data);
         }
 
-        ThingData mesh_inst_data{ThingType::MeshInstance3D,{mName + "-debug-mesh-instance"}};
-        mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
-        mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
-        my_theatre()->SetParent(mEditorMeshInstanceID =
-            my_theatre()->CreateThing(mesh_inst_data),
-            mUID);
+        std::string mesh_inst_name{mName + "-debug-mesh-instance"};
+        if(!my_theatre()->ThingExists(mesh_inst_name))
+        {
+            ThingData mesh_inst_data{ThingType::MeshInstance3D, mesh_inst_name};
+            mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
+            mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
+            mEditorMeshInstanceID = my_theatre()->CreateThing(mesh_inst_data);
+        }
+        else
+            { mEditorMeshInstanceID = my_theatre()->GetThing(mesh_inst_name)->uid(); }
+        my_theatre()->SetParent(mEditorMeshInstanceID, mUID);
     }
 
     auto ancestors{my_theatre()->GetAllParents(mUID)};

@@ -25,19 +25,34 @@ void Light3D::Ready()
     if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
-        ThingData mat_data{ThingType::Material, mName + "-debug-material"};
-        mat_data.set_variable(mColor, "Color");
-        mat_data.set_variable(UID::t_LightDebug, "DiffuseTexture");
-        mat_data.set_variable(true, "FullBright");
-        ID mat_id{g_pTheatreManager->CurrentTheatre()->CreateThing(mat_data)};
+        std::string mat_name{mName + "-debug-material"};
+        ID mat_id{},
+            mesh_inst_id{};
+        if(!my_theatre()->ThingExists(mat_name))
+        {
+            ThingData mat_data{ThingType::Material, mat_name};
+            mat_data.set_variable(mColor, "Color");
+            mat_data.set_variable(UID::t_LightDebug, "DiffuseTexture");
+            mat_data.set_variable(true, "FullBright");
+            mat_id = g_pTheatreManager->CurrentTheatre()->CreateThing(mat_data);
+        }
+        else
+            { mat_id = my_theatre()->GetThing(mat_name)->uid(); }
 
-        ThingData mesh_inst_dat{ThingType::MeshInstance3D, mName + "-debug-mesh-instance"};
-        mesh_inst_dat.set_variable(UID::m_Cube, "Mesh");
-        mesh_inst_dat.set_variable(mat_id, "MaterialOverride");
-        mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
-        mesh_inst_dat.set_variable(mUID, "Parent");
+        std::string mesh_inst_name{mName + "-debug-mesh-instance"};
+        if(!my_theatre()->ThingExists(mesh_inst_name))
+        {
+            ThingData mesh_inst_dat{ThingType::MeshInstance3D, mesh_inst_name};
+            mesh_inst_dat.set_variable(UID::m_Cube, "Mesh");
+            mesh_inst_dat.set_variable(mat_id, "MaterialOverride");
+            mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
+            mesh_inst_dat.set_variable(mUID, "Parent");
+            mesh_inst_id = my_theatre()->CreateThing(mesh_inst_dat);
+        }
+        else
+            { mesh_inst_id = my_theatre()->GetThing(mesh_inst_name)->uid(); }
 
-        my_theatre()->SetParent(my_theatre()->CreateThing(mesh_inst_dat), mUID);
+        my_theatre()->SetParent(mesh_inst_id, mUID);
     }
 }
 

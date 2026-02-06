@@ -204,6 +204,14 @@ bool Theatre::ThingExists(ID inID)
     return mThings.contains(inID);
 }
 
+bool Theatre::ThingExists(Sarg inName)
+{
+    LockGuard<RMutex> lock{mThingsMutex};
+    for(FAUTO [id, thing] : mThings)
+        { if(!thing->name().compare(inName)) { return true; } }
+    return false;
+}
+
 FPID Theatre::TypeOf(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
@@ -327,6 +335,14 @@ Error Theatre::DropParent(ID inChildID)
         { return ERR_NOT_FOUND; }
 
     return SetParent(inChildID, parent.parent);
+}
+
+Shared<Thing> Theatre::GetThing(Sarg inName)
+{
+    LockGuard<RMutex> lock{mThingsMutex};
+    for(FAUTO [id, thing] : mThings)
+        { if(!thing->name().compare(inName)) { return thing; } }
+    return MakeShared<Thing>();
 }
 
 Shared<Thing> Theatre::GetThing(ID inID)
