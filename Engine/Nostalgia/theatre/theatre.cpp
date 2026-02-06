@@ -275,7 +275,7 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
     ID output{CreateThingNoReady(inData)};
-    mThings.at(output)->Ready();
+    GetThing(output)->Ready();
     return output;
 }
 
@@ -492,6 +492,11 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
             { print_warning("Only one player at a time, please!"); return UID::a_Player; }
     else if(UID::IsReserved(ioData.uid[]) and mThings.contains(ioData.uid[]))
         { return ioData.uid; }
+    else if(ThingExists(ioData.name))
+    {
+        if(FAUTO _thing{GetThing(ioData.name)}; _thing->mType == ioData.type)
+            { return _thing->mUID; }
+    }
 
     SetupUID(ioData);
     SetupOwnership(ioData);
