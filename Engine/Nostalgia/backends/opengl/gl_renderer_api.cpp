@@ -16,6 +16,8 @@ bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{true};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
+static bool sWireframe{};
+
 #ifdef NOSTALGIA_DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
 #endif // NOSTALGIA_DEBUGGING
@@ -166,6 +168,7 @@ void OpenGLRendererAPI::SetFramebufferSRGB(bool isOn) const
 
 void OpenGLRendererAPI::SetWireframe(bool isOn) const
 {
+    sWireframe = isOn;
     if(isOn)
         { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
     else
@@ -176,6 +179,26 @@ void OpenGLRendererAPI::SetBlend(bool isEnabled) const
 {
     if(isEnabled) { glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); }
     else { glDisable(GL_BLEND); }
+}
+
+ColorRGBA OpenGLRendererAPI::GetClearColor()
+{ return {mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]}; }
+
+float OpenGLRendererAPI::GetLineWidth()
+{
+    float output;
+    glGetFloatv(GL_LINE_WIDTH, &output);
+    return output;
+}
+
+bool OpenGLRendererAPI::GetWireframe() const
+{ return sWireframe; }
+
+bool OpenGLRendererAPI::GetBlend() const
+{
+    unsigned char output;
+    glGetBooleanv(GL_BLEND, &output);
+    return static_cast<bool>(output);
 }
 
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const

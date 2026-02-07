@@ -33,6 +33,11 @@ public:
     virtual void SetWireframe(bool inValue) const = 0;
     virtual void SetBlend(bool isEnabled) const = 0;
 
+    virtual ColorRGBA GetClearColor() = 0;
+    virtual float GetLineWidth() = 0;
+    virtual bool GetWireframe() const = 0;
+    virtual bool GetBlend() const = 0;
+
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 
     virtual bool BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;

@@ -19,6 +19,11 @@ public:
     void SetWireframe(bool inValue) const final;
     void SetBlend(bool) const final;
 
+    ColorRGBA GetClearColor() final;
+    float GetLineWidth() final;
+    bool GetWireframe() const final;
+    bool GetBlend() const final;
+
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 
     virtual bool BindTexture(Shared<Texture>, uint) const final;
