@@ -66,14 +66,13 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
 {
     if(key == GLFW_KEY_UNKNOWN)
         { return; }
-    else if(const auto& found_it{s_cGLFWInputLookup.find(key)};
-        found_it != s_cGLFWInputLookup.end())
+    else if(FAUTO found_it{s_cGLFWInputLookup.find(key)}; found_it != s_cGLFWInputLookup.end())
     {
         g_pInputManager->Queue()->add<InputEventBinding>(found_it->second[],
-                sConvertModifierKeys(mods),
-                action != GLFW_RELEASE,
-                action == GLFW_REPEAT,
-                g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
+            sConvertModifierKeys(mods),
+            action != GLFW_RELEASE,
+            action == GLFW_REPEAT,
+            g_pInputManager->UpdateKeyState(found_it->second, action != GLFW_RELEASE));
     }
 }
 
