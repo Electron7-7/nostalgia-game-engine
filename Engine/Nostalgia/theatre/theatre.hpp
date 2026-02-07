@@ -6,10 +6,6 @@
 #include <Nostalgia/theatre/call_sheet.hpp>
 #include <Nostalgia/theatre/variable_registry.hpp>
 
-inline bool gDebugEnable3DRendering{true},
-    gDebugEnable2DRendering{true},
-    gDebugToggleTextRenderingMethod{false};
-
 class Theatre
 {
 public:

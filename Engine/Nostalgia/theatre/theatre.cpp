@@ -17,9 +17,14 @@
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
 #include "settings/graphics.hpp"
+#include "console/console.hpp"
 #include <ranges>
 
 using namespace TheatreFile;
+
+bool gDebugToggleTextRenderingMethod{false},
+    gDebugEnable3DRendering{true},
+    gDebugEnable2DRendering{true};
 
 Theatre::Theatre() noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()} {}
@@ -117,7 +122,8 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     for(FAUTO [id, thing] : mThings)
     {
         if(id[] != UID::a_Player and UID::IsReserved(id[])) { continue; }
-        print_debug("Saving [{}, {}]", thing->name(), id[]);
+        if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
+            { print_debug("Saving [{}, {}]", thing->name(), id[]); }
         output += thing->GetVariables()->get_parsable_string();
     }
     return print_error_enum(FileSystem::try_WriteFileFromString(file_path, output));
@@ -178,6 +184,14 @@ bool Theatre::Shutdown()
 
 void Theatre::Draw()
 {
+    Shared<Console::Variable> var{nullptr};
+    if(Console::GetVariable("Theatre.draw_3d", var) == OK)
+        { gDebugEnable3DRendering = var->int_value; }
+    if(Console::GetVariable("Theatre.draw_2d", var) == OK)
+        { gDebugEnable2DRendering = var->int_value; }
+    if(Console::GetVariable("Theatre.draw_text_new", var) == OK)
+        { gDebugToggleTextRenderingMethod = var->int_value; }
+
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     Light3D::ClearCounts();

@@ -2,6 +2,7 @@
 #include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
 #include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/console/console.hpp>
 #include <Nostalgia/thirdparty/DearImGui/imgui.h>
 #include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 #include <Nostalgia/managers/input_manager.hpp>
@@ -56,6 +57,7 @@ ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 static bool sPrintLoadedTheatreData{false};
 static bool sTheatreInspectorActive{false};
 static bool sAutoStopwatchEnabled{true};
+static bool sDebugConsoleOpened{false};
 
 static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
 static std::string               sTheatreFileSavePath{"theatres/SavedTheatre.nt"};
@@ -79,7 +81,9 @@ void ImGui_Debugger::Shutdown()
 
 void ImGui_Debugger::Input(InputEvent* event)
 {
-    if(event->IsJustPressed(Key::F3))
+    if(event->IsJustPressed(Key::Tilde))
+        { sDebugConsoleOpened = !sDebugConsoleOpened; }
+    else if(event->IsJustPressed(Key::F3))
     {
         sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
             ? !sTheatreInspectorActive
@@ -111,6 +115,8 @@ void ImGui_Debugger::Update()
     static bool sPopOutStopwatches{false};
     InspectTheatreWindow();
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
+    if(sDebugConsoleOpened)
+        { DebugConsoleWindow(); }
     if(gShowDebugWindow)
     {
         if(Begin("Debugging", &gShowDebugWindow, ImGuiWindowFlags_MenuBar))
@@ -206,7 +212,6 @@ bool ImGui_Debugger::m_StopStopwatch(StopwatchLog& stopwatch)
     return stopwatch.Stop();
 }
 
-
 void ImGui_Debugger::StartTheatreTiming(bool loading)
 {
     if(loading)
@@ -267,6 +272,10 @@ static void s_GeneralDebuggingWindow()
             SameLine();
             Checkbox("Print Tick#", &gDebugPrintTickNumbers);
         SeparatorText("Theatre");
+            static auto save_msgs{Console::try_GetVariable("Theatre.debug_save_msgs")};
+            bool save_msgs_b{(bool)save_msgs->int_value};
+            if(Checkbox("Print TheatreFile Save Progress", &save_msgs_b))
+                { Console::SetVariable("Theatre.debug_save_msgs", save_msgs_b); }
             Checkbox("Print TheatreFile Lexer Logs", &TheatreFile::gDebugPrintLexerLogs);
             Checkbox("Print TheatreFile Parser Logs", &TheatreFile::gDebugPrintParserLogs);
             Checkbox("Disable Whitespace In Lexer Logs", &TheatreFile::gDebugDontPrintWhitespaceInLexerLogs);
@@ -293,9 +302,18 @@ static void s_GeneralDebuggingWindow()
 #endif // NOSTALGIA_DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
-        Checkbox("Use New WIP Text Rendering Method", &gDebugToggleTextRenderingMethod);
-        Checkbox("Render 3D Thinkers", &gDebugEnable3DRendering);
-        Checkbox("Render 2D Thinkers", &gDebugEnable2DRendering);
+        static auto text_rendering{Console::try_GetVariable("Theatre.draw_text_new")},
+            enable3d{Console::try_GetVariable("Theatre.draw_3d")},
+            enable2d{Console::try_GetVariable("Theatre.draw_2d")};
+        bool text_rendering_b{(bool)text_rendering->int_value},
+            enable3d_b{(bool)enable3d->int_value},
+            enable2d_b{(bool)enable2d->int_value};
+        if(Checkbox("Use New WIP Text Rendering Method", &text_rendering_b))
+            { Console::SetVariable("Theatre.draw_text_new", text_rendering_b); }
+        if(Checkbox("Render 3D Thinkers", &enable3d_b))
+            { Console::SetVariable("Theatre.draw_3d", enable3d_b); }
+        if(Checkbox("Render 2D Thinkers", &enable2d_b))
+            { Console::SetVariable("Theatre.draw_2d", enable2d_b); }
         Checkbox("Global Wireframe Mode", &Settings::Graphics::GlobalWireframe);
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
@@ -1401,6 +1419,40 @@ void ImGui_Debugger::InspectTheatreWindow()
                 if(InputFloat("Specular Strength", &selected.specularStrength, 0.05f, 0.1f, "%.3f"))
                     { material->SpecularStrength(selected.specularStrength); selected = {material}; }
             }
+        }
+        EndChild();
+    }
+    End();
+}
+
+void ImGui_Debugger::DebugConsoleWindow()
+{
+    static std::vector<std::string> history{};
+    static std::string buffer{};
+    if(buffer.ends_with('`'))
+        { buffer.clear(); }
+    if(!sDebugConsoleOpened)
+        { return; }
+    if(Begin("Debug Console"))
+    {
+        InputText("##InputLine", &buffer);
+        if(IsItemHovered() or (IsWindowFocused() and !IsMouseClicked(0)))
+            { ImGui::SetKeyboardFocusHere(-1); }
+        if(IsItemDeactivatedAfterEdit())
+        {
+            Console::ProcessLine(buffer);
+            history.push_back(buffer);
+            buffer.clear();
+        }
+        Separator();
+        const float footer_height_to_reserve{GetStyle().ItemSpacing.y + GetFrameHeightWithSpacing()};
+        auto width{GetWindowSize().x};
+        if(BeginChild("##History", {0, -footer_height_to_reserve}, ImGuiChildFlags_NavFlattened))
+        {
+            PushTextWrapPos(GetCursorPosX() + width - 10);
+            for(FAUTO line : history)
+                { Text("%s", line.data()); }
+            PopTextWrapPos();
         }
         EndChild();
     }
