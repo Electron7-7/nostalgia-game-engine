@@ -17,12 +17,6 @@ void Viewport::Ready()
         { SetCurrentCamera3D(); }
     if(mCurrentCamera2D.invalid())
         { SetCurrentCamera2D(); }
-
-    if(mCurrentCamera3D.invalid() and mCurrentCamera2D.invalid())
-    {
-        print_warning("Could not find a current Camera2D or Camera3D for Viewport [{}, {}]",
-            mName, mUID[]);
-    }
 }
 
 void Viewport::SetVariables(Farg<ThingData> data)
