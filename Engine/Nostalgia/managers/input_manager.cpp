@@ -5,12 +5,13 @@
 #include "events/action.hpp"
 #include "events/bindings.hpp"
 
+static std::unordered_map<std::string, InputAction> sPreviousInputActions{};
 static std::unordered_map<std::string, InputAction> sInputActions{};
-static std::unordered_map<KeyID, std::vector<std::string>> sInputActionBindingsLookup{};
 static EventQueue sInputEventQueue{};
 static InputManager sInputManager{};
 
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sInputStateBuffer{};
+std::unordered_map<uint, InputManager::InputState> InputManager::m_sPreviousInputState{};
 bool gPrintInputLogs{false};
 
 InputManager* g_pInputManager{&sInputManager};
@@ -18,13 +19,16 @@ InputManager* g_pInputManager{&sInputManager};
 bool InputManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    for(FARG(auto) key : Key::Keys)
-        { m_sInputStateBuffer[key[]] = {}; sInputActionBindingsLookup[key] = {}; }
+    for(FAUTO key : Key::Keys)
+        { m_sInputStateBuffer[key[]] = {}; }
+    m_sPreviousInputState = m_sInputStateBuffer;
     return true;
 }
 
 void InputManager::Update()
 {
+    m_sPreviousInputState = m_sInputStateBuffer;
+    sPreviousInputActions = sInputActions;
     const std::lock_guard<std::recursive_mutex> lock{sInputEventQueue.get_mutex()};
     auto events{sInputEventQueue.get()};
     for(Shared<IEvent> event : events)
@@ -128,6 +132,18 @@ bool InputManager::IsActionUp(const std::string& inName) noexcept
     auto found_it{sInputActions.find(inName)};
     return (found_it == sInputActions.end() || !found_it->second.State());
 }
+
+bool InputManager::IsKeyJustDown(KeyID inKey) noexcept
+{ return IsKeyDown(inKey) and !m_sPreviousInputState.at(inKey[]).active(); }
+
+bool InputManager::IsKeyJustUp(KeyID inKey) noexcept
+{ return IsKeyUp(inKey) and m_sPreviousInputState.at(inKey[]).active(); }
+
+bool InputManager::IsActionJustDown(const std::string& inName) noexcept
+{ return IsActionDown(inName) and sPreviousInputActions.at(inName).State(); }
+
+bool InputManager::IsActionJustUp(const std::string& inName) noexcept
+{ return IsActionUp(inName) and sPreviousInputActions.at(inName).State(); }
 
 Position2D InputManager::MousePosition() noexcept
 { return MainWindow()->GetMousePosition(); }

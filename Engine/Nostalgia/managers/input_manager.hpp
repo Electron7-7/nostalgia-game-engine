@@ -25,9 +25,13 @@ public:
 
     static bool IsKeyDown(KeyID inKeyID) noexcept;
     static bool IsKeyUp(KeyID inKeyID) noexcept;
-
     static bool IsActionDown(Farg<std::string> inName) noexcept;
     static bool IsActionUp(Farg<std::string> inName) noexcept;
+
+    static bool IsKeyJustDown(KeyID inKeyID) noexcept;
+    static bool IsKeyJustUp(KeyID inKeyID) noexcept;
+    static bool IsActionJustDown(Farg<std::string> inName) noexcept;
+    static bool IsActionJustUp(Farg<std::string> inName) noexcept;
 
     static Position2D MousePosition() noexcept;
     static Position2D LastMousePosition() noexcept;
@@ -79,6 +83,7 @@ private:
     std::vector<pInputCallback_f> mCallbacks{};
     std::recursive_mutex mCallbacksMutex{};
     static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
+    static std::unordered_map<uint, InputManager::InputState> m_sPreviousInputState;
 };
 
 extern bool gPrintInputLogs;
