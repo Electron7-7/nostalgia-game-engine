@@ -1183,3 +1183,5 @@ Okay, while working on the Windows builds I stumbled into some problems with GCC
 
 [02/06/26]
 I implemented a debug Console that will replace boolean variables in header files. Finally, no more recompiling tons of files just to add one debug variable.
+
+I think I want to make this version 0.1.0.
