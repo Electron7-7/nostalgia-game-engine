@@ -1180,3 +1180,6 @@ All right, I think this will mark version 0.1.0 of Nostalgia! I just gotta do a 
 Hmm... maybe I wanna try getting the Windows binaries compiling, first. Hmm...
 
 Okay, while working on the Windows builds I stumbled into some problems with GCC and pre-compiled headers. Basically, GCC requires you to include the actual header in any file that you wanna use the pre-compiled header in. However, Clang doesn't require this (and iirc doing so might actually stop clang from using the pre-compiled header entirely). To solve this issue, I just had to insert a simple `#ifdef <macro>...#include <header>...#endif` block everywhere the pre-compiled header file was needed. Now, this means that I *did* have to spend a lot of time compiling, inserting the header where compilation failed, compiling again, etc etc, **but** the end result of achieving parity between clang and gcc is well worth it in my opinion.
+
+[02/06/26]
+I implemented a debug Console that will replace boolean variables in header files. Finally, no more recompiling tons of files just to add one debug variable.
