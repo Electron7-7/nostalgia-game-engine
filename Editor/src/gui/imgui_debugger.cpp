@@ -55,9 +55,7 @@ static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
 static bool sPrintLoadedTheatreData{false};
-static bool sTheatreInspectorActive{false};
 static bool sAutoStopwatchEnabled{true};
-static bool sDebugConsoleOpened{false};
 
 static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
 static std::string               sTheatreFileSavePath{"theatres/SavedTheatre.nt"};
@@ -82,11 +80,11 @@ void ImGui_Debugger::Shutdown()
 void ImGui_Debugger::Input(InputEvent* event)
 {
     if(event->IsJustPressed(Key::Tilde))
-        { sDebugConsoleOpened = !sDebugConsoleOpened; }
+        { gDebugConsoleOpened = !gDebugConsoleOpened; }
     else if(event->IsJustPressed(Key::F3))
     {
-        sTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-            ? !sTheatreInspectorActive
+        gTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
+            ? !gTheatreInspectorActive
             : false;
     }
     else if(event->IsJustPressed(Key::F4) or
@@ -95,7 +93,7 @@ void ImGui_Debugger::Input(InputEvent* event)
     else if(event->IsJustPressed(Key::F5) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
     {
-        sTheatreInspectorActive = false;
+        gTheatreInspectorActive = false;
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
     }
@@ -115,11 +113,11 @@ void ImGui_Debugger::Update()
     static bool sPopOutStopwatches{false};
     InspectTheatreWindow();
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
-    if(sDebugConsoleOpened)
+    if(gDebugConsoleOpened)
         { DebugConsoleWindow(); }
     if(gShowDebugWindow)
     {
-        if(Begin("Debugging", &gShowDebugWindow, ImGuiWindowFlags_MenuBar))
+        if(Begin("Debugging", &gShowDebugWindow))
         {
             if(BeginTabBar("Debug Tools"))
             {
@@ -571,10 +569,10 @@ static void s_TheatreDebuggingWindow()
     if(not_in_level)
     {
         BeginDisabled();
-        sTheatreInspectorActive = false;
+        gTheatreInspectorActive = false;
     }
     if(Button("Inspect Theatre"))
-        { sTheatreInspectorActive = !sTheatreInspectorActive; }
+        { gTheatreInspectorActive = !gTheatreInspectorActive; }
     if(not_in_level)
         { EndDisabled(); }
 
@@ -799,7 +797,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         camera3d_button_color[3] {0.216f, 0.0f,   0.0f},
         camera2d_button_color[3] {0.0f,   0.083f, 0.353f};
     static bool show_type_on_button{true};
-    if(!sTheatreInspectorActive
+    if(!gTheatreInspectorActive
         or Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
     {
         is_hovered.clear();
@@ -1431,18 +1429,17 @@ void ImGui_Debugger::DebugConsoleWindow()
     static std::string buffer{};
     if(buffer.ends_with('`'))
         { buffer.clear(); }
-    if(!sDebugConsoleOpened)
+    if(!gDebugConsoleOpened)
         { return; }
     if(Begin("Debug Console"))
     {
         InputText("##InputLine", &buffer);
-        if(IsItemHovered() or (IsWindowFocused() and !IsMouseClicked(0)))
-            { ImGui::SetKeyboardFocusHere(-1); }
         if(IsItemDeactivatedAfterEdit())
         {
             Console::ProcessLine(buffer);
             history.push_back(buffer);
             buffer.clear();
+            SetKeyboardFocusHere(-1);
         }
         Separator();
         const float footer_height_to_reserve{GetStyle().ItemSpacing.y + GetFrameHeightWithSpacing()};

@@ -15,7 +15,9 @@ public:
     void TheatreExited()  final;
 };
 
-extern bool gShowDebugWindow;
+extern bool gShowDebugWindow,
+    gDebugConsoleOpened,
+    gTheatreInspectorActive;
 
 extern ImGui_Editor* g_pImGuiEditor;
 

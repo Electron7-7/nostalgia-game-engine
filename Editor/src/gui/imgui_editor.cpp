@@ -20,9 +20,10 @@ using namespace ImGui;
 static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
+bool gTheatreInspectorActive{false};
 bool gShowDebugWindow{false};
+bool gDebugConsoleOpened{false};
 
-static bool sShowDemoWindow{false};
 static void s_ThingAdder();
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
@@ -125,8 +126,6 @@ void ImGui_Editor::Input(InputEvent* event)
     }
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
-    else if(event->IsJustPressed(Key::G) and event->IsModifierActive(Key::Mod_Control))
-        { sShowDemoWindow  = !sShowDemoWindow; }
 }
 
 enum ScaleDir
@@ -154,19 +153,21 @@ void ImGui_Editor::Update()
         thingy->SetRotationDegrees(thingy->RotationDegrees() + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f});
         thingy->SetScale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
     }
-    if(sShowDemoWindow)
-        { ShowDemoWindow(&sShowDemoWindow); }
-    if(Begin("Nostalgia Editor"))
+    if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar))
     {
         if(BeginMenuBar())
         {
             if(BeginMenu("Menu"))
             {
-                if(MenuItem("Show Debug Menu", "CTRL+D"))
+                if(MenuItem("Debug Menu", "CTRL+D"))
                     { gShowDebugWindow = true; }
-                else if(MenuItem("Show ImGui Demo Window", "CTRL+G"))
-                    { sShowDemoWindow = true; }
-                else if(MenuItem("Quit", "CTRL+Q"))
+                BeginDisabled(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL);
+                if(MenuItem("Theatre Inspector", "F3"))
+                    { gTheatreInspectorActive = true; }
+                EndDisabled();
+                if(MenuItem("Debug Console", "~"))
+                    { gDebugConsoleOpened = true; }
+                if(MenuItem("Quit", "CTRL+Q"))
                     { Application()->Stop(); }
                 EndMenu();
             }
