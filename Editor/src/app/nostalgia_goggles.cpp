@@ -52,7 +52,7 @@ int NostalgiaGoggles::Main()
 
     ThingFactory::AddThing(&sEditorPlayer3DMaker, TypeIDs::EditorPlayer3D.c_name(), ThingType::NostalgiaPlayer3D);
 
-    g_pInputManager->SetAction({gToggleFullscreen, Key::F});
+    g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
     g_pInputManager->SetAction({"+backward", Key::S});
     g_pInputManager->SetAction({"+left",     Key::A});
