@@ -67,7 +67,7 @@ private:
     static uint GetMonitorIndex(GLFWmonitor*);
     static void AddMonitor(GLFWmonitor*);
 
-    inline static constexpr frozen::map<GLFWInputID, KeyID, Key::KeysCount>
+    inline static constinit const frozen::map<GLFWInputID, KeyID, Key::KeysCount>
     s_cGLFWInputLookup
     {
         {GLFW_KEY_0, Key::Zero},
@@ -140,6 +140,7 @@ private:
         {GLFW_KEY_PAGE_UP,   Key::PgUp},
         {GLFW_KEY_PAGE_DOWN, Key::PgDn},
         {GLFW_KEY_ESCAPE, Key::Escape},
+        {GLFW_KEY_GRAVE_ACCENT, Key::Tilde},
         {GLFW_MOUSE_BUTTON_LEFT,   Key::MouseLeft},
         {GLFW_MOUSE_BUTTON_RIGHT,  Key::MouseRight},
         {GLFW_MOUSE_BUTTON_MIDDLE, Key::MouseMiddle},

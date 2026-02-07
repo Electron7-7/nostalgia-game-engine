@@ -83,7 +83,7 @@ namespace Key
         Left{"Left"}, Right{"Right"}, Up{"Up"},     Down{"Down"},
         Home{"Home"}, End{"End"},     PgUp{"PgUp"}, PgDn{"PgDn"},
         // Other
-        Escape{"Esc"},
+        Escape{"Esc"}, Tilde{"~"},
         // Mouse Buttons
         MouseLeft{"LMouse"}, MouseRight{"RMouse"}, MouseMiddle{"Mouse3"};
 
@@ -99,7 +99,7 @@ namespace Key
         Mods_All     {0b111111};
 
     // Total count of `KeyID` variables.
-    inline constinit const size_t KeysCount{73};
+    inline constinit const size_t KeysCount{74};
 
     // `constexpr` container of all `KeyID` variables.
     inline const std::unordered_set<KeyID> Keys
@@ -107,7 +107,7 @@ namespace Key
         Zero,One,Two,Three,Four,Five,Six,Seven,Eight,Nine,
         A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,
         LeftShift,LeftControl,LeftAlt,LeftSuper,RightShift,RightControl,RightAlt,RightSuper,
-        Enter,Delete,Backspace,Tab,Space,Up,Down,Left,Right,Home,End,PgUp,PgDn,Escape,
+        Enter,Delete,Backspace,Tab,Space,Up,Down,Left,Right,Home,End,PgUp,PgDn,Escape,Tilde,
         MouseLeft,MouseRight,MouseMiddle,
     };
 }
@@ -272,6 +272,8 @@ constexpr const char* debug_GetKeyName(KeyID inKeyID)
         return "PgDn";
     case Key::Escape[]:
         return "Escape";
+    case Key::Tilde[]:
+        return "~";
     case Key::MouseLeft[]:
         return "MouseLeft";
     case Key::MouseRight[]:
