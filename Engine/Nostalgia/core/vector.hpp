@@ -17,9 +17,10 @@ template<typename T>
     static constexpr std::string s_DemangleTypeName()
     {
         int status;
+        auto mangled_name{typeid(T).name()};
         std::unique_ptr<char[], void (*)(void*)> result(
-            abi::__cxa_demangle(typeid(T).name(), 0, 0, &status), std::free);
-        return result.get() ? std::string(result.get()) : "N/A";
+            abi::__cxa_demangle(mangled_name, 0, 0, &status), std::free);
+        return result.get() ? std::string(result.get()) : mangled_name;
     }
 
 struct __vector_base {};
@@ -102,14 +103,9 @@ template<ushort Length, class T, VectorMembers M = VectorMembers::None>
             case VectorMembers::RGBA:
                 vector_member_type = "RGBA (or RGB)"; break;
             }
-            int status;
-            std::unique_ptr<char[], void (*)(void*)> result{
-                abi::__cxa_demangle(typeid(T).name(), 0, 0, &status), std::free};
             return std::format("vector<{}, {}, {}>",
                 Length,
-                result.get()
-                    ? std::string{result.get()}
-                    : "N/A",
+                s_DemangleTypeName<T>(),
                 vector_member_type);
         }
 
