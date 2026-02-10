@@ -1185,3 +1185,11 @@ Okay, while working on the Windows builds I stumbled into some problems with GCC
 I implemented a debug Console that will replace boolean variables in header files. Finally, no more recompiling tons of files just to add one debug variable.
 
 I think I want to make this version 0.1.0.
+
+[02/07/26]
+I wanna spend some more time trying to get a valid Windows library compiling. Gonna see how bad it is to use visual studio.
+
+Okay, I'm not gonna add 'dllexport' to my header files, but that means that I really have to rely on Mingw for compiling.
+
+[02/10/26]
+I've been trying to fiddle with getting a working VS build for a Windows DLL; it's been proving very tricky due to differences in compiler support. I'm going to try and use Clang in VisualStudio, but I may have a lot of work to do in order to introduce parity.
