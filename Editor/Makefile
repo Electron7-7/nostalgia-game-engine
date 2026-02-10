@@ -10,19 +10,19 @@ else
 endif
 
 FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING
-FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
+FLAGS_DEBUG_LINUX     := -fsanitize=address
 FLAGS_DEBUG_WINDOWS   := # Nothing yet
 FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
 FLAGS_RELEASE_WINDOWS := # Nothing yet
 FLAGS_RELEASE_LINUX   := # Nothing yet
 FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP
 FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -lstdc++exp
+FLAGS_WINDOWS         := -mwindows
 FLAGS_LINUX           := -Wno-c23-extensions
 
-export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype -l:libgetargs.so -l:libNostalgia.so
-export DYNAMIC_LDFLAGS_LINUX   ?= -L src/libraries/linux $(DYNAMIC_LIBRARIES)
-export DYNAMIC_LDFLAGS_WINDOWS ?= -lstdc++exp -L src/libraries/windows $(DYNAMIC_LIBRARIES)
+export DYNAMIC_LIBRARIES       ?= -lglfw -lfreetype
+export DYNAMIC_LDFLAGS_LINUX   ?= -L src/libraries/linux $(DYNAMIC_LIBRARIES) -l:libgetargs.so -l:libNostalgia.so
+export DYNAMIC_LDFLAGS_WINDOWS ?= -lstdc++exp -L src/libraries/windows $(DYNAMIC_LIBRARIES) -l:libgetargs.dll -l:libNostalgia.dll
 
 export STATIC_LDFLAGS_LINUX   ?= -L src/libraries/linux -l:libNostalgia.a -l:libgetargs.a
 export STATIC_LDFLAGS_WINDOWS ?= -L src/libraries/windows -l:libNostalgia.a -l:libgetargs.a

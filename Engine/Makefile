@@ -22,21 +22,21 @@ endif
 
 SRC := Nostalgia
 
-FLAGS_DEBUG_COMMON    := -g -O0 -D NOSTALGIA_DEBUGGING -Winvalid-pch
-FLAGS_DEBUG_LINUX     := -fsanitize=address,undefined
-FLAGS_RELEASE_COMMON  := -O3 -D NOSTALGIA_RELEASE
-FLAGS_DYNAMIC         := -fPIC
-FLAGS_STATIC          := -static
-FLAGS_CXX_COMMON      := -std=c++26 -Wall -MMD -MP --embed-dir=$(SRC)/embedded -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
-FLAGS_CC_COMMON       := -std=c23 -Wall -MMD -MP
-FLAGS_WINDOWS         := -mwindows -lstdc++exp -include $(SRC)/core/types.hpp -D NOSTALGIA_WINDOWS -D NOSTALGIA_GCC_PCH
-FLAGS_LINUX           := -D NOSTALGIA_LINUX -Wno-c23-extensions
+FLAGS_DEBUG_COMMON   := -g -O0 -D NOSTALGIA_DEBUGGING -Winvalid-pch
+FLAGS_DEBUG_LINUX    := -fsanitize=address,undefined
+FLAGS_RELEASE_COMMON := -O3 -D NOSTALGIA_RELEASE
+FLAGS_STATIC         := -static
+FLAGS_DYNAMIC        := -fPIC
+FLAGS_CXX_COMMON     := -std=c++26 -Wall -MMD -MP --embed-dir=$(SRC)/embedded -D JPH_PROFILE_ENABLED -D JPH_DEBUG_ENABLED -D JPH_OBJECT_STREAM -D GLFW_INCLUDE_NONE
+FLAGS_CC_COMMON      := -std=c23 -Wall -MMD -MP
+FLAGS_WINDOWS        := -mwindows -include $(SRC)/core/types.hpp -D NOSTALGIA_WINDOWS -D NOSTALGIA_GCC_PCH
+FLAGS_LINUX          := -D NOSTALGIA_LINUX -Wno-c23-extensions
 
 # Archives & Libraries
 ARCHIVES_DIR_LINUX        := $(SRC)/static_libraries/linux
 ARCHIVES_DIR_WINDOWS      := $(SRC)/static_libraries/windows
 DYNAMIC_LIB_FLAGS_LINUX   := -shared
-DYNAMIC_LIB_FLAGS_WINDOWS := -shared --out-implib
+DYNAMIC_LIB_FLAGS_WINDOWS := -s -shared -Wl,--out-implib -Wl,--subsystem
 
 INCLUDE := -I ./ -I $(SRC) -I $(SRC)/thirdparty -I $(SRC)/thirdparty/FreeType
 
@@ -94,7 +94,7 @@ else # WINDOWS
 	export CXX_FLAGS       ?= $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS)
 	export PCH_FLAGS       ?= -I $(dir $(BUILD_OBJS))
 	export CC_FLAGS        ?= $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS)
-	export LD_FLAGS        ?= -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LIBRARIES)
+	export LD_FLAGS        ?= $(DYNAMIC_LIBRARIES) -lstdc++exp
 	export ARCHIVES_DIR    ?= $(ARCHIVES_DIR_WINDOWS)
 	export CXX_COMPILER    ?= $(WINDOWS_CXX)
 	export C_COMPILER      ?= $(WINDOWS_CC)
@@ -256,7 +256,8 @@ printout:
 	@ printf "$(BOLD)$(DEFAULT)::C++ Compile Command - $(BOLD)$(YELLOW)$(CXX_COMPILER) $(CXX_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) $(PCH_FLAGS) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
 	@ printf "$(BOLD)$(DEFAULT)::C Compile Command - $(BOLD)$(YELLOW)$(C_COMPILER) $(CC_FLAGS) $(VERSION_FLAGS) $(LIBRARY_FLAGS) $(INCLUDE) -c $(NORM)<source_file>$(BOLD)$(YELLOW) -o $(NORM)<object_file>$(YELLOW)$(RESET)\n"
 	@ if [ -n "$(BUILDING_DYNAMIC_LIBRARY)" ]; then \
-		printf "$(BOLD)$(DEFAULT)::Linker Flags - $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n"\
+		printf "$(BOLD)$(DEFAULT)::Dynamic Compile Flags: $(BOLD)$(YELLOW)$(LINKER_FLAGS)$(RESET)\n"; \
+		printf "$(BOLD)$(DEFAULT)::Linker Flags: $(BOLD)$(YELLOW)$(LD_FLAGS)$(RESET)\n" \
 	; fi
 
 	@ if [ -n "$(BUILDING_STATIC_LIBRARY)" ]; then \
@@ -266,6 +267,7 @@ printout:
 
 build:
 	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_DEPS)
+	@ -mkdir -p $(BUILD_ROOT)/$(DIR_OBJS_BASE)_$(DIR_OBJS_TYPE)/$(DIR_ARCHIVES)
 	@ $(MAKE) -s printout $(BUILD_OBJS)/$(PCH) $(BUILD_LIBRARY)/$(NAME)
 	@ printf "$(BOLD)$(DEFAULT)::$(PRINTOUT_TYPE) Library Built Successfully$(RESET)\n"
 
@@ -305,6 +307,7 @@ linux: ;@:
 	$(eval PCH_FLAGS       = -include-pch $(BUILD_OBJS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_LINUX))
 	$(eval LD_FLAGS        = $(DYNAMIC_LIBRARIES))
+	$(eval LINKER_FLAGS    = $(DYNAMIC_LIB_FLAGS_LINUX))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_LINUX))
 	$(eval CXX_COMPILER    = $(LINUX_CXX))
 	$(eval C_COMPILER      = $(LINUX_CC))
@@ -322,7 +325,8 @@ windows: ;@:
 	$(eval CXX_FLAGS       = $(FLAGS_CXX_COMMON) $(FLAGS_WINDOWS))
 	$(eval PCH_FLAGS       = -D NOSTALGIA_GCC_PCH -I $(BUILD_OBJS))
 	$(eval CC_FLAGS        = $(FLAGS_CC_COMMON) $(FLAGS_WINDOWS))
-	$(eval LD_FLAGS        = -fuse-ld=x86_64-w64-mingw32-ld $(DYNAMIC_LIBRARIES))
+	$(eval LD_FLAGS        = $(DYNAMIC_LIBRARIES) -lstdc++exp)
+	$(eval LINKER_FLAGS    = $(DYNAMIC_LIB_FLAGS_WINDOWS))
 	$(eval ARCHIVES_DIR    = $(ARCHIVES_DIR_WINDOWS))
 	$(eval CXX_COMPILER    = $(WINDOWS_CXX))
 	$(eval C_COMPILER      = $(WINDOWS_CC))
