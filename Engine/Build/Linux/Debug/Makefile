@@ -106,7 +106,7 @@ JOLT_OBJ := $(BUILD_ARCHIVES)/Jolt_Debug/libJolt.o
 
 # TODO: Make better API headers
 HEADER_FILES := $(PCH_HPP) $(call getfiles,$(API_HEADER_DIRS),*.hpp) $(call getfiles,$(API_HEADER_DIRS),*.h) $(call getfiles,$(API_HEADER_DIRS),*.inl)
-HEADERS_OUT := $(addprefix $(BUILD_HEADERS)/,$(HEADER_FILES:$(SRC)/%=%))
+HEADERS_OUT := $(addprefix $(BUILD_HEADERS)/Nostalgia/,$(HEADER_FILES:$(SRC)/%=%))
 
 # Printout Styles
 export RESET   ?= \\x1b[0m
@@ -141,18 +141,22 @@ dynamic: ._dynamic $(LIBRARY_DYNAMIC)
 	@ printf "$(BOLD)$(DEFAULT)::Successfully Built Nostalgia$(RESET)\n"
 
 install: headers
-	@ if [ -e $(BUILD_LIBRARY)/$(NAME) ]; then \
-		printf "$(BOLD)$(MAGENTA)::Requesting root permissions in order to access \\x1b[4m$(INSTALL_DIR)\\x1b[24m"; \
-		printf "$(BLUE) (see lines \\x1b[4m224\\x1b[24m, \\x1b[4m228\\x1b[24m, and \\x1b[4m229\\x1b[24m in the Makefile if you wish to verify for yourself)$(RESET)\n"; \
-		sudo cp $(BUILD_LIBRARY)/$(NAME) $(INSTALL_LIB_DIR)/; \
-		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_LIB_DIR)/$(NAME)$(RESET)\n" \
+	@ printf "$(BOLD)$(MAGENTA)::Requesting root permissions in order to access \\x1b[4m$(INSTALL)\\x1b[24m$(RESET)\n"
+	@ printf "$(BLUE) (see lines \\x1b[4m147\\x1b[24m, \\x1b[4m151\\x1b[24m, and \\x1b[4m155-156\\x1b[24m in the Makefile if you wish to verify for yourself)$(RESET)\n"
+	@ if [ -e $(LIBRARY_STATIC) ]; then \
+		sudo cp $(LIBRARY_STATIC) $(INSTALL)/lib; \
+		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL)/lib/$(NAME).a$(RESET)\n" \
 	; fi
-	@ if [ -d $(BUILD_HEADERS) ]; then \
-		sudo $(RM) -r $(INSTALL_INCL_DIR)/$(BUILD_HEADERS); \
-		sudo cp -r $(BUILD_HEADERS) $(INSTALL_INCL_DIR)/; \
-		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL_INCL_DIR)/$(NAME_BASE)/$(RESET)\n" \
+	@ if [ -e $(LIBRARY_DYNAMIC) ]; then \
+		sudo cp $(LIBRARY_DYNAMIC) $(INSTALL)/lib; \
+		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL)/lib/$(NAME).so$(RESET)\n" \
 	; fi
-	@ if [ ! -d $(INSTALL_INCL_DIR)/Jolt ]; then \
+	@ if [ -d $(BUILD_HEADERS)/Nostalgia ]; then \
+		sudo $(RM) -r $(INSTALL)/include/Nostalgia; \
+		sudo cp -r $(BUILD_HEADERS)/Nostalgia $(INSTALL)/include/Nostalgia; \
+		printf "$(BOLD)$(DEFAULT)::Installed $(GREEN)$(INSTALL)/include/Nostalgia$(RESET)\n" \
+	; fi
+	@ if [ ! -d $(INSTALL)/include/Jolt ]; then \
 		printf "$(BOLD)$(YELLOW)::IMPORTANT NOTE - In order to use the Jolt headers properly, you'll need to install them to \\x1b[4m$(INSTALL_INCL_DIR)/Jolt\\x1b[24m. An easy shortcut you could use is just copying/linking \\x1b[4mEngine/Nostalgia/thirdparty/Jolt\\x1b[24m from the source code.$(RESET)\n" \
 	; fi
 
@@ -247,7 +251,7 @@ $(BUILD_DYNAMIC)/%.o: $(SRC)/%.c
 	@ -mv $(@:.o=.d) $(BUILD_DEPENDS)/$(notdir $(@:.o=.d))
 
 # Header Files
-$(BUILD_HEADERS)/%: $(SRC)/%
+$(BUILD_HEADERS)/Nostalgia/%: $(SRC)/%
 	@ printf "::Copying Header $(BOLD)$(CYAN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ cp $< $@
