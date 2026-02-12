@@ -15,6 +15,9 @@ BUILD_DYNAMIC  := .objs_dynamic
 BUILD_STATIC   := .objs_static
 BUILD_DEPENDS  := .dependencies
 
+LIBRARY_STATIC  := $(BUILD_LIBRARY)/$(NAME).a
+LIBRARY_DYNAMIC := $(BUILD_LIBRARY)/$(NAME).so
+
 PCH_HPP := $(SRC)/Nostalgia.hpp
 PCH     := Nostalgia.pch
 
@@ -257,13 +260,13 @@ $(BUILD_ARCHIVES)/%.o: $(STATIC_LIBRARIES)/%.a
 	@ $(CXX) -r -o $@ -Xlinker --whole-archive $^
 
 # Static Library
-$(BUILD_LIBRARY)/$(NAME).a: $(BUILD_STATIC)/$(PCH) $(STATIC_CC_OBJS) $(STATIC_CXX_OBJS) $(AR_OBJS)
+$(LIBRARY_STATIC): $(BUILD_STATIC)/$(PCH) $(STATIC_CC_OBJS) $(STATIC_CXX_OBJS) $(AR_OBJS)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ $(AR) rcs $@ $^
 
 # Dynamic Library
-$(BUILD_LIBRARY)/$(NAME).so: $(BUILD_DYNAMIC)/$(PCH) $(DYNAMIC_CC_OBJS) $(DYNAMIC_CXX_OBJS) $(JOLT_OBJ)
+$(LIBRARY_DYNAMIC): $(BUILD_DYNAMIC)/$(PCH) $(DYNAMIC_CC_OBJS) $(DYNAMIC_CXX_OBJS) $(JOLT_OBJ)
 	@ printf "::Building $(BOLD)$(GREEN)$@$(RESET)\n"
 	@ -mkdir -p $(dir $@)
 	@ $(CXX) $(CXXFLAGS) $(INCLUDE) -fPIC -shared $^ -o $@ $(LDFLAGS)

@@ -16,8 +16,8 @@ BUILD_DYNAMIC  := .objs_dynamic
 BUILD_STATIC   := .objs_static
 BUILD_DEPENDS  := .dependencies
 
-LIBRARY_STATIC  := $(BUILD_LIBRARY)/$(NAME).lib
-LIBRARY_DYNAMIC := $(BUILD_LIBRARY)/$(NAME).dll
+LIBRARY_STATIC  := $(BUILD_LIBRARY)/$(NAME).a
+LIBRARY_DYNAMIC := $(BUILD_LIBRARY)/$(NAME).so
 
 PCH_HPP := $(SRC)/Nostalgia.hpp
 PCH     := Nostalgia.pch
