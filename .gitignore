@@ -6,8 +6,12 @@
 tests/
 
 # build system
-build/
-build_raylib/
+.objs_dynamic/
+.objs_static/
+.dependencies/
+.static_libraries/
+include/
+lib/
 
 # clangd + bear
 .cache/
