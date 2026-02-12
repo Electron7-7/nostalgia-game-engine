@@ -1193,3 +1193,10 @@ Okay, I'm not gonna add 'dllexport' to my header files, but that means that I re
 
 [02/10/26]
 I've been trying to fiddle with getting a working VS build for a Windows DLL; it's been proving very tricky due to differences in compiler support. I'm going to try and use Clang in VisualStudio, but I may have a lot of work to do in order to introduce parity.
+
+Ughhhhh, I fucking HATE Microsoft's build system so fucking MUCH!!! I'm just gonna use the Makefile and require MSYS2 like I did last time.
+
+Okay, I'm gonna split up the Makefiles even more into separate files for each build type. Then, I'll probably include a small helper program/script to aid in building (so I could run something like `./helper dynamic linux debug`).
+
+[02/11/26]
+All right, back at it again. I'm getting pretty close, and I think that if I can just get the DLL compiling with mingw, everything else is smooth sailing.
