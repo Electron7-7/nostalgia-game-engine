@@ -1200,3 +1200,5 @@ Okay, I'm gonna split up the Makefiles even more into separate files for each bu
 
 [02/11/26]
 All right, back at it again. I'm getting pretty close, and I think that if I can just get the DLL compiling with mingw, everything else is smooth sailing.
+
+I can't figure this shit out. I'm gonna try Visual Studio again, later; however, I think that version 0.1 is gonna be Linux only, with the caveat that I'll be working on a Windows build later. Unless I can figure out Visual Studio compiling quickly.
