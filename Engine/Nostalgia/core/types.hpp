@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 // Fixing issues with MinGW types
-#if defined(__MINGW32__) or defined(__MINGW64__)
+#if defined(__MINGW32__) || defined(__MINGW64__)
     using uint   = unsigned int;
     using ushort = unsigned short;
     using uchar  = unsigned char;
