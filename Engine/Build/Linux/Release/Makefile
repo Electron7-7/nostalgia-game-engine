@@ -122,9 +122,9 @@ export CYAN    ?= \\x1b[36m
 export WHITE   ?= \\x1b[37m
 export DEFAULT ?= \\x1b[39m
 
-.PHONY: all ._static ._dynamic static dynamic install headers compile_commands printout clean mostlyclean disable_colors .__clean_target .__clean_all .__mostlyclean_target .__mostlyclean_all
+.PHONY: all ._static ._dynamic static dynamic install headers compile_commands printout clean
 
-all:
+all: static dynamic headers
 
 ._static:
 	@ -mkdir -p $(BUILD_STATIC) $(BUILD_DEPENDS) $(BUILD_ARCHIVES)
@@ -178,59 +178,15 @@ printout:
 		printf "$(BOLD)$(DEFAULT)::Library Command (Static) - $(BOLD)$(YELLOW)$(AR) rcs $(BUILD_LIBRARY)/$(STRING_LIB)$(NAME_BASE)$(NAME_STATIC) $(NORM)<object_files> <compiled_archive_file>$(RESET)\n" \
 	; fi
 
-# Cleaning Functions
-CLEAN       = find $(DIR_ROOT) -type $(1) $(2) -not -path "*.git/*" -print 2>/dev/null
-DIRTY       = $(foreach dir,$(1),-not -path "*$(dir)*")
-CLEAN_PRINT = \
-$(eval MAKE_TARGET != if [[ -n "$(1)" && "$(1)" != " " ]]; then printf "$(1)"; else printf "NOTHING_TO_CLEAN"; fi) \
-$(MAKE) -s $(foreach cleaned,$(MAKE_TARGET),$(cleaned).clean)
-
-# Cleans directories based on previous targets
-# (e.g: 'make windows clean' will clean 'build/Windows/', but 'make windows debug clean' will only clean 'build/Windows/Debug/')
-.__clean_target: ;@:
-	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*'))
-	$(RM) $(CLEAN_FILES)
-	$(RM) -r $(CLEAN_DIRS)
-	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-
-# Cleans the entire 'build/' directory (default behaviour for 'clean')
-.__clean_all: ;@:
-	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/.*'))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-regex '$(DIR_ROOT)/.*'))
-	$(RM) $(CLEAN_FILES)
-	$(RM) -r $(CLEAN_DIRS)
-	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-
-# What 'clean' does depends on if it's called by itself, or after other targets
 clean:
-	@ if [ "$(TARGET_CALLED)" == "1" ]; then \
-		$(MAKE) -s .__clean_target;          \
-	else                                     \
-		$(MAKE) -s .__clean_all;             \
-	fi
-
-# 'mostlyclean' doesn't clean files from 'DIRTY_SRC_DIRS'
-.__mostlyclean_target:
-	$(eval CLEAN_FILES != $(call CLEAN,f,-regex '$(DIR_ROOT)/$(CLEAN_ARCH)/$(CLEAN_VERSION)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-empty -regex '$(DIR_ROOT)/$(CLEAN_ARCH)/.*' $(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(RM) $(CLEAN_FILES)
-	$(RM) -r $(CLEAN_DIRS)
-	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-
-.__mostlyclean_all: ;@:
-	$(eval CLEAN_FILES != $(call CLEAN,f,$(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(eval CLEAN_DIRS  != $(call CLEAN,d,-empty $(call DIRTY,$(DIRTY_SRC_DIRS))))
-	$(RM) $(CLEAN_FILES)
-	$(RM) -r $(CLEAN_DIRS)
-	@ $(call CLEAN_PRINT,$(CLEAN_DIRS))
-
-mostlyclean:
-	@ if [ "$(TARGET_CALLED)" == "1" ]; then \
-		$(MAKE) -s .__mostlyclean_target;    \
-	else                                     \
-		$(MAKE) -s .__mostlyclean_all;       \
-	fi
+	@ $(RM) -r \
+		$(BUILD_STATIC) \
+		$(BUILD_DYNAMIC) \
+		$(BUILD_LIBRARY) \
+		$(BUILD_HEADERS) \
+		$(BUILD_DEPENDS) \
+		$(BUILD_ARCHIVES)
+	@ printf "$(BOLD)$(RED)::Cleaned Build$(RESET)\n"
 
 disable_colors:
 	$(eval RESET   = "")
