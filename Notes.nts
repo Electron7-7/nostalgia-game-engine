@@ -1205,3 +1205,11 @@ I can't figure this shit out. I'm gonna try Visual Studio again, later; however,
 
 [02/12/26]
 After some conversations online, I've decided to shelve my pride and use CMake. I *will* be trying to minimize the amount of file bloat, though.
+
+Ooh, I'm very close. I think I might want to go the Godot route and include thirdparty source code and then compile the thirdparty object files when compiling a static library (instead of trying to unzip the archive files). I think I'll call it here today, though. Feeling a bit burnt out.
+
+[02/13/26]
+I'm gonna test CMake shit with a separate one-file project to avoid compile times.
+
+[02/16/26]
+I finally have a working Linux build using CMake! I'm gonna commit all this stuff before I get a windows build working; after that, I can finalize everything with some cleanup and tweaking before shipping it off to the trunk!
