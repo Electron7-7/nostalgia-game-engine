@@ -1,0 +1,46 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 10,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "linux-static-debug",
+            "cacheVariables": {
+                "NOSTALGIA_DEBUG": "ON",
+                "NOSTALGIA_RELEASE": "OFF",
+                "GENERATE_DEBUG_SYMBOLS": "ON",
+                "BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "linux-dynamic-debug",
+            "cacheVariables": {
+                "NOSTALGIA_DEBUG": "ON",
+                "NOSTALGIA_RELEASE": "OFF",
+                "GENERATE_DEBUG_SYMBOLS": "ON",
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "linux-static-release",
+            "cacheVariables": {
+                "NOSTALGIA_DEBUG": "OFF",
+                "NOSTALGIA_RELEASE": "ON",
+                "GENERATE_DEBUG_SYMBOLS": "OFF",
+                "BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "linux-dynamic-release",
+            "cacheVariables": {
+                "NOSTALGIA_DEBUG": "OFF",
+                "NOSTALGIA_RELEASE": "ON",
+                "GENERATE_DEBUG_SYMBOLS": "OFF",
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        }
+    ]
+}
