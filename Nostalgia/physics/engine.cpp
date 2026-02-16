@@ -1,11 +1,12 @@
-#include "engine.hpp"
+#include "./engine.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
-#include <Jolt/RegisterTypes.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Core/JobSystemThreadPool.h>
-#include <Jolt/Physics/Body/BodyActivationListener.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
-#include <Jolt/Physics/Collision/ContactListener.h>
+#include "thirdparty/Jolt/Core/Factory.h"
+#include "thirdparty/Jolt/RegisterTypes.h"
+#include "thirdparty/Jolt/Physics/PhysicsSystem.h"
+#include "thirdparty/Jolt/Core/JobSystemThreadPool.h"
+#include "thirdparty/Jolt/Physics/Body/BodyActivationListener.h"
+#include "thirdparty/Jolt/Physics/Collision/ObjectLayer.h"
+#include "thirdparty/Jolt/Physics/Collision/ContactListener.h"
 #include <cassert>
 #include <cstdarg>
 
