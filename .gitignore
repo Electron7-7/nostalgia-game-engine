@@ -4,18 +4,19 @@
 
 # tests directory
 tests/
+Testing/
 
-# build system
-.objs_dynamic/
-.objs_static/
-.dependencies/
-.static_libraries/
-include/
-lib/
+# build system + local thirdparty repos
+Build/
+Nostalgia/thirdparty/JoltPhysics/
+Nostalgia/thirdparty/brotli/
+Nostalgia/thirdparty/bzip2/
+Nostalgia/thirdparty/libpng/
+Nostalgia/thirdparty/zlib/
+Nostalgia/thirdparty/freetype/*
+!Nostalgia/thirdparty/freetype/include/
 
-# clangd + bear
+# misc (clangd, imgui, etc)
 .cache/
 compile_commands.json
-
-# misc files
 imgui.ini
