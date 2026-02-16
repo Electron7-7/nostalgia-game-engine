@@ -1,6 +1,9 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
+#pragma clang diagostic push
+#pragma clang diagnostic ignored "-Wc23-extensions"
+
 constexpr const char GLSL_BlinnPhong_Frag[]{
     #embed "shaders/GLSL/BlinnPhong.frag" \
         suffix(,)
@@ -55,4 +58,5 @@ constexpr const char GLSL_SkyBox_Frag[]{
         0
 };
 
+#pragma clang diagostic pop
 #endif // SHADERS_H

@@ -1,6 +1,9 @@
 #ifndef FONTS_H
 #define FONTS_H
 
+#pragma clang diagostic push
+#pragma clang diagnostic ignored "-Wc23-extensions"
+
 namespace Fonts
 {
     constexpr unsigned char Audiowide[]{
@@ -16,4 +19,5 @@ namespace Fonts
     };
 }
 
+#pragma clang diagostic pop
 #endif // FONTS_H

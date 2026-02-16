@@ -1,6 +1,9 @@
 #ifndef MODELS_H
 #define MODELS_H
 
+#pragma clang diagostic push
+#pragma clang diagnostic ignored "-Wc23-extensions"
+
 namespace Models
 {
     constexpr unsigned char Error[]{
@@ -28,4 +31,5 @@ namespace Models
     };
 }
 
+#pragma clang diagostic pop
 #endif // MODELS_H

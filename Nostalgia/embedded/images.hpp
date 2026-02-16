@@ -1,6 +1,9 @@
 #ifndef IMAGES_H
 #define IMAGES_H
 
+#pragma clang diagostic push
+#pragma clang diagnostic ignored "-Wc23-extensions"
+
 namespace Images
 {
     constexpr unsigned char Missing[]{
@@ -37,4 +40,5 @@ namespace Images
     };
 }
 
+#pragma clang diagostic pop
 #endif // IMAGES_H
