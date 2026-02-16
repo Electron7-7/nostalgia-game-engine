@@ -7,6 +7,7 @@
 
 #include <Nostalgia/events/bindings.hpp>
 #include <Nostalgia/application/window.hpp>
+#include <Nostalgia/thirdparty/glad/glad.h>
 #include <Nostalgia/thirdparty/GLFW/glfw3.h>
 #include <Nostalgia/thirdparty/frozen/map.h>
 

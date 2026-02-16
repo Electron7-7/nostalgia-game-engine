@@ -6,7 +6,6 @@
 #include "managers/render_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
-#include "thirdparty/glad/glad.h"
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
 static std::vector<Unique<Monitor>> m_sMonitors{};
