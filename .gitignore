@@ -6,8 +6,14 @@
 tests/
 Testing/
 
-# build system + local thirdparty repos
+# build system
 Build/
+Linux_Debug/
+Linux_Release/
+Windows_Debug/
+Windows_Release/
+
+# local thirdparty repos
 Nostalgia/thirdparty/JoltPhysics/
 Nostalgia/thirdparty/brotli/
 Nostalgia/thirdparty/bzip2/
