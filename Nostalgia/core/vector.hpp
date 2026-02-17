@@ -12,16 +12,23 @@
 #define NO_OVERFLOW(INDEX) \
     (Length > INDEX) ? INDEX : (Length - 1)
 
-// https://stackoverflow.com/a/12877598
-template<typename T>
-    static constexpr std::string s_DemangleTypeName()
-    {
-        int status;
-        auto mangled_name{typeid(T).name()};
-        std::unique_ptr<char[], void (*)(void*)> result(
-            abi::__cxa_demangle(mangled_name, 0, 0, &status), std::free);
-        return result.get() ? std::string(result.get()) : mangled_name;
-    }
+#ifndef WIN32
+    #include <cxxabi.h>
+    // https://stackoverflow.com/a/12877598
+    template<typename T>
+        static constexpr std::string s_DemangleTypeName()
+        {
+            int status;
+            auto mangled_name{typeid(T).name()};
+            std::unique_ptr<char[], void (*)(void*)> result(
+                abi::__cxa_demangle(mangled_name, 0, 0, &status), std::free);
+            return result.get() ? std::string(result.get()) : mangled_name;
+        }
+#else
+    template<typename T>
+        static constexpr std::string s_DemangleTypeName()
+            { return typeid(T).name(); }
+#endif // WIN32
 
 struct __vector_base {};
 

@@ -20,7 +20,6 @@
 #include <vector>           // IWYU pragma: keep
 #include <memory>           // IWYU pragma: keep
 #include <mutex>            // IWYU pragma: keep
-#include <cxxabi.h>         // IWYU pragma: keep
 #include <cstdlib>          // IWYU pragma: keep
 #include <format>           // IWYU pragma: keep
 #include <random>           // IWYU pragma: keep
