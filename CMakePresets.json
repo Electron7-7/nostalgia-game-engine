@@ -9,8 +9,7 @@
         {
             "name": "linux-static-debug",
             "cacheVariables": {
-                "NOSTALGIA_DEBUG": "ON",
-                "NOSTALGIA_RELEASE": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
                 "BUILD_SHARED_LIBS": "OFF"
             }
@@ -18,8 +17,7 @@
         {
             "name": "linux-dynamic-debug",
             "cacheVariables": {
-                "NOSTALGIA_DEBUG": "ON",
-                "NOSTALGIA_RELEASE": "OFF",
+                "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
                 "BUILD_SHARED_LIBS": "ON"
             }
@@ -27,8 +25,7 @@
         {
             "name": "linux-static-release",
             "cacheVariables": {
-                "NOSTALGIA_DEBUG": "OFF",
-                "NOSTALGIA_RELEASE": "ON",
+                "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
@@ -36,8 +33,43 @@
         {
             "name": "linux-dynamic-release",
             "cacheVariables": {
-                "NOSTALGIA_DEBUG": "OFF",
-                "NOSTALGIA_RELEASE": "ON",
+                "CMAKE_BUILD_TYPE": "Release",
+                "GENERATE_DEBUG_SYMBOLS": "OFF",
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "windows-static-debug",
+            "generator": "MSYS Makefiles",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "GENERATE_DEBUG_SYMBOLS": "ON",
+                "BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "windows-dynamic-debug",
+            "generator": "MSYS Makefiles",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "GENERATE_DEBUG_SYMBOLS": "ON",
+                "BUILD_SHARED_LIBS": "ON"
+            }
+        },
+        {
+            "name": "windows-static-release",
+            "generator": "MSYS Makefiles",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "GENERATE_DEBUG_SYMBOLS": "OFF",
+                "BUILD_SHARED_LIBS": "OFF"
+            }
+        },
+        {
+            "name": "windows-dynamic-release",
+            "generator": "MSYS Makefiles",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "ON"
             }
