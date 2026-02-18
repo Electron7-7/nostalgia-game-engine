@@ -13,15 +13,6 @@ Linux_Release/
 Windows_Debug/
 Windows_Release/
 
-# local thirdparty repos
-Nostalgia/thirdparty/JoltPhysics/
-Nostalgia/thirdparty/brotli/
-Nostalgia/thirdparty/bzip2/
-Nostalgia/thirdparty/libpng/
-Nostalgia/thirdparty/zlib/
-Nostalgia/thirdparty/freetype/*
-!Nostalgia/thirdparty/freetype/include/
-
 # misc (clangd, imgui, etc)
 .cache/
 compile_commands.json
