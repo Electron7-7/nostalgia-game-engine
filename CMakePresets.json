@@ -40,7 +40,7 @@
         },
         {
             "name": "windows-static-debug",
-            "generator": "MSYS Makefiles",
+            "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -49,7 +49,7 @@
         },
         {
             "name": "windows-dynamic-debug",
-            "generator": "MSYS Makefiles",
+            "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -58,7 +58,7 @@
         },
         {
             "name": "windows-static-release",
-            "generator": "MSYS Makefiles",
+            "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -67,7 +67,7 @@
         },
         {
             "name": "windows-dynamic-release",
-            "generator": "MSYS Makefiles",
+            "generator": "MinGW Makefiles",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
