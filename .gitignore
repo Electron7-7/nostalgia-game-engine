@@ -3,7 +3,6 @@
 *.sublime-workspace
 
 # tests directory
-tests/
 Testing/
 
 # build system
