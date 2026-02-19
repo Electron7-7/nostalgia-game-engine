@@ -110,21 +110,25 @@ else()
 endif()
 
 set(THIRDPARTY_DIR ${NOSTALGIA_ROOT}/thirdparty)
-set(FT_DISABLE_ZLIB ON)
-set(FT_DISABLE_BZIP2 ON)
-set(FT_DISABLE_PNG ON)
-set(FT_DISABLE_HARFBUZZ ON)
-set(FT_DISABLE_BROTLI ON)
 
 add_subdirectory(${THIRDPARTY_DIR}/zlib)
 
 set(ENABLE_SHARED_LIB OFF)
 set(ENABLE_STATIC_LIB OFF)
 add_subdirectory(${THIRDPARTY_DIR}/bzip2)
-set(BROTLI_BUILD_FOR_PACKAGE OFF)
+
+set(BROTLI_BUNDLED_MODE OFF)
 add_subdirectory(${THIRDPARTY_DIR}/brotli)
+
 add_subdirectory(${THIRDPARTY_DIR}/libpng)
+
+set(FT_DISABLE_ZLIB ON)
+set(FT_DISABLE_BZIP2 ON)
+set(FT_DISABLE_PNG ON)
+set(FT_DISABLE_HARFBUZZ ON)
+set(FT_DISABLE_BROTLI ON)
 add_subdirectory(${THIRDPARTY_DIR}/freetype)
+
 set(GLFW_LIBRARY_TYPE OBJECT)
 set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
@@ -172,6 +176,7 @@ target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
 target_include_directories(Nostalgia PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${NOSTALGIA_ROOT}
     ${NOSTALGIA_ROOT}/thirdparty
     ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics
