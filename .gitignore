@@ -6,7 +6,6 @@
 Testing/
 
 # build system
-Build/
 Linux_Debug/
 Linux_Release/
 Windows_Debug/
