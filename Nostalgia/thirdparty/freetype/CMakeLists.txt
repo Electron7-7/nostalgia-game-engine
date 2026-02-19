@@ -504,41 +504,12 @@ target_compile_definitions(
 
 if (WIN32)
   target_compile_definitions(
-    freetype PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
-  target_compile_definitions(
     freetype_object PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
-  if (BUILD_SHARED_LIBS)
-    target_compile_definitions(
-      freetype PRIVATE DLL_EXPORT)
-  endif ()
 else ()
   # Windows handles exports with DLL_EXPORT defined above.
-  # set_target_properties(freetype PROPERTIES
-    # C_VISIBILITY_PRESET hidden)
   set_target_properties(freetype_object PROPERTIES
     C_VISIBILITY_PRESET hidden)
 endif ()
-
-if (BUILD_SHARED_LIBS)
-  set_target_properties(freetype PROPERTIES
-    VERSION ${LIBRARY_VERSION}
-    SOVERSION ${LIBRARY_SOVERSION})
-endif ()
-
-# Pick up ftconfig.h and ftoption.h generated above, first.
-# target_include_directories(
-#   freetype
-#     PUBLIC
-#       $<INSTALL_INTERFACE:include/freetype2>
-#       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-#       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#     PRIVATE
-#       ${CMAKE_CURRENT_BINARY_DIR}/include
-#       ${CMAKE_CURRENT_SOURCE_DIR}/include
-
-#       # Make <ftconfig.h> available for builds/unix/ftsystem.c.
-#       ${CMAKE_CURRENT_BINARY_DIR}/include/freetype/config
-# )
 
 target_include_directories(
   freetype_object
