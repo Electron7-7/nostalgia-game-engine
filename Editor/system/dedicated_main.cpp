@@ -6,9 +6,9 @@
 #include <Nostalgia/settings/engine.hpp>
 
 #ifdef _WIN32
-#include <windows.h>
-#include <winbase.h>
-#include <shellapi.h>
+#   include <windows.h>
+#   include <winbase.h>
+#   include <shellapi.h>
 #endif // _WIN32
 
 int DedicatedMain(int argc, char** argv)
@@ -50,13 +50,9 @@ int DedicatedMain(int argc, char** argv)
 
 // System-specific main functions
 #ifdef _WIN32
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int main(int argc, char* argv[])
 {
-    int argc,windows_return = -1;
-    LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-
-    windows_return = DedicatedMain(argc, (char**)argv);
-    GlobalFree(argv);
+    int windows_return = DedicatedMain(argc, argv);
     return windows_return;
 }
 #else // end of _WIN32, start of LINUX
