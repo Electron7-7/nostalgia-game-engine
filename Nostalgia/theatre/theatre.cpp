@@ -121,9 +121,9 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     LockGuard<RMutex> things_lock{mThingsMutex};
     for(FAUTO [id, thing] : mThings)
     {
-        if(id[] != UID::a_Player and UID::IsReserved(id[])) { continue; }
+        if(id() != UID::a_Player and UID::IsReserved(id())) { continue; }
         if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
-            { print_debug("Saving [{}, {}]", thing->name(), id[]); }
+            { print_debug("Saving [{}, {}]", thing->name(), id()); }
         output += thing->GetVariables()->get_parsable_string();
     }
     return print_error_enum(FileSystem::try_WriteFileFromString(file_path, output));
@@ -443,10 +443,10 @@ void Theatre::SetupUID(ThingData& ioData)
         { ioData.uid = UID::a_Player; }
     if(ioData.uid.invalid())
         { ioData.uid = mUIDs.Generate(); }
-    if(!mUIDs.Contains(ioData.uid[]))
-        { mUIDs.Push(ioData.uid[]); }
-    if(!m_pRegistry->HasID(ioData.uid[]))
-        { m_pRegistry->RegisterID(ioData.name, ioData.uid[]); }
+    if(!mUIDs.Contains(ioData.uid()))
+        { mUIDs.Push(ioData.uid()); }
+    if(!m_pRegistry->HasID(ioData.uid()))
+        { m_pRegistry->RegisterID(ioData.name, ioData.uid()); }
 
     mCallSheet.Add(ioData.uid);
 }
@@ -504,7 +504,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
         and mThings.contains(UID::a_Player))
             { print_warning("Only one player at a time, please!"); return UID::a_Player; }
-    else if(UID::IsReserved(ioData.uid[]) and mThings.contains(ioData.uid[]))
+    else if(UID::IsReserved(ioData.uid()) and mThings.contains(ioData.uid()))
         { return ioData.uid; }
     else if(ThingExists(ioData.name))
     {
@@ -549,7 +549,7 @@ Error Theatre::DestroyThingOnly(ID inID)
             : ERR_NOT_FOUND;
     }
 
-    mUIDs.Erase(inID[]);
+    mUIDs.Erase(inID());
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
@@ -561,7 +561,7 @@ Error Theatre::DestroyThingOnly(ID inID)
         and !m_pRegistry->RemoveID(mThings.at(inID)->name()))
     {
         print_warning("Unable to remove [{}, {}] from the variable registry!",
-            inID[],
+            inID(),
             mThings.at(inID)->name());
     }
     mThings.erase(inID);

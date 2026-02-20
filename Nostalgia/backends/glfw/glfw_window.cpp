@@ -67,7 +67,7 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
         { return; }
     else if(FAUTO found_it{s_cGLFWInputLookup.find(key)}; found_it != s_cGLFWInputLookup.end())
     {
-        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second[],
+        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second(),
             sConvertModifierKeys(mods),
             action != GLFW_RELEASE,
             action == GLFW_REPEAT,
@@ -82,7 +82,7 @@ void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWin
     else if(const auto& found_it{s_cGLFWInputLookup.find(button)};
         found_it != s_cGLFWInputLookup.end())
     {
-        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second[],
+        g_pInputManager->Queue()->add<InputEventBinding>(found_it->second(),
                 sConvertModifierKeys(mods),
                 action != GLFW_RELEASE,
                 action == GLFW_REPEAT,

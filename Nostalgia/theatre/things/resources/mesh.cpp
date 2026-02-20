@@ -19,7 +19,7 @@ void Mesh::Ready()
     std::vector<uint>  indices{};
     if(!s_CreateMeshData(vertices, indices, m_pFileData))
     {
-        print_error("Mesh#{} failed to parse mesh data", mUID[]);
+        print_error("Mesh#{} failed to parse mesh data", mUID());
         mStatus = ERR_DATA_LOAD;
         return;
     }

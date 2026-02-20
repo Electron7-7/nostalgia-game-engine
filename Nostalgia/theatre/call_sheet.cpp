@@ -92,7 +92,7 @@ static std::string s_GetDebugLog(Farg<Tree> inTree,
         std::string name{(inThings.contains(child)) ? inThings.at(child)->name() : ""};
         log += std::format("{}[{}, {}]\n",
             indentation,
-            child[],
+            child(),
             name);
         // if(inTree.all_nodes.contains(child))
             // { log += s_GetDebugLog(inTree, inTree.all_nodes.at(child), inThings, ++indent); }
@@ -105,7 +105,7 @@ std::string CallSheet::debug_log(Farg<Things_t> inThings) const noexcept
     std::string log{"CallSheet Log:\n"};
     for(FAUTO [id, node] : mTree.all_nodes)
     {
-        log += std::format("\tNode [{}, {}]\n", id[],
+        log += std::format("\tNode [{}, {}]\n", id(),
             (inThings.contains(id)) ? inThings.at(id)->name() : "N/A");
         log += s_GetDebugLog(mTree, node, inThings, 2);
     }

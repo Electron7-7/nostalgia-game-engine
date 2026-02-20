@@ -20,7 +20,7 @@ bool InputManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     for(FAUTO key : Key::Keys)
-        { m_sInputStateBuffer[key[]] = {}; }
+        { m_sInputStateBuffer[key()] = {}; }
     m_sPreviousInputState = m_sInputStateBuffer;
     return true;
 }
@@ -55,13 +55,13 @@ void InputManager::Update()
 
 bool InputManager::UpdateKeyState(KeyID inKeyID, bool inCurrentState)
 {
-    m_sInputStateBuffer[inKeyID[]].set(inCurrentState);
+    m_sInputStateBuffer[inKeyID()].set(inCurrentState);
     for(auto& [name, action] : sInputActions)
     {
-        if(action.UpdateState(inKeyID[], inCurrentState))
+        if(action.UpdateState(inKeyID(), inCurrentState))
             { sInputEventQueue.add<InputEventAction>(action); }
     }
-    return m_sInputStateBuffer[inKeyID[]].just_changed();
+    return m_sInputStateBuffer[inKeyID()].just_changed();
 }
 
 EventQueue* InputManager::Queue()
@@ -116,10 +116,10 @@ void InputManager::EraseCallback(pInputCallback_f inCallback)
 }
 
 bool InputManager::IsKeyDown(KeyID inKey) noexcept
-{ return m_sInputStateBuffer.at(inKey[]).active(); }
+{ return m_sInputStateBuffer.at(inKey()).active(); }
 
 bool InputManager::IsKeyUp(KeyID inKey) noexcept
-{ return !m_sInputStateBuffer.at(inKey[]).active(); }
+{ return !m_sInputStateBuffer.at(inKey()).active(); }
 
 bool InputManager::IsActionDown(const std::string& inName) noexcept
 {
@@ -134,10 +134,10 @@ bool InputManager::IsActionUp(const std::string& inName) noexcept
 }
 
 bool InputManager::IsKeyJustDown(KeyID inKey) noexcept
-{ return IsKeyDown(inKey) and !m_sPreviousInputState.at(inKey[]).active(); }
+{ return IsKeyDown(inKey) and !m_sPreviousInputState.at(inKey()).active(); }
 
 bool InputManager::IsKeyJustUp(KeyID inKey) noexcept
-{ return IsKeyUp(inKey) and m_sPreviousInputState.at(inKey[]).active(); }
+{ return IsKeyUp(inKey) and m_sPreviousInputState.at(inKey()).active(); }
 
 bool InputManager::IsActionJustDown(const std::string& inName) noexcept
 { return IsActionDown(inName) and sPreviousInputActions.at(inName).State(); }

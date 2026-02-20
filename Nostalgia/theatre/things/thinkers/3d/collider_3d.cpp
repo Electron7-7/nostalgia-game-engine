@@ -83,7 +83,7 @@ void Collider3D::SetVariables(Farg<ThingData> data)
             EnumPrettifier::Prettify(mMotion));
     }
     else
-        { print_error("Failed to create physics body for Collider3D#{}", mUID[]); }
+        { print_error("Failed to create physics body for Collider3D#{}", mUID()); }
 
     mActivateOnNextChange = false;
 }
@@ -269,7 +269,7 @@ bool Collider3D::CreateBody(bool setActive)
             .CreateAndAddBody(*m_pBodyCreationSettings, s_Activation(setActive));
     if(mBodyID.IsInvalid())
         { return false; }
-    PhysicsEngine::Instance()->BodyInterface().SetUserData(mBodyID, mUID[]);
+    PhysicsEngine::Instance()->BodyInterface().SetUserData(mBodyID, mUID());
     return true;
 }
 

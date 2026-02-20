@@ -27,9 +27,9 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     }
 
     mID = glCreateProgram();
-    glAttachShader(mID[], vertex);
-    glAttachShader(mID[], fragment);
-    glLinkProgram(mID[]);
+    glAttachShader(mID(), vertex);
+    glAttachShader(mID(), fragment);
+    glLinkProgram(mID());
     if(!GLShaderErrorHandler(mID, true))
     {
         print_debug("Vertex Shader Code:{}\n{}", Sty::Reset, v_shader_code);
@@ -43,31 +43,31 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
 }
 
 void GLShader::Bind() const
-{ glUseProgram(mID[]); }
+{ glUseProgram(mID()); }
 
 void GLShader::Unbind() const
 { glUseProgram(0); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<int> value) const
-{ glProgramUniform1i(mID[], glGetUniformLocation(mID[], name.data()), value); }
+{ glProgramUniform1i(mID(), glGetUniformLocation(mID(), name.data()), value); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<float> value) const
-{ glProgramUniform1f(mID[], glGetUniformLocation(mID[], name.data()), value); }
+{ glProgramUniform1f(mID(), glGetUniformLocation(mID(), name.data()), value); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec2> value) const
-{ glProgramUniform2fv(mID[], glGetUniformLocation(mID[], name.data()), 1, glm::value_ptr(value)); }
+{ glProgramUniform2fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec3> value) const
-{ glProgramUniform3fv(mID[], glGetUniformLocation(mID[], name.data()), 1, glm::value_ptr(value)); }
+{ glProgramUniform3fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec4> value) const
-{ glProgramUniform4fv(mID[], glGetUniformLocation(mID[], name.data()), 1, glm::value_ptr(value)); }
+{ glProgramUniform4fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<glm::mat3> value) const
-{ glProgramUniformMatrix3fv(mID[], glGetUniformLocation(mID[], name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
+{ glProgramUniformMatrix3fv(mID(), glGetUniformLocation(mID(), name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
 
 void GLShader::SetUniform(Farg<std::string> name, Farg<glm::mat4> value) const
-{ glProgramUniformMatrix4fv(mID[], glGetUniformLocation(mID[], name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
+{ glProgramUniformMatrix4fv(mID(), glGetUniformLocation(mID(), name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
 
 #pragma message("NOTE: I did a lot of 'optimization' here, so make sure it isn't broken")
 bool GLShader::GLShaderErrorHandler(Farg<ID> shader, bool is_program_linking) const
@@ -92,13 +92,13 @@ bool GLShader::GLShaderErrorHandler(Farg<ID> shader, bool is_program_linking) co
             ? glad_glGetProgramInfoLog
             : glad_glGetShaderInfoLog;
 
-    glGetProgramOrShaderiv(shader[], pname, &v_result);
-    glGetProgramOrShaderiv(shader[], GL_INFO_LOG_LENGTH, &info_log_length);
+    glGetProgramOrShaderiv(shader(), pname, &v_result);
+    glGetProgramOrShaderiv(shader(), GL_INFO_LOG_LENGTH, &info_log_length);
 
     if(info_log_length <= 0)
         { return true; }
 
     std::vector<char> shader_error_message(info_log_length + 1);
-    glGetProgramOrShaderInfoLog(shader[], info_log_length, nullptr, shader_error_message.data());
+    glGetProgramOrShaderInfoLog(shader(), info_log_length, nullptr, shader_error_message.data());
     return print_errorv(VERBOSE0, "GLSL %s Error(s):\n{}", shader_error_type, shader_error_message.data());
 }

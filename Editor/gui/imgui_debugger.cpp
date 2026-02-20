@@ -605,13 +605,13 @@ struct thing_data_buffer
     thing_data_buffer() noexcept = default;
     thing_data_buffer(Shared<Thing> inThingPtr) noexcept:
         ptr{inThingPtr},
-        id{inThingPtr->uid()[]},
+        id{inThingPtr->uid()()},
         name{inThingPtr->name()},
         activate_on_change{false}
     {
         if(auto thinker{DCast<Thinker>(ptr)})
         {
-            parent  = thinker->Parent()[];
+            parent  = thinker->Parent()();
             visible = thinker->Visible();
             if(auto actor{DCast<Actor3D>(ptr)})
             {
@@ -634,8 +634,8 @@ struct thing_data_buffer
 
                     if(auto mesh_instance{DCast<MeshInstance3D>(ptr)})
                     {
-                        mesh = mesh_instance->MeshID()[];
-                        material_override = mesh_instance->MaterialOverrideID()[];
+                        mesh = mesh_instance->MeshID()();
+                        material_override = mesh_instance->MaterialOverrideID()();
                         wireframe = mesh_instance->Wireframe();
                     }
                 }
@@ -673,13 +673,13 @@ struct thing_data_buffer
 
                     if(auto sprite{DCast<Sprite2D>(ptr)})
                     {
-                        diffuseTexture = sprite->TextureID()[];
+                        diffuseTexture = sprite->TextureID()();
                         wireframe = sprite->Wireframe();
                     }
                     else if(auto text2d{DCast<Text2D>(ptr)})
                     {
                         text_color = text2d->Color().glm();
-                        font = text2d->Font()[];
+                        font = text2d->Font()();
                         text = text2d->Text();
                     }
                 }
@@ -696,13 +696,13 @@ struct thing_data_buffer
         {
             if(auto mat{DCast<Material>(ptr)})
             {
-                diffuseTexture   = mat->DiffuseTextureID()[];
-                specularTexture  = mat->SpecularTextureID()[];
+                diffuseTexture   = mat->DiffuseTextureID()();
+                specularTexture  = mat->SpecularTextureID()();
                 specularStrength = mat->SpecularStrength();
             }
             else if(auto mesh{DCast<Mesh>(ptr)})
             {
-                material = mesh->MaterialID()[];
+                material = mesh->MaterialID()();
             }
             else if(auto font{DCast<Font>(ptr)})
             {
@@ -1096,7 +1096,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             { SameLine(); }
                     }
                     auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera3d->ViewportID())};
-                    TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
+                    TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()());
                     SameLine();
                     if(Button("Inspect"))
                     {
@@ -1267,7 +1267,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             { SameLine(); }
                     }
                     auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera2d->ViewportID())};
-                    TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()[]);
+                    TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()());
                     SameLine();
                     if(Button("Inspect"))
                     {
@@ -1306,7 +1306,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                     else
                     {
                         auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(child)};
-                        PushID(++child_counter + thing->uid()[]);
+                        PushID(++child_counter + thing->uid()());
                         if(Button("-"))
                         {
                             print_error_enum(g_pTheatreManager->CurrentTheatre()
@@ -1318,7 +1318,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                         TextF("Child: {} [Type:{}] [UID:{}]",
                             thing->name(),
                             thing->type().name(),
-                            thing->uid()[]);
+                            thing->uid()());
                         SameLine();
                         if(Button("Inspect"))
                         {

@@ -97,7 +97,7 @@ InputEventBinding::InputEventBinding(KeyID inBindingID,
         mJustChanged{isJustChanged} {}
 
 size_t InputEventBinding::GetHash() const
-{ return static_cast<size_t>(mID[]); }
+{ return static_cast<size_t>(mID()); }
 
 bool InputEventBinding::IsModifierActive(Key::Modifier inMod) const
 { return mModifiers.has(inMod); }

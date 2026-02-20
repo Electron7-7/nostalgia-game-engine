@@ -130,155 +130,155 @@ namespace Key
 
 constexpr const char* debug_GetKeyName(KeyID inKeyID)
 {
-    switch(inKeyID[])
+    switch(inKeyID())
     {
-    case Key::Zero[]:
+    case Key::Zero():
         return "Zero";
-    case Key::One[]:
+    case Key::One():
         return "One";
-    case Key::Two[]:
+    case Key::Two():
         return "Two";
-    case Key::Three[]:
+    case Key::Three():
         return "Three";
-    case Key::Four[]:
+    case Key::Four():
         return "Four";
-    case Key::Five[]:
+    case Key::Five():
         return "Five";
-    case Key::Six[]:
+    case Key::Six():
         return "Six";
-    case Key::Seven[]:
+    case Key::Seven():
         return "Seven";
-    case Key::Eight[]:
+    case Key::Eight():
         return "Eight";
-    case Key::Nine[]:
+    case Key::Nine():
         return "Nine";
-    case Key::A[]:
+    case Key::A():
         return "A";
-    case Key::B[]:
+    case Key::B():
         return "B";
-    case Key::C[]:
+    case Key::C():
         return "C";
-    case Key::D[]:
+    case Key::D():
         return "D";
-    case Key::E[]:
+    case Key::E():
         return "E";
-    case Key::F[]:
+    case Key::F():
         return "F";
-    case Key::G[]:
+    case Key::G():
         return "G";
-    case Key::H[]:
+    case Key::H():
         return "H";
-    case Key::I[]:
+    case Key::I():
         return "I";
-    case Key::J[]:
+    case Key::J():
         return "J";
-    case Key::K[]:
+    case Key::K():
         return "K";
-    case Key::L[]:
+    case Key::L():
         return "L";
-    case Key::M[]:
+    case Key::M():
         return "M";
-    case Key::N[]:
+    case Key::N():
         return "N";
-    case Key::O[]:
+    case Key::O():
         return "O";
-    case Key::P[]:
+    case Key::P():
         return "P";
-    case Key::Q[]:
+    case Key::Q():
         return "Q";
-    case Key::R[]:
+    case Key::R():
         return "R";
-    case Key::S[]:
+    case Key::S():
         return "S";
-    case Key::T[]:
+    case Key::T():
         return "T";
-    case Key::U[]:
+    case Key::U():
         return "U";
-    case Key::V[]:
+    case Key::V():
         return "V";
-    case Key::W[]:
+    case Key::W():
         return "W";
-    case Key::X[]:
+    case Key::X():
         return "X";
-    case Key::Y[]:
+    case Key::Y():
         return "Y";
-    case Key::Z[]:
+    case Key::Z():
         return "Z";
-    case Key::F1[]:
+    case Key::F1():
         return "F1";
-    case Key::F2[]:
+    case Key::F2():
         return "F2";
-    case Key::F3[]:
+    case Key::F3():
         return "F3";
-    case Key::F4[]:
+    case Key::F4():
         return "F4";
-    case Key::F5[]:
+    case Key::F5():
         return "F5";
-    case Key::F6[]:
+    case Key::F6():
         return "F6";
-    case Key::F7[]:
+    case Key::F7():
         return "F7";
-    case Key::F8[]:
+    case Key::F8():
         return "F8";
-    case Key::F9[]:
+    case Key::F9():
         return "F9";
-    case Key::F10[]:
+    case Key::F10():
         return "F10";
-    case Key::F11[]:
+    case Key::F11():
         return "F11";
-    case Key::F12[]:
+    case Key::F12():
         return "F12";
-    case Key::LeftShift[]:
+    case Key::LeftShift():
         return "LeftShift";
-    case Key::LeftControl[]:
+    case Key::LeftControl():
         return "LeftControl";
-    case Key::LeftAlt[]:
+    case Key::LeftAlt():
         return "LeftAlt";
-    case Key::LeftSuper[]:
+    case Key::LeftSuper():
         return "LeftSuper";
-    case Key::RightShift[]:
+    case Key::RightShift():
         return "RightShift";
-    case Key::RightControl[]:
+    case Key::RightControl():
         return "RightControl";
-    case Key::RightAlt[]:
+    case Key::RightAlt():
         return "RightAlt";
-    case Key::RightSuper[]:
+    case Key::RightSuper():
         return "RightSuper";
-    case Key::Enter[]:
+    case Key::Enter():
         return "Enter";
-    case Key::Delete[]:
+    case Key::Delete():
         return "Delete";
-    case Key::Backspace[]:
+    case Key::Backspace():
         return "Backspace";
-    case Key::Tab[]:
+    case Key::Tab():
         return "Tab";
-    case Key::Space[]:
+    case Key::Space():
         return "Space";
-    case Key::Up[]:
+    case Key::Up():
         return "Up";
-    case Key::Down[]:
+    case Key::Down():
         return "Down";
-    case Key::Left[]:
+    case Key::Left():
         return "Left";
-    case Key::Right[]:
+    case Key::Right():
         return "Right";
-    case Key::Home[]:
+    case Key::Home():
         return "Home";
-    case Key::End[]:
+    case Key::End():
         return "End";
-    case Key::PgUp[]:
+    case Key::PgUp():
         return "PgUp";
-    case Key::PgDn[]:
+    case Key::PgDn():
         return "PgDn";
-    case Key::Escape[]:
+    case Key::Escape():
         return "Escape";
-    case Key::Tilde[]:
+    case Key::Tilde():
         return "~";
-    case Key::MouseLeft[]:
+    case Key::MouseLeft():
         return "MouseLeft";
-    case Key::MouseRight[]:
+    case Key::MouseRight():
         return "MouseRight";
-    case Key::MouseMiddle[]:
+    case Key::MouseMiddle():
         return "MouseMiddle";
     default:
         return "N/A";

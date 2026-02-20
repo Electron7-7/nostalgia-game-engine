@@ -77,12 +77,12 @@ Error Texture::Import()
 {
     mStatus = FAILED;
     mTextureBuffer = TextureBuffer::Create();
-    VariableRegistry::try_GetResourceData(mUID[], m_pImages[0]);
+    VariableRegistry::try_GetResourceData(mUID(), m_pImages[0]);
 
     for(int i{0}; i < 6; ++i)
     {
-        if(UID::GetReservedType(mUID[]) == UID::ReservedType::Cubemap)
-            { VariableRegistry::try_GetResourceData(mUID[] + i, m_pImages[i]); }
+        if(UID::GetReservedType(mUID()) == UID::ReservedType::Cubemap)
+            { VariableRegistry::try_GetResourceData(mUID() + i, m_pImages[i]); }
 
         if(auto data{m_pImages[i]})
         {
@@ -99,7 +99,7 @@ Error Texture::Import()
             {
                 print_error("STBI failed to load image data for Texture ['{}', {}]",
                     mName,
-                    mUID[]);
+                    mUID());
                 mStatus = ERR_DATA_LOAD;
             }
             else if(mTextureBuffer->Load(image_data, mFormat) == OK)
@@ -109,7 +109,7 @@ Error Texture::Import()
     }
 
     if(!print_error_enum(mStatus))
-        { print_error("Failed to create Texture ['{}', {}]", mName, mUID[]); }
+        { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
     else
     {
         mTextureBuffer->GenerateMipMaps();
@@ -141,7 +141,7 @@ Error Texture::SetBuffer(Shared<TextureBuffer> inBuffer)
     {
         print_warning("Failed to replace the TextureBuffer in Texture ['{}', {}]",
             mName,
-            mUID[]);
+            mUID());
     }
     else
         { mTextureBuffer = inBuffer; }

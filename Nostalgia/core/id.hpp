@@ -11,7 +11,7 @@
 
 #define ID_UINT_OPERATOR(OP) __id_operator(OP, uint)
 #define ID_ID_OPERATOR(OP)   __id_operator(OP, Farg<ID>, .id_)
-#define PID_PID_OPERATOR(OP) __id_operator(OP, Farg<PID>, [])
+#define PID_PID_OPERATOR(OP) __id_operator(OP, Farg<PID>, ())
 
 struct ID
 {
@@ -31,7 +31,7 @@ public:
 
     constexpr explicit operator uint() const { return id_; }
 
-    constexpr uint operator[]() const { return id_;            }
+    constexpr uint operator()() const { return id_;            }
     constexpr bool    invalid() const { return id_ == Invalid; }
     constexpr uint         id() const { return id_;            }
 
@@ -79,7 +79,7 @@ public:
     ID_UINT_OPERATOR(!=)
 
     constexpr bool operator==(Farg<ID> inID) const noexcept
-    { return id_ == inID[]; }
+    { return id_ == inID(); }
 
     constexpr bool operator==(Sarg inName) const noexcept
     { return !name_.compare(inName); }
@@ -102,7 +102,7 @@ template<ID_t T>
     struct std::hash<T>
     {
         size_t operator()(Farg<T> inID) const noexcept
-        { return static_cast<size_t>(inID[]); }
+        { return static_cast<size_t>(inID()); }
     };
 
 using FPID      = const PID&;

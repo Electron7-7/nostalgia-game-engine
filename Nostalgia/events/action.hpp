@@ -24,7 +24,7 @@ public:
             mBitMasks.reserve(sizeof...(inKeyIDs));
             for(FARG(auto) id : {inKeyIDs...})
             {
-                mTrueState |= mBitMasks[id[]] = mBitMaskIter;
+                mTrueState |= mBitMasks[id()] = mBitMaskIter;
                 mBitMaskIter <<= 1;
             }
             if(mBitMaskIter != 0b1) { mBitMaskIter >>= 1; }

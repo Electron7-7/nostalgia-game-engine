@@ -111,7 +111,7 @@ ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 
 Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
 {
-    if(auto found_it{mShaders.find(inID[])}; found_it != mShaders.end())
+    if(auto found_it{mShaders.find(inID())}; found_it != mShaders.end())
         { return found_it->second; }
     return mShaders.at(Shaders::BlinnPhong);
 }

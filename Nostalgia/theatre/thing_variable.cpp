@@ -12,7 +12,7 @@ std::string ThingVariable::get_log() const noexcept
         EnumPrettifier::Prettify(type),
         (thing_uid.invalid())
             ? ""
-            : ", thing_uid: " + std::to_string(thing_uid[]));
+            : ", thing_uid: " + std::to_string(thing_uid()));
 }
 
 std::string ThingVariable::get_parsable_string() const noexcept

@@ -104,8 +104,8 @@ Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
     {
         print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
             inName,
-            mReferences.at(inName)[],
-            inID[]);
+            mReferences.at(inName)(),
+            inID());
         return ERR_ALREADY_EXISTS;
     }
     mReferences[inName] = inID;
@@ -208,11 +208,11 @@ Error VariableRegistry::RegisterResourceData(ID inID,
     {
         for(FAUTO [pid, data] : m_sResourceData)
         {
-            if(pid == inID[] or pid == inName)
+            if(pid == inID() or pid == inName)
                 { return ERR_ALREADY_EXISTS; }
         }
     }
-    m_sResourceData[{inID[], inName}] = inData;
+    m_sResourceData[{inID(), inName}] = inData;
     return OK;
 }
 
@@ -226,7 +226,7 @@ Error VariableRegistry::RemoveResourceData(Sarg inName)
 Error VariableRegistry::RemoveResourceData(ID inID)
 {
     for(FAUTO [pid, data] : m_sResourceData)
-        { if(pid == inID[]) { m_sResourceData.erase(pid); return OK; } }
+        { if(pid == inID()) { m_sResourceData.erase(pid); return OK; } }
     return ERR_NOT_FOUND;
 }
 
@@ -269,23 +269,23 @@ void VariableRegistry::RegisterEngineReferences()
 
 void VariableRegistry::RegisterEngineResourceData()
 {
-    m_sResourceData[{ UID::f_Audiowide[],      "Audiowide"      }] = s_pAudiowide;
-    m_sResourceData[{ UID::f_Verdana[],        "Verdana"        }] = s_pVerdana;
-    m_sResourceData[{ UID::f_DejaVuSans[],     "DejaVuSans"     }] = s_pDejaVuSans;
-    m_sResourceData[{ UID::m_Error[],          "ErrorModel"     }] = s_pError;
-    m_sResourceData[{ UID::m_Cube[],           "DefaultCube"    }] = s_pCube;
-    m_sResourceData[{ UID::m_Quad[],           "DefaultQuad"    }] = s_pQuad;
-    m_sResourceData[{ UID::m_Ramiel[],         "RamielModel"    }] = s_pRamiel;
-    m_sResourceData[{ UID::m_Camera3D[],       "CameraModel"    }] = s_pCamera;
-    m_sResourceData[{ UID::m_DebugAxis[],      "DebugAxis"      }] = s_pDebugAxis;
-    m_sResourceData[{ UID::t_Missing[],        "MissingTexture" }] = s_pMissing;
-    m_sResourceData[{ UID::t_LolBit[],         "LolBitTexture"  }] = s_pLolBit;
-    m_sResourceData[{ UID::t_LightDebug[],     "LightTexture"   }] = s_pLightDebug;
-    m_sResourceData[{ UID::t_COMP04_5[],       "DoomTexture"    }] = s_pCOMP04_5;
-    m_sResourceData[{ UID::t_ShittySkybox[],   "ShittySkybox01" }] = s_pSkyboxXn;
-    m_sResourceData[{ UID::t_ShittySkybox[]+1, "ShittySkybox02" }] = s_pSkyboxXp;
-    m_sResourceData[{ UID::t_ShittySkybox[]+2, "ShittySkybox03" }] = s_pSkyboxYp;
-    m_sResourceData[{ UID::t_ShittySkybox[]+3, "ShittySkybox04" }] = s_pSkyboxYn;
-    m_sResourceData[{ UID::t_ShittySkybox[]+4, "ShittySkybox05" }] = s_pSkyboxZn;
-    m_sResourceData[{ UID::t_ShittySkybox[]+5, "ShittySkybox06" }] = s_pSkyboxZp;
+    m_sResourceData[{ UID::f_Audiowide(),      "Audiowide"      }] = s_pAudiowide;
+    m_sResourceData[{ UID::f_Verdana(),        "Verdana"        }] = s_pVerdana;
+    m_sResourceData[{ UID::f_DejaVuSans(),     "DejaVuSans"     }] = s_pDejaVuSans;
+    m_sResourceData[{ UID::m_Error(),          "ErrorModel"     }] = s_pError;
+    m_sResourceData[{ UID::m_Cube(),           "DefaultCube"    }] = s_pCube;
+    m_sResourceData[{ UID::m_Quad(),           "DefaultQuad"    }] = s_pQuad;
+    m_sResourceData[{ UID::m_Ramiel(),         "RamielModel"    }] = s_pRamiel;
+    m_sResourceData[{ UID::m_Camera3D(),       "CameraModel"    }] = s_pCamera;
+    m_sResourceData[{ UID::m_DebugAxis(),      "DebugAxis"      }] = s_pDebugAxis;
+    m_sResourceData[{ UID::t_Missing(),        "MissingTexture" }] = s_pMissing;
+    m_sResourceData[{ UID::t_LolBit(),         "LolBitTexture"  }] = s_pLolBit;
+    m_sResourceData[{ UID::t_LightDebug(),     "LightTexture"   }] = s_pLightDebug;
+    m_sResourceData[{ UID::t_COMP04_5(),       "DoomTexture"    }] = s_pCOMP04_5;
+    m_sResourceData[{ UID::t_ShittySkybox(),   "ShittySkybox01" }] = s_pSkyboxXn;
+    m_sResourceData[{ UID::t_ShittySkybox()+1, "ShittySkybox02" }] = s_pSkyboxXp;
+    m_sResourceData[{ UID::t_ShittySkybox()+2, "ShittySkybox03" }] = s_pSkyboxYp;
+    m_sResourceData[{ UID::t_ShittySkybox()+3, "ShittySkybox04" }] = s_pSkyboxYn;
+    m_sResourceData[{ UID::t_ShittySkybox()+4, "ShittySkybox05" }] = s_pSkyboxZn;
+    m_sResourceData[{ UID::t_ShittySkybox()+5, "ShittySkybox06" }] = s_pSkyboxZp;
 }
