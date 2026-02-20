@@ -151,6 +151,7 @@ set(ENABLE_INSTALL OFF)
 set(ENABLE_OBJECT_STREAM ON)
 set(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE OFF)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+set(USE_STATIC_MSVC_RUNTIME_LIBRARY ON)
 add_subdirectory(${THIRDPARTY_DIR}/JoltPhysics/Build)
 
 set(EMBEDDED_ASSETS fonts.hpp images.hpp models.hpp shaders.hpp)
@@ -168,13 +169,13 @@ add_dependencies(Nostalgia EmbedAssets)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS})
-target_link_libraries(Nostalgia PUBLIC
+target_link_libraries(Nostalgia PRIVATE
     freetype_object
     zlib_object
     bz2_ObjLib
-    brotlicommon_object
-    brotlidec_object
-    brotlienc_object
+    brotlicommon-object
+    brotlidec-object
+    brotlienc-object
     png_object
     glfw_object
     Jolt_object)
@@ -227,10 +228,19 @@ else()
     target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
 endif()
 target_include_directories(NostalgiaGoggles
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-    PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty)
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+    PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics)
 target_link_directories(NostalgiaGoggles PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_LIBRARIES_DIR})
-target_link_libraries(NostalgiaGoggles PUBLIC getargs vulkan ${EDITOR_ENGINE_LIBRARY})
+target_link_libraries(NostalgiaGoggles PUBLIC ${EDITOR_ENGINE_LIBRARY} getargs)
+
+if(MSVC)
+    set_property(TARGET Nostalgia PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET NostalgiaGoggles PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET Jolt PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL Debug)
     if(NOT IS_WINDOWS AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
