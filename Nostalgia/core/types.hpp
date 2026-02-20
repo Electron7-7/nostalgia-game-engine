@@ -3,12 +3,11 @@
 
 #include <sys/types.h>
 
-// Fixing issues with MinGW types
-#if defined(__MINGW32__) || defined(__MINGW64__)
+#ifdef WIN32
     using uint   = unsigned int;
     using ushort = unsigned short;
     using uchar  = unsigned char;
     using u_char = uchar;
-#endif // MINGW
+#endif // WIN32
 
 #endif // NOSTALGIA_TYPES_H

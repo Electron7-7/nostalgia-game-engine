@@ -1,11 +1,6 @@
 #ifndef NOSTALGIA_PRE_COMPILED_HEADER_H
 #define NOSTALGIA_PRE_COMPILED_HEADER_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   define ENABLE_GCC_PCH
-#   undef NOSTALGIA_GCC_PCH
-#endif // NOSTALGIA_GCC_PCH
-
 #define NOSTALGIA_VERSION_MAJOR "0"
 #define NOSTALGIA_VERSION_MINOR "1"
 #define NOSTALGIA_VERSION_PATCH "0"
@@ -19,6 +14,7 @@
 #include <string>           // IWYU pragma: keep
 #include <vector>           // IWYU pragma: keep
 #include <memory>           // IWYU pragma: keep
+#include <array>            // IWYU pragma: keep
 #include <mutex>            // IWYU pragma: keep
 #include <cstdlib>          // IWYU pragma: keep
 #include <format>           // IWYU pragma: keep
@@ -70,10 +66,5 @@
 #include <Nostalgia/theatre/things/thing.hpp>                 // IWYU pragma: keep
 #include <Nostalgia/theatre/things/resources/resource.hpp>    // IWYU pragma: keep
 #include <Nostalgia/theatre/things/thinkers/thinker.hpp>      // IWYU pragma: keep
-
-#ifdef ENABLE_GCC_PCH
-#   define NOSTALGIA_GCC_PCH 1
-#   undef ENABLE_GCC_PCH
-#endif // ENABLE_GCC_PCH
 
 #endif // NOSTALGIA_PRE_COMPILED_HEADER_H

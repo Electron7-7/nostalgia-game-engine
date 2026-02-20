@@ -1,42 +1,41 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-
 // Style
 namespace Sty
 {
-    constexpr std::string Reset = "\x1b[0m"; // Use this to reset everything back to normal
-    constexpr std::string Bold  = "\x1b[1m";
-    constexpr std::string Dim   = "\x1b[2m";
-    constexpr std::string Norm  = "\x1b[22m";
+    std::string Reset = "\x1b[0m"; // Use this to reset everything back to normal
+    std::string Bold  = "\x1b[1m";
+    std::string Dim   = "\x1b[2m";
+    std::string Norm  = "\x1b[22m";
 }
 
 // Foreground
 namespace Fg
 {
-    constexpr std::string Black   = "\x1b[30m";
-    constexpr std::string Red     = "\x1b[31m";
-    constexpr std::string Green   = "\x1b[32m";
-    constexpr std::string Yellow  = "\x1b[33m";
-    constexpr std::string Blue    = "\x1b[34m";
-    constexpr std::string Magenta = "\x1b[35m";
-    constexpr std::string Cyan    = "\x1b[36m";
-    constexpr std::string White   = "\x1b[37m";
-    constexpr std::string Default = "\x1b[39m";
+    std::string Black   = "\x1b[30m";
+    std::string Red     = "\x1b[31m";
+    std::string Green   = "\x1b[32m";
+    std::string Yellow  = "\x1b[33m";
+    std::string Blue    = "\x1b[34m";
+    std::string Magenta = "\x1b[35m";
+    std::string Cyan    = "\x1b[36m";
+    std::string White   = "\x1b[37m";
+    std::string Default = "\x1b[39m";
 }
 
 // Background
 namespace Bg
 {
-    constexpr std::string Black   = "\x1b[40m";
-    constexpr std::string Red     = "\x1b[41m";
-    constexpr std::string Green   = "\x1b[42m";
-    constexpr std::string Yellow  = "\x1b[43m";
-    constexpr std::string Blue    = "\x1b[44m";
-    constexpr std::string Magenta = "\x1b[45m";
-    constexpr std::string Cyan    = "\x1b[46m";
-    constexpr std::string White   = "\x1b[47m";
-    constexpr std::string Default = "\x1b[49m";
+    std::string Black   = "\x1b[40m";
+    std::string Red     = "\x1b[41m";
+    std::string Green   = "\x1b[42m";
+    std::string Yellow  = "\x1b[43m";
+    std::string Blue    = "\x1b[44m";
+    std::string Magenta = "\x1b[45m";
+    std::string Cyan    = "\x1b[46m";
+    std::string White   = "\x1b[47m";
+    std::string Default = "\x1b[49m";
 }
 
 #endif // COLORS_H

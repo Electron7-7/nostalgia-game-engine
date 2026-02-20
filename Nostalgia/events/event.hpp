@@ -6,7 +6,7 @@
 
 #define APP_EVENT(NAME) inline static constinit const std::string NAME{#NAME};
 #define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }
-#define EVENT_LOG constexpr std::string DebugLog() const noexcept
+#define EVENT_LOG std::string DebugLog() const noexcept
 
 /**
  * `Highest, Lowest`: What they say on the tins.
@@ -34,7 +34,7 @@ public:
 
     static constexpr EventPriority Priority() noexcept { return EventPriority::Lowest; }
     virtual constexpr EventType Type() const noexcept = 0;
-    virtual constexpr std::string DebugLog() const noexcept { return "[NO LOG]"; }
+    virtual std::string DebugLog() const noexcept { return "[NO LOG]"; }
 };
 
 template<EventPriority _Priority = EventPriority::Lowest>

@@ -7,8 +7,8 @@
 #include "thirdparty/frozen/string.h"
 
 static constexpr char        cCommentDelimiter{'/'};
-static constexpr std::string cCommentDelimiterSingleLine{"//"};
-static constexpr std::string cCommentDelimiterMultiLine{"///"};
+static constexpr const char* cCommentDelimiterSingleLine{"//"};
+static constexpr const char* cCommentDelimiterMultiLine{"///"};
 
 static constexpr frozen::set<char, 2>
     cStringDelimiters{'\'', '"'};

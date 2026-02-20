@@ -16,17 +16,17 @@
     #include <cxxabi.h>
     // https://stackoverflow.com/a/12877598
     template<typename T>
-        static constexpr std::string s_DemangleTypeName()
+        static constexpr const char* s_DemangleTypeName()
         {
             int status;
-            auto mangled_name{typeid(T).name()};
+            const char* mangled_name{typeid(T).name()};
             std::unique_ptr<char[], void (*)(void*)> result(
                 abi::__cxa_demangle(mangled_name, 0, 0, &status), std::free);
-            return result.get() ? std::string(result.get()) : mangled_name;
+            return result.get() ? result.get() : mangled_name;
         }
 #else
     template<typename T>
-        static constexpr std::string s_DemangleTypeName()
+        static constexpr const char* s_DemangleTypeName()
             { return typeid(T).name(); }
 #endif // WIN32
 
@@ -96,7 +96,7 @@ template<ushort Length, class T, VectorMembers M = VectorMembers::None>
                 static_cast<float>(array_[3])};
         }
 
-        constexpr std::string type_log() const noexcept
+        std::string type_log() const noexcept
         {
             std::string vector_member_type{};
             switch(M)
