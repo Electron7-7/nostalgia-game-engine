@@ -15,3 +15,4 @@ Windows_Release/
 .cache/
 compile_commands.json
 imgui.ini
+.vs/
