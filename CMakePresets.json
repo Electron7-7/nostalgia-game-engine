@@ -8,6 +8,7 @@
     "configurePresets": [
         {
             "name": "linux-static-debug",
+            "binaryDir": "${sourceDir}/Linux_Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -16,6 +17,7 @@
         },
         {
             "name": "linux-dynamic-debug",
+            "binaryDir": "${sourceDir}/Linux_Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -24,6 +26,7 @@
         },
         {
             "name": "linux-static-release",
+            "binaryDir": "${sourceDir}/Linux_Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -32,6 +35,7 @@
         },
         {
             "name": "linux-dynamic-release",
+            "binaryDir": "${sourceDir}/Linux_Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -40,7 +44,8 @@
         },
         {
             "name": "windows-static-debug",
-            "generator": "MinGW Makefiles",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/Windows_Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -49,7 +54,8 @@
         },
         {
             "name": "windows-dynamic-debug",
-            "generator": "MinGW Makefiles",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/Windows_Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -58,7 +64,8 @@
         },
         {
             "name": "windows-static-release",
-            "generator": "MinGW Makefiles",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/Windows_Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -67,7 +74,8 @@
         },
         {
             "name": "windows-dynamic-release",
-            "generator": "MinGW Makefiles",
+            "generator": "Visual Studio 18 2026",
+            "binaryDir": "${sourceDir}/Windows_Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
