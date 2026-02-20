@@ -4,7 +4,7 @@
 #include <Nostalgia/fwd/events.hpp>
 #include <Nostalgia/events/bindings.hpp>
 
-#define APP_EVENT(NAME) inline static constinit const std::string NAME{#NAME};
+#define APP_EVENT(NAME) inline static constinit const char* NAME{#NAME};
 #define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }
 #define EVENT_LOG std::string DebugLog() const noexcept
 

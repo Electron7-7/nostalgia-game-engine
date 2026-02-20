@@ -94,9 +94,8 @@ template<typename T>
 template<typename T>
     concept ID_Adjacent = ID_t<T> || std::constructible_from<ID,T>;
 
-template<ID_t T>
-    constexpr bool operator==(uint lhs, Farg<T> rhs) noexcept
-    { return rhs == lhs; }
+constexpr bool operator==(unsigned int lhs, ID rhs) noexcept
+{ return rhs == lhs; }
 
 template<ID_t T>
     struct std::hash<T>

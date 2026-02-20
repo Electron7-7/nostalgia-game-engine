@@ -7,17 +7,17 @@
 
 // Math Concepts
 template<typename T>
-    concept NumberOrBool = std::integral<T> or std::floating_point<T>;
+    concept NumberOrBool = std::integral<T> || std::floating_point<T>;
 
 template<typename T>
-    concept Number = NumberOrBool<T> and !(std::same_as<T, bool>);
+    concept Number = NumberOrBool<T> && !(std::same_as<T, bool>);
 
 // Common Concepts
 template<typename From, typename To>
     concept can_become = std::derived_from<From,To> || std::is_convertible_v<From,To>;
 
 template<typename T>
-    concept IsEnum = std::is_enum_v<T> or std::is_scoped_enum_v<T>;
+    concept IsEnum = std::is_enum_v<T> || std::is_scoped_enum_v<T>;
 
 // String Concepts
 template<typename T>

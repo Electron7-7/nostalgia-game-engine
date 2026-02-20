@@ -5,7 +5,7 @@ using ansi_code_t = std::vector<ansi_t>;
 using ansi_sequence_t = std::vector<ansi_code_t>;
 
 template<typename T>
-    concept ansi_t_strict = std::same_as<T, ansi_t> and not std::same_as<T, bool>;
+    concept ansi_t_strict = std::same_as<T, ansi_t> && !std::same_as<T, bool>;
 
 struct ANSI_Sequence
 {

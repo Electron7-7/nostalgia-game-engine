@@ -40,7 +40,7 @@ enum class VectorMembers : ushort
 };
 
 template<ushort Length, class T, VectorMembers M = VectorMembers::None>
-        requires (Length > 1) and std::is_arithmetic_v<T>
+        requires (Length > 1) && std::is_arithmetic_v<T>
     struct vector : __vector_base
     {
     private:
