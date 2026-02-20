@@ -12,6 +12,7 @@ else()
 endif()
 
 set(NOSTALGIA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia")
+
 set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
 set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/backends/opengl/gl_graphics_context.cpp
@@ -147,13 +148,23 @@ set(JPH_USE_DX12 OFF)
 set(JPH_USE_DXC OFF)
 set(JPH_USE_CPU_COMPUTE OFF)
 set(ENABLE_INSTALL OFF)
-set(ENABLE_OBJECT_STREAM OFF)
+set(ENABLE_OBJECT_STREAM ON)
 set(DEBUG_RENDERER_IN_DEBUG_AND_RELEASE OFF)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 add_subdirectory(${THIRDPARTY_DIR}/JoltPhysics/Build)
 
+set(EMBEDDED_ASSETS fonts.hpp images.hpp models.hpp shaders.hpp)
+
+add_custom_target(EmbedAssets
+    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
+
 add_library(Nostalgia ${LIBRARY_VERSION} ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES})
-target_compile_features(Nostalgia PUBLIC cxx_std_26)
+if(IS_WINDOWS)
+    target_compile_features(Nostalgia PUBLIC cxx_std_23)
+else()
+    target_compile_features(Nostalgia PUBLIC cxx_std_26)
+endif()
+add_dependencies(Nostalgia EmbedAssets)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS})
@@ -176,7 +187,8 @@ target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
 target_include_directories(Nostalgia PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     ${NOSTALGIA_ROOT}
     ${NOSTALGIA_ROOT}/thirdparty
     ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics
@@ -209,7 +221,11 @@ else()
 endif()
 
 add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
-target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
+if(IS_WINDOWS)
+    target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
+else()
+    target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
+endif()
 target_include_directories(NostalgiaGoggles
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
     PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty)
