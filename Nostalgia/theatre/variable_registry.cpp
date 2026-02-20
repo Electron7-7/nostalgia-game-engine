@@ -5,9 +5,9 @@
 #include "rendering/texture_buffer.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
-#include "embedded/models.hpp"
-#include "embedded/images.hpp"
-#include "embedded/fonts.hpp"
+#include "models.hpp"
+#include "images.hpp"
+#include "fonts.hpp"
 
 static auto s_pAudiowide  {MakeShared<FileData>(Fonts::Audiowide,   std::size(Fonts::Audiowide),   FileType::font_TTF )};
 static auto s_pVerdana    {MakeShared<FileData>(Fonts::Verdana,     std::size(Fonts::Verdana),     FileType::font_TTF )};
