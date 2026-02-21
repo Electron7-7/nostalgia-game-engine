@@ -11,6 +11,13 @@ Linux_Release/
 Windows_Debug/
 Windows_Release/
 
+# thirdparty
+Nostalgia/thirdparty/libpng/PNGConfigVersion.cmake
+Nostalgia/thirdparty/libpng/scripts/cmake/gen*.cmake
+Nostalgia/thirdparty/libpng/tests/
+Nostalgia/thirdparty/bzip2/bz_version.h
+Nostalgia/thirdparty/zlib/zconf.h.included
+
 # misc (clangd, imgui, etc)
 .cache/
 compile_commands.json
