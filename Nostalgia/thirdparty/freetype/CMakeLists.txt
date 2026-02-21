@@ -1,159 +1,7 @@
-# CMakeLists.txt
-#
-# Copyright (C) 2013-2025 by
-# David Turner, Robert Wilhelm, and Werner Lemberg.
-#
-# Written originally by John Cary <cary@txcorp.com>
-#
-# This file is part of the FreeType project, and may only be used, modified,
-# and distributed under the terms of the FreeType project license,
-# LICENSE.TXT.  By continuing to use, modify, or distribute this file you
-# indicate that you have read the license and understand and accept it
-# fully.
-#
-#
-# The following will (1) create a build directory, and (2) change into it and
-# call cmake to configure the build with default parameters as a static
-# library.  See
-#
-#   https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
-#
-# for information about debug or release builds, for example
-#
-#   cmake -B build -D CMAKE_BUILD_TYPE=Release
-#
-#
-# For a dynamic library, use
-#
-#   cmake -B build -D BUILD_SHARED_LIBS=true -D CMAKE_BUILD_TYPE=Release
-#
-# For a framework on OS X, use
-#
-#   cmake -E chdir build cmake -G Xcode -D BUILD_FRAMEWORK:BOOL=true ..
-#
-# For an iOS static library, use
-#
-#   cmake -E chdir build cmake -G Xcode -D IOS_PLATFORM=OS ..
-#
-# or
-#
-#   cmake -E chdir build cmake -G Xcode -D IOS_PLATFORM=SIMULATOR ..
-#
-# or
-#
-#   cmake -E chdir build cmake -G Xcode -D IOS_PLATFORM=SIMULATOR64 ..
-#
-#
-# Finally, build the project with
-#
-#   cmake --build build
-#
-# Install it with
-#
-#   (sudo) cmake --build build --target install
-#
-# A binary distribution can be made with
-#
-#   cmake --build build --config Release --target package
-#
-# Please refer to the cmake manual for further options, in particular, how
-# to modify compilation and linking parameters.
-#
-# Some notes.
-#
-# - Say `cmake -LAH` to see all configuration options.
-#
-# - `cmake' creates configuration files in
-#
-#     <build-directory>/include/freetype/config
-#
-#   which should be further modified if necessary.
-#
-# - You can use `cmake' directly on a freshly cloned FreeType git
-#   repository.
-#
-# - `CMakeLists.txt' is provided as-is since it is normally not used by the
-#   developer team.
-#
-# - Set the `FT_REQUIRE_ZLIB', `FT_REQUIRE_BZIP2', `FT_REQUIRE_PNG',
-#   `FT_REQUIRE_HARFBUZZ', and `FT_REQUIRE_BROTLI' CMake variables to `ON'
-#   or `TRUE' to force using a dependency.  Leave a variable undefined
-#   (which is the default) to use the dependency only if it is available.
-#   Example:
-#
-#     cmake -B build -D FT_REQUIRE_ZLIB=TRUE \
-#                    -D FT_REQUIRE_BZIP2=TRUE \
-#                    -D FT_REQUIRE_PNG=TRUE \
-#                    -D FT_REQUIRE_HARFBUZZ=TRUE \
-#                    -D FT_REQUIRE_BROTLI=TRUE [...]
-#
-# - Set the `FT_DYNAMIC_HARFBUZZ' CMake variable to `ON' or `TRUE' to load
-#   the HarfBuzz library dynamically at runtime, if possible.  Example:
-#
-#     cmake -B build -D FT_DYNAMIC_HARFBUZZ=TRUE [...]
-#
-# - Set `FT_DISABLE_XXX=TRUE' to disable a dependency completely (where
-#   `XXX' is a CMake package name like `BZip2').  Example for disabling all
-#   dependencies:
-#
-#     cmake -B build -D FT_DISABLE_ZLIB=TRUE \
-#                    -D FT_DISABLE_BZIP2=TRUE \
-#                    -D FT_DISABLE_PNG=TRUE \
-#                    -D FT_DISABLE_HARFBUZZ=TRUE \
-#                    -D FT_DISABLE_BROTLI=TRUE [...]
-#
-# - NOTE: If a package is set as DISABLED, it cannot be set as REQUIRED
-#   without unsetting the DISABLED value first.  For example, if
-#   `FT_DISABLE_HARFBUZZ=TRUE' has been set (Cache is present), you need to
-#   call `FT_DISABLE_HARFBUZZ=FALSE' before calling
-#   `FT_REQUIRE_HARFBUZZ=TRUE'.
-#
-# - Installation of FreeType can be controlled with the CMake variables
-#   `SKIP_INSTALL_HEADERS', `SKIP_INSTALL_LIBRARIES', and `SKIP_INSTALL_ALL'
-#   (this is compatible with the same CMake variables in zlib's CMake
-#   support).
-
-# CMake 3.12 provides for IMPORTED targets for common libraries like zlib, libpng and bzip2
 cmake_minimum_required(VERSION 3.12...3.31.0)
 
 include(CheckIncludeFile)
 include(CMakeDependentOption)
-
-# CMAKE_TOOLCHAIN_FILE must be set before `project' is called, which
-# configures the base build environment and references the toolchain file
-if (APPLE)
-  if (DEFINED IOS_PLATFORM)
-    if (NOT "${IOS_PLATFORM}" STREQUAL "OS"
-        AND NOT "${IOS_PLATFORM}" STREQUAL "SIMULATOR"
-        AND NOT "${IOS_PLATFORM}" STREQUAL "SIMULATOR64")
-      message(FATAL_ERROR
-        "IOS_PLATFORM must be set to either OS, SIMULATOR, or SIMULATOR64")
-    endif ()
-    if (NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")
-      message(AUTHOR_WARNING
-        "You should use Xcode generator with IOS_PLATFORM enabled to get Universal builds.")
-    endif ()
-    if (BUILD_SHARED_LIBS)
-      message(FATAL_ERROR
-        "BUILD_SHARED_LIBS can not be on with IOS_PLATFORM enabled")
-    endif ()
-    if (BUILD_FRAMEWORK)
-      message(FATAL_ERROR
-        "BUILD_FRAMEWORK can not be on with IOS_PLATFORM enabled")
-    endif ()
-
-    # iOS only uses static libraries
-    set(BUILD_SHARED_LIBS OFF)
-
-    set(CMAKE_TOOLCHAIN_FILE
-      ${CMAKE_SOURCE_DIR}/builds/cmake/iOS.cmake)
-  endif ()
-else ()
-  if (DEFINED IOS_PLATFORM)
-    message(FATAL_ERROR "IOS_PLATFORM is not supported on this platform")
-  endif ()
-endif ()
-
 
 project(freetype C)
 
@@ -234,7 +82,6 @@ endif ()
 # Add local cmake modules
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/builds/cmake)
 
-
 if (BUILD_FRAMEWORK)
   if (NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")
     message(FATAL_ERROR
@@ -243,7 +90,6 @@ if (BUILD_FRAMEWORK)
   set(CMAKE_OSX_ARCHITECTURES "$(ARCHS_STANDARD)")
   set(BUILD_SHARED_LIBS ON)
 endif ()
-
 
 # Find dependencies
 include(FindPkgConfig)
@@ -667,52 +513,4 @@ if (NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     ${PROJECT_BINARY_DIR}/freetype-config-version.cmake
     VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
     COMPATIBILITY SameMajorVersion)
-
-  # install(
-  #   TARGETS freetype freetype-interface
-  #     EXPORT freetype-targets
-  #     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  #     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  #     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  #     FRAMEWORK DESTINATION Library/Frameworks
-  #     COMPONENT libraries)
-  # install(
-  #   EXPORT freetype-targets
-  #     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/freetype
-  #     FILE freetype-config.cmake
-  #     COMPONENT headers)
-  # install(
-  #   FILES ${PROJECT_BINARY_DIR}/freetype-config-version.cmake
-  #   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/freetype
-  #   COMPONENT headers)
 endif ()
-
-
-# Packaging
-set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The FreeType font rendering library.")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.TXT")
-
-set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
-set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
-set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
-set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-
-if (WIN32)
-  set(CPACK_GENERATOR ZIP)
-else ()
-  set(CPACK_GENERATOR TGZ)
-endif ()
-
-set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Libraries")
-set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C/C++ Headers")
-set(CPACK_COMPONENT_LIBRARIES_DESCRIPTION
-  "Library used to build programs which use FreeType")
-set(CPACK_COMPONENT_HEADERS_DESCRIPTION
-  "C/C++ header files for use with FreeType")
-set(CPACK_COMPONENT_HEADERS_DEPENDS libraries)
-set(CPACK_COMPONENT_LIBRARIES_GROUP "Development")
-set(CPACK_COMPONENT_HEADERS_GROUP "Development")
-
-include(CPack)
