@@ -12,7 +12,7 @@
     #include <cxxabi.h>
     // https://stackoverflow.com/a/12877598
     template<typename T>
-        static constexpr const char* s_DemangleTypeName()
+        static std::string s_DemangleTypeName()
         {
             int status;
             const char* mangled_name{typeid(T).name()};
@@ -22,7 +22,7 @@
         }
 #else
     template<typename T>
-        static constexpr const char* s_DemangleTypeName()
+        static std::string s_DemangleTypeName()
             { return typeid(T).name(); }
 #endif // WIN32
 
