@@ -1,10 +1,10 @@
 #include "imgui_debugger.hpp"
 #include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_stdlib.h"
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/console/console.hpp>
-#include <Nostalgia/thirdparty/DearImGui/imgui.h>
-#include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/managers/event_manager.hpp>
 #include <Nostalgia/managers/render_manager.hpp>

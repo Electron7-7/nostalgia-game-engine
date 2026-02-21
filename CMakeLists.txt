@@ -23,7 +23,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/backends/opengl/gl_renderer_api.cpp
     ${NOSTALGIA_ROOT}/backends/opengl/gl_frame_buffer.cpp
     ${NOSTALGIA_ROOT}/backends/glfw/glfw_window.cpp
-    ${NOSTALGIA_ROOT}/backends/imgui/imgui_implementor.cpp
+    # ${NOSTALGIA_ROOT}/backends/imgui/imgui_implementor.cpp
     ${NOSTALGIA_ROOT}/managers/event_manager.cpp
     ${NOSTALGIA_ROOT}/managers/physics_manager.cpp
     ${NOSTALGIA_ROOT}/managers/input_manager.cpp
@@ -80,15 +80,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/filesystem/file_data.cpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.cpp
     ${NOSTALGIA_ROOT}/physics/engine.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_impl_opengl3.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_widgets.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_stdlib.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_tables.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_impl_glfw.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_demo.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_freetype.cpp
-    ${NOSTALGIA_ROOT}/thirdparty/DearImGui/imgui_draw.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glm/detail/glm.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glad/glad.c
     ${NOSTALGIA_ROOT}/rendering/texture_buffer.cpp
@@ -210,8 +201,18 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/app/nostalgia_goggles.cpp
     ${EDITOR_ROOT}/system/dedicated_main.cpp
     ${EDITOR_ROOT}/tools/stopwatch_log.cpp
+    ${EDITOR_ROOT}/gui/imgui_implementor.cpp
     ${EDITOR_ROOT}/gui/imgui_debugger.cpp
-    ${EDITOR_ROOT}/gui/imgui_editor.cpp)
+    ${EDITOR_ROOT}/gui/imgui_editor.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_impl_opengl3.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_widgets.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_stdlib.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_tables.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_impl_glfw.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_demo.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_freetype.cpp
+    ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_draw.cpp)
 
 if(BUILD_SHARED_LIBS)
     set(EDITOR_ENGINE_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}Nostalgia${CMAKE_SHARED_LIBRARY_SUFFIX})
@@ -232,7 +233,7 @@ else()
     target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
 endif()
 target_include_directories(NostalgiaGoggles
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
     PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics)
 target_link_directories(NostalgiaGoggles PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_LIBRARIES_DIR})
 target_link_libraries(NostalgiaGoggles PUBLIC ${EDITOR_ENGINE_LIBRARY} getargs)

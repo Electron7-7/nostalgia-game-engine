@@ -1,6 +1,7 @@
 #ifndef IMGUI_IMPLEMENTOR_H
 #define IMGUI_IMPLEMENTOR_H
 
+#include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 
 class ImGui_Implementor : public UI_Implementor

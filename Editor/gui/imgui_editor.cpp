@@ -1,5 +1,7 @@
 #include "imgui_editor.hpp"
 #include "things/player.hpp"
+#include "thirdparty/DearImGui/imgui.h"
+#include "thirdparty/DearImGui/imgui_stdlib.h"
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/events/event.hpp>
@@ -12,8 +14,6 @@
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/theatre/things/thinkers/viewport.hpp>
 #include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/thirdparty/DearImGui/imgui.h>
-#include <Nostalgia/thirdparty/DearImGui/imgui_stdlib.h>
 
 using namespace ImGui;
 
