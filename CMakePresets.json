@@ -46,6 +46,10 @@
             "name": "windows-static-debug",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Debug",
+            "environment": {
+                "CC": "clang-cl",
+                "CXX": "clang-cl"
+            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -56,6 +60,10 @@
             "name": "windows-dynamic-debug",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Debug",
+            "environment": {
+                "CC": "clang-cl",
+                "CXX": "clang-cl"
+            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -66,6 +74,10 @@
             "name": "windows-static-release",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Release",
+            "environment": {
+                "CC": "clang-cl",
+                "CXX": "clang-cl"
+            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -76,6 +88,10 @@
             "name": "windows-dynamic-release",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Release",
+            "environment": {
+                "CC": "clang-cl",
+                "CXX": "clang-cl"
+            },
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
