@@ -1,10 +1,6 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 struct Monitor
 {
     MAKE_STRUCT_ARG(

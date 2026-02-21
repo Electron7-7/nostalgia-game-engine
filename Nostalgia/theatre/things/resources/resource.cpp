@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 using namespace TheatreFile;
 
 void Resource::SetVariables(Farg<ThingData> inData)

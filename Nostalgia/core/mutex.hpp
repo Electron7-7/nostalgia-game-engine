@@ -1,10 +1,6 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 using Mutex  = std::mutex;
 using RMutex = std::recursive_mutex;
 template<typename T>

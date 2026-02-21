@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 // uint ID::Generate() -> Defined in 'uid.cpp' so it can use that file's static random number generator
 
 PID::PID() noexcept:

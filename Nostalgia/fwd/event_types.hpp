@@ -1,10 +1,6 @@
 #ifndef EVENT_TYPES_FWD_H
 #define EVENT_TYPES_FWD_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 enum class EventPriority : uint;
 enum class EventType : uint;
 class IEvent;

@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 MessageLabel ErrorLabel{"[ERROR]",
     ANSI_Sequence{ANSI::begin,
         ANSI::bold_background,

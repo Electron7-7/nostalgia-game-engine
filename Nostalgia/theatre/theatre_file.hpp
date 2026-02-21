@@ -1,10 +1,6 @@
 #ifndef THEATRE_FILE_H
 #define THEATRE_FILE_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 namespace TheatreFile
 {
     extern bool gDebugPrintLexerLogs,

@@ -1,10 +1,6 @@
 #ifndef THEATRE_VARIABLE_REGISTRY_H
 #define THEATRE_VARIABLE_REGISTRY_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 class VariableRegistry
 {
 public:

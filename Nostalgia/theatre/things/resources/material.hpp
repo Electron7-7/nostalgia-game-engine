@@ -1,10 +1,6 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 class Material : public Resource
 {
 public:

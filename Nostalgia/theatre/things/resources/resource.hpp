@@ -1,10 +1,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 // Similar to either Godot's `Resource` or `RefCounted` (I haven't decided yet)
 class Resource : public Thing
 {

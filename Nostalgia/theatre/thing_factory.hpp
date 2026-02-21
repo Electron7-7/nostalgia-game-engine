@@ -1,10 +1,6 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 typedef Shared<Thing> (*pThingMakerTemplate_t)();
 
 // This is a class instead of a namespace because fuck typing anything

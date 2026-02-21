@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 #include "imgui_implementor.hpp"
 #include "application/window.hpp"
 #include "application/application.hpp"

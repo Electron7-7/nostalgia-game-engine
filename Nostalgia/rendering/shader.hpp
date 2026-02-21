@@ -1,10 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 #pragma message("TODO: remove/move namespace 'Shaders'")
 namespace Shaders
 {

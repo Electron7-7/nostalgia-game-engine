@@ -1,10 +1,6 @@
 #ifndef THING_H
 #define THING_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 /// Forward Declaration
 class Theatre;
 /// Forward Declaration

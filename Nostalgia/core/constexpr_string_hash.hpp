@@ -1,10 +1,6 @@
 #ifndef STRING_HASH_H
 #define STRING_HASH_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 // https://stackoverflow.com/a/23684632
 template<class>
     struct ConstexprHasher;

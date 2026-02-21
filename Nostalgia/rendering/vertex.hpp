@@ -1,10 +1,6 @@
 #ifndef VERTEX_H
 #define VERTEX_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 struct Vertex
 {
 public:

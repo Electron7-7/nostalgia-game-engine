@@ -1,10 +1,6 @@
 #ifndef THING_DATA_H
 #define THING_DATA_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 #define ASSERT_THING_VARIABLE(ThingVarName, InVarNames, ReturnOnFail...) \
     Farg<ThingVariable> ThingVarName{_get_variable({inNames...})}; \
     if(!ThingVarName) { return ReturnOnFail; }

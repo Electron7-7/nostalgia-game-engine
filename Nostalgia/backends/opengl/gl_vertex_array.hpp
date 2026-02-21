@@ -1,10 +1,6 @@
 #ifndef GL_VERTEX_ARRAY_H
 #define GL_VERTEX_ARRAY_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 #include <Nostalgia/rendering/vertex_array.hpp>
 
 class OpenGLVertexArray : public VertexArray

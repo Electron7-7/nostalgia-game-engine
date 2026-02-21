@@ -1,10 +1,6 @@
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 namespace FileSystem
 {
     std::string GetProgramDirectory();

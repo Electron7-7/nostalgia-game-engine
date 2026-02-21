@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 using namespace TheatreFile;
 
 std::string ThingVariable::get_log() const noexcept

@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 std::uniform_int_distribution<uint> UID::m_sIdDistribution{UID::front, UID::back};
 
 static std::random_device sRandomSeed{};

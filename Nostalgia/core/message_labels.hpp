@@ -1,10 +1,6 @@
 #ifndef MESSAGE_LABELS_H
 #define MESSAGE_LABELS_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 struct MessageLabel
 {
 public:

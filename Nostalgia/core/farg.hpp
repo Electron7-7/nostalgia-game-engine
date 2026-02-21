@@ -1,10 +1,6 @@
 #ifndef FARG_H
 #define FARG_H
 
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 #define FARG(T) const T&
 #define FAUTO FARG(auto)
 

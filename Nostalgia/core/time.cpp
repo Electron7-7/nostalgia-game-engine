@@ -1,7 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
-
 static const std::chrono::time_point cProgramStartSteady = std::chrono::steady_clock::now();
 static const std::chrono::time_point cProgramStartSystem = std::chrono::system_clock::now();
 static constexpr const char* cTimeFormat = "{:%X}";
