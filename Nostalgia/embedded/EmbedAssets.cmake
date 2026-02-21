@@ -22,7 +22,7 @@ function(create_resources dir output header_guard namespace)
             file(APPEND ${output} "\n\tconstinit const uchar ${filename}[]{\n\t\t#embed \"${dir}/${file_name}\"\n\t};\n")
         endif()
     endforeach()
-    file(APPEND ${output} "}\n\n#pragma clang diagnostic pop\n\n#endif // ${header_guard}\n")
+    file(APPEND ${output} "}\n\n#endif // ${header_guard}\n")
 endfunction()
 
 function(create_shaders dir output)
