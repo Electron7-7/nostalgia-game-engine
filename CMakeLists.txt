@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30.0)
 project(Nostalgia
-    VERSION 0.1.0
+    VERSION 0.1.1
     LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia" OFF)
