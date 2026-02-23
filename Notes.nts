@@ -1216,3 +1216,6 @@ I finally have a working Linux build using CMake! I'm gonna commit all this stuf
 
 [02/20/26]
 After a few days of soul-grinding work, I have a cmake build environment that POTENTIALLY builds a working library for both windows and linux. It 100% does for Linux, and it spat out an executable on Windows, but it crashed after not being able to make a window (which might be due to my virtual machine, so I'll have to test it on my PC). I'm calling that a win for now and will be merging this branch either as soon as I guarantee a working linux build one final time or I guarantee a working windows build on my PC. Either way, holy shit was this annoying as FUCK to get working properly on Windows; the cmake build works flawlessly on Linux after half a day of work, but Windows? That took the rest of the 4 days.
+
+[02/23/26]
+The Windows build doesn't work on my PC yet, but since the VNC server isn't working I'll just work some more on the engine/app today.
