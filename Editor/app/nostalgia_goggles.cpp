@@ -3,7 +3,6 @@
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
 #include "things/player.hpp"
-#include "things/types.hpp"
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/events/action.hpp>
@@ -49,7 +48,7 @@ int NostalgiaGoggles::Main()
 
     IManager::InitAllManagers();
 
-    ThingFactory::AddThing(&sEditorPlayer3DMaker, TypeIDs::EditorPlayer3D.c_name(), ThingType::NostalgiaPlayer3D);
+    ThingFactory::AddThing(&sEditorPlayer3DMaker, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
