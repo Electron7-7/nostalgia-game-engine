@@ -295,7 +295,7 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
 
 void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
-    if(!inVAO) { return; }
+    if(!inVAO or !inVAO->GetIndexBuffer()) { return; }
     inVAO->Bind();
     inVAO->GetIndexBuffer()->Bind();
     glDrawElements(GL_TRIANGLES,
