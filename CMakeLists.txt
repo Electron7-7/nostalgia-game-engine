@@ -165,6 +165,7 @@ if(NOSTALGIA_BUILD_EDITOR)
     endif()
 
     if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        target_compile_definitions(NostalgiaGoggles PUBLIC NOSTALGIA_DEBUGGING)
         if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
             target_compile_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
             target_link_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
