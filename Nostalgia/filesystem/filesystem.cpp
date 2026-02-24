@@ -12,7 +12,6 @@ std::string FileSystem::GetCurrentDirectory()
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
 #ifdef _WIN32
 #   include <pathcch.h>
-#   pragma message("FIXME: Improve this (it's from GraphX)")
     std::string FileSystem::GetProgramDirectory()
     {
         wchar_t out_path[MAX_PATH]{0};
