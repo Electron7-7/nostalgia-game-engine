@@ -21,7 +21,7 @@ Texture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
         will capture absolutely everything. Even whitespace. ///
-    File = 'theatres/testing_resources/Stupid.png'
+    File = 'testing_resources/Stupid.png'
 }
 
 Mesh IcoSphere
@@ -29,7 +29,7 @@ Mesh IcoSphere
     /// While "File" is the default name for Resource's file data variable, other derived
         Resources may add additional aliases depending on the context of the data. For example,
         Mesh accepts "Model" as well as "File". ///
-    Model = 'theatres/testing_resources/IcoSphere.obj'
+    Model = 'testing_resources/IcoSphere.obj'
 
     /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
         also reference embedded Resources, like the default cube mesh or missing texture. ///
@@ -220,12 +220,12 @@ DirectionalLight3D TheSun
 
 Texture TestTexture1
 {
-    Image = 'theatres/testing_resources/TestTexture1.png'
+    Image = 'testing_resources/TestTexture1.png'
 }
 
 Texture TestTexture2
 {
-    Image = 'theatres/testing_resources/TestTexture2.png'
+    Image = 'testing_resources/TestTexture2.png'
 }
 
 TestAnimatedSprite2D TestSprite
@@ -248,7 +248,7 @@ Text2D TestSpriteCaption
 
 Font TestFont1
 {
-    Font = 'theatres/testing_resources/Flynn.otf'
+    Font = 'testing_resources/Flynn.otf'
 }
 
 Text2D TestText1
