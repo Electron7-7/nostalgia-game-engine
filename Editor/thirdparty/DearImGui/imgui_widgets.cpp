@@ -4050,47 +4050,47 @@ bool ImGui::InputInt4(const char* label, int* v, int* v2, int* v3, int* v4, ImGu
     return status;
 }
 
-bool ImGui::InputUInt(const char* label, uint* v, int step, int step_fast, ImGuiInputTextFlags flags)
+bool ImGui::InputUInt(const char* label, unsigned int* v, int step, int step_fast, ImGuiInputTextFlags flags)
 {
     // Hexadecimal input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle prefixes.
     const char* format = (flags & ImGuiInputTextFlags_CharsHexadecimal) ? "%08X" : "%u";
     return InputScalar(label, ImGuiDataType_U32, (void*)v, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), format, flags);
 }
 
-bool ImGui::InputUInt2(const char* label, uint v[2], ImGuiInputTextFlags flags)
+bool ImGui::InputUInt2(const char* label, unsigned int v[2], ImGuiInputTextFlags flags)
 {
     return InputScalarN(label, ImGuiDataType_U32, v, 2, NULL, NULL, "%u", flags);
 }
 
-bool ImGui::InputUInt3(const char* label, uint v[3], ImGuiInputTextFlags flags)
+bool ImGui::InputUInt3(const char* label, unsigned int v[3], ImGuiInputTextFlags flags)
 {
     return InputScalarN(label, ImGuiDataType_U32, v, 3, NULL, NULL, "%u", flags);
 }
 
-bool ImGui::InputUInt4(const char* label, uint v[4], ImGuiInputTextFlags flags)
+bool ImGui::InputUInt4(const char* label, unsigned int v[4], ImGuiInputTextFlags flags)
 {
     return InputScalarN(label, ImGuiDataType_U32, v, 4, NULL, NULL, "%u", flags);
 }
 
-bool ImGui::InputUInt2(const char* label, uint* v, uint* v2, ImGuiInputTextFlags flags)
+bool ImGui::InputUInt2(const char* label, unsigned int* v, unsigned int* v2, ImGuiInputTextFlags flags)
 {
-    uint temp[2]{*v, *v2};
+    unsigned int temp[2]{*v, *v2};
     bool status{InputScalarN(label, ImGuiDataType_U32, temp, 2, NULL, NULL, "%u", flags)};
     *v = temp[0]; *v2 = temp[1];
     return status;
 }
 
-bool ImGui::InputUInt3(const char* label, uint* v, uint* v2, uint* v3, ImGuiInputTextFlags flags)
+bool ImGui::InputUInt3(const char* label, unsigned int* v, unsigned int* v2, unsigned int* v3, ImGuiInputTextFlags flags)
 {
-    uint temp[3]{*v, *v2, *v3};
+    unsigned int temp[3]{*v, *v2, *v3};
     bool status{InputScalarN(label, ImGuiDataType_U32, temp, 3, NULL, NULL, "%u", flags)};
     *v = temp[0]; *v2 = temp[1]; *v3 = temp[2];
     return status;
 }
 
-bool ImGui::InputUInt4(const char* label, uint* v, uint* v2, uint* v3, uint* v4, ImGuiInputTextFlags flags)
+bool ImGui::InputUInt4(const char* label, unsigned int* v, unsigned int* v2, unsigned int* v3, unsigned int* v4, ImGuiInputTextFlags flags)
 {
-    uint temp[4]{*v, *v2, *v3, *v4};
+    unsigned int temp[4]{*v, *v2, *v3, *v4};
     bool status{InputScalarN(label, ImGuiDataType_U32, temp, 4, NULL, NULL, "%u", flags)};
     *v = temp[0]; *v2 = temp[1]; *v3 = temp[2]; *v4 = temp[3];
     return status;
