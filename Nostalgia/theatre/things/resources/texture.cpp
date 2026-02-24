@@ -1,6 +1,9 @@
 #include "./texture.hpp"
 #include "rendering/texture_buffer.hpp"
 #define STB_IMAGE_IMPLEMENTATION
+#ifdef NOSTALGIA_DEBUGGING
+#   define STBI_FAILURE_USERMSG //generate user friendly error messages
+#endif // NOSTALGIA_DEBUGGING
 #include "stb_image/stb_image.h"
 
 using namespace TheatreFile;
@@ -100,6 +103,7 @@ Error Texture::Import()
                 print_error("STBI failed to load image data for Texture ['{}', {}]",
                     mName,
                     mUID());
+                print_error("STBI Failure Reason: {}", stbi_failure_reason());
                 mStatus = ERR_DATA_LOAD;
             }
             else if(mTextureBuffer->Load(image_data, mFormat) == OK)
