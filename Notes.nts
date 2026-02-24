@@ -1230,3 +1230,5 @@ Welp, I fixed all the issues by just digging into all the thirdparty CMakeLists.
 
 [02/24/26]
 Holy shit I was almost right!! Just a few minor tweaks to some files and the Windows build finished near perfectly! It's not 100% perfect, but it works; there are some problems loading files via file paths (specifically images), so I'll have to figure out whether or not that's due to freetype or `FileData`.
+
+I'm gonna start by re-writing `FileData` and `FileSystem` to no longer utilize `fopen`. I'm also gonna see why it crashes when I give specific file paths (e.g: with `../` or `C:/`).
