@@ -21,6 +21,7 @@ enum Error : int {
     ERR_DATA_LOAD, // Example use: OpenGLTextureBuffer's constructor sets `mStatus` to this if `stbi_load_from_memory` fails
     ERR_NOT_LOADED, // Data hasn't been loaded in yet
     ERR_INVALID, // Generic "invalid <data>" error
+    ERR_INVALID_PATH, // Invalid file path error
     ERR_INVALID_ID, // Invalid `ID` error
     ERR_INVALID_TYPE, // Invalid type error
     ERR_MISMATCHED_TYPES, // Types are not equivalent
