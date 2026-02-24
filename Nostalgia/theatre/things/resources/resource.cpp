@@ -1,12 +1,12 @@
+#include "theatre/theatre.hpp"
+
 using namespace TheatreFile;
 
 void Resource::SetVariables(Farg<ThingData> inData)
 {
     Thing::SetVariables(inData);
-    if(std::string path{};
-        inData.get_variable(path, "File", "Data", "Path") == OK)
-            { m_pFileData->LoadFile(path); }
-    mStatus = m_pFileData->Status();
+    if(std::string path{}; inData.get_variable(path, "File", "Data", "Path") == OK)
+        { mStatus = try_LoadFileDataFromVariable(path, m_pFileData); }
 }
 
 Shared<ThingData> Resource::GetVariables() const
@@ -22,3 +22,17 @@ Error Resource::Status() const
 
 Shared<FileData> Resource::Data()
 { return m_pFileData; }
+
+Error Resource::try_LoadFileDataFromVariable(Sarg inPath, Shared<FileData>& outData)
+{
+    std::string file_path{inPath};
+    if(my_theatre()->WasLoadedFromFile() and FileSystem::IsFile(my_theatre()->TheatreFileDirectory() + inPath))
+        { file_path = my_theatre()->TheatreFileDirectory() + inPath; }
+    else if(FileSystem::IsFile(FileSystem::GetProgramDirectory() + inPath))
+        { file_path = FileSystem::GetProgramDirectory() + inPath; }
+    else if(FileSystem::IsFile(FileSystem::GetAbsolute(inPath)))
+        { file_path = FileSystem::GetAbsolute(inPath); }
+    else if(!FileSystem::IsFile(inPath))
+        { return ERR_INVALID_PATH; }
+    return outData->LoadFile(file_path);
+}

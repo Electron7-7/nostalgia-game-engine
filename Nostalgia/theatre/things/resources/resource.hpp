@@ -14,6 +14,8 @@ public:
 protected:
     Shared<FileData> m_pFileData{MakeShared<FileData>()};
     Error mStatus;
+
+    Error try_LoadFileDataFromVariable(Sarg inPath, Shared<FileData>& outData);
 };
 
 #endif // RESOURCE_H

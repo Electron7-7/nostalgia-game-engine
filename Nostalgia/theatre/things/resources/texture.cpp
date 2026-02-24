@@ -17,7 +17,11 @@ void Texture::SetVariables(Farg<ThingData> data)
     if(m_pFileData->HasPath())
         { m_pImages[0] = m_pFileData; }
     else if(std::string path{}; data.get_variable(path, "Image") == OK)
-        { m_pImages[0] = MakeShared<FileData>(path); }
+    {
+        m_pImages[0] = MakeShared<FileData>();
+        if(!try_LoadFileDataFromVariable(path, m_pImages[0]))
+            { m_pImages[0] = nullptr; }
+    }
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -41,7 +45,7 @@ void Texture::SetVariables(Farg<ThingData> data)
         if(std::string path{}; data.get_variable(path, "Image" + std::to_string(i)) == OK)
         {
             m_pImages[i] = MakeShared<FileData>();
-            print_error_enum(m_pImages[i]->LoadFile(path));
+            print_error_enum(try_LoadFileDataFromVariable(path, m_pImages[i]));
         }
     }
 }

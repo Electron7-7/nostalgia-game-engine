@@ -74,7 +74,7 @@ void Font::SetVariables(Farg<ThingData> data)
     Resource::SetVariables(data);
 
     if(std::string path{}; data.get_variable(path, "Font") == OK)
-        { m_pFileData->LoadFile(path); }
+        { try_LoadFileDataFromVariable(path, m_pFileData); }
 
     data.get_variable(mFontSize, "Height", "Size");
 }
