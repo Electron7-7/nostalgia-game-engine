@@ -7,6 +7,21 @@
 #define NOSTALGIA_VERSION_FULL \
     NOSTALGIA_VERSION_MAJOR "." NOSTALGIA_VERSION_MINOR "." NOSTALGIA_VERSION_PATCH
 
+#ifdef _WIN32
+#   include <windows.h> // IWYU pragma: keep
+#   include <stdio.h>   // IWYU pragma: keep
+#   include <tchar.h>   // IWYU pragma: keep
+#   define DIV 1048576
+#   define WIDTH 7
+#endif
+
+#ifdef linux
+#   include <unistd.h> // IWYU pragma: keep
+#   include <stdlib.h> // IWYU pragma: keep
+#   include <stdio.h>  // IWYU pragma: keep
+#   include <string.h> // IWYU pragma: keep
+#endif
+
 // C++ STL
 #include <set>              // IWYU pragma: keep
 #include <map>              // IWYU pragma: keep

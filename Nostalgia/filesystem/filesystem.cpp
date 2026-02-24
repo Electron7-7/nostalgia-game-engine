@@ -10,14 +10,13 @@ std::string FileSystem::GetCurrentDirectory()
 { return fs::current_path().string(); }
 
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
-#ifdef NOSTALGIA_WINDOWS
-#   include <windows.h>
+#ifdef _WIN32
 #   include <libloaderapi.h>
 #   pragma message("FIXME: Improve this (it's from GraphX)")
     std::string FileSystem::GetProgramDirectory()
     {
         char out_path[MAX_PATH]{0};
-        GetModuleFileNameA(NULL, out_path, MAX_PATH);
+        GetModuleFileNameW(NULL, out_path, MAX_PATH);
         std::string buffer{""};
         bool filename_removed{false};
         for(int i = (sizeof(out_path)/sizeof(out_path[0])) ; i >= 0 ; --i)
@@ -38,10 +37,10 @@ std::string FileSystem::GetCurrentDirectory()
             { new_buffer += buffer[i]; }
         return new_buffer + "\\";
     }
-#else  // !NOSTALGIA_WINDOWS
+#else  // !_WIN32
     std::string FileSystem::GetProgramDirectory()
     { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string(); }
-#endif // NOSTALGIA_WINDOWS
+#endif // _WIN32
 
 Error FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
 {
