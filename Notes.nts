@@ -1227,3 +1227,6 @@ I think it's this compiler flag: `-flto=thin`, because removing it from my other
 All right, it looks like I'll want to either disable link-time optimization or add a note about adding `-flto=thin` to the users' compiler flags. I think I'll try disabling it first, just to see if that solves the massive link times.
 
 Welp, I fixed all the issues by just digging into all the thirdparty CMakeLists.txt files and overhauling them. I also now understand how they're all built a bit better.
+
+[02/24/26]
+Holy shit I was almost right!! Just a few minor tweaks to some files and the Windows build finished near perfectly! It's not 100% perfect, but it works; there are some problems loading files via file paths (specifically images), so I'll have to figure out whether or not that's due to freetype or `FileData`.
