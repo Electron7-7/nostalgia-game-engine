@@ -1219,3 +1219,11 @@ After a few days of soul-grinding work, I have a cmake build environment that PO
 
 [02/23/26]
 The Windows build doesn't work on my PC yet, but since the VNC server isn't working I'll just work some more on the engine/app today.
+
+There's a problem with the build system; somehow, my compiler options are getting all mangled or something and the final object/library files are unrecognizable unless compiled/linked with the exact same options. I think it's due to some options set by Jolt or other libraries, so I might have to dig in and figure this out myself.
+
+I think it's this compiler flag: `-flto=thin`, because removing it from my other project stops the linker from spitting the same error on one of the '.o' files and back to just 'libNostalgia.a'.
+
+All right, it looks like I'll want to either disable link-time optimization or add a note about adding `-flto=thin` to the users' compiler flags. I think I'll try disabling it first, just to see if that solves the massive link times.
+
+Welp, I fixed all the issues by just digging into all the thirdparty CMakeLists.txt files and overhauling them. I also now understand how they're all built a bit better.
