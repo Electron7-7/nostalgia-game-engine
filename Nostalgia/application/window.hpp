@@ -114,7 +114,7 @@ public:
     Error GetInitStatus()      const { return mInitStatus; }
     Farg<WindowProperties> GetProperties() const { return mData; }
 
-    static Unique<IWindow> CreateWindow(Farg<WindowProperties> inProperties = {});
+    static Unique<IWindow> CreateNewWindow(Farg<WindowProperties> inProperties = {});
 
     static std::vector<Monitor> GetMonitors();
 

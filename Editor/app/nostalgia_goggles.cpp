@@ -29,7 +29,7 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    mMainWindow = IWindow::CreateWindow(IWindow::Properties{std::format("Nostalgia_Goggles v{} {}",
+    mMainWindow = IWindow::CreateNewWindow(IWindow::Properties{std::format("Nostalgia_Goggles v{} {}",
         NOSTALGIA_VERSION_FULL,
         (Settings::Engine::IsEditorHint)
             ? ""

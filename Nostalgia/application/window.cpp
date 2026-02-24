@@ -7,7 +7,7 @@ Size2D IWindow::GetScale() const
 Position2D IWindow::GetPosition() const
 { return Position2D{mData.x_pos, mData.y_pos}; }
 
-Unique<IWindow> IWindow::CreateWindow(Farg<WindowProperties> inProperties)
+Unique<IWindow> IWindow::CreateNewWindow(Farg<WindowProperties> inProperties)
 {
     // Currently, GLFW is the primary windowing solution and it'll probably stay that way
     // for a while.
