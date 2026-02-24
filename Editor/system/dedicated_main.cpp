@@ -26,9 +26,7 @@ int DedicatedMain(int argc, char** argv)
 
     if(Flags::Help.IsActive())
     {
-        std::println("{}\n\t{}",
-            GetHelpMessage(program_name.data()),
-            GetVersionMessage(program_name.data()));
+        std::println("{}", GetHelpMessage(program_name.data()));
         return 0;
     }
     else if(Flags::Version.IsActive())
