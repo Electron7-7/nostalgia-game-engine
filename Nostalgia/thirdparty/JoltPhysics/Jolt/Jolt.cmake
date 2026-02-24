@@ -700,7 +700,7 @@ source_group(TREE ${JOLT_PHYSICS_ROOT} FILES ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PH
 # Create Jolt lib
 add_library(Jolt OBJECT ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS} ${JOLT_PHYSICS_SPV_SHADERS} ${JOLT_PHYSICS_METAL_LIB})
 add_library(Jolt::Jolt ALIAS Jolt)
-add_library(Jolt_object ALIAS Jolt)
+add_library(Jolt-object ALIAS Jolt)
 
 if (BUILD_SHARED_LIBS)
 	# Set default visibility to hidden

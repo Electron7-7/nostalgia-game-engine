@@ -1,17 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
-
 project(bzip2
-        VERSION 1.1.0
-        DESCRIPTION "This Bzip2/libbz2 a program and library for lossless block-sorting data compression."
-        LANGUAGES C)
+    VERSION 1.1.0
+    DESCRIPTION "This Bzip2/libbz2 a program and library for lossless block-sorting data compression."
+    LANGUAGES C)
 
-option(ENABLE_WERROR     "Turn on compile time warnings")
-option(ENABLE_DEBUG      "Turn on debug output")
+message(STATUS "Configuring bzip2")
 
-# See versioning rule:
-#  http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-#
-# KEEP THESE IN SYNC WITH meson.build OR STUFF WILL BREAK!
 set(LT_CURRENT  1)
 set(LT_REVISION 9)
 set(LT_AGE      0)
@@ -23,8 +17,7 @@ include(SymLink)
 set(BZ_VERSION ${PROJECT_VERSION})
 configure_file (
     ${PROJECT_SOURCE_DIR}/bz_version.h.in
-    ${PROJECT_BINARY_DIR}/bz_version.h
-)
+    ${PROJECT_BINARY_DIR}/bz_version.h)
 include_directories(${PROJECT_BINARY_DIR})
 
 math(EXPR LT_SOVERSION "${LT_CURRENT} - ${LT_AGE}")
@@ -43,15 +36,7 @@ endforeach()
 # Support the latest c++ standard available.
 include(ExtractValidFlags)
 
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the build type" FORCE)
-
-    # Include "None" as option to disable any additional (optimization) flags,
-    # relying on just CMAKE_C_FLAGS and CMAKE_CXX_FLAGS (which are empty by
-    # default). These strings are presented in cmake-gui.
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-        None Debug Release MinSizeRel RelWithDebInfo)
-endif()
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 # Checks for header files.
 include(CheckIncludeFile)
@@ -98,67 +83,6 @@ if(NOT HAVE_DECL_INITGROUPS AND HAVE_UNISTD_H)
     endif()
 endif()
 
-set(WARNCFLAGS)
-if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-    if(ENABLE_WERROR)
-        set(WARNCFLAGS    /WX)
-    endif()
-else()
-    if(ENABLE_WERROR)
-        extract_valid_c_flags(WARNCFLAGS    -Werror)
-    endif()
-
-    # For C compiler
-    # Please keep this list in sync with meson.build
-    extract_valid_c_flags(WARNCFLAGS
-        -Wall
-        -Wextra
-        -Wmissing-prototypes
-        -Wstrict-prototypes
-        -Wmissing-declarations
-        -Wpointer-arith
-        -Wdeclaration-after-statement
-        -Wformat-security
-        -Wwrite-strings
-        -Wshadow
-        -Winline
-        -Wnested-externs
-        -Wfloat-equal
-        -Wundef
-        -Wendif-labels
-        -Wempty-body
-        -Wcast-align
-        -Wclobbered
-        -Wvla
-        -Wpragmas
-        -Wunreachable-code
-        -Waddress
-        -Wattributes
-        -Wdiv-by-zero
-        -Wshorten-64-to-32
-        -Wconversion
-        -Wextended-offsetof
-        -Wformat-nonliteral
-        -Wlanguage-extension-token
-        -Wmissing-field-initializers
-        -Wmissing-noreturn
-        -Wmissing-variable-declarations
-        # -Wpadded                          # Not used because we cannot change public structs
-        -Wsign-conversion
-        # -Wswitch-enum                     # Not used because this basically disallows default case
-        -Wunreachable-code-break
-        -Wunused-macros
-        -Wunused-parameter
-        -Wredundant-decls
-        -Wheader-guard
-        -Wno-format-nonliteral              # This is required because we pass format string as "const char*.
-    )
-endif()
-
-if(ENABLE_DEBUG)
-    set(DEBUGBUILD 1)
-endif()
-
 # autotools-compatible names
 # Sphinx expects relative paths in the .rst files. Use the fact that the files
 # below are all one directory level deep.
@@ -175,11 +99,6 @@ set(libdir      ${CMAKE_INSTALL_FULL_LIBDIR})
 set(includedir  ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 set(VERSION     ${PACKAGE_VERSION})
 
-#
-# The build targets.
-#   In a larger project, the following would be in subdirectories and
-#   These targets would be included with `add_subdirectory()`
-#
 set(BZ2_SOURCES
     blocksort.c
     huffman.c
@@ -190,21 +109,8 @@ set(BZ2_SOURCES
     bzlib.c)
 
 # The bz2 OBJECT-library, required for bzip2, bzip2recover.
-add_library(bz2_ObjLib OBJECT)
-target_sources(bz2_ObjLib
+add_library(bz2-object OBJECT)
+target_sources(bz2-object
     PRIVATE   ${BZ2_SOURCES}
     PUBLIC    ${CMAKE_CURRENT_SOURCE_DIR}/bzlib_private.h
     INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/bzlib.h)
-
-# The Summary Info.
-string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
-message(STATUS "Summary of build options:
-    Package version: ${VERSION}
-    Library version: ${LT_CURRENT}:${LT_REVISION}:${LT_AGE}
-    Target system:   ${CMAKE_SYSTEM_NAME}
-    Compiler:
-        Build type:     ${CMAKE_BUILD_TYPE}
-        C compiler:     ${CMAKE_C_COMPILER}
-        CFLAGS:         ${CMAKE_C_FLAGS_${_build_type}} ${CMAKE_C_FLAGS}
-        WARNCFLAGS:     ${WARNCFLAGS}
-")
