@@ -37,7 +37,7 @@ Theatre::Theatre(Shared<TheatreData> inData) noexcept:
 
 Theatre::Theatre(Sarg inPath) noexcept:
     mWasLoadedFromFile{true},
-    mTheatreFileDirectory{FileSystem::Directory(inPath)},
+    mTheatreFileDirectory{FileSystem::GetDir(inPath)},
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
 { Load(inPath); }
@@ -47,7 +47,8 @@ Theatre::Theatre(Farg<FileData> inData) noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
 {
-    if(mWasLoadedFromFile) { mTheatreFileDirectory = FileSystem::Directory(inData.Path()); }
+    if(mWasLoadedFromFile)
+        { mTheatreFileDirectory = FileSystem::GetDir(inData.Path()); }
     Load(inData);
 }
 

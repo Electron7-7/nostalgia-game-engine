@@ -10,9 +10,6 @@ namespace FileSystem
     bool try_ReadFileToString(Sarg Path, std::string& Output);
     bool try_GetFileSize(Sarg Path, size_t& Output);
 
-    // If `Path` is not empty and does not end with `/`, returns `Path + "/"`
-    std::string Directory(Sarg Path);
-
     bool Exists(Sarg Path);
     bool IsFile(Sarg Path);
     bool IsDirectory(Sarg Path);

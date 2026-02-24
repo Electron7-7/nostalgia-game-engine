@@ -73,13 +73,6 @@ bool FileSystem::try_GetFileSize(const std::string& string_path, size_t& output)
     return true;
 }
 
-std::string FileSystem::Directory(const std::string& string_path)
-{
-    if(string_path.empty() || string_path.ends_with('/'))
-        { return string_path; }
-    return string_path + "/";
-}
-
 bool FileSystem::Exists(const std::string& string_path)
 { return fs::exists({string_path}); }
 
@@ -115,8 +108,12 @@ bool FileSystem::GetRelative(const std::string& string_path, std::string& output
 
 std::string FileSystem::GetDir(const std::string& string_path, bool make_absolute)
 {
-    fs::path path = (make_absolute) ? fs::path{GetAbsolute(string_path)} : fs::path{string_path};
-    return (path.has_filename()) ? path.parent_path().string() : string_path;
+    fs::path path = (make_absolute)
+        ? fs::path{GetAbsolute(string_path)}
+        : fs::path{string_path};
+    return (path.has_filename())
+        ? path.parent_path().string() + "/"
+        : string_path + "/";
 }
 
 void FileSystem::GetDir(const std::string& string_path, std::string& output, bool make_absolute)
