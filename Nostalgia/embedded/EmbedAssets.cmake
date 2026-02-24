@@ -1,3 +1,7 @@
+if(NOT SOURCE_DIR)
+    set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+endif()
+
 # https://stackoverflow.com/a/27206982
 function(create_resources dir output header_guard namespace)
     # Create output file
