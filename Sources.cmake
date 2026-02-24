@@ -951,4 +951,18 @@ set(NOSTALGIA_JOLT_HEADERS
     ${NOSTALGIA_ROOT}/thirdparty/Jolt/Shaders/HairWrapper.h
     ${NOSTALGIA_ROOT}/thirdparty/Jolt/TriangleSplitter/TriangleSplitterMean.h
     ${NOSTALGIA_ROOT}/thirdparty/Jolt/TriangleSplitter/TriangleSplitter.h
-    ${NOSTALGIA_ROOT}/thirdparty/Jolt/TriangleSplitter/TriangleSplitterBinning.h)
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/TriangleSplitter/TriangleSplitterBinning.h
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Physics/Body/Body.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Physics/Body/MotionProperties.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/Mat44.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/UVec4.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/BVec16.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/DMat44.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/Vec4.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/Vec3.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/Quat.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Math/DVec3.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Core/JobSystem.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Core/Profiler.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Core/LockFreeHashMap.inl
+    ${NOSTALGIA_ROOT}/thirdparty/Jolt/Core/FixedSizeFreeList.inl)
