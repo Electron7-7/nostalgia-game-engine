@@ -24,7 +24,7 @@ R"(Usage: {} [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
             --no-editor-hint sets `Engine::IsEditorHint` to false
 )"};
 
-constexpr const char* _Version_Format_String{"\t{} v{}"};
+constexpr const char* _Version_Format_String{"{} v{}"};
 
 inline std::string GetHelpMessage(const char* inProgramName)
 { return std::format(_Help_Format_String, inProgramName); }
