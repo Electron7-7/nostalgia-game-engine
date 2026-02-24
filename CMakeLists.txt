@@ -4,6 +4,7 @@ project(Nostalgia
     LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia" OFF)
+option(NOSTALGIA_BUILD_EDITOR "Build the editor/testing app" ON)
 option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
@@ -73,6 +74,29 @@ target_include_directories(${NOSTALGIA_LIBRARY_NAME}
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/glfw/include
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/freetype/include)
 
+if(MSVC)
+    target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_23)
+    set_property(TARGET ${NOSTALGIA_LIBRARY_NAME} PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    set_property(TARGET Jolt PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else()
+    target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_26)
+endif()
+
+if(MINGW)
+    # std:: print, println, ...
+    target_link_libraries(${NOSTALGIA_LIBRARY_NAME} PUBLIC stdc++exp)
+endif()
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    target_compile_definitions(${NOSTALGIA_LIBRARY_NAME} PUBLIC NOSTALGIA_DEBUGGING)
+    if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
+        target_compile_options(${NOSTALGIA_LIBRARY_NAME} PUBLIC -Wall -O0 -g -fsanitize=address)
+        target_link_options(${NOSTALGIA_LIBRARY_NAME} PUBLIC -Wall -O0 -g -fsanitize=address)
+    endif()
+endif()
+
 if(NOSTALGIA_INCLUDE_GLM_HEADERS)
     set(NOSTALGIA_HEADERS ${NOSTALGIA_HEADERS} ${NOSTALGIA_GLM_HEADERS})
 endif()
@@ -119,40 +143,31 @@ else()
     set(EDITOR_LIBRARIES_DIR ${EDITOR_ROOT}/libraries/linux)
 endif()
 
-add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
-add_dependencies(NostalgiaGoggles ${NOSTALGIA_LIBRARY_NAME})
-target_include_directories(NostalgiaGoggles
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
-    PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics)
-target_link_directories(NostalgiaGoggles PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_LIBRARIES_DIR})
-target_link_libraries(NostalgiaGoggles PUBLIC ${EDITOR_ENGINE_LIBRARY} getargs)
+if(NOSTALGIA_BUILD_EDITOR)
+    add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
+    add_dependencies(NostalgiaGoggles ${NOSTALGIA_LIBRARY_NAME})
+    target_include_directories(NostalgiaGoggles
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
+        PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics)
+    target_link_directories(NostalgiaGoggles PUBLIC ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_LIBRARIES_DIR})
+    target_link_libraries(NostalgiaGoggles PUBLIC ${EDITOR_ENGINE_LIBRARY} getargs)
 
-if(MSVC)
-    target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_23)
-    target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
-    set_property(TARGET ${NOSTALGIA_LIBRARY_NAME} PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET NostalgiaGoggles PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET Jolt PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-else()
-    target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_26)
-    target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
-endif()
+    if(MSVC)
+        target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
+        set_property(TARGET NostalgiaGoggles PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    else()
+        target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
+    endif()
 
-if(MINGW)
-    # std:: print, println, ...
-    target_link_libraries(${NOSTALGIA_LIBRARY_NAME} PUBLIC stdc++exp)
-    target_link_libraries(NostalgiaGoggles PUBLIC stdc++exp)
-endif()
+    if(MINGW)
+        target_link_libraries(NostalgiaGoggles PUBLIC stdc++exp)
+    endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    target_compile_definitions(${NOSTALGIA_LIBRARY_NAME} PUBLIC NOSTALGIA_DEBUGGING)
-    if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
-        target_compile_options(${NOSTALGIA_LIBRARY_NAME} PUBLIC -Wall -O0 -g -fsanitize=address)
-        target_link_options(${NOSTALGIA_LIBRARY_NAME} PUBLIC -Wall -O0 -g -fsanitize=address)
-        target_compile_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
-        target_link_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
+            target_compile_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
+            target_link_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
+        endif()
     endif()
 endif()
