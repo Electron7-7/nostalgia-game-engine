@@ -11,17 +11,15 @@ std::string FileSystem::GetCurrentDirectory()
 
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
 #ifdef _WIN32
-#   include <pathcch.h>
     std::string FileSystem::GetProgramDirectory()
     {
-        wchar_t out_path[MAX_PATH]{0};
-        GetModuleFileNameW(nullptr, out_path, MAX_PATH);
-        PathCchRemoveFileSpec(out_path, MAX_PATH);
-        return std::string{out_path};
+        std::string out_path{};
+        GetModuleFileName(nullptr, out_path.data(), out_path.max_size());
+        return fs::path{out_path}.remove_filename().string() + "/";
     }
 #else  // !_WIN32
     std::string FileSystem::GetProgramDirectory()
-    { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string(); }
+    { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string() + "/"; }
 #endif // _WIN32
 
 Error FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
