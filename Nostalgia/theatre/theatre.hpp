@@ -35,6 +35,8 @@ public:
 
     Sarg Name() const;
     uint Index() const;
+    bool WasLoadedFromFile() const;
+    Sarg TheatreFileDirectory() const;
 
     Error InitStatus() const;
     bool  IsStarted()  const;
@@ -92,6 +94,8 @@ public:
 protected:
     std::string mName{"Untitled Theatre"};
     uint mIndex{ID::Invalid};
+    std::string mTheatreFileDirectory{""};
+    bool mWasLoadedFromFile{false};
 
     Mutex mCallSheetMutex{};
     RMutex mThingsMutex{};

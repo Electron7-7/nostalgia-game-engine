@@ -30,19 +30,26 @@ Theatre::Theatre() noexcept:
     m_pRegistry{MakeShared<VariableRegistry>()} {}
 
 Theatre::Theatre(Shared<TheatreData> inData) noexcept:
+    mWasLoadedFromFile{false},
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{inData},
     mInitStatus{OK} {}
 
 Theatre::Theatre(Sarg inPath) noexcept:
+    mWasLoadedFromFile{true},
+    mTheatreFileDirectory{FileSystem::Directory(inPath)},
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
 { Load(inPath); }
 
 Theatre::Theatre(Farg<FileData> inData) noexcept:
+    mWasLoadedFromFile{inData.HasPath()},
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
-{ Load(inData); }
+{
+    if(mWasLoadedFromFile) { mTheatreFileDirectory = FileSystem::Directory(inData.Path()); }
+    Load(inData);
+}
 
 Theatre::~Theatre() noexcept = default;
 
@@ -225,6 +232,12 @@ Sarg Theatre::Name() const
 
 uint Theatre::Index() const
 { return mIndex; }
+
+bool Theatre::WasLoadedFromFile() const
+{ return mWasLoadedFromFile; }
+
+Sarg Theatre::TheatreFileDirectory() const
+{ return mTheatreFileDirectory; }
 
 Error Theatre::InitStatus() const
 { return mInitStatus; }
