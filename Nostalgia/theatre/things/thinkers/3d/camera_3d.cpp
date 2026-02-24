@@ -70,7 +70,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     if(glm::vec3 color{mEnvironment.mCustomColor.glm()};
         data.get_variable(color, "EnvironmentColor") == OK)
     {
-        mEnvironment.mType = Environment::BG_SKYBOX;
+        mEnvironment.mType = Environment::BG_CUSTOM_COLOR;
         mEnvironment.mCustomColor = color;
     }
     data.get_variable(mEnvironment.mCustomColorAlpha,
