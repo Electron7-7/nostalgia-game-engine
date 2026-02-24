@@ -22,7 +22,7 @@ int DedicatedMain(int argc, char** argv)
     if(parser_status == ARG_STATUS_FAILED)
         { return 1; }
 
-    std::string program_name{"Nostalgia_Goggles"};
+    std::string program_name{"NostalgiaGoggles"};
 
     if(Flags::Help.IsActive())
     {
