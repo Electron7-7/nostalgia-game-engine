@@ -76,10 +76,17 @@ target_include_directories(${NOSTALGIA_LIBRARY_NAME}
 
 if(MSVC)
     target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_23)
-    set_property(TARGET ${NOSTALGIA_LIBRARY_NAME} PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET Jolt PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    if(${BUILD_SHARED_LIBS})
+        set_property(TARGET ${NOSTALGIA_LIBRARY_NAME} PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        set_property(TARGET Jolt PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    else()
+        set_property(TARGET ${NOSTALGIA_LIBRARY_NAME} PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        set_property(TARGET Jolt PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
 else()
     target_compile_features(${NOSTALGIA_LIBRARY_NAME} PUBLIC cxx_std_26)
 endif()
