@@ -1234,3 +1234,7 @@ Holy shit I was almost right!! Just a few minor tweaks to some files and the Win
 I'm gonna start by re-writing `FileData` and `FileSystem` to no longer utilize `fopen`. I'm also gonna see why it crashes when I give specific file paths (e.g: with `../` or `C:/`).
 
 I think I've got it! When loading files from a Theatre file, the paths are taken at face value and have to be absolute but they aren't! I wanna amend this by having whatever loads the files attempt to check for the file relative to the current working directory, the executable's directory, and the directory that the Theatre file was located in.
+
+IT WORKS!! IT WORKS!! IT WORKS!!!!!!
+
+I can now create games on Windows and Linux!!!
