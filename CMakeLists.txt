@@ -45,7 +45,7 @@ add_custom_target(EmbedAssets
 include(Sources.cmake)
 include(Thirdparty.cmake)
 
-add_library(${NOSTALGIA_LIBRARY_NAME} ${LIBRARY_VERSION} ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES})
+add_library(${NOSTALGIA_LIBRARY_NAME} ${LIBRARY_VERSION} ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS})
 add_dependencies(${NOSTALGIA_LIBRARY_NAME}
     EmbedAssets
     freetype-object
