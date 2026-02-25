@@ -169,7 +169,7 @@ void ImGui_Editor::Update()
                     { gDebugConsoleOpened = true; }
                 if(MenuItem("Quit", "CTRL+Q"))
                     { Application()->Stop(); }
-                EndMenu();
+                ImGui::EndMenu();
             }
             EndMenuBar();
         }

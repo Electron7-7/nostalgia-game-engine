@@ -1143,16 +1143,16 @@ void ImGui_Debugger::InspectTheatreWindow()
                     if(CollapsingHeader("Jolt Properties"))
                     {
                         auto bodyid{collider->id()};
-                        auto& interface{PhysicsEngine::Inst()->BodyInterface()};
+                        auto& body_interface{PhysicsEngine::Inst()->BodyInterface()};
                         TextF("BodyID (index#): {}", bodyid.GetIndex());
                         TextF("Position: [{}, {}, {}]",
-                            interface.GetPosition(bodyid).GetX(),
-                            interface.GetPosition(bodyid).GetY(),
-                            interface.GetPosition(bodyid).GetZ());
+                            body_interface.GetPosition(bodyid).GetX(),
+                            body_interface.GetPosition(bodyid).GetY(),
+                            body_interface.GetPosition(bodyid).GetZ());
                         TextF("Rotation (euler degrees): [{}, {}, {}]",
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetX()),
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetY()),
-                            JPH::RadiansToDegrees(interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
+                            JPH::RadiansToDegrees(body_interface.GetRotation(bodyid).GetEulerAngles().GetX()),
+                            JPH::RadiansToDegrees(body_interface.GetRotation(bodyid).GetEulerAngles().GetY()),
+                            JPH::RadiansToDegrees(body_interface.GetRotation(bodyid).GetEulerAngles().GetZ()));
                     }
                     static const char* motion_names{"Static\0Dynamic\0Kinematic\0None\0"};
                     static const char* shape_names{"Box\0Sphere\0Capsule\0Cylinder\0None\0"};
