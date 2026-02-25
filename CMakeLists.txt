@@ -4,13 +4,21 @@ project(Nostalgia
     LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia" OFF)
+option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
 option(NOSTALGIA_BUILD_EDITOR "Build the editor/testing app" ON)
 option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
 option(NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD "When building the debug version of Nostalgia, name the library 'NostalgiaDebug'" ON)
 
-if(NOT CMAKE_BUILD_TYPE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ${NOSTALGIA_GENERATE_COMPILE_COMMANDS})
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+    include(FixCompileCommands.cmake)
+    fix_compile_commands()
+endif()
+
+if(NOT MSVC AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build" FORCE)
 endif()
 message(STATUS "Build type is '${CMAKE_BUILD_TYPE}'")
