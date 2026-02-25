@@ -14,8 +14,12 @@ option(NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD "When building the debug version of N
 set(CMAKE_EXPORT_COMPILE_COMMANDS ${NOSTALGIA_GENERATE_COMPILE_COMMANDS})
 
 if(CMAKE_EXPORT_COMPILE_COMMANDS)
-    include(FixCompileCommands.cmake)
-    fix_compile_commands()
+    if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json)
+        include(FixCompileCommands.cmake)
+        fix_compile_commands()
+    else()
+        message(STATUS "NOTE:: If you want to fix cmake's \"compile_commands.json\" file (and copy it to the source directory) please re-run the previous cmake command (or press either \"configure\" or \"generate\" if using cmake-gui)")
+    endif()
 endif()
 
 if(NOT MSVC AND NOT CMAKE_BUILD_TYPE)
