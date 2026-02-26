@@ -11,6 +11,8 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/gui/imgui_implementor.cpp
     ${EDITOR_ROOT}/gui/imgui_debugger.cpp
     ${EDITOR_ROOT}/gui/imgui_editor.cpp
+    ${EDITOR_ROOT}/thirdparty/getargs/argument.cpp
+    ${EDITOR_ROOT}/thirdparty/getargs/argument_parser.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_impl_opengl3.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_widgets.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_stdlib.cpp
