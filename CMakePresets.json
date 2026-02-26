@@ -31,7 +31,7 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF",
-                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF" // Hide this variable when it's not in use
+                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF"
             }
         },
         {
@@ -41,7 +41,7 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "ON",
-                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF" // Hide this variable when it's not in use
+                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF"
             }
         },
         {
@@ -56,48 +56,6 @@
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
-        }/*,
-        {
-            "name": "windows-dynamic-debug",
-            "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows_Debug",
-            "environment": {
-                "CC": "clang-cl",
-                "CXX": "clang-cl"
-            },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "GENERATE_DEBUG_SYMBOLS": "ON",
-                "BUILD_SHARED_LIBS": "ON"
-            }
-        },
-        {
-            "name": "windows-static-release",
-            "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows",
-            "environment": {
-                "CC": "clang-cl",
-                "CXX": "clang-cl"
-            },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "GENERATE_DEBUG_SYMBOLS": "OFF",
-                "BUILD_SHARED_LIBS": "OFF"
-            }
-        },
-        {
-            "name": "windows-dynamic-release",
-            "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows_Release",
-            "environment": {
-                "CC": "clang-cl",
-                "CXX": "clang-cl"
-            },
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release",
-                "GENERATE_DEBUG_SYMBOLS": "OFF",
-                "BUILD_SHARED_LIBS": "ON"
-            }
-        }*/
+        }
     ]
 }
