@@ -56,8 +56,8 @@
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
-        },
-        /*{
+        }/*,
+        {
             "name": "windows-dynamic-debug",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Debug",
