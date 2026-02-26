@@ -12,6 +12,8 @@ option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, incl
 
 if(MSVC AND BUILD_SHARED_LIBS)
     message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
+elseif(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
 endif()
 
 if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
@@ -147,9 +149,9 @@ set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 if(NOSTALGIA_BUILD_EDITOR)
     # Link the library specific to the current config
     if(BUILD_SHARED_LIBS)
-        set(NOSTALGIA_LIB ${CMAKE_SHARED_LIBRARY_PREFIX}Nostalgia${CMAKE_SHARED_LIBRARY_SUFFIX})
+        set(NOSTALGIA_LIB "${CMAKE_SHARED_LIBRARY_PREFIX}Nostalgia$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>${CMAKE_SHARED_LIBRARY_SUFFIX}")
     else()
-        set(NOSTALGIA_LIB ${CMAKE_STATIC_LIBRARY_PREFIX}Nostalgia${CMAKE_STATIC_LIBRARY_SUFFIX})
+        set(NOSTALGIA_LIB "${CMAKE_STATIC_LIBRARY_PREFIX}Nostalgia$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>${CMAKE_STATIC_LIBRARY_SUFFIX}")
     endif()
 
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
