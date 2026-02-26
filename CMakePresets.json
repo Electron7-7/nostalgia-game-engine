@@ -30,7 +30,8 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
-                "BUILD_SHARED_LIBS": "OFF"
+                "BUILD_SHARED_LIBS": "OFF",
+                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF" // Hide this variable when it's not in use
             }
         },
         {
@@ -39,11 +40,12 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
-                "BUILD_SHARED_LIBS": "ON"
+                "BUILD_SHARED_LIBS": "ON",
+                "NOSTALGIA_ADD_SUFFIX_TO_DEBUG_BUILD": "OFF" // Hide this variable when it's not in use
             }
         },
         {
-            "name": "windows-static-debug",
+            "name": "windows-static",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows",
             "environment": {
@@ -51,8 +53,7 @@
                 "CXX": "clang-cl"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "GENERATE_DEBUG_SYMBOLS": "ON",
+                "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
         },
@@ -69,7 +70,7 @@
                 "GENERATE_DEBUG_SYMBOLS": "ON",
                 "BUILD_SHARED_LIBS": "ON"
             }
-        },*/
+        },
         {
             "name": "windows-static-release",
             "generator": "Visual Studio 18 2026",
@@ -83,7 +84,7 @@
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
-        }/*,
+        },
         {
             "name": "windows-dynamic-release",
             "generator": "Visual Studio 18 2026",
