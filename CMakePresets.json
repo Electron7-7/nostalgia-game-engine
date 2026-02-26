@@ -48,10 +48,7 @@
             "name": "windows-static",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows",
-            "environment": {
-                "CC": "clang-cl",
-                "CXX": "clang-cl"
-            },
+            "toolset": "ClangCL",
             "cacheVariables": {
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
