@@ -45,7 +45,7 @@
         {
             "name": "windows-static-debug",
             "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows_Debug",
+            "binaryDir": "${sourceDir}/Windows",
             "environment": {
                 "CC": "clang-cl",
                 "CXX": "clang-cl"
@@ -56,7 +56,7 @@
                 "BUILD_SHARED_LIBS": "OFF"
             }
         },
-        {
+        /*{
             "name": "windows-dynamic-debug",
             "generator": "Visual Studio 18 2026",
             "binaryDir": "${sourceDir}/Windows_Debug",
@@ -69,11 +69,11 @@
                 "GENERATE_DEBUG_SYMBOLS": "ON",
                 "BUILD_SHARED_LIBS": "ON"
             }
-        },
+        },*/
         {
             "name": "windows-static-release",
             "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows_Release",
+            "binaryDir": "${sourceDir}/Windows",
             "environment": {
                 "CC": "clang-cl",
                 "CXX": "clang-cl"
@@ -83,7 +83,7 @@
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "OFF"
             }
-        },
+        }/*,
         {
             "name": "windows-dynamic-release",
             "generator": "Visual Studio 18 2026",
@@ -97,6 +97,6 @@
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
                 "BUILD_SHARED_LIBS": "ON"
             }
-        }
+        }*/
     ]
 }
