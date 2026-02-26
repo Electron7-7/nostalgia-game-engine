@@ -8,8 +8,7 @@ Testing/
 # build system
 Linux_Debug/
 Linux_Release/
-Windows_Debug/
-Windows_Release/
+Windows/
 
 # thirdparty
 Nostalgia/thirdparty/libpng/PNGConfigVersion.cmake
