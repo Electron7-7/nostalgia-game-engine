@@ -147,19 +147,12 @@ endif()
 set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 
 if(NOSTALGIA_BUILD_EDITOR)
-    # Link the library specific to the current config
-    if(BUILD_SHARED_LIBS)
-        set(NOSTALGIA_LIB "${CMAKE_SHARED_LIBRARY_PREFIX}Nostalgia$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>${CMAKE_SHARED_LIBRARY_SUFFIX}")
-    else()
-        set(NOSTALGIA_LIB "${CMAKE_STATIC_LIBRARY_PREFIX}Nostalgia$<$<CONFIG:Debug>:${CMAKE_DEBUG_POSTFIX}>${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    endif()
-
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
     add_dependencies(NostalgiaGoggles Nostalgia)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    target_link_libraries(NostalgiaGoggles PUBLIC ${NOSTALGIA_LIB})
+    target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:Nostalgia>)
 
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
