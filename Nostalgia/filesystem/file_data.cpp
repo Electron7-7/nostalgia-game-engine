@@ -1,6 +1,6 @@
 #include "frozen/map.h"
 #include "frozen/string.h"
-#include <fstream>
+#include <fstream> // IWYU pragma: keep
 
 static constexpr frozen::map<frozen::string, FileType, 8>
 s_FileTypesByExtension{
@@ -48,6 +48,8 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
 
     std::string file_path{FileSystem::GetAbsolute(path)};
 
+#pragma message("FIXME: figure out why either of these solutions don't work on both operating systems")
+#ifdef _WIN32
     size_t size{};
     if(!FileSystem::try_GetFileSize(file_path, size))
         { return mStatus = ERR_FILE_LOAD; }
@@ -56,6 +58,26 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     std::basic_ifstream<unsigned char> file_stream{file_path, std::ios_base::in | std::ios_base::binary};
     file_stream.read(data, size);
     file_stream.close();
+#else // LINUX
+    // https://stackoverflow.com/a/22131201
+    FILE* image_file{fopen(file_path.c_str(), "r+")};
+
+    if(!image_file)
+    {
+        print_error("Failed to load file '{}'", path);
+        return mStatus = ERR_FILE_LOAD;
+    }
+
+    fseek(image_file, 0, SEEK_END);
+    long size{ftell(image_file)};
+    fclose(image_file);
+
+    image_file = fopen(file_path.c_str(), "r+");
+    unsigned char* data{new unsigned char[size]};
+
+    fread(data, sizeof(unsigned char), size, image_file);
+    fclose(image_file);
+#endif // _WIN32
 
     clear();
     mData = data;
