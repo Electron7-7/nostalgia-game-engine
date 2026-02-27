@@ -16,7 +16,7 @@ if(MSVC)
     elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
         set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
     endif()
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/Nostalgia)
+    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/Install)
 endif()
 
 if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
