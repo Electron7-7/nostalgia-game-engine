@@ -14,6 +14,14 @@
 #   define DIV 1048576
 #   define WIDTH 7
 #endif
+#   define NOSTALGIA_DLL_EXPORT __declspec(dllexport)
+#   ifndef NOSTALGIA_EXPORT
+#       define NOSTALGIA_EXPORT __declspec(dllimport)
+#   endif // !NOSTALGIA_EXPORT
+#else // !_WIN32
+#   define NOSTALGIA_DLL_EXPORT
+#   define NOSTALGIA_EXPORT
+#endif // _WIN32
 
 #ifdef linux
 #   include <unistd.h> // IWYU pragma: keep
