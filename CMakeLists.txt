@@ -10,6 +10,8 @@ option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 if(MSVC)
     if(BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
