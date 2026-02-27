@@ -12,11 +12,13 @@ option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, incl
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
+endif()
+
 if(MSVC)
     if(BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
-    elseif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-        set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
     endif()
     set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_DX12)
     set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
