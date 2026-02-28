@@ -172,7 +172,7 @@ if(MSVC)
 		# Disable warning about STL and compiler-generated types using noexcept when exceptions are disabled
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4577")
 	else()
-		Enable exceptions
+		# Enable exceptions
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 	endif()
 
@@ -187,7 +187,7 @@ if(MSVC)
 	set(CMAKE_CXX_FLAGS_RELEASETSAN "${CMAKE_CXX_FLAGS_RELEASE} -fsanitize=thread")
 	set(CMAKE_CXX_FLAGS_RELEASECOVERAGE "-fprofile-instr-generate -fcoverage-mapping")
 
-	Set linker flags
+	# Set linker flags
 	set(CMAKE_EXE_LINKER_FLAGS "/SUBSYSTEM:WINDOWS /ignore:4221")
 	if (GENERATE_DEBUG_SYMBOLS)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
