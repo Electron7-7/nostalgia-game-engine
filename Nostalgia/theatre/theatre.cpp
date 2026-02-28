@@ -515,6 +515,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 {
     LockGuard<RMutex> lock{mThingsMutex};
 
+    PRINT_PRETTY_FUNCTION_EXT("BEGIN");
+
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
         and mThings.contains(UID::a_Player))
             { print_warning("Only one player at a time, please!"); return UID::a_Player; }
@@ -547,6 +549,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual2D))
         { mVisual2DIDs.insert(thing->uid()); }
+
+    PRINT_PRETTY_FUNCTION_EXT("END");
 
     return thing->uid();
 }
