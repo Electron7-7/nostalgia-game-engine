@@ -172,7 +172,7 @@ if(MSVC)
 		# Disable warning about STL and compiler-generated types using noexcept when exceptions are disabled
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4577")
 	else()
-		Enable exceptions
+		# Enable exceptions
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
 	endif()
 
