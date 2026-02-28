@@ -31,6 +31,8 @@ void EditorPlayer3D::Ready()
 {
     NostalgiaPlayer3D::Ready();
 
+    PRINT_PRETTY_FUNCTION_EXT("BEGIN");
+
     bool _has_collider{false};
     for(ID child : Children())
     {
@@ -48,10 +50,12 @@ void EditorPlayer3D::Ready()
         my_theatre()->SetParent(mMainColliderID = my_theatre()->CreateThing(coll_dat), mUID);
         mScale = glm::vec3{1.0f};
     }
+    PRINT_PRETTY_FUNCTION_EXT("END");
 }
 
 void EditorPlayer3D::Tick()
 {
+    PRINT_PRETTY_FUNCTION_EXT("BEGIN");
     if(mCaptureMouse)
     {
         mLookWish = InputManager::MouseMotion() * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale;
@@ -90,4 +94,5 @@ void EditorPlayer3D::Tick()
     PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
         Math::Convert<JPH::Vec3>(mVelocity));
     mPosition = collider->Position();
+    PRINT_PRETTY_FUNCTION_EXT("END");
 }
