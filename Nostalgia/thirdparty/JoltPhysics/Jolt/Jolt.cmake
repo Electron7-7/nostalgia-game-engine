@@ -577,74 +577,7 @@ else()
 	set(JPH_USE_DX12 OFF)
 endif()
 
-if (APPLE)
-	# Metal support
-	if (JPH_USE_MTL)
-		# Metal source files
-		set(JOLT_PHYSICS_SRC_FILES
-			${JOLT_PHYSICS_SRC_FILES}
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeBufferMTL.mm
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeBufferMTL.h
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeQueueMTL.mm
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeQueueMTL.h
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeShaderMTL.mm
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeShaderMTL.h
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeSystemMTL.mm
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeSystemMTL.h
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeSystemMTLImpl.mm
-			${JOLT_PHYSICS_ROOT}/Compute/MTL/ComputeSystemMTLImpl.h
-		)
-
-		find_program(DXC_COMPILER NAMES dxc)
-		find_program(SPIRV_CROSS_COMPILER NAMES spirv-cross)
-		if (NOT DXC_COMPILER)
-			MESSAGE("Application 'dxc' not found. Can't compile compute shaders. Some functionality will be unavailable. You can install it by e.g. installing the Vulkan SDK.")
-		elseif (NOT SPIRV_CROSS_COMPILER)
-			MESSAGE("Application 'spirv-cross' not found. Can't compile compute shaders. Some functionality will be unavailable. You can install it by e.g. installing the Vulkan SDK.")
-		else()
-			# Determine target for shader compiler
-			if (IOS)
-				set(METAL_SDK_TARGET "iphonesimulator")
-			else()
-				set(METAL_SDK_TARGET "macosx")
-			endif()
-
-			# Compile Metal shaders
-			foreach(SHADER ${JOLT_PHYSICS_SHADERS})
-				cmake_path(GET SHADER STEM SHADER_STEM) # Filename without extension
-				set(SPV_SHADER "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_STEM}.spv")
-				set(MTL_SHADER "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_STEM}.metal")
-				set(AIR_SHADER "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_STEM}.air")
-				add_custom_command(OUTPUT ${AIR_SHADER}
-					COMMAND ${DXC_COMPILER} -E main -T cs_6_0 -I Jolt/Shaders -WX -O3 -all_resources_bound ${SHADER} -spirv -fvk-use-dx-layout -fspv-entrypoint-name=${SHADER_STEM} -Fo ${SPV_SHADER}
-					COMMAND ${SPIRV_CROSS_COMPILER} ${SPV_SHADER} --msl --output ${MTL_SHADER}
-					COMMAND xcrun -sdk ${METAL_SDK_TARGET} metal -c ${MTL_SHADER} -o ${AIR_SHADER}
-					DEPENDS ${SHADER} ${JOLT_PHYSICS_SHADER_HEADERS} # Currently don't have a way to detect header dependencies, so making dependent on all
-					COMMENT "Compiling Metal ${SHADER}")
-				list(APPEND JOLT_PHYSICS_MTL_SHADERS ${AIR_SHADER})
-			endforeach()
-
-			# Link Metal shaders
-			set(JOLT_PHYSICS_METAL_LIB ${JOLT_PHYSICS_ROOT}/Shaders/Jolt.metallib)
-			add_custom_command(OUTPUT ${JOLT_PHYSICS_METAL_LIB}
-				COMMAND xcrun -sdk ${METAL_SDK_TARGET} metallib -o ${JOLT_PHYSICS_METAL_LIB} ${JOLT_PHYSICS_MTL_SHADERS}
-				DEPENDS ${JOLT_PHYSICS_MTL_SHADERS}
-				COMMENT "Linking shaders")
-
-			# Group intermediate files
-			source_group(Intermediate FILES ${JOLT_PHYSICS_MTL_SHADERS} ${JOLT_PHYSICS_METAL_LIB})
-		endif()
-	endif()
-
-	# Ignore PCH files for .mm files
-	foreach(SRC_FILE ${JOLT_PHYSICS_SRC_FILES})
-		if (SRC_FILE MATCHES "\.mm")
-			set_source_files_properties(${SRC_FILE} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
-		endif()
-	endforeach()
-else()
-	set(JPH_USE_MTL OFF)
-endif()
+set(JPH_USE_MTL OFF)
 
 # Vulkan support
 if (JPH_USE_VK)
@@ -698,7 +631,7 @@ endif()
 source_group(TREE ${JOLT_PHYSICS_ROOT} FILES ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS})
 
 # Create Jolt lib
-add_library(Jolt OBJECT ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS} ${JOLT_PHYSICS_SPV_SHADERS} ${JOLT_PHYSICS_METAL_LIB})
+add_library(Jolt OBJECT ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_SHADERS} ${JOLT_PHYSICS_SHADER_HEADERS} ${JOLT_PHYSICS_SPV_SHADERS})
 add_library(Jolt::Jolt ALIAS Jolt)
 add_library(Jolt-object ALIAS Jolt)
 
@@ -736,13 +669,7 @@ target_include_directories(Jolt PUBLIC
 	$<INSTALL_INTERFACE:include/>)
 
 # Code coverage doesn't work when using precompiled headers
-if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
-	# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
-	# See: https://github.com/jrouwe/JoltPhysics/issues/1211
-	target_precompile_headers(Jolt PRIVATE "${JOLT_PHYSICS_ROOT}/Jolt.h")
-else()
-	target_precompile_headers(Jolt PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${JOLT_PHYSICS_ROOT}/Jolt.h>")
-endif()
+target_precompile_headers(Jolt PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${JOLT_PHYSICS_ROOT}/Jolt.h>")
 
 # Set the NDEBUG define for release builds
 target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Release,Distribution,ReleaseASAN,ReleaseUBSAN,ReleaseTSAN,ReleaseCoverage>:NDEBUG>")
