@@ -17,18 +17,22 @@ void PhysicsManager::Shutdown() {}
 
 ManagerEnums::TheatreReturnValue_t PhysicsManager::TheatreInit(bool is_first_call)
 {
+    PRINT_PRETTY_FUNCTION_EXT("BEGIN");
     if(!is_first_call)
         { return ManagerEnums::FINISHED; }
     PhysicsEngine::Instance()->Start();
     return ManagerEnums::FINISHED;
+    PRINT_PRETTY_FUNCTION_EXT("END");
 }
 
 ManagerEnums::TheatreReturnValue_t PhysicsManager::TheatreShutdown(bool is_first_call)
 {
+    PRINT_PRETTY_FUNCTION_EXT("BEGIN");
     if(!is_first_call)
         { return ManagerEnums::FINISHED; }
     PhysicsEngine::Instance()->Stop();
     return ManagerEnums::FINISHED;
+    PRINT_PRETTY_FUNCTION_EXT("END");
 }
 
 void PhysicsManager::Tick()
