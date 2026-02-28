@@ -657,10 +657,10 @@ if (BUILD_SHARED_LIBS)
 	set(CMAKE_SHARED_LINKER_FLAGS_DISTRIBUTION "${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
 
 	# Public define to instruct user code to import Jolt symbols (rather than use static linking)
-	target_compile_definitions(Jolt PUBLIC JPH_SHARED_LIBRARY)
+	# target_compile_definitions(Jolt PUBLIC JPH_SHARED_LIBRARY)
 
 	# Private define to instruct the library to export symbols for shared linking
-	target_compile_definitions(Jolt PRIVATE JPH_BUILD_SHARED_LIBRARY)
+	# target_compile_definitions(Jolt PRIVATE JPH_BUILD_SHARED_LIBRARY)
 endif()
 
 # Use repository as include directory when building, install directory when installing
