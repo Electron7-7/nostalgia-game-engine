@@ -48,6 +48,7 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
 
     std::string file_path{FileSystem::GetAbsolute(path)};
 
+    std::println("FileData::LoadFile - Begin (path: {})", path);
 #pragma message("FIXME: figure out why either of these solutions don't work on both operating systems")
 #ifdef _WIN32
     size_t size{};
@@ -78,6 +79,7 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     fread(data, sizeof(unsigned char), size, image_file);
     fclose(image_file);
 #endif // _WIN32
+    std::println("FileData::LoadFile - End (path: {})", path);
 
     clear();
     mData = data;
