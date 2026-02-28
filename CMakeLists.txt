@@ -178,7 +178,7 @@ if(NOSTALGIA_BUILD_EDITOR)
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
         set_property(TARGET NostalgiaGoggles PROPERTY
-            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+            MSVC_RUNTIME_LIBRARY "MultiThreaded")
     else()
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_26)
     endif()
