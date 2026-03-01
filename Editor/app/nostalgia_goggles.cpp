@@ -3,6 +3,7 @@
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
 #include "things/player.hpp"
+#include "things/test_animated_sprite.hpp"
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/events/action.hpp>
@@ -23,6 +24,9 @@ std::string gToggleFullscreen{"ToggleFullscreen"};
 
 Shared<Thing> sEditorPlayer3DMaker()
 { return MakeShared<EditorPlayer3D>(); }
+
+Shared<Thing> sTestAnimatedSpriteMaker()
+{ return MakeShared<TestAnimatedSprite2D>(); }
 
 void NostalgiaGoggles::Stop()
 { IManager::Stop(); }
@@ -49,6 +53,7 @@ int NostalgiaGoggles::Main()
     IManager::InitAllManagers();
 
     ThingFactory::AddThing(&sEditorPlayer3DMaker, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
+    ThingFactory::AddThing(&sTestAnimatedSpriteMaker, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});

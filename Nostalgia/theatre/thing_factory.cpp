@@ -55,7 +55,6 @@ bool ThingFactory::Init()
             ADD_THING(Visual2D, Actor2D)
                 ADD_THING(Text2D, Visual2D)
                 ADD_THING(Sprite2D, Visual2D)
-                    ADD_THING(TestAnimatedSprite2D, Sprite2D)
                 ADD_THING(MeshInstance2D, Visual2D)
 
     return m_sIsInitialized = true;
