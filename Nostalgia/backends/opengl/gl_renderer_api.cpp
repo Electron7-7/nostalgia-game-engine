@@ -13,7 +13,7 @@
 #include "thirdparty/glad/glad.h"
 
 bool gPrintDrawLogs{false};
-bool gOpenGLEnableNotificationMesssages{true};
+bool gOpenGLEnableNotificationMesssages{false};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
 static bool sWireframe{};
