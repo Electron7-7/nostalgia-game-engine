@@ -11,9 +11,9 @@ option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, inclu
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
 
 # Testapp Options
-option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" OFF)
+option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
 option(BUILD_THIRDPARTY_TESTS "Build all thirdparty tests" OFF)
-option(BUILD_NO_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_NoThirdparty'" ON)
+option(BUILD_NO_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_NoThirdparty'" OFF)
 option(BUILD_JOLT_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_JoltPhysics'" OFF)
 option(BUILD_FREETYPE_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_FreeType'" OFF)
 
