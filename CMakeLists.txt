@@ -70,8 +70,9 @@ endif()
 
 set(NOSTALGIA_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia)
 set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
+set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
 
-add_custom_target(EmbedAssets
+add_custom_command(${NOSTALGIA_EMBED_FILES}
     COMMAND ${CMAKE_COMMAND}
         -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded
         -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
@@ -79,9 +80,8 @@ add_custom_target(EmbedAssets
 include(Sources.cmake)
 include(Thirdparty.cmake)
 
-add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS})
+add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
 add_dependencies(Nostalgia
-    EmbedAssets
     freetype-object
     zlib-object
     bz2-object
