@@ -203,6 +203,8 @@ if(BUILD_NO_THIRDPARTY_TEST)
     add_executable(ThirdpartyTestApp_NoThirdparty ${TESTAPP_MAIN} ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
     add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
     target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
+    target_compile_definitions(ThirdpartyTestApp_NoThirdparty PUBLIC
+        -DTESTAPP_THEATRE=${CMAKE_CURRENT_SOURCE_DIR}/theatres/ThirdpartyTest_None.nt)
     if(MSVC)
         target_include_directories(ThirdpartyTestApp_NoThirdparty PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
         target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_23)
