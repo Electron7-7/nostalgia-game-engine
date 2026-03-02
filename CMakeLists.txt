@@ -199,12 +199,18 @@ endif()
 ##############
 ## TESTAPPS ##
 ##############
-
 if(BUILD_NO_THIRDPARTY_TEST)
     add_executable(ThirdpartyTestApp_NoThirdparty
         ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Thirdparty/NoThirdparty/app.cpp)
     add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
     target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
+    if(MSVC)
+        target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_23)
+        set_property(TARGET ThirdpartyTestApp_NoThirdparty PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    else()
+        target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_26)
+    endif()
 endif()
 
 if(BUILD_JOLT_THIRDPARTY_TEST)
