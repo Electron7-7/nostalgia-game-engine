@@ -45,6 +45,7 @@ int TestApplication::Main()
     {
         std::println("[STATUS] Theatre Load Successful");
         g_pTheatreManager->ShutdownTheatre();
+        std::println("[STATUS] Theatre Shtdown Successful");
         status = 0;
         auto start{Runtime::Current()};
         while(Runtime::Current() - start < 5.0) {}
