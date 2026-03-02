@@ -43,9 +43,12 @@ int TestApplication::Main()
 
     if(g_pTheatreManager->LoadNewTheatre(TESTAPP_THEATRE))
     {
-        std::println("[STATUS] Successful");
+        std::println("[STATUS] Theatre Load Successful");
         g_pTheatreManager->ShutdownTheatre();
         status = 0;
+        auto start{Runtime::Current()};
+        while(Runtime::Current() - start < 5.0) {}
+        std::println("[STATUS] Timer Wait Successful");
     }
     else
         { print_error("Unable to load testing theatre: {}", TESTAPP_THEATRE); }

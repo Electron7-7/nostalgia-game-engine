@@ -9,7 +9,7 @@ Collider3D TestCollider
 {
     Position = [0, -0.5, -3]
     Rotation = [-2, 4, -1]
-    Motion = (Static)
+    Motion = (Dynamic)
 }
 
 MeshInstance3D TestCubeNotUsingCollider
