@@ -196,9 +196,11 @@ endif()
 ##############
 ## TESTAPPS ##
 ##############
+set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
+set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
+
 if(BUILD_NO_THIRDPARTY_TEST)
-    add_executable(ThirdpartyTestApp_NoThirdparty
-        ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Thirdparty/NoThirdparty/app.cpp)
+    add_executable(ThirdpartyTestApp_NoThirdparty ${TESTAPP_MAIN} ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
     add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
     target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
     if(MSVC)
