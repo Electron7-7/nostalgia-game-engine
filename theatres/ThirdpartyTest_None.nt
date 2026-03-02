@@ -1,0 +1,17 @@
+@ThirdpartyTest_None#0
+
+Camera3D MainCam
+{
+    Current = [True]
+}
+
+MeshInstance3D TestCube
+{
+    Position = [0, -0.5, -3]
+    Rotation = [-2, 4, -1]
+    Mesh = <DefaultCube>
+    MaterialOverride = <DoomTexture>
+}
+
+DirectionalLight3D Sun
+{}
