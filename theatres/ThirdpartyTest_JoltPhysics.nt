@@ -1,0 +1,32 @@
+@ThirdpartyTest_None#0
+
+Camera3D MainCam
+{
+    Current = [True]
+}
+
+Collider3D TestCollider
+{
+    Position = [0, -0.5, -3]
+    Rotation = [-2, 4, -1]
+    Motion = (Static)
+}
+
+MeshInstance3D TestCubeNotUsingCollider
+{
+    Position = [-2, -0.5, -3]
+    Rotation = [-2, 4, -1]
+    Mesh = <DefaultCube>
+    MaterialOverride = <LolBitTexture>
+}
+
+MeshInstance3D TestCubeUsingCollider
+{
+    Position = [2, -0.5, -3]
+    Rotation = [-2, 4, -1]
+    Mesh = <DefaultCube>
+    MaterialOverride = <DoomTexture>
+}
+
+DirectionalLight3D Sun
+{}
