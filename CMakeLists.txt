@@ -204,6 +204,7 @@ if(BUILD_NO_THIRDPARTY_TEST)
     add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
     target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
     if(MSVC)
+        target_include_directories(ThirdpartyTestApp_NoThirdparty PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
         target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_23)
         set_property(TARGET ThirdpartyTestApp_NoThirdparty PROPERTY
             MSVC_RUNTIME_LIBRARY "MultiThreaded")
