@@ -10,6 +10,23 @@ option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
 
+# Testapp Options
+option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" OFF)
+option(BUILD_THIRDPARTY_TESTS "Build all thirdparty tests" OFF)
+option(BUILD_NO_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_NoThirdparty'" ON)
+option(BUILD_JOLT_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_JoltPhysics'" OFF)
+option(BUILD_FREETYPE_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_FreeType'" OFF)
+
+if(BUILD_ALL_TESTS)
+    set(BUILD_THIRDPARTY_TESTS ON)
+endif()
+
+if(BUILD_THIRDPARTY_TESTS)
+    set(BUILD_NO_THIRDPARTY_TEST ON)
+    set(BUILD_JOLT_THIRDPARTY_TEST ON)
+    set(BUILD_FREETYPE_THIRDPARTY_TEST ON)
+endif()
+
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
@@ -174,4 +191,23 @@ if(NOSTALGIA_BUILD_EDITOR)
             target_link_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
         endif()
     endif()
+endif()
+
+##############
+## TESTAPPS ##
+##############
+
+if(BUILD_NO_THIRDPARTY_TEST)
+    add_executable(ThirdpartyTestApp_NoThirdparty
+        ${CMAKE_CURRENT_SOURCE_DIR}/Tests/Thirdparty/NoThirdparty/app.cpp)
+    add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
+    target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
+endif()
+
+if(BUILD_JOLT_THIRDPARTY_TEST)
+
+endif()
+
+if(BUILD_FREETYPE_THIRDPARTY_TEST)
+
 endif()
