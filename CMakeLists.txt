@@ -76,7 +76,7 @@ set(NOSTALGIA_ASSET_FILES
     ${NOSTALGIA_ROOT}/embedded/fonts/Verdana.ttf
     ${NOSTALGIA_ROOT}/embedded/images/COMP04_5.png
     ${NOSTALGIA_ROOT}/embedded/images/LightDebug.jpg
-    ${NOSTALGIA_ROOT}/embedded/images/LolBit.jpg
+    ${NOSTALGIA_ROOT}/embedded/images/LolBit.png
     ${NOSTALGIA_ROOT}/embedded/images/Missing.jpg
     ${NOSTALGIA_ROOT}/embedded/images/SkyboxXn.png
     ${NOSTALGIA_ROOT}/embedded/images/SkyboxXp.png
