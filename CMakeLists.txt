@@ -199,23 +199,26 @@ endif()
 set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
 set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 
-if(BUILD_NO_THIRDPARTY_TEST)
-    add_executable(ThirdpartyTestApp_NoThirdparty ${TESTAPP_MAIN} ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
-    add_dependencies(ThirdpartyTestApp_NoThirdparty Nostalgia)
-    target_link_libraries(ThirdpartyTestApp_NoThirdparty PUBLIC $<TARGET_FILE:Nostalgia>)
-    file(COPY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/theatres/ThirdpartyTest_None.nt ../../ThirdpartyTest_None.nt)
+function(add_test_target TARGET_NAME TARGET_SOURCES)
+    add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
+    add_dependencies(${TARGET_NAME} Nostalgia)
+    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
     if(MSVC)
-        target_include_directories(ThirdpartyTestApp_NoThirdparty PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-        target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_23)
-        set_property(TARGET ThirdpartyTestApp_NoThirdparty PROPERTY
+        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
+        set_property(TARGET ${TARGET_NAME} PROPERTY
             MSVC_RUNTIME_LIBRARY "MultiThreaded")
     else()
-        target_compile_features(ThirdpartyTestApp_NoThirdparty PUBLIC cxx_std_26)
+        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_26)
     endif()
+endfunction()
+
+if(BUILD_NO_THIRDPARTY_TEST)
+    add_test_target(ThirdpartyTestApp_NoThirdparty ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
 endif()
 
 if(BUILD_JOLT_THIRDPARTY_TEST)
-
+    add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
 endif()
 
 if(BUILD_FREETYPE_THIRDPARTY_TEST)
