@@ -1,4 +1,4 @@
-#include "./app.hpp"
+#include "../../test_app.hpp"
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/events/action.hpp>
@@ -13,12 +13,16 @@
 #include <Nostalgia/theatre/thing_factory.hpp>
 #include <thread>
 
+const char* TestApplication::Name() { return "TestApplication (NoThirdparty)"; }
+void TestApplication::Input(InputEvent*) {}
+void TestApplication::Event(AppEvent*) {}
+
 void TestApplication::Stop()
 { IManager::Stop(); }
 
 int TestApplication::Main()
 {
-    mMainWindow = IWindow::CreateNewWindow(IWindow::Properties{"Thirdparty Test - JoltPhysics Only"});
+    mMainWindow = IWindow::CreateNewWindow(IWindow::Properties{"Thirdparty Test - No Thirdparty"});
 
     IManager::Add(g_pPhysicsManager);
     IManager::Add(g_pTheatreManager);
