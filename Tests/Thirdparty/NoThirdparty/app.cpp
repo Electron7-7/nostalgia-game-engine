@@ -13,6 +13,10 @@
 #include <Nostalgia/theatre/thing_factory.hpp>
 #include <thread>
 
+#ifndef TESTAPP_THEATRE
+#define TESTAPP_THEATRE "theatres/ThirdpartyTest_None.nt"
+#endif // TESTAPP_THEATRE
+
 const char* TestApplication::Name() { return "TestApplication (NoThirdparty)"; }
 void TestApplication::Input(InputEvent*) {}
 void TestApplication::Event(AppEvent*) {}
@@ -37,12 +41,14 @@ int TestApplication::Main()
 
     int status{1};
 
-    if(g_pTheatreManager->LoadNewTheatre("theatres/Thirdpartytest_None.nt"))
+    if(g_pTheatreManager->LoadNewTheatre(TESTAPP_THEATRE))
     {
         std::println("[STATUS] Successful");
         g_pTheatreManager->ShutdownTheatre();
         status = 0;
     }
+    else
+        { print_error("Unable to load testing theatre: {}", TESTAPP_THEATRE); }
 
     Stop();
     managers_thread.join();
