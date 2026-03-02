@@ -14,7 +14,7 @@
 #include <thread>
 
 #ifndef TESTAPP_THEATRE
-#define TESTAPP_THEATRE "theatres/ThirdpartyTest_None.nt"
+#define TESTAPP_THEATRE "../../theatres/ThirdpartyTest_None.nt"
 #endif // TESTAPP_THEATRE
 
 const char* TestApplication::Name() { return "TestApplication (NoThirdparty)"; }
