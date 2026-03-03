@@ -1241,3 +1241,9 @@ I can now create games on Windows and Linux!!!
 
 [02/26/26]
 Aight, I put the finishing touches on the build system for now. DLLs are a uniquely challenging beast compared to the relatively simple and easy shared library, so I'll be working on DLL support on the side but the current build will not support building Nostalgia as a DLL. That being said, I think version 0.1.5 is gonna be the first version with working binaries and a non-hidden release tab!
+
+[02/27/26]
+Gonna iron out some bugs, get 'rose-tinted' working, and then hopefully move on with releasing version 0.1.5!
+
+[03/02/26]
+Hmpf, the release build crashes on Windows but the debug build doesn't. I'm gonna develop some test apps to try and sus out what's up.
