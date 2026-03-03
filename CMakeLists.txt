@@ -3,8 +3,8 @@ project(Nostalgia
     VERSION 0.1.5
     LANGUAGES CXX C)
 
-add_compile_options(/Zi)
-add_link_options(/DEBUG:FULL)
+# add_compile_options(/Zi)
+# add_link_options(/DEBUG:FULL)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
 option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
