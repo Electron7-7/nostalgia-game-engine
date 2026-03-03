@@ -90,7 +90,7 @@ else()
     # If the tool was found, create the custom target.
     add_custom_target(CombineStaticLibraries
         COMMAND ${MSVC_LIB_TOOL} /OUT:$<TARGET_FILE_DIR:${NOSTALGIA_LIB}>/Nostalgia-final.lib
-            $<TARGET_FILE:Nostalgia>
+            $<TARGET_FILE:${NOSTALGIA_LIB}>
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
