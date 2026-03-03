@@ -70,41 +70,11 @@ endif()
 
 set(NOSTALGIA_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia)
 set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
-set(NOSTALGIA_ASSET_FILES
-    ${NOSTALGIA_ROOT}/embedded/fonts/Audiowide.ttf
-    ${NOSTALGIA_ROOT}/embedded/fonts/DejaVuSans.ttf
-    ${NOSTALGIA_ROOT}/embedded/fonts/Verdana.ttf
-    ${NOSTALGIA_ROOT}/embedded/images/COMP04_5.png
-    ${NOSTALGIA_ROOT}/embedded/images/LightDebug.jpg
-    ${NOSTALGIA_ROOT}/embedded/images/LolBit.jpg
-    ${NOSTALGIA_ROOT}/embedded/images/Missing.jpg
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxXn.png
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxXp.png
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxYn.png
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxYp.png
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxZn.png
-    ${NOSTALGIA_ROOT}/embedded/images/SkyboxZp.png
-    ${NOSTALGIA_ROOT}/embedded/models/Camera.obj
-    ${NOSTALGIA_ROOT}/embedded/models/Cube.obj
-    ${NOSTALGIA_ROOT}/embedded/models/DebugAxis.obj
-    ${NOSTALGIA_ROOT}/embedded/models/Error.obj
-    ${NOSTALGIA_ROOT}/embedded/models/Quad.obj
-    ${NOSTALGIA_ROOT}/embedded/models/Ramiel.obj
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/BlinnPhong.frag
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/BlinnPhong.vert
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/Fast2D.frag
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/Fast2D.vert
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/Font.frag
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/Font.vert
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/FullBright.frag
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/SkyBox.frag
-    ${NOSTALGIA_ROOT}/embedded/shaders/GLSL/SkyBox.vert)
+set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
 
-add_custom_target(EmbedAssets
+add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
     COMMAND ${CMAKE_COMMAND}
-        -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded
-        -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake
-    SOURCES ${NOSTALGIA_ASSET_FILES})
+    ARGS -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
 
 include(Sources.cmake)
 include(Thirdparty.cmake)
