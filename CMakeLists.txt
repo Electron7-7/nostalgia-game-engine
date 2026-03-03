@@ -72,10 +72,9 @@ set(NOSTALGIA_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia)
 set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
 set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
 
-add_custom_command(${NOSTALGIA_EMBED_FILES}
+add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
     COMMAND ${CMAKE_COMMAND}
-        -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded
-        -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
+    ARGS -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
 
 include(Sources.cmake)
 include(Thirdparty.cmake)
