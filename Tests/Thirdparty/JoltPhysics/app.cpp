@@ -44,12 +44,10 @@ int TestApplication::Main()
     if(g_pTheatreManager->LoadNewTheatre(TESTAPP_THEATRE))
     {
         std::println("[STATUS] Theatre Load Successful");
+        std::println("[STATUS] Waiting for 5 Seconds");
         auto start{Runtime::Current()};
-        std::print("Waiting");
-        while(Runtime::Current() - start < 5.0)
-            { std::print("."); }
-        std::print("\n");
-        std::println("[STATUS] Timer Wait Successful");
+        std::println("[STATUS] Wait Successful");
+        std::println("[STATUS] Shutting Down Theatre");
         g_pTheatreManager->ShutdownTheatre();
         std::println("[STATUS] Theatre Shutdown Successful");
         status = 0;
@@ -65,7 +63,7 @@ int TestApplication::Main()
     IManager::ShutdownAllManagers();
     IManager::RemoveAll();
 
-    std::println("[STATUS] All Done!");
+    std::println("[STATUS] Exiting With Status 0");
 
     return status;
 }
