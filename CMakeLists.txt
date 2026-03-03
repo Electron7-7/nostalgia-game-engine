@@ -88,7 +88,7 @@ else()
     set(NOSTALGIA_LIB Nostalgia-final)
 
     # If the tool was found, create the custom target.
-    add_custom_target(CombineStaticLibraries
+    add_custom_target(${NOSTALGIA_LIB}
         COMMAND ${MSVC_LIB_TOOL} /OUT:$<TARGET_FILE_DIR:Nostalgia>/Nostalgia-final.lib
             $<TARGET_FILE:Nostalgia>
             ${NOSTALGIA_JOLT_LIB}
