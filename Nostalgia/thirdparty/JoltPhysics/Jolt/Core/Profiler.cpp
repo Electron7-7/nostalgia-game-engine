@@ -43,11 +43,10 @@ Profiler *Profiler::sInstance = nullptr;
         sInstance = inInstance;
     }
 #else
-    static thread_local ProfileThread *sInstance = nullptr;
-    // thread_local ProfileThread *ProfileThread::sInstance = nullptr;
+    thread_local ProfileThread *ProfileThread::sInstance = nullptr;
 #endif
 
-// bool ProfileMeasurement::sOutOfSamplesReported = false;
+bool ProfileMeasurement::sOutOfSamplesReported = false;
 
 void Profiler::UpdateReferenceTime()
 {
