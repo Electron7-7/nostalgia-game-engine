@@ -16,7 +16,7 @@ set(CMAKE_RULE_MESSAGES ON)
 # Hide thirdparty CMake options behind the "advanced" option in cmake-gui
 mark_as_advanced(CLEAR CMAKE_BUILD_TYPE)
 mark_as_advanced(CLEAR BUILD_SHARED_LIBS)
-mark_as_advanced(CLEAR GENERATE_DEBUG_SYMBOLS)
+mark_as_advanced(FORCE GENERATE_DEBUG_SYMBOLS)
 mark_as_advanced(FORCE CMAKE_INSTALL_PREFIX)
 mark_as_advanced(FORCE X11_xcb_xkb_INCLUDE_PATH)
 mark_as_advanced(FORCE WAYLAND_SCANNER_EXECUTABLE)

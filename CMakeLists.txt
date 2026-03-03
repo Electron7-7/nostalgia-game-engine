@@ -5,29 +5,26 @@ project(Nostalgia
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
 option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
-option(NOSTALGIA_BUILD_EDITOR "Build the editor/testing app" ON)
+option(BUILD_EDITOR "Build the editor/testing app" ON)
 option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
+if(NOT MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    option(NOSTALGIA_USE_ADDRESS_SANITIZER "Use address sanitizer when building Nostalgia and the included testing apps" OFF)
+endif()
+
+# -fPIC
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Testapp Options
 option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
-option(BUILD_THIRDPARTY_TESTS "Build all thirdparty tests" OFF)
 option(BUILD_NO_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_NoThirdparty'" OFF)
 option(BUILD_JOLT_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_JoltPhysics'" OFF)
-option(BUILD_FREETYPE_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_FreeType'" OFF)
 
 if(BUILD_ALL_TESTS)
-    set(BUILD_THIRDPARTY_TESTS ON)
-endif()
-
-if(BUILD_THIRDPARTY_TESTS)
     set(BUILD_NO_THIRDPARTY_TEST ON)
     set(BUILD_JOLT_THIRDPARTY_TEST ON)
-    set(BUILD_FREETYPE_THIRDPARTY_TEST ON)
 endif()
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
@@ -37,13 +34,11 @@ if(MSVC)
     if(BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
     endif()
+
     message(STATUS "Heads Up: For some god-forsaken reason, there's a crash that happens when loading a Theatre but only on the Release version. I don't know why, but the only solution I have for this right now is to add '/DEBUG' to the compile options. Blame Visual Studio and Microsoft; I'll try to fix this asap but you'll have to deal with the '/DEBUG' flag in Release builds for now. It's still version 0.x so what did u expect?")
     add_link_options(/DEBUG)
-endif()
 
-if(MSVC)
     set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_DX12)
-
     set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
     set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_CURRENT_BINARY_DIR}/NostalgiaHeaderFiles)
     message(STATUS "Available Configurations: Debug, Release")
@@ -92,7 +87,11 @@ add_dependencies(Nostalgia
     Jolt-object)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
-    ${NOSTALGIA_JPH_DEFINITIONS})
+    ${NOSTALGIA_JPH_DEFINITIONS}
+    $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
+target_compile_options(Nostalgia
+    PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
+    PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
 target_link_libraries(Nostalgia PRIVATE
     freetype-object
     zlib-object
@@ -103,7 +102,6 @@ target_link_libraries(Nostalgia PRIVATE
     png-object
     glfw-object
     Jolt-object)
-
 target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
@@ -131,10 +129,8 @@ if(MINGW)
 endif()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    target_compile_definitions(Nostalgia PUBLIC NOSTALGIA_DEBUGGING)
     if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
-        target_compile_options(Nostalgia PUBLIC -Wall -O0 -g -fsanitize=address)
-        target_link_options(Nostalgia PUBLIC -Wall -O0 -g -fsanitize=address)
+
     endif()
 endif()
 
@@ -166,9 +162,13 @@ endif()
 ################
 set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 
-if(NOSTALGIA_BUILD_EDITOR)
+if(BUILD_EDITOR)
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
     add_dependencies(NostalgiaGoggles Nostalgia)
+    target_compile_definitions(NostalgiaGoggles PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
+    target_compile_options(NostalgiaGoggles
+        PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
+        PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
@@ -187,7 +187,6 @@ if(NOSTALGIA_BUILD_EDITOR)
     endif()
 
     if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-        target_compile_definitions(NostalgiaGoggles PUBLIC NOSTALGIA_DEBUGGING)
         if(NOT MSVC AND ${CMAKE_CXX_COMPILER_ID} EQUAL Clang)
             target_compile_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
             target_link_options(NostalgiaGoggles PUBLIC -Wall -O0 -g -fsanitize=address)
@@ -205,7 +204,12 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
     add_dependencies(${TARGET_NAME} Nostalgia)
     target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
-    target_compile_definitions(${TARGET_NAME} PUBLIC ${NOSTALGIA_JPH_DEFINITIONS})
+    target_compile_definitions(${TARGET_NAME}
+        PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
+        PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
+    target_compile_options(${TARGET_NAME}
+        PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
+        PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     if(MSVC)
         target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
         target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
@@ -222,8 +226,4 @@ endif()
 
 if(BUILD_JOLT_THIRDPARTY_TEST)
     add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
-endif()
-
-if(BUILD_FREETYPE_THIRDPARTY_TEST)
-
 endif()
