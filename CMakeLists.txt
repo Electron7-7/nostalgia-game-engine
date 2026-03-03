@@ -193,7 +193,7 @@ if(BUILD_EDITOR)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:${NOSTALGIA_LIB}>)
+    target_link_libraries(NostalgiaGoggles PUBLIC ${NOSTALGIA_LIB})
 
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
@@ -224,7 +224,7 @@ set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
     add_dependencies(${TARGET_NAME} ${NOSTALGIA_LIB})
-    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:${NOSTALGIA_LIB}>)
+    target_link_libraries(${TARGET_NAME} PUBLIC ${NOSTALGIA_LIB})
     target_compile_definitions(${TARGET_NAME}
         PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
