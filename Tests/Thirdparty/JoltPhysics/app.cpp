@@ -45,7 +45,10 @@ int TestApplication::Main()
     {
         std::println("[STATUS] Theatre Load Successful");
         auto start{Runtime::Current()};
-        while(Runtime::Current() - start < 5.0) {}
+        std::print("Waiting");
+        while(Runtime::Current() - start < 5.0)
+            { std::print("."); }
+        std::print("\n");
         std::println("[STATUS] Timer Wait Successful");
         g_pTheatreManager->ShutdownTheatre();
         std::println("[STATUS] Theatre Shutdown Successful");
@@ -54,10 +57,15 @@ int TestApplication::Main()
     else
         { print_error("Unable to load testing theatre: {}", TESTAPP_THEATRE); }
 
+    while(Manager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL) {}
+
     Stop();
+    while(!managers_thread.joinable()) {}
     managers_thread.join();
     IManager::ShutdownAllManagers();
     IManager::RemoveAll();
+
+    std::println("[STATUS] All Done!");
 
     return status;
 }
