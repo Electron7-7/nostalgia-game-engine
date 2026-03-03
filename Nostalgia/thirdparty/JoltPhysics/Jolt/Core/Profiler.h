@@ -235,7 +235,7 @@ private:
 	ProfileSample *				mSample;
 	ProfileSample				mTemp;
 
-	static bool					sOutOfSamplesReported;
+	inline static bool					sOutOfSamplesReported{false};
 };
 
 JPH_NAMESPACE_END
