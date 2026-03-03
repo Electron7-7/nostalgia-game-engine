@@ -26,12 +26,12 @@ set(PACKAGE_VERSION ${PROJECT_VERSION})
 HexVersion(PACKAGE_VERSION_NUM ${PROJECT_VERSION_MAJOR} ${PROJECT_VERSION_MINOR} ${PROJECT_VERSION_PATCH})
 
 # Do not disable assertions based on CMAKE_BUILD_TYPE.
-foreach(_build_type Release MinSizeRel RelWithDebInfo)
-    foreach(_lang C)
-        string(TOUPPER CMAKE_${_lang}_FLAGS_${_build_type} _var)
-        string(REGEX REPLACE "(^|)[/-]D *NDEBUG($|)" " " ${_var} "${${_var}}")
-    endforeach()
-endforeach()
+# foreach(_build_type Release MinSizeRel RelWithDebInfo)
+#     foreach(_lang C)
+#         string(TOUPPER CMAKE_${_lang}_FLAGS_${_build_type} _var)
+#         string(REGEX REPLACE "(^|)[/-]D *NDEBUG($|)" " " ${_var} "${${_var}}")
+#     endforeach()
+# endforeach()
 
 # Support the latest c++ standard available.
 include(ExtractValidFlags)
