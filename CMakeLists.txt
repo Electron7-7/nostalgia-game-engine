@@ -35,7 +35,7 @@ if(MSVC)
         message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
     endif()
 
-    message(STATUS "Heads Up: For some god-forsaken reason, there's a crash that happens when loading a Theatre but only on the Release version. I don't know why, but the only solution I have for this right now is to add '/DEBUG' to the compile options. Blame Visual Studio and Microsoft; I'll try to fix this asap but you'll have to deal with the '/DEBUG' flag in Release builds for now. It's still version 0.x so what did u expect?")
+    message(STATUS "Heads Up: For some god-forsaken reason, there's a crash that happens when loading a Theatre but only on the Release version. I don't know why, but the only solution I have for this right now is to add '/DEBUG' to the compile options.\nBlame Visual Studio and Microsoft; I'll try to fix this asap but you'll have to deal with the '/DEBUG' flag in Release builds for now. It's still version 0.x so what did u expect?")
     add_link_options(/DEBUG)
 
     set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_DX12)
