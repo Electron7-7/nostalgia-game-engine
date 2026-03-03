@@ -75,13 +75,27 @@ add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
 include(Sources.cmake)
 include(Thirdparty.cmake)
 
+set(NOSTALGIA_LIB Nostalgia)
+
 if(NOT NOSTALGIA_JOLT_LIB)
     set(NOSTALGIA_JOLT_LIB Jolt-object)
     set(NOSTALGIA_JOLT_DEP Jolt-object)
+else()
+    # https://stackoverflow.com/a/60191548
+    # Tell CMake to locate the lib.exe tool.
+    find_program(MSVC_LIB_TOOL lib.exe PATHS "$ENV{ProgramFiles}/Microsoft Visual Studio/18/Community/VC/Tools/Llvm/x64/bin" REQUIRED)
+
+    set(NOSTALGIA_LIB Nostalgia-final)
+
+    # If the tool was found, create the custom target.
+    add_custom_target(CombineStaticLibraries
+        COMMAND ${MSVC_LIB_TOOL} /OUT:$<TARGET_FILE_DIR:${NOSTALGIA_LIB}>/Nostalgia-final.lib
+            $<TARGET_FILE:Nostalgia>
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
-add_dependencies(Nostalgia
+add_library(${NOSTALGIA_LIB} ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
+add_dependencies(${NOSTALGIA_LIB}
     freetype-object
     zlib-object
     bz2-object
@@ -91,14 +105,14 @@ add_dependencies(Nostalgia
     png-object
     glfw-object
     ${NOSTALGIA_JOLT_DEP})
-target_compile_definitions(Nostalgia PUBLIC
+target_compile_definitions(${NOSTALGIA_LIB} PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS}
     $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
-target_compile_options(Nostalgia
+target_compile_options(${NOSTALGIA_LIB}
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
     PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
-target_link_libraries(Nostalgia PRIVATE
+target_link_libraries(${NOSTALGIA_LIB} PRIVATE
     freetype-object
     zlib-object
     bz2-object
@@ -108,10 +122,10 @@ target_link_libraries(Nostalgia PRIVATE
     png-object
     glfw-object
     PUBLIC ${NOSTALGIA_JOLT_LIB})
-target_precompile_headers(Nostalgia PUBLIC
+target_precompile_headers(${NOSTALGIA_LIB} PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
-target_include_directories(Nostalgia
+target_include_directories(${NOSTALGIA_LIB}
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     PUBLIC ${NOSTALGIA_ROOT}
@@ -120,18 +134,18 @@ target_include_directories(Nostalgia
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/freetype/include)
 
 if(MSVC)
-    target_compile_features(Nostalgia PUBLIC cxx_std_23)
-    set_property(TARGET Nostalgia PROPERTY
+    target_compile_features(${NOSTALGIA_LIB} PUBLIC cxx_std_23)
+    set_property(TARGET ${NOSTALGIA_LIB} PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set_property(TARGET Jolt PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 else()
-    target_compile_features(Nostalgia PUBLIC cxx_std_26)
+    target_compile_features(${NOSTALGIA_LIB} PUBLIC cxx_std_26)
 endif()
 
 if(MINGW)
     # std:: print, println, ...
-    target_link_libraries(Nostalgia PUBLIC stdc++exp)
+    target_link_libraries(${NOSTALGIA_LIB} PUBLIC stdc++exp)
 endif()
 
 if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
@@ -159,7 +173,7 @@ if(NOSTALGIA_INSTALL)
     # Install the engine last; this lets users install headers without building the library
     # it also lets the more important build message show up at the bottom.
     if(NOT MSVC)
-        install(TARGETS Nostalgia DESTINATION lib)
+        install(TARGETS ${NOSTALGIA_LIB} DESTINATION lib)
     endif()
 endif()
 
@@ -170,7 +184,7 @@ set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 
 if(BUILD_EDITOR)
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
-    add_dependencies(NostalgiaGoggles Nostalgia)
+    add_dependencies(NostalgiaGoggles ${NOSTALGIA_LIB})
     target_compile_definitions(NostalgiaGoggles PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(NostalgiaGoggles
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
@@ -178,7 +192,7 @@ if(BUILD_EDITOR)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:Nostalgia>)
+    target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:${NOSTALGIA_LIB}>)
 
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
@@ -208,8 +222,8 @@ set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 
 function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
-    add_dependencies(${TARGET_NAME} Nostalgia)
-    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
+    add_dependencies(${TARGET_NAME} ${NOSTALGIA_LIB})
+    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:${NOSTALGIA_LIB}>)
     target_compile_definitions(${TARGET_NAME}
         PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
