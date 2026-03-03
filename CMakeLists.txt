@@ -107,7 +107,7 @@ target_link_libraries(Nostalgia PRIVATE
     brotlienc-object
     png-object
     glfw-object
-    ${NOSTALGIA_JOLT_LIB})
+    PUBLIC ${NOSTALGIA_JOLT_LIB})
 target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
