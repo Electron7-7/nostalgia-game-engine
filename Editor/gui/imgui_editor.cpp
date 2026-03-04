@@ -1,4 +1,5 @@
 #include "imgui_editor.hpp"
+#include "imgui_debugger.hpp"
 #include "things/player.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
@@ -167,50 +168,56 @@ void ImGui_Editor::Update()
         auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(sEditorViewportID)};
         if(viewport->uid().invalid())
             { End(); return; }
-        BeginChild("Viewport",
-            {500, 500},
-            sResizableChildWithBorder,
-            ImGuiWindowFlags_NoScrollbar |
-                ImGuiWindowFlags_NoScrollWithMouse);
-            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-            Image((ImTextureID)viewport->Framebuffer()->TextureID(),
-                {(float)viewport->Size().w(), (float)viewport->Size().h()},
-                {0, 1},
-                {1, 0});
-            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-        EndChild();
-        static bool camera_moving{false};
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
-        if((IsItemHovered() or camera_moving)
-            and !player->mCaptureMouse)
-        {
-            if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
-                { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
-            if(InputManager::IsKeyDown(Key::MouseLeft))
+        BeginChild("LeftSide",
+            {0, 0},
+            sResizableChildWithBorder);
+            BeginChild("Viewport",
+                {500, 500},
+                sResizableChildWithBorder,
+                ImGuiWindowFlags_NoScrollbar |
+                    ImGuiWindowFlags_NoScrollWithMouse);
+                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+                Image((ImTextureID)viewport->Framebuffer()->TextureID(),
+                    {(float)viewport->Size().w(), (float)viewport->Size().h()},
+                    {0, 1},
+                    {1, 0});
+                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+            EndChild();
+            static bool camera_moving{false};
+            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+            if((IsItemHovered() or camera_moving)
+                and !player->mCaptureMouse)
             {
-                auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
-                auto motion{InputManager::MouseMotion()};
-                camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
-                glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
-                    InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
+                if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
+                    { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
+                if(InputManager::IsKeyDown(Key::MouseLeft))
+                {
+                    auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
+                    auto motion{InputManager::MouseMotion()};
+                    camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
+                    glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
+                        InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
-                camera->SetPosition(camera->Position() +
-                    ((
-                        ((camera->Quaternion() * Settings::World::Front()) *
-                            movement_direction[1]) +
-                        ((camera->Quaternion() * Settings::World::Right()) *
-                            movement_direction[0])
-                    ) * 0.1f)
-                );
+                    camera->SetPosition(camera->Position() +
+                        ((
+                            ((camera->Quaternion() * Settings::World::Front()) *
+                                movement_direction[1]) +
+                            ((camera->Quaternion() * Settings::World::Right()) *
+                                movement_direction[0])
+                        ) * 0.1f)
+                    );
+                }
             }
-        }
-        if(InputManager::IsKeyUp(Key::MouseLeft)
-            and camera_moving
-            and !player->mCaptureMouse)
-            { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
-        BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
-            s_ThingAdder();
+            if(InputManager::IsKeyUp(Key::MouseLeft)
+                and camera_moving
+                and !player->mCaptureMouse)
+                { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
+            BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
+                s_ThingAdder();
+            EndChild();
         EndChild();
+        SameLine();
+        ImGui_Debugger::InspectTheatreWindow();
     }
     End();
 }
