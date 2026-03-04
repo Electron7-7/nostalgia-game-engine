@@ -148,7 +148,7 @@ set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 if(BUILD_EDITOR)
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
     add_dependencies(NostalgiaGoggles Nostalgia)
-    target_compile_definitions(NostalgiaGoggles PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING> ${NOSTALGIA_JPH_DEFINITIONS})
+    target_compile_definitions(NostalgiaGoggles PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(NostalgiaGoggles
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
@@ -179,7 +179,6 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     target_link_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
     target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
     target_compile_definitions(${TARGET_NAME}
-        PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
@@ -213,7 +212,6 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_dependencies(${TARGET_NAME} Nostalgia)
     target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
     target_compile_definitions(${TARGET_NAME}
-        PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
