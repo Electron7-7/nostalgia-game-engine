@@ -201,3 +201,37 @@ endif()
 if(BUILD_JOLT_THIRDPARTY_TEST)
     add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
 endif()
+
+##############
+## TESTAPPS ##
+##############
+set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
+set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
+
+function(add_test_target TARGET_NAME TARGET_SOURCES)
+    add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
+    add_dependencies(${TARGET_NAME} Nostalgia)
+    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
+    target_compile_definitions(${TARGET_NAME}
+        PUBLIC ${NOSTALGIA_JPH_DEFINITIONS}
+        PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
+    target_compile_options(${TARGET_NAME}
+        PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
+        PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
+    if(MSVC)
+        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
+        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
+        set_property(TARGET ${TARGET_NAME} PROPERTY
+            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    else()
+        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_26)
+    endif()
+endfunction()
+
+if(BUILD_NO_THIRDPARTY_TEST)
+    add_test_target(ThirdpartyTestApp_NoThirdparty ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
+endif()
+
+if(BUILD_JOLT_THIRDPARTY_TEST)
+    add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
+endif()
