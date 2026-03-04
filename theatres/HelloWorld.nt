@@ -228,6 +228,12 @@ Texture TestTexture2
     Image = 'testing_resources/TestTexture2.png'
 }
 
+Actor2D TestSpriteParent
+{
+    Child = <TestSprite>
+    Child = <TestSpriteCaption>
+}
+
 TestAnimatedSprite2D TestSprite
 {
     Texture0 = <TestTexture1>
