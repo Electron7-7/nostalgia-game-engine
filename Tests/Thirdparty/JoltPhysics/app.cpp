@@ -45,7 +45,8 @@ int TestApplication::Main()
     {
         std::println("[STATUS] Theatre Load Successful");
         std::println("[STATUS] Waiting for 5 Seconds");
-        auto start{Runtime::Current()};
+        auto start{ Runtime::Current() };
+        while (Runtime::Current() - start < 5.0) {}
         std::println("[STATUS] Wait Successful");
         std::println("[STATUS] Shutting Down Theatre");
         g_pTheatreManager->ShutdownTheatre();
