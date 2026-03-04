@@ -12,6 +12,14 @@ option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, incl
 if(NOT MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     option(NOSTALGIA_USE_ADDRESS_SANITIZER "Use address sanitizer when building Nostalgia and the included testing apps" OFF)
 endif()
+option(NOSTALGIA_DISABLE_PIC "Disable position independant code (-fPIC)" OFF)
+mark_as_advanced(NOSTALGIA_DISABLE_PIC)
+
+# Always enable PIC unless otherwise specified
+# This makes sure you don't have to re-compile everything when switching between static and shared library builds
+if(NOT NOSTALGIA_DISABLE_PIC)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
 
 # Testapp Options
 option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
@@ -42,9 +50,6 @@ else()
         set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build" FORCE)
     endif()
     message(STATUS "Build type is '${CMAKE_BUILD_TYPE}'")
-    if(BUILD_SHARED_LIBS)
-        set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-    endif()
 endif()
 
 if(NOT CMAKE_EXPORT_COMPILE_COMMANDS)
