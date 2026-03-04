@@ -1247,3 +1247,6 @@ Gonna iron out some bugs, get 'rose-tinted' working, and then hopefully move on 
 
 [03/02/26]
 Hmpf, the release build crashes on Windows but the debug build doesn't. I'm gonna develop some test apps to try and sus out what's up.
+
+[03/03/26]
+After lots of work,,, it was a couple lines in freetype that try to get an environment variable. Windows sucks. Anyways, back to releasing this son of a bitch.
