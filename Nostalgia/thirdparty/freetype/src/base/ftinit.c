@@ -121,10 +121,10 @@
 
     int  i;
 
-
-    env = ft_getenv( "FREETYPE_PROPERTIES" );
-    if ( !env )
-      return;
+    // env = ft_getenv( "FREETYPE_PROPERTIES" );
+    //if ( !env )
+      //return;
+    return;
 
     for ( p = env; *p; p++ )
     {
