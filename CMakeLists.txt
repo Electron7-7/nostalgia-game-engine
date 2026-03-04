@@ -12,7 +12,6 @@ option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, incl
 if(NOT MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     option(NOSTALGIA_USE_ADDRESS_SANITIZER "Use address sanitizer when building Nostalgia and the included testing apps" OFF)
 endif()
-set(NOSTALGIA_JOLT_LIB "" CACHE STRING "If you want to use a pre-compiled Jolt library, set its path here")
 
 # Testapp Options
 option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
