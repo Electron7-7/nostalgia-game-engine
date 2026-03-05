@@ -22,6 +22,8 @@ void Light3D::ClearCounts()
 
 void Light3D::Ready()
 {
+    Visual3D::Ready();
+
     if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
     {
