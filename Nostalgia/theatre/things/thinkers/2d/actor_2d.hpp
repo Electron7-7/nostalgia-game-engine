@@ -1,6 +1,8 @@
 #ifndef ACTOR_2D_H
 #define ACTOR_2D_H
 
+#include <Nostalgia/math/transform.hpp>
+
 // Similar to Godot's `Node2D`
 class Actor2D : public Thinker
 {
@@ -26,15 +28,18 @@ public:
     float GlobalRotationDegrees() const;
     glm::vec2 GlobalScale() const;
 
-    void SetGlobalPosition(Farg<glm::vec2>);
-    void SetGlobalRotation(float);
-    void SetGlobalRotationDegrees(float);
-    void SetGlobalScale(Farg<glm::vec2>);
-
 protected:
-    glm::vec2 mPosition{};
-    float     mRotationRadians{};
-    float     mRotationDegrees{};
-    glm::vec2 mScale{1.0f};
+    Transform2D mLocalTransform{};
+    void _update_global_transform();
+
+    virtual void OnChildAdded(Relative) override;
+
+private:
+    Transform2D mGlobalTransform{mLocalTransform};
+    Transform2D mParentGlobalTransform{};
+
+    void _update_global_transform(Farg<Transform2D> inParentGlobalTransform);
+    void _update_children_global_transform(bool isCalledFromReady = false);
 };
+
 #endif // ACTOR_2D_H
