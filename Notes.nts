@@ -1250,3 +1250,12 @@ Hmpf, the release build crashes on Windows but the debug build doesn't. I'm gonn
 
 [03/03/26]
 After lots of work,,, it was a couple lines in freetype that try to get an environment variable. Windows sucks. Anyways, back to releasing this son of a bitch.
+
+[03/04/26]
+All right, I've just realized there's a flaw with global rotation calculation: it needs to be calculated with local and global positions in mind. Basically, I need to apply parent-inherited rotation around the parent's origin, not the child's.
+
+Ugh, this is so complicated... I might be better off storing the actor's transformation as a matrix, because the child's position is also affected by their parent's rotation.
+
+I might try storing the global transformation values in variables and every time an actor's transformation is changed, it triggers a function in all of its children that update these variables.
+
+Okay, my solution is to store global transformation as a variable that gets updated every time the actor or an ancestor of it changes their local transform.
