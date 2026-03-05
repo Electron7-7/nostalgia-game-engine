@@ -1259,3 +1259,6 @@ Ugh, this is so complicated... I might be better off storing the actor's transfo
 I might try storing the global transformation values in variables and every time an actor's transformation is changed, it triggers a function in all of its children that update these variables.
 
 Okay, my solution is to store global transformation as a variable that gets updated every time the actor or an ancestor of it changes their local transform.
+
+[03/05/26]
+Updated the version number to use actual numbers that are stringified in the `NOSTALGIA_VERSION_STRING` macro.
