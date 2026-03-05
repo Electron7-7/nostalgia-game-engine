@@ -335,43 +335,51 @@ IdSet_arg Theatre::Get2DCameras()
 
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Get(inParentID).children;
 }
 
 ID Theatre::GetParent(ID inChildID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Get(inChildID).parent;
 }
 
 IdSet_t Theatre::GetAllChildren(ID inParentID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Descendants(inParentID);
 }
 
 IdSet_t Theatre::GetAllParents(ID inChildID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     return mCallSheet.Ancestors(inChildID);
 }
 
 Error Theatre::SetParent(ID inChildID, ID inParentID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     // NOTE: Probably redundant. Too bad!
-    if(!mCallSheet.Has(inChildID)
-        or (!inParentID.invalid() and !mCallSheet.Has(inParentID)))
+    if(not mCallSheet.Has(inChildID)
+        or (not inParentID.invalid() and not mCallSheet.Has(inParentID)))
             { return print_error_enum(ERR_NOT_FOUND); }
 
     auto old_parent_id{mCallSheet.Get(inChildID).parent};
     auto old_ancestors{mCallSheet.Ancestors(inChildID)};
 
-    if(auto status{mCallSheet.Reparent(inChildID, inParentID)}; !status)
+    if(auto status{mCallSheet.Reparent(inChildID, inParentID)}; not status)
         { return print_error_enum(status); }
+
+    auto child{GetThinker(inChildID)};
+    auto parent{GetThinker(inParentID)};
+    auto old_parent{GetThinker(old_parent_id)};
+
+    parent->OnChildAdded(child);
+    old_parent->OnChildRemoved(child);
+    child->OnParentChanged(parent, old_parent);
 
     auto new_ancestors{mCallSheet.Ancestors(inChildID)};
     auto descendants{mCallSheet.Descendants(inParentID)};
@@ -398,7 +406,7 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 
 Error Theatre::DropParent(ID inChildID)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
@@ -468,7 +476,7 @@ void Theatre::SetupUID(ThingData& ioData)
 
 void Theatre::SetupOwnership(Farg<ThingData> ioData)
 {
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     ID parent{ioData.get_parent()};
     IdSet_t children{ioData.get_children()};
@@ -555,7 +563,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 Error Theatre::DestroyThingOnly(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    LockGuard<Mutex> callsheet_lock{mCallSheetMutex};
+    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     if(!mThings.contains(inID))
     {
