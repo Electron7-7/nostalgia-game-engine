@@ -201,6 +201,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/fwd/event_types.hpp
     ${NOSTALGIA_ROOT}/fwd/application.hpp
     ${NOSTALGIA_ROOT}/Nostalgia.hpp
+    ${NOSTALGIA_ROOT}/math/transform.hpp
     ${NOSTALGIA_ROOT}/math/glm_format.hpp
     ${NOSTALGIA_ROOT}/math/conversion.hpp
     ${NOSTALGIA_ROOT}/math/glm_concepts.hpp)
