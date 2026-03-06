@@ -74,6 +74,7 @@
 #include <Nostalgia/core/bitmask.hpp>                         // IWYU pragma: keep
 #include <Nostalgia/core/smart_pointers.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/enum_prettifier.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/console/console.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/conversion.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/glm_concepts.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/math/glm_format.hpp>                      // IWYU pragma: keep
