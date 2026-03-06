@@ -67,6 +67,9 @@ private:
     JPH::PhysicsSystem* m_pSystem{nullptr};
 
     PhysicsEngine() noexcept;
+
+    friend class Jolt_ContactListener;
+    void TellCollidersAboutCollision(Farg<JPH::Body>, Farg<JPH::Body>);
 };
 
 #endif // PHYSICS_ENGINE_H

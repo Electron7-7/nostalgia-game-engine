@@ -1,4 +1,6 @@
 #include "./engine.hpp"
+#include "managers/theatre_manager.hpp"
+#include "theatre/theatre.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "thirdparty/Jolt/Core/Factory.h"
 #include "thirdparty/Jolt/RegisterTypes.h"
@@ -137,6 +139,7 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
+        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
     }
@@ -146,6 +149,7 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
+        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
     }
@@ -160,16 +164,16 @@ public:
 class Jolt_BodyActivationListener : public BodyActivationListener
 {
 public:
-    virtual void OnBodyActivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyActivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyActivated)
-            { print_jolt("A body was activated [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body was activated [index: {}]", inBodyID.GetIndex()); }
     }
 
-    virtual void OnBodyDeactivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyDeactivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyDeactivated)
-            { print_jolt("A body went to sleep [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body went to sleep [index: {}]", inBodyID.GetIndex()); }
     }
 };
 
@@ -382,3 +386,19 @@ bool PhysicsEngine::DestroyBody(ID inColliderID)
     return true;
 }
 
+void PhysicsEngine::TellCollidersAboutCollision(Farg<JPH::Body> inBody1, Farg<JPH::Body> inBody2)
+{
+    auto body_id_num_1{inBody1.GetID().GetIndexAndSequenceNumber()};
+    auto body_id_num_2{inBody2.GetID().GetIndexAndSequenceNumber()};
+    if(not s_BodyIDColliderIDMap.contains(body_id_num_1) or not s_BodyIDColliderIDMap.contains(body_id_num_2))
+        { return; }
+    ID collider_1{s_BodyIDColliderIDMap.at(body_id_num_1)};
+    ID collider_2{s_BodyIDColliderIDMap.at(body_id_num_2)};
+
+    g_pTheatreManager->CurrentTheatre()
+        ->GetThinker<Collider3D>(collider_1)
+            ->OnCollisionDetected(inBody2.GetID(), collider_2);
+    g_pTheatreManager->CurrentTheatre()
+        ->GetThinker<Collider3D>(collider_2)
+            ->OnCollisionDetected(inBody1.GetID(), collider_1);
+}

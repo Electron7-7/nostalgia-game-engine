@@ -5,6 +5,7 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include "theatre/theatre.hpp"
 #include "thirdparty/frozen/map.h"
 
 using namespace Math;
@@ -309,4 +310,16 @@ void Collider3D::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
     ASSERT_BODYID()
     PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(mBodyID,
         Math::Convert<Vec3>(inLinearVelocity));
+}
+
+void Collider3D::OnCollisionDetected(Farg<JPH::BodyID> inOtherBodyID, ID inOtherColliderID)
+{
+    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+    {
+        print_debug("Collider3D#{} '{}' collided with Collider3D#{} '{}'",
+            mUID(),
+            mName,
+            inOtherColliderID(),
+            my_theatre()->GetThing(inOtherColliderID)->name());
+    }
 }
