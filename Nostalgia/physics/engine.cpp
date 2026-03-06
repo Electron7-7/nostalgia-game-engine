@@ -14,6 +14,12 @@ using namespace JPH;
 
 JPH_SUPPRESS_WARNINGS
 
+using BodyIDColliderIDMap = std::unordered_map<uint32, ID>;
+using ColliderIDBodyIDMap = std::unordered_map<ID, uint32>;
+
+static BodyIDColliderIDMap s_BodyIDColliderIDMap{};
+static ColliderIDBodyIDMap s_ColliderIDBodyIDMap{};
+
 ////////////////////////////
 // BEGIN JOLT BOILERPLATE //
 ////////////////////////////
@@ -249,6 +255,13 @@ EMotionType PhysicsEngine::ConvertMotionType(MotionType inMotion) noexcept
     }
 }
 
+EActivation PhysicsEngine::GetActivation(bool setActive) noexcept
+{
+    return (setActive)
+        ? EActivation::Activate
+        : EActivation::DontActivate;
+}
+
 PhysicsEngine::PhysicsEngine() noexcept
 {
     RegisterDefaultAllocator();
@@ -325,3 +338,47 @@ BodyInterface& PhysicsEngine::BodyInterface()
 
 BodyLockInterfaceArg PhysicsEngine::BodyLockInterface() const
 { assert(m_pSystem); return m_pSystem->GetBodyLockInterface(); }
+
+#pragma message("TODO: Add bodies in a batch and activate them in a batch")
+JPH::BodyID PhysicsEngine::CreateAndAddBody(ID inColliderID,
+    Farg<JPH::BodyCreationSettings> inCreationSettings,
+    bool inSetActive)
+{
+    if(!m_pSystem or inColliderID.invalid())
+        { return BodyID{}; }
+    auto body_id{BodyInterface().CreateAndAddBody(inCreationSettings, GetActivation(inSetActive))};
+    if(not body_id.IsInvalid())
+    {
+        auto body_id_number{body_id.GetIndexAndSequenceNumber()};
+        s_BodyIDColliderIDMap[body_id_number] = inColliderID;
+        s_ColliderIDBodyIDMap[inColliderID]   = body_id_number;
+    }
+    return body_id;
+}
+
+bool PhysicsEngine::DestroyBody(JPH::BodyID& ioBodyID)
+{
+    auto body_id_number{ioBodyID.GetIndexAndSequenceNumber()};
+    if(ioBodyID.IsInvalid())
+        { return false; }
+    else if(s_BodyIDColliderIDMap.contains(body_id_number))
+        { s_ColliderIDBodyIDMap.erase(s_BodyIDColliderIDMap.at(body_id_number)); }
+    s_BodyIDColliderIDMap.erase(body_id_number);
+    BodyInterface().RemoveBody(ioBodyID);
+    BodyInterface().DestroyBody(ioBodyID);
+    return true;
+}
+
+bool PhysicsEngine::DestroyBody(ID inColliderID)
+{
+    if(inColliderID.invalid() or not s_ColliderIDBodyIDMap.contains(inColliderID))
+        { return false; }
+    auto body_id_number{s_ColliderIDBodyIDMap.at(inColliderID)};
+    BodyID body_id{body_id_number};
+    BodyInterface().RemoveBody(body_id);
+    BodyInterface().DestroyBody(body_id);
+    s_BodyIDColliderIDMap.erase(body_id_number);
+    s_ColliderIDBodyIDMap.erase(inColliderID);
+    return true;
+}
+
