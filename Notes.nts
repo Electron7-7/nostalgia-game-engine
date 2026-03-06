@@ -1262,3 +1262,9 @@ Okay, my solution is to store global transformation as a variable that gets upda
 
 [03/05/26]
 Updated the version number to use actual numbers that are stringified in the `NOSTALGIA_VERSION_STRING` macro.
+
+Ugh, I need to change the way ui solutions are stored/returned or add a way to access them bc it's real fuckin annoying to do that rn.
+
+Okay, I really need to actually write code in the contact listener for collisions, because that's the thing that actually "detects" collisions between bodies as they happen.
+
+Okay, I've got some ideas; one of them is what if I added some keywords to the Theatre file format that let you basically forward-declare your custom classes by pairing their name/id (which should be the same) with the name of the first engine class that they inherit (e.g: Actor3D, Thinker, etc.). Then, if the app or engine that's loading a Theatre gets to a class type that doesn't exist, it can just use the next best one.
