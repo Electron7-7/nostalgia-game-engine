@@ -116,12 +116,19 @@ void Collider3D::Shutdown()
 void Collider3D::Tick()
 {
     ASSERT_BODYID()
-    Actor3D::SetQuaternion(Convert<glm::quat>(PhysicsEngine::Instance()
+
+    // Avoid updating global transforms every tick by only updating rotation and position when they don't match
+    // with the Jolt physics body's rotation and position.
+    auto new_quat{Convert<glm::quat>(PhysicsEngine::Instance()
         ->BodyInterface()
-            .GetRotation(mBodyID)));
-    Actor3D::SetPosition(Convert<glm::vec3>(PhysicsEngine::Instance()
-            ->BodyInterface()
-                .GetCenterOfMassPosition(mBodyID)));
+            .GetRotation(mBodyID))};
+    auto new_pos{Convert<glm::vec3>(PhysicsEngine::Instance()
+        ->BodyInterface()
+            .GetCenterOfMassPosition(mBodyID))};
+    if(new_quat != mLocalTransform.quaternion)
+        { Actor3D::SetQuaternion(new_quat); }
+    if(new_pos != mLocalTransform.position)
+        { Actor3D::SetPosition(new_pos); }
 }
 
 Farg<ColliderMaterial> Collider3D::Material() const
