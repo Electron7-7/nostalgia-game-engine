@@ -1268,3 +1268,6 @@ Ugh, I need to change the way ui solutions are stored/returned or add a way to a
 Okay, I really need to actually write code in the contact listener for collisions, because that's the thing that actually "detects" collisions between bodies as they happen.
 
 Okay, I've got some ideas; one of them is what if I added some keywords to the Theatre file format that let you basically forward-declare your custom classes by pairing their name/id (which should be the same) with the name of the first engine class that they inherit (e.g: Actor3D, Thinker, etc.). Then, if the app or engine that's loading a Theatre gets to a class type that doesn't exist, it can just use the next best one.
+
+[03/06/26]
+I'm gonna start working on v0.2.x by starting with fully abstracting Jolt away into my own engine. I'm also going to need to beef up the renderer api and change how and where things are actually rendered.
