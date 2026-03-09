@@ -51,24 +51,30 @@ template<typename T>
 template<uint size = 0, GLMContainer T>
     bool InterpretGLM(T& variable, const std::string& inString)
     {
+        std::vector<std::string> numbers{};
         std::string buffer{};
-        size_t index{0},
-            string_size{inString.size()};
+        size_t string_size{inString.size()};
         for(size_t i{0}; i < string_size; ++i)
         {
             char character{inString.at(i)};
-            if(character != ' ' and character != ',')
+            if(std::isdigit(character) or character == '-' or character == '.')
                 { buffer += character; }
             if(not buffer.empty() and
-                (character == ',' or i == (string_size - 1)))
+                (character == ' ' or character == ',' or i+1 == string_size))
             {
-                float temp_num{variable[index]};
-                if(not StringToNum<float>(temp_num, buffer))
-                    { return false; }
-                else if(index < size)
-                    { variable[index++] = temp_num; }
+                numbers.push_back(buffer);
                 buffer.clear();
             }
+        }
+        auto numbers_size{numbers.size()};
+        if(numbers_size > size)
+            { return false; }
+        for(uint index{0}; index < numbers_size; ++index)
+        {
+            float temp_num{variable[index]};
+            if(not StringToNum<float>(temp_num, numbers.at(index)))
+                { return false; }
+            variable[index] = temp_num;
         }
         return true;
     }
