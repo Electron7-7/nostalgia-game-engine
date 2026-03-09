@@ -34,7 +34,7 @@ template<typename T>
     bool StringToNum(T& output, const std::string& string)
     {
         T number{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::Invalid`
-        if constexpr(!std::is_integral_v<T>)
+        if constexpr(not std::is_integral_v<T>)
         {
             try { number = std::stold(string); }
             catch(std::invalid_argument const& e) { return false; }
@@ -48,56 +48,45 @@ template<typename T>
         return true;
     }
 
-template<GLMContainer T, uint size = gGlmSize<T>()>
-    bool InterpretGLM(T& variable, const std::string& string)
+template<uint size = 0, GLMContainer T>
+    bool InterpretGLM(T& variable, const std::string& inString)
     {
-        T output{};
         std::string buffer{};
-        size_t index{0};
-        float temp_num{0.0f};
-        for(const char& character : string)
+        size_t index{0},
+            string_size{inString.size()};
+        for(size_t i{0}; i < string_size; ++i)
         {
-            switch(character)
+            char character{inString.at(i)};
+            if(character != ' ' and character != ',')
+                { buffer += character; }
+            if(not buffer.empty() and
+                (character == ',' or i == (string_size - 1)))
             {
-            case ',':
-                if(index < (size - 1))
-                {
-                    temp_num = output[index];
-                    if(!StringToNum<float>(temp_num, buffer))
-                        { return false; }
-                    output[index++] = temp_num;
-                }
+                float temp_num{variable[index]};
+                if(not StringToNum<float>(temp_num, buffer))
+                    { return false; }
+                else if(index < size)
+                    { variable[index++] = temp_num; }
                 buffer.clear();
-                [[fallthrough]];
-            case ' ':
-                continue;
-            default:
-                buffer += character;
-                continue;
             }
         }
-        temp_num = output[size - 1];
-        if(!StringToNum<float>(temp_num, buffer))
-            { return false; }
-        output[size - 1] = temp_num;
-        variable = output;
         return true;
     }
 
 template<>
 inline bool StringToNum(glm::vec2& output, const std::string& string)
-{ return InterpretGLM(output, string); }
+{ return InterpretGLM<2>(output, string); }
 
 template<>
 inline bool StringToNum(glm::vec3& output, const std::string& string)
-{ return InterpretGLM(output, string); }
+{ return InterpretGLM<3>(output, string); }
 
 template<>
 inline bool StringToNum(glm::vec4& output, const std::string& string)
-{ return InterpretGLM(output, string); }
+{ return InterpretGLM<4>(output, string); }
 
 template<>
 inline bool StringToNum(glm::quat& output, const std::string& string)
-{ return InterpretGLM(output, string); }
+{ return InterpretGLM<4>(output, string); }
 
 #endif // NUMBER_PARSER_H
