@@ -1,5 +1,4 @@
 #include "../theatre_file.hpp"
-#include "../thing_factory.hpp"
 
 static constexpr char cDelimiterTheatreName    {'@'};
 static constexpr char cDelimiterTheatreIndex   {'#'};
@@ -17,7 +16,7 @@ using namespace TheatreFile;
 enum Context { TOP_LEVEL = 0, RESOURCES = 1, THINKERS = 2, IN_RESOURCE = 3, IN_THINKER = 4 };
 enum Comment { SINGLE_LINE, MULTI_LINE, NO_COMMENT }; // yes, `NO_COMMENT` is a pun
 
-static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData> outData, Context inContext);
+static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData> outData);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
 Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData)
@@ -25,7 +24,6 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData
     ThingData     thing_dat{};
     ThingVariable thing_var{};
 
-    Context context{TOP_LEVEL};
     Comment in_comment{NO_COMMENT};
 
     for(size_t i{0}; i < inTokens.size(); ++i)
@@ -34,8 +32,7 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData
         if(s_CheckIfComment(in_comment, token))
             { continue; }
         else if(token.category == TokenName::Separator
-            and i+1 < inTokens.size()
-            and context == TOP_LEVEL)
+            and i+1 < inTokens.size())
         {
             if(token.token[0] == cDelimiterTheatreName)
                 { outData->name = inTokens.at(++i).token; }
@@ -45,8 +42,8 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData
                 catch(std::invalid_argument const& e) {}
             }
         }
-        else if(token.category == TokenName::Keyword and ThingFactory::IsThing(token.token))
-            { s_ParseThing(i, inTokens, outData, context); }
+        else if(token.category == TokenName::Keyword or token.category == TokenName::Identifier)
+            { s_ParseThing(i, inTokens, outData); }
     }
     return OK;
 }
@@ -77,8 +74,7 @@ bool s_CheckIfComment(Comment& ioComment, Farg<Token> inToken)
 
 TheatreFile::ThingData s_ParseThing(size_t& inIndex,
     Farg<TokenArray> inTokens,
-    Shared<TheatreFile::TheatreData> outData,
-    Context inContext)
+    Shared<TheatreFile::TheatreData> outData)
 {
     TheatreFile::ThingData thing_data{};
     ThingVariable thing_var{};
@@ -124,25 +120,24 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 ++inIndex;
                 for(; inIndex < inTokens.size() and !exit_for; ++inIndex)
                 {
-                    if(inTokens.at(inIndex).category != TokenName::Keyword)
-                        { continue; }
                     next_token = inTokens.at(inIndex);
+                    if(next_token.category != TokenName::Keyword and
+                        next_token.category != TokenName::Identifier)
+                            { continue; }
                     thing_var.name = next_token.token;
                     for(size_t i{inIndex+1}; i < inTokens.size() and !exit_for; ++i)
                     {
-                        if(inTokens.at(i).category != TokenName::Identifier)
+                        next_token = inTokens.at(i);
+                        if(next_token.category != TokenName::Identifier)
                             { continue; }
-                        thing_var.value = inTokens.at(i).token;
+                        thing_var.value = next_token.token;
                         exit_for = true;
                     }
                     --inIndex;
                 }
                 thing_data.children_variables.push_back(thing_var);
                 thing_var.clear();
-                Context new_context{(ThingFactory::IsResource(next_token.token))
-                    ? RESOURCES
-                    : THINKERS};
-                s_ParseThing(inIndex, inTokens, outData, new_context);
+                s_ParseThing(inIndex, inTokens, outData);
                 continue;
             }
             break;
@@ -195,6 +190,15 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 in_string = !in_string;
                 break;
             case cDelimiterExitContext:
+                if(not thing_var.invalid())
+                {
+                    if(thing_var.type == ThingVarType::Child)
+                        { thing_data.children_variables.push_back(thing_var); }
+                    else if(thing_var.type == ThingVarType::Parent)
+                        { thing_data.parent_variable = thing_var; }
+                    else
+                        { thing_data.variables.push_back(thing_var); }
+                }
                 outData->push_back(thing_data);
                 return thing_data;
             default:
@@ -206,15 +210,11 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 { thing_var.type = ThingVarType::Child; thing_var.name = token.token; }
             else if(!token.token.compare("Parent"))
                 { thing_var.type = ThingVarType::Parent; thing_var.name = token.token; }
-            else if(ThingFactory::IsThing(token.token) and thing_data.type.invalid())
-                { thing_data.type = token.token; }
-            else if(thing_var.name.empty())
-                { thing_var.name = token.token; }
-            else if(thing_var.value.empty())
-                { thing_var.name = token.token; }
             break;
         case TokenName::Identifier:
-            if(thing_data.name.empty())
+            if(thing_data.type.invalid())
+                { thing_data.type = token.token; }
+            else if(thing_data.name.empty())
                 { thing_data.name = token.token; }
             else if(thing_var.name.empty())
                 { thing_var.name = token.token; }
