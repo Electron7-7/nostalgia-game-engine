@@ -1278,3 +1278,5 @@ Aight, I'm at work so it's time to abstract Jolt; at the very least, I wanna dev
 Today I'm gonna make some changes to the TheatreFile format and the way Theatre creates Things; primarily, adding a form of "forward declarations" for new Thing classes and a way for Theatre to choose the next best class type if it encounters a Thing that doesn't exist in the ThingFactory.
 
 All right, that's all finished! Time to push and rebase, I think.
+
+I think what's up next is maybe adding the ability to send inputs to the `InputManager` directly, or maybe I tackle the rendering stuff.
