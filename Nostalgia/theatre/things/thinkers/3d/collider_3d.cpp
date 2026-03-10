@@ -65,7 +65,6 @@ void Collider3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
     data.get_variable(mMass, "Mass", "ColliderMass", "BodyMass");
     data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
-    data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
     data.get_variable(mActivateOnNextChange, "StartActive", "Active");
     if(data.get_variable(mActivateOnNextChange, "StartInactive", "Inactive") == OK)
         { mActivateOnNextChange = true; }

@@ -23,7 +23,7 @@ void Viewport::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
 
-    if(glm::vec2 size{}; data.get_variable(size, "Size", "Scale") == OK)
+    if(glm::vec2 size{}; data.get_variable(size, "ViewportSize", "ContentSize") == OK)
         { mSize = size; }
 }
 
@@ -31,7 +31,7 @@ Shared<ThingData> Viewport::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
 
-    data->set_variable(glm::vec2{mSize}, "Size");
+    data->set_variable(glm::vec2{mSize}, "ViewportSize");
 
     return data;
 }

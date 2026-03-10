@@ -59,9 +59,8 @@ void ImGui_Editor::TheatreEntered()
         return;
     }
     TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
-    mat_dat.set_variable(true, "NoTexture");
     mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
-    mat_dat.set_variable(true, "mat_fullbright");
+    mat_dat.set_variable(true, "FullBright");
     sSpawnLocationMaterialID = g_pTheatreManager->CurrentTheatre()->CreateThing(mat_dat);
 
     TheatreFile::ThingData mesh_inst_dat{ThingType::MeshInstance3D,"ThingAdderSpawnLocation_MeshInstance"};

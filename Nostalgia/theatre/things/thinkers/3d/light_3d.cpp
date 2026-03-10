@@ -69,9 +69,8 @@ void Light3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mAttenuation, "FadeIntensity");
     data.get_variable(mAttenuation, "Attenuation");
     data.get_variable(mRange, "Range");
-    data.get_variable(mEnabled, "LightVisible");
-    data.get_variable(mEnabled, "Enabled");
-    if(data.get_variable(mEnabled, "Disabled") == OK)
+    data.get_variable(mEnabled, "LightVisible", "Enabled");
+    if(data.get_variable(mEnabled, "LightDisabled", "Disabled") == OK)
         { mEnabled = !mEnabled; }
 }
 
@@ -87,7 +86,6 @@ Shared<ThingData> Light3D::GetVariables() const
     data->set_variable(mAttenuation, "Attenuation");
     data->set_variable(mRange, "Range");
     data->set_variable(mEnabled, "LightVisible");
-    data->set_variable(mEnabled, "Enabled");
     data->set_variable(mVisible, "Visible");
 
     return data;
@@ -113,18 +111,14 @@ int SpotLight3D::GetCount()
 void SpotLight3D::SetVariables(Farg<ThingData> data)
 {
     Light3D::SetVariables(data);
-    data.get_variable(mSpotAngle, "Angle");
     data.get_variable(mSpotAngle, "SpotAngle");
-    data.get_variable(mSpotAngleFade, "AngleFade");
     data.get_variable(mSpotAngleFade, "SpotAngleFade");
 }
 
 Shared<ThingData> SpotLight3D::GetVariables() const
 {
     Shared<ThingData> data{Light3D::GetVariables()};
-    data->set_variable(mSpotAngle, "Angle");
     data->set_variable(mSpotAngle, "SpotAngle");
-    data->set_variable(mSpotAngleFade, "AngleFade");
     data->set_variable(mSpotAngleFade, "SpotAngleFade");
     return data;
 }
@@ -145,12 +139,14 @@ void DirectionalLight3D::SetVariables(Farg<ThingData> data)
     SetRotationDegrees({-90.0f, 0.0f, 0.0f});
     Light3D::SetVariables(data);
     mVisible = false;
+    data.get_variable(mVisible, "ShowDirectionalLightDebugMesh", "ShowLightMeshOverride");
 }
 
 Shared<ThingData> DirectionalLight3D::GetVariables() const
 {
     Shared<ThingData> data{Light3D::GetVariables()};
-    data->set_variable(false, "Visible");
+    if(mVisible)
+        { data->set_variable(mVisible, "ShowDirectionalLightDebugMesh"); }
     return data;
 }
 

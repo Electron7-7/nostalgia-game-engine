@@ -14,7 +14,8 @@ void Actor3D::SetVariables(Farg<ThingData> data)
         mLocalTransform.euler_rotation_radians = glm::radians(mLocalTransform.euler_rotation_degrees);
         mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
     }
-    if(data.get_variable(mLocalTransform.euler_rotation_radians, "Rotation", "Euler") == OK)
+    if(data.get_variable(mLocalTransform.euler_rotation_radians,
+        "Rotation", "RotationRadians", "Euler", "EulerRadians") == OK)
     {
         mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
         mLocalTransform.euler_rotation_degrees = glm::degrees(mLocalTransform.euler_rotation_radians);

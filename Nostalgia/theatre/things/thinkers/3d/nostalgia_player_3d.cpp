@@ -8,11 +8,13 @@ using namespace TheatreFile;
 void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);
+    data.get_variable(mCreateDefaultCamera, "NoDefaultCamera", "NoCamera");
 }
 
 Shared<ThingData> NostalgiaPlayer3D::GetVariables() const
 {
     Shared<ThingData> data{Actor3D::GetVariables()};
+    data->set_variable(mCreateDefaultCamera, "NoDefaultCamera");
     return data;
 }
 
@@ -20,13 +22,13 @@ void NostalgiaPlayer3D::Ready()
 {
     Actor3D::Ready();
 
-    bool _has_camera{false};
     for(ID child : Children())
     {
         if(ThingFactory::IsDerivedFrom(my_theatre()->TypeOf(child), ThingType::Camera3D))
-            { _has_camera = true; }
+            { mCreateDefaultCamera = false; }
     }
-    if(!_has_camera)
+
+    if(mCreateDefaultCamera)
     {
         std::string cam_name{"DefaultPlayerCam"};
         if(!my_theatre()->ThingExists(cam_name))

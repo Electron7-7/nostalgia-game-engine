@@ -12,6 +12,7 @@ public:
 
 protected:
     ID mCameraID{};
+    bool mCreateDefaultCamera{true};
 };
 
 #endif // NOSTALGIA_PLAYER_3D_H

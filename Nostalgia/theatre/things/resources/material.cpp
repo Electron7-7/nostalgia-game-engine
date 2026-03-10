@@ -12,7 +12,7 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mAlpha, "Alpha");
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
     data.get_variable(mSpecularStrength, "SpecularStrength");
-    data.get_variable(mFullBright, "FullBright", "mat_fullbright");
+    data.get_variable(mFullBright, "FullBright");
 }
 
 Shared<ThingData> Material::GetVariables() const
