@@ -10,6 +10,7 @@ scope: source.nt
 variables:
   start_theatre_name: '^(?=@)'
   start_theatre_index: '(?=#)'
+  start_forward_decl: '^(?=declare)'
   typenames: >-
     (?x)
     (
@@ -19,7 +20,6 @@ variables:
           \bVisual2D\b |
             \bMeshInstance2D\b |
             \bSprite2D\b |
-              \bTestAnimatedSprite2D\b |
             \bText2D\b |
         \bActor3D\b |
           \bCamera3D\b |
@@ -74,10 +74,24 @@ contexts:
   main:
     - include: comment
     - include: definition
+    - match: '{{start_forward_decl}}'
+      push: forward_declaration
     - match: '{{start_theatre_name}}'
       push: theatre_name
     - match: '{{start_theatre_index}}'
       push: theatre_index
+
+  forward_declaration:
+    - include: comment
+    - match: 'declare'
+      scope: keyword.expressions-and-types
+    - match: '{{typenames}}'
+      scope: entity.name.type.class
+      pop: 2
+    - match: 'inherits'
+      scope: keyword.expressions-and-types
+    - match: '\w+'
+      scope: variable.argument
 
   definition:
     - match: '({{typenames}})(\s+)?'

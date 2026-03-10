@@ -2,6 +2,9 @@
 // index. While it's not a requirement, it *is* a strong recommendation.
 @HelloWorld#0
 
+declare EditorPlayer3D inherits NostalgiaPlayer3D
+declare TestAnimatedSprite2D inherits Sprite2D
+
 ///
     Everything is a Thing. Really, that's what the base class for all game objects is called.
     Thing definition follows a syntax that closely resembles a mixture of a C/C++ struct.

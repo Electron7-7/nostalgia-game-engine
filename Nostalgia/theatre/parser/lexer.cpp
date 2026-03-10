@@ -19,8 +19,8 @@ static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
 static constexpr frozen::set<char, 11>
     cSeparators{',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
-static constexpr frozen::set<frozen::string, 2>
-    cKeywords{"Child", "Parent"};
+static constexpr frozen::set<frozen::string, 4>
+    cKeywords{"Child", "Parent", "declare", "inherits"};
 
 enum Comment { SINGLE, MULTI, NO_COMMENT };
 
