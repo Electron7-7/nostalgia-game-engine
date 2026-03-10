@@ -1273,3 +1273,8 @@ Okay, I've got some ideas; one of them is what if I added some keywords to the T
 I'm gonna start working on v0.2.x by starting with fully abstracting Jolt away into my own engine. I'm also going to need to beef up the renderer api and change how and where things are actually rendered.
 
 Aight, I'm at work so it's time to abstract Jolt; at the very least, I wanna develop some way of reporting collisions via the contact listener.
+
+[03/09/26]
+Today I'm gonna make some changes to the TheatreFile format and the way Theatre creates Things; primarily, adding a form of "forward declarations" for new Thing classes and a way for Theatre to choose the next best class type if it encounters a Thing that doesn't exist in the ThingFactory.
+
+All right, that's all finished! Time to push and rebase, I think.
