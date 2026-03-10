@@ -73,6 +73,8 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     {
         type._all_base_types.emplace(type._base_type_id = ThingType::Thing);
         m_sAllTypes.emplace(type);
+        m_sThingMakers[inType]    = inPtr;
+        m_sTypePriorities[inType] = inPriority;
         print_debug("Registered New ThingType: {}", type.log());
         return OK;
     }
