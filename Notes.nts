@@ -1285,3 +1285,6 @@ I think what's up next is maybe adding the ability to send inputs to the `InputM
 I'm gonna start working on the rendering process. I think that I should allow developers to call on the various renderer API functions in order to render whatever they want, wherever they want, however they want to; however, the Theatre itself will have a hardcoded rendering process that runs every frame. I'll use a mutex in the renderer API/rendering manager to avoid race conditions.
 
 Basically, how I've set things up is fine, at least for now; if you don't want to use a Theatre to render things, you can use the RendererAPI yourself to create your own solution. That being said, I wanna move the RendererAPI singleton out of the render manager and into its virtual class (like every other rendering-related accessor).
+
+[03/11/26]
+I changed how collision detection works; it's now a lot more flexible and the only detection that doesn't work, yet, is contact removal, due to needing to access body user data through the body interface from the contact listener.
