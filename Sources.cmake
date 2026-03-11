@@ -60,6 +60,8 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/things/resources/material.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/font.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.cpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.cpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/texture.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/resource.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/light_3d.cpp
@@ -68,6 +70,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/collider_3d.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/actor_3d.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/camera_3d.cpp
+    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/sprite_3d.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/nostalgia_player_3d.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/camera_2d.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/actor_2d.cpp
@@ -88,6 +91,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/tree.cpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.cpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.cpp
+    ${NOSTALGIA_ROOT}/filesystem/image_handler.cpp
     ${NOSTALGIA_ROOT}/physics/engine.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glm/detail/glm.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glad/glad.c
@@ -143,12 +147,15 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/ui/implementor.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/texture.hpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.hpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/font.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/resource.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/material.hpp
     ${NOSTALGIA_ROOT}/theatre/things/thing.hpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/nostalgia_player_3d.hpp
+    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/sprite_3d.hpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/collider_3d.hpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/actor_3d.hpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/visual_3d.hpp
@@ -173,6 +180,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/theatre/thing_factory.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
+    ${NOSTALGIA_ROOT}/filesystem/image_handler.hpp
     ${NOSTALGIA_ROOT}/physics/engine.hpp
     ${NOSTALGIA_ROOT}/rendering/graphics_context.hpp
     ${NOSTALGIA_ROOT}/rendering/renderer_api.hpp

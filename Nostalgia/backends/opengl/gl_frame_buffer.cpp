@@ -39,8 +39,8 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Size2D> inSize) noexcept:
     glBindFramebuffer(GL_FRAMEBUFFER, mBufferID);
 
     mTextureBuffer = TextureBuffer::Create();
+    mTextureBuffer->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
     mTextureBuffer->Load(nullptr, {inSize.w(), inSize.h(), DATA_FORMAT_SRGB_ALPHA});
-    mTextureBuffer->GenerateMipMaps();
 
     glGenRenderbuffers(1, &mRenderBufferID);
     glBindRenderbuffer(GL_RENDERBUFFER, mRenderBufferID);

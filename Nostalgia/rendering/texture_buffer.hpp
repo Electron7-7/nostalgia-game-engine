@@ -72,8 +72,6 @@ struct TextureFormat
     }
 };
 
-using cubemap_images_t = std::array<Shared<FileData>, 6>;
-
 class TextureBuffer
 {
 public:

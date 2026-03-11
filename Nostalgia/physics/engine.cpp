@@ -1,4 +1,6 @@
 #include "./engine.hpp"
+#include "managers/theatre_manager.hpp"
+#include "theatre/theatre.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "thirdparty/Jolt/Core/Factory.h"
 #include "thirdparty/Jolt/RegisterTypes.h"
@@ -13,6 +15,12 @@
 using namespace JPH;
 
 JPH_SUPPRESS_WARNINGS
+
+using BodyIDColliderIDMap = std::unordered_map<uint32, ID>;
+using ColliderIDBodyIDMap = std::unordered_map<ID, uint32>;
+
+static BodyIDColliderIDMap s_BodyIDColliderIDMap{};
+static ColliderIDBodyIDMap s_ColliderIDBodyIDMap{};
 
 ////////////////////////////
 // BEGIN JOLT BOILERPLATE //
@@ -131,6 +139,7 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
+        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
     }
@@ -140,6 +149,7 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
+        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
     }
@@ -154,16 +164,16 @@ public:
 class Jolt_BodyActivationListener : public BodyActivationListener
 {
 public:
-    virtual void OnBodyActivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyActivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyActivated)
-            { print_jolt("A body was activated [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body was activated [index: {}]", inBodyID.GetIndex()); }
     }
 
-    virtual void OnBodyDeactivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyDeactivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyDeactivated)
-            { print_jolt("A body went to sleep [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body went to sleep [index: {}]", inBodyID.GetIndex()); }
     }
 };
 
@@ -249,6 +259,13 @@ EMotionType PhysicsEngine::ConvertMotionType(MotionType inMotion) noexcept
     }
 }
 
+EActivation PhysicsEngine::GetActivation(bool setActive) noexcept
+{
+    return (setActive)
+        ? EActivation::Activate
+        : EActivation::DontActivate;
+}
+
 PhysicsEngine::PhysicsEngine() noexcept
 {
     RegisterDefaultAllocator();
@@ -325,3 +342,63 @@ BodyInterface& PhysicsEngine::BodyInterface()
 
 BodyLockInterfaceArg PhysicsEngine::BodyLockInterface() const
 { assert(m_pSystem); return m_pSystem->GetBodyLockInterface(); }
+
+#pragma message("TODO: Add bodies in a batch and activate them in a batch")
+JPH::BodyID PhysicsEngine::CreateAndAddBody(ID inColliderID,
+    Farg<JPH::BodyCreationSettings> inCreationSettings,
+    bool inSetActive)
+{
+    if(!m_pSystem or inColliderID.invalid())
+        { return BodyID{}; }
+    auto body_id{BodyInterface().CreateAndAddBody(inCreationSettings, GetActivation(inSetActive))};
+    if(not body_id.IsInvalid())
+    {
+        auto body_id_number{body_id.GetIndexAndSequenceNumber()};
+        s_BodyIDColliderIDMap[body_id_number] = inColliderID;
+        s_ColliderIDBodyIDMap[inColliderID]   = body_id_number;
+    }
+    return body_id;
+}
+
+bool PhysicsEngine::DestroyBody(JPH::BodyID& ioBodyID)
+{
+    auto body_id_number{ioBodyID.GetIndexAndSequenceNumber()};
+    if(ioBodyID.IsInvalid())
+        { return false; }
+    else if(s_BodyIDColliderIDMap.contains(body_id_number))
+        { s_ColliderIDBodyIDMap.erase(s_BodyIDColliderIDMap.at(body_id_number)); }
+    s_BodyIDColliderIDMap.erase(body_id_number);
+    BodyInterface().RemoveBody(ioBodyID);
+    BodyInterface().DestroyBody(ioBodyID);
+    return true;
+}
+
+bool PhysicsEngine::DestroyBody(ID inColliderID)
+{
+    if(inColliderID.invalid() or not s_ColliderIDBodyIDMap.contains(inColliderID))
+        { return false; }
+    auto body_id_number{s_ColliderIDBodyIDMap.at(inColliderID)};
+    BodyID body_id{body_id_number};
+    BodyInterface().RemoveBody(body_id);
+    BodyInterface().DestroyBody(body_id);
+    s_BodyIDColliderIDMap.erase(body_id_number);
+    s_ColliderIDBodyIDMap.erase(inColliderID);
+    return true;
+}
+
+void PhysicsEngine::TellCollidersAboutCollision(Farg<JPH::Body> inBody1, Farg<JPH::Body> inBody2)
+{
+    auto body_id_num_1{inBody1.GetID().GetIndexAndSequenceNumber()};
+    auto body_id_num_2{inBody2.GetID().GetIndexAndSequenceNumber()};
+    if(not s_BodyIDColliderIDMap.contains(body_id_num_1) or not s_BodyIDColliderIDMap.contains(body_id_num_2))
+        { return; }
+    ID collider_1{s_BodyIDColliderIDMap.at(body_id_num_1)};
+    ID collider_2{s_BodyIDColliderIDMap.at(body_id_num_2)};
+
+    g_pTheatreManager->CurrentTheatre()
+        ->GetThinker<Collider3D>(collider_1)
+            ->OnCollisionDetected(inBody2.GetID(), collider_2);
+    g_pTheatreManager->CurrentTheatre()
+        ->GetThinker<Collider3D>(collider_2)
+            ->OnCollisionDetected(inBody1.GetID(), collider_1);
+}

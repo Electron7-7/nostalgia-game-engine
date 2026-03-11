@@ -1,6 +1,8 @@
 #include "./thing_factory.hpp"
 #include "./things/resources/material.hpp"
 #include "./things/resources/texture.hpp"
+#include "./things/resources/cubemap_texture.hpp"
+#include "./things/resources/viewport_texture.hpp"
 #include "./things/resources/mesh.hpp"
 #include "./things/resources/font.hpp"
 #include "./things/thinkers/viewport.hpp"
@@ -11,6 +13,7 @@
 #include "./things/thinkers/2d/sprite_2d.hpp"
 #include "./things/thinkers/2d/mesh_instance_2d.hpp"
 #include "./things/thinkers/3d/actor_3d.hpp"
+#include "./things/thinkers/3d/sprite_3d.hpp"
 #include "./things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "./things/thinkers/3d/camera_3d.hpp"
 #include "./things/thinkers/3d/light_3d.hpp"
@@ -37,12 +40,15 @@ bool ThingFactory::Init()
             ADD_THING(Font, Resource)
             ADD_THING(Mesh, Resource)
             ADD_THING(Texture, Resource)
+            ADD_THING(CubemapTexture, Resource)
+            ADD_THING(ViewportTexture, Resource)
             ADD_THING(Material, Resource)
         ADD_THING(Thinker, Thing)
             ADD_THING(Viewport, Thinker)
             ADD_THING(Actor3D, Thinker)
                 ADD_THING(Visual3D, Actor3D)
                     ADD_THING(MeshInstance3D, Visual3D)
+                    ADD_THING(Sprite3D, Visual3D)
                     ADD_THING(Light3D, Visual3D)
                         ADD_THING(PointLight3D, Light3D)
                         ADD_THING(SpotLight3D, Light3D)
@@ -73,6 +79,8 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     {
         type._all_base_types.emplace(type._base_type_id = ThingType::Thing);
         m_sAllTypes.emplace(type);
+        m_sThingMakers[inType]    = inPtr;
+        m_sTypePriorities[inType] = inPriority;
         print_debug("Registered New ThingType: {}", type.log());
         return OK;
     }
@@ -118,14 +126,14 @@ Error ThingFactory::RemoveThing(FPID inType) noexcept
 
 Farg<ThingType> ThingFactory::GetType(FPID inType) noexcept
 {
-    static ThingType sBadType{};
+    static ThingType sBadType{ThingType::Invalid};
     if(auto found_it{m_sAllTypes.find(inType)};
         found_it != m_sAllTypes.end())
-    { return *found_it; }
+            { return *found_it; }
     return sBadType;
 }
 
-Shared<Thing> ThingFactory::MakeThing(Farg<PID> type)
+Shared<Thing> ThingFactory::MakeThing(FPID type)
 {
     if(auto found_it{m_sThingMakers.find(type)}; found_it != m_sThingMakers.end())
         { return found_it->second(); }
@@ -134,21 +142,21 @@ Shared<Thing> ThingFactory::MakeThing(Farg<PID> type)
     return ThingMakerTemplate<Thing>();
 }
 
-Shared<Thinker> ThingFactory::MakeThinker(Farg<PID> inTypeID)
+Shared<Thinker> ThingFactory::MakeThinker(FPID inTypeID)
 {
     if(!IsThinker(inTypeID))
         { return MakeShared<Thinker>(); }
     return DCast<Thinker>(MakeThing(inTypeID));
 }
 
-Shared<Resource> ThingFactory::MakeResource(Farg<PID> inTypeID)
+Shared<Resource> ThingFactory::MakeResource(FPID inTypeID)
 {
     if(!IsResource(inTypeID))
         { return MakeShared<Resource>(); }
     return DCast<Resource>(MakeThing(inTypeID));
 }
 
-bool ThingFactory::SetPriority(Farg<PID> type, int priority)
+bool ThingFactory::SetPriority(FPID type, int priority)
 {
     if(!IsThing(type))
         { return false; }
@@ -156,23 +164,23 @@ bool ThingFactory::SetPriority(Farg<PID> type, int priority)
     return true;
 }
 
-int ThingFactory::GetPriority(Farg<PID> type)
+int ThingFactory::GetPriority(FPID type)
 {
     if(auto found_it{m_sTypePriorities.find(type)}; found_it != m_sTypePriorities.end())
         { return m_sTypePriorities.at(type); }
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
-bool ThingFactory::IsThing(Farg<PID> inTypeID)
+bool ThingFactory::IsThing(FPID inTypeID)
 { return m_sAllTypes.contains(inTypeID); }
 
-bool ThingFactory::IsThinker(Farg<PID> inTypeID)
+bool ThingFactory::IsThinker(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Thinker); }
 
-bool ThingFactory::IsResource(Farg<PID> inTypeID)
+bool ThingFactory::IsResource(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Resource); }
 
-bool ThingFactory::IsDerivedFrom(Farg<PID> inTypeID1, Farg<PID> inTypeID2)
+bool ThingFactory::IsDerivedFrom(FPID inTypeID1, FPID inTypeID2)
 {
     if(auto found_it{m_sAllTypes.find(inTypeID1)}; found_it != m_sAllTypes.end())
         { return (found_it->type() == inTypeID2 or found_it->is_derived_from(inTypeID2)); }

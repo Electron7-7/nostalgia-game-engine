@@ -5,8 +5,8 @@
 #define __n_make_string(x) __n_make_string_2(x)
 
 #define NOSTALGIA_VERSION_MAJOR 0
-#define NOSTALGIA_VERSION_MINOR 1
-#define NOSTALGIA_VERSION_PATCH 6
+#define NOSTALGIA_VERSION_MINOR 2
+#define NOSTALGIA_VERSION_PATCH 0
 #define NOSTALGIA_VERSION_STRING \
     __n_make_string(NOSTALGIA_VERSION_MAJOR) "." \
     __n_make_string(NOSTALGIA_VERSION_MINOR) "." \
@@ -74,6 +74,7 @@
 #include <Nostalgia/core/bitmask.hpp>                         // IWYU pragma: keep
 #include <Nostalgia/core/smart_pointers.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/enum_prettifier.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/console/console.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/conversion.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/glm_concepts.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/math/glm_format.hpp>                      // IWYU pragma: keep

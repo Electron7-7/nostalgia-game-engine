@@ -9,15 +9,26 @@ using namespace TheatreFile;
 void Camera2D::Ready()
 {
     Actor2D::Ready();
-    auto ancestors{my_theatre()->GetAllParents(mUID)};
-    for(ID parent : ancestors)
+    auto parent{my_theatre()->GetParent(mUID)};
+
+    if(mViewportID == UID::a_RootViewport and not parent.invalid())
     {
         if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
-            { mViewportID = parent; break; }
+            { mViewportID = parent; }
+        else
+        {
+            auto ancestors{my_theatre()->GetAllParents(mUID)};
+            for(ID parent : ancestors)
+            {
+                if(parent != UID::a_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                    { mViewportID = parent; break; }
+            }
+        }
     }
 
-    if(mInitCurrent)
-        { my_theatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera2D(mUID); }
+    if(auto my_viewport{my_theatre()->GetThinker<Viewport>(mViewportID)};
+        mInitCurrent and my_viewport->CurrentCamera2D().invalid())
+            { my_viewport->SetCurrentCamera2D(mUID); }
 }
 
 void Camera2D::SetVariables(Farg<ThingData> data)
@@ -26,8 +37,7 @@ void Camera2D::SetVariables(Farg<ThingData> data)
 
     if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
         { mLayersMask.set(bitmask); }
-    data.get_variable(mZoom, "FOV");
-    data.get_variable(mViewportID, "Viewport", "ViewportID");
+    data.get_variable(mZoom, "Zoom");
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
 
     mVisible = mVisible and Settings::Engine::IsEditorHint;
@@ -38,8 +48,7 @@ Shared<ThingData> Camera2D::GetVariables() const
     Shared<ThingData> data{Actor2D::GetVariables()};
 
     data->set_variable(mLayersMask.get(), "RenderLayersMask");
-    data->set_variable(mZoom, "FOV");
-    data->set_variable(mViewportID, "Viewport");
+    data->set_variable(mZoom, "Zoom");
     data->set_variable(mInitCurrent, "Current");
     if(!mViewportID.invalid())
         { data->set_variable(mViewportID, "Parent"); }

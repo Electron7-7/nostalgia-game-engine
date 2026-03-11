@@ -1,10 +1,6 @@
 #include "./texture.hpp"
 #include "rendering/texture_buffer.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#ifdef NOSTALGIA_DEBUGGING
-#   define STBI_FAILURE_USERMSG //generate user friendly error messages
-#endif // NOSTALGIA_DEBUGGING
-#include "stb_image/stb_image.h"
+#include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
@@ -13,15 +9,10 @@ void Texture::Ready()
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
-    if(m_pFileData->HasPath())
-        { m_pImages[0] = m_pFileData; }
-    else if(std::string path{}; data.get_variable(path, "Image") == OK)
-    {
-        m_pImages[0] = MakeShared<FileData>();
-        if(!try_LoadFileDataFromVariable(path, m_pImages[0]))
-            { m_pImages[0] = nullptr; }
-    }
+    // Bypass `Resource::SetVariables`
+    Thing::SetVariables(data);
+    if(std::string path{}; data.get_variable(path, "Image", "File", "Data", "Path") == OK)
+        { mStatus = try_LoadFileDataFromVariable(path, m_pFileData); }
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -39,28 +30,14 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
     // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
-
-    for(uint i{0}; i < 6; ++i)
-    {
-        if(std::string path{}; data.get_variable(path, "Image" + std::to_string(i)) == OK)
-        {
-            m_pImages[i] = MakeShared<FileData>();
-            print_error_enum(try_LoadFileDataFromVariable(path, m_pImages[i]));
-        }
-    }
 }
 
 Shared<ThingData> Texture::GetVariables() const
 {
+    // Bypass `Resource::GetVariables`
     Shared<ThingData> data{Thing::GetVariables()};
-    uint i{0};
-    for(FAUTO image : m_pImages)
-    {
-        if(!image) { continue; }
-        std::string number{(i == 0) ? "" : std::to_string(i+1)};
-        if(image->HasPath())
-            { data->set_variable(image->Path(), "Image" + number); }
-    }
+    if(m_pFileData->HasPath())
+        { data->set_variable(m_pFileData->Path(), "Image"); }
     data->set_variable(mFormat.type, "Type");
     data->set_variable(mFormat.data_format, "Format");
     data->set_variable(mFormat.width, "Width");
@@ -84,37 +61,24 @@ Error Texture::Import()
 {
     mStatus = FAILED;
     mTextureBuffer = TextureBuffer::Create();
-    VariableRegistry::try_GetResourceData(mUID(), m_pImages[0]);
-
-    for(int i{0}; i < 6; ++i)
+    VariableRegistry::try_GetResourceData(mUID(), m_pFileData);
+    if(not m_pFileData)
     {
-        if(UID::GetReservedType(mUID()) == UID::ReservedType::Cubemap)
-            { VariableRegistry::try_GetResourceData(mUID() + i, m_pImages[i]); }
-
-        if(auto data{m_pImages[i]})
-        {
-            stbi_set_flip_vertically_on_load(true);
-
-            auto image_data{stbi_load_from_memory(data->Data(),
-                data->Size(),
-                &mFormat.width,
-                &mFormat.height,
-                &mFormat.channels,
-                STBI_rgb)};
-
-            if(!image_data)
-            {
-                print_error("STBI failed to load image data for Texture ['{}', {}]",
-                    mName,
-                    mUID());
-                print_error("STBI Failure Reason: {}", stbi_failure_reason());
-                mStatus = ERR_DATA_LOAD;
-            }
-            else if(mTextureBuffer->Load(image_data, mFormat) == OK)
-                { mStatus = OK; }
-            stbi_image_free(image_data);
-        }
+        print_error("No image data found/loaded");
+        return mStatus;
     }
+
+    auto image_data{ImageHandler::Load(m_pFileData, mFormat, mStatus)};
+
+    if(print_error_enum(mStatus))
+    {
+        print_error("Failed to load image data for Texture ['{}', {}]",
+            mName,
+            mUID());
+    }
+    mStatus = mTextureBuffer->Load(image_data, mFormat);
+
+    ImageHandler::Free(image_data);
 
     if(!print_error_enum(mStatus))
         { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
@@ -123,7 +87,6 @@ Error Texture::Import()
         mTextureBuffer->GenerateMipMaps();
         mTextureBuffer->SetSamplerState(mSampler);
     }
-
     return mStatus;
 }
 

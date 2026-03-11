@@ -71,7 +71,7 @@ const Theatre* TheatreManager::CurrentTheatre() const
 
 void TheatreManager::DrawCurrentTheatre()
 {
-    if(GetTheatreState() != IN_LEVEL)
+    if(GetTheatreState() != IN_LEVEL or not mCurrentTheatre)
         { return; }
     LockGuard<RMutex> lock{mTheatreMutex};
     mCurrentTheatre->Draw();

@@ -2,6 +2,9 @@
 // index. While it's not a requirement, it *is* a strong recommendation.
 @HelloWorld#0
 
+declare EditorPlayer3D inherits NostalgiaPlayer3D
+declare TestAnimatedSprite2D inherits Sprite2D
+
 ///
     Everything is a Thing. Really, that's what the base class for all game objects is called.
     Thing definition follows a syntax that closely resembles a mixture of a C/C++ struct.
@@ -330,4 +333,52 @@ MeshInstance3D TestChildActor3D
     Position = [4, -2, 0]
     Mesh = <DefaultCube>
     MaterialOverride = <Test2Mat>
+}
+
+Viewport EditorViewport
+{
+    Child : Camera3D EditorCamera
+    {
+        Position = [1.0, 5.0, 1.0]
+        RotationDegrees = [-40.0, 10.0, 0.0]
+        UseDefaultSkybox = [true]
+        Current = [true]
+    }
+}
+
+Viewport TestViewport
+{
+    ViewportSize = [1920, 1080]
+    Child : Camera2D TestViewportCamera2D
+    {
+        Position = [-1920, 1080]
+    }
+
+    Child : Text2D TestText2DThing
+    {
+        Font = <Verdana>
+        Position = [-1900, 700]
+        Color = [1, 1, 1]
+        Scale = [1.8, 2]
+        Text = "Hello, Sprite3D! (Hello, ViewportTexture!)"
+    }
+
+    Child : Camera3D TestViewportCamera3D
+    {
+        Position = [4, 2.05, 2]
+        RotationDegrees = [-17.5, 44.40, 0]
+        UseDefaultSkybox = [true]
+    }
+}
+ViewportTexture TestViewportTexture
+{
+    Viewport = <TestViewport>
+}
+
+Sprite3D TestViewportTextureTester
+{
+    Texture = <TestViewportTexture>
+    Position = [8, 1, -3.4]
+    RotationDegrees = [0, -45.60, 0]
+    Scale = [1.47, 1.47, 1.47]
 }

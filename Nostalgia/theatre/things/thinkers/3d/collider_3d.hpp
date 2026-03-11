@@ -57,6 +57,7 @@ public:
     virtual void SetLinearVelocity(Farg<glm::vec3> inLinearVelocity);
 
 protected:
+    friend class PhysicsEngine;
     RMutex mPhysicsMutex{};
     Shared<JPH::BodyCreationSettings> m_pBodyCreationSettings{nullptr};
     JPH::BodyID mBodyID{};
@@ -65,6 +66,8 @@ protected:
     ColliderMaterial mMaterial{};
     float mMass{1.0f};
     bool mActivateOnNextChange{true};
+
+    virtual void OnCollisionDetected(Farg<JPH::BodyID> inOtherBodyID, ID inOtherColliderID);
 };
 
 #endif // COLLIDER_H

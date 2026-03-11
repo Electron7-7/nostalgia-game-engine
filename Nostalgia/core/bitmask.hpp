@@ -1,7 +1,6 @@
 #ifndef BIT_MASK_H
 #define BIT_MASK_H
 
-
 inline constinit const uint MaxBitMaskPlaces{30};
 
 struct BitMask

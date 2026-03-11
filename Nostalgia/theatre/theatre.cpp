@@ -5,11 +5,13 @@
 #include "./things/thinkers/2d/sprite_2d.hpp"
 #include "./things/thinkers/2d/text_2d.hpp"
 #include "./things/thinkers/3d/light_3d.hpp"
+#include "./things/thinkers/3d/sprite_3d.hpp"
 #include "./things/thinkers/3d/mesh_instance_3d.hpp"
 #include "./things/thinkers/3d/camera_3d.hpp"
 #include "./things/thinkers/3d/visual_3d.hpp"
 #include "./things/thinkers/viewport.hpp"
 #include "./things/resources/texture.hpp"
+#include "./things/resources/cubemap_texture.hpp"
 #include "./things/resources/material.hpp"
 #include "./things/resources/mesh.hpp"
 #include "./things/resources/font.hpp"
@@ -511,7 +513,7 @@ void Theatre::CreateEmbeddedResources()
     CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::t_LightDebug});
     CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::t_COMP04_5});
     CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::t_LolBit});
-    CreateThingNoReady({ThingType::Texture,
+    CreateThingNoReady({ThingType::CubemapTexture,
         "ShittySkybox",
         {{"Type", "CubeMapTexture", ThingVarType::Enum}},
         UID::t_ShittySkybox});
@@ -596,10 +598,11 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     if(inViewport->CurrentCamera3D().invalid()
-        and !inViewport->SetCurrentCamera3D())
+        and not inViewport->SetCurrentCamera3D())
             { return; }
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     auto camera{GetThinker<Camera3D>(inViewport->CurrentCamera3D())};
     auto view_matrix{camera->ViewMatrix()};
     auto projection_matrix{camera->ProjectionMatrix()};
@@ -608,7 +611,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         { CreateEmbeddedResources(); }
 
     auto missing_texture{GetResource<Texture>(UID::t_Missing)};
-    auto error_mesh{GetResource<Mesh>(UID::m_Error)};
+    auto mesh{GetResource<Mesh>(ID::Invalid)};
 
     switch(camera->mEnvironment.mType)
     {
@@ -636,24 +639,24 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     for(ID v3d_id : mVisual3DIDs)
     {
         auto visual3d{GetThinker<Visual3D>(v3d_id)};
-        if(!visual3d->Visible()
-            or !camera->LayersMask().contains(visual3d->Layers())
-            or (visual3d->Viewport() != UID::a_RootViewport
-                    and visual3d->Viewport() != inViewport->uid())
+        if(DerivedFrom(v3d_id, ThingType::Light3D) or
+            not visual3d->Visible()
+            or not camera->LayersMask().contains(visual3d->Layers())
             or camera->EditorMeshInstanceID() == v3d_id)
                 { continue; }
+
+        glm::vec3 scale_vector{visual3d->GlobalScale()};
 
         if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
         {
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
-            auto mesh{GetResource<Mesh>(mesh_instance->MeshID())};
+            if(mesh_instance->MeshID().invalid())
+                { continue; }
+            mesh = GetResource<Mesh>(mesh_instance->MeshID());
             auto material{GetResource<Material>(mesh->MaterialID())};
 
             if(!mesh_instance->MaterialOverrideID().invalid())
                 { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
-
-            if(!mesh->MeshData())
-                { mesh = error_mesh; }
 
             auto diffuse_texture{GetResource<Texture>(material->DiffuseTextureID())};
             auto specular_texture{GetResource<Texture>(material->SpecularTextureID())};
@@ -664,13 +667,9 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
             if(!material->SpecularTextureID().invalid() and !specular_texture->GetBuffer())
                 { specular_texture = missing_texture; }
 
-            auto shader{renderer_api->GetShader((material->mFullBright) ? Shaders::Fullbright : Shaders::BlinnPhong)};
-
-            // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-            glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, visual3d->GlobalScale())},
-                transMat          {glm::translate(glm::mat4{1.0f}, visual3d->GlobalPosition())},
-                rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
-                model_matrix      {transMat * rotMat * scaleMat};
+            shader = renderer_api->GetShader((material->mFullBright)
+                ? Shaders::Fullbright
+                : Shaders::BlinnPhong);
 
             bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
             bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
@@ -678,15 +677,6 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
             renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
 
-            shader->SetUniform("model_matrix", model_matrix);
-            shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
-            shader->SetUniform("projection_matrix", projection_matrix);
-            shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
-            shader->SetUniform("point_lights_count", PointLight3D::GetCount());
-            shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
-            shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
-            shader->SetUniform("view_matrix", view_matrix);
-            shader->SetUniform("view_position", camera->GlobalPosition());
             shader->SetUniform("current_material.texture_diffuse",  0);
             shader->SetUniform("current_material.texture_specular", 1);
             shader->SetUniform("current_material.use_diffuse",  use_diffuse);
@@ -695,15 +685,60 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
             shader->SetUniform("current_material.alpha", material->mAlpha);
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
             shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
-
-            glm::vec4 debug_highlight{visual3d->mDebugHighlight};
-            debug_highlight *= (visual3d->mIsHoveredInDebugger or visual3d->mOverrideEnableDebugHighlight);
-            shader->SetUniform("debug_highlight", debug_highlight);
-
-            shader->Bind();
-            renderer_api->DrawIndexed(mesh->MeshData());
-            renderer_api->SetFramebufferSRGB(false);
         }
+        else if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::Sprite3D))
+        {
+            auto sprite{DCast<Sprite3D>(visual3d)};
+            mesh = GetResource<Mesh>(UID::m_Quad);
+
+            auto texture{(sprite->TextureID().invalid())
+                ? missing_texture
+                : GetResource<Texture>(sprite->TextureID())};
+
+            shader = renderer_api->GetShader(Shaders::Fullbright);
+
+            renderer_api->BindTexture(texture, 0);
+            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
+            renderer_api->SetFramebufferSRGB(true);
+
+            shader->SetUniform("current_material.texture_diffuse", 0);
+            shader->SetUniform("current_material.use_diffuse", true);
+            shader->SetUniform("current_material.diffuse_color", {1.0f,1.0f,1.0f});
+
+            auto height{texture->Format().height};
+            auto width{texture->Format().width};
+            if(width > height)
+                { scale_vector *= glm::vec3{1.0f / ((float)height / width), 1.0f, 1.0f}; }
+            else
+                { scale_vector *= glm::vec3{1.0f, 1.0f / ((float)height / width), 1.0f}; }
+        }
+
+        if(not mesh->MeshData())
+            { mesh = GetResource<Mesh>(UID::m_Error); }
+
+        // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
+        glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, scale_vector)},
+            transMat          {glm::translate(glm::mat4{1.0f}, visual3d->GlobalPosition())},
+            rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
+            model_matrix      {transMat * rotMat * scaleMat};
+
+        shader->SetUniform("model_matrix", model_matrix);
+        shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+        shader->SetUniform("projection_matrix", projection_matrix);
+        shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+        shader->SetUniform("point_lights_count", PointLight3D::GetCount());
+        shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
+        shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
+        shader->SetUniform("view_matrix", view_matrix);
+        shader->SetUniform("view_position", camera->GlobalPosition());
+
+        glm::vec4 debug_highlight{visual3d->mDebugHighlight};
+        debug_highlight *= (visual3d->mIsHoveredInDebugger or visual3d->mOverrideEnableDebugHighlight);
+        shader->SetUniform("debug_highlight", debug_highlight);
+
+        shader->Bind();
+        renderer_api->DrawIndexed(mesh->MeshData());
+        renderer_api->SetFramebufferSRGB(false);
     }
 }
 
@@ -713,7 +748,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     if(inViewport->uid() != UID::a_RootViewport
         and inViewport->CurrentCamera2D().invalid()
-        and !inViewport->SetCurrentCamera2D())
+        and not inViewport->SetCurrentCamera2D())
             { return; }
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
@@ -729,11 +764,9 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
     {
         auto shader{renderer_api->GetShader(Shaders::Fast2D)};
         auto visual2d{GetThinker<Visual2D>(v2d_id)};
-        if(!visual2d->Visible()
-            or !camera->LayersMask().contains(visual2d->Layers())
-            or (visual2d->Viewport() != UID::a_RootViewport
-                    and visual2d->Viewport() != inViewport->uid()))
-                        { continue; }
+        if(not visual2d->Visible()
+            or not camera->LayersMask().contains(visual2d->Layers()))
+                { continue; }
 
         if(ThingFactory::IsDerivedFrom(visual2d->type(), ThingType::Sprite2D))
         {
