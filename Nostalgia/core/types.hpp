@@ -4,6 +4,7 @@
 #include <sys/types.h>
 
 using uchar = unsigned char;
+using uint64 = uint64_t;
 
 #ifdef WIN32
     using uint   = unsigned int;
