@@ -61,6 +61,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/things/resources/font.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.cpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/texture.cpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/resource.cpp
     ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/light_3d.cpp
@@ -147,6 +148,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/theatre/theatre.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/texture.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.hpp
+    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/font.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/resource.hpp
     ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.hpp
