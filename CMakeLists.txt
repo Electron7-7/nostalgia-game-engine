@@ -31,7 +31,7 @@ if(BUILD_ALL_TESTS)
     set(BUILD_JOLT_THIRDPARTY_TEST ON)
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
 endif()
 
