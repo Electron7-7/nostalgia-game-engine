@@ -345,3 +345,39 @@ Viewport EditorViewport
         Current = [true]
     }
 }
+
+Viewport TestViewport
+{
+    ViewportSize = [1920, 1080]
+    Child : Camera2D TestViewportCamera2D
+    {
+        Position = [-1920, 1080]
+    }
+
+    Child : Text2D TestText2DThing
+    {
+        Font = <Verdana>
+        Position = [-1500, 700]
+        Size = [3,3]
+        Color = [0.2, 1.0, 0.1]
+        Text = "He was gay, Gary Cooper?"
+    }
+
+    Child : Camera3D TestViewportCamera3D
+    {
+        Position = [4, 2.05, 2]
+        RotationDegrees = [-17.5, 44.40, 0]
+    }
+
+}
+ViewportTexture TestViewportTexture
+{
+    Viewport = <TestViewport>
+}
+
+Sprite3D TestViewportTextureTester
+{
+    Texture = <TestViewportTexture>
+    Position = [7, 0.5, -10]
+    Scale = [2, 2]
+}
