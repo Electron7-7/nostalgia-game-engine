@@ -49,9 +49,10 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
+    auto theatre{g_pTheatreManager->CurrentTheatre()};
     if(!Settings::Engine::IsEditorHint)
     {
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+        auto player{theatre->GetThinker<EditorPlayer3D>(UID::a_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -61,30 +62,28 @@ void ImGui_Editor::TheatreEntered()
     TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
     mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
     mat_dat.set_variable(true, "FullBright");
-    sSpawnLocationMaterialID = g_pTheatreManager->CurrentTheatre()->CreateThing(mat_dat);
+    sSpawnLocationMaterialID = theatre->CreateThing(mat_dat);
 
     TheatreFile::ThingData mesh_inst_dat{ThingType::MeshInstance3D,"ThingAdderSpawnLocation_MeshInstance"};
     mesh_inst_dat.set_variable(UID::m_Ramiel, "Mesh");
     mesh_inst_dat.set_variable(sSpawnLocationMaterialID, "MaterialOverride");
     mesh_inst_dat.set_variable(true, "Wireframe");
-    sSpawnLocationMeshInstanceID = g_pTheatreManager->CurrentTheatre()->CreateThing(mesh_inst_dat);
+    sSpawnLocationMeshInstanceID = theatre->CreateThing(mesh_inst_dat);
 
     TheatreFile::ThingData spawn_dat{ThingType::Actor3D, "ThingAdderSpawnLocation"};
     spawn_dat.set_variable(sSpawnLocationMeshInstanceID, "Child");
     spawn_dat.set_variable(glm::vec3{1.0f}, "Scale");
 
-    sSpawnLocationID = g_pTheatreManager->CurrentTheatre()->CreateThing(spawn_dat);
+    sSpawnLocationID = theatre->CreateThing(spawn_dat);
 
-    sEditorViewportID = g_pTheatreManager->CurrentTheatre()
-        ->CreateThing({ThingType::Viewport, "EditorViewport"});
+    sEditorViewportID = theatre->GetThing("EditorViewport")->uid();
 
-    TheatreFile::ThingData cam_dat{ThingType::Camera3D,"EditorCamera"};
+    TheatreFile::ThingData cam_dat{ThingType::Camera3D, "EditorCamera"};
     cam_dat.set_variable(glm::vec3{0.0f, 5.0f, 1.0f}, "Position");
     cam_dat.set_variable(glm::vec3{-90.0f, 0.0f, 0.0f}, "RotationDegrees");
     cam_dat.set_variable(true, "UseDefaultSkybox");
-    cam_dat.set_variable(sEditorViewportID, "Parent");
     cam_dat.set_variable(true, "Current");
-    g_pTheatreManager->CurrentTheatre()->CreateThing(cam_dat);
+    theatre->SetParent(theatre->CreateThing(cam_dat), sEditorViewportID);
 }
 
 void ImGui_Editor::TheatreExited()

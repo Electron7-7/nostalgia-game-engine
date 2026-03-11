@@ -598,7 +598,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     LockGuard<RMutex> things_lock{mThingsMutex};
 
     if(inViewport->CurrentCamera3D().invalid()
-        and !inViewport->SetCurrentCamera3D())
+        and not inViewport->SetCurrentCamera3D())
             { return; }
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
@@ -748,7 +748,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     if(inViewport->uid() != UID::a_RootViewport
         and inViewport->CurrentCamera2D().invalid()
-        and !inViewport->SetCurrentCamera2D())
+        and not inViewport->SetCurrentCamera2D())
             { return; }
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};

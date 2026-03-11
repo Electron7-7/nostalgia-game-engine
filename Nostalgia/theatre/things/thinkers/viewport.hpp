@@ -6,9 +6,9 @@
 class Viewport : public Thinker
 {
 public:
-    virtual void Ready() override;
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     Farg<Shared<FrameBuffer>> Framebuffer() const;
     void SetFramebuffer(Shared<FrameBuffer>);

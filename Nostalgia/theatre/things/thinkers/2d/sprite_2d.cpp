@@ -1,5 +1,4 @@
 #include "sprite_2d.hpp"
-#include "managers/manager.hpp"
 
 using namespace TheatreFile;
 
