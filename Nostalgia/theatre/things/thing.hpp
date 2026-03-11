@@ -50,7 +50,7 @@ protected:
     ID mUID{};
     std::string mName{"Untitled Thing"};
     PID mType{};
-    Unique<TheatreFile::ThingData> m_pStartingData{nullptr};
+    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
     Theatre* my_theatre() const;
 
