@@ -38,6 +38,7 @@ public:
             TYPE_ID(Font)
             TYPE_ID(Mesh)
             TYPE_ID(Texture)
+            TYPE_ID(CubemapTexture)
             TYPE_ID(Material)
         TYPE_ID(Thinker)
             TYPE_ID(Viewport)

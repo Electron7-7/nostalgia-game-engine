@@ -11,6 +11,7 @@
 #include "./things/thinkers/3d/visual_3d.hpp"
 #include "./things/thinkers/viewport.hpp"
 #include "./things/resources/texture.hpp"
+#include "./things/resources/cubemap_texture.hpp"
 #include "./things/resources/material.hpp"
 #include "./things/resources/mesh.hpp"
 #include "./things/resources/font.hpp"
@@ -512,7 +513,7 @@ void Theatre::CreateEmbeddedResources()
     CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::t_LightDebug});
     CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::t_COMP04_5});
     CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::t_LolBit});
-    CreateThingNoReady({ThingType::Texture,
+    CreateThingNoReady({ThingType::CubemapTexture,
         "ShittySkybox",
         {{"Type", "CubeMapTexture", ThingVarType::Enum}},
         UID::t_ShittySkybox});
