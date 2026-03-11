@@ -268,10 +268,15 @@ bool Collider3D::CreateBody(bool setActive)
     m_pBodyCreationSettings->mMassPropertiesOverride.mMass = mMass;
     m_pBodyCreationSettings->mFriction = mMaterial.friction;
 
-    mBodyID = PhysicsEngine::Instance()->CreateAndAddBody(mUID, *m_pBodyCreationSettings, setActive);
+    auto engine{PhysicsEngine::Instance()};
+
+    mBodyID = engine->BodyInterface().CreateAndAddBody(*m_pBodyCreationSettings,
+        engine->GetActivation(mActivateOnNextChange));
+
     if(mBodyID.IsInvalid())
         { return false; }
-    PhysicsEngine::Instance()->BodyInterface().SetUserData(mBodyID, mUID());
+
+    engine->BodyInterface().SetUserData(mBodyID, mUID());
     return true;
 }
 
@@ -279,7 +284,9 @@ void Collider3D::DestroyBody()
 {
     if(mBodyID.IsInvalid())
         { print_warning("mBodyID.IsInvalid == true (body was already destroyed?)"); }
-    PhysicsEngine::Instance()->DestroyBody(mBodyID);
+    auto engine{PhysicsEngine::Instance()};
+    engine->BodyInterface().RemoveBody(mBodyID);
+    engine->BodyInterface().DestroyBody(mBodyID);
 }
 
 void Collider3D::AddImpulse(Farg<glm::vec3> inImpulse)
