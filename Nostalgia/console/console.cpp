@@ -17,6 +17,7 @@ sVariableNames{
     "Theatre.debug_save_msgs",
     "Theatre.draw_text_new",
     "Collider3D.debug_collision_msgs",
+    "Collider3D.debug_collision_persisted_msgs",
 };
 static Variables
 sVariables{
@@ -25,6 +26,7 @@ sVariables{
     MakeShared<Variable>("Theatre.debug_save_msgs", false),
     MakeShared<Variable>("Theatre.draw_text_new", false),
     MakeShared<Variable>("Collider3D.debug_collision_msgs", false),
+    MakeShared<Variable>("Collider3D.debug_collision_persisted_msgs", false),
 };
 
 static Error sProcessEngineCommand(Sarg);
