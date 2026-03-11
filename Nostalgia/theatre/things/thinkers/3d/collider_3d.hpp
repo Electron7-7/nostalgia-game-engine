@@ -4,6 +4,7 @@
 #include <Nostalgia/theatre/things/thinkers/3d/actor_3d.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
 
 enum class ShapeType : ushort
 { Box, Sphere, Capsule, Cylinder, None };
@@ -58,6 +59,8 @@ public:
 
 protected:
     friend class PhysicsEngine;
+    friend class Jolt_ContactListener;
+    friend class Jolt_BodyActivationListener;
     RMutex mPhysicsMutex{};
     Shared<JPH::BodyCreationSettings> m_pBodyCreationSettings{nullptr};
     JPH::BodyID mBodyID{};
@@ -67,7 +70,19 @@ protected:
     float mMass{1.0f};
     bool mActivateOnNextChange{true};
 
-    virtual void OnCollisionDetected(Farg<JPH::BodyID> inOtherBodyID, ID inOtherColliderID);
+    virtual void OnContactAdded(ID inOtherColliderID,
+        Farg<JPH::Body> inBody1,
+        Farg<JPH::Body> inBody2,
+        Farg<JPH::ContactManifold> manifold,
+        JPH::ContactSettings& ioSettings);
+    virtual void OnContactPersisted(ID inOtherColliderID,
+        Farg<JPH::Body> inBody1,
+        Farg<JPH::Body> inBody2,
+        Farg<JPH::ContactManifold> manifold,
+        JPH::ContactSettings& ioSettings);
+    // virtual void OnContactRemoved(Farg<JPH::SubShapeIDPair> inSubShapeIDPair);
+    virtual void OnBodyActivated();
+    virtual void OnBodyDeactivated();
 };
 
 #endif // COLLIDER_H

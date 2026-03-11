@@ -318,14 +318,51 @@ void Collider3D::SetLinearVelocity(Farg<glm::vec3> inLinearVelocity)
         Math::Convert<Vec3>(inLinearVelocity));
 }
 
-void Collider3D::OnCollisionDetected(Farg<JPH::BodyID> inOtherBodyID, ID inOtherColliderID)
+void Collider3D::OnContactAdded(ID inOtherColliderID,
+    Farg<JPH::Body> inBody1,
+    Farg<JPH::Body> inBody2,
+    Farg<JPH::ContactManifold> manifold,
+    JPH::ContactSettings& ioSettings)
 {
+    print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
+            mUID(),
+            mName,
+            inOtherColliderID(),
+            my_theatre()->GetThing(inOtherColliderID)->name());
+
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
     {
-        print_debug("Collider3D#{} '{}' collided with Collider3D#{} '{}'",
+        print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
             mUID(),
             mName,
             inOtherColliderID(),
             my_theatre()->GetThing(inOtherColliderID)->name());
     }
+}
+
+void Collider3D::OnContactPersisted(ID inOtherColliderID,
+    Farg<JPH::Body> inBody1,
+    Farg<JPH::Body> inBody2,
+    Farg<JPH::ContactManifold> manifold,
+    JPH::ContactSettings& ioSettings)
+{
+    if(Console::try_GetVariable("Collider3D.debug_collision_persisted_msgs")->int_value)
+        { print_debug("Collider3D#{} '{}' Contact Persisted", mUID(), mName); }
+}
+
+/*void Collider3D::OnContactRemoved(Farg<JPH::SubShapeIDPair> inSubShapeIDPair)
+{
+    print_debug("Collider3D#{} '{}' Contact Removed", mUID(), mName);
+}*/
+
+void Collider3D::OnBodyActivated()
+{
+    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+        { print_debug("Collider3D#{} '{}' activated", mUID(), mName); }
+}
+
+void Collider3D::OnBodyDeactivated()
+{
+    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+        { print_debug("Collider3D#{} '{}' deactivated", mUID(), mName); }
 }

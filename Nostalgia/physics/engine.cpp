@@ -16,12 +16,6 @@ using namespace JPH;
 
 JPH_SUPPRESS_WARNINGS
 
-using BodyIDColliderIDMap = std::unordered_map<uint32, ID>;
-using ColliderIDBodyIDMap = std::unordered_map<ID, uint32>;
-
-static BodyIDColliderIDMap s_BodyIDColliderIDMap{};
-static ColliderIDBodyIDMap s_ColliderIDBodyIDMap{};
-
 ////////////////////////////
 // BEGIN JOLT BOILERPLATE //
 ////////////////////////////
@@ -141,6 +135,14 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
+        auto collider1_id{inBody1.GetUserData()};
+        auto collider2_id{inBody2.GetUserData()};
+        if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactAdded(collider2_id, inBody1, inBody2, manifold, ioSettings);
+        }
     }
 
     virtual void OnContactPersisted(Farg<Body> inBody1,
@@ -150,12 +152,28 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
+        auto collider1_id{inBody1.GetUserData()};
+        auto collider2_id{inBody2.GetUserData()};
+        if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactPersisted(collider2_id, inBody1, inBody2, manifold, ioSettings);
+        }
     }
 
     virtual void OnContactRemoved(Farg<SubShapeIDPair> inSubShapeIDPair) override
     {
         if(gJoltDebugMessageAllow_ContactRemoved)
             { print_jolt("A contact was removed"); }
+        /*auto collider1_id = PhysicsEngine::Instance()->BodyInterface()
+            .GetUserData(inSubShapeIDPair.GetBody1ID());
+        if(collider1_id and collider1_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactRemoved(inSubShapeIDPair);
+        }*/
     }
 };
 
@@ -166,12 +184,16 @@ public:
     {
         if(gJoltDebugMessageAllow_BodyActivated)
             { print_jolt("A body was activated [index: {}]", inBodyID.GetIndex()); }
+        if(inBodyUserData and inBodyUserData != ID::Invalid)
+            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyActivated(); }
     }
 
     virtual void OnBodyDeactivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyDeactivated)
             { print_jolt("A body went to sleep [index: {}]", inBodyID.GetIndex()); }
+        if(inBodyUserData and inBodyUserData != ID::Invalid)
+            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyDeactivated(); }
     }
 };
 
