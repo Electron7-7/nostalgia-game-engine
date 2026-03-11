@@ -10,18 +10,16 @@ public:
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
+    Farg<TextureFormat> Format() const;
+    void SetFormat(Farg<TextureFormat>);
+    Farg<SamplerState> Sampler() const;
+    void SetSampler(Farg<SamplerState>);
+
     virtual Error Import();
-
-    virtual Farg<TextureFormat> Format() const;
-    virtual void SetFormat(Farg<TextureFormat>);
-    virtual Farg<SamplerState> Sampler() const;
-    virtual void SetSampler(Farg<SamplerState>);
-
     virtual Shared<TextureBuffer> GetBuffer() const;
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
 protected:
-    cubemap_images_t m_pImages{nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     RMutex mTextureBufferMutex{};
     TextureFormat mFormat{};
