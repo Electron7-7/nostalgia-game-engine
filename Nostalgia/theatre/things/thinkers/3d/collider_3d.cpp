@@ -151,7 +151,7 @@ bool Collider3D::ActivateOnNextChange() const
 void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
     Actor3D::SetPosition(inPosition);
-    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
@@ -161,7 +161,7 @@ void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
     Actor3D::SetQuaternion(inQuaternion);
-    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
@@ -171,7 +171,7 @@ void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotation(inRotation);
-    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
@@ -181,7 +181,7 @@ void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
     Actor3D::SetRotationDegrees(inRotation);
-    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
@@ -191,7 +191,7 @@ void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
     Actor3D::SetScale(inScale);
-    PhysicsEngine::Inst()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
+    PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));

@@ -1143,7 +1143,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                     if(CollapsingHeader("Jolt Properties"))
                     {
                         auto bodyid{collider->id()};
-                        auto& body_interface{PhysicsEngine::Inst()->BodyInterface()};
+                        auto& body_interface{PhysicsEngine::Instance()->BodyInterface()};
                         TextF("BodyID (index#): {}", bodyid.GetIndex());
                         TextF("Position: [{}, {}, {}]",
                             body_interface.GetPosition(bodyid).GetX(),

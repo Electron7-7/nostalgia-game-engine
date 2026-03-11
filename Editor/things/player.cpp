@@ -87,7 +87,7 @@ void EditorPlayer3D::Tick()
         }
     }
 
-    PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
+    PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(collider->id(),
         Math::Convert<JPH::Vec3>(mVelocity));
     SetPosition(collider->Position());
 }

@@ -139,7 +139,6 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
-        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
     }
@@ -149,7 +148,6 @@ public:
         Farg<ContactManifold> manifold,
         ContactSettings& ioSettings) override
     {
-        PhysicsEngine::Inst()->TellCollidersAboutCollision(inBody1, inBody2);
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
     }
@@ -220,9 +218,6 @@ void PhysicsEngine::Instantiate()
 { assert(!m_sInstance); m_sInstance = Shared<PhysicsEngine>{new PhysicsEngine{}}; }
 
 Shared<PhysicsEngine> PhysicsEngine::Instance()
-{ assert(m_sInstance); return m_sInstance; }
-
-Shared<PhysicsEngine> PhysicsEngine::Inst() noexcept
 { assert(m_sInstance); return m_sInstance; }
 
 ObjectLayer PhysicsEngine::GetObjectLayer(MotionType inMotion) noexcept

@@ -56,7 +56,6 @@ public:
     static JPH::EActivation GetActivation(bool inIsActive) noexcept;
     static void Instantiate();
     static Shared<PhysicsEngine> Instance();
-    static Shared<PhysicsEngine> Inst() noexcept;
 
 private:
     static Shared<PhysicsEngine> m_sInstance;
