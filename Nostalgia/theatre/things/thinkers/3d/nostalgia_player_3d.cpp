@@ -1,5 +1,6 @@
 #include "./nostalgia_player_3d.hpp"
 #include "settings/engine.hpp"
+#include "../viewport.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/thing_factory.hpp"
 
@@ -56,4 +57,7 @@ void NostalgiaPlayer3D::Ready()
             { mCameraID = my_theatre()->GetThing(cam_name)->uid(); }
         my_theatre()->SetParent(mCameraID, mUID);
     }
+
+    if(not mCameraID.invalid())
+        { my_theatre()->GetRootViewport()->SetCurrentCamera3D(mCameraID); }
 }
