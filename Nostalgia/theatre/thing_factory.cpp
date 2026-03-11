@@ -11,6 +11,7 @@
 #include "./things/thinkers/2d/sprite_2d.hpp"
 #include "./things/thinkers/2d/mesh_instance_2d.hpp"
 #include "./things/thinkers/3d/actor_3d.hpp"
+#include "./things/thinkers/3d/sprite_3d.hpp"
 #include "./things/thinkers/3d/nostalgia_player_3d.hpp"
 #include "./things/thinkers/3d/camera_3d.hpp"
 #include "./things/thinkers/3d/light_3d.hpp"
@@ -43,6 +44,7 @@ bool ThingFactory::Init()
             ADD_THING(Actor3D, Thinker)
                 ADD_THING(Visual3D, Actor3D)
                     ADD_THING(MeshInstance3D, Visual3D)
+                    ADD_THING(Sprite3D, Visual3D)
                     ADD_THING(Light3D, Visual3D)
                         ADD_THING(PointLight3D, Light3D)
                         ADD_THING(SpotLight3D, Light3D)
