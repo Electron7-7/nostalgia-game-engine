@@ -75,15 +75,8 @@ void ImGui_Editor::TheatreEntered()
     spawn_dat.set_variable(glm::vec3{1.0f}, "Scale");
 
     sSpawnLocationID = theatre->CreateThing(spawn_dat);
-
     sEditorViewportID = theatre->GetThing("EditorViewport")->uid();
-
-    TheatreFile::ThingData cam_dat{ThingType::Camera3D, "EditorCamera"};
-    cam_dat.set_variable(glm::vec3{0.0f, 5.0f, 1.0f}, "Position");
-    cam_dat.set_variable(glm::vec3{-90.0f, 0.0f, 0.0f}, "RotationDegrees");
-    cam_dat.set_variable(true, "UseDefaultSkybox");
-    cam_dat.set_variable(true, "Current");
-    theatre->SetParent(theatre->CreateThing(cam_dat), sEditorViewportID);
+    theatre->SetParent(theatre->GetThing("EditorCamera")->uid(), sEditorViewportID);
 }
 
 void ImGui_Editor::TheatreExited()

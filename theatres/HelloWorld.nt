@@ -334,3 +334,14 @@ MeshInstance3D TestChildActor3D
     Mesh = <DefaultCube>
     MaterialOverride = <Test2Mat>
 }
+
+Viewport EditorViewport
+{
+    Child : Camera3D EditorCamera
+    {
+        Position = [1.0, 5.0, 1.0]
+        RotationDegrees = [-40.0, 10.0, 0.0]
+        UseDefaultSkybox = [true]
+        Current = [true]
+    }
+}
