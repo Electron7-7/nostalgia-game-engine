@@ -27,6 +27,9 @@ protected:
     Size2D mSize{512, 512};
     ID mCurrentCamera3D{},
         mCurrentCamera2D{};
+
+    virtual void OnDescendantRemoved(Relative) override;
+    virtual void OnDescendantAdded(Relative) override;
 };
 
 #endif // VIEWPORT_H

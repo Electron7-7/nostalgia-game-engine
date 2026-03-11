@@ -9,15 +9,26 @@ using namespace TheatreFile;
 void Camera2D::Ready()
 {
     Actor2D::Ready();
-    auto ancestors{my_theatre()->GetAllParents(mUID)};
-    for(ID parent : ancestors)
+    auto parent{my_theatre()->GetParent(mUID)};
+
+    if(mViewportID == UID::a_RootViewport and not parent.invalid())
     {
         if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
-            { mViewportID = parent; break; }
+            { mViewportID = parent; }
+        else
+        {
+            auto ancestors{my_theatre()->GetAllParents(mUID)};
+            for(ID parent : ancestors)
+            {
+                if(parent != UID::a_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                    { mViewportID = parent; break; }
+            }
+        }
     }
 
-    if(mInitCurrent)
-        { my_theatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera2D(mUID); }
+    if(auto my_viewport{my_theatre()->GetThinker<Viewport>(mViewportID)};
+        mInitCurrent and my_viewport->CurrentCamera2D().invalid())
+            { my_viewport->SetCurrentCamera2D(mUID); }
 }
 
 void Camera2D::SetVariables(Farg<ThingData> data)
