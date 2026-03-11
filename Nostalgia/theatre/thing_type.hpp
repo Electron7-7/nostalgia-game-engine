@@ -47,6 +47,7 @@ public:
                 TYPE_ID(Collider3D)
                 TYPE_ID(Visual3D)
                     TYPE_ID(MeshInstance3D)
+                    TYPE_ID(Sprite3D)
                     TYPE_ID(Light3D)
                         TYPE_ID(PointLight3D)
                         TYPE_ID(SpotLight3D)
