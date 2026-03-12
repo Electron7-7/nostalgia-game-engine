@@ -40,13 +40,13 @@ void EditorPlayer3D::Ready()
     if(!_has_collider)
     {
         TheatreFile::ThingData coll_dat{ThingType::Collider3D, "DefaultPlayerCollider"};
-        coll_dat.set_variable(mPosition, "Origin");
-        coll_dat.set_variable(mQuaternion, "Quaternion");
-        coll_dat.set_variable(mScale, "Scale");
+        coll_dat.set_variable(mLocalTransform.position, "Origin");
+        coll_dat.set_variable(mLocalTransform.quaternion, "Quaternion");
+        coll_dat.set_variable(mLocalTransform.scale, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(ShapeType::Box, "Shape");
         my_theatre()->SetParent(mMainColliderID = my_theatre()->CreateThing(coll_dat), mUID);
-        mScale = glm::vec3{1.0f};
+        mLocalTransform.scale = glm::vec3{1.0f};
     }
 }
 
@@ -67,9 +67,9 @@ void EditorPlayer3D::Tick()
 
     auto collider{my_theatre()->GetThinker<Collider3D>(mMainColliderID)};
 
-    glm::vec3 l_FrontBackVelocity{(mQuaternion * Settings::World::Front()) *
+    glm::vec3 l_FrontBackVelocity{(mLocalTransform.quaternion * Settings::World::Front()) *
         mMovementDirection.z * Settings::Player::MovementSpeed};
-    glm::vec3 l_LeftRightVelocity{(mQuaternion * Settings::World::Right()) *
+    glm::vec3 l_LeftRightVelocity{(mLocalTransform.quaternion * Settings::World::Right()) *
         mMovementDirection.x * Settings::Player::MovementSpeed};
     glm::vec3 wish_velocity{l_FrontBackVelocity + l_LeftRightVelocity};
 
@@ -87,7 +87,7 @@ void EditorPlayer3D::Tick()
         }
     }
 
-    PhysicsEngine::Inst()->BodyInterface().SetLinearVelocity(collider->id(),
+    PhysicsEngine::Instance()->BodyInterface().SetLinearVelocity(collider->id(),
         Math::Convert<JPH::Vec3>(mVelocity));
-    mPosition = collider->Position();
+    SetPosition(collider->Position());
 }

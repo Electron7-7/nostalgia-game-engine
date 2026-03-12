@@ -10,7 +10,7 @@ void Thing::SetVariables(Farg<ThingData> data)
     mUID  = data.uid;
     mName = data.name;
     mType = data.type;
-    m_pStartingData = MakeUnique<ThingData>(data);
+    m_pStartingData = MakeShared<ThingData>(data);
 }
 
 Shared<ThingData> Thing::GetVariables() const

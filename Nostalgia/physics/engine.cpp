@@ -1,4 +1,6 @@
 #include "./engine.hpp"
+#include "managers/theatre_manager.hpp"
+#include "theatre/theatre.hpp"
 #include "theatre/things/thinkers/3d/collider_3d.hpp"
 #include "thirdparty/Jolt/Core/Factory.h"
 #include "thirdparty/Jolt/RegisterTypes.h"
@@ -133,6 +135,17 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactAdded)
             { print_jolt("A contact was added"); }
+        auto collider1_id{inBody1.GetUserData()};
+        auto collider2_id{inBody2.GetUserData()};
+        if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactAdded(collider2_id, inBody1, inBody2, manifold, ioSettings);
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider2_id)
+                    ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
+        }
     }
 
     virtual void OnContactPersisted(Farg<Body> inBody1,
@@ -142,28 +155,51 @@ public:
     {
         if(gJoltDebugMessageAllow_ContactPersisted)
             { print_jolt("A contact was persisted"); }
+        auto collider1_id{inBody1.GetUserData()};
+        auto collider2_id{inBody2.GetUserData()};
+        if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactPersisted(collider2_id, inBody1, inBody2, manifold, ioSettings);
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider2_id)
+                    ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
+        }
     }
 
     virtual void OnContactRemoved(Farg<SubShapeIDPair> inSubShapeIDPair) override
     {
         if(gJoltDebugMessageAllow_ContactRemoved)
             { print_jolt("A contact was removed"); }
+        /*auto collider1_id = PhysicsEngine::Instance()->BodyInterface()
+            .GetUserData(inSubShapeIDPair.GetBody1ID());
+        if(collider1_id and collider1_id != ID::Invalid)
+        {
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider1_id)
+                    ->OnContactRemoved(inSubShapeIDPair);
+        }*/
     }
 };
 
 class Jolt_BodyActivationListener : public BodyActivationListener
 {
 public:
-    virtual void OnBodyActivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyActivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyActivated)
-            { print_jolt("A body was activated [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body was activated [index: {}]", inBodyID.GetIndex()); }
+        if(inBodyUserData and inBodyUserData != ID::Invalid)
+            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyActivated(); }
     }
 
-    virtual void OnBodyDeactivated(const BodyID& body_id, uint64 body_user_data) override
+    virtual void OnBodyDeactivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
     {
         if(gJoltDebugMessageAllow_BodyDeactivated)
-            { print_jolt("A body went to sleep [index: {}]", body_id.GetIndex()); }
+            { print_jolt("A body went to sleep [index: {}]", inBodyID.GetIndex()); }
+        if(inBodyUserData and inBodyUserData != ID::Invalid)
+            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyDeactivated(); }
     }
 };
 
@@ -212,9 +248,6 @@ void PhysicsEngine::Instantiate()
 Shared<PhysicsEngine> PhysicsEngine::Instance()
 { assert(m_sInstance); return m_sInstance; }
 
-Shared<PhysicsEngine> PhysicsEngine::Inst() noexcept
-{ assert(m_sInstance); return m_sInstance; }
-
 ObjectLayer PhysicsEngine::GetObjectLayer(MotionType inMotion) noexcept
 {
     switch(inMotion)
@@ -247,6 +280,13 @@ EMotionType PhysicsEngine::ConvertMotionType(MotionType inMotion) noexcept
     case MotionType::Static:
         return EMotionType::Static;
     }
+}
+
+EActivation PhysicsEngine::GetActivation(bool setActive) noexcept
+{
+    return (setActive)
+        ? EActivation::Activate
+        : EActivation::DontActivate;
 }
 
 PhysicsEngine::PhysicsEngine() noexcept

@@ -23,5 +23,4 @@ protected:
     bool mWireframe{false};
 };
 
-
 #endif // MESH_INSTANCE_3D_H

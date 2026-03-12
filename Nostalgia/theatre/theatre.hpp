@@ -97,8 +97,8 @@ protected:
     std::string mTheatreFileDirectory{""};
     bool mWasLoadedFromFile{false};
 
-    Mutex mCallSheetMutex{};
-    RMutex mThingsMutex{};
+    RMutex mThingsMutex{},
+        mCallSheetMutex{};
     Things_t mThings{};
     IdSet_t mLightIDs{},
         mCamera3DIDs{},

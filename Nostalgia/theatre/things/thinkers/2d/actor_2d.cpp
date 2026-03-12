@@ -7,12 +7,12 @@ void Actor2D::SetVariables(Farg<ThingData> data)
 {
     Thinker::SetVariables(data);
 
-    data.get_variable(mPosition, "Position", "Origin");
-    data.get_variable(mScale, "Scale", "Size", "OuuughImSoBigAndRound");
-    if(data.get_variable(mRotationDegrees, "RotationDegrees") == OK)
-        { SetRotationDegrees(mRotationDegrees); }
-    if(data.get_variable(mRotationRadians, "Rotation", "RotationRadians") == OK)
-        { SetRotation(mRotationRadians); }
+    data.get_variable(mLocalTransform.position, "Position", "Origin");
+    data.get_variable(mLocalTransform.scale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.get_variable(mLocalTransform.rotation_degrees, "RotationDegrees") == OK)
+        { mLocalTransform.rotation_radians = glm::radians(mLocalTransform.rotation_degrees); }
+    if(data.get_variable(mLocalTransform.rotation_radians, "Rotation", "RotationRadians") == OK)
+        { mLocalTransform.rotation_degrees = glm::degrees(mLocalTransform.rotation_radians); }
     data.get_variable(mVisible, "Visible");
 
     data.get_variable(mDebugHighlight, "DebugHighlight");
@@ -22,9 +22,9 @@ Shared<ThingData> Actor2D::GetVariables() const
 {
     auto data{Thinker::GetVariables()};
 
-    data->set_variable(mPosition, "Position");
-    data->set_variable(mScale, "Scale");
-    data->set_variable(mRotationRadians, "RotationRadians");
+    data->set_variable(mLocalTransform.position, "Position");
+    data->set_variable(mLocalTransform.scale, "Scale");
+    data->set_variable(mLocalTransform.rotation_radians, "RotationRadians");
     data->set_variable(mVisible, "Visible");
 
     data->set_variable(mDebugHighlight, "DebugHighlight");
@@ -33,98 +33,99 @@ Shared<ThingData> Actor2D::GetVariables() const
 }
 
 void Actor2D::Ready()
-{ Thinker::Ready(); }
+{
+    Thinker::Ready();
+    if(auto parent_id{my_theatre()->GetParent(mUID)};
+        parent_id.invalid() or not my_theatre()->DerivedFrom(parent_id, ThingType::Actor2D))
+    {
+        mGlobalTransform = mLocalTransform;
+        _update_children_global_transform(true);
+    }
+}
 
 Farg<glm::vec2> Actor2D::Position() const
-{ return mPosition; }
+{ return mLocalTransform.position; }
 
 float Actor2D::Rotation() const
-{ return mRotationRadians; }
+{ return mLocalTransform.rotation_radians; }
 
 float Actor2D::RotationDegrees() const
-{ return mRotationDegrees; }
+{ return mLocalTransform.rotation_degrees; }
 
 Farg<glm::vec2> Actor2D::Scale() const
-{ return mScale; }
+{ return mLocalTransform.scale; }
 
 glm::vec2 Actor2D::GlobalPosition() const
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and !my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { return Position() + my_theatre()->GetThinker<Actor2D>(parent)->GlobalPosition(); }
-    return Position();
-}
+{ return mGlobalTransform.position; }
 
 float Actor2D::GlobalRotation() const
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { return Rotation() + my_theatre()->GetThinker<Actor2D>(parent)->GlobalRotation(); }
-    return Rotation();
-}
+{ return mGlobalTransform.rotation_radians; }
 
 float Actor2D::GlobalRotationDegrees() const
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { return RotationDegrees() + my_theatre()->GetThinker<Actor2D>(parent)->GlobalRotationDegrees(); }
-    return RotationDegrees();
-}
+{ return mGlobalTransform.rotation_degrees; }
 
 glm::vec2 Actor2D::GlobalScale() const
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { return Scale() * my_theatre()->GetThinker<Actor2D>(parent)->GlobalScale(); }
-    return Scale();
-}
-
-void Actor2D::SetGlobalPosition(Farg<glm::vec2> inPosition)
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { SetPosition(inPosition - my_theatre()->GetThinker<Actor2D>(parent)->GlobalPosition()); }
-    SetPosition(inPosition);
-}
-
-void Actor2D::SetGlobalRotation(float inRotation)
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { SetRotation(inRotation - my_theatre()->GetThinker<Actor2D>(parent)->GlobalRotation()); }
-    SetRotation(inRotation);
-}
-
-void Actor2D::SetGlobalRotationDegrees(float inRotationDegrees)
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { SetRotationDegrees(inRotationDegrees - my_theatre()->GetThinker<Actor2D>(parent)->GlobalRotationDegrees()); }
-    SetRotationDegrees(inRotationDegrees);
-}
-
-void Actor2D::SetGlobalScale(Farg<glm::vec2> inScale)
-{
-    if(auto parent{my_theatre()->GetParent(mUID)};
-        !parent.invalid() and my_theatre()->DerivedFrom(parent, ThingType::Actor2D))
-            { SetScale(inScale - my_theatre()->GetThinker<Actor2D>(parent)->GlobalScale()); }
-    SetScale(inScale);
-}
+{ return mGlobalTransform.scale; }
 
 void Actor2D::SetPosition(Farg<glm::vec2> inPosition)
-{ mPosition = inPosition; }
+{
+    mLocalTransform.position = inPosition;
+    _update_global_transform(mParentGlobalTransform);
+}
 
 void Actor2D::SetRotation(float inRotation)
 {
-    mRotationRadians = inRotation;
-    mRotationDegrees = glm::degrees(mRotationRadians);
+    mLocalTransform.rotation_radians = inRotation;
+    mLocalTransform.rotation_degrees = glm::degrees(mLocalTransform.rotation_radians);
+    _update_global_transform(mParentGlobalTransform);
 }
 
 void Actor2D::SetRotationDegrees(float inRotation)
 {
-    mRotationDegrees = inRotation;
-    mRotationRadians = glm::radians(mRotationDegrees);
+    mLocalTransform.rotation_degrees = inRotation;
+    mLocalTransform.rotation_radians = glm::radians(mLocalTransform.rotation_degrees);
+    _update_global_transform(mParentGlobalTransform);
 }
 
 void Actor2D::SetScale(Farg<glm::vec2> inScale)
-{ mScale = inScale; }
+{
+    mLocalTransform.scale = inScale;
+    _update_global_transform(mParentGlobalTransform);
+}
+
+void Actor2D::_update_global_transform()
+{ _update_global_transform(mParentGlobalTransform); }
+
+void Actor2D::_update_global_transform(Farg<Transform2D> inTransform)
+{
+    auto cosine{std::cosf(inTransform.rotation_radians)};
+    auto sine{std::sinf(inTransform.rotation_radians)};
+    auto scaled_position{inTransform.scale * mLocalTransform.position};
+    mGlobalTransform.position = inTransform.position + glm::vec2{
+         (scaled_position.x * cosine) + (scaled_position.y * sine),
+        -(scaled_position.x * sine)   + (scaled_position.y * cosine)
+    };
+    mGlobalTransform.scale = inTransform.scale * mLocalTransform.scale;
+    mGlobalTransform.rotation_degrees = inTransform.rotation_degrees + mLocalTransform.rotation_degrees;
+    mGlobalTransform.rotation_radians = inTransform.rotation_radians + mLocalTransform.rotation_radians;
+    mParentGlobalTransform = inTransform;
+    _update_children_global_transform();
+}
+
+void Actor2D::_update_children_global_transform(bool isCalledFromReady)
+{
+    if(not my_theatre()->IsStarted() and not isCalledFromReady)
+        { return; }
+    auto children{my_theatre()->GetChildren(mUID)};
+    for(auto child_id : children)
+    {
+        if(not child_id.invalid() and my_theatre()->DerivedFrom(child_id, ThingType::Actor2D))
+            { my_theatre()->GetThinker<Actor2D>(child_id)->_update_global_transform(mGlobalTransform); }
+    }
+}
+
+void Actor2D::OnChildAdded(Relative inChild)
+{
+    if(my_theatre()->DerivedFrom(inChild.uid(), ThingType::Actor2D))
+        { my_theatre()->GetThinker<Actor2D>(inChild.uid())->_update_global_transform(mGlobalTransform); }
+}

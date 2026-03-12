@@ -111,7 +111,7 @@ void ImGui_Debugger::TheatreExited()
 void ImGui_Debugger::Update()
 {
     static bool sPopOutStopwatches{false};
-    InspectTheatreWindow();
+    // InspectTheatreWindow();
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
     if(gDebugConsoleOpened)
         { DebugConsoleWindow(); }
@@ -805,7 +805,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         selected = {};
         return;
     }
-    if(Begin("Theatre Inspector"))
+    if(BeginChild("Theatre Inspector", {500, 500}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY | ImGuiChildFlags_ResizeX))
     {
         auto* theatre{g_pTheatreManager->CurrentTheatre()};
         if(CollapsingHeader("Test Graph View"))
@@ -928,7 +928,7 @@ void ImGui_Debugger::InspectTheatreWindow()
             EndChild();
         }
         if(!selected.ptr)
-            { End(); return; }
+            { EndChild(); return; }
 
         BeginChild("View Thing", {0,0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Border);
         // THINGS
@@ -942,7 +942,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         EndDisabled();
         if(Button(std::format("Destroy {}", selected.ptr->name()).data())
             and g_pTheatreManager->CurrentTheatre()->DestroyThing(selected.ptr->uid()))
-            { EndChild(); End(); selected = last_selected; return; }
+            { EndChild(); EndChild(); selected = last_selected; return; }
         SeparatorText("Properties");
         if(UID::IsReserved(selected.id))
         {
@@ -1143,7 +1143,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                     if(CollapsingHeader("Jolt Properties"))
                     {
                         auto bodyid{collider->id()};
-                        auto& body_interface{PhysicsEngine::Inst()->BodyInterface()};
+                        auto& body_interface{PhysicsEngine::Instance()->BodyInterface()};
                         TextF("BodyID (index#): {}", bodyid.GetIndex());
                         TextF("Position: [{}, {}, {}]",
                             body_interface.GetPosition(bodyid).GetX(),
@@ -1312,7 +1312,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             print_error_enum(g_pTheatreManager->CurrentTheatre()
                                 ->DropParent(child));
                             selected = {selected.ptr};
-                            PopID(); EndChild(); EndChild(); End(); return;
+                            PopID(); EndChild(); EndChild(); EndChild(); return;
                         }
                         SameLine();
                         TextF("Child: {} [Type:{}] [UID:{}]",
@@ -1338,7 +1338,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 if(Button("ReImport Image"))
                 {
                     if(!print_error_enum(texture->Import()))
-                        { selected = last_selected; last_selected = {}; EndChild(); End(); return; }
+                        { selected = last_selected; last_selected = {}; EndChild(); EndChild(); return; }
                     selected = {texture};
                 }
                 TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
@@ -1420,7 +1420,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         }
         EndChild();
     }
-    End();
+    EndChild();
 }
 
 void ImGui_Debugger::DebugConsoleWindow()

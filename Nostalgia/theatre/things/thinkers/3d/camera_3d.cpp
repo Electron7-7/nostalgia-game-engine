@@ -8,6 +8,7 @@ using namespace TheatreFile;
 
 void Camera3D::Ready()
 {
+    Actor3D::Ready();
     // the debug mesh/material shouldn't override a manually specificed one
     if(Settings::Engine::IsEditorHint)
     {
@@ -38,15 +39,26 @@ void Camera3D::Ready()
         my_theatre()->SetParent(mEditorMeshInstanceID, mUID);
     }
 
-    auto ancestors{my_theatre()->GetAllParents(mUID)};
-    for(ID parent : ancestors)
+    auto parent{my_theatre()->GetParent(mUID)};
+
+    if(mViewportID == UID::a_RootViewport and not parent.invalid())
     {
         if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
-            { mViewportID = parent; break; }
+            { mViewportID = parent; }
+        else
+        {
+            auto ancestors{my_theatre()->GetAllParents(mUID)};
+            for(ID parent : ancestors)
+            {
+                if(parent != UID::a_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                    { mViewportID = parent; break; }
+            }
+        }
     }
 
-    if(mInitCurrent)
-        { my_theatre()->GetThinker<Viewport>(mViewportID)->SetCurrentCamera3D(mUID); }
+    if(auto my_viewport{my_theatre()->GetThinker<Viewport>(mViewportID)};
+        mInitCurrent and my_viewport->CurrentCamera3D().invalid())
+            { my_viewport->SetCurrentCamera3D(mUID); }
 }
 
 void Camera3D::SetVariables(Farg<ThingData> data)

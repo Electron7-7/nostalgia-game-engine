@@ -33,7 +33,7 @@ inline std::string GetVersionMessage(const char* inProgramName)
 {
     return std::format(_Version_Format_String,
         inProgramName,
-        NOSTALGIA_VERSION_FULL);
+        NOSTALGIA_VERSION_STRING);
 }
 
 #endif // ARGUMENTS_H

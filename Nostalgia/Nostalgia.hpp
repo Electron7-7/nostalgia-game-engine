@@ -1,11 +1,16 @@
 #ifndef NOSTALGIA_PRE_COMPILED_HEADER_H
 #define NOSTALGIA_PRE_COMPILED_HEADER_H
 
-#define NOSTALGIA_VERSION_MAJOR "0"
-#define NOSTALGIA_VERSION_MINOR "1"
-#define NOSTALGIA_VERSION_PATCH "5"
-#define NOSTALGIA_VERSION_FULL \
-    NOSTALGIA_VERSION_MAJOR "." NOSTALGIA_VERSION_MINOR "." NOSTALGIA_VERSION_PATCH
+#define __n_make_string_2(x) #x
+#define __n_make_string(x) __n_make_string_2(x)
+
+#define NOSTALGIA_VERSION_MAJOR 0
+#define NOSTALGIA_VERSION_MINOR 5
+#define NOSTALGIA_VERSION_PATCH 2
+#define NOSTALGIA_VERSION_STRING \
+    __n_make_string(NOSTALGIA_VERSION_MAJOR) "." \
+    __n_make_string(NOSTALGIA_VERSION_MINOR) "." \
+    __n_make_string(NOSTALGIA_VERSION_PATCH)
 
 #ifdef _WIN32
 #   include <windows.h> // IWYU pragma: keep
@@ -69,6 +74,7 @@
 #include <Nostalgia/core/bitmask.hpp>                         // IWYU pragma: keep
 #include <Nostalgia/core/smart_pointers.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/enum_prettifier.hpp>                 // IWYU pragma: keep
+#include <Nostalgia/console/console.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/conversion.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/math/glm_concepts.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/math/glm_format.hpp>                      // IWYU pragma: keep

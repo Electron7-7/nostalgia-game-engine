@@ -6,9 +6,9 @@
 class Viewport : public Thinker
 {
 public:
-    virtual void Ready() override;
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     Farg<Shared<FrameBuffer>> Framebuffer() const;
     void SetFramebuffer(Shared<FrameBuffer>);
@@ -27,6 +27,9 @@ protected:
     Size2D mSize{512, 512};
     ID mCurrentCamera3D{},
         mCurrentCamera2D{};
+
+    virtual void OnDescendantRemoved(Relative) override;
+    virtual void OnDescendantAdded(Relative) override;
 };
 
 #endif // VIEWPORT_H

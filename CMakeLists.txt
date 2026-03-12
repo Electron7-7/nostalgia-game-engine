@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30.0..4.3.0)
 project(Nostalgia
-    VERSION 0.1.5
+    VERSION 0.5.2
     LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
@@ -31,7 +31,7 @@ if(BUILD_ALL_TESTS)
     set(BUILD_JOLT_THIRDPARTY_TEST ON)
 endif()
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
 endif()
 
@@ -165,6 +165,8 @@ if(BUILD_EDITOR)
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
     target_link_directories(NostalgiaGoggles PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
     target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:Nostalgia>)
+    target_link_options(NostalgiaGoggles
+        PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
 
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
@@ -191,38 +193,7 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     target_compile_options(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
-    if(MSVC)
-        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
-        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
-        set_property(TARGET ${TARGET_NAME} PROPERTY
-            MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    else()
-        target_compile_features(${TARGET_NAME} PUBLIC cxx_std_26)
-    endif()
-endfunction()
-
-if(BUILD_NO_THIRDPARTY_TEST)
-    add_test_target(ThirdpartyTestApp_NoThirdparty ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
-endif()
-
-if(BUILD_JOLT_THIRDPARTY_TEST)
-    add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
-endif()
-
-##############
-## TESTAPPS ##
-##############
-set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
-set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
-
-function(add_test_target TARGET_NAME TARGET_SOURCES)
-    add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
-    add_dependencies(${TARGET_NAME} Nostalgia)
-    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
-    target_compile_definitions(${TARGET_NAME}
-        PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
-    target_compile_options(${TARGET_NAME}
-        PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
+    target_link_options(${TARGET_NAME}
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     if(MSVC)
         target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)

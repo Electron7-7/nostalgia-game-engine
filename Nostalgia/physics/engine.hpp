@@ -45,15 +45,12 @@ public:
     JPH::PhysicsSystem*  System();
     JPH::BodyInterface&  BodyInterface();
     BodyLockInterfaceArg BodyLockInterface() const;
-    JPH::BodyID CreateAndAddBody(ID inColliderID,
-        Shared<JPH::BodyCreationSettings> inCreationSettings,
-        JPH::EActivation inActivation);
 
     static JPH::ObjectLayer GetObjectLayer(MotionType) noexcept;
     static JPH::EMotionType ConvertMotionType(MotionType) noexcept;
+    static JPH::EActivation GetActivation(bool inIsActive) noexcept;
     static void Instantiate();
     static Shared<PhysicsEngine> Instance();
-    static Shared<PhysicsEngine> Inst() noexcept;
 
 private:
     static Shared<PhysicsEngine> m_sInstance;
@@ -64,6 +61,9 @@ private:
     JPH::PhysicsSystem* m_pSystem{nullptr};
 
     PhysicsEngine() noexcept;
+
+    friend class Jolt_ContactListener;
+    void TellCollidersAboutCollision(Farg<JPH::Body>, Farg<JPH::Body>);
 };
 
 #endif // PHYSICS_ENGINE_H

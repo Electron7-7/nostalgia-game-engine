@@ -1250,3 +1250,41 @@ Hmpf, the release build crashes on Windows but the debug build doesn't. I'm gonn
 
 [03/03/26]
 After lots of work,,, it was a couple lines in freetype that try to get an environment variable. Windows sucks. Anyways, back to releasing this son of a bitch.
+
+[03/04/26]
+All right, I've just realized there's a flaw with global rotation calculation: it needs to be calculated with local and global positions in mind. Basically, I need to apply parent-inherited rotation around the parent's origin, not the child's.
+
+Ugh, this is so complicated... I might be better off storing the actor's transformation as a matrix, because the child's position is also affected by their parent's rotation.
+
+I might try storing the global transformation values in variables and every time an actor's transformation is changed, it triggers a function in all of its children that update these variables.
+
+Okay, my solution is to store global transformation as a variable that gets updated every time the actor or an ancestor of it changes their local transform.
+
+[03/05/26]
+Updated the version number to use actual numbers that are stringified in the `NOSTALGIA_VERSION_STRING` macro.
+
+Ugh, I need to change the way ui solutions are stored/returned or add a way to access them bc it's real fuckin annoying to do that rn.
+
+Okay, I really need to actually write code in the contact listener for collisions, because that's the thing that actually "detects" collisions between bodies as they happen.
+
+Okay, I've got some ideas; one of them is what if I added some keywords to the Theatre file format that let you basically forward-declare your custom classes by pairing their name/id (which should be the same) with the name of the first engine class that they inherit (e.g: Actor3D, Thinker, etc.). Then, if the app or engine that's loading a Theatre gets to a class type that doesn't exist, it can just use the next best one.
+
+[03/06/26]
+I'm gonna start working on v0.2.x by starting with fully abstracting Jolt away into my own engine. I'm also going to need to beef up the renderer api and change how and where things are actually rendered.
+
+Aight, I'm at work so it's time to abstract Jolt; at the very least, I wanna develop some way of reporting collisions via the contact listener.
+
+[03/09/26]
+Today I'm gonna make some changes to the TheatreFile format and the way Theatre creates Things; primarily, adding a form of "forward declarations" for new Thing classes and a way for Theatre to choose the next best class type if it encounters a Thing that doesn't exist in the ThingFactory.
+
+All right, that's all finished! Time to push and rebase, I think.
+
+I think what's up next is maybe adding the ability to send inputs to the `InputManager` directly, or maybe I tackle the rendering stuff.
+
+[03/10/26]
+I'm gonna start working on the rendering process. I think that I should allow developers to call on the various renderer API functions in order to render whatever they want, wherever they want, however they want to; however, the Theatre itself will have a hardcoded rendering process that runs every frame. I'll use a mutex in the renderer API/rendering manager to avoid race conditions.
+
+Basically, how I've set things up is fine, at least for now; if you don't want to use a Theatre to render things, you can use the RendererAPI yourself to create your own solution. That being said, I wanna move the RendererAPI singleton out of the render manager and into its virtual class (like every other rendering-related accessor).
+
+[03/11/26]
+I changed how collision detection works; it's now a lot more flexible and the only detection that doesn't work, yet, is contact removal, due to needing to access body user data through the body interface from the contact listener.
