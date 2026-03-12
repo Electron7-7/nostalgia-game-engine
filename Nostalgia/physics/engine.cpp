@@ -142,6 +142,9 @@ public:
             g_pTheatreManager->CurrentTheatre()
                 ->GetThinker<Collider3D>(collider1_id)
                     ->OnContactAdded(collider2_id, inBody1, inBody2, manifold, ioSettings);
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider2_id)
+                    ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
         }
     }
 
@@ -159,6 +162,9 @@ public:
             g_pTheatreManager->CurrentTheatre()
                 ->GetThinker<Collider3D>(collider1_id)
                     ->OnContactPersisted(collider2_id, inBody1, inBody2, manifold, ioSettings);
+            g_pTheatreManager->CurrentTheatre()
+                ->GetThinker<Collider3D>(collider2_id)
+                    ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
         }
     }
 
