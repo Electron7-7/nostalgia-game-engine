@@ -324,12 +324,6 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
     Farg<JPH::ContactManifold> manifold,
     JPH::ContactSettings& ioSettings)
 {
-    print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
-            mUID(),
-            mName,
-            inOtherColliderID(),
-            my_theatre()->GetThing(inOtherColliderID)->name());
-
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
     {
         print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
