@@ -1288,3 +1288,11 @@ Basically, how I've set things up is fine, at least for now; if you don't want t
 
 [03/11/26]
 I changed how collision detection works; it's now a lot more flexible and the only detection that doesn't work, yet, is contact removal, due to needing to access body user data through the body interface from the contact listener.
+
+[03/12/26]
+I'm gonna replace the manager singletons with instancing, so that way they can be replaced with custom managers, or even left unused entirely. This'll also, hopefully, force the rest of the engine's parts to rely a lot less on direct access to the managers.
+
+Oh, also, I wanna make stuff like the error mesh a default for resources that fail to load a resource. That might mean changing how resources are created/stored/used, but that's for future me to worry about.
+
+[03/13/26]
+Ugh, reserved UIDs and resource data registration are both fucked and need fixing.
