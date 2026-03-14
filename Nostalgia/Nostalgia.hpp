@@ -58,13 +58,13 @@
 // Nostalgia
 #include <Nostalgia/core/types.hpp>                           // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                            // IWYU pragma: keep
+#include <Nostalgia/core/error.hpp>                           // IWYU pragma: keep
 #include <Nostalgia/core/constexpr_string_hash.hpp>           // IWYU pragma: keep
 #include <Nostalgia/core/id.hpp>                              // IWYU pragma: keep
 #include <Nostalgia/core/uid.hpp>                             // IWYU pragma: keep
 #include <Nostalgia/core/ansi_codes.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/core/ansi_sequence.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/message_labels.hpp>                  // IWYU pragma: keep
-#include <Nostalgia/core/error.hpp>                           // IWYU pragma: keep
 #include <Nostalgia/core/log.hpp>                             // IWYU pragma: keep
 #include <Nostalgia/core/time.hpp>                            // IWYU pragma: keep
 #include <Nostalgia/core/mutex.hpp>                           // IWYU pragma: keep
