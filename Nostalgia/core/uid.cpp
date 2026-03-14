@@ -74,7 +74,7 @@ static Error sRegisterUID(ID inID, IdSet_t& ioActiveSet, uint inMaxActiveIDs)
 {
     if(ioActiveSet.size() == inMaxActiveIDs)
         { return ERR_FULL; }
-    return (sActiveImageRUIDs.insert(inID()).second)
+    return (ioActiveSet.insert(inID()).second)
         ? OK : ERR_ALREADY_EXISTS;
 }
 
