@@ -51,6 +51,10 @@ public:
         o_Player           {other_front  + 0},
         o_RootViewport     {other_front  + 1};
 
+    Error Generate(ID& outUID);
+    bool Contains(ID inUID);
+    bool Erase(ID inUID);
+    bool Push(ID inUID);
     void Clear();
 
     static uint GetRandom();
