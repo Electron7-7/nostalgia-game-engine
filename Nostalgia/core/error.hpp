@@ -29,6 +29,8 @@ enum Error : int {
     ERR_NOT_ALLOWED, // Example use: OpenGLRendererAPI::RemoveViewport returns this if the user tries to remove the default "main window" viewport
     ERR_EMPTY, // Some container is empty
     ERR_FULL, // Some container is full
+    ERR_MAX, // Some number is already as large as it's allowed to be
+    ERR_MIN, // Some number is already as small as it's allowed to be
     ERR_NULLPTR, // A pointer is `nullptr`
     ERR_UNINITIALIZED, // Uninitialized data/object error
     ERR_INVALID_ENUM, // An invalid value was passed when an enum was expected (e.g: casting an out of bounds number to an enum type)
