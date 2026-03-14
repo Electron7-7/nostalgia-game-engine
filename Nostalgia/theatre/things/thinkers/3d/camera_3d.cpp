@@ -41,7 +41,7 @@ void Camera3D::Ready()
 
     auto parent{my_theatre()->GetParent(mUID)};
 
-    if(mViewportID == UID::a_RootViewport and not parent.invalid())
+    if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
         if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
@@ -50,7 +50,7 @@ void Camera3D::Ready()
             auto ancestors{my_theatre()->GetAllParents(mUID)};
             for(ID parent : ancestors)
             {
-                if(parent != UID::a_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                if(parent != UID::o_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
                     { mViewportID = parent; break; }
             }
         }
@@ -74,7 +74,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
         data.get_variable(use_env, "UseDefaultSkybox") == OK)
     {
         mEnvironment.mType = Environment::BG_SKYBOX;
-        mEnvironment.mSkyboxTextureID = UID::t_ShittySkybox;
+        mEnvironment.mSkyboxTextureID = UID::i_ShittySkyboxXn;
     }
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
     if(data.get_variable(mEnvironment.mSkyboxTextureID, "EnvironmentSkybox") == OK)
@@ -99,7 +99,7 @@ Shared<ThingData> Camera3D::GetVariables() const
     data->set_variable(mViewCutoffFar, "Far");
     data->set_variable(mInitCurrent, "Current");
     if(mEnvironment.mType == Environment::BG_SKYBOX
-        and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox)
+        and mEnvironment.mSkyboxTextureID == UID::i_ShittySkyboxXn)
         { data->set_variable(true, "UseDefaultSkybox"); }
     if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
         { data->set_variable(mEnvironment.mCustomColor.glm(), "EnvironmentColor"); }
@@ -155,7 +155,7 @@ void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
     if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::a_RootViewport; }
+        { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)

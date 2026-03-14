@@ -21,7 +21,7 @@ public:
 
 protected:
     BitMask mVisualLayers{};
-    ID mViewportID{UID::a_RootViewport};
+    ID mViewportID{UID::o_RootViewport};
     bool mWireframe{false};
 
     virtual void OnAncestorRemoved(Relative) override;

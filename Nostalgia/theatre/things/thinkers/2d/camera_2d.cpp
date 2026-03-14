@@ -11,7 +11,7 @@ void Camera2D::Ready()
     Actor2D::Ready();
     auto parent{my_theatre()->GetParent(mUID)};
 
-    if(mViewportID == UID::a_RootViewport and not parent.invalid())
+    if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
         if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
@@ -20,7 +20,7 @@ void Camera2D::Ready()
             auto ancestors{my_theatre()->GetAllParents(mUID)};
             for(ID parent : ancestors)
             {
-                if(parent != UID::a_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                if(parent != UID::o_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
                     { mViewportID = parent; break; }
             }
         }
@@ -80,7 +80,7 @@ void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor2D::OnAncestorRemoved(inAncestor);
     if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::a_RootViewport; }
+        { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
@@ -103,10 +103,10 @@ glm::mat4 Camera2D::ViewMatrix() const
 glm::mat4 Camera2D::ProjectionMatrix() const
 {
     Scale2D upper{}, lower{},
-        viewport_size{(mViewportID == UID::a_RootViewport)
+        viewport_size{(mViewportID == UID::o_RootViewport)
             ? my_theatre()->GetRootViewport()->Size()
             : my_theatre()->GetThinker<Viewport>(mViewportID)->Size()};
-    if(mViewportID == UID::a_RootViewport
+    if(mViewportID == UID::o_RootViewport
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)
     {
         switch(Settings::Graphics::Stretch::Aspect)

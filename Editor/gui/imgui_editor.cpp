@@ -115,7 +115,7 @@ void ImGui_Editor::TheatreEntered()
     auto theatre{g_pTheatreManager->CurrentTheatre()};
     if(!Settings::Engine::IsEditorHint)
     {
-        auto player{theatre->GetThinker<EditorPlayer3D>(UID::a_Player)};
+        auto player{theatre->GetThinker<EditorPlayer3D>(UID::o_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -163,7 +163,7 @@ void ImGui_Editor::TheatreExited()
     sSpawnLocationMeshInstanceID = ID{};
     sSpawnLocationID = ID{};
     sEditorViewportID = ID{};
-    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
     UI_Implementor::SetGlobalCanHandleEvents(true);
     MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
     player->mCaptureMouse    = false;
@@ -176,7 +176,7 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
-            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
             UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             player->mCaptureMouse    = false;
@@ -187,7 +187,7 @@ void ImGui_Editor::Input(InputEvent* event)
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)
         and Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
     {
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -261,7 +261,7 @@ void ImGui_Editor::Update()
                 GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
             EndChild();
             static bool camera_moving{false};
-            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::a_Player)};
+            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
             if((IsItemHovered() or camera_moving)
                 and !player->mCaptureMouse)
             {

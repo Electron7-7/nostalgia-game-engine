@@ -37,7 +37,7 @@ Error CubemapTexture::Import()
 
     for(int i{0}; i < 6; ++i)
     {
-        if(UID::GetReservedType(mUID()) == UID::ReservedType::Cubemap)
+        if(UID::GetReservedType(mUID()) == UID::ReservedType::Image)
             { VariableRegistry::try_GetResourceData(mUID() + i, m_pImages[i]); }
 
         if(m_pImages[i])

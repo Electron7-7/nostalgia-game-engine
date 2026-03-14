@@ -11,7 +11,6 @@
 #include "./things/thinkers/3d/visual_3d.hpp"
 #include "./things/thinkers/viewport.hpp"
 #include "./things/resources/texture.hpp"
-#include "./things/resources/cubemap_texture.hpp"
 #include "./things/resources/material.hpp"
 #include "./things/resources/mesh.hpp"
 #include "./things/resources/font.hpp"
@@ -38,8 +37,8 @@ Theatre::Theatre(Shared<TheatreData> inData) noexcept:
     mInitStatus{OK} {}
 
 Theatre::Theatre(Sarg inPath) noexcept:
-    mWasLoadedFromFile{true},
     mTheatreFileDirectory{FileSystem::GetDir(inPath)},
+    mWasLoadedFromFile{true},
     m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreData>()}
 { Load(inPath); }
@@ -131,7 +130,7 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     LockGuard<RMutex> things_lock{mThingsMutex};
     for(FAUTO [id, thing] : mThings)
     {
-        if(id() != UID::a_Player and UID::IsReserved(id())) { continue; }
+        if(id() != UID::o_Player and UID::IsReserved(id())) { continue; }
         if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
             { print_debug("Saving [{}, {}]", thing->name(), id()); }
         output += thing->GetVariables()->get_parsable_string();
@@ -156,7 +155,7 @@ bool Theatre::Startup()
     m_pRegistry->Init();
 
     m_pRootViewport = GetThinker<Viewport>(CreateThingNoReady({ThingType::Viewport,
-        "Root_Viewport", {}, UID::a_RootViewport}));
+        "Root_Viewport", {}, UID::o_RootViewport}));
 
     CreateEmbeddedResources();
 
@@ -465,9 +464,9 @@ void Theatre::SetupUID(ThingData& ioData)
     ioData.theatre_registry = m_pRegistry;
 
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
-        { ioData.uid = UID::a_Player; }
+        { ioData.uid = UID::o_Player; }
     if(ioData.uid.invalid())
-        { ioData.uid = mUIDs.Generate(); }
+        { print_error_enum(mUIDs.Generate(ioData.uid)); }
     if(!mUIDs.Contains(ioData.uid()))
         { mUIDs.Push(ioData.uid()); }
     if(!m_pRegistry->HasID(ioData.uid()))
@@ -509,14 +508,12 @@ void Theatre::CreateEmbeddedResources()
     CreateThingNoReady({ThingType::Mesh,    "RamielModel",{},         UID::m_Ramiel});
     CreateThingNoReady({ThingType::Mesh,    "CameraModel",{},         UID::m_Camera3D});
     CreateThingNoReady({ThingType::Mesh,    "3DAxisModel",{},         UID::m_DebugAxis});
-    CreateThingNoReady({ThingType::Texture, "MissingTexture",{},      UID::t_Missing});
-    CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::t_LightDebug});
-    CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::t_COMP04_5});
-    CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::t_LolBit});
+    CreateThingNoReady({ThingType::Texture, "MissingTexture",{},      UID::i_Missing});
+    CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::i_LightDebug});
+    CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::i_COMP04_5});
+    CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::i_LolBit});
     CreateThingNoReady({ThingType::CubemapTexture,
-        "ShittySkybox",
-        {{"Type", "CubeMapTexture", ThingVarType::Enum}},
-        UID::t_ShittySkybox});
+        "ShittySkybox", {{"Type", "CubeMapTexture", ThingVarType::Enum}}, UID::i_ShittySkyboxXn});
 }
 
 ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData)
@@ -527,8 +524,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     LockGuard<RMutex> lock{mThingsMutex};
 
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
-        and mThings.contains(UID::a_Player))
-            { print_warning("Only one player at a time, please!"); return UID::a_Player; }
+        and mThings.contains(UID::o_Player))
+            { print_warning("Only one player at a time, please!"); return UID::o_Player; }
     else if(UID::IsReserved(ioData.uid()) and mThings.contains(ioData.uid()))
         { return ioData.uid; }
     else if(ThingExists(ioData.name))
@@ -607,10 +604,10 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     auto view_matrix{camera->ViewMatrix()};
     auto projection_matrix{camera->ProjectionMatrix()};
 
-    if(!mThings.contains(UID::m_Error) or !mThings.contains(UID::t_Missing))
+    if(!mThings.contains(UID::m_Error) or !mThings.contains(UID::i_Missing))
         { CreateEmbeddedResources(); }
 
-    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto mesh{GetResource<Mesh>(ID::Invalid)};
 
     switch(camera->mEnvironment.mType)
@@ -746,7 +743,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
 
-    if(inViewport->uid() != UID::a_RootViewport
+    if(inViewport->uid() != UID::o_RootViewport
         and inViewport->CurrentCamera2D().invalid()
         and not inViewport->SetCurrentCamera2D())
             { return; }
@@ -754,10 +751,10 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
 
-    if(!mThings.contains(UID::t_Missing))
+    if(!mThings.contains(UID::i_Missing))
         { CreateEmbeddedResources(); }
 
-    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
 
     for(ID v2d_id : mVisual2DIDs)

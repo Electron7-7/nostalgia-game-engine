@@ -54,7 +54,7 @@ namespace TheatreFile
         std::string   name{};
         ThingVarArray variables{};
         // Thing uids are generated automatically; `ThingData::uid` should only be used for
-        // assigning "reserved" uids (e.g: `UID::a_Player`).
+        // assigning "reserved" uids (e.g: `UID::o_Player`).
         ID            uid{};
         ThingVariable parent_variable{};
         ThingVarArray children_variables{};

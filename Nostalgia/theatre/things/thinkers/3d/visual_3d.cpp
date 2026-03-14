@@ -50,7 +50,7 @@ void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
     if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::a_RootViewport; }
+        { mViewportID = UID::o_RootViewport; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)
