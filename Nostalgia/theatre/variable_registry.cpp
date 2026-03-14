@@ -216,7 +216,7 @@ bool VariableRegistry::HasResourceData(ID inID)
     return false;
 }
 
-Error VariableRegistry::RegisterResourceData(ID& outID,
+Error VariableRegistry::RegisterResourceData(ID inID,
     UID::ReservedType inType,
     Sarg inName,
     Farg<Shared<FileData>> inData,
@@ -231,9 +231,9 @@ Error VariableRegistry::RegisterResourceData(ID& outID,
                 { return ERR_ALREADY_EXISTS; }
         }
     }
-    if(auto status{UID::CreateReservedUID(inType, outID)}; not status)
+    if(auto status{UID::CreateReservedUID(inType, inID)}; not status)
         { return status; }
-    m_sResourceData[{outID(), inName}] = inData;
+    m_sResourceData[{inID(), inName}] = inData;
     return OK;
 }
 

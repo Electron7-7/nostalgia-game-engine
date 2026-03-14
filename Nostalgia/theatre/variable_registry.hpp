@@ -45,7 +45,7 @@ public:
     static Shared<FileData> GetResourceData(ID inID);
     static bool HasResourceData(Sarg inName);
     static bool HasResourceData(ID inID);
-    static Error RegisterResourceData(ID& outID, UID::ReservedType inType, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
+    static Error RegisterResourceData(ID inID, UID::ReservedType inType, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
     static Error RemoveResourceData(Sarg inName);
     static Error RemoveResourceData(ID inID);
     static void ClearResourceData();
