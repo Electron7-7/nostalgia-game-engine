@@ -5,7 +5,7 @@ endif()
 # https://stackoverflow.com/a/27206982
 function(create_resources dir output header_guard namespace)
     # Create output file
-    file(WRITE ${output} "#ifndef ${header_guard}\n#define ${header_guard}\n\n#pragma clang diagostic push\n#pragma clang diagnostic ignored \"-Wc23-extensions\"\n\nnamespace ${namespace}\n{")
+    file(WRITE ${output} "#ifndef ${header_guard}\n#define ${header_guard}\n\n#pragma clang diagnostic push\n#pragma clang diagnostic ignored \"-Wc23-extensions\"\n\nnamespace ${namespace}\n{")
     # Collect input files
     file(GLOB bins ${dir}/*)
     # Iterate through input files
@@ -21,9 +21,9 @@ function(create_resources dir output header_guard namespace)
             # Convert hex data for C compatibility
             string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," filedata ${filedata})
             # Append data to output file
-            file(APPEND ${output} "\n\tconstinit const uchar ${filename}[]{${filedata}};\n")
+            file(APPEND ${output} "\n\tconstinit const unsigned char ${filename}[]{${filedata}};\n")
         else()
-            file(APPEND ${output} "\n\tconstinit const uchar ${filename}[]{\n\t\t#embed \"${dir}/${file_name}\"\n\t};\n")
+            file(APPEND ${output} "\n\tconstinit const unsigned char ${filename}[]{\n\t\t#embed \"${dir}/${file_name}\"\n\t};\n")
         endif()
     endforeach()
     file(APPEND ${output} "}\n\n#endif // ${header_guard}\n")
