@@ -22,22 +22,22 @@ public:
 
     VariableRegistry() noexcept;
 
-    Farg<References>   GetRegisteredIDs() const;
+    Farg<References>          GetRegisteredIDs() const;
     static Farg<Enums>        GetRegisteredEnums();
     static Farg<ResourceData> GetRegisteredResourceData();
 
     void Init();
 
-    bool  try_GetID(Sarg inName, ID& outID) const;
-    bool  try_GetIDName(ID inID, std::string& outName) const;
-    ID    GetID(Sarg inName) const;
-    Sarg  GetIDName(ID inID) const;
+    bool  try_GetID(Sarg inName, ID& outID);
+    bool  try_GetIDName(ID inID, std::string& outName);
+    ID    GetID(Sarg inName);
+    Sarg  GetIDName(ID inID);
     Error RegisterID(Sarg inName, ID inID, bool doNoCopies = true);
     Error RemoveID(Sarg inName);
     Error RemoveID(ID);
     void  ClearIDs();
-    bool  HasID(ID) const;
-    bool  HasID(Sarg inName) const;
+    bool  HasID(ID);
+    bool  HasID(Sarg inName);
 
     static bool try_GetResourceData(Sarg inName, Shared<FileData>& outData);
     static bool try_GetResourceData(ID inID, Shared<FileData>& outData);
@@ -45,7 +45,7 @@ public:
     static Shared<FileData> GetResourceData(ID inID);
     static bool HasResourceData(Sarg inName);
     static bool HasResourceData(ID inID);
-    static Error RegisterResourceData(ID inID, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
+    static Error RegisterResourceData(ID& outID, UID::ReservedType inType, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
     static Error RemoveResourceData(Sarg inName);
     static Error RemoveResourceData(ID inID);
     static void ClearResourceData();
@@ -55,6 +55,7 @@ public:
     template<IsEnum T>
         static bool try_GetEnum(Sarg inName, T& outValue)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             if(auto found_it{m_sEnums.find(inName)}; found_it != m_sEnums.end())
             {
                 outValue = static_cast<T>(found_it->second.value);
@@ -66,6 +67,7 @@ public:
     template<IsEnum T>
         static bool try_GetEnumName(T inValue, std::string& outName)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             long val{static_cast<long>(inValue)};
             std::type_index ind{typeid(T)};
             for(FAUTO [name, pair] : m_sEnums)
@@ -82,6 +84,7 @@ public:
     template<IsEnum T>
         static T GetEnum(Sarg inName)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             T out{};
             try_GetEnum(inName, out);
             return out;
@@ -90,6 +93,7 @@ public:
     template<IsEnum T>
         static std::string GetEnumName(T inValue)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             std::string out{};
             try_GetEnumName(inValue, out);
             return out;
@@ -98,6 +102,7 @@ public:
     template<IsEnum T>
         static Error RegisterEnum(Sarg inName, T inValue, bool doNoCopies = true)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             if(doNoCopies)
             {
                 if(auto found_them{m_sEnums.find(inName)}; found_them != m_sEnums.end())
@@ -110,6 +115,7 @@ public:
     template<IsEnum T>
         static Error RemoveEnum(T inValue, bool doRemoveCollisions = false)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             Error status{ERR_NOT_FOUND};
             long val{static_cast<long>(inValue)};
             std::type_index ind{typeid(T)};
@@ -131,6 +137,7 @@ public:
     template<IsEnum T>
         static Error RemoveEnum(Sarg inName, bool doRemoveCollisions = false)
         {
+            LockGuard<RMutex> enums_lock{m_sEnumsMutex};
             if(doRemoveCollisions)
             {
                 return (m_sEnums.erase(inName))
@@ -147,10 +154,15 @@ public:
 
 private:
     References mReferences{};
-    static Enums m_sEnums;
-    static ResourceData m_sResourceData;
+    RMutex mReferencesMutex{};
 
     void RegisterEngineReferences();
+
+    static Enums m_sEnums;
+    static ResourceData m_sResourceData;
+    static RMutex m_sEnumsMutex,
+        m_sResourceDataMutex;
+
     static void RegisterEngineEnums();
     static void RegisterEngineResourceData();
 };

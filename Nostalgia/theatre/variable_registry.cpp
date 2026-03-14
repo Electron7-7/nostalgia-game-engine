@@ -25,6 +25,8 @@ static auto s_pSkyboxYn   {MakeShared<FileData>(Images::SkyboxYn,   std::size(Im
 static auto s_pSkyboxZn   {MakeShared<FileData>(Images::SkyboxZn,   std::size(Images::SkyboxZn),   FileType::image_PNG)};
 static auto s_pSkyboxZp   {MakeShared<FileData>(Images::SkyboxZp,   std::size(Images::SkyboxZp),   FileType::image_PNG)};
 
+RMutex VariableRegistry::m_sEnumsMutex{},
+    VariableRegistry::m_sResourceDataMutex{};
 VariableRegistry::Enums VariableRegistry::m_sEnums{};
 VariableRegistry::ResourceData VariableRegistry::m_sResourceData{};
 
@@ -39,8 +41,9 @@ Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums()
 Farg<VariableRegistry::ResourceData> VariableRegistry::GetRegisteredResourceData()
 { return m_sResourceData; }
 
-bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
+bool VariableRegistry::try_GetID(Sarg inName, ID& outID)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     if(auto found_it{mReferences.find(inName)};
         found_it != mReferences.end())
     {
@@ -50,8 +53,9 @@ bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
     return false;
 }
 
-bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
+bool VariableRegistry::try_GetIDName(ID inID, std::string& outName)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     for(FAUTO [name, id] : mReferences)
     {
         if(id == inID)
@@ -63,8 +67,9 @@ bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
     return false;
 }
 
-bool VariableRegistry::HasID(ID inID) const
+bool VariableRegistry::HasID(ID inID)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     for(FAUTO [name, id] : mReferences)
     {
         if(inID == id)
@@ -73,18 +78,23 @@ bool VariableRegistry::HasID(ID inID) const
     return false;
 }
 
-bool VariableRegistry::HasID(Sarg inName) const
-{ return mReferences.contains(inName); }
-
-ID VariableRegistry::GetID(Sarg inName) const
+bool VariableRegistry::HasID(Sarg inName)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
+    return mReferences.contains(inName);
+};
+
+ID VariableRegistry::GetID(Sarg inName)
+{
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     ID out{};
     try_GetID(inName, out);
     return out;
 }
 
-Sarg VariableRegistry::GetIDName(ID inID) const
+Sarg VariableRegistry::GetIDName(ID inID)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     static PID invalid{};
     for(FAUTO [name, id] : mReferences)
     {
@@ -96,6 +106,7 @@ Sarg VariableRegistry::GetIDName(ID inID) const
 
 Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     if(noCopies && mReferences.contains(inName))
     {
         print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
@@ -110,6 +121,7 @@ Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
 
 Error VariableRegistry::RemoveID(Sarg inName)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
     {
         mReferences.erase(found_it);
@@ -120,6 +132,7 @@ Error VariableRegistry::RemoveID(Sarg inName)
 
 Error VariableRegistry::RemoveID(ID inID)
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     for(FARG(auto) [name, id] : mReferences)
     {
         if(inID == id)
@@ -141,6 +154,7 @@ void VariableRegistry::Init()
 
 void VariableRegistry::ClearIDs()
 {
+    LockGuard<RMutex> references_lock{mReferencesMutex};
     PRINT_PRETTY_FUNCTION;
     mReferences.clear();
     RegisterEngineReferences();
@@ -148,6 +162,7 @@ void VariableRegistry::ClearIDs()
 
 void VariableRegistry::ClearEnums()
 {
+    LockGuard<RMutex> enums_lock{m_sEnumsMutex};
     PRINT_PRETTY_FUNCTION;
     m_sEnums.clear();
     RegisterEngineEnums();
@@ -155,6 +170,7 @@ void VariableRegistry::ClearEnums()
 
 bool VariableRegistry::try_GetResourceData(Sarg inName, Shared<FileData>& outData)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inName) { outData = data; return true; } }
     return false;
@@ -162,6 +178,7 @@ bool VariableRegistry::try_GetResourceData(Sarg inName, Shared<FileData>& outDat
 
 bool VariableRegistry::try_GetResourceData(ID inID, Shared<FileData>& outData)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inID) { outData = data; return true; } }
     return false;
@@ -169,6 +186,7 @@ bool VariableRegistry::try_GetResourceData(ID inID, Shared<FileData>& outData)
 
 Shared<FileData> VariableRegistry::GetResourceData(Sarg inName)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inName) { return data; } }
     return MakeShared<FileData>();
@@ -176,6 +194,7 @@ Shared<FileData> VariableRegistry::GetResourceData(Sarg inName)
 
 Shared<FileData> VariableRegistry::GetResourceData(ID inID)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inID) { return data; } }
     return MakeShared<FileData>();
@@ -183,6 +202,7 @@ Shared<FileData> VariableRegistry::GetResourceData(ID inID)
 
 bool VariableRegistry::HasResourceData(Sarg inName)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inName) { return true; } }
     return false;
@@ -190,46 +210,73 @@ bool VariableRegistry::HasResourceData(Sarg inName)
 
 bool VariableRegistry::HasResourceData(ID inID)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
         { if(pid == inID) { return true; } }
     return false;
 }
 
-Error VariableRegistry::RegisterResourceData(ID inID,
+Error VariableRegistry::RegisterResourceData(ID& outID,
+    UID::ReservedType inType,
     Sarg inName,
     Farg<Shared<FileData>> inData,
     bool doNoCopies)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     if(doNoCopies)
     {
         for(FAUTO [pid, data] : m_sResourceData)
         {
-            if(pid == inID() or pid == inName)
+            if(not pid.name().compare(inName) or data->Data() == inData->Data())
                 { return ERR_ALREADY_EXISTS; }
         }
     }
-    m_sResourceData[{inID(), inName}] = inData;
+    if(auto status{UID::CreateReservedUID(inType, outID)}; not status)
+        { return status; }
+    m_sResourceData[{outID(), inName}] = inData;
     return OK;
 }
 
 Error VariableRegistry::RemoveResourceData(Sarg inName)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
-        { if(pid == inName) { m_sResourceData.erase(pid); return OK; } }
+    {
+        if(pid == inName)
+        {
+            m_sResourceData.erase(pid);
+            return UID::EraseReservedUID(pid.id());
+        }
+    }
     return ERR_NOT_FOUND;
 }
 
 Error VariableRegistry::RemoveResourceData(ID inID)
 {
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
     for(FAUTO [pid, data] : m_sResourceData)
-        { if(pid == inID()) { m_sResourceData.erase(pid); return OK; } }
+    {
+        if(pid == inID())
+        {
+            m_sResourceData.erase(pid);
+            return UID::EraseReservedUID(pid.id());
+        }
+    }
     return ERR_NOT_FOUND;
 }
 
 void VariableRegistry::ClearResourceData()
 {
-    m_sResourceData.clear();
-    RegisterEngineResourceData();
+    LockGuard<RMutex> resource_data_lock{m_sResourceDataMutex};
+    for(auto pair{m_sResourceData.begin()}; pair != m_sResourceData.end();)
+    {
+        if(UID::EraseReservedUID(pair->first.id()) == OK)
+        {
+            pair = m_sResourceData.erase(pair);
+            continue;
+        }
+        ++pair;
+    }
 }
 
 void VariableRegistry::RegisterEngineEnums()
@@ -256,11 +303,12 @@ void VariableRegistry::RegisterEngineReferences()
     mReferences["RamielModel"]         = UID::m_Ramiel;
     mReferences["CameraModel"]         = UID::m_Camera3D;
     mReferences["DebugAxis"]           = UID::m_DebugAxis;
-    mReferences["MissingTexture"]      = UID::t_Missing;
-    mReferences["LolBitTexture"]       = UID::t_LolBit;
-    mReferences["LightTexture"]        = UID::t_LightDebug;
-    mReferences["DoomTexture"]         = UID::t_COMP04_5;
-    mReferences["ShittySkyboxCubemap"] = UID::t_ShittySkybox;
+    mReferences["MissingTexture"]      = UID::i_Missing;
+    mReferences["LolBitTexture"]       = UID::i_LolBit;
+    mReferences["LightTexture"]        = UID::i_LightDebug;
+    mReferences["DoomTexture"]         = UID::i_COMP04_5;
+    /// See `CubemapTexture::SetVariables` and `CubemapTexture::Ready` to learn how cubemap references work
+    mReferences["ShittySkyboxCubemap"] = UID::i_ShittySkyboxXn;
 }
 
 void VariableRegistry::RegisterEngineResourceData()
@@ -274,14 +322,14 @@ void VariableRegistry::RegisterEngineResourceData()
     m_sResourceData[{ UID::m_Ramiel(),         "RamielModel"    }] = s_pRamiel;
     m_sResourceData[{ UID::m_Camera3D(),       "CameraModel"    }] = s_pCamera;
     m_sResourceData[{ UID::m_DebugAxis(),      "DebugAxis"      }] = s_pDebugAxis;
-    m_sResourceData[{ UID::t_Missing(),        "MissingTexture" }] = s_pMissing;
-    m_sResourceData[{ UID::t_LolBit(),         "LolBitTexture"  }] = s_pLolBit;
-    m_sResourceData[{ UID::t_LightDebug(),     "LightTexture"   }] = s_pLightDebug;
-    m_sResourceData[{ UID::t_COMP04_5(),       "DoomTexture"    }] = s_pCOMP04_5;
-    m_sResourceData[{ UID::t_ShittySkybox(),   "ShittySkybox01" }] = s_pSkyboxXn;
-    m_sResourceData[{ UID::t_ShittySkybox()+1, "ShittySkybox02" }] = s_pSkyboxXp;
-    m_sResourceData[{ UID::t_ShittySkybox()+2, "ShittySkybox03" }] = s_pSkyboxYp;
-    m_sResourceData[{ UID::t_ShittySkybox()+3, "ShittySkybox04" }] = s_pSkyboxYn;
-    m_sResourceData[{ UID::t_ShittySkybox()+4, "ShittySkybox05" }] = s_pSkyboxZn;
-    m_sResourceData[{ UID::t_ShittySkybox()+5, "ShittySkybox06" }] = s_pSkyboxZp;
+    m_sResourceData[{ UID::i_Missing(),        "MissingTexture" }] = s_pMissing;
+    m_sResourceData[{ UID::i_LolBit(),         "LolBitTexture"  }] = s_pLolBit;
+    m_sResourceData[{ UID::i_LightDebug(),     "LightTexture"   }] = s_pLightDebug;
+    m_sResourceData[{ UID::i_COMP04_5(),       "DoomTexture"    }] = s_pCOMP04_5;
+    m_sResourceData[{ UID::i_ShittySkyboxXn(), "ShittySkybox01" }] = s_pSkyboxXn;
+    m_sResourceData[{ UID::i_ShittySkyboxXp(), "ShittySkybox02" }] = s_pSkyboxXp;
+    m_sResourceData[{ UID::i_ShittySkyboxYp(), "ShittySkybox03" }] = s_pSkyboxYp;
+    m_sResourceData[{ UID::i_ShittySkyboxYn(), "ShittySkybox04" }] = s_pSkyboxYn;
+    m_sResourceData[{ UID::i_ShittySkyboxZn(), "ShittySkybox05" }] = s_pSkyboxZn;
+    m_sResourceData[{ UID::i_ShittySkyboxZp(), "ShittySkybox06" }] = s_pSkyboxZp;
 }
