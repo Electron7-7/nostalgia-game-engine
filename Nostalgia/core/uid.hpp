@@ -58,13 +58,24 @@ public:
     void Clear();
 
     static uint GetRandom();
-    static bool IsReserved(uint);
-    static ReservedType GetReservedType(uint);
+    static bool IsReserved(ID inRUID);
+    static ReservedType GetReservedType(ID inRUID);
+    /// Used to manually reserve an RUID (reserved UID).
+    static Error CreateReservedUID(ReservedType inType, ID inRUID);
+    /**
+     * Generates a random RUID within the given `ReservedType` category.
+     *
+     * This function should only be used *after* any and all manually reserved RUIDs have been created. If you
+     * manually pick and reserve another RUID after generating a random one, there is a nonzero chance for the
+     * generated RUID to conflict with the manually selected RUID. The odds of this happening are miniscule, but
+     * not zero; while the programmer in me wants to remove this function to avoid conflicts, the creative
+     * in me wants to leave it in to give the engine some "personality". That side won, today.
+    **/
+    static Error GenerateReservedUID(ReservedType inType, ID& outRUID);
+    static Error EraseReservedUID(ID inRUID);
 
 private:
-    std::set<uint> mActiveIDs{};
-
-    static std::uniform_int_distribution<uint> m_sIdDistribution;
+    IdSet_t mActiveIDs{};
 };
 
 #endif // UID_H
