@@ -27,9 +27,10 @@ public:
 
     constexpr explicit operator uint() const { return id_; }
 
-    constexpr uint operator()() const { return id_;            }
-    constexpr bool    invalid() const { return id_ == Invalid; }
-    constexpr uint         id() const { return id_;            }
+    constexpr uint operator()() const    { return id_;            }
+    constexpr bool    invalid() const    { return id_ == Invalid; }
+    constexpr uint         id() const    { return id_;            }
+    constexpr void         id(uint inID) { id_ = inID;            }
 
     ID_ID_OPERATOR(==)
     ID_ID_OPERATOR(!=)
