@@ -7,50 +7,50 @@ public:
     enum class ReservedType : int
     { NotReserved = -1, Image = 0, Model = 1, Font = 2, Other = 3 };
 
-    static constexpr ID
-    // Reserved Non-Specific UIDs
-        a_Player         {0x01},
-        a_RootViewport   {0x02},
-    // Reserved Texture UIDs
-        t_Missing          {0x10}, // 16
-        t_LightDebug       {0x11}, // 17
-        t_COMP04_5         {0x12}, // 18
-        t_LolBit           {0x13}, // 19
-    // Reserved Cubemap Texture UIDs
-        t_ShittySkybox     {0x20}, // 32 - 38
-    // Reserved Mesh UIDs
-        m_Error            {0x30}, // 48
-        m_Cube             {0x31}, // 49
-        m_Quad             {0x32}, // 50
-        m_Ramiel           {0x33}, // 51
-        m_Camera3D         {0x34}, // 52
-        m_DebugAxis        {0x35}, // 53
-    // Reserved Font UIDs
-        f_Verdana          {0x40}, // 64
-        f_DejaVuSans       {0x41}, // 65
-        f_Audiowide        {0x42}; // 66
-
     static constexpr uint
     // Reserved UID Boundaries
-        textures_front {t_Missing},
-        textures_back  {t_LolBit},
-        cubemap_back   {t_ShittySkybox},
-        cubemap_front  {t_ShittySkybox},
-        models_front   {m_Error},
-        models_back    {m_Camera3D},
-        fonts_front    {f_Verdana},
-        fonts_back     {f_Audiowide},
-        reserved_front {a_Player},
-        reserved_back  {f_Audiowide},
-    // UID Boundaries
+        reserved_front {0x0001},
+        reserved_back  {0xFFFF}, // The total number of reserved UIDs allowed (65535)
+    // Reserved UID Type Boundaries. Every type gets 16383 unique IDs (except "other", which gets 16382)
+        images_front   {0x0001}, // 00001
+        images_back    {0x4000}, // 16384
+        models_front   {0x4001}, // 16385
+        models_back    {0x8000}, // 32768
+        fonts_front    {0x8001}, // 32769
+        fonts_back     {0xC000}, // 49152
+        other_front    {0xC001}, // 49153
+        other_back     {0xFFFF}, // 65535
+    // Normal UID Boundaries
         front {reserved_back + 1},
         back  {static_cast<uint>(-1)};
 
-    uint Generate();
-    bool PopLast();
-    bool Contains(uint);
-    bool Erase(uint);
-    bool Push(uint);
+    static constexpr ID
+    // Reserved Engine Image UIDs
+        i_Missing          {images_front + 0},
+        i_LightDebug       {images_front + 1},
+        i_COMP04_5         {images_front + 2},
+        i_LolBit           {images_front + 3},
+        i_ShittySkyboxXn   {images_front + 4},
+        i_ShittySkyboxXp   {images_front + 5},
+        i_ShittySkyboxYp   {images_front + 6},
+        i_ShittySkyboxYn   {images_front + 7},
+        i_ShittySkyboxZn   {images_front + 8},
+        i_ShittySkyboxZp   {images_front + 9},
+    // Reserved Engine Model UIDs
+        m_Error            {models_front + 0},
+        m_Cube             {models_front + 1},
+        m_Quad             {models_front + 2},
+        m_Ramiel           {models_front + 3},
+        m_Camera3D         {models_front + 4},
+        m_DebugAxis        {models_front + 5},
+    // Reserved Engine Font UIDs
+        f_Verdana          {fonts_front  + 0},
+        f_DejaVuSans       {fonts_front  + 1},
+        f_Audiowide        {fonts_front  + 2},
+    // Reserved Engine Other UIDs
+        o_Player           {other_front  + 0},
+        o_RootViewport     {other_front  + 1};
+
     void Clear();
 
     static uint GetRandom();
