@@ -5,7 +5,7 @@ class UID
 {
 public:
     enum class ReservedType : int
-    { NotReserved = 0, Player, Mesh, Texture, Cubemap, Font, };
+    { NotReserved = -1, Image = 0, Model = 1, Font = 2, Other = 3 };
 
     static constexpr ID
     // Reserved Non-Specific UIDs
