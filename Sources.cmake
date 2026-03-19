@@ -56,36 +56,36 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/ui/implementor.cpp
     ${NOSTALGIA_ROOT}/ui/solution.cpp
     ${NOSTALGIA_ROOT}/theatre/theatre.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thing.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/material.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/font.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/texture.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/resource.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/light_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/visual_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/mesh_instance_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/collider_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/actor_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/camera_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/sprite_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/nostalgia_player_3d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/camera_2d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/actor_2d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/sprite_2d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/text_2d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/visual_2d.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/viewport.cpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/thinker.cpp
+    ${NOSTALGIA_ROOT}/things/thing.cpp
+    ${NOSTALGIA_ROOT}/things/resources/material.cpp
+    ${NOSTALGIA_ROOT}/things/resources/font.cpp
+    ${NOSTALGIA_ROOT}/things/resources/mesh.cpp
+    ${NOSTALGIA_ROOT}/things/resources/cubemap_texture.cpp
+    ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
+    ${NOSTALGIA_ROOT}/things/resources/texture.cpp
+    ${NOSTALGIA_ROOT}/things/resources/resource.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/visual_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/mesh_instance_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/collider_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/actor_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/camera_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/sprite_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/nostalgia_player_3d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/camera_2d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/actor_2d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/sprite_2d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/text_2d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/visual_2d.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/viewport.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/thinker.cpp
+    ${NOSTALGIA_ROOT}/things/thing_type.cpp
+    ${NOSTALGIA_ROOT}/things/thing_factory.cpp
     ${NOSTALGIA_ROOT}/theatre/thing_data.cpp
     ${NOSTALGIA_ROOT}/theatre/thing_variable.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/parser.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/lexer.cpp
-    ${NOSTALGIA_ROOT}/theatre/thing_type.cpp
     ${NOSTALGIA_ROOT}/theatre/variable_registry.cpp
-    ${NOSTALGIA_ROOT}/theatre/thing_factory.cpp
     ${NOSTALGIA_ROOT}/theatre/call_sheet.cpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.cpp
     ${NOSTALGIA_ROOT}/theatre/tree.cpp
@@ -146,38 +146,38 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/ui/solution.hpp
     ${NOSTALGIA_ROOT}/ui/implementor.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/texture.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/cubemap_texture.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/viewport_texture.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/font.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/resource.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/mesh.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/resources/material.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thing.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/nostalgia_player_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/sprite_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/collider_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/actor_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/visual_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/mesh_instance_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/camera_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/3d/light_3d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/viewport.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/visual_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/sprite_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/actor_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/mesh_instance_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/text_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/2d/camera_2d.hpp
-    ${NOSTALGIA_ROOT}/theatre/things/thinkers/thinker.hpp
+    ${NOSTALGIA_ROOT}/things/resources/texture.hpp
+    ${NOSTALGIA_ROOT}/things/resources/cubemap_texture.hpp
+    ${NOSTALGIA_ROOT}/things/resources/viewport_texture.hpp
+    ${NOSTALGIA_ROOT}/things/resources/font.hpp
+    ${NOSTALGIA_ROOT}/things/resources/resource.hpp
+    ${NOSTALGIA_ROOT}/things/resources/mesh.hpp
+    ${NOSTALGIA_ROOT}/things/resources/material.hpp
+    ${NOSTALGIA_ROOT}/things/thing.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/nostalgia_player_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/sprite_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/collider_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/actor_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/visual_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/mesh_instance_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/camera_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/viewport.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/visual_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/sprite_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/actor_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/mesh_instance_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/text_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/2d/camera_2d.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/thinker.hpp
+    ${NOSTALGIA_ROOT}/things/thing_type.hpp
+    ${NOSTALGIA_ROOT}/things/thing_factory.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.hpp
     ${NOSTALGIA_ROOT}/theatre/tree.hpp
     ${NOSTALGIA_ROOT}/theatre/thing_data.hpp
     ${NOSTALGIA_ROOT}/theatre/call_sheet.hpp
     ${NOSTALGIA_ROOT}/theatre/variable_registry.hpp
-    ${NOSTALGIA_ROOT}/theatre/thing_type.hpp
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
-    ${NOSTALGIA_ROOT}/theatre/thing_factory.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
     ${NOSTALGIA_ROOT}/filesystem/image_handler.hpp

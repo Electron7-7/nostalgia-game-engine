@@ -2,7 +2,7 @@
 #define FONT_H
 
 #include <Nostalgia/fwd/rendering.hpp>
-#include <Nostalgia/theatre/things/resources/resource.hpp>
+#include <Nostalgia/things/resources/resource.hpp>
 
 class Font : public Resource
 {

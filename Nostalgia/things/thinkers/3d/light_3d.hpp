@@ -1,7 +1,7 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include <Nostalgia/theatre/things/thinkers/3d/visual_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/visual_3d.hpp>
 
 enum class LightType : int
 {

@@ -2,7 +2,7 @@
 #include "settings/engine.hpp"
 #include "../viewport.hpp"
 #include "theatre/theatre.hpp"
-#include "theatre/thing_factory.hpp"
+#include "things/thing_factory.hpp"
 
 using namespace TheatreFile;
 

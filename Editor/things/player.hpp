@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #include <Nostalgia/Nostalgia.hpp>
-#include <Nostalgia/theatre/things/thinkers/3d/nostalgia_player_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/nostalgia_player_3d.hpp>
 
 class EditorPlayer3D : public NostalgiaPlayer3D
 {

@@ -1,7 +1,7 @@
 #ifndef VIEWPORT_TEXTURE_H
 #define VIEWPORT_TEXTURE_H
 
-#include <Nostalgia/theatre/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/texture.hpp>
 
 class ViewportTexture : public Texture
 {

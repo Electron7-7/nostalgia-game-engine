@@ -1,7 +1,7 @@
 #ifndef TEXT_2D_H
 #define TEXT_2D_H
 
-#include <Nostalgia/theatre/things/thinkers/2d/visual_2d.hpp>
+#include <Nostalgia/things/thinkers/2d/visual_2d.hpp>
 
 class Text2D : public Visual2D
 {

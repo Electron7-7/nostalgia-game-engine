@@ -1,5 +1,5 @@
 #include "../theatre_file.hpp"
-#include "../thing_factory.hpp"
+#include "things/thing_factory.hpp"
 
 // These preprocessor definitions are used on unknown/invalid types to approximate their closest inherited type
 #define ACTOR_VAR_NAMES "Position", "Origin", "Scale", "Size", "OuuughImSoBigAndRound", "RotationDegrees", "Rotation", "RotationRadians"

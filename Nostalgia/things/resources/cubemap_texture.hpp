@@ -1,7 +1,7 @@
 #ifndef CUBEMAP_TEXTURE_H
 #define CUBEMAP_TEXTURE_H
 
-#include <Nostalgia/theatre/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/texture.hpp>
 
 class CubemapTexture : public Texture
 {

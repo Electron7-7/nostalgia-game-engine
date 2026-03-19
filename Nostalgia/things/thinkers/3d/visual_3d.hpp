@@ -1,7 +1,7 @@
 #ifndef VISUAL_3D_H
 #define VISUAL_3D_H
 
-#include <Nostalgia/theatre/things/thinkers/3d/actor_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/actor_3d.hpp>
 
 class Visual3D : public Actor3D
 {

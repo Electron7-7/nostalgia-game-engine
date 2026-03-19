@@ -1,7 +1,7 @@
 #include "./engine.hpp"
 #include "managers/theatre_manager.hpp"
 #include "theatre/theatre.hpp"
-#include "theatre/things/thinkers/3d/collider_3d.hpp"
+#include "things/thinkers/3d/collider_3d.hpp"
 #include "thirdparty/Jolt/Core/Factory.h"
 #include "thirdparty/Jolt/RegisterTypes.h"
 #include "thirdparty/Jolt/Physics/PhysicsSystem.h"

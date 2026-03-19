@@ -1,7 +1,7 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
 
-#include <Nostalgia/theatre/things/thinkers/3d/actor_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/actor_3d.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/Body.h>
 #include <Jolt/Physics/Collision/ContactListener.h>

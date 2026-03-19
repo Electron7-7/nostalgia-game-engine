@@ -2,7 +2,7 @@
 #define TEST_ANIMATED_SPRITE_H
 
 #include <Nostalgia/Nostalgia.hpp>
-#include <Nostalgia/theatre/things/thinkers/2d/sprite_2d.hpp>
+#include <Nostalgia/things/thinkers/2d/sprite_2d.hpp>
 
 class TestAnimatedSprite2D : public Sprite2D
 {

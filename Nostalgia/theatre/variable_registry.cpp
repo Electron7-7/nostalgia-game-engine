@@ -1,5 +1,5 @@
 #include "rendering/texture_buffer.hpp"
-#include "theatre/things/thinkers/3d/collider_3d.hpp"
+#include "things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"
 #include "models.hpp"
 #include "images.hpp"

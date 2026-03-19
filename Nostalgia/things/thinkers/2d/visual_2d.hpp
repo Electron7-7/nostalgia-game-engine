@@ -1,7 +1,7 @@
 #ifndef VISUAL_2D_H
 #define VISUAL_2D_H
 
-#include <Nostalgia/theatre/things/thinkers/2d/actor_2d.hpp>
+#include <Nostalgia/things/thinkers/2d/actor_2d.hpp>
 
 class Visual2D : public Actor2D
 {

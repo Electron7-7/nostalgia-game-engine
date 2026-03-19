@@ -1,5 +1,5 @@
 #include "./player.hpp"
-#include <Nostalgia/theatre/things/thinkers/3d/collider_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/collider_3d.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/physics/engine.hpp>
@@ -7,7 +7,7 @@
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/settings/player.hpp>
 #include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/theatre/thing_factory.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 using namespace TheatreFile;
 

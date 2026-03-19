@@ -13,9 +13,9 @@
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
-#include <Nostalgia/theatre/thing_factory.hpp>
-#include <Nostalgia/theatre/things/thinkers/viewport.hpp>
-#include <Nostalgia/theatre/things/thinkers/3d/camera_3d.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
+#include <Nostalgia/things/thinkers/viewport.hpp>
+#include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 
 using namespace ImGui;
 

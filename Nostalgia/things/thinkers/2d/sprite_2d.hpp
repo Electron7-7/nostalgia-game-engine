@@ -1,7 +1,7 @@
 #ifndef SPRITE_2D
 #define SPRITE_2D
 
-#include <Nostalgia/theatre/things/thinkers/2d/visual_2d.hpp>
+#include <Nostalgia/things/thinkers/2d/visual_2d.hpp>
 
 class Sprite2D : public Visual2D
 {

@@ -1,19 +1,21 @@
-#ifndef CAMERA_2D_H
-#define CAMERA_2D_H
+#ifndef CAMERA_3D_H
+#define CAMERA_3D_H
 
-#include <Nostalgia/theatre/things/thinkers/2d/actor_2d.hpp>
+#include <Nostalgia/things/thinkers/3d/actor_3d.hpp>
+#include <Nostalgia/rendering/environment.hpp>
 
-class Camera2D : public Actor2D
+class Camera3D : public Actor3D
 {
 public:
+    float mFOV{75.0f},
+        mViewCutoffNear{0.01f},
+        mViewCutoffFar{1000.0f};
+    Environment mEnvironment{};
+
     virtual void Ready() override;
 
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
     virtual Shared<TheatreFile::ThingData> GetVariables() const override;
-
-    Farg<glm::vec2> Zoom() const;
-    void SetZoom(Farg<glm::vec2>);
-    void SetZoom(float);
 
     virtual ID ViewportID() const;
 
@@ -26,14 +28,16 @@ public:
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
 
+    ID EditorMeshInstanceID() const;
+
 protected:
-    glm::vec2 mZoom{1.0f, 1.0f};
-    bool mInitCurrent{false};
+    bool mInitCurrent{true};
     ID mViewportID{UID::o_RootViewport};
     BitMask mLayersMask{};
+    ID mEditorMeshInstanceID{};
 
     virtual void OnAncestorRemoved(Relative) override;
     virtual void OnAncestorAdded(Relative) override;
 };
 
-#endif // CAMERA_2D_H
+#endif // CAMERA_3D_H

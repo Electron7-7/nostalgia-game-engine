@@ -1,9 +1,9 @@
 #include "gl_renderer_api.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
-#include "theatre/things/resources/texture.hpp"
-#include "theatre/things/resources/font.hpp"
-#include "theatre/things/thinkers/3d/light_3d.hpp"
+#include "things/resources/texture.hpp"
+#include "things/resources/font.hpp"
+#include "things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
 #include "rendering/debugging.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused

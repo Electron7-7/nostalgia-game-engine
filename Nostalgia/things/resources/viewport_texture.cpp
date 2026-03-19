@@ -1,6 +1,6 @@
 #include "./viewport_texture.hpp"
 #include "theatre/theatre.hpp"
-#include "theatre/things/thinkers/viewport.hpp"
+#include "things/thinkers/viewport.hpp"
 
 using namespace TheatreFile;
 

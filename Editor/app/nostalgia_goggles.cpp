@@ -15,7 +15,7 @@
 #include <Nostalgia/managers/ui_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/ui/implementor.hpp>
-#include <Nostalgia/theatre/thing_factory.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};
