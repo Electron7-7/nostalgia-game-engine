@@ -1,6 +1,3 @@
-#ifdef NOSTALGIA_GCC_PCH
-#   include <Nostalgia/Nostalgia.hpp>
-#endif
 #include "../theatre_file.hpp"
 #include "thirdparty/frozen/set.h"
 #include "thirdparty/frozen/string.h"
