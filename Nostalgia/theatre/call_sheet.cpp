@@ -111,3 +111,22 @@ std::string CallSheet::debug_log(Farg<Things_t> inThings) const noexcept
     }
     return log;
 }
+
+Error CallSheet::ChangeID(ID inOldNodeID, ID inNewNodeID) noexcept
+{
+    if(auto found_it{mTree.all_nodes.find(inOldNodeID)}; found_it != mTree.all_nodes.end())
+    {
+        FAUTO children{found_it->second.children};
+        for(ID child : children)
+        {
+            if(auto found_it_again{mTree.all_nodes.find(child)}; found_it_again != mTree.all_nodes.end())
+                { found_it_again->second.parent = inNewNodeID; }
+        }
+        found_it->second.id = inNewNodeID;
+        auto node_handler{mTree.all_nodes.extract(inOldNodeID)};
+        node_handler.key() = inNewNodeID;
+        mTree.all_nodes.insert(std::move(node_handler));
+        return OK;
+    }
+    return ERR_NOT_FOUND;
+}

@@ -16,6 +16,7 @@ public:
     Farg<Node> Get(ID inNodeID) const noexcept;
     bool Has(ID inNodeID) const noexcept;
     void Clear() noexcept;
+    Error ChangeID(ID inOldNodeID, ID inNewNodeID) noexcept;
 
     Farg<Tree> get_tree() const noexcept;
     std::string debug_log(Farg<Things_t>) const noexcept;
