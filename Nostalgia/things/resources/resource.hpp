@@ -18,4 +18,7 @@ protected:
     Error try_LoadFileDataFromVariable(Sarg inPath, Shared<FileData>& outData);
 };
 
+template<typename T>
+    concept Resource_t = std::derived_from<T, Resource>;
+
 #endif // RESOURCE_H

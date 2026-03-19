@@ -50,4 +50,7 @@ protected:
     virtual void OnDescendantRemoved(Relative) {}
 };
 
+template<typename T>
+    concept Thinker_t = std::derived_from<T, Thinker>;
+
 #endif // THINKER_H
