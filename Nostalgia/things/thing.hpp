@@ -22,6 +22,7 @@ public:
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
+    virtual void Init() {}
     virtual void Ready() {}
     virtual void Shutdown() {}
     virtual void Tick() {}
