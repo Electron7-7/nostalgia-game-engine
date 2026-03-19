@@ -8,6 +8,13 @@ template<typename T>
 template<typename T>
     concept Number = NumberOrBool<T> && !(std::same_as<T, bool>);
 
+// String Concepts
+template<typename T>
+    concept StringContainer = std::same_as<T, std::string>;
+
+template<typename T>
+    concept StringType = std::convertible_to<T, std::string>;
+
 // Common Concepts
 template<typename From, typename To>
     concept can_become = std::derived_from<From,To> || std::is_convertible_v<From,To>;
@@ -15,11 +22,7 @@ template<typename From, typename To>
 template<typename T>
     concept IsEnum = std::is_enum_v<T> || std::is_scoped_enum_v<T>;
 
-// String Concepts
 template<typename T>
-    concept StringContainer = std::same_as<T, std::string>;
-
-template<typename T>
-    concept StringType = std::convertible_to<T, std::string>;
+    concept NameOrUID_t = StringType<T> || std::derived_from<T, ID>;
 
 #endif // COMMON_CONCEPTS_H
