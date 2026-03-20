@@ -152,6 +152,9 @@ public:
             return ERR_NOT_FOUND;
         }
 
+    static void RegisterEngineEnums();
+    static void RegisterEngineResourceData();
+
 private:
     References mReferences{};
     // Evil mutable keyword usage
@@ -163,9 +166,6 @@ private:
     static ResourceData m_sResourceData;
     static RMutex m_sEnumsMutex,
         m_sResourceDataMutex;
-
-    static void RegisterEngineEnums();
-    static void RegisterEngineResourceData();
 };
 
 #endif // THEATRE_VARIABLE_REGISTRY_H
