@@ -30,7 +30,6 @@ bool gDebugToggleTextRenderingMethod{false},
 
 Theatre::Theatre() noexcept:
     m_pRootViewport{MakeShared<Viewport>()},
-    m_pRegistry{MakeShared<VariableRegistry>()},
     m_pInitialState{MakeShared<TheatreFile::TheatreData>()} {}
 
 Theatre::~Theatre() noexcept = default;
@@ -137,7 +136,7 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
 
 bool Theatre::Startup()
 {
-    assert(mInitStatus == OK and m_pInitialState and m_pRegistry);
+    assert(mInitStatus == OK and m_pInitialState);
     if(mIsStarted)
         { return true; }
 
@@ -146,7 +145,8 @@ bool Theatre::Startup()
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
 
-    m_pRegistry->Init();
+    VariableRegistry::RegisterEngineEnums();
+    VariableRegistry::RegisterEngineResourceData();
     mNames["ErrorModel"]          = UID::m_Error;
     mNames["DefaultCube"]         = UID::m_Cube;
     mNames["DefaultQuad"]         = UID::m_Quad;
@@ -194,7 +194,7 @@ bool Theatre::Shutdown()
     mNames.clear();
     mUIDs.Clear();
     mCallSheet.Clear();
-    m_pRegistry = MakeShared<VariableRegistry>();
+    mThings.clear();
     return !(mIsStarted = false);
 }
 
@@ -253,9 +253,6 @@ Error Theatre::InitStatus() const
 
 bool Theatre::IsStarted() const
 { return mIsStarted; }
-
-Farg<VariableRegistry> Theatre::Registry() const
-{ return *m_pRegistry; }
 
 Farg<TheatreData> Theatre::InitialState() const
 { return *m_pInitialState; }
@@ -508,8 +505,6 @@ void Theatre::SetupUID(ThingData& ioData)
         { print_error_enum(mUIDs.Generate(ioData.uid)); }
     else if(not mUIDs.Contains(ioData.uid()))
         { mUIDs.Push(ioData.uid()); }
-    if(not m_pRegistry->HasID(ioData.uid()))
-        { m_pRegistry->RegisterID(ioData.name, ioData.uid()); }
     mCallSheet.Add(ioData.uid);
 }
 
@@ -517,7 +512,7 @@ void Theatre::SetupOwnership(Farg<ThingData> ioData)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
-    if(ID parent{m_pRegistry->GetID(ioData.parent_variable.value)}; not parent.invalid())
+    if(ID parent{GetUID(ioData.parent_variable.value)}; not parent.invalid())
     {
         if(not mCallSheet.Has(parent))
             { mCallSheet.Add(parent); }
@@ -526,7 +521,7 @@ void Theatre::SetupOwnership(Farg<ThingData> ioData)
     }
     for(FAUTO child_var : ioData.children_variables)
     {
-        ID child{m_pRegistry->GetID(child_var.value)};
+        ID child{GetUID(child_var.value)};
         if(not child.invalid() and not mCallSheet.Reparent(child, ioData.uid))
             { mCallSheet.Add(child, ioData.uid); }
     }
@@ -622,13 +617,6 @@ Error Theatre::DestroyThingOnly(ID inID)
     mCamera2DIDs.erase(inID);
     mLightIDs.erase(inID);
     print_error_enum(mCallSheet.Remove(inID));
-    if(!m_pRegistry->RemoveID(inID)
-        and !m_pRegistry->RemoveID(mThings.at(inID)->name()))
-    {
-        print_warning("Unable to remove [{}, {}] from the variable registry!",
-            inID(),
-            mThings.at(inID)->name());
-    }
     mThings.erase(inID);
     return OK;
 }

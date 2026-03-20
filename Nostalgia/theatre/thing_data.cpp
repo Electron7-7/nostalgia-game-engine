@@ -65,7 +65,7 @@ Error ThingData::_get_id_variable(ID& outValue,
         { return ERR_MISMATCHED_TYPES; }
     else if(!inVariable.thing_uid.invalid())
         { outValue = inVariable.thing_uid; return OK; }
-    else if(ID out; Theatre::Current()->Registry().try_GetID(inVariable.value, out))
+    else if(ID out{Theatre::Current()->GetUID(inVariable.value)}; not out.invalid())
         { outValue = out; return OK; }
     return ERR_INVALID;
 }
@@ -149,7 +149,9 @@ Error ThingData::set_variable(ID inValue, Sarg inName)
     else if(!inName.compare("Child"))
         { temp.type = ThingVarType::Child; }
 
-    if(not Theatre::Current()->Registry().try_GetIDName(inValue, temp.value))
+    if(FAUTO name{Theatre::Current()->GetName(inValue)}; not name.empty())
+        { temp.value = name; }
+    else
         { return ERR_INVALID_ID; }
 
     if(temp.type == ThingVarType::Child)

@@ -37,7 +37,6 @@ public:
 
     Error InitStatus() const;
     bool  IsStarted()  const;
-    Farg<VariableRegistry>         Registry() const;
     Farg<TheatreFile::TheatreData> InitialState() const;
     TheatreFile::TheatreData       CurrentState();
 
@@ -64,7 +63,6 @@ public:
     Error SetParent(ID inChildID, ID inParentID);
     Error DropParent(ID inChildID);
 
-    /// Note: This will return the *first* `Thing` that has the name `ThingName`.
     Shared<Thing>    GetThing(Sarg ThingName);
     Shared<Thing>    GetThing(ID ObjectID);
     Shared<Resource> GetResource(ID ObjectID);
@@ -110,7 +108,6 @@ protected:
     UID mUIDs{};
 
     Shared<Viewport> m_pRootViewport{nullptr};
-    Shared<VariableRegistry> m_pRegistry{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
 
     bool  LoadCurrentTheatreData();
