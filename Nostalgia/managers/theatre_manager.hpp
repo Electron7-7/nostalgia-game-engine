@@ -24,7 +24,7 @@ public:
 
 private:
     RMutex mTheatreMutex{};
-    Unique<Theatre> m_pCurrentTheatre{nullptr};
+    Unique<Theatre> m_pCurrentTheatre{MakeUnique<Theatre>()};
 };
 
 extern TheatreManager* g_pTheatreManager;

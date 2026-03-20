@@ -15,7 +15,11 @@ static TheatreManager sTheatreManager;
 TheatreManager* g_pTheatreManager{&sTheatreManager};
 
 Theatre* TheatreManager::Current()
-{ return m_pCurrentTheatre.get(); }
+{
+    if(not m_pCurrentTheatre)
+        { m_pCurrentTheatre = MakeUnique<Theatre>(); }
+    return m_pCurrentTheatre.get();
+}
 
 void TheatreManager::LoadFromData(Shared<TheatreFile::TheatreData> inTheatreData)
 {
