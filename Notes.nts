@@ -1299,3 +1299,8 @@ Ugh, reserved UIDs and resource data registration are both fucked and need fixin
 
 [03/19/26]
 Theatre needs to be a global singleton and probably just a way of interfacing with a global Thinker database. Yeah, there shouldn't ever be more than one Theatre, the Thinker database will be interfaced with via Theatre while the Resource database *can* be interfaced with via Theatre but can also be accessed globally. Theatre is like the world, the Thinker database is like an abstracted data format, and the Resource database is like a mixture of the two but focused for only Resources. Get rid of the variable registry, make UID global, and do all of these things one step at a time while compiling+running+testing everything. Don't try to do it all at once!
+
+[03/20/26]
+Okay, let's do this.
+
+All right, so far I've been able to remove the VariableRegistry variable from Theatre, as well as totally remove all "reference" related code from the registry class. Now I have to decide where to go from here. I could try changing how UID works, making it more static and removing it from Theatre. Actually, yeah, I think that's a good next step.
