@@ -89,17 +89,17 @@ void ImGui_Debugger::Input(InputEvent* event)
     }
     else if(event->IsJustPressed(Key::F4) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
-            { IManager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
+            { Manager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
     else if(event->IsJustPressed(Key::F5) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
     {
         gTheatreInspectorActive = false;
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
-        g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
+        g_pTheatreManager->LoadFromFile(sTheatreFilePath);
     }
     else if(event->IsJustPressed(Key::F6) or
         (event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control)))
-            { g_pTheatreManager->CurrentTheatre()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
+            { g_pTheatreManager->Current()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -531,7 +531,8 @@ static void s_TheatreDebuggingWindow()
     if(Button("Load Theatre"))
     {
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
-        g_pTheatreManager->LoadNewTheatre(sTheatreFilePath);
+        Manager::ShutdownTheatre();
+        g_pTheatreManager->LoadFromFile(sTheatreFilePath);
     }
     if(IManager::GetTheatreState() != ManagerEnums::NOT_IN_LEVEL)
         { EndDisabled(); }
@@ -558,10 +559,10 @@ static void s_TheatreDebuggingWindow()
     }
 
     if(Button("Save Theatre State"))
-        { g_pTheatreManager->CurrentTheatre()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
+        { g_pTheatreManager->Current()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
     SameLine(); InputText("File Path", &sTheatreFileSavePath, ImGuiInputTextFlags_CharsNoBlank);
     if(Button("Exit Theatre"))
-        { IManager::ShutdownTheatre(); }
+        { Manager::ShutdownTheatre(); }
     EndDisabled();
 
     bool not_in_level = (IManager::GetTheatreState() != ManagerEnums::IN_LEVEL);
@@ -766,7 +767,7 @@ struct thing_data_buffer
 
 static void s_ThingTreeBranch(ID inUID)
 {
-    auto* theatre{g_pTheatreManager->CurrentTheatre()};
+    auto* theatre{g_pTheatreManager->Current()};
     auto children{theatre->GetChildren(inUID)};
     if(TreeNodeEx(theatre->GetThing(inUID)->c_name(),
         (children.empty())
@@ -807,7 +808,7 @@ void ImGui_Debugger::InspectTheatreWindow()
     }
     if(BeginChild("Theatre Inspector", {500, 500}, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeY | ImGuiChildFlags_ResizeX))
     {
-        auto* theatre{g_pTheatreManager->CurrentTheatre()};
+        auto* theatre{g_pTheatreManager->Current()};
         if(CollapsingHeader("Test Graph View"))
         {
             if(TreeNodeEx(theatre->Name().data(), ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DefaultOpen))
@@ -839,7 +840,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         if(CollapsingHeader("Thing Selection", ImGuiTreeNodeFlags_DefaultOpen))
         {
             BeginChild("Buttons", {0,0}, ImGuiChildFlags_AutoResizeY);
-            auto uids{g_pTheatreManager->CurrentTheatre()->ThingIDs()};
+            auto uids{g_pTheatreManager->Current()->ThingIDs()};
             int item_counter{0}, name_counter{0};
             for(ID uid : uids)
             {
@@ -941,7 +942,7 @@ void ImGui_Debugger::InspectTheatreWindow()
             }
         EndDisabled();
         if(Button(std::format("Destroy {}", selected.ptr->name()).data())
-            and g_pTheatreManager->CurrentTheatre()->DestroyThing(selected.ptr->uid()))
+            and g_pTheatreManager->Current()->DestroyThing(selected.ptr->uid()))
             { EndChild(); EndChild(); selected = last_selected; return; }
         SeparatorText("Properties");
         if(UID::IsReserved(selected.id))
@@ -968,7 +969,7 @@ void ImGui_Debugger::InspectTheatreWindow()
             // PARENT
             BeginChild("Parent", {}, ImGuiChildFlags_AutoResizeY);
                 SeparatorText("Parent");
-                if(auto parent_ptr{g_pTheatreManager->CurrentTheatre()->GetThinker(selected.parent)};
+                if(auto parent_ptr{g_pTheatreManager->Current()->GetThinker(selected.parent)};
                     !parent_ptr->uid().invalid())
                 {
                     TextF("Parent: {} [Type:{}]",
@@ -1095,7 +1096,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                         if((layers_mask_i+1) % 10 and layers_mask_i != BitMask::max - 1)
                             { SameLine(); }
                     }
-                    auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera3d->ViewportID())};
+                    auto cur_vp{g_pTheatreManager->Current()->GetThinker<Viewport>(camera3d->ViewportID())};
                     TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()());
                     SameLine();
                     if(Button("Inspect"))
@@ -1266,7 +1267,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                         if((layers_mask_i+1) % 10 and layers_mask_i != BitMask::max - 1)
                             { SameLine(); }
                     }
-                    auto cur_vp{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(camera2d->ViewportID())};
+                    auto cur_vp{g_pTheatreManager->Current()->GetThinker<Viewport>(camera2d->ViewportID())};
                     TextF("Viewport: {} [{}]", cur_vp->name(), cur_vp->uid()());
                     SameLine();
                     if(Button("Inspect"))
@@ -1291,7 +1292,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 auto children{thinker->Children()};
                 if(Button("+"))
                 {
-                    print_error_enum(g_pTheatreManager->CurrentTheatre()
+                    print_error_enum(g_pTheatreManager->Current()
                         ->SetParent(mNewChildUID, thinker->uid()));
                     selected = {thinker};
                     mNewChildUID = 0;
@@ -1305,11 +1306,11 @@ void ImGui_Debugger::InspectTheatreWindow()
                         { TextF("[Invalid Child UID]##{}", ++child_counter); }
                     else
                     {
-                        auto thing{g_pTheatreManager->CurrentTheatre()->GetThing(child)};
+                        auto thing{g_pTheatreManager->Current()->GetThing(child)};
                         PushID(++child_counter + thing->uid()());
                         if(Button("-"))
                         {
-                            print_error_enum(g_pTheatreManager->CurrentTheatre()
+                            print_error_enum(g_pTheatreManager->Current()
                                 ->DropParent(child));
                             selected = {selected.ptr};
                             PopID(); EndChild(); EndChild(); EndChild(); return;

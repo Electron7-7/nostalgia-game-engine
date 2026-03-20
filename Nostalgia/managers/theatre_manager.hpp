@@ -7,6 +7,11 @@
 class TheatreManager : public Manager
 {
 public:
+    Theatre* Current();
+    void     LoadFromData(Shared<TheatreFile::TheatreData>);
+    void     LoadFromFileData(Shared<FileData> inTheatreFileData);
+    void     LoadFromFile(Sarg inTheatreFilePath);
+
     consteval const char* DebugName() override { return "TheatreManager"; }
     bool Init() override;
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) override;
@@ -15,17 +20,11 @@ public:
     void Tick() override;
     void Input(InputEvent*) override;
 
-    Theatre*       CurrentTheatre();
-    const Theatre* CurrentTheatre() const;
-
     void DrawCurrentTheatre();
-    void LoadNewTheatre(Unique<Theatre> inTheatre);
-    bool LoadNewTheatre(Farg<FileData> inTheatreFileData);
-    bool LoadNewTheatre(Sarg inTheatreFilePath);
 
 private:
     RMutex mTheatreMutex{};
-    Unique<Theatre> mCurrentTheatre{nullptr};
+    Unique<Theatre> m_pCurrentTheatre{nullptr};
 };
 
 extern TheatreManager* g_pTheatreManager;

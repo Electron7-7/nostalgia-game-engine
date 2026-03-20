@@ -139,10 +139,10 @@ public:
         auto collider2_id{inBody2.GetUserData()};
         if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
         {
-            g_pTheatreManager->CurrentTheatre()
+            g_pTheatreManager->Current()
                 ->GetThinker<Collider3D>(collider1_id)
                     ->OnContactAdded(collider2_id, inBody1, inBody2, manifold, ioSettings);
-            g_pTheatreManager->CurrentTheatre()
+            g_pTheatreManager->Current()
                 ->GetThinker<Collider3D>(collider2_id)
                     ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
         }
@@ -159,10 +159,10 @@ public:
         auto collider2_id{inBody2.GetUserData()};
         if(collider1_id and collider2_id and collider1_id != ID::Invalid and collider2_id != ID::Invalid)
         {
-            g_pTheatreManager->CurrentTheatre()
+            g_pTheatreManager->Current()
                 ->GetThinker<Collider3D>(collider1_id)
                     ->OnContactPersisted(collider2_id, inBody1, inBody2, manifold, ioSettings);
-            g_pTheatreManager->CurrentTheatre()
+            g_pTheatreManager->Current()
                 ->GetThinker<Collider3D>(collider2_id)
                     ->OnContactAdded(collider1_id, inBody2, inBody1, manifold, ioSettings);
         }
@@ -176,7 +176,7 @@ public:
             .GetUserData(inSubShapeIDPair.GetBody1ID());
         if(collider1_id and collider1_id != ID::Invalid)
         {
-            g_pTheatreManager->CurrentTheatre()
+            g_pTheatreManager->Current()
                 ->GetThinker<Collider3D>(collider1_id)
                     ->OnContactRemoved(inSubShapeIDPair);
         }*/
@@ -191,7 +191,7 @@ public:
         if(gJoltDebugMessageAllow_BodyActivated)
             { print_jolt("A body was activated [index: {}]", inBodyID.GetIndex()); }
         if(inBodyUserData and inBodyUserData != ID::Invalid)
-            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyActivated(); }
+            { g_pTheatreManager->Current()->GetThinker<Collider3D>(inBodyUserData)->OnBodyActivated(); }
     }
 
     virtual void OnBodyDeactivated(Farg<BodyID> inBodyID, uint64 inBodyUserData) override
@@ -199,7 +199,7 @@ public:
         if(gJoltDebugMessageAllow_BodyDeactivated)
             { print_jolt("A body went to sleep [index: {}]", inBodyID.GetIndex()); }
         if(inBodyUserData and inBodyUserData != ID::Invalid)
-            { g_pTheatreManager->CurrentTheatre()->GetThinker<Collider3D>(inBodyUserData)->OnBodyDeactivated(); }
+            { g_pTheatreManager->Current()->GetThinker<Collider3D>(inBodyUserData)->OnBodyDeactivated(); }
     }
 };
 

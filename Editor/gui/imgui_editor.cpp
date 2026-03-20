@@ -112,7 +112,7 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    auto theatre{g_pTheatreManager->CurrentTheatre()};
+    auto theatre{g_pTheatreManager->Current()};
     if(!Settings::Engine::IsEditorHint)
     {
         auto player{theatre->GetThinker<EditorPlayer3D>(UID::o_Player)};
@@ -163,7 +163,7 @@ void ImGui_Editor::TheatreExited()
     sSpawnLocationMeshInstanceID = ID{};
     sSpawnLocationID = ID{};
     sEditorViewportID = ID{};
-    auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
+    auto player{g_pTheatreManager->Current()->GetThinker<EditorPlayer3D>(UID::o_Player)};
     UI_Implementor::SetGlobalCanHandleEvents(true);
     MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
     player->mCaptureMouse    = false;
@@ -176,7 +176,7 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         if(event->IsJustPressed(Key::Escape))
         {
-            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
+            auto player{g_pTheatreManager->Current()->GetThinker<EditorPlayer3D>(UID::o_Player)};
             UI_Implementor::SetGlobalCanHandleEvents(true);
             MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
             player->mCaptureMouse    = false;
@@ -187,7 +187,7 @@ void ImGui_Editor::Input(InputEvent* event)
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)
         and Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
     {
-        auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
+        auto player{g_pTheatreManager->Current()->GetThinker<EditorPlayer3D>(UID::o_Player)};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -213,7 +213,7 @@ void ImGui_Editor::Update()
         ImGuiChildFlags_ResizeX};
     if(!sSpawnLocationID.invalid())
     {
-        auto thingy{g_pTheatreManager->CurrentTheatre()->GetThinker<Actor3D>(sSpawnLocationMeshInstanceID)};
+        auto thingy{g_pTheatreManager->Current()->GetThinker<Actor3D>(sSpawnLocationMeshInstanceID)};
         if(thingy->Scale().y > sSpawnLocationScaleMax)
             { sScaleDirection = SCALE_DIRECTION_DOWN; }
         else if(thingy->Scale().y < sSpawnLocationScaleMin)
@@ -242,7 +242,7 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
-        auto viewport{g_pTheatreManager->CurrentTheatre()->GetThinker<Viewport>(sEditorViewportID)};
+        auto viewport{g_pTheatreManager->Current()->GetThinker<Viewport>(sEditorViewportID)};
         if(viewport->uid().invalid())
             { End(); return; }
         BeginChild("LeftSide",
@@ -261,7 +261,7 @@ void ImGui_Editor::Update()
                 GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
             EndChild();
             static bool camera_moving{false};
-            auto player{g_pTheatreManager->CurrentTheatre()->GetThinker<EditorPlayer3D>(UID::o_Player)};
+            auto player{g_pTheatreManager->Current()->GetThinker<EditorPlayer3D>(UID::o_Player)};
             if((IsItemHovered() or camera_moving)
                 and !player->mCaptureMouse)
             {
@@ -269,7 +269,7 @@ void ImGui_Editor::Update()
                     { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
                 if(InputManager::IsKeyDown(Key::MouseLeft))
                 {
-                    auto camera{g_pTheatreManager->CurrentTheatre()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
+                    auto camera{g_pTheatreManager->Current()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
                     auto motion{InputManager::MouseMotion()};
                     camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
                     glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
@@ -303,7 +303,7 @@ void s_ThingAdder()
 {
     if(!Settings::Engine::IsEditorHint)
         { return; }
-    auto theatre{g_pTheatreManager->CurrentTheatre()};
+    auto theatre{g_pTheatreManager->Current()};
     auto spawn_locator{theatre->GetThinker<Actor3D>(sSpawnLocationID)};
     BeginChild("MakeNewThing");
     if(CollapsingHeader("Thing Spawner Widget"))

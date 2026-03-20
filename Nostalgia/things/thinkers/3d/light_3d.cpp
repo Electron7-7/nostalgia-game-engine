@@ -36,7 +36,7 @@ void Light3D::Ready()
             mat_data.set_variable(mColor, "Color");
             mat_data.set_variable(UID::i_LightDebug, "DiffuseTexture");
             mat_data.set_variable(true, "FullBright");
-            mat_id = g_pTheatreManager->CurrentTheatre()->CreateThing(mat_data);
+            mat_id = g_pTheatreManager->Current()->CreateThing(mat_data);
         }
         else
             { mat_id = my_theatre()->GetThing(mat_name)->uid(); }

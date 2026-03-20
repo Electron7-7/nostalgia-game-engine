@@ -15,6 +15,7 @@
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
 #include "managers/render_manager.hpp"
+#include "managers/theatre_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "rendering/shader.hpp"
 #include "settings/graphics.hpp"
@@ -28,32 +29,14 @@ bool gDebugToggleTextRenderingMethod{false},
     gDebugEnable2DRendering{true};
 
 Theatre::Theatre() noexcept:
-    m_pRegistry{MakeShared<VariableRegistry>()} {}
-
-Theatre::Theatre(Shared<TheatreData> inData) noexcept:
-    mWasLoadedFromFile{false},
+    m_pRootViewport{MakeShared<Viewport>()},
     m_pRegistry{MakeShared<VariableRegistry>()},
-    m_pInitialState{inData},
-    mInitStatus{OK} {}
-
-Theatre::Theatre(Sarg inPath) noexcept:
-    mTheatreFileDirectory{FileSystem::GetDir(inPath)},
-    mWasLoadedFromFile{true},
-    m_pRegistry{MakeShared<VariableRegistry>()},
-    m_pInitialState{MakeShared<TheatreData>()}
-{ Load(inPath); }
-
-Theatre::Theatre(Farg<FileData> inData) noexcept:
-    mWasLoadedFromFile{inData.HasPath()},
-    m_pRegistry{MakeShared<VariableRegistry>()},
-    m_pInitialState{MakeShared<TheatreData>()}
-{
-    if(mWasLoadedFromFile)
-        { mTheatreFileDirectory = FileSystem::GetDir(inData.Path()); }
-    Load(inData);
-}
+    m_pInitialState{MakeShared<TheatreFile::TheatreData>()} {}
 
 Theatre::~Theatre() noexcept = default;
+
+Theatre* Theatre::Current()
+{ return g_pTheatreManager->Current(); }
 
 void Theatre::Update()
 {
@@ -76,22 +59,36 @@ void Theatre::Input(InputEvent* inInput)
         { thing->Input(inInput); }
 }
 
-Error Theatre::Load(Sarg inFilePath)
+void Theatre::LoadTheatreData(Shared<TheatreFile::TheatreData> inData)
 {
-    if(Error status{TheatreFile::Load(inFilePath, m_pInitialState)}; !status)
-        { mInitStatus = status; }
-    else { mInitStatus = OK; }
-    return print_error_enum(mInitStatus);
+    Shutdown();
+
+    m_pInitialState = inData;
+    mWasLoadedFromFile = false;
+    mTheatreFileDirectory.clear();
+
+    LoadCurrentTheatreData();
 }
 
-Error Theatre::Load(Farg<FileData> inData)
+Error Theatre::LoadFile(Sarg inFilePath)
 {
-    if(!inData.Status())
-        { mInitStatus = ERR_DATA_LOAD; }
-    else if(Error status{TheatreFile::Load(inData, m_pInitialState)}; !status)
-        { mInitStatus = status; }
-    else { mInitStatus = OK; }
-    return print_error_enum(mInitStatus);
+    Shutdown();
+    if(not print_error_enum(TheatreFile::Load(inFilePath, m_pInitialState)))
+        { return mInitStatus = ERR_INIT_FAILED; }
+    mWasLoadedFromFile = true;
+    mTheatreFileDirectory = FileSystem::GetDir(inFilePath, true);
+    LoadCurrentTheatreData();
+    return OK;
+}
+
+Error Theatre::LoadData(Farg<FileData> inData)
+{
+    if(not print_error_enum(TheatreFile::Load(inData, m_pInitialState)))
+        { return mInitStatus = ERR_INIT_FAILED; }
+    if((mWasLoadedFromFile = inData.HasPath()))
+        { mTheatreFileDirectory = FileSystem::GetDir(inData.Path(), true); }
+    LoadCurrentTheatreData();
+    return OK;
 }
 
 Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
@@ -149,9 +146,6 @@ bool Theatre::Startup()
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
 
-    mUIDs.Clear();
-    mCallSheet.Clear();
-    m_pRegistry->ClearIDs();
     m_pRegistry->Init();
 
     m_pRootViewport = GetThinker<Viewport>(CreateThingNoReady({ThingType::Viewport,
@@ -186,9 +180,9 @@ bool Theatre::Shutdown()
             { continue; }
         DestroyThing(uid);
     }
-    m_pRegistry->ClearIDs();
     mUIDs.Clear();
     mCallSheet.Clear();
+    m_pRegistry = MakeShared<VariableRegistry>();
     return !(mIsStarted = false);
 }
 
@@ -459,19 +453,36 @@ Shared<Thinker> Theatre::GetThinker(ID inID)
     return MakeShared<Thinker>();
 }
 
+bool Theatre::LoadCurrentTheatreData()
+{
+    if(mIsStarted)
+        { return false; }
+
+    mName  = m_pInitialState->name;
+    mIndex = m_pInitialState->index;
+
+    for(auto& thing_data : *m_pInitialState)
+        { SetupUID(thing_data); }
+
+    for(auto& thing_data : *m_pInitialState)
+        { SetupOwnership(thing_data); }
+
+    mInitStatus = OK;
+    return true;
+}
+
 void Theatre::SetupUID(ThingData& ioData)
 {
     ioData.theatre_registry = m_pRegistry;
 
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
         { ioData.uid = UID::o_Player; }
-    if(ioData.uid.invalid())
+    else if(ioData.uid.invalid())
         { print_error_enum(mUIDs.Generate(ioData.uid)); }
-    if(!mUIDs.Contains(ioData.uid()))
+    else if(not mUIDs.Contains(ioData.uid()))
         { mUIDs.Push(ioData.uid()); }
-    if(!m_pRegistry->HasID(ioData.uid()))
+    if(not m_pRegistry->HasID(ioData.uid()))
         { m_pRegistry->RegisterID(ioData.name, ioData.uid()); }
-
     mCallSheet.Add(ioData.uid);
 }
 
@@ -479,20 +490,17 @@ void Theatre::SetupOwnership(Farg<ThingData> ioData)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
-    ID parent{ioData.get_parent()};
-    IdSet_t children{ioData.get_children()};
-
-    if(!parent.invalid())
+    if(ID parent{m_pRegistry->GetID(ioData.parent_variable.value)}; not parent.invalid())
     {
-        if(!mCallSheet.Has(parent))
+        if(not mCallSheet.Has(parent))
             { mCallSheet.Add(parent); }
-        if(!mCallSheet.Reparent(ioData.uid, parent))
+        if(not mCallSheet.Reparent(ioData.uid, parent))
             { mCallSheet.Add(ioData.uid, parent); }
     }
-    for(ID child : children)
+    for(FAUTO child_var : ioData.children_variables)
     {
-        if(child.invalid()) { continue; }
-        else if(!mCallSheet.Reparent(child, ioData.uid))
+        ID child{m_pRegistry->GetID(child_var.value)};
+        if(not child.invalid() and not mCallSheet.Reparent(child, ioData.uid))
             { mCallSheet.Add(child, ioData.uid); }
     }
 }

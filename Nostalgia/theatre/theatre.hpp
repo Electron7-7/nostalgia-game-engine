@@ -13,21 +13,18 @@ public:
 
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
 
-    bool mDoPrintDebugLogs{false};
+    static Theatre* Current();
 
-    Theatre() noexcept;
-    Theatre(Shared<TheatreFile::TheatreData>) noexcept;
-    Theatre(Farg<FileData> inTheatreFileData) noexcept;
-    Theatre(Sarg inTheatreFilePath) noexcept;
-
+    explicit Theatre() noexcept;
     virtual ~Theatre() noexcept;
 
     virtual void Update();
     virtual void Tick();
     virtual void Input(InputEvent*);
 
-    virtual Error Load(Farg<FileData> inTheatreFileData);
-    virtual Error Load(Sarg inTheatreFilePath);
+    virtual void  LoadTheatreData(Shared<TheatreFile::TheatreData> inTheatreData);
+    virtual Error LoadData(Farg<FileData> inData);
+    virtual Error LoadFile(Sarg inFilePath);
     virtual Error Save(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();
@@ -95,7 +92,9 @@ protected:
     std::string mName{"Untitled Theatre"};
     uint mIndex{ID::Invalid};
     std::string mTheatreFileDirectory{""};
-    bool mWasLoadedFromFile{false};
+    bool mIsStarted{false},
+        mWasLoadedFromFile{false};
+    Error mInitStatus{ERR_UNINITIALIZED};
 
     RMutex mThingsMutex{},
         mCallSheetMutex{};
@@ -113,9 +112,7 @@ protected:
     Shared<VariableRegistry> m_pRegistry{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
 
-    Error mInitStatus{ERR_UNINITIALIZED};
-    bool mIsStarted{false};
-
+    bool  LoadCurrentTheatreData();
     void SetupOwnership(Farg<TheatreFile::ThingData>);
     void SetupUID(TheatreFile::ThingData&);
 
