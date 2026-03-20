@@ -473,8 +473,6 @@ bool Theatre::LoadCurrentTheatreData()
 
 void Theatre::SetupUID(ThingData& ioData)
 {
-    ioData.theatre_registry = m_pRegistry;
-
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
         { ioData.uid = UID::o_Player; }
     else if(ioData.uid.invalid())

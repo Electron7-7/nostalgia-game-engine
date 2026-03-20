@@ -1,3 +1,5 @@
+#include "./theatre.hpp"
+
 using namespace TheatreFile;
 
 std::string ThingData::get_log() const noexcept
@@ -63,9 +65,7 @@ Error ThingData::_get_id_variable(ID& outValue,
         { return ERR_MISMATCHED_TYPES; }
     else if(!inVariable.thing_uid.invalid())
         { outValue = inVariable.thing_uid; return OK; }
-    else if(!theatre_registry)
-        { return ERR_NULLPTR; }
-    else if(ID out; theatre_registry->try_GetID(inVariable.value, out))
+    else if(ID out; Theatre::Current()->Registry().try_GetID(inVariable.value, out))
         { outValue = out; return OK; }
     return ERR_INVALID;
 }
@@ -78,7 +78,6 @@ void ThingData::clear()
     variables.clear();
     parent_variable.clear();
     children_variables.clear();
-    theatre_registry.reset();
 }
 
 ID ThingData::get_parent() const
@@ -150,7 +149,7 @@ Error ThingData::set_variable(ID inValue, Sarg inName)
     else if(!inName.compare("Child"))
         { temp.type = ThingVarType::Child; }
 
-    if(theatre_registry and !theatre_registry->try_GetIDName(inValue, temp.value))
+    if(not Theatre::Current()->Registry().try_GetIDName(inValue, temp.value))
         { return ERR_INVALID_ID; }
 
     if(temp.type == ThingVarType::Child)

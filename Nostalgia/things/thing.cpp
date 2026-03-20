@@ -19,7 +19,6 @@ Shared<ThingData> Thing::GetVariables() const
     data->name = mName;
     data->uid  = mUID;
     data->type = mType;
-    data->theatre_registry = m_pStartingData->theatre_registry;
     return data;
 }
 

@@ -58,12 +58,6 @@ namespace TheatreFile
         ID            uid{};
         ThingVariable parent_variable{};
         ThingVarArray children_variables{};
-        // When a `Theatre` generates its `ThingData` vector, it will set `theatre_registry` to
-        // its `VariableRegistry` member. This is used when attempting to get the value of `ID`,
-        // "Child", and "Parent" variables; if it's `nullptr` when either `get_parent`,
-        // `get_children`, or `get_variable` with an `ID` variable is called, the respective
-        // function will return an error and leave the passed variable reference untouched.
-        Shared<VariableRegistry> theatre_registry{nullptr};
 
         std::string get_log() const noexcept;
         std::string get_parsable_string() const noexcept;
