@@ -147,6 +147,17 @@ bool Theatre::Startup()
     mIndex = m_pInitialState->index;
 
     m_pRegistry->Init();
+    mNames["ErrorModel"]          = UID::m_Error;
+    mNames["DefaultCube"]         = UID::m_Cube;
+    mNames["DefaultQuad"]         = UID::m_Quad;
+    mNames["RamielModel"]         = UID::m_Ramiel;
+    mNames["CameraModel"]         = UID::m_Camera3D;
+    mNames["DebugAxis"]           = UID::m_DebugAxis;
+    mNames["MissingTexture"]      = UID::i_Missing;
+    mNames["LolBitTexture"]       = UID::i_LolBit;
+    mNames["LightTexture"]        = UID::i_LightDebug;
+    mNames["DoomTexture"]         = UID::i_COMP04_5;
+    mNames["ShittySkyboxCubemap"] = UID::i_ShittySkyboxXn;
 
     m_pRootViewport = GetThinker<Viewport>(CreateThingNoReady({ThingType::Viewport,
         "Root_Viewport", {}, UID::o_RootViewport}));
@@ -180,6 +191,7 @@ bool Theatre::Shutdown()
             { continue; }
         DestroyThing(uid);
     }
+    mNames.clear();
     mUIDs.Clear();
     mCallSheet.Clear();
     m_pRegistry = MakeShared<VariableRegistry>();
@@ -314,6 +326,23 @@ Error Theatre::DestroyThing(ID inID)
     GetThing(inID)->Shutdown();
     auto status{DestroyThingOnly(inID)};
     return status;
+}
+
+ID Theatre::GetUID(Sarg inName)
+{
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    if(auto found_it{mNames.find(inName)}; found_it != mNames.end())
+        { return found_it->second; }
+    return ID::Invalid;
+}
+
+Sarg Theatre::GetName(ID inUID)
+{
+    static std::string empty{};
+    LockGuard<RMutex> things_lock{mThingsMutex};
+    if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
+        { return found_it->second->mName; }
+    return empty;
 }
 
 Shared<Viewport> Theatre::GetRootViewport()
@@ -545,6 +574,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
 
     auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type)};
     thing->SetVariables(ioData);
+    mNames[thing->mName] = thing->mUID;
 
     if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
@@ -576,6 +606,14 @@ Error Theatre::DestroyThingOnly(ID inID)
             : ERR_NOT_FOUND;
     }
 
+    for(auto iter{mNames.begin()}; iter != mNames.end(); ++iter)
+    {
+        if(iter->second == inID)
+        {
+            mNames.erase(iter);
+            break;
+        }
+    }
     mUIDs.Erase(inID());
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);

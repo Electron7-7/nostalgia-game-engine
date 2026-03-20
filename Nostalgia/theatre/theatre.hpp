@@ -48,6 +48,8 @@ public:
     bool      DerivedFrom(ID, FPID);
     ID        CreateThing(Farg<TheatreFile::ThingData>);
     Error     DestroyThing(ID);
+    ID        GetUID(Sarg inName);
+    Sarg      GetName(ID);
 
     Shared<Viewport> GetRootViewport();
     IdSet_arg GetViewports(); // Does not include the root viewport
@@ -97,6 +99,7 @@ protected:
     RMutex mThingsMutex{},
         mCallSheetMutex{};
     Things_t mThings{};
+    std::map<std::string, ID> mNames{};
     IdSet_t mLightIDs{},
         mCamera3DIDs{},
         mCamera2DIDs{},
