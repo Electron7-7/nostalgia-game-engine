@@ -56,13 +56,13 @@ Error Viewport::SetCurrentCamera3D(ID inID)
     if(inID.invalid())
     {
         if(mUID == UID::o_RootViewport)
-            { descendants = my_theatre()->Get3DCameras(); }
+            { descendants = Theatre::Current()->Get3DCameras(); }
         else
-            { descendants = my_theatre()->GetAllChildren(mUID); }
+            { descendants = Theatre::Current()->GetAllChildren(mUID); }
         for(ID descendant : descendants)
         {
             if(mCurrentCamera3D != descendant
-                and my_theatre()->GetThinker<Camera3D>(descendant)->ViewportID() == mUID)
+                and Theatre::Current()->GetThinker<Camera3D>(descendant)->ViewportID() == mUID)
             {
                 mCurrentCamera3D = descendant;
                 return OK;
@@ -70,7 +70,7 @@ Error Viewport::SetCurrentCamera3D(ID inID)
         }
         mCurrentCamera3D = ID::Invalid;
     }
-    else if(my_theatre()->GetThinker<Camera3D>(inID)->ViewportID() == mUID)
+    else if(Theatre::Current()->GetThinker<Camera3D>(inID)->ViewportID() == mUID)
     {
         mCurrentCamera3D = inID;
         return OK;
@@ -85,13 +85,13 @@ Error Viewport::SetCurrentCamera2D(ID inID)
     if(inID.invalid())
     {
         if(mUID == UID::o_RootViewport)
-            { descendants = my_theatre()->Get2DCameras(); }
+            { descendants = Theatre::Current()->Get2DCameras(); }
         else
-            { descendants = my_theatre()->GetAllChildren(mUID); }
+            { descendants = Theatre::Current()->GetAllChildren(mUID); }
         for(ID descendant : descendants)
         {
             if(mCurrentCamera2D != descendant
-                and my_theatre()->GetThinker<Camera2D>(descendant)->ViewportID() == mUID)
+                and Theatre::Current()->GetThinker<Camera2D>(descendant)->ViewportID() == mUID)
             {
                 mCurrentCamera2D = descendant;
                 return OK;
@@ -99,7 +99,7 @@ Error Viewport::SetCurrentCamera2D(ID inID)
         }
         mCurrentCamera2D = ID::Invalid;
     }
-    else if(my_theatre()->GetThinker<Camera2D>(inID)->ViewportID() == mUID)
+    else if(Theatre::Current()->GetThinker<Camera2D>(inID)->ViewportID() == mUID)
     {
         mCurrentCamera2D = inID;
         return OK;

@@ -25,7 +25,7 @@ void ViewportTexture::Ready()
     Texture::Ready();
     if(not mViewportID.invalid())
     {
-        auto size{my_theatre()->GetThinker<Viewport>(mViewportID)->Size()};
+        auto size{Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
         mFormat.width  = size.w();
         mFormat.height = size.h();
     }
@@ -35,13 +35,13 @@ Error ViewportTexture::Import()
 {
     if(mViewportID.invalid())
         { return ERR_INVALID_ID; }
-    else if(not my_theatre()->DerivedFrom(mViewportID, ThingType::Viewport))
+    else if(not Theatre::Current()->DerivedFrom(mViewportID, ThingType::Viewport))
         { return ERR_INVALID_TYPE; }
     return OK;
 }
 
 Shared<TextureBuffer> ViewportTexture::GetBuffer() const
-{ return my_theatre()->GetThinker<Viewport>(mViewportID)->Framebuffer()->Texture(); }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->Framebuffer()->Texture(); }
 
 Error ViewportTexture::SetBuffer(Shared<TextureBuffer>)
 { return ERR_NOT_ALLOWED; }

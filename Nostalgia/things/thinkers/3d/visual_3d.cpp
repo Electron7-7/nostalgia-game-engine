@@ -6,10 +6,10 @@ using namespace TheatreFile;
 void Visual3D::Ready()
 {
     Actor3D::Ready();
-    auto ancestors{my_theatre()->GetAllParents(mUID)};
+    auto ancestors{Theatre::Current()->GetAllParents(mUID)};
     for(ID parent : ancestors)
     {
-        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; break; }
     }
 }
@@ -49,13 +49,13 @@ void Visual3D::Viewport(ID inID)
 void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)
 {
     Actor3D::OnAncestorAdded(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

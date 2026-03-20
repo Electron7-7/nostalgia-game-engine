@@ -546,7 +546,6 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     SetupOwnership(ioData);
 
     auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type)};
-    thing->m_pRootTheatre = this;
     thing->SetVariables(ioData);
 
     if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))

@@ -24,7 +24,7 @@ Shared<ThingData> Thing::GetVariables() const
 }
 
 void Thing::Free()
-{ print_error_enum(m_pRootTheatre->DestroyThing(mUID)); }
+{ print_error_enum(Theatre::Current()->DestroyThing(mUID)); }
 
 ThingData Thing::GetStartingVariables() const
 { return *m_pStartingData; }
@@ -43,11 +43,3 @@ void Thing::set_name(Sarg inName)
 
 const char* const Thing::c_name() const
 { return mName.data(); }
-
-Theatre* Thing::my_theatre() const
-{
-    static Theatre* empty_theatre{new Theatre{}};
-    return(m_pRootTheatre)
-        ? m_pRootTheatre
-        : empty_theatre;
-}

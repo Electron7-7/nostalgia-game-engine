@@ -330,7 +330,7 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
             mUID(),
             mName,
             inOtherColliderID(),
-            my_theatre()->GetThing(inOtherColliderID)->name());
+            Theatre::Current()->GetThing(inOtherColliderID)->name());
     }
 }
 

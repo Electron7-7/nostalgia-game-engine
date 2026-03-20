@@ -9,24 +9,24 @@ using namespace TheatreFile;
 void Camera2D::Ready()
 {
     Actor2D::Ready();
-    auto parent{my_theatre()->GetParent(mUID)};
+    auto parent{Theatre::Current()->GetParent(mUID)};
 
     if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
-        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
         else
         {
-            auto ancestors{my_theatre()->GetAllParents(mUID)};
+            auto ancestors{Theatre::Current()->GetAllParents(mUID)};
             for(ID parent : ancestors)
             {
-                if(parent != UID::o_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                if(parent != UID::o_RootViewport and Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
                     { mViewportID = parent; break; }
             }
         }
     }
 
-    if(auto my_viewport{my_theatre()->GetThinker<Viewport>(mViewportID)};
+    if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
         mInitCurrent and my_viewport->CurrentCamera2D().invalid())
             { my_viewport->SetCurrentCamera2D(mUID); }
 }
@@ -60,12 +60,12 @@ ID Camera2D::ViewportID() const
 { return mViewportID; }
 
 bool Camera2D::Current() const
-{ return my_theatre()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == mUID; }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == mUID; }
 
 Error Camera2D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
-    return my_theatre()
+    return Theatre::Current()
         ->GetThinker<Viewport>(mViewportID)
             ->SetCurrentCamera2D((isCurrent) ? mUID : ID::Invalid);
 }
@@ -79,14 +79,14 @@ void Camera2D::SetLayersMask(BitMask inLayersMask)
 void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor2D::OnAncestorRemoved(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
 {
     Actor2D::OnAncestorAdded(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }
 
@@ -104,8 +104,8 @@ glm::mat4 Camera2D::ProjectionMatrix() const
 {
     Scale2D upper{}, lower{},
         viewport_size{(mViewportID == UID::o_RootViewport)
-            ? my_theatre()->GetRootViewport()->Size()
-            : my_theatre()->GetThinker<Viewport>(mViewportID)->Size()};
+            ? Theatre::Current()->GetRootViewport()->Size()
+            : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
     if(mViewportID == UID::o_RootViewport
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)
     {

@@ -34,7 +34,7 @@ void EditorPlayer3D::Ready()
     bool _has_collider{false};
     for(ID child : Children())
     {
-        if(ThingFactory::IsDerivedFrom(my_theatre()->TypeOf(child), ThingType::Collider3D))
+        if(ThingFactory::IsDerivedFrom(Theatre::Current()->TypeOf(child), ThingType::Collider3D))
             { _has_collider = true; mMainColliderID = child; }
     }
     if(!_has_collider)
@@ -45,7 +45,7 @@ void EditorPlayer3D::Ready()
         coll_dat.set_variable(mLocalTransform.scale, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(ShapeType::Box, "Shape");
-        my_theatre()->SetParent(mMainColliderID = my_theatre()->CreateThing(coll_dat), mUID);
+        Theatre::Current()->SetParent(mMainColliderID = Theatre::Current()->CreateThing(coll_dat), mUID);
         mLocalTransform.scale = glm::vec3{1.0f};
     }
 }
@@ -65,7 +65,7 @@ void EditorPlayer3D::Tick()
     else
         { mMovementDirection.x = mMovementDirection.z = 0.0f; }
 
-    auto collider{my_theatre()->GetThinker<Collider3D>(mMainColliderID)};
+    auto collider{Theatre::Current()->GetThinker<Collider3D>(mMainColliderID)};
 
     glm::vec3 l_FrontBackVelocity{(mLocalTransform.quaternion * Settings::World::Front()) *
         mMovementDirection.z * Settings::Player::MovementSpeed};

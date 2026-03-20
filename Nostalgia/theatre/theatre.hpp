@@ -74,7 +74,6 @@ public:
             if(auto resource{DCast<T>(GetResource(ObjectID))})
                 { return resource; }
             auto output{MakeShared<T>()};
-            output->m_pRootTheatre = this;
             return output;
         }
 
@@ -84,7 +83,6 @@ public:
             if(auto thinker{DCast<T>(GetThinker(ObjectID))})
                 { return thinker; }
             auto output{MakeShared<T>()};
-            output->m_pRootTheatre = this;
             return output;
         }
 

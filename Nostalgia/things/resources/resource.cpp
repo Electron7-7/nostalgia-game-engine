@@ -26,8 +26,8 @@ Shared<FileData> Resource::Data()
 Error Resource::try_LoadFileDataFromVariable(Sarg inPath, Shared<FileData>& outData)
 {
     std::string file_path{inPath};
-    if(my_theatre()->WasLoadedFromFile() and FileSystem::IsFile(my_theatre()->TheatreFileDirectory() + inPath))
-        { file_path = my_theatre()->TheatreFileDirectory() + inPath; }
+    if(Theatre::Current()->WasLoadedFromFile() and FileSystem::IsFile(Theatre::Current()->TheatreFileDirectory() + inPath))
+        { file_path = Theatre::Current()->TheatreFileDirectory() + inPath; }
     else if(FileSystem::IsFile(FileSystem::GetProgramDirectory() + inPath))
         { file_path = FileSystem::GetProgramDirectory() + inPath; }
     else if(FileSystem::IsFile(FileSystem::GetAbsolute(inPath)))

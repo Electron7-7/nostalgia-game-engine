@@ -7,17 +7,17 @@ void Thinker::SetVariables(Farg<ThingData> inData)
     Thing::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
-    my_theatre()->SetParent(mUID, inData.get_parent());
+    Theatre::Current()->SetParent(mUID, inData.get_parent());
     for(FAUTO child : inData.get_children())
-        { my_theatre()->SetParent(child, mUID); }
+        { Theatre::Current()->SetParent(child, mUID); }
 }
 
 Shared<ThingData> Thinker::GetVariables() const
 {
     auto data{Thing::GetVariables()};
     data->set_variable(mVisible, "Visible");
-    data->set_variable(my_theatre()->GetParent(mUID), "Parent");
-    auto children{my_theatre()->GetChildren(mUID)};
+    data->set_variable(Theatre::Current()->GetParent(mUID), "Parent");
+    auto children{Theatre::Current()->GetChildren(mUID)};
     for(FAUTO child_id : children)
         { data->set_variable(child_id, "Child"); }
 
@@ -26,7 +26,7 @@ Shared<ThingData> Thinker::GetVariables() const
 
 bool Thinker::Visible() const
 {
-    if(Parent().invalid() or my_theatre()->GetThinker(Parent())->Visible())
+    if(Parent().invalid() or Theatre::Current()->GetThinker(Parent())->Visible())
         { return mVisible; }
     return false;
 }
@@ -37,24 +37,24 @@ void Thinker::SetVisible(bool inVisible)
 
 IdSet_t Thinker::Children() const
 {
-    if(!my_theatre()) { return {}; }
-    return my_theatre()->GetChildren(mUID);
+    if(!Theatre::Current()) { return {}; }
+    return Theatre::Current()->GetChildren(mUID);
 }
 
 ID Thinker::Parent() const
 {
-    if(!my_theatre()) { return {}; }
-    return my_theatre()->GetParent(mUID);
+    if(!Theatre::Current()) { return {}; }
+    return Theatre::Current()->GetParent(mUID);
 }
 
 Error Thinker::SetParent(ID inParentID)
 {
-    if(!my_theatre()) { return ERR_NULLPTR; }
-    return my_theatre()->SetParent(mUID, inParentID);
+    if(!Theatre::Current()) { return ERR_NULLPTR; }
+    return Theatre::Current()->SetParent(mUID, inParentID);
 }
 
 Error Thinker::DropParent()
 {
-    if(!my_theatre()) { return ERR_NULLPTR; }
-    return my_theatre()->DropParent(mUID);
+    if(!Theatre::Current()) { return ERR_NULLPTR; }
+    return Theatre::Current()->DropParent(mUID);
 }

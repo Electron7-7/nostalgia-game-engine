@@ -14,7 +14,7 @@ void Camera3D::Ready()
     {
         PID cam_mat{"camera-mat"};
         std::string cam_mat_name{"camera-debug-material"};
-        if(!my_theatre()->ThingExists(cam_mat_name))
+        if(!Theatre::Current()->ThingExists(cam_mat_name))
         {
             ThingData mat_data{ThingType::Material,
                 cam_mat_name,
@@ -23,40 +23,40 @@ void Camera3D::Ready()
             mat_data.set_variable(true, "FullBright");
             mat_data.set_variable(true, "NoTextures");
             mat_data.set_variable(glm::vec3{200.0f, 80.0f, 255.0f}, "Color");
-            my_theatre()->CreateThing(mat_data);
+            Theatre::Current()->CreateThing(mat_data);
         }
 
         std::string mesh_inst_name{mName + "-debug-mesh-instance"};
-        if(!my_theatre()->ThingExists(mesh_inst_name))
+        if(!Theatre::Current()->ThingExists(mesh_inst_name))
         {
             ThingData mesh_inst_data{ThingType::MeshInstance3D, mesh_inst_name};
             mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
             mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
-            mEditorMeshInstanceID = my_theatre()->CreateThing(mesh_inst_data);
+            mEditorMeshInstanceID = Theatre::Current()->CreateThing(mesh_inst_data);
         }
         else
-            { mEditorMeshInstanceID = my_theatre()->GetThing(mesh_inst_name)->uid(); }
-        my_theatre()->SetParent(mEditorMeshInstanceID, mUID);
+            { mEditorMeshInstanceID = Theatre::Current()->GetThing(mesh_inst_name)->uid(); }
+        Theatre::Current()->SetParent(mEditorMeshInstanceID, mUID);
     }
 
-    auto parent{my_theatre()->GetParent(mUID)};
+    auto parent{Theatre::Current()->GetParent(mUID)};
 
     if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
-        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
         else
         {
-            auto ancestors{my_theatre()->GetAllParents(mUID)};
+            auto ancestors{Theatre::Current()->GetAllParents(mUID)};
             for(ID parent : ancestors)
             {
-                if(parent != UID::o_RootViewport and my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+                if(parent != UID::o_RootViewport and Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
                     { mViewportID = parent; break; }
             }
         }
     }
 
-    if(auto my_viewport{my_theatre()->GetThinker<Viewport>(mViewportID)};
+    if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
         mInitCurrent and my_viewport->CurrentCamera3D().invalid())
             { my_viewport->SetCurrentCamera3D(mUID); }
 }
@@ -114,12 +114,12 @@ ID Camera3D::ViewportID() const
 { return mViewportID; }
 
 bool Camera3D::Current() const
-{ return my_theatre()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == mUID; }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == mUID; }
 
 Error Camera3D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
-    return my_theatre()
+    return Theatre::Current()
         ->GetThinker<Viewport>(mViewportID)
             ->SetCurrentCamera3D((isCurrent) ? mUID : ID::Invalid);
 }
@@ -141,7 +141,7 @@ glm::mat4 Camera3D::ViewMatrix() const
 glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
-        static_cast<float>(my_theatre()
+        static_cast<float>(Theatre::Current()
             ->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
@@ -154,13 +154,13 @@ ID Camera3D::EditorMeshInstanceID() const
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor3D::OnAncestorRemoved(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)
 {
     Actor3D::OnAncestorAdded(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

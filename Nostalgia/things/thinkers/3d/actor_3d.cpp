@@ -41,8 +41,8 @@ Shared<ThingData> Actor3D::GetVariables() const
 void Actor3D::Ready()
 {
     Thinker::Ready();
-    if(auto parent_id{my_theatre()->GetParent(mUID)};
-        parent_id.invalid() or not my_theatre()->DerivedFrom(parent_id, ThingType::Actor3D))
+    if(auto parent_id{Theatre::Current()->GetParent(mUID)};
+        parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor3D))
     {
         mGlobalTransform = mLocalTransform;
         _update_children_global_transform(true);
@@ -130,18 +130,18 @@ void Actor3D::_update_global_transform(Farg<Transform3D> inTransform)
 
 void Actor3D::_update_children_global_transform(bool isCalledFromReady)
 {
-    if(not my_theatre()->IsStarted() and not isCalledFromReady)
+    if(not Theatre::Current()->IsStarted() and not isCalledFromReady)
         { return; }
-    auto children{my_theatre()->GetChildren(mUID)};
+    auto children{Theatre::Current()->GetChildren(mUID)};
     for(auto child_id : children)
     {
-        if(not child_id.invalid() and my_theatre()->DerivedFrom(child_id, ThingType::Actor3D))
-            { my_theatre()->GetThinker<Actor3D>(child_id)->_update_global_transform(mGlobalTransform); }
+        if(not child_id.invalid() and Theatre::Current()->DerivedFrom(child_id, ThingType::Actor3D))
+            { Theatre::Current()->GetThinker<Actor3D>(child_id)->_update_global_transform(mGlobalTransform); }
     }
 }
 
 void Actor3D::OnChildAdded(Relative inChild)
 {
-    if(my_theatre()->DerivedFrom(inChild.uid(), ThingType::Actor3D))
-        { my_theatre()->GetThinker<Actor3D>(inChild.uid())->_update_global_transform(mGlobalTransform); }
+    if(Theatre::Current()->DerivedFrom(inChild.uid(), ThingType::Actor3D))
+        { Theatre::Current()->GetThinker<Actor3D>(inChild.uid())->_update_global_transform(mGlobalTransform); }
 }

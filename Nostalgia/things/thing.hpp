@@ -52,12 +52,6 @@ protected:
     std::string mName{"Untitled Thing"};
     PID mType{};
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
-
-    Theatre* my_theatre() const;
-
-private:
-    friend class Theatre;
-    Theatre* m_pRootTheatre{nullptr};
 };
 
 template<typename T>

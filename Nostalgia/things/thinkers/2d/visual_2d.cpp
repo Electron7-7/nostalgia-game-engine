@@ -6,10 +6,10 @@ using namespace TheatreFile;
 void Visual2D::Ready()
 {
     Actor2D::Ready();
-    auto ancestors{my_theatre()->GetAllParents(mUID)};
+    auto ancestors{Theatre::Current()->GetAllParents(mUID)};
     for(ID parent : ancestors)
     {
-        if(my_theatre()->DerivedFrom(parent, ThingType::Viewport))
+        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; break; }
     }
 }
@@ -57,13 +57,13 @@ void Visual2D::SetWireframe(bool inWireframe)
 void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
     Actor2D::OnAncestorRemoved(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Visual2D::OnAncestorAdded(Relative inAncestor)
 {
     Actor2D::OnAncestorAdded(inAncestor);
-    if(my_theatre()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

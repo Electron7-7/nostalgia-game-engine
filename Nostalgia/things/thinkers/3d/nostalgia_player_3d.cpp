@@ -25,14 +25,14 @@ void NostalgiaPlayer3D::Ready()
 
     for(ID child : Children())
     {
-        if(ThingFactory::IsDerivedFrom(my_theatre()->TypeOf(child), ThingType::Camera3D))
+        if(ThingFactory::IsDerivedFrom(Theatre::Current()->TypeOf(child), ThingType::Camera3D))
             { mCreateDefaultCamera = false; }
     }
 
     if(mCreateDefaultCamera)
     {
         std::string cam_name{"DefaultPlayerCam"};
-        if(!my_theatre()->ThingExists(cam_name))
+        if(!Theatre::Current()->ThingExists(cam_name))
         {
             TheatreFile::ThingData cam_dat{ThingType::Camera3D, cam_name};
             cam_dat.set_variable(glm::vec3{0.0f, 0.75f, 0.0f}, "Position");
@@ -42,22 +42,22 @@ void NostalgiaPlayer3D::Ready()
             {
                 cam_dat.set_variable(BitMask::all_enabled & ~0b10, "LayersMask");
                 std::string axis_name{"PlayerDebugAxisMesh"};
-                if(!my_theatre()->ThingExists(axis_name))
+                if(!Theatre::Current()->ThingExists(axis_name))
                 {
                     TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, axis_name};
                     axis_dat.set_variable(mUID, "Parent");
                     axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
                     axis_dat.set_variable(0b10, "Layers");
-                    my_theatre()->SetParent(my_theatre()->CreateThing(axis_dat), mUID);
+                    Theatre::Current()->SetParent(Theatre::Current()->CreateThing(axis_dat), mUID);
                 }
             }
-            mCameraID = my_theatre()->CreateThing(cam_dat);
+            mCameraID = Theatre::Current()->CreateThing(cam_dat);
         }
         else
-            { mCameraID = my_theatre()->GetThing(cam_name)->uid(); }
-        my_theatre()->SetParent(mCameraID, mUID);
+            { mCameraID = Theatre::Current()->GetThing(cam_name)->uid(); }
+        Theatre::Current()->SetParent(mCameraID, mUID);
     }
 
     if(not mCameraID.invalid())
-        { my_theatre()->GetRootViewport()->SetCurrentCamera3D(mCameraID); }
+        { Theatre::Current()->GetRootViewport()->SetCurrentCamera3D(mCameraID); }
 }
