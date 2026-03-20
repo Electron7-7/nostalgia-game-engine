@@ -2,6 +2,8 @@
 
 using Distribution_t = std::uniform_int_distribution<uint>;
 
+static IdSet_t sActiveIDs{};
+
 static constexpr frozen::set<uint, 21> s_cEngineRUIDs{
     UID::i_Missing(),
     UID::i_LightDebug(),
@@ -79,23 +81,23 @@ static Error sRegisterUID(ID inID, IdSet_t& ioActiveSet, uint inMaxActiveIDs)
 }
 
 Error UID::Generate(ID& outUID)
-{ return sGenerateUID(outUID, sDistributionUIDs, mActiveIDs, s_cMaxUIDs); }
+{ return sGenerateUID(outUID, sDistributionUIDs, sActiveIDs, s_cMaxUIDs); }
 
 bool UID::Contains(ID inID)
-{ return mActiveIDs.contains(inID); }
+{ return sActiveIDs.contains(inID); }
 
 bool UID::Erase(ID inID)
-{ return mActiveIDs.erase(inID); }
+{ return sActiveIDs.erase(inID); }
 
 bool UID::Push(ID inID)
 {
     return (IsReserved(inID))
         ? false
-        : mActiveIDs.insert(inID).second;
+        : sActiveIDs.insert(inID).second;
 }
 
 void UID::Clear()
-{ mActiveIDs.clear(); }
+{ sActiveIDs.clear(); }
 
 uint UID::GetRandom()
 { return sGetRandom(sDistributionUIDs); }

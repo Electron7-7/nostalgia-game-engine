@@ -105,7 +105,6 @@ protected:
         mVisual2DIDs{},
         mViewportIDs{};
     CallSheet mCallSheet{};
-    UID mUIDs{};
 
     Shared<Viewport> m_pRootViewport{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};

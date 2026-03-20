@@ -192,7 +192,7 @@ bool Theatre::Shutdown()
         DestroyThing(uid);
     }
     mNames.clear();
-    mUIDs.Clear();
+    UID::Clear();
     mCallSheet.Clear();
     mThings.clear();
     return !(mIsStarted = false);
@@ -502,9 +502,9 @@ void Theatre::SetupUID(ThingData& ioData)
     if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
         { ioData.uid = UID::o_Player; }
     else if(ioData.uid.invalid())
-        { print_error_enum(mUIDs.Generate(ioData.uid)); }
-    else if(not mUIDs.Contains(ioData.uid()))
-        { mUIDs.Push(ioData.uid()); }
+        { print_error_enum(UID::Generate(ioData.uid)); }
+    else if(not UID::Contains(ioData.uid()))
+        { UID::Push(ioData.uid()); }
     mCallSheet.Add(ioData.uid);
 }
 
@@ -609,7 +609,7 @@ Error Theatre::DestroyThingOnly(ID inID)
             break;
         }
     }
-    mUIDs.Erase(inID());
+    UID::Erase(inID());
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);

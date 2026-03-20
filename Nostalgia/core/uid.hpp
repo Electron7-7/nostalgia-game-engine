@@ -1,13 +1,12 @@
 #ifndef UID_H
 #define UID_H
 
-class UID
+namespace UID
 {
-public:
     enum class ReservedType : int
     { NotReserved = -1, Image = 0, Model = 1, Font = 2, Other = 3 };
 
-    static constexpr uint
+    constexpr uint
     // Reserved UID Boundaries
         reserved_front {0x0001},
         reserved_back  {0xFFFF}, // The total number of reserved UIDs allowed (65535)
@@ -24,7 +23,7 @@ public:
         front {reserved_back + 1},
         back  {static_cast<uint>(-1)};
 
-    static constexpr ID
+    constexpr ID
     // Reserved Engine Image UIDs
         i_Missing          {images_front + 0},
         i_LightDebug       {images_front + 1},
@@ -57,11 +56,11 @@ public:
     bool Push(ID inUID);
     void Clear();
 
-    static uint GetRandom();
-    static bool IsReserved(ID inRUID);
-    static ReservedType GetReservedType(ID inRUID);
+    uint GetRandom();
+    bool IsReserved(ID inRUID);
+    ReservedType GetReservedType(ID inRUID);
     /// Used to manually reserve an RUID (reserved UID).
-    static Error CreateReservedUID(ReservedType inType, ID inRUID);
+    Error CreateReservedUID(ReservedType inType, ID inRUID);
     /**
      * Generates a random RUID within the given `ReservedType` category.
      *
@@ -71,11 +70,8 @@ public:
      * not zero; while the programmer in me wants to remove this function to avoid conflicts, the creative
      * in me wants to leave it in to give the engine some "personality". That side won, today.
     **/
-    static Error GenerateReservedUID(ReservedType inType, ID& outRUID);
-    static Error EraseReservedUID(ID inRUID);
-
-private:
-    IdSet_t mActiveIDs{};
-};
+    Error GenerateReservedUID(ReservedType inType, ID& outRUID);
+    Error EraseReservedUID(ID inRUID);
+}
 
 #endif // UID_H
