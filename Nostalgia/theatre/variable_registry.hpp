@@ -28,16 +28,16 @@ public:
 
     void Init();
 
-    bool  try_GetID(Sarg inName, ID& outID);
-    bool  try_GetIDName(ID inID, std::string& outName);
-    ID    GetID(Sarg inName);
-    Sarg  GetIDName(ID inID);
+    bool  try_GetID(Sarg inName, ID& outID) const;
+    bool  try_GetIDName(ID inID, std::string& outName) const;
+    ID    GetID(Sarg inName) const;
+    Sarg  GetIDName(ID inID) const;
     Error RegisterID(Sarg inName, ID inID, bool doNoCopies = true);
     Error RemoveID(Sarg inName);
     Error RemoveID(ID);
     void  ClearIDs();
-    bool  HasID(ID);
-    bool  HasID(Sarg inName);
+    bool  HasID(ID) const;
+    bool  HasID(Sarg inName) const;
 
     static bool try_GetResourceData(Sarg inName, Shared<FileData>& outData);
     static bool try_GetResourceData(ID inID, Shared<FileData>& outData);
@@ -154,7 +154,8 @@ public:
 
 private:
     References mReferences{};
-    RMutex mReferencesMutex{};
+    // Evil mutable keyword usage
+    mutable RMutex mReferencesMutex{};
 
     void RegisterEngineReferences();
 

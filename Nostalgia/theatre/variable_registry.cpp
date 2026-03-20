@@ -41,7 +41,7 @@ Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums()
 Farg<VariableRegistry::ResourceData> VariableRegistry::GetRegisteredResourceData()
 { return m_sResourceData; }
 
-bool VariableRegistry::try_GetID(Sarg inName, ID& outID)
+bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     if(auto found_it{mReferences.find(inName)};
@@ -53,7 +53,7 @@ bool VariableRegistry::try_GetID(Sarg inName, ID& outID)
     return false;
 }
 
-bool VariableRegistry::try_GetIDName(ID inID, std::string& outName)
+bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     for(FAUTO [name, id] : mReferences)
@@ -67,7 +67,7 @@ bool VariableRegistry::try_GetIDName(ID inID, std::string& outName)
     return false;
 }
 
-bool VariableRegistry::HasID(ID inID)
+bool VariableRegistry::HasID(ID inID) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     for(FAUTO [name, id] : mReferences)
@@ -78,13 +78,13 @@ bool VariableRegistry::HasID(ID inID)
     return false;
 }
 
-bool VariableRegistry::HasID(Sarg inName)
+bool VariableRegistry::HasID(Sarg inName) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     return mReferences.contains(inName);
 };
 
-ID VariableRegistry::GetID(Sarg inName)
+ID VariableRegistry::GetID(Sarg inName) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     ID out{};
@@ -92,7 +92,7 @@ ID VariableRegistry::GetID(Sarg inName)
     return out;
 }
 
-Sarg VariableRegistry::GetIDName(ID inID)
+Sarg VariableRegistry::GetIDName(ID inID) const
 {
     LockGuard<RMutex> references_lock{mReferencesMutex};
     static PID invalid{};
