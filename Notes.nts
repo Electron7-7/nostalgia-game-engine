@@ -1296,3 +1296,6 @@ Oh, also, I wanna make stuff like the error mesh a default for resources that fa
 
 [03/13/26]
 Ugh, reserved UIDs and resource data registration are both fucked and need fixing.
+
+[03/19/26]
+Theatre needs to be a global singleton and probably just a way of interfacing with a global Thinker database. Yeah, there shouldn't ever be more than one Theatre, the Thinker database will be interfaced with via Theatre while the Resource database *can* be interfaced with via Theatre but can also be accessed globally. Theatre is like the world, the Thinker database is like an abstracted data format, and the Resource database is like a mixture of the two but focused for only Resources. Get rid of the variable registry, make UID global, and do all of these things one step at a time while compiling+running+testing everything. Don't try to do it all at once!
