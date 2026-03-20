@@ -32,133 +32,11 @@ VariableRegistry::ResourceData VariableRegistry::m_sResourceData{};
 
 VariableRegistry::VariableRegistry() noexcept = default;
 
-Farg<VariableRegistry::References> VariableRegistry::GetRegisteredIDs() const
-{ return mReferences; }
-
 Farg<VariableRegistry::Enums> VariableRegistry::GetRegisteredEnums()
 { return m_sEnums; }
 
 Farg<VariableRegistry::ResourceData> VariableRegistry::GetRegisteredResourceData()
 { return m_sResourceData; }
-
-bool VariableRegistry::try_GetID(Sarg inName, ID& outID) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    if(auto found_it{mReferences.find(inName)};
-        found_it != mReferences.end())
-    {
-        outID = found_it->second;
-        return true;
-    }
-    return false;
-}
-
-bool VariableRegistry::try_GetIDName(ID inID, std::string& outName) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    for(FAUTO [name, id] : mReferences)
-    {
-        if(id == inID)
-        {
-            outName = name.name();
-            return true;
-        }
-    }
-    return false;
-}
-
-bool VariableRegistry::HasID(ID inID) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    for(FAUTO [name, id] : mReferences)
-    {
-        if(inID == id)
-            { return true; }
-    }
-    return false;
-}
-
-bool VariableRegistry::HasID(Sarg inName) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    return mReferences.contains(inName);
-};
-
-ID VariableRegistry::GetID(Sarg inName) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    ID out{};
-    try_GetID(inName, out);
-    return out;
-}
-
-Sarg VariableRegistry::GetIDName(ID inID) const
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    static PID invalid{};
-    for(FAUTO [name, id] : mReferences)
-    {
-        if(inID == id)
-            { return name.name(); }
-    }
-    return invalid.name();
-}
-
-Error VariableRegistry::RegisterID(Sarg inName, ID inID, bool noCopies)
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    if(noCopies && mReferences.contains(inName))
-    {
-        print_error("{} is already registered to UID#{} (attempted to register it to UID#{})",
-            inName,
-            mReferences.at(inName)(),
-            inID());
-        return ERR_ALREADY_EXISTS;
-    }
-    mReferences[inName] = inID;
-    return OK;
-}
-
-Error VariableRegistry::RemoveID(Sarg inName)
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    if(auto found_it{mReferences.find(inName)}; found_it != mReferences.end())
-    {
-        mReferences.erase(found_it);
-        return OK;
-    }
-    return ERR_NOT_FOUND;
-}
-
-Error VariableRegistry::RemoveID(ID inID)
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    for(FARG(auto) [name, id] : mReferences)
-    {
-        if(inID == id)
-        {
-            mReferences.erase(name);
-            return OK;
-        }
-    }
-    return ERR_NOT_FOUND;
-}
-
-void VariableRegistry::Init()
-{
-    PRINT_PRETTY_FUNCTION;
-    RegisterEngineEnums();
-    RegisterEngineReferences();
-    RegisterEngineResourceData();
-}
-
-void VariableRegistry::ClearIDs()
-{
-    LockGuard<RMutex> references_lock{mReferencesMutex};
-    PRINT_PRETTY_FUNCTION;
-    mReferences.clear();
-    RegisterEngineReferences();
-}
 
 void VariableRegistry::ClearEnums()
 {
@@ -293,22 +171,6 @@ void VariableRegistry::RegisterEngineEnums()
     m_sEnums["CustomColor"]    = Environment::BG_CUSTOM_COLOR;
     m_sEnums["ClearColor"]     = Environment::BG_CLEAR_COLOR;
     m_sEnums["Skybox"]         = Environment::BG_SKYBOX;
-}
-
-void VariableRegistry::RegisterEngineReferences()
-{
-    mReferences["ErrorModel"]          = UID::m_Error;
-    mReferences["DefaultCube"]         = UID::m_Cube;
-    mReferences["DefaultQuad"]         = UID::m_Quad;
-    mReferences["RamielModel"]         = UID::m_Ramiel;
-    mReferences["CameraModel"]         = UID::m_Camera3D;
-    mReferences["DebugAxis"]           = UID::m_DebugAxis;
-    mReferences["MissingTexture"]      = UID::i_Missing;
-    mReferences["LolBitTexture"]       = UID::i_LolBit;
-    mReferences["LightTexture"]        = UID::i_LightDebug;
-    mReferences["DoomTexture"]         = UID::i_COMP04_5;
-    /// See `CubemapTexture::SetVariables` and `CubemapTexture::Ready` to learn how cubemap references work
-    mReferences["ShittySkyboxCubemap"] = UID::i_ShittySkyboxXn;
 }
 
 void VariableRegistry::RegisterEngineResourceData()

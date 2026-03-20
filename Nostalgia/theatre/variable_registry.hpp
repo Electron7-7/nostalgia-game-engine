@@ -17,27 +17,12 @@ public:
     };
 
     using ResourceData = std::map<PID, Shared<FileData>>;
-    using References   = std::map<PID, ID>;
     using Enums        = std::map<std::string, enum_pair>;
 
     VariableRegistry() noexcept;
 
-    Farg<References>          GetRegisteredIDs() const;
     static Farg<Enums>        GetRegisteredEnums();
     static Farg<ResourceData> GetRegisteredResourceData();
-
-    void Init();
-
-    bool  try_GetID(Sarg inName, ID& outID) const;
-    bool  try_GetIDName(ID inID, std::string& outName) const;
-    ID    GetID(Sarg inName) const;
-    Sarg  GetIDName(ID inID) const;
-    Error RegisterID(Sarg inName, ID inID, bool doNoCopies = true);
-    Error RemoveID(Sarg inName);
-    Error RemoveID(ID);
-    void  ClearIDs();
-    bool  HasID(ID) const;
-    bool  HasID(Sarg inName) const;
 
     static bool try_GetResourceData(Sarg inName, Shared<FileData>& outData);
     static bool try_GetResourceData(ID inID, Shared<FileData>& outData);
@@ -156,11 +141,8 @@ public:
     static void RegisterEngineResourceData();
 
 private:
-    References mReferences{};
     // Evil mutable keyword usage
     mutable RMutex mReferencesMutex{};
-
-    void RegisterEngineReferences();
 
     static Enums m_sEnums;
     static ResourceData m_sResourceData;
