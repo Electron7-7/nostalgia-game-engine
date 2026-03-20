@@ -152,7 +152,7 @@ void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight)
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "ambient_strength",  inLight->mAmbientStrength);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "attenuation",       inLight->mAttenuation);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "range",             inLight->mRange);
-    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "position",          inLight->Position());
+    GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "position",          inLight->GlobalPosition());
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "direction",         glm::quat{inLight->GlobalRotation()} * Settings::World::Front());
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "spot_cutoff",       glm::cos(glm::radians(inLight->mSpotAngle)));
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "spot_cutoff_fade",  glm::cos(glm::radians(inLight->mSpotAngle - inLight->mSpotAngleFade)));
