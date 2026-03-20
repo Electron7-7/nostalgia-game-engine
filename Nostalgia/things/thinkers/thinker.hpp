@@ -38,7 +38,6 @@ protected:
         { return uid.invalid() or type.invalid(); }
     };
 
-    RMutex mChildrenMutex{};
     bool mVisible{true};
 
     virtual void OnChildAdded(Relative) {}
