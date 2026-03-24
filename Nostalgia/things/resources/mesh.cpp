@@ -30,7 +30,7 @@ void Mesh::Ready()
 
 void Mesh::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
+    Super::SetVariables(data);
 
     if(std::string path{}; data.get_variable(path, "Model") == OK)
         { try_LoadFileDataFromVariable(path, m_pFileData); }
@@ -41,7 +41,7 @@ void Mesh::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Mesh::GetVariables() const
 {
-    auto data{Resource::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mMaterialID, "Material");
 

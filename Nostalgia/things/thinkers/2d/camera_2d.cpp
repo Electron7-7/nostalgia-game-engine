@@ -8,7 +8,7 @@ using namespace TheatreFile;
 
 void Camera2D::Ready()
 {
-    Actor2D::Ready();
+    Super::Ready();
     auto parent{Theatre::Current()->GetParent(mUID)};
 
     if(mViewportID == UID::o_RootViewport and not parent.invalid())
@@ -33,7 +33,7 @@ void Camera2D::Ready()
 
 void Camera2D::SetVariables(Farg<ThingData> data)
 {
-    Actor2D::SetVariables(data);
+    Super::SetVariables(data);
 
     if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
         { mLayersMask.set(bitmask); }
@@ -45,7 +45,7 @@ void Camera2D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Camera2D::GetVariables() const
 {
-    Shared<ThingData> data{Actor2D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
 
     data->set_variable(mLayersMask.get(), "RenderLayersMask");
     data->set_variable(mZoom, "Zoom");
@@ -78,14 +78,14 @@ void Camera2D::SetLayersMask(BitMask inLayersMask)
 
 void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
-    Actor2D::OnAncestorRemoved(inAncestor);
+    Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
 {
-    Actor2D::OnAncestorAdded(inAncestor);
+    Super::OnAncestorAdded(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

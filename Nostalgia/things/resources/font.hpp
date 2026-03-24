@@ -26,6 +26,7 @@ public:
 
     using GlyphsMap = std::unordered_map<char, Glyph>;
 
+    SUPER(Resource)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

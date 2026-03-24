@@ -7,7 +7,7 @@ using namespace TheatreFile;
 
 void Font::Ready()
 {
-    Resource::Ready();
+    Super::Ready();
 
     VariableRegistry::try_GetResourceData(mUID, m_pFileData);
 
@@ -71,7 +71,7 @@ void Font::Ready()
 
 void Font::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
+    Super::SetVariables(data);
 
     if(std::string path{}; data.get_variable(path, "Font") == OK)
         { try_LoadFileDataFromVariable(path, m_pFileData); }
@@ -81,7 +81,7 @@ void Font::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Font::GetVariables() const
 {
-    auto data{Resource::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mFontSize, "Height");
 

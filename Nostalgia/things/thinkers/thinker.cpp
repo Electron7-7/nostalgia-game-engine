@@ -4,7 +4,7 @@ using namespace TheatreFile;
 
 void Thinker::SetVariables(Farg<ThingData> inData)
 {
-    Thing::SetVariables(inData);
+    Super::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
     Theatre::Current()->SetParent(mUID, inData.get_parent());
@@ -14,7 +14,7 @@ void Thinker::SetVariables(Farg<ThingData> inData)
 
 Shared<ThingData> Thinker::GetVariables() const
 {
-    auto data{Thing::GetVariables()};
+    auto data{Super::GetVariables()};
     data->set_variable(mVisible, "Visible");
     data->set_variable(Theatre::Current()->GetParent(mUID), "Parent");
     auto children{Theatre::Current()->GetChildren(mUID)};

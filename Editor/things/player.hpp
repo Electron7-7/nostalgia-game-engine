@@ -7,10 +7,12 @@
 class EditorPlayer3D : public NostalgiaPlayer3D
 {
 public:
+    SUPER(NostalgiaPlayer3D)
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
+
     virtual void Tick() override;
-    virtual void Ready() override;
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};

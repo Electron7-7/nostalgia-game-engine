@@ -22,7 +22,7 @@ void Viewport::Ready()
 
 void Viewport::SetVariables(Farg<ThingData> data)
 {
-    Thinker::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mCurrentCamera3D, "CurrentCamera3D");
     data.get_variable(mCurrentCamera2D, "CurrentCamera2D");
@@ -32,7 +32,7 @@ void Viewport::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Viewport::GetVariables() const
 {
-    auto data{Thinker::GetVariables()};
+    auto data{Super::GetVariables()};
 
     if(not mCurrentCamera3D.invalid())
         { data->set_variable(mCurrentCamera3D, "CurrentCamera3D"); }

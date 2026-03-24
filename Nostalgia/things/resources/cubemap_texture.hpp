@@ -8,6 +8,7 @@ class CubemapTexture : public Texture
 public:
     using images_t = std::array<Shared<FileData>, 6>;
 
+    SUPER(Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

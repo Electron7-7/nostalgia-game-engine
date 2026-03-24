@@ -5,7 +5,7 @@ using namespace TheatreFile;
 
 void CubemapTexture::SetVariables(Farg<ThingData> data)
 {
-    Texture::SetVariables(data);
+    Super::SetVariables(data);
     m_pFileData = nullptr;
     for(uint i{0}; i < 6; ++i)
     {
@@ -19,7 +19,7 @@ void CubemapTexture::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> CubemapTexture::GetVariables() const
 {
-    Shared<ThingData> data{Texture::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     uint i{0};
     for(FAUTO image : m_pImages)
     {

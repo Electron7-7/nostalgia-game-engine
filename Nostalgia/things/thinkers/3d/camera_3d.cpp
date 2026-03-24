@@ -8,7 +8,7 @@ using namespace TheatreFile;
 
 void Camera3D::Ready()
 {
-    Actor3D::Ready();
+    Super::Ready();
     // the debug mesh/material shouldn't override a manually specificed one
     if(Settings::Engine::IsEditorHint)
     {
@@ -63,7 +63,7 @@ void Camera3D::Ready()
 
 void Camera3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
+    Super::SetVariables(data);
 
     if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
         { mLayersMask.set(bitmask); }
@@ -91,7 +91,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Camera3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
 
     data->set_variable(mLayersMask.get(), "RenderLayersMask");
     data->set_variable(mFOV, "FOV");
@@ -153,14 +153,14 @@ ID Camera3D::EditorMeshInstanceID() const
 
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
-    Actor3D::OnAncestorRemoved(inAncestor);
+    Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)
 {
-    Actor3D::OnAncestorAdded(inAncestor);
+    Super::OnAncestorAdded(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

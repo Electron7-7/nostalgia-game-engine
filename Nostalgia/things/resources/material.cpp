@@ -4,7 +4,7 @@ using namespace TheatreFile;
 
 void Material::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mDiffuseTextureID, "DiffuseTexture");
     data.get_variable(mSpecularTextureID, "SpecularTexture");
@@ -17,7 +17,7 @@ void Material::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Material::GetVariables() const
 {
-    Shared<ThingData> data{Resource::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
 
     data->set_variable(mDiffuseTextureID, "DiffuseTexture");
     data->set_variable(mSpecularTextureID, "SpecularTexture");

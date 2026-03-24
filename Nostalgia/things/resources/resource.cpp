@@ -4,14 +4,14 @@ using namespace TheatreFile;
 
 void Resource::SetVariables(Farg<ThingData> inData)
 {
-    Thing::SetVariables(inData);
+    Super::SetVariables(inData);
     if(std::string path{}; inData.get_variable(path, "File", "Data", "Path") == OK)
         { mStatus = try_LoadFileDataFromVariable(path, m_pFileData); }
 }
 
 Shared<ThingData> Resource::GetVariables() const
 {
-    Shared<ThingData> data{Thing::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     if(m_pFileData->HasPath())
         { data->set_variable(m_pFileData->Path(), "File"); }
     return data;

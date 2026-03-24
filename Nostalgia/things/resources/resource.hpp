@@ -5,8 +5,9 @@
 class Resource : public Thing
 {
 public:
-    virtual void SetVariables(Farg<TheatreFile::ThingData> inData) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    SUPER(Thing)
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     Error Status() const;
     Shared<FileData> Data();

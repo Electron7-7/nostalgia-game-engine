@@ -22,7 +22,7 @@ void Light3D::ClearCounts()
 
 void Light3D::Ready()
 {
-    Visual3D::Ready();
+    Super::Ready();
 
     if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
@@ -60,7 +60,7 @@ void Light3D::Ready()
 
 void Light3D::SetVariables(Farg<ThingData> data)
 {
-    Visual3D::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mColor, "Color");
     data.get_variable(mEnergy, "Energy");
@@ -76,7 +76,7 @@ void Light3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Light3D::GetVariables() const
 {
-    Shared<ThingData> data{Visual3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
 
     data->set_variable(mColor, "Color");
     data->set_variable(mEnergy, "Energy");
@@ -95,29 +95,29 @@ int Light3D::Index() const
 { return mIndex; }
 
 int PointLight3D::GetCount()
-{ return Light3D::sPointCount;}
+{ return Super::sPointCount;}
 
 bool PointLight3D::IncrementIndex()
 {
-    if(!mEnabled || Light3D::sPointCount >= MAX_POINT)
+    if(!mEnabled || Super::sPointCount >= MAX_POINT)
         { return false; }
-    mIndex = Light3D::sPointCount++;
+    mIndex = Super::sPointCount++;
     return true;
 }
 
 int SpotLight3D::GetCount()
-{ return Light3D::sSpotCount;}
+{ return Super::sSpotCount;}
 
 void SpotLight3D::SetVariables(Farg<ThingData> data)
 {
-    Light3D::SetVariables(data);
+    Super::SetVariables(data);
     data.get_variable(mSpotAngle, "SpotAngle");
     data.get_variable(mSpotAngleFade, "SpotAngleFade");
 }
 
 Shared<ThingData> SpotLight3D::GetVariables() const
 {
-    Shared<ThingData> data{Light3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     data->set_variable(mSpotAngle, "SpotAngle");
     data->set_variable(mSpotAngleFade, "SpotAngleFade");
     return data;
@@ -125,26 +125,26 @@ Shared<ThingData> SpotLight3D::GetVariables() const
 
 bool SpotLight3D::IncrementIndex()
 {
-    if(!mEnabled || Light3D::sSpotCount >= MAX_SPOT)
+    if(!mEnabled || Super::sSpotCount >= MAX_SPOT)
         { return false; }
-    mIndex = Light3D::sSpotCount++;
+    mIndex = Super::sSpotCount++;
     return true;
 }
 
 int DirectionalLight3D::GetCount()
-{ return Light3D::sDirectionalCount;}
+{ return Super::sDirectionalCount;}
 
 void DirectionalLight3D::SetVariables(Farg<ThingData> data)
 {
     SetRotationDegrees({-90.0f, 0.0f, 0.0f});
-    Light3D::SetVariables(data);
+    Super::SetVariables(data);
     mVisible = false;
     data.get_variable(mVisible, "ShowDirectionalLightDebugMesh", "ShowLightMeshOverride");
 }
 
 Shared<ThingData> DirectionalLight3D::GetVariables() const
 {
-    Shared<ThingData> data{Light3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     if(mVisible)
         { data->set_variable(mVisible, "ShowDirectionalLightDebugMesh"); }
     return data;
@@ -152,7 +152,7 @@ Shared<ThingData> DirectionalLight3D::GetVariables() const
 
 bool DirectionalLight3D::IncrementIndex()
 {
-    if(!mEnabled || Light3D::sDirectionalCount >= MAX_DIRECTIONAL)
+    if(!mEnabled || Super::sDirectionalCount >= MAX_DIRECTIONAL)
         { return false; }
     mIndex = Light3D::sDirectionalCount++;
     return true;

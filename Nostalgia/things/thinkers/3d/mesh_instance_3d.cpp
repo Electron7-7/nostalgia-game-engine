@@ -4,7 +4,7 @@ using namespace TheatreFile;
 
 void MeshInstance3D::SetVariables(Farg<ThingData> data)
 {
-    Visual3D::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mMeshID, "Mesh");
     data.get_variable(mMaterialOverrideID, "MaterialOverride", "Material");
@@ -13,7 +13,7 @@ void MeshInstance3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> MeshInstance3D::GetVariables() const
 {
-    auto data{Visual3D::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mMeshID, "Mesh");
     data->set_variable(mMaterialOverrideID, "MaterialOverride");

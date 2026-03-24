@@ -8,20 +8,20 @@ using namespace TheatreFile;
 
 void NostalgiaPlayer3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
+    Super::SetVariables(data);
     data.get_variable(mCreateDefaultCamera, "NoDefaultCamera", "NoCamera");
 }
 
 Shared<ThingData> NostalgiaPlayer3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     data->set_variable(mCreateDefaultCamera, "NoDefaultCamera");
     return data;
 }
 
 void NostalgiaPlayer3D::Ready()
 {
-    Actor3D::Ready();
+    Super::Ready();
 
     for(ID child : Children())
     {

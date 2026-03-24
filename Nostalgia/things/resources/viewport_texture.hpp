@@ -6,9 +6,10 @@
 class ViewportTexture : public Texture
 {
 public:
+    SUPER(Texture)
+    READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-    READY_OVERRIDE
 
     virtual Error Import() override;
     virtual Shared<TextureBuffer> GetBuffer() const override;

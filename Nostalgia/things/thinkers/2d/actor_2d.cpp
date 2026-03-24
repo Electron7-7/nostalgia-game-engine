@@ -5,7 +5,7 @@ using namespace TheatreFile;
 
 void Actor2D::SetVariables(Farg<ThingData> data)
 {
-    Thinker::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mLocalTransform.position, "Position", "Origin");
     data.get_variable(mLocalTransform.scale, "Scale", "Size", "OuuughImSoBigAndRound");
@@ -20,7 +20,7 @@ void Actor2D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Actor2D::GetVariables() const
 {
-    auto data{Thinker::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mLocalTransform.position, "Position");
     data->set_variable(mLocalTransform.scale, "Scale");
@@ -34,7 +34,7 @@ Shared<ThingData> Actor2D::GetVariables() const
 
 void Actor2D::Ready()
 {
-    Thinker::Ready();
+    Super::Ready();
     if(auto parent_id{Theatre::Current()->GetParent(mUID)};
         parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor2D))
     {

@@ -59,7 +59,7 @@ Shared<JPH::BodyCreationSettings> Collider3D::CreationSettings()
 
 void Collider3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mShape, "Shape", "ColliderShape", "BodyShape");
     data.get_variable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
@@ -83,7 +83,7 @@ void Collider3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Collider3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor3D::GetVariables()};
+    Shared<ThingData> data{Super::GetVariables()};
     data->set_variable(mShape, "Shape");
     data->set_variable(mMotion, "Motion");
     data->set_variable(mMass, "Mass");
@@ -94,7 +94,7 @@ Shared<ThingData> Collider3D::GetVariables() const
 
 void Collider3D::Ready()
 {
-    Actor3D::Ready();
+    Super::Ready();
 }
 
 void Collider3D::Shutdown()
@@ -103,7 +103,7 @@ void Collider3D::Shutdown()
     print_jolt("Physics Body Destroyed [{}, {}]",
         EnumPrettifier::Prettify(mShape),
         EnumPrettifier::Prettify(mMotion));
-    Actor3D::Shutdown();
+    Super::Shutdown();
 }
 
 void Collider3D::Tick()
@@ -119,9 +119,9 @@ void Collider3D::Tick()
         ->BodyInterface()
             .GetCenterOfMassPosition(mBodyID))};
     if(new_quat != mLocalTransform.quaternion)
-        { Actor3D::SetQuaternion(new_quat); }
+        { Super::SetQuaternion(new_quat); }
     if(new_pos != mLocalTransform.position)
-        { Actor3D::SetPosition(new_pos); }
+        { Super::SetPosition(new_pos); }
 }
 
 Farg<ColliderMaterial> Collider3D::Material() const
@@ -150,7 +150,7 @@ bool Collider3D::ActivateOnNextChange() const
 
 void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
-    Actor3D::SetPosition(inPosition);
+    Super::SetPosition(inPosition);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
@@ -160,7 +160,7 @@ void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 
 void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
-    Actor3D::SetQuaternion(inQuaternion);
+    Super::SetQuaternion(inQuaternion);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
@@ -170,7 +170,7 @@ void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 
 void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 {
-    Actor3D::SetRotation(inRotation);
+    Super::SetRotation(inRotation);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
@@ -180,7 +180,7 @@ void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 
 void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
-    Actor3D::SetRotationDegrees(inRotation);
+    Super::SetRotationDegrees(inRotation);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),
@@ -190,7 +190,7 @@ void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 
 void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
-    Actor3D::SetScale(inScale);
+    Super::SetScale(inScale);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTransform.position),
         Math::Convert<Quat>(mLocalTransform.quaternion),

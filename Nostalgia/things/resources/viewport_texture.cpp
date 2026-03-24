@@ -6,7 +6,7 @@ using namespace TheatreFile;
 
 void ViewportTexture::SetVariables(Farg<ThingData> data)
 {
-    Thing::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mViewportID, "Viewport");
 }

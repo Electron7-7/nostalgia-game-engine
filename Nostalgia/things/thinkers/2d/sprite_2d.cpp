@@ -4,14 +4,14 @@ using namespace TheatreFile;
 
 void Sprite2D::SetVariables(Farg<ThingData> data)
 {
-    Visual2D::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mTextureID, "Texture", "Sprite");
 }
 
 Shared<ThingData> Sprite2D::GetVariables() const
 {
-    auto data{Visual2D::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mTextureID, "Texture");
 

@@ -5,7 +5,7 @@ using namespace TheatreFile;
 
 void Visual3D::Ready()
 {
-    Actor3D::Ready();
+    Super::Ready();
     auto ancestors{Theatre::Current()->GetAllParents(mUID)};
     for(ID parent : ancestors)
     {
@@ -16,7 +16,7 @@ void Visual3D::Ready()
 
 void Visual3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
+    Super::SetVariables(data);
 
     if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
         { mVisualLayers.set(layers); }
@@ -26,7 +26,7 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Visual3D::GetVariables() const
 {
-    auto data{Actor3D::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
     data->set_variable(mDebugHighlight, "DebugHighlight");
@@ -48,14 +48,14 @@ void Visual3D::Viewport(ID inID)
 
 void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
-    Actor3D::OnAncestorRemoved(inAncestor);
+    Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)
 {
-    Actor3D::OnAncestorAdded(inAncestor);
+    Super::OnAncestorAdded(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

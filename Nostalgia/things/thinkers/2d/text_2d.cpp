@@ -4,7 +4,7 @@ using namespace TheatreFile;
 
 void Text2D::SetVariables(Farg<ThingData> data)
 {
-    Visual2D::SetVariables(data);
+    Super::SetVariables(data);
 
     data.get_variable(mDebugSolid, "Solid");
     data.get_variable(mDebugOutline, "Outline");
@@ -16,7 +16,7 @@ void Text2D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Text2D::GetVariables() const
 {
-    auto data{Visual2D::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mDebugSolid, "Solid");
     data->set_variable(mDebugOutline, "Outline");

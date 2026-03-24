@@ -5,7 +5,7 @@ using namespace TheatreFile;
 
 void Visual2D::Ready()
 {
-    Actor2D::Ready();
+    Super::Ready();
     auto ancestors{Theatre::Current()->GetAllParents(mUID)};
     for(ID parent : ancestors)
     {
@@ -16,7 +16,7 @@ void Visual2D::Ready()
 
 void Visual2D::SetVariables(Farg<ThingData> data)
 {
-    Actor2D::SetVariables(data);
+    Super::SetVariables(data);
 
     if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
         { mVisualLayers.set(layers); }
@@ -27,7 +27,7 @@ void Visual2D::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Visual2D::GetVariables() const
 {
-    auto data{Actor2D::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
     data->set_variable(mDebugHighlight, "DebugHighlight");
@@ -56,14 +56,14 @@ void Visual2D::SetWireframe(bool inWireframe)
 
 void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
-    Actor2D::OnAncestorRemoved(inAncestor);
+    Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = UID::o_RootViewport; }
 }
 
 void Visual2D::OnAncestorAdded(Relative inAncestor)
 {
-    Actor2D::OnAncestorAdded(inAncestor);
+    Super::OnAncestorAdded(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }
