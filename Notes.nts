@@ -1297,10 +1297,42 @@ Oh, also, I wanna make stuff like the error mesh a default for resources that fa
 [03/13/26]
 Ugh, reserved UIDs and resource data registration are both fucked and need fixing.
 
+[03/15/26]
+I need to implement a resource manager. Resources will be separated from Thinkers and will *not* be beholden to a Theatre. They will be always available (unless I implement Godot's RefCounted feature) and will use a separate ID system that will help differentiate them from Thinkers (or will just be used directly via shared pointers). I'm thinking that any loaded Theatre will store the IDs of the resources it creates and will make sure to de-load them while shutting down. That way there's no memory leaks, but the resources aren't being managed by the Theatre.
+
+[03/16/26]
+Today I'm gonna start with the redesign of Resource and Texture as well as the implementation of Image and Texture2D + ImageTexture. Then I'll move on to the resource manager.
+
+I finished Image, and I think now I need to implement the resource manager. Texture is going to need to use Images and in order to do so properly, I'll need the resource manager; specifically, I'll need changes to ThingData that allow the usage of Resource pointers as variables and those will require the resource manager.
+
+I think that all IDs should be managed/registered to a singular static class. Thing data will use this class to get the ID for Thinker and Resource references, but will use Theatre and the resource manager for actually getting the respective pointers (or, in the case of Thinkers, it'll just stick with the ID for now).
+
+[03/17/26]
+I'm going to make `GetThing`, `GetThinker`, and `GetResource` all not part of `Theatre` and will each call on the appropriate database. There will be a `Thinker` database, managed by the current `Theatre`. Each database will contain the actual shared pointers.
+
+Almost done; just need to figure out data formats, finish creating/converting Resource types, and other shit like that.
+
+Skimmed through these notes and it's really motivating to see just how much I've improved. Like, I was reading some of these notes and going "oh wow, I had no idea what I was doing", but none of these notes are even a year old at this point. I've gone from barely knowing how to program a working application with a terribly bloated Makefile and really amateurish code to, well, this. Nostalgia is in the best state it's ever been and it's starting to more closely resemble something like Godot. I'm really fucking excited for what's next.
+
+Time to take a break before I burn out, though.
+
+[03/18/26]
+Finishing up the Resources today. I think I might be finished with the textures.
+
+Okay, finally got it compiling. Lots of errors and issues, but I think it's just due to moving a bunch of code from Theatre to the databases. I'll work this out tomorrow, though, I'm starting to get burnt out :3.
+
 [03/19/26]
+I'm going to make a separate branch and start slowly bringing changes over to it. I made way too many changes at once and while I don't want to throw it all away and start from scratch, I'd like to do a bit of a soft restart.
+
 Theatre needs to be a global singleton and probably just a way of interfacing with a global Thinker database. Yeah, there shouldn't ever be more than one Theatre, the Thinker database will be interfaced with via Theatre while the Resource database *can* be interfaced with via Theatre but can also be accessed globally. Theatre is like the world, the Thinker database is like an abstracted data format, and the Resource database is like a mixture of the two but focused for only Resources. Get rid of the variable registry, make UID global, and do all of these things one step at a time while compiling+running+testing everything. Don't try to do it all at once!
 
 [03/20/26]
 Okay, let's do this.
 
 All right, so far I've been able to remove the VariableRegistry variable from Theatre, as well as totally remove all "reference" related code from the registry class. Now I have to decide where to go from here. I could try changing how UID works, making it more static and removing it from Theatre. Actually, yeah, I think that's a good next step.
+
+[03/23/26]
+Had a big think, and I think that while I was kinda on the right track, the real issue is a lot deeper: there's no set-up phase. A lot of these problems are kind of the same: data is needed that isn't available. That's due to there not being a set-up phase. I think if I were to re-do my changes to Theatre which made it more of a global/singleton and *then* implement a proper set-up phase, that would solve a lot of my problems and pave the way for the improvements I wanted to make.
+
+[03/24/26]
+Also, I want to make `FileData` a valid `get_variable`/`set_variable` input, and have that be what the variable registry is for (well, that and enums).
