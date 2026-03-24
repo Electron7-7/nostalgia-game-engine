@@ -240,6 +240,8 @@ void ImGui_Editor::Update()
             }
             EndMenuBar();
         }
+        if(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+            { End(); return; }
         auto viewport{g_pTheatreManager->Current()->GetThinker<Viewport>(sEditorViewportID)};
         if(viewport->uid().invalid())
             { End(); return; }
