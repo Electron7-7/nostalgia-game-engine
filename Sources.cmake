@@ -166,7 +166,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/thinkers/2d/visual_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/2d/sprite_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/2d/actor_2d.hpp
-    ${NOSTALGIA_ROOT}/things/thinkers/2d/mesh_instance_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/2d/text_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/2d/camera_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/thinker.hpp
