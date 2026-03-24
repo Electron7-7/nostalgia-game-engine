@@ -506,6 +506,8 @@ void Theatre::SetupUID(ThingData& ioData)
     else if(not UID::Contains(ioData.uid()))
         { UID::Push(ioData.uid()); }
     mCallSheet.Add(ioData.uid);
+    if(not ioData.name.empty())
+        { mNames[ioData.name] = ioData.uid; }
 }
 
 void Theatre::SetupOwnership(Farg<ThingData> ioData)
