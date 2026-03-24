@@ -5,8 +5,8 @@ using namespace TheatreFile;
 Thing::Thing()  noexcept = default;
 Thing::~Thing() noexcept = default;
 
-Thing::Thing(Farg<TheatreFile::ThingData> data) noexcept:
-    mUID{data.uid}, mName{data.name}, mType{data.type}
+Thing::Thing(FPID inType, Sarg inName, ID inUID) noexcept:
+    mUID{inUID}, mName{inName}, mType{inType}
 {
     if(mUID.invalid())
         { print_error_enum(UID::Generate(mUID)); }

@@ -23,7 +23,7 @@ public:
     bool mIsHoveredInDebugger{false};
 
     Thing() noexcept;
-    Thing(Farg<TheatreFile::ThingData>) noexcept;
+    Thing(FPID inType, Sarg inName, ID inUID = {}) noexcept;
     virtual ~Thing() noexcept;
 
     virtual void Init() {}
