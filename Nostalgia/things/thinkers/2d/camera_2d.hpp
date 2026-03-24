@@ -6,10 +6,10 @@
 class Camera2D : public Actor2D
 {
 public:
-    virtual void Ready() override;
-
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    SUPER(Actor2D)
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     Farg<glm::vec2> Zoom() const;
     void SetZoom(Farg<glm::vec2>);

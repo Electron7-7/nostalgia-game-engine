@@ -6,6 +6,9 @@ class Theatre;
 /// Forward Declaration
 class InputEvent;
 
+#define SUPER(Class) \
+    using Super = Class; \
+    using Class::Class;
 #define SET_VARIABLES_OVERRIDE \
     virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
 #define GET_VARIABLES_OVERRIDE \
@@ -20,6 +23,7 @@ public:
     bool mIsHoveredInDebugger{false};
 
     Thing() noexcept;
+    Thing(Farg<TheatreFile::ThingData>) noexcept;
     virtual ~Thing() noexcept;
 
     virtual void Init() {}

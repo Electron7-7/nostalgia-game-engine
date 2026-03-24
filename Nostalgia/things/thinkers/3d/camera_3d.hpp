@@ -7,15 +7,15 @@
 class Camera3D : public Actor3D
 {
 public:
+    SUPER(Actor3D)
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
+
     float mFOV{75.0f},
         mViewCutoffNear{0.01f},
         mViewCutoffFar{1000.0f};
     Environment mEnvironment{};
-
-    virtual void Ready() override;
-
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     virtual ID ViewportID() const;
 

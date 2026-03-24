@@ -6,8 +6,9 @@
 class Sprite2D : public Visual2D
 {
 public:
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    SUPER(Visual2D)
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     virtual ID TextureID() const;
     virtual void SetTextureID(ID);

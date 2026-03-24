@@ -6,11 +6,12 @@
 class Text2D : public Visual2D
 {
 public:
-    bool mDebugSolid{false};
-    bool mDebugOutline{false};
-
+    SUPER(Visual2D)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
+
+    bool mDebugSolid{false};
+    bool mDebugOutline{false};
 
     virtual Sarg Text() const;
     virtual void SetText(Sarg);

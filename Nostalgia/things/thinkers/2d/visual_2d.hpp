@@ -6,9 +6,10 @@
 class Visual2D : public Actor2D
 {
 public:
+    SUPER(Actor2D)
+    READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-    READY_OVERRIDE
 
     virtual BitMask Layers() const;
     virtual void SetLayers(BitMask inVisualLayers);

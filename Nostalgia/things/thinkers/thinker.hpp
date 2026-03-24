@@ -5,8 +5,9 @@
 class Thinker : public Thing
 {
 public:
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+    SUPER(Thing)
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool Visible() const;
     void SetVisible(bool);

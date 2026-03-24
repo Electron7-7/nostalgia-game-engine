@@ -20,12 +20,11 @@ struct ColliderMaterial
 class Collider3D : public Actor3D
 {
 public:
-    Farg<JPH::BodyID> id() const;
-    Shared<JPH::BodyCreationSettings> CreationSettings();
+    SUPER(Actor3D)
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
-    virtual void Ready() override;
     virtual void Shutdown() override;
     virtual void Tick() override;
 
@@ -56,6 +55,9 @@ public:
     virtual void AddImpulse(Farg<glm::vec3> inImpulse, Farg<glm::vec3> inPoint);
     virtual void AddAngularImpulse(Farg<glm::vec3> inAngularImpulse);
     virtual void SetLinearVelocity(Farg<glm::vec3> inLinearVelocity);
+
+    Farg<JPH::BodyID> id() const;
+    Shared<JPH::BodyCreationSettings> CreationSettings();
 
 protected:
     friend class PhysicsEngine;

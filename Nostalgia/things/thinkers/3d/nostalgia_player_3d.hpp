@@ -6,6 +6,7 @@
 class NostalgiaPlayer3D : public Actor3D
 {
 public:
+    SUPER(Actor3D)
     READY_OVERRIDE
     GET_VARIABLES_OVERRIDE
     SET_VARIABLES_OVERRIDE

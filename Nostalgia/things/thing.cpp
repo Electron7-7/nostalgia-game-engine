@@ -5,6 +5,17 @@ using namespace TheatreFile;
 Thing::Thing()  noexcept = default;
 Thing::~Thing() noexcept = default;
 
+Thing::Thing(Farg<TheatreFile::ThingData> data) noexcept:
+    mUID{data.uid}, mName{data.name}, mType{data.type}
+{
+    if(mUID.invalid())
+        { print_error_enum(UID::Generate(mUID)); }
+    if(mName.empty())
+        { mName = std::format("Untitled_Thing#{}", mUID()); }
+    if(mType.invalid())
+        { mType = ThingType::Thing; }
+}
+
 void Thing::SetVariables(Farg<ThingData> data)
 {
     mUID  = data.uid;

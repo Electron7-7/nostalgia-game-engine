@@ -6,6 +6,7 @@
 class Viewport : public Thinker
 {
 public:
+    SUPER(Thinker)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

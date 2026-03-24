@@ -14,14 +14,15 @@ enum class LightType : int
 class Light3D : public Visual3D
 {
 public:
+    SUPER(Visual3D)
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
+
     static void ClearCounts();
 
     virtual bool IncrementIndex() { return false; }
     virtual LightType Type() const { return LightType::NONE; }
-
-    virtual void Ready() override;
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
     int Index() const;
 
@@ -50,6 +51,8 @@ protected:
 class PointLight3D : public Light3D
 {
 public:
+    SUPER(Light3D)
+
     static int GetCount();
 
     bool IncrementIndex() final;
@@ -59,10 +62,11 @@ public:
 class SpotLight3D : public Light3D
 {
 public:
-    static int GetCount();
+    SUPER(Light3D)
 
-    void SetVariables(Farg<TheatreFile::ThingData>) override;
-    Shared<TheatreFile::ThingData> GetVariables() const override;
+    static int GetCount();
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::SPOT; }
@@ -71,10 +75,11 @@ public:
 class DirectionalLight3D : public Light3D
 {
 public:
-    static int GetCount();
+    SUPER(Light3D)
 
-    void SetVariables(Farg<TheatreFile::ThingData>) override;
-    Shared<TheatreFile::ThingData> GetVariables() const override;
+    static int GetCount();
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
     LightType Type() const final { return LightType::DIRECTIONAL; }

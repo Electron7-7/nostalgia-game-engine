@@ -6,6 +6,7 @@
 class MeshInstance2D : public Visual2D
 {
 public:
+    // SUPER(Visual2D)
 
 };
 
