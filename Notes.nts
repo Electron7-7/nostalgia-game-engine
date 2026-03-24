@@ -1336,3 +1336,5 @@ Had a big think, and I think that while I was kinda on the right track, the real
 
 [03/24/26]
 Also, I want to make `FileData` a valid `get_variable`/`set_variable` input, and have that be what the variable registry is for (well, that and enums).
+
+All right, time to add that `FileData` input and start changing how Resources work.
