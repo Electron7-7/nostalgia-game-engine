@@ -114,8 +114,8 @@ protected:
     void SetupUID(TheatreFile::ThingData&);
 
     void  CreateEmbeddedResources();
-    ID    CreateThingNoReady(Farg<TheatreFile::ThingData>);
-    ID    CreateThingNoReady(TheatreFile::ThingData&);
+    ID    CreateThingNoReady(Farg<TheatreFile::ThingData>, bool doSetup = true);
+    ID    CreateThingNoReady(TheatreFile::ThingData&, bool doSetup = true);
     Error DestroyThingOnly(ID);
 
     void Draw3DThinkers(Shared<Viewport>);

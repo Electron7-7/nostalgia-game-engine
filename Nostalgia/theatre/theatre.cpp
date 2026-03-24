@@ -168,10 +168,10 @@ bool Theatre::Startup()
         { SetupUID(thing_dat); }
 
     for(auto& thing_dat : *m_pInitialState)
-        { CreateThingNoReady(thing_dat); }
+        { SetupOwnership(thing_dat); }
 
     for(auto& thing_dat : *m_pInitialState)
-        { SetupOwnership(thing_dat); }
+        { CreateThingNoReady(thing_dat, false); }
 
     auto uids{ThingIDs()};
     for(ID uid : uids)
@@ -546,10 +546,10 @@ void Theatre::CreateEmbeddedResources()
         "ShittySkybox", {{"Type", "CubeMapTexture", ThingVarType::Enum}}, UID::i_ShittySkyboxXn});
 }
 
-ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData)
-{ auto data{inData}; return CreateThingNoReady(data); }
+ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
+{ auto data{inData}; return CreateThingNoReady(data, doSetup); }
 
-ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
+ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
 {
     LockGuard<RMutex> lock{mThingsMutex};
 
@@ -564,8 +564,11 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
             { return _thing->mUID; }
     }
 
-    SetupUID(ioData);
-    SetupOwnership(ioData);
+    if(doSetup)
+    {
+        SetupUID(ioData);
+        SetupOwnership(ioData);
+    }
 
     auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData.uid)};
     thing->SetVariables(ioData);
