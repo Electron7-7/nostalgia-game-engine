@@ -65,7 +65,6 @@ static std::vector<const char*> sTypeNames{
     ThingType::Visual2D.c_name(),
     ThingType::Sprite2D.c_name(),
     ThingType::Text2D.c_name(),
-    ThingType::MeshInstance2D.c_name(),
 };
 static std::vector<PID> sTypes{
     ThingType::Thing,
@@ -95,7 +94,6 @@ static std::vector<PID> sTypes{
     ThingType::Visual2D,
     ThingType::Sprite2D,
     ThingType::Text2D,
-    ThingType::MeshInstance2D,
 };
 
 void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)

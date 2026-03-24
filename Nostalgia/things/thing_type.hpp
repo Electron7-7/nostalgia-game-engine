@@ -60,7 +60,6 @@ public:
                 TYPE_ID(Visual2D)
                     TYPE_ID(Sprite2D)
                     TYPE_ID(Text2D)
-                    TYPE_ID(MeshInstance2D)
 };
 
 #undef TYPE_ID
