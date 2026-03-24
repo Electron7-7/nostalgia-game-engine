@@ -131,27 +131,27 @@ Farg<ThingType> ThingFactory::GetType(FPID inType) noexcept
     return sBadType;
 }
 
-Shared<Thing> ThingFactory::MakeThing(FPID type)
+Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName, ID inUID)
 {
-    if(auto found_it{m_sThingMakers.find(type)}; found_it != m_sThingMakers.end())
-        { return found_it->second(); }
+    if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
+        { return found_it->second(inType, inName, inUID); }
     print_warning("ThingType '{}' is an invalid type! An empty Thing will be returned",
-        type.name());
-    return ThingMakerTemplate<Thing>();
+        inType.name());
+    return ThingMakerTemplate<Thing>(inType, inName, inUID);
 }
 
-Shared<Thinker> ThingFactory::MakeThinker(FPID inTypeID)
+Shared<Thinker> ThingFactory::MakeThinker(FPID inTypeID, Sarg inName, ID inUID)
 {
     if(!IsThinker(inTypeID))
         { return MakeShared<Thinker>(); }
-    return DCast<Thinker>(MakeThing(inTypeID));
+    return DCast<Thinker>(MakeThing(inTypeID, inName, inUID));
 }
 
-Shared<Resource> ThingFactory::MakeResource(FPID inTypeID)
+Shared<Resource> ThingFactory::MakeResource(FPID inTypeID, Sarg inName, ID inUID)
 {
     if(!IsResource(inTypeID))
         { return MakeShared<Resource>(); }
-    return DCast<Resource>(MakeThing(inTypeID));
+    return DCast<Resource>(MakeThing(inTypeID, inName, inUID));
 }
 
 bool ThingFactory::SetPriority(FPID type, int priority)

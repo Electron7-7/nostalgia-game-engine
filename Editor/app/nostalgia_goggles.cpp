@@ -22,12 +22,6 @@ static ImGui_Debugger sImGui_Debugger{};
 
 std::string gToggleFullscreen{"ToggleFullscreen"};
 
-Shared<Thing> sEditorPlayer3DMaker()
-{ return MakeShared<EditorPlayer3D>(); }
-
-Shared<Thing> sTestAnimatedSpriteMaker()
-{ return MakeShared<TestAnimatedSprite2D>(); }
-
 void NostalgiaGoggles::Stop()
 { IManager::Stop(); }
 
@@ -52,8 +46,8 @@ int NostalgiaGoggles::Main()
 
     IManager::InitAllManagers();
 
-    ThingFactory::AddThing(&sEditorPlayer3DMaker, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
-    ThingFactory::AddThing(&sTestAnimatedSpriteMaker, "TestAnimatedSprite2D", ThingType::Sprite2D);
+    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
+    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});

@@ -567,7 +567,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData)
     SetupUID(ioData);
     SetupOwnership(ioData);
 
-    auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type)};
+    auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData.uid)};
     thing->SetVariables(ioData);
     mNames[thing->mName] = thing->mUID;
 

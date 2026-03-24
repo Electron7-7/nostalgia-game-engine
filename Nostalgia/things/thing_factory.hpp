@@ -1,7 +1,7 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-typedef Shared<Thing> (*pThingMakerTemplate_t)();
+typedef Shared<Thing> (*pThingMakerTemplate_t)(FPID inType, Sarg inName, ID inUID);
 
 // This is a class instead of a namespace because fuck typing anything
 // other than `friend class ThingFactory` in `ThingType`.
@@ -9,8 +9,8 @@ class ThingFactory
 {
 public:
     template<typename T> requires std::derived_from<T, Thing>
-        static Shared<Thing> ThingMakerTemplate()
-        { return Shared<Thing>(new T{}); }
+        static Shared<Thing> ThingMakerTemplate(FPID inType = ThingType::Thing, Sarg inName = "", ID inUID = {})
+        { return Shared<Thing>(new T{inType, inName, inUID}); }
 
     static constexpr int cDefaultPriority{1};
 
@@ -25,9 +25,9 @@ public:
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType> GetType(FPID inType) noexcept;
 
-    static Shared<Thing> MakeThing(FPID inTypeID);
-    static Shared<Thinker> MakeThinker(FPID inTypeID);
-    static Shared<Resource> MakeResource(FPID inTypeID);
+    static Shared<Thing>    MakeThing(FPID inTypeID, Sarg inName, ID inUID = {});
+    static Shared<Thinker>  MakeThinker(FPID inTypeID, Sarg inName, ID inUID = {});
+    static Shared<Resource> MakeResource(FPID inTypeID, Sarg inName, ID inUID = {});
 
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);
