@@ -1,6 +1,10 @@
 #include "frozen/set.h"
 
+#define LOCK LockGuard<RMutex> lock{sMutex}
+
 using Distribution_t = std::uniform_int_distribution<uint>;
+
+static RMutex sMutex{};
 
 static IdSet_t sActiveIDs{};
 
@@ -66,7 +70,7 @@ static Error sGenerateUID(ID& outUID, Distribution_t& ioDistribution, IdSet_t& i
         return ERR_FULL;
     }
     uint new_id{sGetRandom(ioDistribution)};
-    while(!ioActiveSet.insert(new_id).second)
+    while(not ioActiveSet.insert(new_id).second)
         { new_id = sGetRandom(ioDistribution); }
     outUID.id(new_id);
     return OK;
@@ -81,32 +85,57 @@ static Error sRegisterUID(ID inID, IdSet_t& ioActiveSet, uint inMaxActiveIDs)
 }
 
 Error UID::Generate(ID& outUID)
-{ return sGenerateUID(outUID, sDistributionUIDs, sActiveIDs, s_cMaxUIDs); }
+{
+    LOCK;
+    return sGenerateUID(outUID, sDistributionUIDs, sActiveIDs, s_cMaxUIDs);
+}
 
 bool UID::Contains(ID inID)
-{ return sActiveIDs.contains(inID); }
+{
+    LOCK;
+    return sActiveIDs.contains(inID);
+}
 
 bool UID::Erase(ID inID)
-{ return sActiveIDs.erase(inID); }
+{
+    LOCK;
+    if(sActiveIDs.size() == 1 and sActiveIDs.contains(inID))
+    {
+        sActiveIDs.clear();
+        return true;
+    }
+    return sActiveIDs.erase(inID);
+}
 
 bool UID::Push(ID inID)
 {
+    LOCK;
     return (IsReserved(inID))
         ? false
         : sActiveIDs.insert(inID).second;
 }
 
 void UID::Clear()
-{ sActiveIDs.clear(); }
+{
+    LOCK;
+    sActiveIDs.clear();
+}
 
 uint UID::GetRandom()
-{ return sGetRandom(sDistributionUIDs); }
+{
+    LOCK;
+    return sGetRandom(sDistributionUIDs);
+}
 
 bool UID::IsReserved(ID inID)
-{ return inID() < front; }
+{
+    LOCK;
+    return inID() < front;
+}
 
 UID::ReservedType UID::GetReservedType(ID inID)
 {
+    LOCK;
     Farg<uint> uid{inID()};
     if(uid > reserved_back)
         { return ReservedType::NotReserved; }
@@ -123,6 +152,7 @@ UID::ReservedType UID::GetReservedType(ID inID)
 
 Error UID::CreateReservedUID(ReservedType inType, ID inUID)
 {
+    LOCK;
     switch(inType)
     {
     case ReservedType::NotReserved:
@@ -141,6 +171,7 @@ Error UID::CreateReservedUID(ReservedType inType, ID inUID)
 
 Error UID::GenerateReservedUID(ReservedType inType, ID& outUID)
 {
+    LOCK;
     switch(inType)
     {
     case ReservedType::NotReserved:
@@ -159,6 +190,7 @@ Error UID::GenerateReservedUID(ReservedType inType, ID& outUID)
 
 Error UID::EraseReservedUID(ID inUID)
 {
+    LOCK;
     if(s_cEngineRUIDs.contains(inUID()))
         { return ERR_NOT_ALLOWED; }
     switch(GetReservedType(inUID))
