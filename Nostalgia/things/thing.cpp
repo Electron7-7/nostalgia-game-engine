@@ -2,8 +2,11 @@
 
 using namespace TheatreFile;
 
-Thing::Thing()  noexcept = default;
-Thing::~Thing() noexcept = default;
+Thing::~Thing() noexcept
+{ FreeUID(); }
+
+Thing::Thing() noexcept
+{ print_error_enum(UID::Generate(mUID)); }
 
 Thing::Thing(FPID inType, Sarg inName, ID inUID) noexcept:
     mUID{inUID}, mName{inName}, mType{inType}
@@ -18,9 +21,20 @@ Thing::Thing(FPID inType, Sarg inName, ID inUID) noexcept:
 
 void Thing::SetVariables(Farg<ThingData> data)
 {
-    mUID  = data.uid;
-    mName = data.name;
-    mType = data.type;
+    if(not data.name.empty())
+        { mName = data.name; }
+    if(not data.type.invalid())
+        { mType = data.type; }
+    if(not data.uid.invalid())
+    {
+        if(UID::Push(data.uid))
+        {
+            FreeUID();
+            mUID = data.uid;
+        }
+        else
+            { print_error("UID#{} is already in use! Thing '{}' will use UID#{}", data.uid(), mName, mUID()); }
+    }
     m_pStartingData = MakeShared<ThingData>(data);
 }
 
@@ -53,3 +67,10 @@ void Thing::set_name(Sarg inName)
 
 const char* const Thing::c_name() const
 { return mName.data(); }
+
+bool Thing::FreeUID() const
+{
+    if(UID::IsReserved(mUID))
+        { return UID::EraseReservedUID(mUID); }
+    return UID::Erase(mUID);
+}
