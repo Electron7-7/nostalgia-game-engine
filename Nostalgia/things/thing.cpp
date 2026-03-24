@@ -45,10 +45,3 @@ void Thing::set_name(Sarg inName)
 
 const char* const Thing::c_name() const
 { return mName.data(); }
-
-bool Thing::FreeUID() const
-{
-    if(UID::IsReserved(mUID))
-        { return UID::EraseReservedUID(mUID); }
-    return UID::Erase(mUID);
-}

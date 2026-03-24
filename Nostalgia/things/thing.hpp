@@ -56,8 +56,6 @@ protected:
     std::string mName{"Untitled_Thing"};
     PID mType{};
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
-
-    bool FreeUID() const;
 };
 
 template<typename T>
