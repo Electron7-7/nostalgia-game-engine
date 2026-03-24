@@ -1,9 +1,7 @@
 #include "./image_handler.hpp"
 #include "rendering/texture_buffer.hpp"
 #define STB_IMAGE_IMPLEMENTATION
-#ifdef NOSTALGIA_DEBUGGING
-#   define STBI_FAILURE_USERMSG //generate user friendly error messages
-#endif // NOSTALGIA_DEBUGGING
+#define STBI_FAILURE_USERMSG //generate user friendly error messages
 #include "stb_image/stb_image.h"
 
 static int s_DataFormatToSTBI(DataFormat inFormat)
