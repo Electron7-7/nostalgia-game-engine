@@ -13,6 +13,8 @@ static bool s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared
 
 void Mesh::Ready()
 {
+    Super::Ready();
+
     VariableRegistry::try_GetResourceData(mUID, m_pFileData);
     mVertexArray = VertexArray::Create();
     std::vector<float> vertices{};

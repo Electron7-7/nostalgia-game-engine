@@ -24,7 +24,7 @@ Texture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
         will capture absolutely everything. Even whitespace. ///
-    File = 'testing_resources/Stupid.png'
+    Image = 'testing_resources/Stupid.png'
 }
 
 Mesh IcoSphere

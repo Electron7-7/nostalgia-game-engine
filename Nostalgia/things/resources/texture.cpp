@@ -30,6 +30,8 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
     // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
+
+    Import();
 }
 
 Shared<ThingData> Texture::GetVariables() const
