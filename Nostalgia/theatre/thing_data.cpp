@@ -63,8 +63,6 @@ Error ThingData::_get_id_variable(ID& outValue,
 {
     if(inVariable.type != inType)
         { return ERR_MISMATCHED_TYPES; }
-    else if(!inVariable.thing_uid.invalid())
-        { outValue = inVariable.thing_uid; return OK; }
     else if(ID out{Theatre::Current()->GetUID(inVariable.value)}; not out.invalid())
         { outValue = out; return OK; }
     return ERR_INVALID;
@@ -92,9 +90,7 @@ IdSet_t ThingData::get_children() const
     IdSet_t children{};
     for(FAUTO child : children_variables)
     {
-        ID uid{};
-        _get_id_variable(uid, child, ThingVarType::Child);
-        if(!uid.invalid())
+        if(ID uid{}; _get_id_variable(uid, child, ThingVarType::Child) == OK)
             { children.insert(uid); }
     }
     return children;
@@ -107,21 +103,6 @@ Error ThingData::remove_variable(Sarg inName)
         if(!iter->name.compare(inName))
         {
             variables.erase(iter);
-            return OK;
-        }
-    }
-    return ERR_NOT_FOUND;
-}
-
-Error ThingData::remove_child(ID inID)
-{
-    if(inID.invalid())
-        { return ERR_INVALID_ID; }
-    for(auto iter{children_variables.begin()}; iter != children_variables.end(); ++iter)
-    {
-        if(iter->thing_uid == inID)
-        {
-            children_variables.erase(iter);
             return OK;
         }
     }
@@ -143,7 +124,7 @@ Error ThingData::remove_child(Sarg inName)
 
 Error ThingData::set_variable(ID inValue, Sarg inName)
 {
-    ThingVariable temp{inName, "", ThingVarType::ID, inValue};
+    ThingVariable temp{inName, "", ThingVarType::ID};
     if(!inName.compare("Parent"))
         { temp.type = ThingVarType::Parent; }
     else if(!inName.compare("Child"))

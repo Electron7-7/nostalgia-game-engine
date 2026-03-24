@@ -2,13 +2,10 @@ using namespace TheatreFile;
 
 std::string ThingVariable::get_log() const noexcept
 {
-    return std::format("[name: {}, value: {}, type: {}{}]",
+    return std::format("[name: {}, value: {}, type: {}]",
         name,
         value,
-        EnumPrettifier::Prettify(type),
-        (thing_uid.invalid())
-            ? ""
-            : ", thing_uid: " + std::to_string(thing_uid()));
+        EnumPrettifier::Prettify(type));
 }
 
 std::string ThingVariable::get_parsable_string() const noexcept

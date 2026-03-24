@@ -20,12 +20,6 @@ namespace TheatreFile
         std::string  value{};
         // The variable's type.
         ThingVarType type{ThingVarType::None};
-        // If `ThingData::set_variable` was used to create a `ThingVariable` with an `ID`
-        // value, `thing_uid` is assigned a value. This avoids errors due to `ThingData` not
-        // having a `VariableRegistry` pointer assigned.
-        //
-        // This variable is ignored if `ThingVariable::type` is not set to `ThingVarType::ID`.
-        ID thing_uid{};
 
         void clear()
         { *this = ThingVariable{}; }
@@ -68,7 +62,6 @@ namespace TheatreFile
         IdSet_t get_children() const;
 
         Error remove_variable(Sarg inName);
-        Error remove_child(ID inID);
         Error remove_child(Sarg inName);
 
         void  set_variable(Sarg inValue, Sarg inName);
