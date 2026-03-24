@@ -155,6 +155,7 @@ void VariableRegistry::ClearResourceData()
         }
         ++pair;
     }
+    RegisterEngineResourceData();
 }
 
 void VariableRegistry::RegisterEngineEnums()
