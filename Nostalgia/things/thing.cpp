@@ -10,9 +10,12 @@ Thing::Thing(FPID inType, Sarg inName, ID inUID) noexcept:
 
 void Thing::SetVariables(Farg<ThingData> data)
 {
-    mName = data.name;
-    mType = data.type;
-    mUID = data.uid;
+    if(mName.empty() and not data.name.empty())
+        { mName = data.name; }
+    if(mType.invalid() and not data.type.invalid())
+        { mType = data.type; }
+    if(mUID.invalid() and not data.type.invalid())
+        { mUID = data.uid; }
     m_pStartingData = MakeShared<ThingData>(data);
 }
 

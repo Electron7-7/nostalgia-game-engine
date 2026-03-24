@@ -53,7 +53,7 @@ public:
 protected:
     friend class Theatre;
     ID mUID{};
-    std::string mName{"Untitled_Thing"};
+    std::string mName{""};
     PID mType{};
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 };
