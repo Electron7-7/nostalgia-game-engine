@@ -1,6 +1,8 @@
 #include "./theatre.hpp"
 #include "./theatre_file.hpp"
 #include "models.hpp"
+#include "images.hpp"
+#include "fonts.hpp"
 #include "theatre/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
@@ -12,7 +14,7 @@
 #include "things/thinkers/3d/camera_3d.hpp"
 #include "things/thinkers/3d/visual_3d.hpp"
 #include "things/thinkers/viewport.hpp"
-#include "things/resources/texture.hpp"
+#include "things/resources/cubemap_texture.hpp"
 #include "things/resources/material.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
@@ -148,18 +150,6 @@ bool Theatre::Startup()
     mIndex = m_pInitialState->index;
 
     VariableRegistry::RegisterEngineEnums();
-    VariableRegistry::RegisterEngineResourceData();
-    mNames["ErrorModel"]          = UID::m_Error;
-    // mNames["DefaultCube"]         = UID::m_Cube;
-    mNames["DefaultQuad"]         = UID::m_Quad;
-    mNames["RamielModel"]         = UID::m_Ramiel;
-    mNames["CameraModel"]         = UID::m_Camera3D;
-    mNames["DebugAxis"]           = UID::m_DebugAxis;
-    mNames["MissingTexture"]      = UID::i_Missing;
-    mNames["LolBitTexture"]       = UID::i_LolBit;
-    mNames["LightTexture"]        = UID::i_LightDebug;
-    mNames["DoomTexture"]         = UID::i_COMP04_5;
-    mNames["ShittySkyboxCubemap"] = UID::i_ShittySkyboxXn;
 
     m_pRootViewport = GetThinker<Viewport>(CreateThingNoReady({ThingType::Viewport,
         "Root_Viewport", {}, UID::o_RootViewport}));
@@ -588,48 +578,40 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
 
 void Theatre::CreateEmbeddedResources()
 {
-    CreateThingNoReady({ThingType::Font,
-        "Audiowide",{{"Font", "Audiowide", ThingVarType::ID}}, UID::f_Audiowide});
-    CreateThingNoReady({ThingType::Font,
-        "DejaVuSans",{{"Font", "DejaVuSans", ThingVarType::ID}}, UID::f_DejaVuSans});
-    CreateThingNoReady({ThingType::Font,
-        "Verdana",{{"Font", "Verdana", ThingVarType::ID}}, UID::f_Verdana});
-    CreateThingNoReady({ThingType::Mesh,
-        "ErrorModel",{{"Model", "ErrorModel", ThingVarType::ID}}, UID::m_Error});
-
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube,
-        std::size(Models::Cube), Mesh::MODEL_OBJ, UID::m_Cube, "DefaultCube"));
-
-    // CreateThingNoReady({ThingType::Mesh,
-        // "DefaultCube",{{"Model", "DefaultCube", ThingVarType::ID}}, UID::m_Cube});
-    CreateThingNoReady({ThingType::Mesh,
-        "DefaultQuad",{{"Model", "DefaultQuad", ThingVarType::ID}}, UID::m_Quad});
-    CreateThingNoReady({ThingType::Mesh,
-        "RamielModel",{{"Model", "RamielModel", ThingVarType::ID}}, UID::m_Ramiel});
-    CreateThingNoReady({ThingType::Mesh,
-        "CameraModel",{{"Model", "CameraModel", ThingVarType::ID}}, UID::m_Camera3D});
-    CreateThingNoReady({ThingType::Mesh,
-        "3DAxisModel",{{"Model", "DebugAxis", ThingVarType::ID}}, UID::m_DebugAxis});
-    CreateThingNoReady({ThingType::Texture,
-        "MissingTexture",{{"Image", "MissingTexture", ThingVarType::ID}}, UID::i_Missing});
-    CreateThingNoReady({ThingType::Texture,
-        "LightTexture",{{"Image", "LightTexture", ThingVarType::ID}}, UID::i_LightDebug});
-    CreateThingNoReady({ThingType::Texture,
-        "DoomTexture",{{"Image", "DoomTexture", ThingVarType::ID}}, UID::i_COMP04_5});
-    CreateThingNoReady({ThingType::Texture,
-        "LolBitTexture",{{"Image", "LolBitTexture", ThingVarType::ID}}, UID::i_LolBit});
-    CreateThingNoReady({ThingType::CubemapTexture,
-        "ShittySkybox",
-        {
-            {"Type", "CubeMapTexture", ThingVarType::Enum},
-            {"Image0", "ShittySkybox01", ThingVarType::ID},
-            {"Image1", "ShittySkybox02", ThingVarType::ID},
-            {"Image2", "ShittySkybox03", ThingVarType::ID},
-            {"Image3", "ShittySkybox04", ThingVarType::ID},
-            {"Image4", "ShittySkybox05", ThingVarType::ID},
-            {"Image5", "ShittySkybox06", ThingVarType::ID},
-        },
-        UID::i_ShittySkyboxXn});
+    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide, std::size(Fonts::Audiowide),
+        UID::f_Audiowide, "Audiowide"));
+    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::DejaVuSans, std::size(Fonts::DejaVuSans),
+        UID::f_DejaVuSans, "DejaVuSans"));
+    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana, std::size(Fonts::Verdana),
+        UID::f_Verdana, "Verdana"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error, std::size(Models::Error), Mesh::MODEL_OBJ,
+        UID::m_Error, "ErrorModel"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube, std::size(Models::Cube), Mesh::MODEL_OBJ,
+        UID::m_Cube, "DefaultCube"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad, std::size(Models::Quad), Mesh::MODEL_OBJ,
+        UID::m_Quad, "DefaultQuad"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel, std::size(Models::Ramiel), Mesh::MODEL_OBJ,
+        UID::m_Ramiel, "RamielModel"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera, std::size(Models::Camera), Mesh::MODEL_OBJ,
+        UID::m_Camera3D, "CameraModel"));
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis, std::size(Models::DebugAxis),
+        Mesh::MODEL_OBJ, UID::m_DebugAxis, "3DAxisModel"));
+    ResourceDatabase::Register(Texture::CreateFromMemory(Images::Missing, std::size(Images::Missing),
+        UID::i_Missing, "MissingTexture"));
+    ResourceDatabase::Register(Texture::CreateFromMemory(Images::LightDebug, std::size(Images::LightDebug),
+        UID::i_LightDebug, "LightTexture"));
+    ResourceDatabase::Register(Texture::CreateFromMemory(Images::COMP04_5, std::size(Images::COMP04_5),
+        UID::i_COMP04_5, "DoomTexture"));
+    ResourceDatabase::Register(Texture::CreateFromMemory(Images::LolBit, std::size(Images::LolBit),
+        UID::i_LolBit, "LolBitTexture"));
+    ResourceDatabase::Register(CubemapTexture::CreateFromMemory({
+        FileData{Images::SkyboxXp, std::size(Images::SkyboxXp), FileType::image_PNG},
+        FileData{Images::SkyboxXn, std::size(Images::SkyboxXn), FileType::image_PNG},
+        FileData{Images::SkyboxYp, std::size(Images::SkyboxYp), FileType::image_PNG},
+        FileData{Images::SkyboxYn, std::size(Images::SkyboxYn), FileType::image_PNG},
+        FileData{Images::SkyboxZp, std::size(Images::SkyboxZp), FileType::image_PNG},
+        FileData{Images::SkyboxZn, std::size(Images::SkyboxZn), FileType::image_PNG}},
+        UID::i_ShittySkyboxXp, "ShittySkybox"));
 }
 
 ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
@@ -725,9 +707,6 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     auto camera{GetThinker<Camera3D>(inViewport->CurrentCamera3D())};
     auto view_matrix{camera->ViewMatrix()};
     auto projection_matrix{camera->ProjectionMatrix()};
-
-    if(!mThings.contains(UID::m_Error) or !mThings.contains(UID::i_Missing))
-        { CreateEmbeddedResources(); }
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto mesh{GetResource<Mesh>(ID::Invalid)};
@@ -872,9 +851,6 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
-
-    if(!mThings.contains(UID::i_Missing))
-        { CreateEmbeddedResources(); }
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};

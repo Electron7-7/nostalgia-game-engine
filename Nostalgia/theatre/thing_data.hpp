@@ -91,12 +91,6 @@ namespace TheatreFile
                     { return ERR_EMPTY; }
                 else if(thing_var.type == ThingVarType::String)
                     { return outValue->LoadFile(thing_var.value); }
-                else if(thing_var.type == ThingVarType::ID)
-                {
-                    if(not VariableRegistry::try_GetResourceData(thing_var.value, outValue))
-                        { return ERR_INVALID; }
-                    return OK;
-                }
                 return ERR_MISMATCHED_TYPES;
             }
 

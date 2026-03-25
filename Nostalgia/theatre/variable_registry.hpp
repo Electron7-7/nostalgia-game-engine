@@ -16,22 +16,11 @@ public:
         std::type_index index{typeid(std::nullptr_t)};
     };
 
-    using ResourceData = std::map<std::string, Shared<FileData>>;
     using Enums        = std::map<std::string, enum_pair>;
 
     VariableRegistry() noexcept;
 
-    static Farg<Enums>        GetRegisteredEnums();
-    static Farg<ResourceData> GetRegisteredResourceData();
-
-    static bool try_GetResourceData(Sarg inName, Shared<FileData>& outResourceData);
-    static bool try_GetResourceDataName(Farg<Shared<FileData>> inResourceData, std::string& outName);
-    static Shared<FileData> GetResourceData(Sarg inName);
-    static Sarg GetResourceDataName(Farg<Shared<FileData>> inResourceData);
-    static bool HasResourceData(Sarg inName);
-    static Error RegisterResourceData(Sarg inName, Farg<Shared<FileData>> inResourceData, bool doNoCopies = true);
-    static Error RemoveResourceData(Sarg inName);
-    static void ClearResourceData();
+    static Farg<Enums> GetRegisteredEnums();
 
     static void ClearEnums();
 
@@ -136,16 +125,13 @@ public:
         }
 
     static void RegisterEngineEnums();
-    static void RegisterEngineResourceData();
 
 private:
     // Evil mutable keyword usage
     mutable RMutex mReferencesMutex{};
 
     static Enums m_sEnums;
-    static ResourceData m_sResourceData;
-    static RMutex m_sEnumsMutex,
-        m_sResourceDataMutex;
+    static RMutex m_sEnumsMutex;
 };
 
 #endif // THEATRE_VARIABLE_REGISTRY_H
