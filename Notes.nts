@@ -1342,3 +1342,6 @@ All right, time to add that `FileData` input and start changing how Resources wo
 I think the first thing to do is to replace the `FileData` in the `VariableRegistry` with `Resource` pointers.
 
 All right, I've gotten all of that fully completed. Resources now directly get and set their FileData variables through ThingData, which uses the changes made to VariableRegistry to get file data. I'm one major step closer to creating the Resource database/registry.
+
+[03/25/26]
+Not only am I gonna get rid of the reserved UIDs, but resource UIDs like the cube mesh UID aren't gonna be constexpr. They'll be set by whatever ends up registering them (e.g: a resource manager that calls ResourceDatabase::Register or the Theatre, which calls the same function).
