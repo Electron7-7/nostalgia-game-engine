@@ -571,21 +571,44 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
 
 void Theatre::CreateEmbeddedResources()
 {
-    CreateThingNoReady({ThingType::Font,    "Audiowide",{},           UID::f_Audiowide});
-    CreateThingNoReady({ThingType::Font,    "DejaVuSans",{},          UID::f_DejaVuSans});
-    CreateThingNoReady({ThingType::Font,    "Verdana",{},             UID::f_Verdana});
-    CreateThingNoReady({ThingType::Mesh,    "ErrorModel",{},          UID::m_Error});
-    CreateThingNoReady({ThingType::Mesh,    "DefaultCube",{},         UID::m_Cube});
-    CreateThingNoReady({ThingType::Mesh,    "DefaultQuad",{},         UID::m_Quad});
-    CreateThingNoReady({ThingType::Mesh,    "RamielModel",{},         UID::m_Ramiel});
-    CreateThingNoReady({ThingType::Mesh,    "CameraModel",{},         UID::m_Camera3D});
-    CreateThingNoReady({ThingType::Mesh,    "3DAxisModel",{},         UID::m_DebugAxis});
-    CreateThingNoReady({ThingType::Texture, "MissingTexture",{},      UID::i_Missing});
-    CreateThingNoReady({ThingType::Texture, "LightTexture",{},        UID::i_LightDebug});
-    CreateThingNoReady({ThingType::Texture, "DoomTexture",{},         UID::i_COMP04_5});
-    CreateThingNoReady({ThingType::Texture, "LolBitTexture",{},       UID::i_LolBit});
+    CreateThingNoReady({ThingType::Font,
+        "Audiowide",{{"Font", "Audiowide", ThingVarType::ID}}, UID::f_Audiowide});
+    CreateThingNoReady({ThingType::Font,
+        "DejaVuSans",{{"Font", "DejaVuSans", ThingVarType::ID}}, UID::f_DejaVuSans});
+    CreateThingNoReady({ThingType::Font,
+        "Verdana",{{"Font", "Verdana", ThingVarType::ID}}, UID::f_Verdana});
+    CreateThingNoReady({ThingType::Mesh,
+        "ErrorModel",{{"Model", "ErrorModel", ThingVarType::ID}}, UID::m_Error});
+    CreateThingNoReady({ThingType::Mesh,
+        "DefaultCube",{{"Model", "DefaultCube", ThingVarType::ID}}, UID::m_Cube});
+    CreateThingNoReady({ThingType::Mesh,
+        "DefaultQuad",{{"Model", "DefaultQuad", ThingVarType::ID}}, UID::m_Quad});
+    CreateThingNoReady({ThingType::Mesh,
+        "RamielModel",{{"Model", "RamielModel", ThingVarType::ID}}, UID::m_Ramiel});
+    CreateThingNoReady({ThingType::Mesh,
+        "CameraModel",{{"Model", "CameraModel", ThingVarType::ID}}, UID::m_Camera3D});
+    CreateThingNoReady({ThingType::Mesh,
+        "3DAxisModel",{{"Model", "DebugAxis", ThingVarType::ID}}, UID::m_DebugAxis});
+    CreateThingNoReady({ThingType::Texture,
+        "MissingTexture",{{"Image", "MissingTexture", ThingVarType::ID}}, UID::i_Missing});
+    CreateThingNoReady({ThingType::Texture,
+        "LightTexture",{{"Image", "LightTexture", ThingVarType::ID}}, UID::i_LightDebug});
+    CreateThingNoReady({ThingType::Texture,
+        "DoomTexture",{{"Image", "DoomTexture", ThingVarType::ID}}, UID::i_COMP04_5});
+    CreateThingNoReady({ThingType::Texture,
+        "LolBitTexture",{{"Image", "LolBitTexture", ThingVarType::ID}}, UID::i_LolBit});
     CreateThingNoReady({ThingType::CubemapTexture,
-        "ShittySkybox", {{"Type", "CubeMapTexture", ThingVarType::Enum}}, UID::i_ShittySkyboxXn});
+        "ShittySkybox",
+        {
+            {"Type", "CubeMapTexture", ThingVarType::Enum},
+            {"Image0", "ShittySkybox01", ThingVarType::ID},
+            {"Image1", "ShittySkybox02", ThingVarType::ID},
+            {"Image2", "ShittySkybox03", ThingVarType::ID},
+            {"Image3", "ShittySkybox04", ThingVarType::ID},
+            {"Image4", "ShittySkybox05", ThingVarType::ID},
+            {"Image5", "ShittySkybox06", ThingVarType::ID},
+        },
+        UID::i_ShittySkyboxXn});
 }
 
 ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
@@ -613,6 +636,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
     }
 
     auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData.uid)};
+    if(auto resource{DCast<Resource>(thing)})
+        { resource->Init(); }
     thing->SetVariables(ioData);
     mNames[thing->mName] = thing->mUID;
 
