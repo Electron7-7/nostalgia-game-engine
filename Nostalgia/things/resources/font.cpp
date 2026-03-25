@@ -1,14 +1,55 @@
 #include "./font.hpp"
+#include "things/thing_factory.hpp"
 #include "rendering/texture_buffer.hpp"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
 using namespace TheatreFile;
 
-void Font::Ready()
+Shared<Font> Font::CreateFromMemory(const uchar* inData, size_t inSize, ID inUID, Sarg inName)
 {
-    Super::Ready();
+    Shared<Font> output{DCast<Font>(ThingFactory::MakeResource(ThingType::Font, inName, inUID))};
+    output->m_pFont = MakeShared<FileData>(inData, inSize);
+    output->LoadFont();
+    return output;
+}
 
+void Font::SetVariables(Farg<ThingData> data)
+{
+    Super::SetVariables(data);
+
+    data.get_variable(m_pFont, "Font", "File");
+    data.get_variable(mFontSize, "Height", "Size");
+
+    LoadFont();
+}
+
+Shared<ThingData> Font::GetVariables() const
+{
+    auto data{Super::GetVariables()};
+
+    data->set_variable(m_pFont, "File");
+    data->set_variable(mFontSize, "Height");
+
+    return data;
+}
+
+Farg<Font::Glyph> Font::GetGlyph(char inCharacter) const
+{
+    static Glyph empty_glyph{};
+    if(auto found_it{mGlyphs.find(inCharacter)}; found_it != mGlyphs.end())
+        { return found_it->second; }
+    return empty_glyph;
+}
+
+Farg<Font::GlyphsMap> Font::GetGlyphs() const
+{ return mGlyphs; }
+
+float Font::GetSize() const
+{ return mFontSize; }
+
+void Font::LoadFont()
+{
     FT_Library ft;
     if(FT_Init_FreeType(&ft))
     {
@@ -52,35 +93,3 @@ void Font::Ready()
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 }
-
-void Font::SetVariables(Farg<ThingData> data)
-{
-    Super::SetVariables(data);
-
-    data.get_variable(m_pFont, "Font", "File");
-    data.get_variable(mFontSize, "Height", "Size");
-}
-
-Shared<ThingData> Font::GetVariables() const
-{
-    auto data{Super::GetVariables()};
-
-    data->set_variable(m_pFont, "File");
-    data->set_variable(mFontSize, "Height");
-
-    return data;
-}
-
-Farg<Font::Glyph> Font::GetGlyph(char inCharacter) const
-{
-    static Glyph empty_glyph{};
-    if(auto found_it{mGlyphs.find(inCharacter)}; found_it != mGlyphs.end())
-        { return found_it->second; }
-    return empty_glyph;
-}
-
-Farg<Font::GlyphsMap> Font::GetGlyphs() const
-{ return mGlyphs; }
-
-float Font::GetSize() const
-{ return mFontSize; }

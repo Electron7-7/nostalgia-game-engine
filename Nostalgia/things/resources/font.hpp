@@ -26,8 +26,10 @@ public:
 
     using GlyphsMap = std::unordered_map<char, Glyph>;
 
+    static Shared<Font> CreateFromMemory(const uchar* inData, size_t inSize,
+        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Font");
+
     SUPER(Resource)
-    READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
@@ -42,6 +44,8 @@ protected:
     int mFontSize{48};
     long mFontAscend{0};
     GlyphsMap mGlyphs{};
+
+    void LoadFont();
 };
 
 #endif // FONT_H
