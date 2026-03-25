@@ -168,7 +168,7 @@ bool Theatre::Startup()
         { SetupUID(thing_dat); }
 
     for(auto& thing_dat : *m_pInitialState)
-        { SetupOwnership(thing_dat); }
+        { SetupOwnership(thing_dat, true); }
 
     for(auto& thing_dat : *m_pInitialState)
         { CreateThingNoReady(thing_dat, false); }
@@ -177,7 +177,27 @@ bool Theatre::Startup()
     for(ID uid : uids)
         { mThings.at(uid)->Ready(); }
 
-    return mIsStarted = true;
+    mIsStarted = true;
+
+    for(ID uid : GetChildren({}))
+    {
+        if(DerivedFrom(uid, ThingType::Actor3D))
+        {
+            auto actor{GetThinker<Actor3D>(uid)};
+            actor->SetPosition(actor->Position());
+            actor->SetQuaternion(actor->Quaternion());
+            actor->SetScale(actor->Scale());
+        }
+        else if(DerivedFrom(uid, ThingType::Actor2D))
+        {
+            auto actor{GetThinker<Actor2D>(uid)};
+            actor->SetPosition(actor->Position());
+            actor->SetRotation(actor->Rotation());
+            actor->SetScale(actor->Scale());
+        }
+    }
+
+    return true;
 }
 
 bool Theatre::Shutdown()
@@ -339,6 +359,11 @@ Sarg Theatre::GetName(ID inUID)
     LockGuard<RMutex> things_lock{mThingsMutex};
     if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
         { return found_it->second->mName; }
+    for(FAUTO [name, uid] : mNames)
+    {
+        if(inUID == uid)
+            { return name; }
+    }
     return empty;
 }
 
@@ -505,18 +530,19 @@ void Theatre::SetupUID(ThingData& ioData)
         { print_error_enum(UID::Generate(ioData.uid)); }
     else if(not UID::Contains(ioData.uid()))
         { UID::Push(ioData.uid()); }
-    mCallSheet.Add(ioData.uid);
     if(not ioData.name.empty())
         { mNames[ioData.name] = ioData.uid; }
+    if(ThingFactory::IsThinker(ioData.type))
+        { mCallSheet.Add(ioData.uid); }
 }
 
-void Theatre::SetupOwnership(Farg<ThingData> ioData)
+void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
 
     if(ID parent{GetUID(ioData.parent_variable.value)}; not parent.invalid())
     {
-        if(not mCallSheet.Has(parent))
+        if(not mCallSheet.Has(parent) and isStartup)
             { mCallSheet.Add(parent); }
         if(not mCallSheet.Reparent(ioData.uid, parent))
             { mCallSheet.Add(ioData.uid, parent); }
@@ -524,8 +550,22 @@ void Theatre::SetupOwnership(Farg<ThingData> ioData)
     for(FAUTO child_var : ioData.children_variables)
     {
         ID child{GetUID(child_var.value)};
-        if(not child.invalid() and not mCallSheet.Reparent(child, ioData.uid))
+        if(not child.invalid() and not mCallSheet.Reparent(child, ioData.uid) and isStartup)
             { mCallSheet.Add(child, ioData.uid); }
+    }
+
+    if(not isStartup)
+        { return; }
+
+    ioData.parent_variable.clear();
+    ioData.children_variables.clear();
+
+    if(FAUTO node{mCallSheet.Get(ioData.uid)}; not node.invalid())
+    {
+        ioData.parent_variable = {"Parent", GetName(node.parent), ThingVarType::Parent};
+
+        for(ID child : node.children)
+            { ioData.children_variables.emplace_back("Child", GetName(child), ThingVarType::Child); }
     }
 }
 
@@ -621,7 +661,7 @@ Error Theatre::DestroyThingOnly(ID inID)
     mCamera3DIDs.erase(inID);
     mCamera2DIDs.erase(inID);
     mLightIDs.erase(inID);
-    print_error_enum(mCallSheet.Remove(inID));
+    mCallSheet.Remove(inID);
     mThings.erase(inID);
     return OK;
 }

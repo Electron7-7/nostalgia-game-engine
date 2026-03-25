@@ -110,7 +110,7 @@ protected:
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
 
     bool  LoadCurrentTheatreData();
-    void SetupOwnership(Farg<TheatreFile::ThingData>);
+    void SetupOwnership(TheatreFile::ThingData&, bool isStartup = false);
     void SetupUID(TheatreFile::ThingData&);
 
     void  CreateEmbeddedResources();
