@@ -1,5 +1,6 @@
 #include "./theatre.hpp"
 #include "./theatre_file.hpp"
+#include "models.hpp"
 #include "theatre/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
@@ -149,7 +150,7 @@ bool Theatre::Startup()
     VariableRegistry::RegisterEngineEnums();
     VariableRegistry::RegisterEngineResourceData();
     mNames["ErrorModel"]          = UID::m_Error;
-    mNames["DefaultCube"]         = UID::m_Cube;
+    // mNames["DefaultCube"]         = UID::m_Cube;
     mNames["DefaultQuad"]         = UID::m_Quad;
     mNames["RamielModel"]         = UID::m_Ramiel;
     mNames["CameraModel"]         = UID::m_Camera3D;
@@ -595,8 +596,12 @@ void Theatre::CreateEmbeddedResources()
         "Verdana",{{"Font", "Verdana", ThingVarType::ID}}, UID::f_Verdana});
     CreateThingNoReady({ThingType::Mesh,
         "ErrorModel",{{"Model", "ErrorModel", ThingVarType::ID}}, UID::m_Error});
-    CreateThingNoReady({ThingType::Mesh,
-        "DefaultCube",{{"Model", "DefaultCube", ThingVarType::ID}}, UID::m_Cube});
+
+    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube,
+        std::size(Models::Cube), Mesh::MODEL_OBJ, UID::m_Cube, "DefaultCube"));
+
+    // CreateThingNoReady({ThingType::Mesh,
+        // "DefaultCube",{{"Model", "DefaultCube", ThingVarType::ID}}, UID::m_Cube});
     CreateThingNoReady({ThingType::Mesh,
         "DefaultQuad",{{"Model", "DefaultQuad", ThingVarType::ID}}, UID::m_Quad});
     CreateThingNoReady({ThingType::Mesh,
