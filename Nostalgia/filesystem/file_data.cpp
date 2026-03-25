@@ -1,5 +1,6 @@
 #include "frozen/map.h"
 #include "frozen/string.h"
+#include "managers/theatre_manager.hpp"
 #include <fstream> // IWYU pragma: keep
 
 static constexpr frozen::map<frozen::string, FileType, 8>
@@ -46,7 +47,19 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
     if(type == FileType::Unknown)
         { type = s_DetectFileType(path); }
 
-    std::string file_path{FileSystem::GetAbsolute(path)};
+    std::string file_path{path};
+    if(not FileSystem::IsFile(path))
+    {
+        if(not FileSystem::IsFile(file_path = FileSystem::GetAbsolute(path)))
+        {
+            if(not FileSystem::IsFile(file_path = FileSystem::GetProgramDirectory() + path))
+            {
+                if(auto* theatre{g_pTheatreManager->Current()}; theatre and theatre->WasLoadedFromFile()
+                    and not FileSystem::IsFile(file_path = theatre->TheatreFileDirectory() + path))
+                        { return ERR_INVALID_PATH; }
+            }
+        }
+    }
 
 #pragma message("FIXME: figure out why either of these solutions don't work on both operating systems")
 #ifdef _WIN32
