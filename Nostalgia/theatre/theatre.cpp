@@ -1,5 +1,6 @@
 #include "./theatre.hpp"
 #include "./theatre_file.hpp"
+#include "theatre/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
 #include "things/thinkers/2d/sprite_2d.hpp"
@@ -294,17 +295,22 @@ IdVec_t Theatre::ThingIDs()
     return {keys.begin(), keys.end()};
 }
 
-bool Theatre::ThingExists(ID inID)
+bool Theatre::ThingExists(ID inUID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    return mThings.contains(inID);
+    return mThings.contains(inUID) or ResourceDatabase::Contains(inUID);
 }
 
 bool Theatre::ThingExists(Sarg inName)
 {
     LockGuard<RMutex> lock{mThingsMutex};
+    if(mNames.contains(inName) or ResourceDatabase::Contains(inName))
+        { return true; }
     for(FAUTO [id, thing] : mThings)
-        { if(!thing->name().compare(inName)) { return true; } }
+    {
+        if(not thing->name().compare(inName))
+            { return true; }
+    }
     return false;
 }
 
@@ -313,7 +319,7 @@ FPID Theatre::TypeOf(ID inID)
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
         { return found_it->second->type(); }
-    return ThingType::Invalid;
+    return ResourceDatabase::TypeOf(inID);
 }
 
 bool Theatre::DerivedFrom(ID inID, FPID inType)
@@ -321,7 +327,7 @@ bool Theatre::DerivedFrom(ID inID, FPID inType)
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
         { return ThingFactory::IsDerivedFrom(found_it->second->mType, inType); }
-    return false;
+    return ResourceDatabase::DerivedFrom(inID, inType);
 }
 
 ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
@@ -348,7 +354,9 @@ Error Theatre::DestroyThing(ID inID)
 ID Theatre::GetUID(Sarg inName)
 {
     LockGuard<RMutex> things_lock{mThingsMutex};
-    if(auto found_it{mNames.find(inName)}; found_it != mNames.end())
+    if(ID uid{ResourceDatabase::GetUID(inName)}; not uid.invalid())
+        { return uid; }
+    else if(auto found_it{mNames.find(inName)}; found_it != mNames.end())
         { return found_it->second; }
     return ID::Invalid;
 }
@@ -357,7 +365,9 @@ Sarg Theatre::GetName(ID inUID)
 {
     static std::string empty{};
     LockGuard<RMutex> things_lock{mThingsMutex};
-    if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
+    if(Sarg name{ResourceDatabase::GetName(inUID)}; not name.empty())
+        { return name; }
+    else if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
         { return found_it->second->mName; }
     for(FAUTO [name, uid] : mNames)
     {
@@ -465,6 +475,8 @@ Error Theatre::DropParent(ID inChildID)
 
 Shared<Thing> Theatre::GetThing(Sarg inName)
 {
+    if(ResourceDatabase::Contains(inName))
+        { return ResourceDatabase::GetResource(inName); }
     LockGuard<RMutex> lock{mThingsMutex};
     for(FAUTO [id, thing] : mThings)
         { if(!thing->name().compare(inName)) { return thing; } }
@@ -473,6 +485,8 @@ Shared<Thing> Theatre::GetThing(Sarg inName)
 
 Shared<Thing> Theatre::GetThing(ID inID)
 {
+    if(ResourceDatabase::Contains(inID))
+        { return ResourceDatabase::GetResource(inID); }
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
@@ -482,6 +496,8 @@ Shared<Thing> Theatre::GetThing(ID inID)
 
 Shared<Resource> Theatre::GetResource(ID inID)
 {
+    if(ResourceDatabase::Contains(inID))
+        { return ResourceDatabase::GetResource(inID); }
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
