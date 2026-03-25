@@ -320,19 +320,25 @@ Material Test2Mat
     DiffuseTexture = <TestTexture2>
 }
 
-MeshInstance3D TestParentActor3D
+Actor3D TestParentActor3D
 {
-    Child = <TestChildActor3D>
-    Mesh = <DefaultCube>
-    MaterialOverride = <Test1Mat>
     Position = [-10, 3, -3]
+    Child = <TestChildActor3D>
+    Child : MeshInstance3D TestParentMeshInstance3D
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <Test1Mat>
+    }
 }
 
-MeshInstance3D TestChildActor3D
+Actor3D TestChildActor3D
 {
     Position = [4, -2, 0]
-    Mesh = <DefaultCube>
-    MaterialOverride = <Test2Mat>
+    Child : MeshInstance3D TestChildMeshInstance3D
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <Test2Mat>
+    }
 }
 
 Viewport EditorViewport
