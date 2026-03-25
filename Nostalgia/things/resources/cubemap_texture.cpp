@@ -1,13 +1,33 @@
 #include "./cubemap_texture.hpp"
+#include "things/thing_factory.hpp"
 #include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
+Shared<CubemapTexture> CubemapTexture::CreateFromMemory(std::initializer_list<FileData> inImages,
+    ID inUID, Sarg inName)
+{
+    auto output{DCast<CubemapTexture>(ThingFactory::MakeResource(ThingType::CubemapTexture, inName, inUID))};
+    output->mFormat.type = TEXTURE_TYPE_CUBE;
+    int i{0};
+    for(FAUTO image : inImages)
+        { output->m_pImages[i++] = MakeShared<FileData>(image); }
+    output->Import();
+    return output;
+}
+
 void CubemapTexture::SetVariables(Farg<ThingData> data)
 {
+    m_pImage = nullptr;
     Super::SetVariables(data);
     for(uint i{0}; i < 6; ++i)
-        { data.get_variable(m_pImages[i], "Image" + std::to_string(i)); }
+    {
+        if(not m_pImages[i])
+            { m_pImages[i] = MakeShared<FileData>(); }
+        data.get_variable(m_pImages[i], "Image" + std::to_string(i));
+    }
+
+    Import();
 }
 
 Shared<ThingData> CubemapTexture::GetVariables() const
@@ -16,12 +36,6 @@ Shared<ThingData> CubemapTexture::GetVariables() const
     for(uint i{0}; i < 6; ++i)
         { data->set_variable(m_pImages[i], "Image" + std::to_string(i)); }
     return data;
-}
-
-void CubemapTexture::Init()
-{
-    for(uint i{0}; i < 6; ++i)
-        { m_pImages[i] = MakeShared<FileData>(); }
 }
 
 Error CubemapTexture::Import()
@@ -36,7 +50,7 @@ Error CubemapTexture::Import()
 
         if(print_error_enum(status))
         {
-            print_error("Failed to load image data for Texture ['{}', {}]",
+            print_error("Failed to load image data for CubemapTexture ['{}', {}]",
                 mName,
                 mUID());
         }
@@ -45,7 +59,7 @@ Error CubemapTexture::Import()
     }
 
     if(!print_error_enum(status))
-        { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
+        { print_error("Failed to create CubemapTexture ['{}', {}]", mName, mUID()); }
     else
     {
         mTextureBuffer->GenerateMipMaps();

@@ -8,10 +8,12 @@ class CubemapTexture : public Texture
 public:
     using images_t = std::array<Shared<FileData>, 6>;
 
+    static Shared<CubemapTexture> CreateFromMemory(std::initializer_list<FileData> inImages,
+        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Cubemap");
+
     SUPER(Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-    virtual void Init() override;
 
     virtual Error Import() override;
 
