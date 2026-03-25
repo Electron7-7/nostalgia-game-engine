@@ -35,7 +35,7 @@ void Mesh::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
 
     if(std::string path{}; data.get_variable(path, "Model") == OK)
-        { try_LoadFileDataFromVariable(path, m_pFileData); }
+        { m_pFileData->LoadFile(path); }
 
     data.get_variable(mMaterialID, "Material");
 

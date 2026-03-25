@@ -12,7 +12,7 @@ void CubemapTexture::SetVariables(Farg<ThingData> data)
         if(std::string path{}; data.get_variable(path, "Image" + std::to_string(i)) == OK)
         {
             m_pImages[i] = MakeShared<FileData>();
-            print_error_enum(try_LoadFileDataFromVariable(path, m_pImages[i]));
+            print_error_enum(m_pImages[i]->LoadFile(path));
         }
     }
 }

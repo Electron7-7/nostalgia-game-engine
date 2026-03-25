@@ -12,7 +12,7 @@ void Texture::SetVariables(Farg<ThingData> data)
     // Bypass `Resource::SetVariables`
     Thing::SetVariables(data);
     if(std::string path{}; data.get_variable(path, "Image", "File", "Data", "Path") == OK)
-        { mStatus = try_LoadFileDataFromVariable(path, m_pFileData); }
+        { mStatus = m_pFileData->LoadFile(path); }
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");

@@ -62,7 +62,7 @@ void Font::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
 
     if(std::string path{}; data.get_variable(path, "Font") == OK)
-        { try_LoadFileDataFromVariable(path, m_pFileData); }
+        { print_error_enum(m_pFileData->LoadFile(path)); }
 
     data.get_variable(mFontSize, "Height", "Size");
 }
