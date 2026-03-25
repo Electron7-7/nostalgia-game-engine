@@ -317,7 +317,7 @@ bool Theatre::DerivedFrom(ID inID, FPID inType)
 {
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
-        { return ThingFactory::IsDerivedFrom(found_it->second->mType, inType); }
+        { return ThingFactory::IsDerivedFrom(found_it->second->type(), inType); }
     return ResourceDatabase::DerivedFrom(inID, inType);
 }
 
@@ -359,7 +359,7 @@ Sarg Theatre::GetName(ID inUID)
     if(Sarg name{ResourceDatabase::GetName(inUID)}; not name.empty())
         { return name; }
     else if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
-        { return found_it->second->mName; }
+        { return found_it->second->name(); }
     for(FAUTO [name, uid] : mNames)
     {
         if(inUID == uid)
@@ -628,8 +628,8 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
         { return ioData.uid; }
     else if(ThingExists(ioData.name))
     {
-        if(FAUTO _thing{GetThing(ioData.name)}; _thing->mType == ioData.type)
-            { return _thing->mUID; }
+        if(FAUTO _thing{GetThing(ioData.name)}; _thing->type() == ioData.type)
+            { return _thing->uid(); }
     }
 
     if(doSetup)
@@ -642,7 +642,7 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
     if(auto resource{DCast<Resource>(thing)})
         { resource->Init(); }
     thing->SetVariables(ioData);
-    mNames[thing->mName] = thing->mUID;
+    mNames[thing->name()] = thing->uid();
 
     if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }

@@ -51,7 +51,7 @@ public:
     FPID type() const;
 
 protected:
-    friend class Theatre;
+    // friend class Theatre;
     ID mUID{};
     std::string mName{""};
     PID mType{};
