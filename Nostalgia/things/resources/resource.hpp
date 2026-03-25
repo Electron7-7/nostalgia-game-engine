@@ -1,6 +1,8 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#define INIT_OVERRIDE virtual void Init() override;
+
 // Similar to either Godot's `Resource` or `RefCounted` (I haven't decided yet)
 class Resource : public Thing
 {
@@ -8,6 +10,11 @@ public:
     SUPER(Thing)
 
     virtual void Init() {}
+
+private:
+    void Update() final {}
+    void Tick() final {}
+    void Input(InputEvent*) final {}
 };
 
 template<typename T>
