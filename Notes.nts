@@ -1338,3 +1338,7 @@ Had a big think, and I think that while I was kinda on the right track, the real
 Also, I want to make `FileData` a valid `get_variable`/`set_variable` input, and have that be what the variable registry is for (well, that and enums).
 
 All right, time to add that `FileData` input and start changing how Resources work.
+
+I think the first thing to do is to replace the `FileData` in the `VariableRegistry` with `Resource` pointers.
+
+All right, I've gotten all of that fully completed. Resources now directly get and set their FileData variables through ThingData, which uses the changes made to VariableRegistry to get file data. I'm one major step closer to creating the Resource database/registry.
