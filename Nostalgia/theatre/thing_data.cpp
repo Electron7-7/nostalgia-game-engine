@@ -146,3 +146,19 @@ Error ThingData::set_variable(ID inValue, Sarg inName)
 
 void ThingData::set_variable(bool inValue, Sarg inName)
 { variables.emplace_back(inName, std::format("{}", inValue), ThingVarType::Bool); }
+
+Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName)
+{
+    if(not inValue->HasPath())
+    {
+        print_warning("I have yet to fully implement a good way of being able to save embedded file data that isn't comparing the actual binary data of one FileData variable to every single stored FileData object in VariableRegistry, so it'll *attempt* to do that, but don't expect any success... for now.");
+        if(FAUTO data_name{VariableRegistry::GetResourceDataName(inValue)}; not data_name.empty())
+        {
+            variables.emplace_back(inName, data_name, ThingVarType::ID);
+            return OK;
+        }
+        return ERR_NOT_FOUND;
+    }
+    variables.emplace_back(inName, inValue->Path(), ThingVarType::String);
+    return OK;
+}

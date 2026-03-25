@@ -67,6 +67,7 @@ namespace TheatreFile
         void  set_variable(Sarg inValue, Sarg inName);
         Error set_variable(ID inValue, Sarg inName);
         void  set_variable(bool inValue, Sarg inName);
+        Error set_variable(Shared<FileData> inValue, Sarg inName);
 
         template<NumberOrGLM T, StringType... Names>
             void set_variable(Farg<T> inValue, Sarg inName)
@@ -80,6 +81,23 @@ namespace TheatreFile
                     { return ERR_INVALID; }
                 variables.emplace_back(inName, enum_name, ThingVarType::Enum);
                 return OK;
+            }
+
+        template<StringType... Names>
+            Error get_variable(Shared<FileData>& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.value.empty())
+                    { return ERR_EMPTY; }
+                else if(thing_var.type == ThingVarType::String)
+                    { return outValue->LoadFile(thing_var.value); }
+                else if(thing_var.type == ThingVarType::ID)
+                {
+                    if(not VariableRegistry::try_GetResourceData(thing_var.value, outValue))
+                        { return ERR_INVALID; }
+                    return OK;
+                }
+                return ERR_MISMATCHED_TYPES;
             }
 
         template<StringContainer T, StringType... Names>
