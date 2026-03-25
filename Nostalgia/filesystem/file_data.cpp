@@ -3,16 +3,17 @@
 #include "managers/theatre_manager.hpp"
 #include <fstream> // IWYU pragma: keep
 
-static constexpr frozen::map<frozen::string, FileType, 8>
+static constexpr frozen::map<frozen::string, FileType, 9>
 s_FileTypesByExtension{
-    { ".otf",  FileType::font_OTF  },
-    { ".ttf",  FileType::font_TTF  },
-    { ".png",  FileType::image_PNG },
-    { ".jpg",  FileType::image_JPG },
-    { ".jpeg", FileType::image_JPG },
-    { ".obj",  FileType::model_OBJ },
-    { ".frag", FileType::glsl_FRAG },
-    { ".vert", FileType::glsl_VERT },
+    { ".otf",  FileType::font_OTF   },
+    { ".ttf",  FileType::font_TTF   },
+    { ".png",  FileType::image_PNG  },
+    { ".jpg",  FileType::image_JPG  },
+    { ".jpeg", FileType::image_JPG  },
+    { ".nt",   FileType::theatre_NT },
+    { ".obj",  FileType::model_OBJ  },
+    { ".frag", FileType::glsl_FRAG  },
+    { ".vert", FileType::glsl_VERT  },
 };
 
 FileType FileData::s_DetectFileType(Farg<std::string> path)
@@ -26,14 +27,14 @@ FileType FileData::s_DetectFileType(Farg<std::string> path)
 FileData::FileData() = default;
 
 FileData::FileData(const unsigned char* data, int size, FileType type):
-    mData{data},
-    mSize{size},
+    mData{data, data + size},
+    // mSize{size},
     mType{type},
     mStatus{OK}{}
 
 FileData::FileData(Farg<std::string> path, FileType type):
-    mData{nullptr},
-    mSize{0},
+    mData{},
+    // mSize{0},
     mPath{path},
     mType{type},
     mStatus{ERR_NOT_LOADED}
@@ -61,43 +62,11 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
         }
     }
 
-#pragma message("FIXME: figure out why either of these solutions don't work on both operating systems")
-#ifdef _WIN32
-    size_t size{};
-    if(!FileSystem::try_GetFileSize(file_path, size))
-        { return mStatus = ERR_FILE_LOAD; }
-
-    unsigned char* data{new unsigned char[size]};
-    std::basic_ifstream<unsigned char> file_stream{file_path, std::ios_base::in | std::ios_base::binary};
-    file_stream.read(data, size);
-    file_stream.close();
-#else // LINUX
-    // https://stackoverflow.com/a/22131201
-    FILE* image_file{fopen(file_path.c_str(), "r+")};
-
-    if(!image_file)
-    {
-        print_error("Failed to load file '{}'", path);
-        return mStatus = ERR_FILE_LOAD;
-    }
-
-    fseek(image_file, 0, SEEK_END);
-    long size{ftell(image_file)};
-    fclose(image_file);
-
-    image_file = fopen(file_path.c_str(), "r+");
-    unsigned char* data{new unsigned char[size]};
-
-    fread(data, sizeof(unsigned char), size, image_file);
-    fclose(image_file);
-#endif // _WIN32
-
-    clear();
-    mData = data;
-    mSize = size;
+    std::ifstream file_stream{file_path, std::ios::binary};
+    mData = std::vector<unsigned char>{std::istreambuf_iterator<char>(file_stream), {}};
     mType = type;
     mPath = path;
-    mReleaseData = true;
+    file_stream.close();
     return mStatus = OK;
 }
 
@@ -105,8 +74,8 @@ void FileData::LoadData(const unsigned char* data, int size, FileType type)
 {
     clear();
     mStatus = OK;
-    mData = data;
-    mSize = size;
+    mData = std::vector<uchar>{data, data + size};
+    // mSize = size;
     mType = type;
 }
 
@@ -124,24 +93,20 @@ bool FileData::HasPath() const
 
 void FileData::clear()
 {
-    if(mReleaseData)
-        { delete [] mData; }
-    mReleaseData = false;
-    mData = nullptr;
-    mSize = 0;
+    mData.clear();
     mPath = "";
     mType = FileType::Unknown;
     mStatus = ERR_NOT_LOADED;
 }
 
 std::string FileData::DataString() const
-{ return std::string(mData, mData + mSize); }
+{ return std::string(mData.begin(), mData.end()); }
 
 const unsigned char* FileData::Data() const
-{ return mData; }
+{ return mData.data(); }
 
 int FileData::Size() const
-{ return mSize; }
+{ return mData.size(); }
 
 bool FileData::empty() const
-{ return (mData != nullptr); }
+{ return mData.empty(); }

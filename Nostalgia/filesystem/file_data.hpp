@@ -40,12 +40,10 @@ public:
     void clear();
 
 private:
-    const unsigned char* mData{nullptr};
-    int mSize{0};
+    std::vector<uchar> mData{};
     std::string mPath{};
     FileType mType{FileType::Unknown};
     Error mStatus{ERR_EMPTY};
-    bool mReleaseData{false};
 };
 
 #endif // FILE_DATA_H
