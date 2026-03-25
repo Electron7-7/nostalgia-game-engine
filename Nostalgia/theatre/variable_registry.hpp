@@ -16,7 +16,7 @@ public:
         std::type_index index{typeid(std::nullptr_t)};
     };
 
-    using ResourceData = std::map<PID, Shared<FileData>>;
+    using ResourceData = std::map<std::string, Shared<FileData>>;
     using Enums        = std::map<std::string, enum_pair>;
 
     VariableRegistry() noexcept;
@@ -24,15 +24,13 @@ public:
     static Farg<Enums>        GetRegisteredEnums();
     static Farg<ResourceData> GetRegisteredResourceData();
 
-    static bool try_GetResourceData(Sarg inName, Shared<FileData>& outData);
-    static bool try_GetResourceData(ID inID, Shared<FileData>& outData);
+    static bool try_GetResourceData(Sarg inName, Shared<FileData>& outResourceData);
+    static bool try_GetResourceDataName(Farg<Shared<FileData>> inResourceData, std::string& outName);
     static Shared<FileData> GetResourceData(Sarg inName);
-    static Shared<FileData> GetResourceData(ID inID);
+    static Sarg GetResourceDataName(Farg<Shared<FileData>> inResourceData);
     static bool HasResourceData(Sarg inName);
-    static bool HasResourceData(ID inID);
-    static Error RegisterResourceData(ID inID, UID::ReservedType inType, Sarg inName, Farg<Shared<FileData>> inData, bool doNoCopies = true);
+    static Error RegisterResourceData(Sarg inName, Farg<Shared<FileData>> inResourceData, bool doNoCopies = true);
     static Error RemoveResourceData(Sarg inName);
-    static Error RemoveResourceData(ID inID);
     static void ClearResourceData();
 
     static void ClearEnums();
