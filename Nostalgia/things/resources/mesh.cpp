@@ -1,4 +1,5 @@
 #include "./mesh.hpp"
+#include "things/thing_factory.hpp"
 #include "rendering/mesh_buffers.hpp"
 #include "rendering/vertex.hpp"
 #include "rendering/vertex_array.hpp"
@@ -8,32 +9,33 @@
 
 using namespace TheatreFile;
 
-static bool s_CreateMeshData(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
-static bool s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
+static Error s_CreateMeshData(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
+static Error s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
 
-void Mesh::Ready()
+Shared<Mesh> Mesh::CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType, ID inUID, Sarg inName)
 {
-    Super::Ready();
-
-    mVertexArray = VertexArray::Create();
-    std::vector<float> vertices{};
-    std::vector<uint>  indices{};
-    if(!s_CreateMeshData(vertices, indices, m_pModel))
+    Shared<Mesh> output{DCast<Mesh>(ThingFactory::MakeThing(ThingType::Mesh, inName, inUID))};
+    switch(inType)
     {
-        print_error("Mesh#{} failed to parse mesh data", mUID());
-        return;
+    case MODEL_OBJ:
+        output->m_pModel = MakeShared<FileData>(inData, inSize, FileType::model_OBJ);
+        break;
+    default:
+        print_error("Invalid model type");
+        output->m_pModel = MakeShared<FileData>();
+        break;
     }
-    mVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
-    mVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
+    output->LoadModel();
+    return output;
 }
 
 void Mesh::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(m_pModel, "Model", "File");
     data.get_variable(mMaterialID, "Material");
-
+    if(data.get_variable(m_pModel, "Model", "File") == OK)
+        { LoadModel(); }
 }
 
 Shared<ThingData> Mesh::GetVariables() const
@@ -58,13 +60,28 @@ ID Mesh::MaterialID() const
 void Mesh::MaterialID(ID inID)
 { mMaterialID = inID; }
 
+Error Mesh::LoadModel()
+{
+    mVertexArray = VertexArray::Create();
+    std::vector<float> vertices{};
+    std::vector<uint>  indices{};
+    if(Error status{s_CreateMeshData(vertices, indices, m_pModel)}; not status)
+    {
+        print_error("Mesh [{}, {}] failed to parse mesh data", mName, mUID());
+        return status;
+    }
+    mVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
+    mVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
+    return OK;
+}
+
 //////////////////
 // MESH PARSING //
 //////////////////
-bool s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
+Error s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
 {
     if(!inData->Status())
-        { return false; }
+        { return inData->Status(); }
 
     switch(inData->Type())
     {
@@ -72,12 +89,13 @@ bool s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Fa
         return s_CreateOBJMesh(ioVerts, ioInds, inData);
     case FileType::Unknown:
     default:
-        return print_error("Data of unknown file-type cannot be buffered");
+        print_error("Data of unknown file-type cannot be buffered");
+        return ERR_INVALID_TYPE;
     }
-    return true;
+    return OK;
 }
 
-bool s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
+Error s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
 {
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
@@ -86,7 +104,7 @@ bool s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Far
     {
         if(!reader.Error().empty())
             { print_error("TinyObjReader Error: '{}'", reader.Error()); }
-        return false;
+        return ERR_FILE_READ;
     }
 
     if(!reader.Warning().empty())
@@ -159,5 +177,5 @@ bool s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Far
             index_offset += fv;
         }
     }
-    return true;
+    return OK;
 }

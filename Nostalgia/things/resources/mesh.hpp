@@ -6,12 +6,15 @@
 class Mesh : public Resource
 {
 public:
-    Mesh(Shared<FileData> inModel) noexcept;
-
     SUPER(Resource)
-    READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
+
+    enum ModelType : int
+    { MODEL_OBJ };
+
+    static Shared<Mesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType,
+        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Mesh");
 
     virtual Farg<Shared<VertexArray>> MeshData() const;
     virtual void MeshData(Shared<VertexArray>);
@@ -23,6 +26,8 @@ protected:
     Shared<FileData> m_pModel{MakeShared<FileData>()};
     Shared<VertexArray> mVertexArray{nullptr};
     ID mMaterialID{};
+
+    Error LoadModel();
 };
 
 #endif // MESH_H
