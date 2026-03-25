@@ -9,10 +9,8 @@ void Texture::Ready()
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
-    // Bypass `Resource::SetVariables`
-    Thing::SetVariables(data);
-    if(std::string path{}; data.get_variable(path, "Image", "File", "Data", "Path") == OK)
-        { mStatus = m_pFileData->LoadFile(path); }
+    Resource::SetVariables(data);
+    data.get_variable(m_pTexture, "Image", "File", "Data", "Path");
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -30,16 +28,12 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
     // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
-
-    Import();
 }
 
 Shared<ThingData> Texture::GetVariables() const
 {
-    // Bypass `Resource::GetVariables`
-    Shared<ThingData> data{Thing::GetVariables()};
-    if(m_pFileData->HasPath())
-        { data->set_variable(m_pFileData->Path(), "Image"); }
+    auto data{Resource::GetVariables()};
+    data->set_variable(m_pTexture, "Image");
     data->set_variable(mFormat.type, "Type");
     data->set_variable(mFormat.data_format, "Format");
     data->set_variable(mFormat.width, "Width");
@@ -61,35 +55,34 @@ Shared<ThingData> Texture::GetVariables() const
 
 Error Texture::Import()
 {
-    mStatus = FAILED;
     mTextureBuffer = TextureBuffer::Create();
-    VariableRegistry::try_GetResourceData(mUID(), m_pFileData);
-    if(not m_pFileData)
+    if(not m_pTexture)
     {
         print_error("No image data found/loaded");
-        return mStatus;
+        return ERR_EMPTY;
     }
 
-    auto image_data{ImageHandler::Load(m_pFileData, mFormat, mStatus)};
+    Error status{};
+    auto image_data{ImageHandler::Load(m_pTexture, mFormat, status)};
 
-    if(print_error_enum(mStatus))
+    if(print_error_enum(status))
     {
         print_error("Failed to load image data for Texture ['{}', {}]",
             mName,
             mUID());
     }
-    mStatus = mTextureBuffer->Load(image_data, mFormat);
+    mTextureBuffer->Load(image_data, mFormat);
 
-    ImageHandler::Free(image_data);
-
-    if(!print_error_enum(mStatus))
+    if(!print_error_enum(status))
         { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
     else
     {
         mTextureBuffer->GenerateMipMaps();
         mTextureBuffer->SetSamplerState(mSampler);
     }
-    return mStatus;
+
+    ImageHandler::Free(image_data);
+    return status;
 }
 
 Farg<TextureFormat> Texture::Format() const
@@ -109,14 +102,13 @@ Shared<TextureBuffer> Texture::GetBuffer() const
 
 Error Texture::SetBuffer(Shared<TextureBuffer> inBuffer)
 {
-    mStatus = inBuffer->Status();
-    if(!print_error_enum(mStatus))
+    if(Error status{print_error_enum(inBuffer->Status())}; not status)
     {
         print_warning("Failed to replace the TextureBuffer in Texture ['{}', {}]",
             mName,
             mUID());
+        return status;
     }
-    else
-        { mTextureBuffer = inBuffer; }
-    return mStatus;
+    mTextureBuffer = inBuffer;
+    return OK;
 }

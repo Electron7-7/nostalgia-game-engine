@@ -11,11 +11,12 @@ public:
     SUPER(Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
+    virtual void Init() override;
 
     virtual Error Import() override;
 
 protected:
-    images_t m_pImages{nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
+    images_t m_pImages{};
 };
 
 #endif // CUBEMAP_TEXTURE_H

@@ -15,28 +15,23 @@ void Mesh::Ready()
 {
     Super::Ready();
 
-    VariableRegistry::try_GetResourceData(mUID, m_pFileData);
     mVertexArray = VertexArray::Create();
     std::vector<float> vertices{};
     std::vector<uint>  indices{};
-    if(!s_CreateMeshData(vertices, indices, m_pFileData))
+    if(!s_CreateMeshData(vertices, indices, m_pModel))
     {
         print_error("Mesh#{} failed to parse mesh data", mUID());
-        mStatus = ERR_DATA_LOAD;
         return;
     }
     mVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
     mVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
-    mStatus = OK;
 }
 
 void Mesh::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    if(std::string path{}; data.get_variable(path, "Model") == OK)
-        { m_pFileData->LoadFile(path); }
-
+    data.get_variable(m_pModel, "Model", "File");
     data.get_variable(mMaterialID, "Material");
 
 }
@@ -45,6 +40,7 @@ Shared<ThingData> Mesh::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
+    data->set_variable(m_pModel, "Model");
     data->set_variable(mMaterialID, "Material");
 
     return data;

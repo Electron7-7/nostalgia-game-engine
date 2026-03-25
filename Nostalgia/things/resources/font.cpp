@@ -9,21 +9,17 @@ void Font::Ready()
 {
     Super::Ready();
 
-    VariableRegistry::try_GetResourceData(mUID, m_pFileData);
-
     FT_Library ft;
     if(FT_Init_FreeType(&ft))
     {
         print_error("Could not init FreeType Library!");
-        mStatus = ERR_INIT_FAILED;
         return;
     }
 
     FT_Face face;
-    if(FT_New_Memory_Face(ft, m_pFileData->Data(), m_pFileData->Size(), 0, &face))
+    if(FT_New_Memory_Face(ft, m_pFont->Data(), m_pFont->Size(), 0, &face))
     {
         print_error("FreeType failed to load font");
-        mStatus = ERR_DATA_LOAD;
         return;
     }
 
@@ -61,9 +57,7 @@ void Font::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    if(std::string path{}; data.get_variable(path, "Font") == OK)
-        { print_error_enum(m_pFileData->LoadFile(path)); }
-
+    data.get_variable(m_pFont, "Font", "File");
     data.get_variable(mFontSize, "Height", "Size");
 }
 
@@ -71,6 +65,7 @@ Shared<ThingData> Font::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
+    data->set_variable(m_pFont, "File");
     data->set_variable(mFontSize, "Height");
 
     return data;

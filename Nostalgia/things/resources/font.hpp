@@ -37,6 +37,7 @@ public:
 
 protected:
     friend class ImGui_Debugger;
+    Shared<FileData> m_pFont{MakeShared<FileData>()};
     void* m_pFace{nullptr};
     int mFontSize{48};
     long mFontAscend{0};

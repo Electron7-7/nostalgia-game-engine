@@ -21,6 +21,7 @@ public:
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
 protected:
+    Shared<FileData> m_pTexture{MakeShared<FileData>()};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     RMutex mTextureBufferMutex{};
     TextureFormat mFormat{};

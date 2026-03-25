@@ -6,15 +6,8 @@ class Resource : public Thing
 {
 public:
     SUPER(Thing)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
 
-    Error Status() const;
-    Shared<FileData> Data();
-
-protected:
-    Shared<FileData> m_pFileData{MakeShared<FileData>()};
-    Error mStatus;
+    virtual void Init() {}
 };
 
 template<typename T>

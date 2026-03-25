@@ -63,7 +63,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/resources/cubemap_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/texture.cpp
-    ${NOSTALGIA_ROOT}/things/resources/resource.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/visual_3d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/mesh_instance_3d.cpp

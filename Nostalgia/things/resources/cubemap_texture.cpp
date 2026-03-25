@@ -6,57 +6,45 @@ using namespace TheatreFile;
 void CubemapTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
-    m_pFileData = nullptr;
     for(uint i{0}; i < 6; ++i)
-    {
-        if(std::string path{}; data.get_variable(path, "Image" + std::to_string(i)) == OK)
-        {
-            m_pImages[i] = MakeShared<FileData>();
-            print_error_enum(m_pImages[i]->LoadFile(path));
-        }
-    }
+        { data.get_variable(m_pImages[i], "Image" + std::to_string(i)); }
 }
 
 Shared<ThingData> CubemapTexture::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
-    uint i{0};
-    for(FAUTO image : m_pImages)
-    {
-        if(!image) { continue; }
-        else if(image->HasPath())
-            { data->set_variable(image->Path(), "Image" + std::to_string(i)); }
-    }
+    for(uint i{0}; i < 6; ++i)
+        { data->set_variable(m_pImages[i], "Image" + std::to_string(i)); }
     return data;
+}
+
+void CubemapTexture::Init()
+{
+    for(uint i{0}; i < 6; ++i)
+        { m_pImages[i] = MakeShared<FileData>(); }
 }
 
 Error CubemapTexture::Import()
 {
-    mStatus = FAILED;
+    Error status{};
+
     mTextureBuffer = TextureBuffer::Create();
 
     for(int i{0}; i < 6; ++i)
     {
-        if(UID::GetReservedType(mUID()) == UID::ReservedType::Image)
-            { VariableRegistry::try_GetResourceData(mUID() + i, m_pImages[i]); }
+        auto image_data{ImageHandler::Load(m_pImages[i], mFormat, status)};
 
-        if(m_pImages[i])
+        if(print_error_enum(status))
         {
-            auto image_data{ImageHandler::Load(m_pImages[i], mFormat, mStatus)};
-
-            if(print_error_enum(mStatus))
-            {
-                print_error("Failed to load image data for Texture ['{}', {}]",
-                    mName,
-                    mUID());
-            }
-            mStatus = mTextureBuffer->Load(image_data, mFormat);
-
-            ImageHandler::Free(image_data);
+            print_error("Failed to load image data for Texture ['{}', {}]",
+                mName,
+                mUID());
         }
+        mTextureBuffer->Load(image_data, mFormat);
+        ImageHandler::Free(image_data);
     }
 
-    if(!print_error_enum(mStatus))
+    if(!print_error_enum(status))
         { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
     else
     {
@@ -64,5 +52,5 @@ Error CubemapTexture::Import()
         mTextureBuffer->SetSamplerState(mSampler);
     }
 
-    return mStatus;
+    return status;
 }

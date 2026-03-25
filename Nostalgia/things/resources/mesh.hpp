@@ -6,6 +6,8 @@
 class Mesh : public Resource
 {
 public:
+    Mesh(Shared<FileData> inModel) noexcept;
+
     SUPER(Resource)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
@@ -18,6 +20,7 @@ public:
     virtual void MaterialID(ID);
 
 protected:
+    Shared<FileData> m_pModel{MakeShared<FileData>()};
     Shared<VertexArray> mVertexArray{nullptr};
     ID mMaterialID{};
 };
