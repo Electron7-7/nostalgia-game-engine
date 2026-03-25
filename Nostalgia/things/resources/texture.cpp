@@ -1,16 +1,22 @@
 #include "./texture.hpp"
+#include "things/thing_factory.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
-void Texture::Ready()
-{ Import(); }
+Shared<Texture> Texture::CreateFromMemory(const uchar* inData, size_t inSize, ID inUID, Sarg inName)
+{
+    Shared<Texture> output{DCast<Texture>(ThingFactory::MakeResource(ThingType::Texture, inName, inUID))};
+    output->m_pImage = MakeShared<FileData>(inData, inSize);
+    output->Import();
+    return output;
+}
 
 void Texture::SetVariables(Farg<ThingData> data)
 {
-    Resource::SetVariables(data);
-    data.get_variable(m_pTexture, "Image", "File", "Data", "Path");
+    Super::SetVariables(data);
+    data.get_variable(m_pImage, "Image", "File", "Data", "Path");
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -28,12 +34,15 @@ void Texture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
     // data.get_variable(mBoundToFramebuffer, "Bound to Framebuffer");
+
+    if(m_pImage)
+        { Import(); }
 }
 
 Shared<ThingData> Texture::GetVariables() const
 {
-    auto data{Resource::GetVariables()};
-    data->set_variable(m_pTexture, "Image");
+    auto data{Super::GetVariables()};
+    data->set_variable(m_pImage, "Image");
     data->set_variable(mFormat.type, "Type");
     data->set_variable(mFormat.data_format, "Format");
     data->set_variable(mFormat.width, "Width");
@@ -56,14 +65,14 @@ Shared<ThingData> Texture::GetVariables() const
 Error Texture::Import()
 {
     mTextureBuffer = TextureBuffer::Create();
-    if(not m_pTexture)
+    if(not m_pImage)
     {
         print_error("No image data found/loaded");
         return ERR_EMPTY;
     }
 
     Error status{};
-    auto image_data{ImageHandler::Load(m_pTexture, mFormat, status)};
+    auto image_data{ImageHandler::Load(m_pImage, mFormat, status)};
 
     if(print_error_enum(status))
     {

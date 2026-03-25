@@ -6,8 +6,10 @@
 class Texture : public Resource
 {
 public:
+    static Shared<Texture> CreateFromMemory(const uchar* inData, size_t inSize,
+        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Texture");
+
     SUPER(Resource)
-    READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
@@ -21,7 +23,7 @@ public:
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
 protected:
-    Shared<FileData> m_pTexture{MakeShared<FileData>()};
+    Shared<FileData> m_pImage{MakeShared<FileData>()};
     Shared<TextureBuffer> mTextureBuffer{nullptr};
     RMutex mTextureBufferMutex{};
     TextureFormat mFormat{};
