@@ -20,23 +20,11 @@ void Font::Ready()
     }
 
     FT_Face face;
-    if(m_pFileData->HasPath())
+    if(FT_New_Memory_Face(ft, m_pFileData->Data(), m_pFileData->Size(), 0, &face))
     {
-        if(FT_New_Face(ft, m_pFileData->Path().data(), 0, &face))
-        {
-            print_error("FreeType failed to load font from file at '{}'", m_pFileData->Path());
-            mStatus = ERR_FILE_LOAD;
-            return;
-        }
-    }
-    else
-    {
-        if(FT_New_Memory_Face(ft, m_pFileData->Data(), m_pFileData->Size(), 0, &face))
-        {
-            print_error("FreeType failed to load font");
-            mStatus = ERR_DATA_LOAD;
-            return;
-        }
+        print_error("FreeType failed to load font");
+        mStatus = ERR_DATA_LOAD;
+        return;
     }
 
     FT_Set_Pixel_Sizes(face, 0, mFontSize);
