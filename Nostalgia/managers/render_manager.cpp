@@ -3,6 +3,7 @@
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "rendering/renderer_api.hpp"
+#include "theatre/resource_database.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
 using namespace ManagerEnums;
@@ -18,7 +19,10 @@ bool RenderManager::Init()
 }
 
 void RenderManager::Shutdown()
-{ mRendererAPI->Shutdown(); }
+{
+    ResourceDatabase::DestroyAll();
+    mRendererAPI->Shutdown();
+}
 
 ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 { return FINISHED; }
