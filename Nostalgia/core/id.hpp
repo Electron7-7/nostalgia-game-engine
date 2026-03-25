@@ -65,8 +65,12 @@ public:
     virtual const char*     c_name() const;
     virtual std::string        log() const;
 
-    PID_PID_OPERATOR(==)
-    PID_PID_OPERATOR(!=)
+    bool operator==(Farg<PID> inOther) const noexcept
+    { return id_ == inOther.id_ and not name_.compare(inOther.name_); }
+
+    bool operator!=(Farg<PID> inOther) const noexcept
+    { return not (*this == inOther); }
+
     PID_PID_OPERATOR(<)
     PID_PID_OPERATOR(<=)
     PID_PID_OPERATOR(>)
