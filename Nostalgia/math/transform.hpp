@@ -12,10 +12,10 @@ struct Transform2D
 struct Transform3D
 {
     glm::vec3 position{0.0f},
-        euler_rotation_radians{0.0f},
-        euler_rotation_degrees{0.0f},
+        rotation{0.0f},
+        rotation_degrees{0.0f},
         scale{1.0f};
-    glm::quat quaternion{euler_rotation_radians};
+    glm::quat quaternion{rotation};
 
     glm::mat4 translation_matrix() const
     { return glm::translate(glm::mat4{1.0f}, position); }
