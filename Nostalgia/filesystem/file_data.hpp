@@ -20,7 +20,7 @@ public:
     static FileType s_DetectFileType(Farg<std::string> FilePath);
 
     FileData();
-    FileData(const unsigned char* Data, int Size, FileType Type);
+    FileData(const unsigned char* Data, int Size, FileType Type = FileType::Unknown);
     FileData(Farg<std::string> Path, FileType Type = FileType::Unknown);
     ~FileData();
 
