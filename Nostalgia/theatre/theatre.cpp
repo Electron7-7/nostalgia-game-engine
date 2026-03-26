@@ -838,11 +838,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         if(not mesh->MeshData())
             { mesh = GetResource<Mesh>(UID::m_Error); }
 
-        // https://www.reddit.com/r/opengl/comments/t01fwn/comment/hy7mezc
-        glm::mat4 scaleMat    {glm::scale(glm::mat4{1.0f}, scale_vector)},
-            transMat          {glm::translate(glm::mat4{1.0f}, visual3d->GlobalPosition())},
-            rotMat            {glm::mat4_cast(glm::normalize(glm::quat{visual3d->GlobalRotation()}))},
-            model_matrix      {transMat * rotMat * scaleMat};
+        glm::mat4 model_matrix{visual3d->GlobalTransform().model_matrix()};
 
         shader->SetUniform("model_matrix", model_matrix);
         shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
