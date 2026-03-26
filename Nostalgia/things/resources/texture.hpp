@@ -6,8 +6,7 @@
 class Texture : public Resource
 {
 public:
-    static Shared<Texture> CreateFromMemory(const uchar* inData, size_t inSize,
-        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Texture");
+    static Shared<Texture> CreateFromMemory(const uchar* inData, size_t inSize);
 
     SUPER(Resource)
     SET_VARIABLES_OVERRIDE

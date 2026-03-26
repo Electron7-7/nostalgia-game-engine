@@ -13,8 +13,7 @@ public:
     enum ModelType : int
     { MODEL_OBJ };
 
-    static Shared<Mesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType,
-        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Mesh");
+    static Shared<Mesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType);
 
     virtual Farg<Shared<VertexArray>> MeshData() const;
     virtual void MeshData(Shared<VertexArray>);

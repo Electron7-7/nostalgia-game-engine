@@ -4,10 +4,9 @@
 
 using namespace TheatreFile;
 
-Shared<CubemapTexture> CubemapTexture::CreateFromMemory(std::initializer_list<FileData> inImages,
-    ID inUID, Sarg inName)
+Shared<CubemapTexture> CubemapTexture::CreateFromMemory(std::initializer_list<FileData> inImages)
 {
-    auto output{DCast<CubemapTexture>(ThingFactory::MakeResource(ThingType::CubemapTexture, inName, inUID))};
+    auto output{DCast<CubemapTexture>(ThingFactory::MakeResource(ThingType::CubemapTexture, "Untitled_Cubemap"))};
     output->mFormat.type = TEXTURE_TYPE_CUBE;
     int i{0};
     for(FAUTO image : inImages)

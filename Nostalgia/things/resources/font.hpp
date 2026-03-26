@@ -26,8 +26,7 @@ public:
 
     using GlyphsMap = std::unordered_map<char, Glyph>;
 
-    static Shared<Font> CreateFromMemory(const uchar* inData, size_t inSize,
-        ID inOptionalUID = {}, Sarg inOptionalName = "Untitled_Font");
+    static Shared<Font> CreateFromMemory(const uchar* inData, size_t inSize);
 
     SUPER(Resource)
     SET_VARIABLES_OVERRIDE

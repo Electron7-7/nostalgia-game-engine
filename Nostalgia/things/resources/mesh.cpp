@@ -12,9 +12,9 @@ using namespace TheatreFile;
 static Error s_CreateMeshData(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
 static Error s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<Shared<FileData>>);
 
-Shared<Mesh> Mesh::CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType, ID inUID, Sarg inName)
+Shared<Mesh> Mesh::CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType)
 {
-    Shared<Mesh> output{DCast<Mesh>(ThingFactory::MakeThing(ThingType::Mesh, inName, inUID))};
+    Shared<Mesh> output{DCast<Mesh>(ThingFactory::MakeThing(ThingType::Mesh, "Untitled_Mesh"))};
     switch(inType)
     {
     case MODEL_OBJ:

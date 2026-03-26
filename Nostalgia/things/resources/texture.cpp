@@ -5,9 +5,9 @@
 
 using namespace TheatreFile;
 
-Shared<Texture> Texture::CreateFromMemory(const uchar* inData, size_t inSize, ID inUID, Sarg inName)
+Shared<Texture> Texture::CreateFromMemory(const uchar* inData, size_t inSize)
 {
-    Shared<Texture> output{DCast<Texture>(ThingFactory::MakeResource(ThingType::Texture, inName, inUID))};
+    Shared<Texture> output{DCast<Texture>(ThingFactory::MakeResource(ThingType::Texture, "Untitled_Texture"))};
     output->m_pImage = MakeShared<FileData>(inData, inSize);
     output->Import();
     return output;
