@@ -24,24 +24,30 @@ public:
     Farg<glm::vec3> RotationDegrees() const;
     Farg<glm::vec3> Scale() const;
 
+    Farg<Transform3D> GlobalTransform() const;
+    Farg<Transform3D> LocalTransform() const;
+
     glm::vec3 GlobalPosition() const;
     glm::vec3 GlobalRotation() const;
     glm::vec3 GlobalRotationDegrees() const;
     glm::vec3 GlobalScale() const;
 
 protected:
-    Transform3D mLocalTransform{};
-
-    void _update_global_transform();
+    Transform3D mLocalTrans{};
 
     virtual void OnChildAdded(Relative) override;
 
 private:
-    Transform3D mGlobalTransform{mLocalTransform};
-    Transform3D mParentGlobalTransform{};
+    mutable RMutex mTransformMutex{}; // evil mutable keyword usage bc mutex
 
-    void _update_global_transform(Farg<Transform3D> inParentGlobalTransform);
-    void _update_children_global_transform(bool isCalledFromReady = false);
+    Transform3D mParentGlobalTrans{};
+    Transform3D mGlobalTrans{mLocalTrans};
+
+    void _set_parent_global_transform(Farg<Transform3D>);
+
+    void _update_global_transform();
+    void _update_children_global_transform();
+    void _update_child_global_transform(ID);
 };
 
 #endif // ACTOR_3D_H

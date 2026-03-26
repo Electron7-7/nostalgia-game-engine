@@ -1,29 +1,33 @@
 #include "./actor_3d.hpp"
 #include "theatre/theatre.hpp"
 
+#define LOCK_TRANSFORM LockGuard<RMutex> trans_lock{mTransformMutex}
+
 using namespace TheatreFile;
 
 void Actor3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(mLocalTransform.position, "Position", "Origin");
-    data.get_variable(mLocalTransform.scale, "Scale", "Size", "OuuughImSoBigAndRound");
-    if(data.get_variable(mLocalTransform.euler_rotation_degrees, "RotationDegrees", "EulerDegrees") == OK)
+    LOCK_TRANSFORM;
+
+    data.get_variable(mLocalTrans.position, "Position", "Origin");
+    data.get_variable(mLocalTrans.scale, "Scale", "Size", "OuuughImSoBigAndRound");
+    if(data.get_variable(mLocalTrans.rotation_degrees, "RotationDegrees", "EulerDegrees") == OK)
     {
-        mLocalTransform.euler_rotation_radians = glm::radians(mLocalTransform.euler_rotation_degrees);
-        mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
+        mLocalTrans.rotation = glm::radians(mLocalTrans.rotation_degrees);
+        mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
     }
-    if(data.get_variable(mLocalTransform.euler_rotation_radians,
+    if(data.get_variable(mLocalTrans.rotation,
         "Rotation", "RotationRadians", "Euler", "EulerRadians") == OK)
     {
-        mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
-        mLocalTransform.euler_rotation_degrees = glm::degrees(mLocalTransform.euler_rotation_radians);
+        mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
+        mLocalTrans.rotation_degrees = glm::degrees(mLocalTrans.rotation);
     }
-    if(data.get_variable(mLocalTransform.quaternion, "Quaternion") == OK)
+    if(data.get_variable(mLocalTrans.quaternion, "Quaternion") == OK)
     {
-        mLocalTransform.euler_rotation_radians = glm::radians(mLocalTransform.euler_rotation_degrees);
-        mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
+        mLocalTrans.rotation = glm::radians(mLocalTrans.rotation_degrees);
+        mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
     }
 }
 
@@ -31,9 +35,11 @@ Shared<ThingData> Actor3D::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(mLocalTransform.position, "Position");
-    data->set_variable(mLocalTransform.quaternion, "Quaternion");
-    data->set_variable(mLocalTransform.scale, "Scale");
+    LOCK_TRANSFORM;
+
+    data->set_variable(mLocalTrans.position, "Position");
+    data->set_variable(mLocalTrans.quaternion, "Quaternion");
+    data->set_variable(mLocalTrans.scale, "Scale");
 
     return data;
 }
@@ -44,104 +50,142 @@ void Actor3D::Ready()
     if(auto parent_id{Theatre::Current()->GetParent(uid())};
         parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor3D))
     {
-        mGlobalTransform = mLocalTransform;
-        _update_children_global_transform(true);
+        mGlobalTrans = mLocalTrans;
+        _update_children_global_transform();
     }
 }
 
 Farg<glm::vec3> Actor3D::Position() const
-{ return mLocalTransform.position; }
+{
+    LOCK_TRANSFORM;
+    return mLocalTrans.position;
+}
 
 Farg<glm::quat> Actor3D::Quaternion() const
-{ return mLocalTransform.quaternion; }
+{
+    LOCK_TRANSFORM;
+    return mLocalTrans.quaternion;
+}
 
 Farg<glm::vec3> Actor3D::Rotation() const
-{ return mLocalTransform.euler_rotation_radians; }
+{
+    LOCK_TRANSFORM;
+    return mLocalTrans.rotation;
+}
 
 Farg<glm::vec3> Actor3D::RotationDegrees() const
-{ return mLocalTransform.euler_rotation_degrees; }
+{
+    LOCK_TRANSFORM;
+    return mLocalTrans.rotation_degrees;
+}
 
 Farg<glm::vec3> Actor3D::Scale() const
-{ return mLocalTransform.scale; }
+{
+    LOCK_TRANSFORM;
+    return mLocalTrans.scale;
+}
+
+Farg<Transform3D> Actor3D::GlobalTransform() const
+{ return mGlobalTrans; }
+
+Farg<Transform3D> Actor3D::LocalTransform() const
+{ return mLocalTrans; }
 
 glm::vec3 Actor3D::GlobalPosition() const
-{ return mGlobalTransform.position; }
+{
+    LOCK_TRANSFORM;
+    return mGlobalTrans.position;
+}
 
 glm::vec3 Actor3D::GlobalRotation() const
-{ return mGlobalTransform.euler_rotation_radians; }
+{
+    LOCK_TRANSFORM;
+    return mGlobalTrans.rotation;
+}
 
 glm::vec3 Actor3D::GlobalRotationDegrees() const
-{ return mGlobalTransform.euler_rotation_degrees; }
+{
+    LOCK_TRANSFORM;
+    return mGlobalTrans.rotation_degrees;
+}
 
 glm::vec3 Actor3D::GlobalScale() const
-{ return mGlobalTransform.scale; }
+{
+    LOCK_TRANSFORM;
+    return mGlobalTrans.scale;
+}
 
 void Actor3D::SetPosition(Farg<glm::vec3> inPosition)
 {
-    mLocalTransform.position = inPosition;
-    _update_global_transform(mParentGlobalTransform);
+    LOCK_TRANSFORM;
+    mLocalTrans.position = inPosition;
+    _update_global_transform();
 }
 
 void Actor3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
-    mLocalTransform.quaternion = glm::normalize(inQuaternion);
-    mLocalTransform.euler_rotation_radians = glm::eulerAngles(mLocalTransform.quaternion);
-    mLocalTransform.euler_rotation_degrees = glm::degrees(mLocalTransform.euler_rotation_radians);
-    _update_global_transform(mParentGlobalTransform);
+    LOCK_TRANSFORM;
+    mLocalTrans.quaternion = glm::normalize(inQuaternion);
+    mLocalTrans.rotation = glm::eulerAngles(mLocalTrans.quaternion);
+    mLocalTrans.rotation_degrees = glm::degrees(mLocalTrans.rotation);
+    _update_global_transform();
 }
 
 void Actor3D::SetRotation(Farg<glm::vec3> inRotation)
 {
-    mLocalTransform.euler_rotation_radians = inRotation;
-    mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
-    mLocalTransform.euler_rotation_degrees = glm::degrees(mLocalTransform.euler_rotation_radians);
-    _update_global_transform(mParentGlobalTransform);
+    LOCK_TRANSFORM;
+    mLocalTrans.rotation = inRotation;
+    mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
+    mLocalTrans.rotation_degrees = glm::degrees(mLocalTrans.rotation);
+    _update_global_transform();
 }
 
 void Actor3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
-    mLocalTransform.euler_rotation_degrees = inRotation;
-    mLocalTransform.euler_rotation_radians = glm::radians(mLocalTransform.euler_rotation_degrees);
-    mLocalTransform.quaternion = glm::normalize(glm::quat{mLocalTransform.euler_rotation_radians});
-    _update_global_transform(mParentGlobalTransform);
+    LOCK_TRANSFORM;
+    mLocalTrans.rotation_degrees = inRotation;
+    mLocalTrans.rotation = glm::radians(mLocalTrans.rotation_degrees);
+    mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
+    _update_global_transform();
 }
 
 void Actor3D::SetScale(Farg<glm::vec3> inScale)
 {
-    mLocalTransform.scale = inScale;
-    _update_global_transform(mParentGlobalTransform);
-}
-
-void Actor3D::_update_global_transform()
-{ _update_global_transform(mParentGlobalTransform); }
-
-void Actor3D::_update_global_transform(Farg<Transform3D> inTransform)
-{
-    mGlobalTransform.scale = inTransform.scale * mLocalTransform.scale;
-    mGlobalTransform.euler_rotation_degrees = inTransform.euler_rotation_degrees + mLocalTransform.euler_rotation_degrees;
-    mGlobalTransform.euler_rotation_radians = inTransform.euler_rotation_radians + mLocalTransform.euler_rotation_radians;
-    mGlobalTransform.quaternion = inTransform.quaternion * mLocalTransform.quaternion;
-    mGlobalTransform.position = mLocalTransform.position *
-        glm::inverse(inTransform.quaternion) + inTransform.position;
-    mParentGlobalTransform = inTransform;
-
-    _update_children_global_transform();
-}
-
-void Actor3D::_update_children_global_transform(bool isCalledFromReady)
-{
-    if(not Theatre::Current()->IsStarted() and not isCalledFromReady)
-        { return; }
-    auto children{Theatre::Current()->GetChildren(uid())};
-    for(auto child_id : children)
-    {
-        if(not child_id.invalid() and Theatre::Current()->DerivedFrom(child_id, ThingType::Actor3D))
-            { Theatre::Current()->GetThinker<Actor3D>(child_id)->_update_global_transform(mGlobalTransform); }
-    }
+    LOCK_TRANSFORM;
+    mLocalTrans.scale = inScale;
+    _update_global_transform();
 }
 
 void Actor3D::OnChildAdded(Relative inChild)
+{ _update_child_global_transform(inChild.uid); }
+
+void Actor3D::_set_parent_global_transform(Farg<Transform3D> inTransform)
 {
-    if(Theatre::Current()->DerivedFrom(inChild.uid(), ThingType::Actor3D))
-        { Theatre::Current()->GetThinker<Actor3D>(inChild.uid())->_update_global_transform(mGlobalTransform); }
+    LOCK_TRANSFORM;
+    mParentGlobalTrans = inTransform;
+    _update_global_transform();
+}
+
+void Actor3D::_update_global_transform()
+{
+    LOCK_TRANSFORM;
+    mGlobalTrans.scale = mParentGlobalTrans.scale * mLocalTrans.scale;
+    mGlobalTrans.quaternion = mParentGlobalTrans.quaternion * mLocalTrans.quaternion;
+    mGlobalTrans.rotation = mParentGlobalTrans.rotation + mLocalTrans.rotation;
+    mGlobalTrans.rotation_degrees = glm::degrees(mGlobalTrans.rotation);
+    mGlobalTrans.position = mParentGlobalTrans.model_matrix() * mLocalTrans.model_matrix()[3];
+    _update_children_global_transform();
+}
+
+void Actor3D::_update_children_global_transform()
+{
+    auto children{Theatre::Current()->GetChildren(uid())};
+    for(auto child_id : children)
+        { _update_child_global_transform(child_id); }
+}
+
+void Actor3D::_update_child_global_transform(ID inUID)
+{
+    if(Theatre::Current()->DerivedFrom(inUID, ThingType::Actor3D))
+        { Theatre::Current()->GetThinker<Actor3D>(inUID)->_set_parent_global_transform(mGlobalTrans); }
 }

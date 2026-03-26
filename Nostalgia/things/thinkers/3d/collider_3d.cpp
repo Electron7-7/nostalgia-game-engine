@@ -118,9 +118,9 @@ void Collider3D::Tick()
     auto new_pos{Convert<glm::vec3>(PhysicsEngine::Instance()
         ->BodyInterface()
             .GetCenterOfMassPosition(mBodyID))};
-    if(new_quat != mLocalTransform.quaternion)
+    if(new_quat != mLocalTrans.quaternion)
         { Super::SetQuaternion(new_quat); }
-    if(new_pos != mLocalTransform.position)
+    if(new_pos != mLocalTrans.position)
         { Super::SetPosition(new_pos); }
 }
 
@@ -152,50 +152,45 @@ void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
     Super::SetPosition(inPosition);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
-        Math::Convert<Quat>(mLocalTransform.quaternion),
+        Math::Convert<Vec3>(mLocalTrans.position),
+        Math::Convert<Quat>(mLocalTrans.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
-    _update_global_transform();
 }
 
 void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
 {
     Super::SetQuaternion(inQuaternion);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
-        Math::Convert<Quat>(mLocalTransform.quaternion),
+        Math::Convert<Vec3>(mLocalTrans.position),
+        Math::Convert<Quat>(mLocalTrans.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
-    _update_global_transform();
 }
 
 void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
 {
     Super::SetRotation(inRotation);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
-        Math::Convert<Quat>(mLocalTransform.quaternion),
+        Math::Convert<Vec3>(mLocalTrans.position),
+        Math::Convert<Quat>(mLocalTrans.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
-    _update_global_transform();
 }
 
 void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 {
     Super::SetRotationDegrees(inRotation);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
-        Math::Convert<Quat>(mLocalTransform.quaternion),
+        Math::Convert<Vec3>(mLocalTrans.position),
+        Math::Convert<Quat>(mLocalTrans.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
-    _update_global_transform();
 }
 
 void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
     Super::SetScale(inScale);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
-        Math::Convert<Quat>(mLocalTransform.quaternion),
+        Math::Convert<Vec3>(mLocalTrans.position),
+        Math::Convert<Quat>(mLocalTrans.quaternion),
         PhysicsEngine::GetActivation(mActivateOnNextChange));
-    _update_global_transform();
 }
 
 Error Collider3D::SetMaterial(Farg<ColliderMaterial> inMaterial)
@@ -215,11 +210,11 @@ Error Collider3D::SetShape(ShapeType inShape, bool isActive)
     ASSERT_BODYID(ERR_INVALID_ID)
     mShape = inShape;
     PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTransform.scale))->Create().Get(),
+        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTrans.scale))->Create().Get(),
         true,
         PhysicsEngine::GetActivation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
+        Math::Convert<Vec3>(mLocalTrans.position),
         true,
         PhysicsEngine::GetActivation(isActive));
     return OK;
@@ -230,11 +225,11 @@ Error Collider3D::SetMotion(MotionType inMotion, bool isActive)
     ASSERT_BODYID(ERR_INVALID_ID)
     mMotion = inMotion;
     PhysicsEngine::Instance()->BodyInterface().SetShape(mBodyID,
-        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTransform.scale))->Create().Get(),
+        s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTrans.scale))->Create().Get(),
         true,
         PhysicsEngine::GetActivation(isActive));
     PhysicsEngine::Instance()->BodyInterface().NotifyShapeChanged(mBodyID,
-        Math::Convert<Vec3>(mLocalTransform.position),
+        Math::Convert<Vec3>(mLocalTrans.position),
         true,
         PhysicsEngine::GetActivation(isActive));
     return OK;
@@ -256,9 +251,9 @@ bool Collider3D::CreateBody(bool setActive)
 {
     m_pBodyCreationSettings =
         MakeShared<BodyCreationSettings>(
-            s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTransform.scale)),
-            Math::Convert<Vec3>(mLocalTransform.position),
-            Math::Convert<Quat>(mLocalTransform.quaternion),
+            s_ShapeSettingsMakers.at(mShape)(Math::Convert<Vec3>(mLocalTrans.scale)),
+            Math::Convert<Vec3>(mLocalTrans.position),
+            Math::Convert<Quat>(mLocalTrans.quaternion),
             PhysicsEngine::ConvertMotionType(mMotion),
             PhysicsEngine::GetObjectLayer(mMotion));
 
