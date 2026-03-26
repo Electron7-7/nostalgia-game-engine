@@ -40,15 +40,17 @@ public:
     Farg<TheatreFile::TheatreData> InitialState() const;
     TheatreFile::TheatreData       CurrentState();
 
-    IdVec_t   ThingIDs();
-    bool      ThingExists(ID);
-    bool      ThingExists(Sarg inName);
-    FPID      TypeOf(ID);
-    bool      DerivedFrom(ID, FPID);
-    ID        CreateThing(Farg<TheatreFile::ThingData>);
-    Error     DestroyThing(ID);
-    ID        GetUID(Sarg inName);
-    Sarg      GetName(ID);
+    IdVec_t ThingIDs();
+    bool    ThingExists(ID);
+    bool    ThingExists(Sarg inName);
+    FPID    TypeOf(ID);
+    bool    DerivedFrom(ID, FPID);
+    ID      CreateThing(Farg<TheatreFile::ThingData>);
+    Error   DestroyThing(ID);
+    ID      GetUID(Sarg inName);
+    Sarg    GetName(ID);
+    Error   SetName(ID inUID, Sarg inNewName);
+    Error   SetName(Sarg inOldName, Sarg inNewName);
 
     Shared<Viewport> GetRootViewport();
     IdSet_arg GetViewports(); // Does not include the root viewport

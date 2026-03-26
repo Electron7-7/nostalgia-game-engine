@@ -720,7 +720,7 @@ Error Theatre::DestroyThingOnly(ID inID)
 
 void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 {
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     if(inViewport->CurrentCamera3D().invalid()
         and not inViewport->SetCurrentCamera3D())
