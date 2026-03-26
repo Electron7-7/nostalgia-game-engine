@@ -86,10 +86,10 @@ Error ResourceDatabase::SetName(ID inUID, Sarg inName)
         { return ERR_ALREADY_EXISTS; }
     else if(not Contains(inUID))
         { return ERR_NOT_FOUND; }
-    LOCK_THINGS;
-    auto resource{mThings.at(inUID)};
-    mNames.erase(resource->mName);
-    mNames[inName] = inUID;
+    LOCK_MUTEX;
+    auto resource{sResources.at(inUID)};
+    sNames.erase(resource->mName);
+    sNames[inName] = inUID;
     resource->mName = inName;
     return OK;
 }

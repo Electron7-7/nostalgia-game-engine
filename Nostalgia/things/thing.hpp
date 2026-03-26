@@ -4,11 +4,9 @@
 /// Forward Declaration
 class Theatre;
 /// Forward Declaration
-class Resource;
-/// Forward Declaration
 class InputEvent;
 /// Forward Declaration
-namespace ResourceDatabase { ID Register(Shared<Resource>, Sarg); }
+class ResourceDatabase;
 
 #define SUPER(Class) \
     using Super = Class; \
@@ -55,7 +53,7 @@ public:
 
 protected:
     friend class Theatre;
-    friend ID ResourceDatabase::Register(Shared<Resource>, Sarg);
+    friend class ResourceDatabase;
     std::string mName{""};
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
