@@ -6,7 +6,7 @@ Thing::~Thing() noexcept = default;
 Thing::Thing() noexcept = default;
 
 Thing::Thing(FPID inType, Sarg inName, ID inUID) noexcept:
-    mUID{inUID}, mName{inName}, mType{inType} {}
+    mName{inName}, mUID{inUID}, mType{inType} {}
 
 void Thing::SetVariables(Farg<ThingData> data)
 {
@@ -42,9 +42,6 @@ FPID Thing::type() const
 
 Farg<std::string> Thing::name() const
 { return mName; }
-
-void Thing::set_name(Sarg inName)
-{ mName = inName; }
 
 const char* const Thing::c_name() const
 { return mName.data(); }

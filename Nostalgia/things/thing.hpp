@@ -4,7 +4,11 @@
 /// Forward Declaration
 class Theatre;
 /// Forward Declaration
+class Resource;
+/// Forward Declaration
 class InputEvent;
+/// Forward Declaration
+namespace ResourceDatabase { ID Register(Shared<Resource>, Sarg); }
 
 #define SUPER(Class) \
     using Super = Class; \
@@ -46,16 +50,19 @@ public:
     TheatreFile::ThingData GetStartingVariables() const;
     ID uid() const;
     Sarg name() const;
-    void set_name(Sarg);
     const char* const c_name() const;
     FPID type() const;
 
 protected:
+    friend class Theatre;
+    friend ID ResourceDatabase::Register(Shared<Resource>, Sarg);
+    std::string mName{""};
+    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
+
+private:
     friend Error UID::Generate(Shared<Thing>);
     ID mUID{};
-    std::string mName{""};
     PID mType{};
-    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 };
 
 template<typename T>
