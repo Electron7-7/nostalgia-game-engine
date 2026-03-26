@@ -80,6 +80,27 @@ bool ResourceDatabase::DerivedFrom(ID inUID, FPID inType)
 bool ResourceDatabase::DerivedFrom(Sarg inName, FPID inType)
 { return ThingFactory::IsDerivedFrom(TypeOf(inName), inType); }
 
+Error ResourceDatabase::SetName(ID inUID, Sarg inName)
+{
+    if(Contains(inName))
+        { return ERR_ALREADY_EXISTS; }
+    else if(not Contains(inUID))
+        { return ERR_NOT_FOUND; }
+    LOCK_THINGS;
+    auto resource{mThings.at(inUID)};
+    mNames.erase(resource->mName);
+    mNames[inName] = inUID;
+    resource->mName = inName;
+    return OK;
+}
+
+Error ResourceDatabase::SetName(Sarg inOldName, Sarg inNewName)
+{
+    if(not Contains(inOldName))
+        { return ERR_NOT_FOUND; }
+    return SetName(GetUID(inOldName), inNewName);
+}
+
 FPID ResourceDatabase::TypeOf(ID inUID)
 {
     LOCK_MUTEX;

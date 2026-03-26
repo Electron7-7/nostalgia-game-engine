@@ -17,6 +17,8 @@ namespace ResourceDatabase
     ID GetUID(Sarg inName);
     bool DerivedFrom(ID inUID, FPID inType);
     bool DerivedFrom(Sarg inName, FPID inType);
+    Error SetName(ID inUID, Sarg inNewName);
+    Error SetName(Sarg inOldName, Sarg inNewName);
 
     USE_NAME_OR_UID(FPID TypeOf)
     USE_NAME_OR_UID(Error Destroy)
