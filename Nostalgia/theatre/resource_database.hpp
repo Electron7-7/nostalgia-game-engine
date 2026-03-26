@@ -7,8 +7,8 @@
 
 namespace ResourceDatabase
 {
-    ID Register(TheatreFile::ThingData inData);
-    ID Register(Shared<Resource> inResource);
+    ID Create(FPID inType, Sarg inName);
+    ID Register(Shared<Resource> inResource, Sarg inNameOverride = "");
 
     void DestroyAll(); // The nuclear option (should only really be used by the render manager when it shuts down)
 

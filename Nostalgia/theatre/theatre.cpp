@@ -130,7 +130,6 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     LockGuard<RMutex> things_lock{mThingsMutex};
     for(FAUTO [id, thing] : mThings)
     {
-        if(id() != UID::o_Player and UID::IsReserved(id())) { continue; }
         if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
             { print_debug("Saving [{}, {}]", thing->name(), id()); }
         output += thing->GetVariables()->get_parsable_string();
@@ -151,16 +150,9 @@ bool Theatre::Startup()
 
     VariableRegistry::RegisterEngineEnums();
 
-    m_pRootViewport = GetThinker<Viewport>(CreateThingNoReady({ThingType::Viewport,
-        "Root_Viewport", {}, UID::o_RootViewport}));
-
     CreateEmbeddedResources();
 
-    for(auto& thing_dat : *m_pInitialState)
-        { SetupUID(thing_dat); }
-
-    for(auto& thing_dat : *m_pInitialState)
-        { SetupOwnership(thing_dat, true); }
+    m_pRootViewport = GetThinker<Viewport>(UID::o_RootViewport = CreateThingNoReady({ThingType::Viewport, "Root_Viewport"}));
 
     for(auto& thing_dat : *m_pInitialState)
         { CreateThingNoReady(thing_dat, false); }
@@ -523,7 +515,7 @@ bool Theatre::LoadCurrentTheatreData()
         { SetupUID(thing_data); }
 
     for(auto& thing_data : *m_pInitialState)
-        { SetupOwnership(thing_data); }
+        { SetupOwnership(thing_data, true); }
 
     mInitStatus = OK;
     return true;
@@ -531,12 +523,9 @@ bool Theatre::LoadCurrentTheatreData()
 
 void Theatre::SetupUID(ThingData& ioData)
 {
-    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D))
-        { ioData.uid = UID::o_Player; }
-    else if(ioData.uid.invalid())
-        { print_error_enum(UID::Generate(ioData.uid)); }
-    else if(not UID::Contains(ioData.uid()))
-        { UID::Push(ioData.uid()); }
+    ioData.uid = UID::Generate();
+    if(ioData.name.empty())
+        { ioData.name = "Untitled_Thing"; }
     if(not ioData.name.empty())
         { mNames[ioData.name] = ioData.uid; }
     if(ThingFactory::IsThinker(ioData.type))
@@ -578,40 +567,54 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
 
 void Theatre::CreateEmbeddedResources()
 {
-    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide, std::size(Fonts::Audiowide),
-        UID::f_Audiowide, "Audiowide"));
-    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::DejaVuSans, std::size(Fonts::DejaVuSans),
-        UID::f_DejaVuSans, "DejaVuSans"));
-    ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana, std::size(Fonts::Verdana),
-        UID::f_Verdana, "Verdana"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error, std::size(Models::Error), Mesh::MODEL_OBJ,
-        UID::m_Error, "ErrorModel"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube, std::size(Models::Cube), Mesh::MODEL_OBJ,
-        UID::m_Cube, "DefaultCube"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad, std::size(Models::Quad), Mesh::MODEL_OBJ,
-        UID::m_Quad, "DefaultQuad"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel, std::size(Models::Ramiel), Mesh::MODEL_OBJ,
-        UID::m_Ramiel, "RamielModel"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera, std::size(Models::Camera), Mesh::MODEL_OBJ,
-        UID::m_Camera3D, "CameraModel"));
-    ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis, std::size(Models::DebugAxis),
-        Mesh::MODEL_OBJ, UID::m_DebugAxis, "3DAxisModel"));
-    ResourceDatabase::Register(Texture::CreateFromMemory(Images::Missing, std::size(Images::Missing),
-        UID::i_Missing, "MissingTexture"));
-    ResourceDatabase::Register(Texture::CreateFromMemory(Images::LightDebug, std::size(Images::LightDebug),
-        UID::i_LightDebug, "LightTexture"));
-    ResourceDatabase::Register(Texture::CreateFromMemory(Images::COMP04_5, std::size(Images::COMP04_5),
-        UID::i_COMP04_5, "DoomTexture"));
-    ResourceDatabase::Register(Texture::CreateFromMemory(Images::LolBit, std::size(Images::LolBit),
-        UID::i_LolBit, "LolBitTexture"));
-    ResourceDatabase::Register(CubemapTexture::CreateFromMemory({
-        FileData{Images::SkyboxXp, std::size(Images::SkyboxXp), FileType::image_PNG},
-        FileData{Images::SkyboxXn, std::size(Images::SkyboxXn), FileType::image_PNG},
-        FileData{Images::SkyboxYp, std::size(Images::SkyboxYp), FileType::image_PNG},
-        FileData{Images::SkyboxYn, std::size(Images::SkyboxYn), FileType::image_PNG},
-        FileData{Images::SkyboxZp, std::size(Images::SkyboxZp), FileType::image_PNG},
-        FileData{Images::SkyboxZn, std::size(Images::SkyboxZn), FileType::image_PNG}},
-        UID::i_ShittySkyboxXp, "ShittySkybox"));
+    UID::f_Audiowide =
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide, std::size(Fonts::Audiowide)),
+            "Audiowide");
+    UID::f_DejaVuSans =
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::DejaVuSans, std::size(Fonts::DejaVuSans)),
+            "DejaVuSans");
+    UID::f_Verdana =
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana, std::size(Fonts::Verdana)),
+            "Verdana");
+    UID::m_Error =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error, std::size(Models::Error), Mesh::MODEL_OBJ),
+            "ErrorModel");
+    UID::m_Cube =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube, std::size(Models::Cube), Mesh::MODEL_OBJ),
+            "DefaultCube");
+    UID::m_Quad =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad, std::size(Models::Quad), Mesh::MODEL_OBJ),
+            "DefaultQuad");
+    UID::m_Ramiel =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel, std::size(Models::Ramiel), Mesh::MODEL_OBJ),
+            "RamielModel");
+    UID::m_Camera3D =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera, std::size(Models::Camera), Mesh::MODEL_OBJ),
+            "CameraModel");
+    UID::m_DebugAxis =
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis, std::size(Models::DebugAxis), Mesh::MODEL_OBJ),
+            "3DAxisModel");
+    UID::t_Missing =
+        ResourceDatabase::Register(Texture::CreateFromMemory(Images::Missing, std::size(Images::Missing)),
+            "MissingTexture");
+    UID::t_LightDebug =
+        ResourceDatabase::Register(Texture::CreateFromMemory(Images::LightDebug, std::size(Images::LightDebug)),
+            "LightTexture");
+    UID::t_COMP04_5 =
+        ResourceDatabase::Register(Texture::CreateFromMemory(Images::COMP04_5, std::size(Images::COMP04_5)),
+            "DoomTexture");
+    UID::t_LolBit =
+        ResourceDatabase::Register(Texture::CreateFromMemory(Images::LolBit, std::size(Images::LolBit)),
+            "LolBitTexture");
+    UID::t_ShittySkybox =
+        ResourceDatabase::Register(CubemapTexture::CreateFromMemory(
+            {FileData{Images::SkyboxXp, std::size(Images::SkyboxXp), FileType::image_PNG},
+                FileData{Images::SkyboxXn, std::size(Images::SkyboxXn), FileType::image_PNG},
+                FileData{Images::SkyboxYp, std::size(Images::SkyboxYp), FileType::image_PNG},
+                FileData{Images::SkyboxYn, std::size(Images::SkyboxYn), FileType::image_PNG},
+                FileData{Images::SkyboxZp, std::size(Images::SkyboxZp), FileType::image_PNG},
+                FileData{Images::SkyboxZn, std::size(Images::SkyboxZn), FileType::image_PNG}
+            }), "ShittySkybox");
 }
 
 ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
@@ -621,19 +624,15 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
 {
     LockGuard<RMutex> lock{mThingsMutex};
 
-    if(ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)
-        and mThings.contains(UID::o_Player))
-            { print_warning("Only one player at a time, please!"); return UID::o_Player; }
-    else if(UID::IsReserved(ioData.uid()) and mThings.contains(ioData.uid()))
-        { return ioData.uid; }
-    else if(ThingExists(ioData.name))
-    {
-        if(FAUTO _thing{GetThing(ioData.name)}; _thing->type() == ioData.type)
-            { return _thing->uid(); }
-    }
+    bool is_player{ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)};
+
+    if(is_player and ThingExists(UID::o_Player))
+        { print_warning("Only one player at a time, please!"); return UID::o_Player; }
 
     if(doSetup)
     {
+        if(ThingExists(ioData.name))
+            { return GetUID(ioData.name); }
         SetupUID(ioData);
         SetupOwnership(ioData);
     }
@@ -644,7 +643,9 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
     thing->SetVariables(ioData);
     mNames[thing->name()] = thing->uid();
 
-    if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
+    if(is_player)
+        { UID::o_Player = ioData.uid; }
+    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera3D))
         { mCamera3DIDs.insert(thing->uid()); }
@@ -708,7 +709,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     auto view_matrix{camera->ViewMatrix()};
     auto projection_matrix{camera->ProjectionMatrix()};
 
-    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
     auto mesh{GetResource<Mesh>(ID::Invalid)};
 
     switch(camera->mEnvironment.mType)
@@ -852,7 +853,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
 
-    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
     auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
 
     for(ID v2d_id : mVisual2DIDs)

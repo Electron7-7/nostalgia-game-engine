@@ -9,25 +9,36 @@ static RMutex sMutex{};
 static std::map<ID, Shared<Resource>> sResources{};
 static std::map<std::string, ID> sNames{};
 
-ID ResourceDatabase::Register(TheatreFile::ThingData inData)
+ID ResourceDatabase::Create(FPID inType, Sarg inName)
 {
     LOCK_MUTEX;
-    if(inData.uid.invalid() and not print_error_enum(UID::Generate(inData.uid)))
-        { return ID::Invalid; }
-    return Register(ThingFactory::MakeResource(inData.type, inData.name, inData.uid));
+    if(Contains(inName))
+    {
+        print_error("A Resource with the name '{}' already exists", inName);
+        return ID::Invalid;
+    }
+    return Register(ThingFactory::MakeResource(inType, inName, UID::Generate()));
 }
 
-ID ResourceDatabase::Register(Shared<Resource> inResource)
+ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
 {
     LOCK_MUTEX;
-    if(Contains(inResource->uid()) or Contains(inResource->name()))
-        { return inResource->uid(); }
-    else if(inResource->uid().invalid())
+    if(inResource->uid().invalid() and not print_error_enum(UID::Generate(inResource)))
         { return ID::Invalid; }
-    sNames[inResource->name()] = inResource->uid();
-    sResources[inResource->uid()] = inResource;
+    else if(not inNameOverride.empty())
+        { inResource->set_name(inNameOverride); }
+
+    ID uid{inResource->uid()};
+    Sarg name{inResource->name()};
+
+    if(Contains(uid))
+        { return uid; }
+    else if(Contains(name))
+        { return GetUID(name); }
+    sNames[name] = uid;
+    sResources[uid] = inResource;
     inResource->Init();
-    return inResource->uid();
+    return uid;
 }
 
 void ResourceDatabase::DestroyAll()

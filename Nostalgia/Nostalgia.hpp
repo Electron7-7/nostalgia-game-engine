@@ -59,6 +59,7 @@
 #include <Nostalgia/core/types.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
+#include <Nostalgia/core/smart_pointers.hpp>          // IWYU pragma: keep
 #include <Nostalgia/core/constexpr_string_hash.hpp>   // IWYU pragma: keep
 #include <Nostalgia/core/id.hpp>                      // IWYU pragma: keep
 #include <Nostalgia/core/uid.hpp>                     // IWYU pragma: keep
@@ -72,7 +73,6 @@
 #include <Nostalgia/core/vector.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/macros.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/bitmask.hpp>                 // IWYU pragma: keep
-#include <Nostalgia/core/smart_pointers.hpp>          // IWYU pragma: keep
 #include <Nostalgia/core/enum_prettifier.hpp>         // IWYU pragma: keep
 #include <Nostalgia/console/console.hpp>              // IWYU pragma: keep
 #include <Nostalgia/math/conversion.hpp>              // IWYU pragma: keep

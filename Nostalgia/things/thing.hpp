@@ -51,7 +51,7 @@ public:
     FPID type() const;
 
 protected:
-    // friend class Theatre;
+    friend Error UID::Generate(Shared<Thing>);
     ID mUID{};
     std::string mName{""};
     PID mType{};

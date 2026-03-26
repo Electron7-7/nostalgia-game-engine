@@ -945,19 +945,11 @@ void ImGui_Debugger::InspectTheatreWindow()
             and g_pTheatreManager->Current()->DestroyThing(selected.ptr->uid()))
             { EndChild(); EndChild(); selected = last_selected; return; }
         SeparatorText("Properties");
-        if(UID::IsReserved(selected.id))
-        {
-            TextF("UID: {}", selected.id);
-            TextF("Name: {}", selected.name);
-        }
-        else
-        {
-            BeginDisabled();
-                InputUInt("UID", &selected.id);
-            EndDisabled();
-            if(InputText("Name", &selected.name))
-                { selected.ptr->set_name(selected.name); }
-        }
+        BeginDisabled();
+            InputUInt("UID", &selected.id);
+        EndDisabled();
+        if(InputText("Name", &selected.name))
+            { selected.ptr->set_name(selected.name); }
         if(selected.ptr)
             { Text("Type - %s", selected.ptr->type().c_name()); }
         static bool collider_update_transform_instantly{false};
