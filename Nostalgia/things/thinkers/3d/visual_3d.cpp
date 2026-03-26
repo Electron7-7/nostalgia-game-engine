@@ -6,7 +6,7 @@ using namespace TheatreFile;
 void Visual3D::Ready()
 {
     Super::Ready();
-    auto ancestors{Theatre::Current()->GetAllParents(mUID)};
+    auto ancestors{Theatre::Current()->GetAllParents(uid())};
     for(ID parent : ancestors)
     {
         if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))

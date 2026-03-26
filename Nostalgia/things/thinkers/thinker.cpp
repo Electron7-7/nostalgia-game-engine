@@ -7,17 +7,17 @@ void Thinker::SetVariables(Farg<ThingData> inData)
     Super::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
-    Theatre::Current()->SetParent(mUID, inData.get_parent());
+    Theatre::Current()->SetParent(uid(), inData.get_parent());
     for(FAUTO child : inData.get_children())
-        { Theatre::Current()->SetParent(child, mUID); }
+        { Theatre::Current()->SetParent(child, uid()); }
 }
 
 Shared<ThingData> Thinker::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mVisible, "Visible");
-    data->set_variable(Theatre::Current()->GetParent(mUID), "Parent");
-    auto children{Theatre::Current()->GetChildren(mUID)};
+    data->set_variable(Theatre::Current()->GetParent(uid()), "Parent");
+    auto children{Theatre::Current()->GetChildren(uid())};
     for(FAUTO child_id : children)
         { data->set_variable(child_id, "Child"); }
 
@@ -38,23 +38,23 @@ void Thinker::SetVisible(bool inVisible)
 IdSet_t Thinker::Children() const
 {
     if(!Theatre::Current()) { return {}; }
-    return Theatre::Current()->GetChildren(mUID);
+    return Theatre::Current()->GetChildren(uid());
 }
 
 ID Thinker::Parent() const
 {
     if(!Theatre::Current()) { return {}; }
-    return Theatre::Current()->GetParent(mUID);
+    return Theatre::Current()->GetParent(uid());
 }
 
 Error Thinker::SetParent(ID inParentID)
 {
     if(!Theatre::Current()) { return ERR_NULLPTR; }
-    return Theatre::Current()->SetParent(mUID, inParentID);
+    return Theatre::Current()->SetParent(uid(), inParentID);
 }
 
 Error Thinker::DropParent()
 {
     if(!Theatre::Current()) { return ERR_NULLPTR; }
-    return Theatre::Current()->DropParent(mUID);
+    return Theatre::Current()->DropParent(uid());
 }

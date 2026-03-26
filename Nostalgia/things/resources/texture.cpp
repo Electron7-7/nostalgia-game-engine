@@ -78,12 +78,12 @@ Error Texture::Import()
     {
         print_error("Failed to load image data for Texture ['{}', {}]",
             mName,
-            mUID());
+            uid()());
     }
     mTextureBuffer->Load(image_data, mFormat);
 
     if(!print_error_enum(status))
-        { print_error("Failed to create Texture ['{}', {}]", mName, mUID()); }
+        { print_error("Failed to create Texture ['{}', {}]", mName, uid()()); }
     else
     {
         mTextureBuffer->GenerateMipMaps();
@@ -115,7 +115,7 @@ Error Texture::SetBuffer(Shared<TextureBuffer> inBuffer)
     {
         print_warning("Failed to replace the TextureBuffer in Texture ['{}', {}]",
             mName,
-            mUID());
+            uid()());
         return status;
     }
     mTextureBuffer = inBuffer;

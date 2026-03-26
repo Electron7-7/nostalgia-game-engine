@@ -52,14 +52,14 @@ Error CubemapTexture::Import()
         {
             print_error("Failed to load image data for CubemapTexture ['{}', {}]",
                 mName,
-                mUID());
+                uid()());
         }
         mTextureBuffer->Load(image_data, mFormat);
         ImageHandler::Free(image_data);
     }
 
     if(!print_error_enum(status))
-        { print_error("Failed to create CubemapTexture ['{}', {}]", mName, mUID()); }
+        { print_error("Failed to create CubemapTexture ['{}', {}]", mName, uid()()); }
     else
     {
         mTextureBuffer->GenerateMipMaps();

@@ -45,17 +45,17 @@ void NostalgiaPlayer3D::Ready()
                 if(!Theatre::Current()->ThingExists(axis_name))
                 {
                     TheatreFile::ThingData axis_dat{ThingType::MeshInstance3D, axis_name};
-                    axis_dat.set_variable(mUID, "Parent");
+                    axis_dat.set_variable(uid(), "Parent");
                     axis_dat.set_variable(UID::m_DebugAxis, "Mesh");
                     axis_dat.set_variable(0b10, "Layers");
-                    Theatre::Current()->SetParent(Theatre::Current()->CreateThing(axis_dat), mUID);
+                    Theatre::Current()->SetParent(Theatre::Current()->CreateThing(axis_dat), uid());
                 }
             }
             mCameraID = Theatre::Current()->CreateThing(cam_dat);
         }
         else
             { mCameraID = Theatre::Current()->GetThing(cam_name)->uid(); }
-        Theatre::Current()->SetParent(mCameraID, mUID);
+        Theatre::Current()->SetParent(mCameraID, uid());
     }
 
     if(not mCameraID.invalid())

@@ -76,7 +76,7 @@ void Collider3D::SetVariables(Farg<ThingData> data)
             EnumPrettifier::Prettify(mMotion));
     }
     else
-        { print_error("Failed to create physics body for Collider3D#{}", mUID()); }
+        { print_error("Failed to create physics body for Collider3D#{}", uid()()); }
 
     mActivateOnNextChange = false;
 }
@@ -276,7 +276,7 @@ bool Collider3D::CreateBody(bool setActive)
     if(mBodyID.IsInvalid())
         { return false; }
 
-    engine->BodyInterface().SetUserData(mBodyID, mUID());
+    engine->BodyInterface().SetUserData(mBodyID, uid()());
     return true;
 }
 
@@ -327,7 +327,7 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
     {
         print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
-            mUID(),
+            uid()(),
             mName,
             inOtherColliderID(),
             Theatre::Current()->GetThing(inOtherColliderID)->name());
@@ -341,22 +341,22 @@ void Collider3D::OnContactPersisted(ID inOtherColliderID,
     JPH::ContactSettings& ioSettings)
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_persisted_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' Contact Persisted", mUID(), mName); }
+        { print_debug("Collider3D#{} '{}' Contact Persisted", uid()(), mName); }
 }
 
 /*void Collider3D::OnContactRemoved(Farg<JPH::SubShapeIDPair> inSubShapeIDPair)
 {
-    print_debug("Collider3D#{} '{}' Contact Removed", mUID(), mName);
+    print_debug("Collider3D#{} '{}' Contact Removed", uid()(), mName);
 }*/
 
 void Collider3D::OnBodyActivated()
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' activated", mUID(), mName); }
+        { print_debug("Collider3D#{} '{}' activated", uid()(), mName); }
 }
 
 void Collider3D::OnBodyDeactivated()
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' deactivated", mUID(), mName); }
+        { print_debug("Collider3D#{} '{}' deactivated", uid()(), mName); }
 }

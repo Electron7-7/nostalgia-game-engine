@@ -45,7 +45,7 @@ void EditorPlayer3D::Ready()
         coll_dat.set_variable(mLocalTransform.scale, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(ShapeType::Box, "Shape");
-        Theatre::Current()->SetParent(mMainColliderID = Theatre::Current()->CreateThing(coll_dat), mUID);
+        Theatre::Current()->SetParent(mMainColliderID = Theatre::Current()->CreateThing(coll_dat), uid());
         mLocalTransform.scale = glm::vec3{1.0f};
     }
 }

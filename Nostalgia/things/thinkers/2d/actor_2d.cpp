@@ -35,7 +35,7 @@ Shared<ThingData> Actor2D::GetVariables() const
 void Actor2D::Ready()
 {
     Super::Ready();
-    if(auto parent_id{Theatre::Current()->GetParent(mUID)};
+    if(auto parent_id{Theatre::Current()->GetParent(uid())};
         parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor2D))
     {
         mGlobalTransform = mLocalTransform;
@@ -116,7 +116,7 @@ void Actor2D::_update_children_global_transform(bool isCalledFromReady)
 {
     if(not Theatre::Current()->IsStarted() and not isCalledFromReady)
         { return; }
-    auto children{Theatre::Current()->GetChildren(mUID)};
+    auto children{Theatre::Current()->GetChildren(uid())};
     for(auto child_id : children)
     {
         if(not child_id.invalid() and Theatre::Current()->DerivedFrom(child_id, ThingType::Actor2D))

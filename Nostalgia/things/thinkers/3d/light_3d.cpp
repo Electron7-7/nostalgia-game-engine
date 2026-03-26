@@ -48,13 +48,13 @@ void Light3D::Ready()
             mesh_inst_dat.set_variable(UID::m_Cube, "Mesh");
             mesh_inst_dat.set_variable(mat_id, "MaterialOverride");
             mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
-            mesh_inst_dat.set_variable(mUID, "Parent");
+            mesh_inst_dat.set_variable(uid(), "Parent");
             mesh_inst_id = Theatre::Current()->CreateThing(mesh_inst_dat);
         }
         else
             { mesh_inst_id = Theatre::Current()->GetThing(mesh_inst_name)->uid(); }
 
-        Theatre::Current()->SetParent(mesh_inst_id, mUID);
+        Theatre::Current()->SetParent(mesh_inst_id, uid());
     }
 }
 

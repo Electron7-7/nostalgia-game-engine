@@ -36,10 +36,10 @@ void Camera3D::Ready()
         }
         else
             { mEditorMeshInstanceID = Theatre::Current()->GetThing(mesh_inst_name)->uid(); }
-        Theatre::Current()->SetParent(mEditorMeshInstanceID, mUID);
+        Theatre::Current()->SetParent(mEditorMeshInstanceID, uid());
     }
 
-    auto parent{Theatre::Current()->GetParent(mUID)};
+    auto parent{Theatre::Current()->GetParent(uid())};
 
     if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
@@ -47,7 +47,7 @@ void Camera3D::Ready()
             { mViewportID = parent; }
         else
         {
-            auto ancestors{Theatre::Current()->GetAllParents(mUID)};
+            auto ancestors{Theatre::Current()->GetAllParents(uid())};
             for(ID parent : ancestors)
             {
                 if(parent != UID::o_RootViewport and Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
@@ -58,7 +58,7 @@ void Camera3D::Ready()
 
     if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
         mInitCurrent and my_viewport->CurrentCamera3D().invalid())
-            { my_viewport->SetCurrentCamera3D(mUID); }
+            { my_viewport->SetCurrentCamera3D(uid()); }
 }
 
 void Camera3D::SetVariables(Farg<ThingData> data)
@@ -114,14 +114,14 @@ ID Camera3D::ViewportID() const
 { return mViewportID; }
 
 bool Camera3D::Current() const
-{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == mUID; }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == uid(); }
 
 Error Camera3D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
     return Theatre::Current()
         ->GetThinker<Viewport>(mViewportID)
-            ->SetCurrentCamera3D((isCurrent) ? mUID : ID::Invalid);
+            ->SetCurrentCamera3D((isCurrent) ? uid() : ID::Invalid);
 }
 
 BitMask Camera3D::LayersMask() const

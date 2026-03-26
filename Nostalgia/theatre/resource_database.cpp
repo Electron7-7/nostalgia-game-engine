@@ -26,7 +26,7 @@ ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
     if(inResource->uid().invalid() and not print_error_enum(UID::Generate(inResource)))
         { return ID::Invalid; }
     else if(not inNameOverride.empty())
-        { inResource->set_name(inNameOverride); }
+        { inResource->mName = inNameOverride; }
 
     ID uid{inResource->uid()};
     Sarg name{inResource->name()};

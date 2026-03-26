@@ -9,7 +9,7 @@ using namespace TheatreFile;
 void Camera2D::Ready()
 {
     Super::Ready();
-    auto parent{Theatre::Current()->GetParent(mUID)};
+    auto parent{Theatre::Current()->GetParent(uid())};
 
     if(mViewportID == UID::o_RootViewport and not parent.invalid())
     {
@@ -17,7 +17,7 @@ void Camera2D::Ready()
             { mViewportID = parent; }
         else
         {
-            auto ancestors{Theatre::Current()->GetAllParents(mUID)};
+            auto ancestors{Theatre::Current()->GetAllParents(uid())};
             for(ID parent : ancestors)
             {
                 if(parent != UID::o_RootViewport and Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
@@ -28,7 +28,7 @@ void Camera2D::Ready()
 
     if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
         mInitCurrent and my_viewport->CurrentCamera2D().invalid())
-            { my_viewport->SetCurrentCamera2D(mUID); }
+            { my_viewport->SetCurrentCamera2D(uid()); }
 }
 
 void Camera2D::SetVariables(Farg<ThingData> data)
@@ -60,14 +60,14 @@ ID Camera2D::ViewportID() const
 { return mViewportID; }
 
 bool Camera2D::Current() const
-{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == mUID; }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == uid(); }
 
 Error Camera2D::SetCurrent(bool isCurrent)
 {
     if(isCurrent == Current()) { return OK; }
     return Theatre::Current()
         ->GetThinker<Viewport>(mViewportID)
-            ->SetCurrentCamera2D((isCurrent) ? mUID : ID::Invalid);
+            ->SetCurrentCamera2D((isCurrent) ? uid() : ID::Invalid);
 }
 
 BitMask Camera2D::LayersMask() const
@@ -92,7 +92,7 @@ void Camera2D::OnAncestorAdded(Relative inAncestor)
 
 glm::mat4 Camera2D::ViewMatrix() const
 {
-    glm::vec2 global_position{(mUID.invalid())
+    glm::vec2 global_position{(uid().invalid())
         ? glm::vec2{0.0f}
         : GlobalPosition()};
     return glm::lookAt(glm::vec3{global_position, 0.0f},

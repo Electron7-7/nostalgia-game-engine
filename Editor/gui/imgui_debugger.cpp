@@ -949,7 +949,10 @@ void ImGui_Debugger::InspectTheatreWindow()
             InputUInt("UID", &selected.id);
         EndDisabled();
         if(InputText("Name", &selected.name))
-            { selected.ptr->set_name(selected.name); }
+        {
+            if(not theatre->SetName(selected.id, selected.name))
+                { selected.name = theatre->GetName(selected.id); }
+        }
         if(selected.ptr)
             { Text("Type - %s", selected.ptr->type().c_name()); }
         static bool collider_update_transform_instantly{false};
