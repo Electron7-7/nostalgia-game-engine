@@ -26,6 +26,8 @@
 #include "console/console.hpp"
 #include <ranges>
 
+#define LOCK_THINGS LockGuard<RMutex> things_lock{mThingsMutex}
+
 using namespace TheatreFile;
 
 bool gDebugToggleTextRenderingMethod{false},
@@ -127,7 +129,7 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     }
     std::string output{std::format("@{}#{}\n", mName, mIndex)};
 
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
     for(FAUTO [id, thing] : mThings)
     {
         if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
@@ -143,7 +145,7 @@ bool Theatre::Startup()
     if(mIsStarted)
         { return true; }
 
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
@@ -188,7 +190,7 @@ bool Theatre::Shutdown()
 {
     if(!mIsStarted)
         { return true; }
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
     for(ID uid : ThingIDs())
     {
         if(!mThings.contains(uid))
@@ -212,7 +214,7 @@ void Theatre::Draw()
     if(Console::GetVariable("Theatre.draw_text_new", var) == OK)
         { gDebugToggleTextRenderingMethod = var->int_value; }
 
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
@@ -323,7 +325,7 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
 
 Error Theatre::DestroyThing(ID inID)
 {
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     auto children{GetChildren(inID)};
     for(ID child : children)
@@ -336,7 +338,7 @@ Error Theatre::DestroyThing(ID inID)
 
 ID Theatre::GetUID(Sarg inName)
 {
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
     if(ID uid{ResourceDatabase::GetUID(inName)}; not uid.invalid())
         { return uid; }
     else if(auto found_it{mNames.find(inName)}; found_it != mNames.end())
@@ -347,7 +349,7 @@ ID Theatre::GetUID(Sarg inName)
 Sarg Theatre::GetName(ID inUID)
 {
     static std::string empty{};
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
     if(Sarg name{ResourceDatabase::GetName(inUID)}; not name.empty())
         { return name; }
     else if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
@@ -358,6 +360,27 @@ Sarg Theatre::GetName(ID inUID)
             { return name; }
     }
     return empty;
+}
+
+Error Theatre::SetName(ID inUID, Sarg inName)
+{
+    if(ThingExists(inName))
+        { return ERR_ALREADY_EXISTS; }
+    else if(not ThingExists(inUID))
+        { return ERR_NOT_FOUND; }
+    LOCK_THINGS;
+    auto thing{mThings.at(inUID)};
+    mNames.erase(thing->mName);
+    mNames[inName] = inUID;
+    thing->mName = inName;
+    return OK;
+}
+
+Error Theatre::SetName(Sarg inOldName, Sarg inNewName)
+{
+    if(not ThingExists(inOldName))
+        { return ERR_NOT_FOUND; }
+    return SetName(GetUID(inOldName), inNewName);
 }
 
 Shared<Viewport> Theatre::GetRootViewport()
@@ -399,7 +422,7 @@ IdSet_t Theatre::GetAllParents(ID inChildID)
 Error Theatre::SetParent(ID inChildID, ID inParentID)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     // NOTE: Probably redundant. Too bad!
     if(not mCallSheet.Has(inChildID)
@@ -446,7 +469,7 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 Error Theatre::DropParent(ID inChildID)
 {
     LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
 
@@ -843,7 +866,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 
 void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 {
-    LockGuard<RMutex> things_lock{mThingsMutex};
+    LOCK_THINGS;
 
     if(inViewport->uid() != UID::o_RootViewport
         and inViewport->CurrentCamera2D().invalid()
