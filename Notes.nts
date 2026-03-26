@@ -1347,3 +1347,6 @@ All right, I've gotten all of that fully completed. Resources now directly get a
 Not only am I gonna get rid of the reserved UIDs, but resource UIDs like the cube mesh UID aren't gonna be constexpr. They'll be set by whatever ends up registering them (e.g: a resource manager that calls ResourceDatabase::Register or the Theatre, which calls the same function).
 
 I fucking did it! UID no longer has reserved UIDs, Resources can be registered to a global database, Thing creation and initialization is much better, Theatre setup exists, and Resources are slowly becoming more like how I want them to be in the future! I'm so fucking happy with how things are turning out that I might just make this v0.7 and continue with the Resource redesign as v0.8.
+
+[03/26/26]
+I need to fix Actor3D's global scale calculation. It's not contributing to the global position like it should be (e.g: how rotation was done before I fixed it, too).
