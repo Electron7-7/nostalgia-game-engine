@@ -8,7 +8,7 @@
 // static const uint ATTACHMENT_UNUSED{-1} - used by other objects when not attaching to a framebuffer
 // enum UniformType - I'm assuming this is used for when uniforms are sent as objects instead of single elements/scalars
 
-enum DataFormat
+enum DataFormat : int
 {
     DATA_FORMAT_NONE,
     DATA_FORMAT_RED,
