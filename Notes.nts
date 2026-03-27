@@ -1350,3 +1350,9 @@ I fucking did it! UID no longer has reserved UIDs, Resources can be registered t
 
 [03/26/26]
 I need to fix Actor3D's global scale calculation. It's not contributing to the global position like it should be (e.g: how rotation was done before I fixed it, too).
+
+After some testing with STBI, I've figured out how to calculate the size of the array that `stbi_load_from_memory` returns:
+:::C++
+image_data = stbi_load_from_memory(file_data, file_size, &width, &height, &channels, STBI_rgb_alpha);
+// image_data's size is: width * height * channels
+:::
