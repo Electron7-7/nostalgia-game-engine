@@ -12,8 +12,7 @@ public:
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-
-    virtual void Tick() override;
+    TICK_OVERRIDE
 
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};

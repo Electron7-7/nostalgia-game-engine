@@ -11,8 +11,7 @@ public:
     DEFINE_TYPEID(TestAnimatedSprite2D, __testanimatedsprite2d)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-
-    virtual void Tick() override;
+    TICK_OVERRIDE
 
 protected:
     int mInterval{35};

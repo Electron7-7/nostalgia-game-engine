@@ -27,8 +27,6 @@ Shared<ThingData> Thing::GetVariables() const
     return data;
 }
 
-void Thing::Free()
-{ print_error_enum(Theatre::Current()->DestroyThing(mUID)); }
 bool Thing::DerivedFrom(FPID inType) const
 { return ThingFactory::IsDerivedFrom(Type(), inType); }
 

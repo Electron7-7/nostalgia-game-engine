@@ -18,14 +18,23 @@ class ResourceDatabase;
 /// See 'Editor/things/player.hpp' for an example use case.
 #define DEFINE_TYPEID(CLASS, VAR_NAME) inline static const PID VAR_NAME{#CLASS}; SET_TYPEID(VAR_NAME)
 
-#define SET_VARIABLES_OVERRIDE \
-    virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-#define GET_VARIABLES_OVERRIDE \
-    virtual Shared<TheatreFile::ThingData> GetVariables() const override;
-#define READY_OVERRIDE \
-    virtual void Ready() override;
+/// Helper macro for declaring an override for `Init`
+#define INIT_OVERRIDE virtual void Init() override;
+/// Helper macro for declaring an override for `Ready`
+#define READY_OVERRIDE virtual void Ready() override;
+/// Helper macro for declaring an override for `Shutdown`
+#define SHUTDOWN_OVERRIDE virtual void Shutdown() override;
+/// Helper macro for declaring an override for `Update`
+#define UPDATE_OVERRIDE virtual void Update() override;
+/// Helper macro for declaring an override for `Tick`
+#define TICK_OVERRIDE virtual void Tick() override;
+/// Helper macro for declaring an override for `Input`
+#define INPUT_OVERRIDE virtual void Input(InputEvent*) override;
+/// Helper macro for declaring an override for `SetVariables`
+#define SET_VARIABLES_OVERRIDE virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
+/// Helper macro for declaring an override for `GetVariables`
+#define GET_VARIABLES_OVERRIDE virtual Shared<TheatreFile::ThingData> GetVariables() const override;
 
-// Similar to Godot's `Object`
 class Thing
 {
 public:
@@ -43,17 +52,11 @@ public:
     virtual void Tick() {}
     virtual void Update() {}
     virtual void Input(InputEvent*) {}
-
-    // Derived classes must call their base class' `::SetVariables` method at the start of their own implementation of `::SetVariables`. If done properly, this will result in a chain of function calls all the way to `Thing::SetVariables`.
-    //
-    // See `Material::SetVariables` for an example
+    // Derived classes must call `Super::SetVariables` at the start of their own implementation.
     virtual void SetVariables(Farg<TheatreFile::ThingData>);
-    // Derived classes must call their base class' `::GetVariables` method at the start of their own implementation of `::GetVariables`.
-    //
-    // See `Material::GetVariables` for an example.
+    // Derived classes must call `Super::GetVariables` at the start of their own implementation.
     virtual Shared<TheatreFile::ThingData> GetVariables() const;
 
-    void Free();
     bool DerivedFrom(FPID inType) const;
     bool IsThinker() const;
     bool IsResource() const;
@@ -66,7 +69,7 @@ protected:
     friend class Theatre;
     friend class ResourceDatabase;
     std::string mName{""};
-    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
+    Shared<TheatreFile::ThingData> m_pStartingData;
 
 private:
     friend class ResourceDatabase;
@@ -74,6 +77,6 @@ private:
 };
 
 template<typename T>
-    concept ThingDerived = std::derived_from<T, Thing>;
+    concept Thing_t = std::derived_from<T, Thing>;
 
 #endif // THING_H
