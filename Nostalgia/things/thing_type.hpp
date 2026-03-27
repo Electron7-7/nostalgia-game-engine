@@ -1,38 +1,43 @@
 #ifndef THING_TYPE_H
 #define THING_TYPE_H
 
+#define TYPE_ID(CLASS) CLASS{#CLASS}
+
 // These PIDs only exist to avoid passing string literals to functions like `ThingFactory::IsDerivedFrom`
 namespace ThingType
 {
-    inline const PID Thing{"Thing"},
-        Resource{"Resource"},
-            Font{"Font"},
-            Mesh{"Mesh"},
-            Texture{"Texture"},
-            CubemapTexture{"CubemapTexture"},
-            ViewportTexture{"ViewportTexture"},
-            Material{"Material"},
-        Thinker{"Thinker"},
-            Viewport{"Viewport"},
-            Actor3D{"Actor3D"},
-                NostalgiaPlayer3D{"NostalgiaPlayer3D"},
-                Camera3D{"Camera3D"},
-                Collider3D{"Collider3D"},
-                Visual3D{"Visual3D"},
-                    MeshInstance3D{"MeshInstance3D"},
-                    Sprite3D{"Sprite3D"},
-                    Light3D{"Light3D"},
-                        PointLight3D{"PointLight3D"},
-                        SpotLight3D{"SpotLight3D"},
-                        DirectionalLight3D{"DirectionalLight3D"},
-            Actor2D{"Actor2D"},
-                NostalgiaPlayer2D{"NostalgiaPlayer2D"},
-                Camera2D{"Camera2D"},
-                Visual2D{"Visual2D"},
-                    Sprite2D{"Sprite2D"},
-                    Text2D{"Text2D"},
-        Invalid{ID::Invalid, "Invalid"};
+    inline const PID Invalid{ID::Invalid, "Invalid"},
+        TYPE_ID(Thing),
+            TYPE_ID(Resource),
+                TYPE_ID(Font),
+                TYPE_ID(Mesh),
+                TYPE_ID(Texture),
+                TYPE_ID(CubemapTexture),
+                TYPE_ID(ViewportTexture),
+                TYPE_ID(Material),
+                TYPE_ID(Image),
+            TYPE_ID(Thinker),
+                TYPE_ID(Viewport),
+                TYPE_ID(Actor3D),
+                    TYPE_ID(NostalgiaPlayer3D),
+                    TYPE_ID(Camera3D),
+                    TYPE_ID(Collider3D),
+                    TYPE_ID(Visual3D),
+                        TYPE_ID(MeshInstance3D),
+                        TYPE_ID(Sprite3D),
+                        TYPE_ID(Light3D),
+                            TYPE_ID(PointLight3D),
+                            TYPE_ID(SpotLight3D),
+                            TYPE_ID(DirectionalLight3D),
+                TYPE_ID(Actor2D),
+                    TYPE_ID(NostalgiaPlayer2D),
+                    TYPE_ID(Camera2D),
+                    TYPE_ID(Visual2D),
+                        TYPE_ID(Sprite2D),
+                        TYPE_ID(Text2D);
 }
+
+#undef TYPE_ID
 
 struct ThingType_t
 {
