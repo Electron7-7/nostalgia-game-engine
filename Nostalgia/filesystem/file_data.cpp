@@ -3,7 +3,7 @@
 #include "managers/theatre_manager.hpp"
 #include <fstream> // IWYU pragma: keep
 
-static constexpr frozen::map<frozen::string, FileType, 9>
+static constinit const frozen::map<frozen::string, FileType, 9>
 s_FileTypesByExtension{
     { ".otf",  FileType::font_OTF   },
     { ".ttf",  FileType::font_TTF   },
@@ -16,47 +16,34 @@ s_FileTypesByExtension{
     { ".vert", FileType::glsl_VERT  },
 };
 
-FileType FileData::s_DetectFileType(Farg<std::string> path)
+FileType FileData::sDetectFileType(Sarg inPath)
 {
-    std::string extension = FileSystem::GetExtension(path);
-    if(!s_FileTypesByExtension.contains(frozen::string{extension}))
-        { return FileType::Unknown; }
-    return s_FileTypesByExtension.at(frozen::string{extension});
+    if(auto found_it{s_FileTypesByExtension.find(frozen::string{FileSystem::GetExtension(inPath)})};
+        found_it != s_FileTypesByExtension.end())
+            { return found_it->second; }
+    return FileType::Unknown;
 }
 
 FileData::FileData() = default;
 
-FileData::FileData(const unsigned char* data, int size, FileType type):
-    mData{data, data + size},
-    // mSize{size},
-    mType{type},
-    mStatus{OK}{}
+FileData::FileData(const uchar* inData, size_t inSize, FileType inType):
+    mData{inData, inData + inSize}, mType{inType}, mStatus{OK} {}
 
-FileData::FileData(Farg<std::string> path, FileType type):
-    mData{},
-    // mSize{0},
-    mPath{path},
-    mType{type},
-    mStatus{ERR_NOT_LOADED}
-{ LoadFile(path, type); }
+FileData::FileData(Sarg path):
+    mData{}, mPath{path}, mType{FileType::Unknown}, mStatus{ERR_NOT_LOADED}
+{ print_error_enum(LoadFile(path)); }
 
-FileData::~FileData()
-{ clear(); }
-
-Error FileData::LoadFile(Farg<std::string> path, FileType type)
+Error FileData::LoadFile(Sarg inPath)
 {
-    if(type == FileType::Unknown)
-        { type = s_DetectFileType(path); }
-
-    std::string file_path{path};
-    if(not FileSystem::IsFile(path))
+    std::string file_path{inPath};
+    if(not FileSystem::IsFile(inPath))
     {
-        if(not FileSystem::IsFile(file_path = FileSystem::GetAbsolute(path)))
+        if(not FileSystem::IsFile(file_path = FileSystem::GetAbsolute(inPath)))
         {
-            if(not FileSystem::IsFile(file_path = FileSystem::GetProgramDirectory() + path))
+            if(not FileSystem::IsFile(file_path = FileSystem::GetProgramDirectory() + inPath))
             {
                 if(auto* theatre{g_pTheatreManager->Current()}; theatre and theatre->WasLoadedFromFile()
-                    and not FileSystem::IsFile(file_path = theatre->TheatreFileDirectory() + path))
+                    and not FileSystem::IsFile(file_path = theatre->TheatreFileDirectory() + inPath))
                         { return ERR_INVALID_PATH; }
             }
         }
@@ -64,49 +51,57 @@ Error FileData::LoadFile(Farg<std::string> path, FileType type)
 
     std::ifstream file_stream{file_path, std::ios::binary};
     mData = std::vector<unsigned char>{std::istreambuf_iterator<char>(file_stream), {}};
-    mType = type;
-    mPath = path;
+    mType = sDetectFileType(inPath);
+    mPath = inPath;
     file_stream.close();
     return mStatus = OK;
 }
 
-void FileData::LoadData(const unsigned char* data, int size, FileType type)
+void FileData::LoadData(const uchar* inData, size_t inSize, FileType inType)
 {
-    clear();
+    mPath.clear();
+    mData = std::vector<uchar>{inData, inData + inSize};
+    mType = inType;
     mStatus = OK;
-    mData = std::vector<uchar>{data, data + size};
-    // mSize = size;
-    mType = type;
 }
-
-Error FileData::Status() const
-{ return mStatus; }
-
-FileType FileData::Type() const
-{ return mType; }
-
-Farg<std::string> FileData::Path() const
-{ return mPath; }
-
-bool FileData::HasPath() const
-{ return !mPath.empty(); }
 
 void FileData::clear()
 {
+    mPath.clear();
     mData.clear();
-    mPath = "";
     mType = FileType::Unknown;
-    mStatus = ERR_NOT_LOADED;
+    mStatus = ERR_EMPTY;
 }
 
-std::string FileData::DataString() const
-{ return std::string(mData.begin(), mData.end()); }
+FileData::Data_t& FileData::data()
+{ return mData; }
 
-const unsigned char* FileData::Data() const
+Farg<FileData::Data_t> FileData::data() const
+{ return mData; }
+
+uchar* FileData::raw_data()
 { return mData.data(); }
 
-int FileData::Size() const
+const uchar* FileData::raw_data() const
+{ return mData.data(); }
+
+std::string FileData::raw_data_str() const
+{ return std::string{mData.cbegin(), mData.cend()}; }
+
+size_t FileData::size() const
 { return mData.size(); }
+
+Error FileData::status() const
+{ return mStatus; }
+
+FileType FileData::file_type() const
+{ return mType; }
+
+Sarg FileData::filepath() const
+{ return mPath; }
+
+bool FileData::has_filepath() const
+{ return !mPath.empty(); }
 
 bool FileData::empty() const
 { return mData.empty(); }

@@ -58,7 +58,7 @@ void Font::LoadFont()
     }
 
     FT_Face face;
-    if(FT_New_Memory_Face(ft, m_pFont->Data(), m_pFont->Size(), 0, &face))
+    if(FT_New_Memory_Face(ft, m_pFont->raw_data(), m_pFont->size(), 0, &face))
     {
         print_error("FreeType failed to load font");
         return;

@@ -80,10 +80,10 @@ Error Mesh::LoadModel()
 //////////////////
 Error s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<Shared<FileData>> inData)
 {
-    if(!inData->Status())
-        { return inData->Status(); }
+    if(!inData->status())
+        { return inData->status(); }
 
-    switch(inData->Type())
+    switch(inData->file_type())
     {
     case FileType::model_OBJ:
         return s_CreateOBJMesh(ioVerts, ioInds, inData);
@@ -100,7 +100,7 @@ Error s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Fa
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(inData->DataString(), "", reader_config))
+    if(!reader.ParseFromString(inData->raw_data_str(), "", reader_config))
     {
         if(!reader.Error().empty())
             { print_error("TinyObjReader Error: '{}'", reader.Error()); }

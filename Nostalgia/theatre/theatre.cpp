@@ -90,8 +90,8 @@ Error Theatre::LoadData(Farg<FileData> inData)
 {
     if(not print_error_enum(TheatreFile::Load(inData, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
-    if((mWasLoadedFromFile = inData.HasPath()))
-        { mTheatreFileDirectory = FileSystem::GetDir(inData.Path(), true); }
+    if((mWasLoadedFromFile = inData.has_filepath()))
+        { mTheatreFileDirectory = FileSystem::GetDir(inData.filepath(), true); }
     LoadCurrentTheatreData();
     return OK;
 }

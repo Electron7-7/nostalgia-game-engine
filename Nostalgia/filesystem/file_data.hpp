@@ -17,30 +17,32 @@ enum class FileType : ushort
 struct FileData
 {
 public:
-    static FileType s_DetectFileType(Farg<std::string> FilePath);
+    using Data_t = std::vector<uchar>;
+
+    static FileType sDetectFileType(Sarg inPath);
 
     FileData();
-    FileData(const unsigned char* Data, int Size, FileType Type = FileType::Unknown);
-    FileData(Farg<std::string> Path, FileType Type = FileType::Unknown);
-    ~FileData();
+    FileData(const uchar* inData, size_t inSize, FileType inType = FileType::Unknown);
+    FileData(Sarg inPath);
 
-    const unsigned char* Data() const;
-    std::string DataString() const;
+    Error LoadFile(Sarg inPath);
+    void  LoadData(const uchar* inData, size_t inSize, FileType inType = FileType::Unknown);
 
-    int Size() const;
-    Error Status() const;
-    FileType Type() const;
-    Farg<std::string> Path() const;
-    bool HasPath() const;
-
-    Error LoadFile(Farg<std::string> Path, FileType Type = FileType::Unknown);
-    void LoadData(const unsigned char* Data, int Size, FileType Type);
-
-    bool empty() const;
-    void clear();
+    void                clear();
+    Data_t&              data();
+    Farg<Data_t>         data() const;
+    uchar*           raw_data();
+    const uchar*     raw_data() const;
+    std::string  raw_data_str() const;
+    size_t               size() const;
+    Error              status() const;
+    FileType        file_type() const;
+    Sarg             filepath() const;
+    bool         has_filepath() const;
+    bool                empty() const;
 
 private:
-    std::vector<uchar> mData{};
+    Data_t mData{};
     std::string mPath{};
     FileType mType{FileType::Unknown};
     Error mStatus{ERR_EMPTY};

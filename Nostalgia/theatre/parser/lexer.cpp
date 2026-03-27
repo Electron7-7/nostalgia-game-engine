@@ -30,10 +30,10 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
 #ifdef NOSTALGIA_DEBUGGING
     debug_PrettifyEnums();
 #endif
-    if(!inData.Status())
-        { return inData.Status(); }
+    if(not inData.status())
+        { return inData.status(); }
 
-    Sarg data_string{inData.DataString()};
+    Sarg data_string{inData.raw_data_str()};
     size_t file_size{data_string.size()};
 
     TokenArray tokens{};

@@ -149,8 +149,8 @@ void ThingData::set_variable(bool inValue, Sarg inName)
 
 Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName)
 {
-    if(not inValue->HasPath())
+    if(not inValue->has_filepath())
         { return ERR_INVALID_PATH; }
-    variables.emplace_back(inName, inValue->Path(), ThingVarType::String);
+    variables.emplace_back(inName, inValue->filepath(), ThingVarType::String);
     return OK;
 }

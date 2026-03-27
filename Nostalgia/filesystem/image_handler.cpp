@@ -27,16 +27,16 @@ uchar* ImageHandler::Load(Shared<FileData> inImage, TextureFormat& ioFormat, Err
         outError = ERR_NULLPTR;
         return nullptr;
     }
-    else if(not print_error_enum(inImage->Status()))
+    else if(not print_error_enum(inImage->status()))
     {
-        outError = inImage->Status();
+        outError = inImage->status();
         return nullptr;
     }
 
     stbi_set_flip_vertically_on_load(true);
 
-    auto ret_dat{stbi_load_from_memory(inImage->Data(),
-        inImage->Size(),
+    auto ret_dat{stbi_load_from_memory(inImage->raw_data(),
+        inImage->size(),
         &ioFormat.width,
         &ioFormat.height,
         &ioFormat.channels,
