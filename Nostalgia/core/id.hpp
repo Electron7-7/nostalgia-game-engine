@@ -55,8 +55,8 @@ struct PID : public ID
 {
 public:
     PID() noexcept;
-    PID(uint inID, Farg<std::string> inName) noexcept;
-    PID(Farg<std::string> inHashable) noexcept;
+    PID(uint inID, Sarg inName) noexcept;
+    PID(Sarg inHashable) noexcept;
     PID(const char* inHashable) noexcept;
 
     virtual ~PID() noexcept;
