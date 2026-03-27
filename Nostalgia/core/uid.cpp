@@ -10,17 +10,6 @@ static std::mt19937 sIdEngine{sRandomSeed()};
 
 static constexpr uint s_cMaxUIDs{UID::back - UID::front};
 
-Error UID::Generate(Shared<Thing> inThing)
-{
-    LOCK;
-    if(ID uid{Generate()}; not uid.invalid())
-    {
-        inThing->mUID = uid;
-        return OK;
-    }
-    return ERR_FULL;
-}
-
 ID UID::Generate()
 {
     LOCK;

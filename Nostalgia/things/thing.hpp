@@ -69,7 +69,7 @@ protected:
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
 private:
-    friend Error UID::Generate(Shared<Thing>);
+    friend class ResourceDatabase;
     ID mUID{};
 };
 

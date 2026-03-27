@@ -23,7 +23,7 @@ ID ResourceDatabase::Create(FPID inType, Sarg inName)
 ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
 {
     LOCK_MUTEX;
-    if(inResource->uid().invalid() and not print_error_enum(UID::Generate(inResource)))
+    if(inResource->mUID.invalid() and (inResource->mUID = UID::Generate()).invalid())
         { return ID::Invalid; }
     else if(not inNameOverride.empty())
         { inResource->mName = inNameOverride; }

@@ -1,9 +1,6 @@
 #ifndef UID_H
 #define UID_H
 
-/// Forward Declaration
-class Thing;
-
 namespace UID
 {
     constexpr uint
@@ -34,7 +31,6 @@ namespace UID
         o_Player,
         o_RootViewport;
 
-    Error Generate(Shared<Thing> inThing);
     ID    Generate();
     bool  Contains(ID inUID);
     bool  Erase(ID inUID);
