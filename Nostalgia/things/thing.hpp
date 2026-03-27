@@ -34,7 +34,7 @@ public:
     bool mIsHoveredInDebugger{false};
 
     Thing() noexcept;
-    Thing(FPID inType, Sarg inName, ID inUID = {}) noexcept;
+    Thing(Sarg inName, ID inUID = {}) noexcept;
     virtual ~Thing() noexcept;
 
     virtual void Init() {}
