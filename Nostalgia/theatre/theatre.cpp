@@ -159,6 +159,12 @@ bool Theatre::Startup()
     for(auto& thing_dat : *m_pInitialState)
         { CreateThingNoReady(thing_dat, false); }
 
+    for(auto& thing_dat : *m_pInitialState)
+    {
+        if(auto found_it{mThings.find(thing_dat._uid)}; found_it != mThings.end())
+            { found_it->second->SetVariables(thing_dat); }
+    }
+
     auto uids{ThingIDs()};
     for(ID uid : uids)
         { mThings.at(uid)->Ready(); }
@@ -661,10 +667,9 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
     }
 
     auto& thing{mThings[ioData._uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData._uid)};
-    if(auto resource{DCast<Resource>(thing)})
-        { resource->Init(); }
-    thing->SetVariables(ioData);
-    mNames[thing->name()] = thing->uid();
+    thing->Init();
+    if(doSetup)
+        { thing->SetVariables(ioData); }
 
     if(is_player)
         { UID::o_Player = ioData._uid; }
