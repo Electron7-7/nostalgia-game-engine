@@ -1,9 +1,40 @@
 #ifndef THING_TYPE_H
 #define THING_TYPE_H
 
-#define TYPE_ID(TYPE) inline static const PID TYPE{#TYPE};
+// These PIDs only exist to avoid passing string literals to functions like `ThingFactory::IsDerivedFrom`
+namespace ThingType
+{
+    inline const PID Thing{"Thing"},
+        Resource{"Resource"},
+            Font{"Font"},
+            Mesh{"Mesh"},
+            Texture{"Texture"},
+            CubemapTexture{"CubemapTexture"},
+            ViewportTexture{"ViewportTexture"},
+            Material{"Material"},
+        Thinker{"Thinker"},
+            Viewport{"Viewport"},
+            Actor3D{"Actor3D"},
+                NostalgiaPlayer3D{"NostalgiaPlayer3D"},
+                Camera3D{"Camera3D"},
+                Collider3D{"Collider3D"},
+                Visual3D{"Visual3D"},
+                    MeshInstance3D{"MeshInstance3D"},
+                    Sprite3D{"Sprite3D"},
+                    Light3D{"Light3D"},
+                        PointLight3D{"PointLight3D"},
+                        SpotLight3D{"SpotLight3D"},
+                        DirectionalLight3D{"DirectionalLight3D"},
+            Actor2D{"Actor2D"},
+                NostalgiaPlayer2D{"NostalgiaPlayer2D"},
+                Camera2D{"Camera2D"},
+                Visual2D{"Visual2D"},
+                    Sprite2D{"Sprite2D"},
+                    Text2D{"Text2D"},
+        Invalid{ID::Invalid, "Invalid"};
+}
 
-struct ThingType
+struct ThingType_t
 {
 private:
     PID _type_id{};
@@ -11,12 +42,12 @@ private:
     std::set<PID> _all_base_types{};
 
     friend class ThingFactory;
-    ThingType(FPID) noexcept;
+    ThingType_t(FPID) noexcept;
 
 public:
     using typeids_t = std::set<PID>;
 
-    ThingType() noexcept;
+    ThingType_t() noexcept;
 
     Farg<typeids_t> base_types() const noexcept;
     PID base_type() const noexcept;
@@ -25,43 +56,11 @@ public:
     bool is_derived_from(FPID inTypeID) const noexcept;
     std::string log() const noexcept;
 
-    bool operator<(Farg<ThingType> inOther) const noexcept
+    bool operator<(Farg<ThingType_t> inOther) const noexcept
     { return _type_id < inOther._type_id; }
 
-    bool operator==(Farg<ThingType> inOther) const noexcept
+    bool operator==(Farg<ThingType_t> inOther) const noexcept
     { return _type_id == inOther._type_id; }
-
-    inline static const PID Invalid{ID::Invalid, "Invalid"};
-
-    TYPE_ID(Thing)
-        TYPE_ID(Resource)
-            TYPE_ID(Font)
-            TYPE_ID(Mesh)
-            TYPE_ID(Texture)
-            TYPE_ID(CubemapTexture)
-            TYPE_ID(ViewportTexture)
-            TYPE_ID(Material)
-        TYPE_ID(Thinker)
-            TYPE_ID(Viewport)
-            TYPE_ID(Actor3D)
-                TYPE_ID(NostalgiaPlayer3D)
-                TYPE_ID(Camera3D)
-                TYPE_ID(Collider3D)
-                TYPE_ID(Visual3D)
-                    TYPE_ID(MeshInstance3D)
-                    TYPE_ID(Sprite3D)
-                    TYPE_ID(Light3D)
-                        TYPE_ID(PointLight3D)
-                        TYPE_ID(SpotLight3D)
-                        TYPE_ID(DirectionalLight3D)
-            TYPE_ID(Actor2D)
-                TYPE_ID(NostalgiaPlayer2D)
-                TYPE_ID(Camera2D)
-                TYPE_ID(Visual2D)
-                    TYPE_ID(Sprite2D)
-                    TYPE_ID(Text2D)
 };
-
-#undef TYPE_ID
 
 #endif // THING_TYPE_H

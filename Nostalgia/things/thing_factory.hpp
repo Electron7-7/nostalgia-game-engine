@@ -23,7 +23,7 @@ public:
         int inPriority = cDefaultPriority);
 
     static Error RemoveThing(FPID inType) noexcept;
-    static Farg<ThingType> GetType(FPID inType) noexcept;
+    static Farg<ThingType_t> GetType(FPID inType) noexcept;
 
     static Shared<Thing>    MakeThing(FPID inTypeID, Sarg inName, ID inUID = {});
     static Shared<Thinker>  MakeThinker(FPID inTypeID, Sarg inName, ID inUID = {});
@@ -41,7 +41,7 @@ private:
     static bool m_sIsInitialized;
     static std::map<ID, pThingMakerTemplate_t> m_sThingMakers;
     static std::map<ID, int>                   m_sTypePriorities;
-    static std::set<ThingType>                 m_sAllTypes;
+    static std::set<ThingType_t>               m_sAllTypes;
 };
 
 #endif // THING_FACTORY_H

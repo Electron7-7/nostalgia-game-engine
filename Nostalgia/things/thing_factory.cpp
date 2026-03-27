@@ -27,7 +27,7 @@
 bool ThingFactory::m_sIsInitialized{false};
 std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
 std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
-std::set<ThingType>                 ThingFactory::m_sAllTypes{};
+std::set<ThingType_t>                 ThingFactory::m_sAllTypes{};
 
 bool ThingFactory::Init()
 {
@@ -72,24 +72,24 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     FPID inBaseType,
     int inPriority)
 {
-    ThingType type{inType};
+    ThingType_t type{inType};
     if(type.type() == ThingType::Thing)
     {
         type._all_base_types.emplace(type._base_type_id = ThingType::Thing);
         m_sAllTypes.emplace(type);
         m_sThingMakers[inType]    = inPtr;
         m_sTypePriorities[inType] = inPriority;
-        print_debug("Registered New ThingType: {}", type.log());
+        print_debug("Registered New ThingType_t: {}", type.log());
         return OK;
     }
     else if(m_sAllTypes.contains(type))
     {
-        print_error("ThingType '{}' already exists!", inType);
+        print_error("ThingType_t '{}' already exists!", inType);
         return ERR_ALREADY_EXISTS;
     }
     else if(!m_sAllTypes.contains(inBaseType))
     {
-        print_error("Base ThingType '{}' is invalid!", inBaseType.name());
+        print_error("Base ThingType_t '{}' is invalid!", inBaseType.name());
         return ERR_INVALID_TYPE;
     }
     type._all_base_types.emplace(type._base_type_id = inBaseType);
@@ -106,7 +106,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
             { next_base = ThingType::Thing; }
     }
     type._all_base_types.emplace(next_base);
-    print_debug("Registered New ThingType: {}", type.log());
+    print_debug("Registered New ThingType_t: {}", type.log());
     m_sAllTypes.emplace(type);
 
     m_sThingMakers[inType]    = inPtr;
@@ -122,9 +122,9 @@ Error ThingFactory::RemoveThing(FPID inType) noexcept
     return OK;
 }
 
-Farg<ThingType> ThingFactory::GetType(FPID inType) noexcept
+Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
 {
-    static ThingType sBadType{ThingType::Invalid};
+    static ThingType_t sBadType{ThingType::Invalid};
     if(auto found_it{m_sAllTypes.find(inType)};
         found_it != m_sAllTypes.end())
             { return *found_it; }
@@ -135,7 +135,7 @@ Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName, ID inUID)
 {
     if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
         { return found_it->second(inType, inName, inUID); }
-    print_warning("ThingType '{}' is an invalid type! An empty Thing will be returned",
+    print_warning("ThingType_t '{}' is an invalid type! An empty Thing will be returned",
         inType.name());
     return ThingMakerTemplate<Thing>(inType, inName, inUID);
 }
