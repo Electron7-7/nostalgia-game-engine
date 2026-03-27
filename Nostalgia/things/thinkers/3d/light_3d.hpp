@@ -3,18 +3,11 @@
 
 #include <Nostalgia/things/thinkers/3d/visual_3d.hpp>
 
-enum class LightType : int
-{
-    POINT,
-    SPOT,
-    DIRECTIONAL,
-    NONE,
-};
-
 class Light3D : public Visual3D
 {
 public:
-    SUPER(Visual3D)
+	SET_SUPER(Visual3D)
+	SET_TYPEID(ThingType::Light3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
@@ -22,7 +15,6 @@ public:
     static void ClearCounts();
 
     virtual bool IncrementIndex() { return false; }
-    virtual LightType Type() const { return LightType::NONE; }
 
     int Index() const;
 
@@ -51,38 +43,38 @@ protected:
 class PointLight3D : public Light3D
 {
 public:
-    SUPER(Light3D)
+	SET_SUPER(Light3D)
+	SET_TYPEID(ThingType::PointLight3D)
 
     static int GetCount();
 
     bool IncrementIndex() final;
-    LightType Type() const final { return LightType::POINT; }
 };
 
 class SpotLight3D : public Light3D
 {
 public:
-    SUPER(Light3D)
+	SET_SUPER(Light3D)
+	SET_TYPEID(ThingType::SpotLight3D)
 
     static int GetCount();
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
-    LightType Type() const final { return LightType::SPOT; }
 };
 
 class DirectionalLight3D : public Light3D
 {
 public:
-    SUPER(Light3D)
+	SET_SUPER(Light3D)
+	SET_TYPEID(ThingType::DirectionalLight3D)
 
     static int GetCount();
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
-    LightType Type() const final { return LightType::DIRECTIONAL; }
 };
 
 #endif // LIGHT_H

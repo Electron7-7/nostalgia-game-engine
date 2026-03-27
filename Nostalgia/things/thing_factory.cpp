@@ -134,10 +134,10 @@ Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
 Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName, ID inUID)
 {
     if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
-        { return found_it->second(inType, inName, inUID); }
+        { return found_it->second(inName, inUID); }
     print_warning("ThingType_t '{}' is an invalid type! An empty Thing will be returned",
         inType.name());
-    return ThingMakerTemplate<Thing>(inType, inName, inUID);
+    return ThingMakerTemplate<Thing>(inName, inUID);
 }
 
 Shared<Thinker> ThingFactory::MakeThinker(FPID inTypeID, Sarg inName, ID inUID)

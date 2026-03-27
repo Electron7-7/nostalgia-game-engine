@@ -6,7 +6,8 @@
 class Sprite3D : public Visual3D
 {
 public:
-    SUPER(Visual3D)
+	SET_SUPER(Visual3D)
+	SET_TYPEID(ThingType::Sprite3D)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

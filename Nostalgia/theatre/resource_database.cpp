@@ -75,10 +75,10 @@ ID ResourceDatabase::GetUID(Sarg inName)
 }
 
 bool ResourceDatabase::DerivedFrom(ID inUID, FPID inType)
-{ return ThingFactory::IsDerivedFrom(TypeOf(inUID), inType); }
+{ return GetResource(inUID)->DerivedFrom(inType); }
 
 bool ResourceDatabase::DerivedFrom(Sarg inName, FPID inType)
-{ return ThingFactory::IsDerivedFrom(TypeOf(inName), inType); }
+{ return GetResource(inName)->DerivedFrom(inType); }
 
 Error ResourceDatabase::SetName(ID inUID, Sarg inName)
 {
@@ -105,7 +105,7 @@ FPID ResourceDatabase::TypeOf(ID inUID)
 {
     LOCK_MUTEX;
     if(FOUND_IT(sResources, inUID))
-        { return found_it->second->type(); }
+        { return found_it->second->Type(); }
     return ThingType::Invalid;
 }
 

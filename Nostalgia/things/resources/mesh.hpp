@@ -6,7 +6,8 @@
 class Mesh : public Resource
 {
 public:
-    SUPER(Resource)
+	SET_SUPER(Resource)
+	SET_TYPEID(ThingType::Mesh)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

@@ -6,7 +6,8 @@
 class NostalgiaPlayer3D : public Actor3D
 {
 public:
-    SUPER(Actor3D)
+	SET_SUPER(Actor3D)
+	SET_TYPEID(ThingType::NostalgiaPlayer3D)
     READY_OVERRIDE
     GET_VARIABLES_OVERRIDE
     SET_VARIABLES_OVERRIDE

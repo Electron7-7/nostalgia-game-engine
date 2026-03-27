@@ -303,7 +303,7 @@ FPID Theatre::TypeOf(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
-        { return found_it->second->type(); }
+        { return found_it->second->Type(); }
     return ResourceDatabase::TypeOf(inID);
 }
 
@@ -311,7 +311,7 @@ bool Theatre::DerivedFrom(ID inID, FPID inType)
 {
     LockGuard<RMutex> lock{mThingsMutex};
     if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
-        { return ThingFactory::IsDerivedFrom(found_it->second->type(), inType); }
+        { return found_it->second->DerivedFrom(inType); }
     return ResourceDatabase::DerivedFrom(inID, inType);
 }
 
@@ -508,7 +508,7 @@ Shared<Resource> Theatre::GetResource(ID inID)
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     {
-        if(ThingFactory::IsResource(found_it->second->type()))
+        if(found_it->second->IsResource())
             { return DCast<Resource>(found_it->second); }
     }
     return MakeShared<Resource>();
@@ -520,7 +520,7 @@ Shared<Thinker> Theatre::GetThinker(ID inID)
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     {
-        if(ThingFactory::IsThinker(found_it->second->type()))
+        if(found_it->second->IsThinker())
             { return DCast<Thinker>(found_it->second); }
     }
     return MakeShared<Thinker>();
@@ -668,19 +668,19 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
 
     if(is_player)
         { UID::o_Player = ioData._uid; }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
+    else if(thing->DerivedFrom(ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera3D))
+    else if(thing->DerivedFrom(ThingType::Camera3D))
         { mCamera3DIDs.insert(thing->uid()); }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera2D))
+    else if(thing->DerivedFrom(ThingType::Camera2D))
         { mCamera2DIDs.insert(thing->uid()); }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual3D))
+    else if(thing->DerivedFrom(ThingType::Visual3D))
     {
         mVisual3DIDs.insert(thing->uid());
-        if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Light3D))
+        if(thing->DerivedFrom(ThingType::Light3D))
             { mLightIDs.insert(thing->uid()); }
     }
-    else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Visual2D))
+    else if(thing->DerivedFrom(ThingType::Visual2D))
         { mVisual2DIDs.insert(thing->uid()); }
 
     return thing->uid();
@@ -769,7 +769,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
 
         glm::vec3 scale_vector{visual3d->GlobalScale()};
 
-        if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::MeshInstance3D))
+        if(visual3d->DerivedFrom(ThingType::MeshInstance3D))
         {
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
             if(mesh_instance->MeshID().invalid())
@@ -808,7 +808,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
             shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
             shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
         }
-        else if(ThingFactory::IsDerivedFrom(visual3d->type(), ThingType::Sprite3D))
+        else if(visual3d->DerivedFrom(ThingType::Sprite3D))
         {
             auto sprite{DCast<Sprite3D>(visual3d)};
             mesh = GetResource<Mesh>(UID::m_Quad);
@@ -883,7 +883,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             or not camera->LayersMask().contains(visual2d->Layers()))
                 { continue; }
 
-        if(ThingFactory::IsDerivedFrom(visual2d->type(), ThingType::Sprite2D))
+        if(visual2d->DerivedFrom(ThingType::Sprite2D))
         {
             auto sprite{DCast<Sprite2D>(visual2d)};
             auto texture{GetResource<Texture>(sprite->TextureID())};
@@ -920,7 +920,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             renderer_api->DrawIndexed(quad_mesh->MeshData());
             renderer_api->SetFramebufferSRGB(false);
         }
-        else if(ThingFactory::IsDerivedFrom(visual2d->type(), ThingType::Text2D))
+        else if(visual2d->DerivedFrom(ThingType::Text2D))
         {
             auto text2d{DCast<Text2D>(visual2d)};
             auto font{GetResource<Font>(text2d->Font())};

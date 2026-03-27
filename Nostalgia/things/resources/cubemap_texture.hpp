@@ -10,7 +10,8 @@ public:
 
     static Shared<CubemapTexture> CreateFromMemory(std::initializer_list<FileData> inImages);
 
-    SUPER(Texture)
+	SET_SUPER(Texture)
+	SET_TYPEID(ThingType::CubemapTexture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

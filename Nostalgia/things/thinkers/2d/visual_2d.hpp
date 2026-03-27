@@ -6,7 +6,8 @@
 class Visual2D : public Actor2D
 {
 public:
-    SUPER(Actor2D)
+	SET_SUPER(Actor2D)
+	SET_TYPEID(ThingType::Visual2D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

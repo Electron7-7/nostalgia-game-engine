@@ -18,7 +18,8 @@ public:
     DataFormat Format() const;
     int STBI_NumberOf8BitComponents() const;
 
-    SUPER(Resource);
+	SET_SUPER(Resource)
+	SET_TYPEID(ThingType::Image)
     SET_VARIABLES_OVERRIDE;
     GET_VARIABLES_OVERRIDE;
     virtual void Shutdown() override;

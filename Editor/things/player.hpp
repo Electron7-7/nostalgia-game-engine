@@ -7,7 +7,8 @@
 class EditorPlayer3D : public NostalgiaPlayer3D
 {
 public:
-    SUPER(NostalgiaPlayer3D)
+    SET_SUPER(NostalgiaPlayer3D)
+    DEFINE_TYPEID(EditorPlayer3D, __nostalgiaplayer3d)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

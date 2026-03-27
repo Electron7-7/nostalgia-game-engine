@@ -7,7 +7,8 @@
 class Actor2D : public Thinker
 {
 public:
-    SUPER(Thinker)
+	SET_SUPER(Thinker)
+	SET_TYPEID(ThingType::Actor2D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

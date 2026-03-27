@@ -7,7 +7,8 @@
 class Resource : public Thing
 {
 public:
-    SUPER(Thing)
+	SET_SUPER(Thing)
+	SET_TYPEID(ThingType::Resource)
 
     virtual void Init() {}
 

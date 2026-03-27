@@ -6,7 +6,8 @@
 class Text2D : public Visual2D
 {
 public:
-    SUPER(Visual2D)
+	SET_SUPER(Visual2D)
+	SET_TYPEID(ThingType::Text2D)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

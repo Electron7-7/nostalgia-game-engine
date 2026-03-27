@@ -128,23 +128,17 @@ Error OpenGLRendererAPI::RemoveShader(ID inID)
 void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight)
 {
 #pragma message("Currently, lights are limited to a maximum number but that number isn't enforced in the code and can overflow")
-    if(!inLight->IncrementIndex())
+    if(not inLight->IncrementIndex())
         { return; }
     std::string l_Light{std::format("_lights[{}].", inLight->Index())};
-    switch(inLight->Type())
-    {
-    case LightType::POINT:
-        l_Light = "point" + l_Light;
-        break;
-    case LightType::SPOT:
-        l_Light = "spot" + l_Light;
-        break;
-    case LightType::DIRECTIONAL:
-        l_Light = "directional" + l_Light;
-        break;
-    case LightType::NONE:
-        return;
-    }
+    if(inLight->DerivedFrom(ThingType::PointLight3D))
+        { l_Light = "point" + l_Light; }
+    else if(inLight->DerivedFrom(ThingType::SpotLight3D))
+        { l_Light = "spot" + l_Light; }
+    else if(inLight->DerivedFrom(ThingType::DirectionalLight3D))
+        { l_Light = "directional" + l_Light; }
+    else
+        { return; }
 
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "color",             inLight->mColor);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "energy",            inLight->mEnergy);

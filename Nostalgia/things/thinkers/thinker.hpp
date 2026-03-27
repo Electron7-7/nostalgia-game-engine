@@ -5,7 +5,8 @@
 class Thinker : public Thing
 {
 public:
-    SUPER(Thing)
+	SET_SUPER(Thing)
+	SET_TYPEID(ThingType::Thinker)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
@@ -28,7 +29,7 @@ protected:
         Relative() noexcept {}
         Relative(Farg<Shared<Thinker>> inThinker) noexcept:
             uid{inThinker->uid()},
-            type{inThinker->type()},
+            type{inThinker->Type()},
             name{inThinker->name()} {}
 
         ID uid{};

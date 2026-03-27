@@ -7,7 +7,8 @@
 class Camera3D : public Actor3D
 {
 public:
-    SUPER(Actor3D)
+	SET_SUPER(Actor3D)
+	SET_TYPEID(ThingType::Camera3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

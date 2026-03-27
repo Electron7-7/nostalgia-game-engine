@@ -1,7 +1,8 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-typedef Shared<Thing> (*pThingMakerTemplate_t)(FPID inType, Sarg inName, ID inUID);
+
+typedef Shared<Thing> (*pThingMakerTemplate_t)(Sarg inName, ID inUID);
 
 // This is a class instead of a namespace because fuck typing anything
 // other than `friend class ThingFactory` in `ThingType`.
@@ -9,8 +10,8 @@ class ThingFactory
 {
 public:
     template<typename T> requires std::derived_from<T, Thing>
-        static Shared<Thing> ThingMakerTemplate(FPID inType = ThingType::Thing, Sarg inName = "", ID inUID = {})
-        { return Shared<Thing>(new T{inType, inName, inUID}); }
+        static Shared<Thing> ThingMakerTemplate(Sarg inName = "", ID inUID = {})
+        { return Shared<Thing>(new T{inName, inUID}); }
 
     static constexpr int cDefaultPriority{1};
 

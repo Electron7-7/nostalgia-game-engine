@@ -6,7 +6,8 @@
 class Viewport : public Thinker
 {
 public:
-    SUPER(Thinker)
+	SET_SUPER(Thinker)
+	SET_TYPEID(ThingType::Viewport)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

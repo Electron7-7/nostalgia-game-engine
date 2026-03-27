@@ -25,7 +25,7 @@ void Light3D::Ready()
     Super::Ready();
 
     if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
-        and Type() != LightType::DIRECTIONAL) // the debug mesh instance shouldn't be visible for directional lights (yet)
+        and not DerivedFrom(ThingType::DirectionalLight3D)) // and not visible for directional lights
     {
         std::string mat_name{mName + "-debug-material"};
         ID mat_id{},

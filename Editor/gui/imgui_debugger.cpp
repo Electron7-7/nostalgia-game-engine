@@ -954,7 +954,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 { selected.name = theatre->GetName(selected.id); }
         }
         if(selected.ptr)
-            { Text("Type - %s", selected.ptr->type().c_name()); }
+            { Text("Type - %s", selected.ptr->Type().c_name()); }
         static bool collider_update_transform_instantly{false};
         // THINKERS
         if(auto thinker{DCast<Thinker>(selected.ptr)})
@@ -969,7 +969,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                 {
                     TextF("Parent: {} [Type:{}]",
                         parent_ptr->name(),
-                        parent_ptr->type().name());
+                        parent_ptr->Type().name());
                     SameLine();
                     if(Button("Inspect"))
                     {
@@ -1313,7 +1313,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                         SameLine();
                         TextF("Child: {} [Type:{}] [UID:{}]",
                             thing->name(),
-                            thing->type().name(),
+                            thing->Type().name(),
                             thing->uid()());
                         SameLine();
                         if(Button("Inspect"))

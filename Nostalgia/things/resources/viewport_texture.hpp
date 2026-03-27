@@ -6,7 +6,8 @@
 class ViewportTexture : public Texture
 {
 public:
-    SUPER(Texture)
+	SET_SUPER(Texture)
+	SET_TYPEID(ThingType::ViewportTexture)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

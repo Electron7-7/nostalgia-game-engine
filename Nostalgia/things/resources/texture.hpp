@@ -8,7 +8,8 @@ class Texture : public Resource
 public:
     static Shared<Texture> CreateFromMemory(const uchar* inData, size_t inSize);
 
-    SUPER(Resource)
+	SET_SUPER(Resource)
+	SET_TYPEID(ThingType::Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
