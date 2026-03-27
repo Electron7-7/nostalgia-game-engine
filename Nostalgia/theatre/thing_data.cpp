@@ -1,6 +1,41 @@
+#include "./thing_data.hpp"
 #include "./theatre.hpp"
 
 using namespace TheatreFile;
+
+Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> inNames) const
+{
+    static ThingVariable invalid_variable{};
+    for(FAUTO name : inNames)
+    {
+        for(FAUTO var : variables)
+        {
+            if(var.name.compare(name))
+                { continue; }
+            return var;
+        }
+    }
+    return invalid_variable;
+}
+
+Error ThingData::_get_id_variable(ID& outValue,
+    Farg<ThingVariable> inVariable,
+    ThingVarType inType) const
+{
+    if(inVariable.type != inType)
+        { return ERR_MISMATCHED_TYPES; }
+    else if(ID out{Theatre::Current()->GetUID(inVariable.value)}; not out.invalid())
+        { outValue = out; return OK; }
+    return ERR_INVALID;
+}
+
+Shared<Resource> ThingData::_try_get_resource(Sarg inName) const
+{
+    // if(Theatre::Current()->DerivedFrom)
+}
+
+Shared<Thinker> ThingData::_try_get_thinker(Sarg inName) const
+{}
 
 std::string ThingData::get_log() const noexcept
 {
@@ -41,32 +76,6 @@ std::string ThingData::get_parsable_string() const noexcept
 
 void ThingData::set_variable(Sarg inValue, Sarg inName)
 { variables.emplace_back(inName, inValue, ThingVarType::String); }
-
-Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> inNames) const
-{
-    static ThingVariable invalid_variable{};
-    for(FAUTO name : inNames)
-    {
-        for(FAUTO var : variables)
-        {
-            if(var.name.compare(name))
-                { continue; }
-            return var;
-        }
-    }
-    return invalid_variable;
-}
-
-Error ThingData::_get_id_variable(ID& outValue,
-    Farg<ThingVariable> inVariable,
-    ThingVarType inType) const
-{
-    if(inVariable.type != inType)
-        { return ERR_MISMATCHED_TYPES; }
-    else if(ID out{Theatre::Current()->GetUID(inVariable.value)}; not out.invalid())
-        { outValue = out; return OK; }
-    return ERR_INVALID;
-}
 
 void ThingData::clear()
 {

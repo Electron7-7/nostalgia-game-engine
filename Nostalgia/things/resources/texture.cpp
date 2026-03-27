@@ -1,4 +1,5 @@
 #include "./texture.hpp"
+#include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "filesystem/image_handler.hpp"

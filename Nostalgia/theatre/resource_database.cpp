@@ -1,6 +1,5 @@
 #include "./resource_database.hpp"
 #include "things/thing_factory.hpp"
-#include <ranges>
 
 #define LOCK_MUTEX LockGuard<RMutex> lock{sMutex}
 #define FOUND_IT(MAP, KEY) auto found_it{MAP.find(KEY)}; found_it != MAP.end()

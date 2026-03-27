@@ -1,6 +1,8 @@
 #ifndef RESOURCE_DATABASE_H
 #define RESOURCE_DATABASE_H
 
+#include <Nostalgia/things/resources/resource.hpp>
+
 #define USE_NAME_OR_UID(FUNCTION) \
     static FUNCTION(ID inUID); \
     static FUNCTION(Sarg inName);

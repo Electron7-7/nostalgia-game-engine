@@ -1,6 +1,10 @@
 #ifndef THING_DATA_H
 #define THING_DATA_H
 
+#include <Nostalgia/things/thinkers/thinker.hpp>
+#include <Nostalgia/things/resources/resource.hpp>
+#include <Nostalgia/theatre/variable_registry.hpp>
+
 #define ASSERT_THING_VARIABLE(ThingVarName, InVarNames, ReturnOnFail...) \
     Farg<ThingVariable> ThingVarName{_get_variable({inNames...})}; \
     if(!ThingVarName) { return ReturnOnFail; }
@@ -42,6 +46,8 @@ namespace TheatreFile
     private:
         Farg<ThingVariable> _get_variable(std::initializer_list<std::string>) const;
         Error _get_id_variable(ID&, Farg<ThingVariable>, ThingVarType) const;
+        Shared<Resource> _try_get_resource(Sarg inName) const;
+        Shared<Thinker> _try_get_thinker(Sarg inName) const;
 
     public:
         PID           type{};
@@ -80,6 +86,18 @@ namespace TheatreFile
                     { return ERR_INVALID; }
                 variables.emplace_back(inName, enum_name, ThingVarType::Enum);
                 return OK;
+            }
+
+        template<typename T, StringType... Names> requires std::derived_from<Resource, T>
+            Error get_variable(Shared<T>& outValue, Names... inNames) const
+            {
+
+            }
+
+        template<typename T, StringType... Names> requires std::derived_from<Thinker, T>
+            Error get_variable(Shared<T>& outValue, Names... inNames) const
+            {
+
             }
 
         template<StringType... Names>

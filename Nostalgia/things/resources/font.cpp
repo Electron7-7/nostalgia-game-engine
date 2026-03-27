@@ -1,4 +1,5 @@
 #include "./font.hpp"
+#include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #include "rendering/texture_buffer.hpp"
 #include <ft2build.h>

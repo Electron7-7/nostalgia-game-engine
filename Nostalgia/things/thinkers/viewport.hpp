@@ -1,6 +1,7 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
+#include <Nostalgia/things/thinkers/thinker.hpp>
 #include <Nostalgia/rendering/frame_buffer.hpp>
 
 class Viewport : public Thinker

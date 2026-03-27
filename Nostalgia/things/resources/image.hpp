@@ -1,15 +1,12 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <Nostalgia/things/resources/resource.hpp>
 #include <Nostalgia/rendering/common.hpp>
 
 class Image : public Resource
 {
 public:
-    static Shared<Image> CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat);
-    static Shared<Image> CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-        uchar* inData, int inSize);
-
     Farg<Shared<FileData>> Data() const;
     Shared<FileData> Data();
     bool UseMipmaps() const;
@@ -31,7 +28,7 @@ public:
 protected:
     // FileData size post-stbi is calculated by mWidth * mHeight * mChannels
     Shared<FileData> mData{MakeShared<FileData>()};
-    DataFormat mFormat{DATA_FORMAT_RED};
+    DataFormat mFormat{DATA_FORMAT_SRGB_ALPHA};
     bool mUseMipmaps{false};
     int mWidth{1},
         mHeight{1},

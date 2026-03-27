@@ -1,3 +1,5 @@
+#include "./thing_data.hpp"
+
 using namespace TheatreFile;
 
 std::string ThingVariable::get_log() const noexcept

@@ -1,13 +1,13 @@
 #ifndef THINGS_FWD_H
 #define THINGS_FWD_H
 
-// class Thing; // Already in the pch
-    // class Resource; // Already in the pch
+class Thing;
+    class Resource;
         class Material;
         class Font;
         class Mesh;
         class Texture;
-    // class Thinker; // Already in the pch
+    class Thinker;
     class Viewport;
         class Actor2D;
             class Camera2D;

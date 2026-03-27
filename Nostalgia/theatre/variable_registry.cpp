@@ -1,3 +1,4 @@
+#include "./variable_registry.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "things/thinkers/3d/collider_3d.hpp"
 #include "rendering/environment.hpp"

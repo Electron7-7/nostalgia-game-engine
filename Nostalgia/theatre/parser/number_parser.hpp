@@ -1,8 +1,6 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
-#include <stdexcept>
-
 template<GLMContainer T>
     consteval ushort gGlmSize()
     {

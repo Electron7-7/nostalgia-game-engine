@@ -7,7 +7,7 @@
 class Font : public Resource
 {
 public:
-    struct Glyph
+	struct Glyph
     {
         Shared<TextureBuffer> texture{nullptr};
         u_char character{'\0'};

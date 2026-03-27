@@ -1,6 +1,7 @@
 #ifndef ACTOR_3D_H
 #define ACTOR_3D_H
 
+#include <Nostalgia/things/thinkers/thinker.hpp>
 #include <Nostalgia/math/transform.hpp>
 
 // Similar to Godot's `Node3D`

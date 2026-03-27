@@ -16,7 +16,7 @@ public:
         std::type_index index{typeid(std::nullptr_t)};
     };
 
-    using Enums        = std::map<std::string, enum_pair>;
+    using Enums = std::map<std::string, enum_pair>;
 
     VariableRegistry() noexcept;
 

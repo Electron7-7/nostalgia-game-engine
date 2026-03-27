@@ -1,4 +1,5 @@
 #include "./cubemap_texture.hpp"
+#include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #include "filesystem/image_handler.hpp"
 

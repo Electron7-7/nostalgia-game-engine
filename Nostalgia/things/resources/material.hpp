@@ -1,6 +1,8 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include <Nostalgia/things/resources/resource.hpp>
+
 class Material : public Resource
 {
 public:

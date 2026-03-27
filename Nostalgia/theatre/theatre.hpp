@@ -1,8 +1,10 @@
 #ifndef THEATRE_H
 #define THEATRE_H
 
-#include <Nostalgia/fwd/theatre.hpp>
 #include <Nostalgia/fwd/things.hpp>
+#include <Nostalgia/things/thinkers/thinker.hpp>
+#include <Nostalgia/things/resources/resource.hpp>
+#include <Nostalgia/theatre/theatre_file.hpp>
 #include <Nostalgia/theatre/call_sheet.hpp>
 #include <Nostalgia/theatre/variable_registry.hpp>
 

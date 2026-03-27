@@ -1,4 +1,5 @@
 #include "./mesh.hpp"
+#include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #include "rendering/mesh_buffers.hpp"
 #include "rendering/vertex.hpp"

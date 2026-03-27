@@ -1,12 +1,11 @@
 #ifndef THING_H
 #define THING_H
 
+#include <Nostalgia/events/event.hpp>
+
 /// Forward Declaration
-class Theatre;
-/// Forward Declaration
-class InputEvent;
-/// Forward Declaration
-class ResourceDatabase;
+namespace TheatreFile { struct ThingData; }
+
 /// Macro for defining the `Super` keyword and base-class constructor inheritance.
 /// See other Thing-derived classes like `Thinker` for example use cases.
 #define SET_SUPER(SUPER) using Super = SUPER; using SUPER::SUPER;

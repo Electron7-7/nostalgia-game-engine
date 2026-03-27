@@ -1,6 +1,8 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
+#include <Nostalgia/things/thinkers/thinker.hpp>
+#include <Nostalgia/things/resources/resource.hpp>
 
 typedef Shared<Thing> (*pThingMakerTemplate_t)(Sarg inName, ID inUID);
 

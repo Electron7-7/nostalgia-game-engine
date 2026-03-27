@@ -1,6 +1,7 @@
 #ifndef CALL_SHEET_H
 #define CALL_SHEET_H
 
+#include <Nostalgia/fwd/things.hpp>
 #include <Nostalgia/theatre/tree.hpp>
 
 using Things_t = std::unordered_map<ID, Shared<Thing>>;

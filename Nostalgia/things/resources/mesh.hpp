@@ -2,6 +2,7 @@
 #define MESH_H
 
 #include <Nostalgia/fwd/rendering.hpp>
+#include <Nostalgia/things/resources/resource.hpp>
 
 class Mesh : public Resource
 {

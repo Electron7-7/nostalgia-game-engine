@@ -1,4 +1,5 @@
 #include "./viewport_texture.hpp"
+#include "theatre/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thinkers/viewport.hpp"
 

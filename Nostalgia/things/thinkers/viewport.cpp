@@ -1,9 +1,10 @@
 #include "./viewport.hpp"
-#include "application/application.hpp"
+#include "theatre/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/3d/camera_3d.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
+#include "application/application.hpp"
 
 using namespace TheatreFile;
 

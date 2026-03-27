@@ -1,5 +1,5 @@
 #include "./theatre.hpp"
-#include "./theatre_file.hpp"
+#include "./thing_data.hpp"
 #include "models.hpp"
 #include "images.hpp"
 #include "fonts.hpp"
@@ -24,7 +24,6 @@
 #include "rendering/shader.hpp"
 #include "settings/graphics.hpp"
 #include "console/console.hpp"
-#include <ranges>
 
 #define LOCK_THINGS LockGuard<RMutex> things_lock{mThingsMutex}
 

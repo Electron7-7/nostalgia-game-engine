@@ -1,8 +1,6 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include <Nostalgia/fwd/core.hpp>
-
 namespace Console
 {
     struct Variable

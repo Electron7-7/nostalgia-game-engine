@@ -39,6 +39,7 @@
 #include <cstdlib>          // IWYU pragma: keep
 #include <format>           // IWYU pragma: keep
 #include <random>           // IWYU pragma: keep
+#include <ranges>           // IWYU pragma: keep
 #include <chrono>           // IWYU pragma: keep
 #include <concepts>         // IWYU pragma: keep
 #include <typeindex>        // IWYU pragma: keep
@@ -82,10 +83,5 @@
 #include <Nostalgia/filesystem/file_data.hpp>         // IWYU pragma: keep
 #include <Nostalgia/theatre/parser/number_parser.hpp> // IWYU pragma: keep
 #include <Nostalgia/things/thing_type.hpp>            // IWYU pragma: keep
-#include <Nostalgia/theatre/variable_registry.hpp>    // IWYU pragma: keep
-#include <Nostalgia/theatre/thing_data.hpp>           // IWYU pragma: keep
-#include <Nostalgia/things/thing.hpp>                 // IWYU pragma: keep
-#include <Nostalgia/things/resources/resource.hpp>    // IWYU pragma: keep
-#include <Nostalgia/things/thinkers/thinker.hpp>      // IWYU pragma: keep
 
 #endif // NOSTALGIA_PRE_COMPILED_HEADER_H

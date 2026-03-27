@@ -1,4 +1,5 @@
 #include "./sprite_3d.hpp"
+#include "theatre/thing_data.hpp"
 
 using namespace TheatreFile;
 

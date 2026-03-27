@@ -1,5 +1,6 @@
 #include "./camera_3d.hpp"
 #include "../viewport.hpp"
+#include "theatre/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "settings/engine.hpp"
 #include "settings/world.hpp"

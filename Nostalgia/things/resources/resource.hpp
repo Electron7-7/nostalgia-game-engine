@@ -1,6 +1,7 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
 
+#include <Nostalgia/things/thing.hpp>
 
 // Similar to either Godot's `Resource` or `RefCounted` (I haven't decided yet)
 class Resource : public Thing

@@ -1,8 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <Nostalgia/things/resources/resource.hpp>
 #include <Nostalgia/rendering/texture_buffer.hpp>
 
+#pragma message("TODO: Rename this to `ImageTexture`")
 class Texture : public Resource
 {
 public:

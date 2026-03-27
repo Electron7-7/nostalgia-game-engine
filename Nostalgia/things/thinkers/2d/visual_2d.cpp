@@ -1,4 +1,5 @@
-#include "visual_2d.hpp"
+#include "./visual_2d.hpp"
+#include "theatre/thing_data.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
