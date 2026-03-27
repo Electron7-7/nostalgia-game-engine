@@ -5,7 +5,7 @@ using namespace TheatreFile;
 std::string ThingData::get_log() const noexcept
 {
     std::string output{std::format("<ThingData>\n\ttype: {}\n\tname: {}\n\tuid: {}\n\tvariables:",
-        type.name(), name, uid())};
+        type.name(), name, _uid())};
     for(FAUTO var : variables)
         { output += std::format("\n\t\t{}", var.get_log()); }
     if(!children_variables.empty())
@@ -71,7 +71,7 @@ Error ThingData::_get_id_variable(ID& outValue,
 void ThingData::clear()
 {
     type = {};
-    uid  = {};
+    _uid = {};
     name.clear();
     variables.clear();
     parent_variable.clear();

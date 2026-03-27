@@ -546,13 +546,13 @@ bool Theatre::LoadCurrentTheatreData()
 
 void Theatre::SetupUID(ThingData& ioData)
 {
-    ioData.uid = UID::Generate();
+    ioData._uid = UID::Generate();
     if(ioData.name.empty())
         { ioData.name = "Untitled_Thing"; }
     if(not ioData.name.empty())
-        { mNames[ioData.name] = ioData.uid; }
+        { mNames[ioData.name] = ioData._uid; }
     if(ThingFactory::IsThinker(ioData.type))
-        { mCallSheet.Add(ioData.uid); }
+        { mCallSheet.Add(ioData._uid); }
 }
 
 void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
@@ -563,14 +563,14 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
     {
         if(not mCallSheet.Has(parent) and isStartup)
             { mCallSheet.Add(parent); }
-        if(not mCallSheet.Reparent(ioData.uid, parent))
-            { mCallSheet.Add(ioData.uid, parent); }
+        if(not mCallSheet.Reparent(ioData._uid, parent))
+            { mCallSheet.Add(ioData._uid, parent); }
     }
     for(FAUTO child_var : ioData.children_variables)
     {
         ID child{GetUID(child_var.value)};
-        if(not child.invalid() and not mCallSheet.Reparent(child, ioData.uid) and isStartup)
-            { mCallSheet.Add(child, ioData.uid); }
+        if(not child.invalid() and not mCallSheet.Reparent(child, ioData._uid) and isStartup)
+            { mCallSheet.Add(child, ioData._uid); }
     }
 
     if(not isStartup)
@@ -579,7 +579,7 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
     ioData.parent_variable.clear();
     ioData.children_variables.clear();
 
-    if(FAUTO node{mCallSheet.Get(ioData.uid)}; not node.invalid())
+    if(FAUTO node{mCallSheet.Get(ioData._uid)}; not node.invalid())
     {
         ioData.parent_variable = {"Parent", GetName(node.parent), ThingVarType::Parent};
 
@@ -660,14 +660,14 @@ ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
         SetupOwnership(ioData);
     }
 
-    auto& thing{mThings[ioData.uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData.uid)};
+    auto& thing{mThings[ioData._uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData._uid)};
     if(auto resource{DCast<Resource>(thing)})
         { resource->Init(); }
     thing->SetVariables(ioData);
     mNames[thing->name()] = thing->uid();
 
     if(is_player)
-        { UID::o_Player = ioData.uid; }
+        { UID::o_Player = ioData._uid; }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Viewport))
         { mViewportIDs.insert(thing->uid()); }
     else if(ThingFactory::IsDerivedFrom(thing->type(), ThingType::Camera3D))
