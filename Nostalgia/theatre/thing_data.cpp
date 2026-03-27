@@ -30,12 +30,10 @@ Error ThingData::_get_id_variable(ID& outValue,
 }
 
 Shared<Resource> ThingData::_try_get_resource(Sarg inName) const
-{
-    // if(Theatre::Current()->DerivedFrom)
-}
+{ return Theatre::Current()->GetResource(inName); }
 
 Shared<Thinker> ThingData::_try_get_thinker(Sarg inName) const
-{}
+{ return Theatre::Current()->GetThinker(inName); }
 
 std::string ThingData::get_log() const noexcept
 {

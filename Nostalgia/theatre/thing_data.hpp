@@ -78,7 +78,7 @@ namespace TheatreFile
             void set_variable(Farg<T> inValue, Sarg inName)
             { variables.emplace_back(inName, NumToString(inValue), ThingVarType::Number); }
 
-        template<IsEnum T, StringType... Names>
+        template<IsEnum T>
             Error set_variable(T inValue, Sarg inName)
             {
                 std::string enum_name{};
@@ -88,16 +88,38 @@ namespace TheatreFile
                 return OK;
             }
 
+        template<typename T> requires std::derived_from<Resource, T>
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
+            { return set_variable(inValue->uid(), inName); }
+
+        template<typename T> requires std::derived_from<Thinker, T>
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
+            { return set_variable(inValue->uid(), inName); }
+
         template<typename T, StringType... Names> requires std::derived_from<Resource, T>
             Error get_variable(Shared<T>& outValue, Names... inNames) const
             {
-
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.value.empty())
+                    { return ERR_EMPTY; }
+                else if(thing_var.type != ThingVarType::ID)
+                    { return ERR_MISMATCHED_TYPES; }
+                if(auto resource{DCast<T>(_try_get_resource(thing_var.value))})
+                    { outValue = resource; return OK; }
+                return ERR_NOT_FOUND;
             }
 
         template<typename T, StringType... Names> requires std::derived_from<Thinker, T>
             Error get_variable(Shared<T>& outValue, Names... inNames) const
             {
-
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.value.empty())
+                    { return ERR_EMPTY; }
+                else if(thing_var.type != ThingVarType::ID)
+                    { return ERR_MISMATCHED_TYPES; }
+                if(auto thinker{DCast<T>(_try_get_thinker(thing_var.value))})
+                    { outValue = thinker; return OK; }
+                return ERR_NOT_FOUND;
             }
 
         template<StringType... Names>
