@@ -15,7 +15,7 @@ void Thing::SetVariables(Farg<ThingData> data)
     if(mType.invalid() and not data.type.invalid())
         { mType = data.type; }
     if(mUID.invalid() and not data.type.invalid())
-        { mUID = data.uid; }
+        { mUID = data._uid; }
     m_pStartingData = MakeShared<ThingData>(data);
 }
 
@@ -23,7 +23,7 @@ Shared<ThingData> Thing::GetVariables() const
 {
     auto data{MakeShared<ThingData>()};
     data->name = mName;
-    data->uid  = mUID;
+    data->_uid = mUID;
     data->type = mType;
     return data;
 }

@@ -18,7 +18,7 @@ void Camera3D::Ready()
         {
             ThingData mat_data{ThingType::Material,
                 cam_mat_name,
-                {},
+                {}, {}, {},
                 cam_mat};
             mat_data.set_variable(true, "FullBright");
             mat_data.set_variable(true, "NoTextures");

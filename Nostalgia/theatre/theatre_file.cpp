@@ -90,7 +90,7 @@ void sDebugPrintParserLogs(Farg<std::vector<ThingData>> inData)
     {
         debug_print("<ThingData>");
         debug_print("\tname:   {}", thing_data.name);
-        debug_print("\tuid:    {}", thing_data.uid());
+        debug_print("\tuid:    {}", thing_data._uid());
         debug_print("\ttype:   {}", thing_data.type.name());
         if(!thing_data.parent_variable.invalid())
             { debug_print("\tparent: {}", thing_data.parent_variable.get_log()); }
