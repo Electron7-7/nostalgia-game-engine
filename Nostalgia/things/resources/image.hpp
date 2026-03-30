@@ -7,6 +7,20 @@
 class Image : public Resource
 {
 public:
+    static Shared<Image> CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat);
+    static Shared<Image> CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
+        uchar* inImageData, int inImageDataSize);
+
+	SET_SUPER(Resource)
+	SET_TYPEID(ThingType::Image)
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
+    SHUTDOWN_OVERRIDE
+
+    virtual Error Load(Sarg inFilePath);
+    virtual void SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
+        uchar* inData, int inSize);
+
     Farg<Shared<FileData>> Data() const;
     Shared<FileData> Data();
     bool UseMipmaps() const;
@@ -14,16 +28,6 @@ public:
     int Height() const;
     DataFormat Format() const;
     int STBI_NumberOf8BitComponents() const;
-
-	SET_SUPER(Resource)
-	SET_TYPEID(ThingType::Image)
-    SET_VARIABLES_OVERRIDE;
-    GET_VARIABLES_OVERRIDE;
-    virtual void Shutdown() override;
-
-    virtual Error Load(Sarg inFilePath);
-    virtual void SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-        uchar* inData, int inSize);
 
 protected:
     // FileData size post-stbi is calculated by mWidth * mHeight * mChannels
