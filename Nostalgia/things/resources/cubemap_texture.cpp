@@ -1,7 +1,7 @@
 #include "./cubemap_texture.hpp"
 #include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
-#include "filesystem/image_handler.hpp"
+// #include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
@@ -43,8 +43,8 @@ Error CubemapTexture::Import()
     Error status{};
 
     mTextureBuffer = TextureBuffer::Create();
-
-    for(int i{0}; i < 6; ++i)
+    return UNIMPLEMENTED;
+    /*for(int i{0}; i < 6; ++i)
     {
         auto image_data{ImageHandler::Load(m_pImages[i], mFormat, status)};
 
@@ -66,5 +66,5 @@ Error CubemapTexture::Import()
         mTextureBuffer->SetSamplerState(mSampler);
     }
 
-    return status;
+    return status;*/
 }

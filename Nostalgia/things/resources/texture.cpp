@@ -2,7 +2,7 @@
 #include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "filesystem/image_handler.hpp"
+// #include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
@@ -66,7 +66,8 @@ Shared<ThingData> Texture::GetVariables() const
 Error Texture::Import()
 {
     mTextureBuffer = TextureBuffer::Create();
-    if(not m_pImage)
+    return UNIMPLEMENTED;
+    /*if(not m_pImage)
     {
         print_error("No image data found/loaded");
         return ERR_EMPTY;
@@ -92,7 +93,7 @@ Error Texture::Import()
     }
 
     ImageHandler::Free(image_data);
-    return status;
+    return status;*/
 }
 
 Farg<TextureFormat> Texture::Format() const
