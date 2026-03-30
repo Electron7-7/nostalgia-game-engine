@@ -90,11 +90,19 @@ namespace TheatreFile
 
         template<typename T> requires std::derived_from<T, Resource>
             Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
-            { return set_variable(inValue->uid(), inName); }
+            {
+                if(not inValue)
+                    { return ERR_NULLPTR; }
+                return set_variable(inValue->uid(), inName);
+            }
 
         template<typename T> requires std::derived_from<T, Thinker>
             Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
-            { return set_variable(inValue->uid(), inName); }
+            {
+                if(not inValue)
+                    { return ERR_NULLPTR; }
+                return set_variable(inValue->uid(), inName);
+            }
 
         template<typename T, StringType... Names> requires std::derived_from<T, Resource>
             Error get_variable(Shared<T>& outValue, Names... inNames) const
@@ -129,7 +137,13 @@ namespace TheatreFile
                 if(thing_var.value.empty())
                     { return ERR_EMPTY; }
                 else if(thing_var.type == ThingVarType::String)
-                    { return outValue->LoadFile(thing_var.value); }
+                {
+                    auto output{MakeShared<FileData>()};
+                    Error status{print_error_enum(output->LoadFile(thing_var.value))};
+                    if(status == OK)
+                        { outValue = output; }
+                    return status;
+                }
                 return ERR_MISMATCHED_TYPES;
             }
 
