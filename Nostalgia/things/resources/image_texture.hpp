@@ -7,16 +7,19 @@
 class ImageTexture : public Texture
 {
 public:
+    static Shared<ImageTexture> CreateFromImage(Shared<Image>);
+
     SET_SUPER(Texture)
     SET_TYPEID(ThingType::ImageTexture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
-    SHUTDOWN_OVERRIDE
 
-    virtual Error Import() override;
+    TextureFormat Format() const;
+    void SetImage(Shared<Image>);
+    void UpdateImage(Shared<Image>);
 
 protected:
-    Shared<Image> m_pImageResource{nullptr};
+    ID mInitialImageID{};
 };
 
 #endif // IMAGE_TEXTURE_H

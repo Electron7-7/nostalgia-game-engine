@@ -1,14 +1,12 @@
 #include "./image_texture.hpp"
-#include "filesystem/image_handler.hpp"
 #include "theatre/thing_data.hpp"
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
     Super::Super::SetVariables(data);
-
-    data.get_variable(m_pImageResource, "Image", "Data");
 
     data.get_variable(mFormat.type, "Type");
     data.get_variable(mFormat.data_format, "Format");
@@ -26,14 +24,14 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
     data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
     data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
 
-    if(m_pImageResource)
-        { Import(); }
+    if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
+        { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
 }
 
 Shared<ThingData> ImageTexture::GetVariables() const
 {
     auto data{Super::Super::GetVariables()};
-    data->set_variable(m_pImage, "Image");
+    data->set_variable(mInitialImageID, "Image");
     data->set_variable(mFormat.type, "Type");
     data->set_variable(mFormat.data_format, "Format");
     data->set_variable(mFormat.width, "Width");
@@ -49,36 +47,33 @@ Shared<ThingData> ImageTexture::GetVariables() const
     data->set_variable(mSampler.repeat_w, "SamplerRepeatW");
     data->set_variable(mSampler.use_anisotropy, "UseAnisotropy");
     data->set_variable(mSampler.anisotropy_max, "AnisotropyMax");
-    // data->set_variable(mBoundToFramebuffer, "Bound to Framebuffer");
     return data;
 }
 
-void ImageTexture::Shutdown()
-{
-    Super::Shutdown();
-    if(m_pImageResource and m_pImageResource->Data())
-        { ImageHandler::Free(m_pImageResource->Data()->raw_data()); }
-}
+TextureFormat ImageTexture::Format() const
+{ return mFormat; }
 
-Error ImageTexture::Import()
+void ImageTexture::SetImage(Shared<Image> inImage)
 {
-    mTextureBuffer = TextureBuffer::Create();
-    if(not m_pImageResource or not m_pImageResource->Data())
+    if(not mTextureBuffer)
+        { mTextureBuffer = TextureBuffer::Create(); }
+
+    if(not inImage or inImage->uid().invalid() or not inImage->raw_data())
     {
         print_error("No image data found/loaded");
-        return ERR_EMPTY;
+        return;
     }
 
-    Error status{OK};
-    auto image_data{ImageHandler::Load(m_pImageResource->Data(), mFormat, status)};
+    mFormat = {inImage->Width(), inImage->Height(), inImage->Format()};
 
-    status = mTextureBuffer->Load(image_data, mFormat);
-
-    if(!print_error_enum(status))
-        { print_error("Failed to create Texture ['{}', {}]", mName, uid()()); }
+    if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat)))
+    {
+        print_error("Failed to create Texture ['{}', {}]", mName, uid()());
+        return;
+    }
     else
     {
-        if(not m_pImageResource->UseMipmaps())
+        if(not inImage->UseMipmaps())
         {
             mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
             mTextureBuffer->SetSamplerState(mSampler);
@@ -89,8 +84,22 @@ Error ImageTexture::Import()
             mTextureBuffer->GenerateMipMaps();
         }
     }
+}
 
-    ImageHandler::Free(image_data);
-    m_pImageResource = nullptr;
-    return status;
+void ImageTexture::UpdateImage(Shared<Image> inImage)
+{
+    if(mFormat.width != inImage->Width()
+        or mFormat.height != inImage->Height()
+        or mFormat.data_format != inImage->Format()
+        or mFormat.channels != inImage->Channels())
+    {
+        print_error("Image parameters do not match ImageTexture's parameters");
+        print_debug("Image Params        - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
+            inImage->Width(),inImage->Height(),inImage->Channels(),EnumPrettifier::Prettify(inImage->Format()));
+        print_debug("ImageTexture Params - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
+            mFormat.width, mFormat.height, mFormat.channels, EnumPrettifier::Prettify(mFormat.data_format));
+        return;
+    }
+
+    print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat));
 }
