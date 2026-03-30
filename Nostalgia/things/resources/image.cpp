@@ -1,11 +1,12 @@
 #include "./image.hpp"
 #include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_FAILURE_USERMSG // generate user friendly error messages
-#include "stb_image/stb_image.h"
+#include "filesystem/image_handler.hpp"
+// #define STB_IMAGE_IMPLEMENTATION
+// #define STBI_FAILURE_USERMSG // generate user friendly error messages
+// #include "stb_image/stb_image.h"
 
-static int sDataFormatToSTBI(DataFormat inFormat)
+/*static int sDataFormatToSTBI(DataFormat inFormat)
 {
     switch(inFormat)
     {
@@ -25,7 +26,7 @@ static int sDataFormatToSTBI(DataFormat inFormat)
     case DATA_FORMAT_NONE:
         return STBI_default;
     }
-}
+}*/
 
 Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat)
 {
@@ -74,9 +75,8 @@ void Image::SetVariables(Farg<TheatreFile::ThingData> data)
     data.get_variable(mHeight, "Height");
     data.get_variable(mFormat, "Format");
     data.get_variable(mUseMipmaps, "Mipmaps");
-    data.get_variable(mData, "File", "FilePath", "Path", "Image");
-
-
+    if(std::string path{}; data.get_variable(path, "File", "FilePath", "Path", "Image") == OK)
+        { Load(path); }
 }
 
 Shared<TheatreFile::ThingData> Image::GetVariables() const
@@ -94,7 +94,8 @@ Shared<TheatreFile::ThingData> Image::GetVariables() const
 void Image::Shutdown()
 {
     Super::Shutdown();
-    stbi_image_free(mData->raw_data());
+    // stbi_image_free(mData->raw_data());
+    // ImageHandler::Free(mData->raw_data());
 }
 
 Error Image::Load(Sarg inPath)
@@ -129,7 +130,7 @@ Error Image::Load(Sarg inPath)
 void Image::SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
     uchar* inImageData, int inImageDataSize)
 {
-    if(not inImageData)
+    /*if(not inImageData)
         { print_warning("Input image data was null"); return; }
 
     mWidth  = inWidth;
@@ -152,7 +153,8 @@ void Image::SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inF
         print_error("STBI failed with reason: {}", stbi_failure_reason());
         stbi_image_free(temp_data);
         return;
-    }
+    }*/
 
-    mData->LoadData(temp_data, mWidth * mHeight * mChannels);
+    ImageHandler::GetInfo(mData = MakeShared<FileData>(inImageData, inImageDataSize),
+        &mWidth, &mHeight, &mChannels);
 }
