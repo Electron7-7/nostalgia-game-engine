@@ -1,0 +1,96 @@
+#include "./image_texture.hpp"
+#include "filesystem/image_handler.hpp"
+#include "theatre/thing_data.hpp"
+
+using namespace TheatreFile;
+
+void ImageTexture::SetVariables(Farg<ThingData> data)
+{
+    Super::Super::SetVariables(data);
+
+    data.get_variable(m_pImageResource, "Image", "Data");
+
+    data.get_variable(mFormat.type, "Type");
+    data.get_variable(mFormat.data_format, "Format");
+    data.get_variable(mFormat.width, "Width");
+    data.get_variable(mFormat.height, "Height");
+    data.get_variable(mFormat.depth, "Depth");
+    data.get_variable(mFormat.array_layers, "ArrayLayers");
+    data.get_variable(mFormat.mipmaps, "MipMaps");
+    data.get_variable(mSampler.min_filter, "SamplerMinFilter", "MinFilter", "Min");
+    data.get_variable(mSampler.mip_filter_min, "SamplerMipFilterMin", "MipFilterMin", "MipMin");
+    data.get_variable(mSampler.mag_filter, "SamplerMagFilter", "MagFilter", "Mag");
+    data.get_variable(mSampler.repeat_u, "SamplerRepeatU", "SamplerRepeatX", "RepeatU", "RepeatX");
+    data.get_variable(mSampler.repeat_v, "SamplerRepeatV", "SamplerRepeatY", "RepeatV", "RepeatY");
+    data.get_variable(mSampler.repeat_w, "SamplerRepeatW", "SamplerRepeatZ", "RepeatW", "RepeatZ");
+    data.get_variable(mSampler.use_anisotropy, "UseAnisotropy", "AnisotropyEnabled");
+    data.get_variable(mSampler.anisotropy_max, "AnisotropyMax", "Anisotropy");
+
+    if(m_pImageResource)
+        { Import(); }
+}
+
+Shared<ThingData> ImageTexture::GetVariables() const
+{
+    auto data{Super::Super::GetVariables()};
+    data->set_variable(m_pImage, "Image");
+    data->set_variable(mFormat.type, "Type");
+    data->set_variable(mFormat.data_format, "Format");
+    data->set_variable(mFormat.width, "Width");
+    data->set_variable(mFormat.height, "Height");
+    data->set_variable(mFormat.depth, "Depth");
+    data->set_variable(mFormat.array_layers, "ArrayLayers");
+    data->set_variable(mFormat.mipmaps, "MipMaps");
+    data->set_variable(mSampler.min_filter, "SamplerMinFilter");
+    data->set_variable(mSampler.mip_filter_min, "SamplerMipFilterMin");
+    data->set_variable(mSampler.mag_filter, "SamplerMagFilter");
+    data->set_variable(mSampler.repeat_u, "SamplerRepeatU");
+    data->set_variable(mSampler.repeat_v, "SamplerRepeatV");
+    data->set_variable(mSampler.repeat_w, "SamplerRepeatW");
+    data->set_variable(mSampler.use_anisotropy, "UseAnisotropy");
+    data->set_variable(mSampler.anisotropy_max, "AnisotropyMax");
+    // data->set_variable(mBoundToFramebuffer, "Bound to Framebuffer");
+    return data;
+}
+
+void ImageTexture::Shutdown()
+{
+    Super::Shutdown();
+    if(m_pImageResource and m_pImageResource->Data())
+        { ImageHandler::Free(m_pImageResource->Data()->raw_data()); }
+}
+
+Error ImageTexture::Import()
+{
+    mTextureBuffer = TextureBuffer::Create();
+    if(not m_pImageResource or not m_pImageResource->Data())
+    {
+        print_error("No image data found/loaded");
+        return ERR_EMPTY;
+    }
+
+    Error status{OK};
+    auto image_data{ImageHandler::Load(m_pImageResource->Data(), mFormat, status)};
+
+    status = mTextureBuffer->Load(image_data, mFormat);
+
+    if(!print_error_enum(status))
+        { print_error("Failed to create Texture ['{}', {}]", mName, uid()()); }
+    else
+    {
+        if(not m_pImageResource->UseMipmaps())
+        {
+            mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
+            mTextureBuffer->SetSamplerState(mSampler);
+        }
+        else
+        {
+            mTextureBuffer->SetSamplerState(mSampler);
+            mTextureBuffer->GenerateMipMaps();
+        }
+    }
+
+    ImageHandler::Free(image_data);
+    m_pImageResource = nullptr;
+    return status;
+}
