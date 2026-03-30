@@ -7,6 +7,7 @@ namespace ImageHandler
 {
     uchar* Load(Shared<FileData> inImageFile, TextureFormat& ioFormat, Error& outError);
     void Free(uchar* ioData);
+    void GetInfo(Shared<FileData> inImageFile, int* outWidth, int* outHeight, int* outChannels);
 }
 
 #endif // IMAGE_HANDLER_H

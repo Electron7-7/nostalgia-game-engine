@@ -55,3 +55,10 @@ uchar* ImageHandler::Load(Shared<FileData> inImage, TextureFormat& ioFormat, Err
 
 void ImageHandler::Free(uchar* ioData)
 { stbi_image_free(ioData); }
+
+void ImageHandler::GetInfo(Shared<FileData> inImage, int* outWidth, int* outHeight, int* outChannels)
+{
+    if(not inImage or not inImage->status())
+        { return; }
+    stbi_info_from_memory(inImage->raw_data(), inImage->size(), outWidth, outHeight, outChannels);
+}
