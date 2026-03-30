@@ -1356,3 +1356,10 @@ After some testing with STBI, I've figured out how to calculate the size of the 
 image_data = stbi_load_from_memory(file_data, file_size, &width, &height, &channels, STBI_rgb_alpha);
 // image_data's size is: width * height * channels
 :::
+
+[03/30/26]
+Okay, I'm gonna start implementing `Image` and trying to see if I can get it working properly; afterwards, I'll try to implement it as simply as possible into `Texture` and move on from there.
+
+Ooh, wait, I could just implement a new `ImageTexture` class which lets me try to implement `Image` without fucking up `Texture`, *and* sets me up for the switch over to `ImageTexture` being for images only and `Texture` being the base representation of texture data on the GPU.
+
+All right, it's a bit janky but it *does* work. Time to iron out all the kinks.
