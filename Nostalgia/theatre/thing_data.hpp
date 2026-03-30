@@ -89,7 +89,7 @@ namespace TheatreFile
             }
 
         template<typename T> requires std::derived_from<T, Resource>
-            Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
             {
                 if(not inValue)
                     { return ERR_NULLPTR; }
@@ -97,7 +97,7 @@ namespace TheatreFile
             }
 
         template<typename T> requires std::derived_from<T, Thinker>
-            Error set_variable(Farg<Shared<T>> inValue, Sarg inName) const
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
             {
                 if(not inValue)
                     { return ERR_NULLPTR; }
