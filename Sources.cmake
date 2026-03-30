@@ -93,7 +93,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/tree.cpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.cpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.cpp
-    ${NOSTALGIA_ROOT}/filesystem/image_handler.cpp
+    # ${NOSTALGIA_ROOT}/filesystem/image_handler.cpp
     ${NOSTALGIA_ROOT}/physics/engine.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glm/detail/glm.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glad/glad.c
@@ -184,7 +184,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
-    ${NOSTALGIA_ROOT}/filesystem/image_handler.hpp
+    # ${NOSTALGIA_ROOT}/filesystem/image_handler.hpp
     ${NOSTALGIA_ROOT}/physics/engine.hpp
     ${NOSTALGIA_ROOT}/rendering/graphics_context.hpp
     ${NOSTALGIA_ROOT}/rendering/renderer_api.hpp
