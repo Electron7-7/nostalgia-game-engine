@@ -1,12 +1,11 @@
 #include "./image.hpp"
 #include "theatre/thing_data.hpp"
 #include "things/thing_factory.hpp"
-#include "filesystem/image_handler.hpp"
-// #define STB_IMAGE_IMPLEMENTATION
-// #define STBI_FAILURE_USERMSG // generate user friendly error messages
-// #include "stb_image/stb_image.h"
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_FAILURE_USERMSG // generate user friendly error messages
+#include "stb_image/stb_image.h"
 
-/*static int sDataFormatToSTBI(DataFormat inFormat)
+static int sDataFormatToSTBI(DataFormat inFormat)
 {
     switch(inFormat)
     {
@@ -26,46 +25,29 @@
     case DATA_FORMAT_NONE:
         return STBI_default;
     }
-}*/
+}
 
 Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat)
 {
     auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
-    output->mWidth = inWidth;
+    output->SetData(inUseMipmaps, inFormat, nullptr, 0);
+    output->mWidth  = inWidth;
     output->mHeight = inHeight;
-    output->mUseMipmaps = inUseMipmaps;
-    output->mFormat = inFormat;
+    output->Import();
     return output;
 }
 
 Shared<Image> Image::CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
     uchar* inImageData, int inImageDataSize)
 {
-    auto image{CreateEmpty(inWidth, inHeight, inUseMipmaps, inFormat)};
-    image->SetData(inWidth, inHeight, inUseMipmaps, inFormat, inImageData, inImageDataSize);
-    return image;
+    auto output{CreateEmpty(inWidth, inHeight, inUseMipmaps, inFormat)};
+    output->SetData(inUseMipmaps, inFormat, inImageData, inImageDataSize);
+    output->Import();
+    return output;
 }
 
-Farg<Shared<FileData>> Image::Data() const
-{ return mData; }
-
-Shared<FileData> Image::Data()
-{ return mData; }
-
-bool Image::UseMipmaps() const
-{ return mUseMipmaps; }
-
-int Image::Width() const
-{ return mWidth; }
-
-int Image::Height() const
-{ return mHeight; }
-
-DataFormat Image::Format() const
-{ return mFormat; }
-
-int Image::STBI_NumberOf8BitComponents() const
-{ return mChannels; }
+void Image::GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels)
+{ stbi_info_from_memory(inFile->raw_data(), inFile->size(), outWidth, outHeight, outChannels); }
 
 void Image::SetVariables(Farg<TheatreFile::ThingData> data)
 {
@@ -75,8 +57,8 @@ void Image::SetVariables(Farg<TheatreFile::ThingData> data)
     data.get_variable(mHeight, "Height");
     data.get_variable(mFormat, "Format");
     data.get_variable(mUseMipmaps, "Mipmaps");
-    if(std::string path{}; data.get_variable(path, "File", "FilePath", "Path", "Image") == OK)
-        { Load(path); }
+    if(data.get_variable(m_pFileData, "File", "FilePath", "Path", "Image") == OK)
+        { Import(); }
 }
 
 Shared<TheatreFile::ThingData> Image::GetVariables() const
@@ -87,27 +69,25 @@ Shared<TheatreFile::ThingData> Image::GetVariables() const
     data->set_variable(mHeight, "Height");
     data->set_variable(mFormat, "Format");
     data->set_variable(mUseMipmaps, "Mipmaps");
-    data->set_variable(mData, "FilePath");
+    data->set_variable(m_pImage, "FilePath");
     return data;
 }
 
 void Image::Shutdown()
 {
     Super::Shutdown();
-    // stbi_image_free(mData->raw_data());
-    // ImageHandler::Free(mData->raw_data());
+    free();
 }
 
-Error Image::Load(Sarg inPath)
+Error Image::Import()
 {
-    auto image_file{MakeShared<FileData>(inPath)};
-    if(not image_file->status())
-    {
-        print_error("Failed to load image file '{}'", inPath);
-        return image_file->status();
-    }
+    free();
+    if(not m_pFileData)
+        { return ERR_NULLPTR; }
+    else if(not print_error_enum(m_pFileData->status()))
+        { return ERR_INVALID; }
 
-    switch(image_file->file_type())
+    switch(m_pFileData->file_type())
     {
     case FileType::Unknown:
         print_warning("Unknown file type encountered. Since I don't account for all image types, Image::mFormat will be set to DATA_FORMAT_SRGB_ALPHA and image loading will continue");
@@ -123,38 +103,81 @@ Error Image::Load(Sarg inPath)
         return ERR_INVALID_TYPE;
     }
 
-    SetData(0, 0, mUseMipmaps, mFormat, image_file->raw_data(), image_file->size());
-    return OK;
-}
-
-void Image::SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-    uchar* inImageData, int inImageDataSize)
-{
-    /*if(not inImageData)
-        { print_warning("Input image data was null"); return; }
-
-    mWidth  = inWidth;
-    mHeight = inHeight;
-    mFormat = inFormat;
-    mUseMipmaps = inUseMipmaps;
-
 #pragma message("TODO: figure out when to actually set this to true and when to not")
     stbi_set_flip_vertically_on_load(true);
 
-    auto temp_data = stbi_load_from_memory(inImageData,
-        inImageDataSize,
+    m_pImage = stbi_load_from_memory(m_pFileData->raw_data(),
+        m_pFileData->size(),
         &mWidth,
         &mHeight,
         &mChannels,
         sDataFormatToSTBI(mFormat));
 
-    if(not temp_data)
+    if(not m_pImage)
     {
         print_error("STBI failed with reason: {}", stbi_failure_reason());
-        stbi_image_free(temp_data);
-        return;
-    }*/
+        return ERR_DATA_LOAD;
+    }
 
-    ImageHandler::GetInfo(mData = MakeShared<FileData>(inImageData, inImageDataSize),
+    mSize = mWidth * mHeight * mChannels;
+    return OK;
+}
+
+Error Image::LoadFile(Sarg inPath)
+{
+    if(not m_pFileData->LoadFile(inPath))
+    {
+        print_error("Failed to load image file '{}'", inPath);
+        return ERR_FILE_LOAD;
+    }
+    return Import();
+}
+
+void Image::SetData(bool inUseMipmaps, DataFormat inFormat,
+    uchar* inImageData, int inImageDataSize)
+{
+    mUseMipmaps = inUseMipmaps;
+    mFormat = inFormat;
+
+    if(not inImageData or not inImageDataSize)
+        { return; }
+
+    GetInfo(m_pFileData = MakeShared<FileData>(inImageData, inImageDataSize),
         &mWidth, &mHeight, &mChannels);
 }
+
+void Image::free()
+{
+    stbi_image_free(m_pImage);
+    mSize = 0;
+}
+
+const uchar* Image::raw_data() const
+{ return m_pImage; }
+
+uchar* Image::raw_data()
+{ return m_pImage; }
+
+int Image::size() const
+{ return mSize; }
+
+bool Image::UseMipmaps() const
+{ return mUseMipmaps; }
+
+void Image::SetUseMipmaps(bool inUseMipmaps)
+{ mUseMipmaps = inUseMipmaps; }
+
+DataFormat Image::Format() const
+{ return mFormat; }
+
+void Image::SetFormat(DataFormat inFormat)
+{ mFormat = inFormat; }
+
+int Image::Width() const
+{ return mWidth; }
+
+int Image::Height() const
+{ return mHeight; }
+
+int Image::Channels() const
+{ return mChannels; }

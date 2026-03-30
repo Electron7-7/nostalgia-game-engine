@@ -10,6 +10,7 @@ public:
     static Shared<Image> CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat);
     static Shared<Image> CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
         uchar* inImageData, int inImageDataSize);
+    static void GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels);
 
 	SET_SUPER(Resource)
 	SET_TYPEID(ThingType::Image)
@@ -17,21 +18,26 @@ public:
     GET_VARIABLES_OVERRIDE
     SHUTDOWN_OVERRIDE
 
-    virtual Error Load(Sarg inFilePath);
-    virtual void SetData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-        uchar* inData, int inSize);
+    Error Import();
+    Error LoadFile(Sarg inFilePath);
+    void SetData(bool inUseMipmaps, DataFormat inFormat, uchar* inData, int inSize);
 
-    Farg<Shared<FileData>> Data() const;
-    Shared<FileData> Data();
+    const uchar* raw_data() const;
+    uchar* raw_data();
+    int size() const;
+
     bool UseMipmaps() const;
+    void SetUseMipmaps(bool inUseMipmaps);
+    DataFormat Format() const;
+    void SetFormat(DataFormat inFormat);
     int Width() const;
     int Height() const;
-    DataFormat Format() const;
-    int STBI_NumberOf8BitComponents() const;
+    int Channels() const;
 
 protected:
-    // FileData size post-stbi is calculated by mWidth * mHeight * mChannels
-    Shared<FileData> mData{MakeShared<FileData>()};
+    Shared<FileData> m_pFileData{MakeShared<FileData>()};
+    uchar* m_pImage{nullptr};
+    int mSize{0};
     DataFormat mFormat{DATA_FORMAT_SRGB_ALPHA};
     bool mUseMipmaps{false};
     int mWidth{1},
@@ -42,6 +48,8 @@ protected:
          * floating-point numbers, which are 32 bits (32 / 4 == 8).
         */
         mChannels{1};
+
+    void free();
 };
 
 #endif // IMAGE_H
