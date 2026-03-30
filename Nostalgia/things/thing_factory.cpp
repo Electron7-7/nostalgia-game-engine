@@ -3,6 +3,8 @@
 #include "things/resources/texture.hpp"
 #include "things/resources/cubemap_texture.hpp"
 #include "things/resources/viewport_texture.hpp"
+#include "things/resources/image_texture.hpp"
+#include "things/resources/image.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
 #include "things/thinkers/viewport.hpp"
@@ -39,8 +41,10 @@ bool ThingFactory::Init()
             ADD_THING(Font, Resource)
             ADD_THING(Mesh, Resource)
             ADD_THING(Texture, Resource)
+            ADD_THING(Image, Resource)
             ADD_THING(CubemapTexture, Resource)
             ADD_THING(ViewportTexture, Resource)
+            ADD_THING(ImageTexture, Texture)
             ADD_THING(Material, Resource)
         ADD_THING(Thinker, Thing)
             ADD_THING(Viewport, Thinker)

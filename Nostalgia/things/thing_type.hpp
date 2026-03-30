@@ -14,6 +14,7 @@ namespace ThingType
                 TYPE_ID(Texture),
                 TYPE_ID(CubemapTexture),
                 TYPE_ID(ViewportTexture),
+                TYPE_ID(ImageTexture),
                 TYPE_ID(Material),
                 TYPE_ID(Image),
             TYPE_ID(Thinker),
