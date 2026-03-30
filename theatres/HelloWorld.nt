@@ -20,6 +20,16 @@ declare TestAnimatedSprite2D inherits Sprite2D
     Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
 ///
 
+Image StupidImage
+{
+    File = 'testing_resources/Stupid.png'
+}
+
+ImageTexture StupidTex2
+{
+    Image = <StupidImage>
+}
+
 Texture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
@@ -103,7 +113,8 @@ Material StupidMaterial
 {
     Color = [0.9, 1, 1]
     SpecularStrength = [0.2]
-    DiffuseTexture = <StupidTex>
+    // DiffuseTexture = <StupidTex>
+    DiffuseTexture = <StupidTex2>
 }
 
 Material DoomMaterial
