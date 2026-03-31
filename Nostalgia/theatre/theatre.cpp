@@ -15,7 +15,7 @@
 #include "things/thinkers/3d/visual_3d.hpp"
 #include "things/thinkers/viewport.hpp"
 #include "things/resources/cubemap.hpp"
-#include "things/resources/image_texture.hpp"
+#include "things/resources/image.hpp"
 #include "things/resources/material.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
@@ -623,26 +623,26 @@ void Theatre::CreateEmbeddedResources()
     UID::m_DebugAxis =
         ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis,
             std::size(Models::DebugAxis), Mesh::MODEL_OBJ), "3DAxisModel");
-    UID::t_Missing =
-        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
-            DATA_FORMAT_SRGB_ALPHA, Images::Missing, std::size(Images::Missing))), "MissingTexture");
-    UID::t_LightDebug =
-        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
-            DATA_FORMAT_SRGB_ALPHA, Images::LightDebug, std::size(Images::LightDebug))), "LightTexture");
-    UID::t_COMP04_5 =
-        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
-            DATA_FORMAT_SRGB_ALPHA, Images::COMP04_5, std::size(Images::COMP04_5))), "DoomTexture");
-    UID::t_LolBit =
-        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
-            DATA_FORMAT_SRGB_ALPHA, Images::LolBit, std::size(Images::LolBit))), "LolBitTexture");
+    UID::i_Missing =
+        ResourceDatabase::Register(Image::CreateFromData(Images::Missing,
+            std::size(Images::Missing)), "MissingImage");
+    UID::i_LightDebug =
+        ResourceDatabase::Register(Image::CreateFromData(Images::LightDebug,
+            std::size(Images::LightDebug)), "LightImage");
+    UID::i_COMP04_5 =
+        ResourceDatabase::Register(Image::CreateFromData(Images::COMP04_5,
+            std::size(Images::COMP04_5)), "DoomImage");
+    UID::i_LolBit =
+        ResourceDatabase::Register(Image::CreateFromData(Images::LolBit,
+            std::size(Images::LolBit)), "LolBitImage");
     UID::t_ShittySkybox =
         ResourceDatabase::Register(Cubemap::CreateFromImages({
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXp, std::size(Images::SkyboxXp)),
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXn, std::size(Images::SkyboxXn)),
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxYp, std::size(Images::SkyboxYp)),
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxYn, std::size(Images::SkyboxYn)),
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxZp, std::size(Images::SkyboxZp)),
-            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxZn, std::size(Images::SkyboxZn))}),
+            Image::CreateFromData(Images::SkyboxXp, std::size(Images::SkyboxXp)),
+            Image::CreateFromData(Images::SkyboxXn, std::size(Images::SkyboxXn)),
+            Image::CreateFromData(Images::SkyboxYp, std::size(Images::SkyboxYp)),
+            Image::CreateFromData(Images::SkyboxYn, std::size(Images::SkyboxYn)),
+            Image::CreateFromData(Images::SkyboxZp, std::size(Images::SkyboxZp)),
+            Image::CreateFromData(Images::SkyboxZn, std::size(Images::SkyboxZn))}),
         "ShittySkybox");
 }
 
@@ -737,7 +737,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     auto view_matrix{camera->ViewMatrix()};
     auto projection_matrix{camera->ProjectionMatrix()};
 
-    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto mesh{GetResource<Mesh>(ID::Invalid)};
 
     switch(camera->mEnvironment.mType)
@@ -877,7 +877,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
 
-    auto missing_texture{GetResource<Texture>(UID::t_Missing)};
+    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
 
     for(ID v2d_id : mVisual2DIDs)
