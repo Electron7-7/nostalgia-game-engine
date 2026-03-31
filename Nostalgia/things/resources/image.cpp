@@ -30,20 +30,19 @@ static int sDataFormatToSTBI(DataFormat inFormat)
 Image::~Image() noexcept
 { free(); }
 
-Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat)
+Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, DataFormat inFormat)
 {
     auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
-    output->SetData(inUseMipmaps, inFormat, nullptr, 0);
+    output->SetData(nullptr, 0, inFormat);
     output->mWidth  = inWidth;
     output->mHeight = inHeight;
     return output;
 }
 
-Shared<Image> Image::CreateFromData(bool inUseMipmaps, DataFormat inFormat,
-    const uchar* inImageData, int inImageDataSize)
+Shared<Image> Image::CreateFromData(const uchar* inImageData, int inImageDataSize, DataFormat inFormat)
 {
     auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
-    output->SetData(inUseMipmaps, inFormat, inImageData, inImageDataSize);
+    output->SetData(inImageData, inImageDataSize, inFormat);
     output->Import();
     return output;
 }
@@ -133,9 +132,8 @@ Error Image::LoadFile(Sarg inPath)
     return Import();
 }
 
-void Image::SetData(bool inUseMipmaps, DataFormat inFormat, const uchar* inImageData, int inImageDataSize)
+void Image::SetData(const uchar* inImageData, int inImageDataSize, DataFormat inFormat)
 {
-    mUseMipmaps = inUseMipmaps;
     mFormat = inFormat;
 
     if(not inImageData)

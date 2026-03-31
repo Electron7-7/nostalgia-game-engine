@@ -20,7 +20,7 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
     else if(std::string filepath; data.get_variable(filepath, "Image", "Data") == OK)
     {
-        auto image{Image::CreateEmpty(0, 0, mFormat.mipmaps, DATA_FORMAT_SRGB_ALPHA)};
+        auto image{Image::CreateEmpty(0, 0)};
         image->LoadFile(filepath);
         SetImage(image);
     }
@@ -60,6 +60,8 @@ void ImageTexture::SetImage(Shared<Image> inImage)
         }
         else
         {
+            if(mSampler.mip_filter_min == SAMPLER_FILTER_NONE)
+                { mSampler.mip_filter_min = SAMPLER_FILTER_LINEAR; }
             mTextureBuffer->SetSamplerState(mSampler);
             mTextureBuffer->GenerateMipMaps();
         }

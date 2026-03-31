@@ -14,7 +14,6 @@ Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> i
     output->mFormat.width = first->Width();
     output->mFormat.height = first->Height();
     output->mFormat.channels = first->Channels();
-    output->mFormat.mipmaps = (first->UseMipmaps()) ? 4 : 0;
     int i{0};
     for(FAUTO image : inImages)
     {
@@ -50,7 +49,7 @@ void Cubemap::SetVariables(Farg<ThingData> data)
         }
         else if(data.get_variable(filepath, variable_name) == OK)
         {
-            image = Image::CreateEmpty(0, 0, true, DATA_FORMAT_SRGB_ALPHA);
+            image = Image::CreateEmpty(0, 0);
             image->LoadFile(filepath);
         }
         else
@@ -60,7 +59,6 @@ void Cubemap::SetVariables(Farg<ThingData> data)
             mFormat.data_format = image->Format();
             mFormat.width = image->Width();
             mFormat.height = image->Height();
-            mFormat.mipmaps = (image->UseMipmaps()) ? 4 : 0;
         }
         UpdateLayer(image, i);
         mInitialImageIDs[i] = image_uid;

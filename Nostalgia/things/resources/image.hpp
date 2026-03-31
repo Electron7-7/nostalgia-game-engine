@@ -7,9 +7,8 @@
 class Image : public Resource
 {
 public:
-    static Shared<Image> CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat);
-    static Shared<Image> CreateFromData(bool inUseMipmaps, DataFormat inFormat,
-        const uchar* inImageData, int inImageDataSize);
+    static Shared<Image> CreateEmpty(int inWidth, int inHeight, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    static Shared<Image> CreateFromData(const uchar* inImageData, int inImageDataSize, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
     static void GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels);
 
 	SET_SUPER(Resource)
@@ -22,7 +21,7 @@ public:
 
     Error Import();
     Error LoadFile(Sarg inFilePath);
-    void SetData(bool inUseMipmaps, DataFormat inFormat, const uchar* inData, int inSize);
+    void SetData(const uchar* inData, int inSize, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
 
     const uchar* raw_data() const;
     uchar* raw_data();
@@ -41,7 +40,7 @@ protected:
     uchar* m_pImage{nullptr};
     int mSize{0};
     DataFormat mFormat{DATA_FORMAT_SRGB_ALPHA};
-    bool mUseMipmaps{false};
+    bool mUseMipmaps{true};
     int mWidth{1},
         mHeight{1},
         /*
