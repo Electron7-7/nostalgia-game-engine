@@ -38,22 +38,32 @@ void CubemapTexture::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
     mFormat.type = TEXTURE_TYPE_CUBE;
     ID image_uid{};
+    std::string filepath{};
+    Shared<Image> image{nullptr};
     for(uint i{0}; i < 6; ++i)
     {
-        if(data.get_variable(image_uid, "Image" + std::to_string(i)) == OK
+        std::string variable_name{"Image" + std::to_string(i)};
+        if(data.get_variable(image_uid, variable_name) == OK
             and Theatre::Current()->DerivedFrom(image_uid, ThingType::Image))
         {
-            auto image{Theatre::Current()->GetResource<Image>(image_uid)};
-            if(i == 0)
-            {
-                mFormat.data_format = image->Format();
-                mFormat.width = image->Width();
-                mFormat.height = image->Height();
-                mFormat.mipmaps = (image->UseMipmaps()) ? 4 : 0;
-            }
-            UpdateLayer(image, i);
-            mInitialImageIDs[i] = image_uid;
+            image = Theatre::Current()->GetResource<Image>(image_uid);
         }
+        else if(data.get_variable(filepath, variable_name) == OK)
+        {
+            image = Image::CreateEmpty(0, 0, true, DATA_FORMAT_SRGB_ALPHA);
+            image->LoadFile(filepath);
+        }
+        else
+            { continue; }
+        if(i == 0)
+        {
+            mFormat.data_format = image->Format();
+            mFormat.width = image->Width();
+            mFormat.height = image->Height();
+            mFormat.mipmaps = (image->UseMipmaps()) ? 4 : 0;
+        }
+        UpdateLayer(image, i);
+        mInitialImageIDs[i] = image_uid;
     }
 }
 
