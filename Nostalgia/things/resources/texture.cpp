@@ -47,14 +47,14 @@ Shared<ThingData> Texture::GetVariables() const
 Farg<TextureFormat> Texture::Format() const
 { return mFormat; }
 
-void Texture::SetFormat(Farg<TextureFormat> inFormat)
-{ mFormat = inFormat; }
-
 Farg<SamplerState> Texture::Sampler() const
 { return mSampler; }
 
 void Texture::SetSampler(Farg<SamplerState> inSampler)
-{ mSampler = inSampler; }
+{
+    mSampler = inSampler;
+    mTextureBuffer->SetSamplerState(mSampler);
+}
 
 Shared<TextureBuffer> Texture::GetBuffer() const
 { return mTextureBuffer; }

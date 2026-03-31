@@ -16,7 +16,6 @@ public:
     virtual Error SetBuffer(Shared<TextureBuffer>);
 
     Farg<TextureFormat> Format() const;
-    void SetFormat(Farg<TextureFormat>);
     Farg<SamplerState> Sampler() const;
     void SetSampler(Farg<SamplerState>);
 
