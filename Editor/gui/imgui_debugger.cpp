@@ -17,16 +17,16 @@
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
-#include <Nostalgia/things/resources/mesh.hpp>
 #include <Nostalgia/things/thinkers/2d/text_2d.hpp>
 #include <Nostalgia/things/thinkers/2d/sprite_2d.hpp>
 #include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
 #include <Nostalgia/things/thinkers/3d/light_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
+#include <Nostalgia/things/resources/mesh.hpp>
 #include <Nostalgia/things/resources/material.hpp>
 #include <Nostalgia/things/resources/font.hpp>
-#include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/collider_3d.hpp>
 #include <Nostalgia/application/application.hpp>
@@ -1329,14 +1329,8 @@ void ImGui_Debugger::InspectTheatreWindow()
         // RESOURCES
         else if(auto resource{DCast<Resource>(selected.ptr)})
         {
-            if(auto texture{DCast<Texture>(selected.ptr)})
+            if(auto texture{DCast<ImageTexture>(selected.ptr)})
             {
-                if(Button("ReImport Image"))
-                {
-                    // if(!print_error_enum(texture->Import()))
-                        // { selected = last_selected; last_selected = {}; EndChild(); EndChild(); return; }
-                    selected = {texture};
-                }
                 TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
                 TextF("Color Channels: {}", selected.texture_format.channels);
                 TextF("Type: {}", EnumPrettifier::Prettify(selected.texture_format.type));
@@ -1351,6 +1345,11 @@ void ImGui_Debugger::InspectTheatreWindow()
                 QUICK_COMBO_THING_VAR(mSampler.min_filter, sampler_filter, sampler_state.min_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
                 QUICK_COMBO_THING_VAR(mSampler.mip_filter_min, sampler_filter, sampler_state.mip_filter_min, texture->SetSampler(selected.sampler_state); selected = {texture})
                 QUICK_COMBO_THING_VAR(mSampler.mag_filter, sampler_filter, sampler_state.mag_filter, texture->SetSampler(selected.sampler_state); selected = {texture})
+                if(DragFloat("Anisotropy", &selected.sampler_state.anisotropy_max, 1.0f, 1.0f))
+                {
+                    texture->SetSampler(selected.sampler_state);
+                    selected = {texture};
+                }
             }
             else if(auto font{DCast<Font>(selected.ptr)})
             {
