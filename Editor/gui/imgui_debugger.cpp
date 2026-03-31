@@ -1333,8 +1333,8 @@ void ImGui_Debugger::InspectTheatreWindow()
             {
                 if(Button("ReImport Image"))
                 {
-                    if(!print_error_enum(texture->Import()))
-                        { selected = last_selected; last_selected = {}; EndChild(); EndChild(); return; }
+                    // if(!print_error_enum(texture->Import()))
+                        // { selected = last_selected; last_selected = {}; EndChild(); EndChild(); return; }
                     selected = {texture};
                 }
                 TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
