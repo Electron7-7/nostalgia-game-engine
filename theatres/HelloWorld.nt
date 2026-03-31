@@ -28,7 +28,11 @@ Image StupidImage
 }
 
 ImageTexture StupidTex
-{ Image = <StupidImage> }
+{
+    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
+        also reference embedded Resources, like the default cube mesh or missing texture image. ///
+    Image = <StupidImage>
+}
 
 Mesh IcoSphere
 {
@@ -36,18 +40,25 @@ Mesh IcoSphere
         Resources may add additional aliases depending on the context of the data. For example,
         Mesh accepts "Model" as well as "File". ///
     Model = 'testing_resources/IcoSphere.obj'
-
-    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
-        also reference embedded Resources, like the default cube mesh or missing texture. ///
     Material = <StupidMaterial>
 }
 
-Material LolBitMaterial
+ImageTexture LolBitTexture
 {
     /// This reference variable is referencing an embedded Thing that isn't defined in this
-        file, but still exists in every Theater. Specifically, it's the "LolBit" texture. ///
-    DiffuseTexture = <LolBitTexture>
+        file, but still exists in every Theater. Specifically, it's the "LolBit" image. ///
+    Image = <LolBitImage>
+    /// This is an "Enum" variable. It references enums that are registered to the
+        VariableRegistry's global enum registry. The string name used to register an enum is
+        what is used when defining an enum variable. ///
+    SamplerMipFilterMin = (SamplerFilterNearest)
 }
+
+ImageTexture DoomTexture
+{ Image = <DoomImage> }
+
+Material LolBitMaterial
+{ DiffuseTexture = <LolBitTexture> }
 
 MeshInstance3D LolBitCubeMeshInstance3D
 {
@@ -132,10 +143,8 @@ Collider3D DoomCube
         Mesh = <DefaultCube>
         MaterialOverride = <DoomMaterial>
     }
-    /// This is an "Enum" variable. It references enums that are registered to the
-        VariableRegistry's global enum registry. The string name used to register an enum is
-        what is used when defining an enum variable. ///
-    Motion = (Dynamic) // "Dynamic" is what PhysicsBodyMotion::Dynamic is registered under.
+    // Another example of an "Enum" variable
+    Motion = (Dynamic) // "Dynamic" is what `PhysicsBodyMotion::Dynamic` is registered under.
     Position = [3, 0, -3]
     RotationDegrees = [-20, 20, 50]
     Visible = [true]
