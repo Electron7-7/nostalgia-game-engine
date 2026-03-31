@@ -11,7 +11,7 @@ public:
 
     Error GenerateMipMaps() final;
     Error SetSamplerState(Farg<SamplerState>) const final;
-    Error Load(InputData, Farg<TextureFormat>) final;
+    Error Load(InputData, Farg<TextureFormat>, int) final;
     TextureType Type() const final;
     Error Status() const final;
     uint ID() const final;

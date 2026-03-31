@@ -83,11 +83,11 @@ static GLenum s_GLWrap(SamplerRepeat inRepeat)
     }
 }
 
-Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat)
+Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat, int inLayer)
 {
     GLenum gl_type{s_GLType(mType = inFormat.type)};
     GLenum gl_target{(gl_type == GL_TEXTURE_CUBE_MAP)
-        ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + mCubemapOffsetIterator++
+        ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + inLayer
         : gl_type};
 
     glBindTexture(gl_type, mBufferID);

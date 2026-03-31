@@ -81,7 +81,7 @@ public:
 
     virtual Error GenerateMipMaps() = 0;
     virtual Error SetSamplerState(Farg<SamplerState>) const = 0;
-    virtual Error Load(InputData, Farg<TextureFormat>) = 0;
+    virtual Error Load(InputData, Farg<TextureFormat>, int inLayer = 0) = 0;
     virtual TextureType Type() const = 0;
     virtual Error Status() const = 0;
     virtual uint ID() const = 0;
