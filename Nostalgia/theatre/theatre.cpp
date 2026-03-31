@@ -15,6 +15,7 @@
 #include "things/thinkers/3d/visual_3d.hpp"
 #include "things/thinkers/viewport.hpp"
 #include "things/resources/cubemap_texture.hpp"
+#include "things/resources/image_texture.hpp"
 #include "things/resources/material.hpp"
 #include "things/resources/mesh.hpp"
 #include "things/resources/font.hpp"
@@ -596,53 +597,53 @@ void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
 void Theatre::CreateEmbeddedResources()
 {
     UID::f_Audiowide =
-        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide, std::size(Fonts::Audiowide)),
-            "Audiowide");
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide,
+            std::size(Fonts::Audiowide)), "Audiowide");
     UID::f_DejaVuSans =
-        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::DejaVuSans, std::size(Fonts::DejaVuSans)),
-            "DejaVuSans");
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::DejaVuSans,
+            std::size(Fonts::DejaVuSans)), "DejaVuSans");
     UID::f_Verdana =
-        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana, std::size(Fonts::Verdana)),
-            "Verdana");
+        ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana,
+            std::size(Fonts::Verdana)), "Verdana");
     UID::m_Error =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error, std::size(Models::Error), Mesh::MODEL_OBJ),
-            "ErrorModel");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error,
+            std::size(Models::Error), Mesh::MODEL_OBJ), "ErrorModel");
     UID::m_Cube =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube, std::size(Models::Cube), Mesh::MODEL_OBJ),
-            "DefaultCube");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube,
+            std::size(Models::Cube), Mesh::MODEL_OBJ), "DefaultCube");
     UID::m_Quad =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad, std::size(Models::Quad), Mesh::MODEL_OBJ),
-            "DefaultQuad");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad,
+            std::size(Models::Quad), Mesh::MODEL_OBJ), "DefaultQuad");
     UID::m_Ramiel =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel, std::size(Models::Ramiel), Mesh::MODEL_OBJ),
-            "RamielModel");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel,
+            std::size(Models::Ramiel), Mesh::MODEL_OBJ), "RamielModel");
     UID::m_Camera3D =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera, std::size(Models::Camera), Mesh::MODEL_OBJ),
-            "CameraModel");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera,
+            std::size(Models::Camera), Mesh::MODEL_OBJ), "CameraModel");
     UID::m_DebugAxis =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis, std::size(Models::DebugAxis), Mesh::MODEL_OBJ),
-            "3DAxisModel");
+        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis,
+            std::size(Models::DebugAxis), Mesh::MODEL_OBJ), "3DAxisModel");
     UID::t_Missing =
-        ResourceDatabase::Register(Texture::CreateFromMemory(Images::Missing, std::size(Images::Missing)),
-            "MissingTexture");
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
+            DATA_FORMAT_SRGB_ALPHA, Images::Missing, std::size(Images::Missing))), "MissingTexture");
     UID::t_LightDebug =
-        ResourceDatabase::Register(Texture::CreateFromMemory(Images::LightDebug, std::size(Images::LightDebug)),
-            "LightTexture");
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
+            DATA_FORMAT_SRGB_ALPHA, Images::LightDebug, std::size(Images::LightDebug))), "LightTexture");
     UID::t_COMP04_5 =
-        ResourceDatabase::Register(Texture::CreateFromMemory(Images::COMP04_5, std::size(Images::COMP04_5)),
-            "DoomTexture");
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
+            DATA_FORMAT_SRGB_ALPHA, Images::COMP04_5, std::size(Images::COMP04_5))), "DoomTexture");
     UID::t_LolBit =
-        ResourceDatabase::Register(Texture::CreateFromMemory(Images::LolBit, std::size(Images::LolBit)),
-            "LolBitTexture");
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
+            DATA_FORMAT_SRGB_ALPHA, Images::LolBit, std::size(Images::LolBit))), "LolBitTexture");
     UID::t_ShittySkybox =
-        ResourceDatabase::Register(CubemapTexture::CreateFromMemory(
-            {FileData{Images::SkyboxXp, std::size(Images::SkyboxXp), FileType::image_PNG},
-                FileData{Images::SkyboxXn, std::size(Images::SkyboxXn), FileType::image_PNG},
-                FileData{Images::SkyboxYp, std::size(Images::SkyboxYp), FileType::image_PNG},
-                FileData{Images::SkyboxYn, std::size(Images::SkyboxYn), FileType::image_PNG},
-                FileData{Images::SkyboxZp, std::size(Images::SkyboxZp), FileType::image_PNG},
-                FileData{Images::SkyboxZn, std::size(Images::SkyboxZn), FileType::image_PNG}
-            }), "ShittySkybox");
+        ResourceDatabase::Register(CubemapTexture::CreateFromImages({
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXp, std::size(Images::SkyboxXp)),
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXn, std::size(Images::SkyboxXn)),
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxYp, std::size(Images::SkyboxYp)),
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxYn, std::size(Images::SkyboxYn)),
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxZp, std::size(Images::SkyboxZp)),
+            Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxZn, std::size(Images::SkyboxZn))}),
+        "ShittySkybox");
 }
 
 ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
