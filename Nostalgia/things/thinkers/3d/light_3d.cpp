@@ -35,7 +35,7 @@ void Light3D::Ready()
         {
             ThingData mat_data{ThingType::Material, mat_name};
             mat_data.set_variable(mColor, "Color");
-            mat_data.set_variable(UID::t_LightDebug, "DiffuseTexture");
+            mat_data.set_variable(UID::i_LightDebug, "DiffuseTexture");
             mat_data.set_variable(true, "FullBright");
             mat_id = g_pTheatreManager->Current()->CreateThing(mat_data);
         }

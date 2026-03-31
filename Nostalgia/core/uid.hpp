@@ -11,10 +11,10 @@ namespace UID
     // UIDs for engine-embedded Resources (these are set when their repsective Resource gets registered)
     inline ID
     // Textures
-        t_Missing,
-        t_LightDebug,
-        t_COMP04_5,
-        t_LolBit,
+        i_Missing,
+        i_LightDebug,
+        i_COMP04_5,
+        i_LolBit,
         t_ShittySkybox,
     // Meshes
         m_Error,
