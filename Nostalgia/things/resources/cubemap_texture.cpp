@@ -1,70 +1,110 @@
 #include "./cubemap_texture.hpp"
 #include "theatre/thing_data.hpp"
+#include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
-// #include "filesystem/image_handler.hpp"
 
 using namespace TheatreFile;
 
-Shared<CubemapTexture> CubemapTexture::CreateFromMemory(std::initializer_list<FileData> inImages)
+Shared<CubemapTexture> CubemapTexture::CreateFromImages(std::initializer_list<Shared<Image>> inImages)
 {
     auto output{DCast<CubemapTexture>(ThingFactory::MakeResource(ThingType::CubemapTexture, "Untitled_Cubemap"))};
     output->mFormat.type = TEXTURE_TYPE_CUBE;
+    FAUTO first{inImages.begin()->get()};
+    output->mFormat.data_format = first->Format();
+    output->mFormat.width = first->Width();
+    output->mFormat.height = first->Height();
+    output->mFormat.channels = first->Channels();
+    output->mFormat.mipmaps = (first->UseMipmaps()) ? 4 : 0;
     int i{0};
     for(FAUTO image : inImages)
-        { output->m_pImages[i++] = MakeShared<FileData>(image); }
-    output->Import();
+    {
+        if(output->mFormat.width != image->Width()
+            or output->mFormat.height != image->Height()
+            or output->mFormat.data_format != image->Format()
+            or output->mFormat.channels != image->Channels())
+        {
+            print_error("Images must all have the same width, height, data format, and channels");
+            break;
+        }
+        else if(i == 5)
+            { output->mInitialized = true; }
+        output->UpdateLayer(image, i++);
+    }
     return output;
 }
 
 void CubemapTexture::SetVariables(Farg<ThingData> data)
 {
-    m_pImage = nullptr;
     Super::SetVariables(data);
+    mFormat.type = TEXTURE_TYPE_CUBE;
+    ID image_uid{};
     for(uint i{0}; i < 6; ++i)
     {
-        if(not m_pImages[i])
-            { m_pImages[i] = MakeShared<FileData>(); }
-        data.get_variable(m_pImages[i], "Image" + std::to_string(i));
+        if(data.get_variable(image_uid, "Image" + std::to_string(i)) == OK
+            and Theatre::Current()->DerivedFrom(image_uid, ThingType::Image))
+        {
+            auto image{Theatre::Current()->GetResource<Image>(image_uid)};
+            if(i == 0)
+            {
+                mFormat.data_format = image->Format();
+                mFormat.width = image->Width();
+                mFormat.height = image->Height();
+                mFormat.mipmaps = (image->UseMipmaps()) ? 4 : 0;
+            }
+            UpdateLayer(image, i);
+            mInitialImageIDs[i] = image_uid;
+        }
     }
-
-    Import();
 }
 
 Shared<ThingData> CubemapTexture::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
     for(uint i{0}; i < 6; ++i)
-        { data->set_variable(m_pImages[i], "Image" + std::to_string(i)); }
+        { data->set_variable(mInitialImageIDs[i], "Image" + std::to_string(i)); }
     return data;
 }
 
-Error CubemapTexture::Import()
+Error CubemapTexture::UpdateLayer(Shared<Image> inImage, int inLayer)
 {
-    Error status{};
+    if(not mTextureBuffer)
+        { mTextureBuffer = TextureBuffer::Create(); }
 
-    mTextureBuffer = TextureBuffer::Create();
-    return UNIMPLEMENTED;
-    /*for(int i{0}; i < 6; ++i)
+    if(inLayer > 5 or inLayer < 0)
     {
-        auto image_data{ImageHandler::Load(m_pImages[i], mFormat, status)};
+        print_error("Invalid layer: {}", inLayer);
+        return ERR_INVALID;
+    }
+    else if(mFormat.width != inImage->Width()
+        or mFormat.height != inImage->Height()
+        or mFormat.data_format != inImage->Format()
+        or mFormat.channels != inImage->Channels())
+    {
+        print_error("Image parameters do not match ImageTexture's parameters");
+        print_debug("Image Params        - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
+            inImage->Width(),inImage->Height(),inImage->Channels(),EnumPrettifier::Prettify(inImage->Format()));
+        print_debug("ImageTexture Params - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
+            mFormat.width, mFormat.height, mFormat.channels, EnumPrettifier::Prettify(mFormat.data_format));
+        return ERR_INVALID;
+    }
 
-        if(print_error_enum(status))
+    if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat, inLayer)))
+    {
+        print_error("Failed to create CubemapTexture ['{}', {}]", mName, uid()());
+        return ERR_DATA_LOAD;
+    }
+    else if(mInitialized)
+    {
+        if(not mFormat.mipmaps)
         {
-            print_error("Failed to load image data for CubemapTexture ['{}', {}]",
-                mName,
-                uid()());
+            mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
+            mTextureBuffer->SetSamplerState(mSampler);
         }
-        mTextureBuffer->Load(image_data, mFormat);
-        ImageHandler::Free(image_data);
+        else
+        {
+            mTextureBuffer->SetSamplerState(mSampler);
+            mTextureBuffer->GenerateMipMaps();
+        }
     }
-
-    if(!print_error_enum(status))
-        { print_error("Failed to create CubemapTexture ['{}', {}]", mName, uid()()); }
-    else
-    {
-        mTextureBuffer->GenerateMipMaps();
-        mTextureBuffer->SetSamplerState(mSampler);
-    }
-
-    return status;*/
+    return OK;
 }

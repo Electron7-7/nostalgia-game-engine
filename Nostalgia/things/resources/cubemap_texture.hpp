@@ -2,23 +2,31 @@
 #define CUBEMAP_TEXTURE_H
 
 #include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/image.hpp>
 
 class CubemapTexture : public Texture
 {
 public:
-    using images_t = std::array<Shared<FileData>, 6>;
+    using images_t = std::initializer_list<Shared<Image>>;
 
-    static Shared<CubemapTexture> CreateFromMemory(std::initializer_list<FileData> inImages);
+    static Shared<CubemapTexture> CreateFromImages(images_t inImages);
 
 	SET_SUPER(Texture)
 	SET_TYPEID(ThingType::CubemapTexture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    virtual Error Import() override;
+    Error UpdateLayer(Shared<Image> inImage, int inLayer);
 
 protected:
-    images_t m_pImages{};
+    bool mInitialized{false};
+    ID mInitialImageIDs[6]{ID::Invalid,
+        ID::Invalid,
+        ID::Invalid,
+        ID::Invalid,
+        ID::Invalid,
+        ID::Invalid
+    };
 };
 
 #endif // CUBEMAP_TEXTURE_H
