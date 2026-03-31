@@ -1,13 +1,13 @@
-#include "./cubemap_texture.hpp"
+#include "./cubemap.hpp"
 #include "theatre/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
 
 using namespace TheatreFile;
 
-Shared<CubemapTexture> CubemapTexture::CreateFromImages(std::initializer_list<Shared<Image>> inImages)
+Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> inImages)
 {
-    auto output{DCast<CubemapTexture>(ThingFactory::MakeResource(ThingType::CubemapTexture, "Untitled_Cubemap"))};
+    auto output{DCast<Cubemap>(ThingFactory::MakeResource(ThingType::Cubemap, "Untitled_Cubemap"))};
     output->mFormat.type = TEXTURE_TYPE_CUBE;
     FAUTO first{inImages.begin()->get()};
     output->mFormat.data_format = first->Format();
@@ -33,7 +33,7 @@ Shared<CubemapTexture> CubemapTexture::CreateFromImages(std::initializer_list<Sh
     return output;
 }
 
-void CubemapTexture::SetVariables(Farg<ThingData> data)
+void Cubemap::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
     mFormat.type = TEXTURE_TYPE_CUBE;
@@ -67,7 +67,7 @@ void CubemapTexture::SetVariables(Farg<ThingData> data)
     }
 }
 
-Shared<ThingData> CubemapTexture::GetVariables() const
+Shared<ThingData> Cubemap::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
     for(uint i{0}; i < 6; ++i)
@@ -75,7 +75,7 @@ Shared<ThingData> CubemapTexture::GetVariables() const
     return data;
 }
 
-Error CubemapTexture::UpdateLayer(Shared<Image> inImage, int inLayer)
+Error Cubemap::UpdateLayer(Shared<Image> inImage, int inLayer)
 {
     if(not mTextureBuffer)
         { mTextureBuffer = TextureBuffer::Create(); }
@@ -100,7 +100,7 @@ Error CubemapTexture::UpdateLayer(Shared<Image> inImage, int inLayer)
 
     if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat, inLayer)))
     {
-        print_error("Failed to create CubemapTexture ['{}', {}]", mName, uid()());
+        print_error("Failed to create Cubemap ['{}', {}]", mName, uid()());
         return ERR_DATA_LOAD;
     }
     else if(mInitialized)

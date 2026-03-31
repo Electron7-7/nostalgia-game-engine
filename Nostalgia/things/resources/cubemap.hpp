@@ -4,15 +4,15 @@
 #include <Nostalgia/things/resources/texture.hpp>
 #include <Nostalgia/things/resources/image.hpp>
 
-class CubemapTexture : public Texture
+class Cubemap : public Texture
 {
 public:
     using images_t = std::initializer_list<Shared<Image>>;
 
-    static Shared<CubemapTexture> CreateFromImages(images_t inImages);
+    static Shared<Cubemap> CreateFromImages(images_t inImages);
 
 	SET_SUPER(Texture)
-	SET_TYPEID(ThingType::CubemapTexture)
+	SET_TYPEID(ThingType::Cubemap)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

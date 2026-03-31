@@ -63,7 +63,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/resources/material.cpp
     ${NOSTALGIA_ROOT}/things/resources/font.cpp
     ${NOSTALGIA_ROOT}/things/resources/mesh.cpp
-    ${NOSTALGIA_ROOT}/things/resources/cubemap_texture.cpp
+    ${NOSTALGIA_ROOT}/things/resources/cubemap.cpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/texture.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.cpp
@@ -93,7 +93,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/theatre/tree.cpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.cpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.cpp
-    # ${NOSTALGIA_ROOT}/filesystem/image_handler.cpp
     ${NOSTALGIA_ROOT}/physics/engine.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glm/detail/glm.cpp
     ${NOSTALGIA_ROOT}/thirdparty/glad/glad.c
@@ -152,7 +151,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/resources/image_texture.hpp
     ${NOSTALGIA_ROOT}/things/resources/image.hpp
     ${NOSTALGIA_ROOT}/things/resources/texture.hpp
-    ${NOSTALGIA_ROOT}/things/resources/cubemap_texture.hpp
+    ${NOSTALGIA_ROOT}/things/resources/cubemap.hpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.hpp
     ${NOSTALGIA_ROOT}/things/resources/font.hpp
     ${NOSTALGIA_ROOT}/things/resources/resource.hpp
@@ -184,7 +183,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
-    # ${NOSTALGIA_ROOT}/filesystem/image_handler.hpp
     ${NOSTALGIA_ROOT}/physics/engine.hpp
     ${NOSTALGIA_ROOT}/rendering/graphics_context.hpp
     ${NOSTALGIA_ROOT}/rendering/renderer_api.hpp

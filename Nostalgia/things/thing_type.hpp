@@ -12,7 +12,7 @@ namespace ThingType
                 TYPE_ID(Font),
                 TYPE_ID(Mesh),
                 TYPE_ID(Texture),
-                TYPE_ID(CubemapTexture),
+                TYPE_ID(Cubemap),
                 TYPE_ID(ViewportTexture),
                 TYPE_ID(ImageTexture),
                 TYPE_ID(Material),

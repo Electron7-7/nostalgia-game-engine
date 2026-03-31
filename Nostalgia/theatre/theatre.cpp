@@ -14,7 +14,7 @@
 #include "things/thinkers/3d/camera_3d.hpp"
 #include "things/thinkers/3d/visual_3d.hpp"
 #include "things/thinkers/viewport.hpp"
-#include "things/resources/cubemap_texture.hpp"
+#include "things/resources/cubemap.hpp"
 #include "things/resources/image_texture.hpp"
 #include "things/resources/material.hpp"
 #include "things/resources/mesh.hpp"
@@ -636,7 +636,7 @@ void Theatre::CreateEmbeddedResources()
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(true,
             DATA_FORMAT_SRGB_ALPHA, Images::LolBit, std::size(Images::LolBit))), "LolBitTexture");
     UID::t_ShittySkybox =
-        ResourceDatabase::Register(CubemapTexture::CreateFromImages({
+        ResourceDatabase::Register(Cubemap::CreateFromImages({
             Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXp, std::size(Images::SkyboxXp)),
             Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxXn, std::size(Images::SkyboxXn)),
             Image::CreateFromData(true,DATA_FORMAT_SRGB_ALPHA,Images::SkyboxYp, std::size(Images::SkyboxYp)),
