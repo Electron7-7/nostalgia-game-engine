@@ -22,20 +22,13 @@ declare TestAnimatedSprite2D inherits Sprite2D
 
 Image StupidImage
 {
+    /// This is a string variable. Strings are delimited by quotes (single or double) and
+        will capture absolutely everything. Even whitespace. ///
     File = 'testing_resources/Stupid.png'
 }
 
-ImageTexture StupidTex2
-{
-    Image = <StupidImage>
-}
-
-Texture StupidTex
-{
-    /// This is a string variable. Strings are delimited by quotes (single or double) and
-        will capture absolutely everything. Even whitespace. ///
-    Image = 'testing_resources/Stupid.png'
-}
+ImageTexture StupidTex
+{ Image = <StupidImage> }
 
 Mesh IcoSphere
 {
@@ -113,8 +106,7 @@ Material StupidMaterial
 {
     Color = [0.9, 1, 1]
     SpecularStrength = [0.2]
-    // DiffuseTexture = <StupidTex>
-    DiffuseTexture = <StupidTex2>
+    DiffuseTexture = <StupidTex>
 }
 
 Material DoomMaterial
@@ -232,12 +224,12 @@ DirectionalLight3D TheSun
     Energy = [0.6]
 }
 
-Texture TestTexture1
+ImageTexture TestTexture1
 {
     Image = 'testing_resources/TestTexture1.png'
 }
 
-Texture TestTexture2
+ImageTexture TestTexture2
 {
     Image = 'testing_resources/TestTexture2.png'
 }
@@ -264,7 +256,7 @@ Text2D TestSpriteCaption
     Position = [118, -400]
     Color = [1, 1, 1]
     Size = [0.5, 0.5]
-    Text = 'This texture is animated.'
+    Text = 'This ImageTexture is animated.'
 }
 
 Font TestFont1
