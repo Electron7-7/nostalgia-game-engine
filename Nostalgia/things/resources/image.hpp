@@ -8,8 +8,8 @@ class Image : public Resource
 {
 public:
     static Shared<Image> CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat);
-    static Shared<Image> CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-        uchar* inImageData, int inImageDataSize);
+    static Shared<Image> CreateFromData(bool inUseMipmaps, DataFormat inFormat,
+        const uchar* inImageData, int inImageDataSize);
     static void GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels);
 
 	SET_SUPER(Resource)
@@ -18,9 +18,11 @@ public:
     GET_VARIABLES_OVERRIDE
     SHUTDOWN_OVERRIDE
 
+    virtual ~Image() noexcept;
+
     Error Import();
     Error LoadFile(Sarg inFilePath);
-    void SetData(bool inUseMipmaps, DataFormat inFormat, uchar* inData, int inSize);
+    void SetData(bool inUseMipmaps, DataFormat inFormat, const uchar* inData, int inSize);
 
     const uchar* raw_data() const;
     uchar* raw_data();

@@ -27,20 +27,22 @@ static int sDataFormatToSTBI(DataFormat inFormat)
     }
 }
 
+Image::~Image() noexcept
+{ free(); }
+
 Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat)
 {
     auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
     output->SetData(inUseMipmaps, inFormat, nullptr, 0);
     output->mWidth  = inWidth;
     output->mHeight = inHeight;
-    output->Import();
     return output;
 }
 
-Shared<Image> Image::CreateFromData(int inWidth, int inHeight, bool inUseMipmaps, DataFormat inFormat,
-    uchar* inImageData, int inImageDataSize)
+Shared<Image> Image::CreateFromData(bool inUseMipmaps, DataFormat inFormat,
+    const uchar* inImageData, int inImageDataSize)
 {
-    auto output{CreateEmpty(inWidth, inHeight, inUseMipmaps, inFormat)};
+    auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
     output->SetData(inUseMipmaps, inFormat, inImageData, inImageDataSize);
     output->Import();
     return output;
@@ -87,22 +89,6 @@ Error Image::Import()
     else if(not print_error_enum(m_pFileData->status()))
         { return ERR_INVALID; }
 
-    switch(m_pFileData->file_type())
-    {
-    case FileType::Unknown:
-        print_warning("Unknown file type encountered. Since I don't account for all image types, Image::mFormat will be set to DATA_FORMAT_SRGB_ALPHA and image loading will continue");
-        [[fallthrough]];
-    case FileType::image_PNG:
-        mFormat = DATA_FORMAT_SRGB_ALPHA;
-        break;
-    case FileType::image_JPG:
-        mFormat = DATA_FORMAT_SRGB;
-        break;
-    default:
-        print_error("Invalid file type encountered");
-        return ERR_INVALID_TYPE;
-    }
-
 #pragma message("TODO: figure out when to actually set this to true and when to not")
     stbi_set_flip_vertically_on_load(true);
 
@@ -130,16 +116,29 @@ Error Image::LoadFile(Sarg inPath)
         print_error("Failed to load image file '{}'", inPath);
         return ERR_FILE_LOAD;
     }
+    switch(m_pFileData->file_type())
+    {
+    case FileType::Unknown:
+        [[fallthrough]];
+    case FileType::image_PNG:
+        mFormat = DATA_FORMAT_SRGB_ALPHA;
+        break;
+    case FileType::image_JPG:
+        mFormat = DATA_FORMAT_SRGB;
+        break;
+    default:
+        print_error("Invalid file type encountered");
+        return ERR_INVALID_TYPE;
+    }
     return Import();
 }
 
-void Image::SetData(bool inUseMipmaps, DataFormat inFormat,
-    uchar* inImageData, int inImageDataSize)
+void Image::SetData(bool inUseMipmaps, DataFormat inFormat, const uchar* inImageData, int inImageDataSize)
 {
     mUseMipmaps = inUseMipmaps;
     mFormat = inFormat;
 
-    if(not inImageData or not inImageDataSize)
+    if(not inImageData)
         { return; }
 
     GetInfo(m_pFileData = MakeShared<FileData>(inImageData, inImageDataSize),
@@ -148,8 +147,12 @@ void Image::SetData(bool inUseMipmaps, DataFormat inFormat,
 
 void Image::free()
 {
-    stbi_image_free(m_pImage);
-    mSize = 0;
+    if(m_pImage)
+    {
+        stbi_image_free(m_pImage);
+        m_pImage = nullptr;
+        mSize = 0;
+    }
 }
 
 const uchar* Image::raw_data() const
