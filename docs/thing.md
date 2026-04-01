@@ -1,34 +1,5 @@
-[return to the wiki](../../../wiki/Home)
-
-_This documentation is heavily inspired by/plagiarizes Godot's [GDScript documentation](https://docs.godotengine.org/en/stable/classes) (specifically, the class reference)._
-
-# Index
-- [Thing](thing.md)
-    - [Resource](resource.md)
-        - [Font](font.md)
-        - [Mesh](mesh.md)
-        - [Texture](texture.md)
-        - [Material](material.md)
-    - [Thinker](thinker.md)
-        - [Viewport](viewport.md)
-        - [Actor3D](actor_3d.md)
-            - [NostalgiaPlayer3D](nostalgia_player_3d.md)
-            - [Camera3D](camera_3d.md)
-            - [Collider3D](collider_3d.md)
-            - [Visual3D](visual_3d.md)
-                - [MeshInstance3D](mesh_instance_3d.md)
-                - [Light3D](light_3d.md)
-                    - [PointLight3D](point_light_3d.md)
-                    - [SpotLight3D](spot_light_3d.md)
-                    - [DirectionalLight3D](directional_light_3d.md)
-        - [Actor2D](actor_2d.md)
-            - [Camera2D](camera_2d.md)
-            - [Visual2D](visual_2d.md)
-                - [Sprite2D](sprite_2d.md)
-                - [Text2D](text_2d.md)
-                - [MeshInstance2D](mesh_instance_2d.md)
-
-----
+[return to the wiki](https://github.com/Electron7-7/nostalgia-game-engine/wiki/Home)
+[return to the index](things_index.md)
 
 # Thing
 
@@ -85,7 +56,7 @@ Called on every input event via [Theatre::Input()]() (see [InputManager]() for m
 
 ---
 ### virtual void SetVariables(const [TheatreFile::ThingData]()&)
-Called by [Theatre::CreateThing()]() to initialize the current **Thing** with its [ThingData](). This can be thought of like an "init" function. When overridden, it's very important that the base class' implementation is called at some point in the function (e.g: [Actor3D]() calls `Thinker::SetVariables(data)` at the very beginning of its implementation). Doing this properly will result in all the base classes setting their own variables instead of requiring the new derived class to do so for every single inherited variable. If you want to override a specific variable assignment (like in the case of most of the [Resource]()-derived classes), you can still do so after calling the base class' implementation. 
+Called by [Theatre::CreateThing()]() to initialize the current **Thing** with its [ThingData](). This can be thought of like an "init" function. When overridden, it's very important that the base class' implementation is called at some point in the function (e.g: [Actor3D]() calls `Thinker::SetVariables(data)` at the very beginning of its implementation). Doing this properly will result in all the base classes setting their own variables instead of requiring the new derived class to do so for every single inherited variable. If you want to override a specific variable assignment (like in the case of most of the [Resource]()-derived classes), you can still do so after calling the base class' implementation.
 
 ---
 ### virtual std::shared_ptr<[TheatreFile::ThingData]()> GetVariables() const
