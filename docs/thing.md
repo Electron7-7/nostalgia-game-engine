@@ -6,6 +6,7 @@
 - [Super](#super)
 - [Macros](#macros)
 - [Thing_t](#thing_t)
+- [Variables](#variables)
 - [Virtual Functions](#virtual-functions)
 - [Non-Virtual Functions](#non-virtual-functions)
 - [Function Descriptions](#function-descriptions)
@@ -37,6 +38,14 @@ Most of the macros defined in [thing.hpp](../Nostalgia/things/thing.hpp) are sim
 ## Thing_t
 A [concept](https://en.cppreference.com/w/cpp/language/constraints.html) used in function templates to constrain a typename. It requires the type be derived from **Thing** (either directly or indirectly).
 
+## Variables
+| Scope | Type | Name | Default Value |
+|  ---  | ---- | ---- |      ---      |
+| public | bool | [mIsHoveredInDebugger](#bool-mishoveredindebuggerfalse) | `false` |
+| protected | std::string | [mName](#stdstring-mname) | `""` |
+| protected | std::shared_ptr<[TheatreFile::ThingData]()> | [m_pStartingData](#stdshared_ptrtheatrefilethingdata-m_pstartingdatanullptr) | `nullptr` |
+| private | [ID]() | [mUID](#id-muididinvalid) | `ID::Invalid` |
+
 ## Virtual Functions
 | Return Type | Signature |
 |    ----     |    ---    |
@@ -60,14 +69,6 @@ A [concept](https://en.cppreference.com/w/cpp/language/constraints.html) used in
 | [ID]() | [uid](#id-uid-const)() const |
 | const std::string& | [name](#const-stdstring-name-const)() const |
 | const char* const | [c_name](#const-char-const-c_name-const)() const |
-
-## Variables
-| Scope | Type | Name | Default Value |
-|  ---  | ---- | ---- |      ---      |
-| public | bool | [mIsHoveredInDebugger](#bool-mishoveredindebuggerfalse) | `false` |
-| protected | std::string | [mName](#stdstring-mname) | `""` |
-| protected | std::shared_ptr<[TheatreFile::ThingData]()> | [m_pStartingData](#stdshared_ptrtheatrefilethingdata-m_pstartingdatanullptr) | `nullptr` |
-| private | [ID]() | [mUID](#id-muididinvalid) | `ID::Invalid` |
 
 <br>
 
