@@ -69,6 +69,7 @@ A [concept](https://en.cppreference.com/w/cpp/language/constraints.html) used in
 | protected | std::shared_ptr<[TheatreFile::ThingData]()> | [m_pStartingData](#stdshared_ptrtheatrefilethingdata-m_pstartingdatanullptr) | `nullptr` |
 | private | [ID]() | [mUID](#id-muididinvalid) | `ID::Invalid` |
 
+<br>
 
 ## Variable Descriptions
 ### bool mIsHoveredInDebugger{`false`}
@@ -88,6 +89,7 @@ When [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata) is fir
 ### [ID]() mUID{[`ID::Invalid`](../Nostalgia/core/id.hpp#L45)}
 The uid for this **Thing**. This variable is set by the [Theatre]() or [ResourceDatabase]() when creating/registering a **Thing**. If a **Thing** hasn't had its uid set and [SetVariables](#virtual-void-setvariablesconst-theatrefilethingdata) is called, **Thing** will set its name to [TheatreFile::ThingData::_uid]().
 
+<br>
 
 ## Function Descriptions
 ### virtual constexpr const [PID]()& Type() const
