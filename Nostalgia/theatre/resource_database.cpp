@@ -43,8 +43,6 @@ ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
 void ResourceDatabase::DestroyAll()
 {
     LOCK_MUTEX;
-    for(FAUTO [uid, resource] : sResources)
-        { resource->Shutdown(); }
     sResources.clear();
     sNames.clear();
 }
@@ -132,7 +130,6 @@ Error ResourceDatabase::Destroy(ID inUID)
                 }
             }
         }
-        found_it->second->Shutdown();
         sResources.erase(found_it);
         return OK;
     }

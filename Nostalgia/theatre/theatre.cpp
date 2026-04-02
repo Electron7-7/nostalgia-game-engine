@@ -336,8 +336,6 @@ Error Theatre::DestroyThing(ID inID)
     auto children{GetChildren(inID)};
     for(ID child : children)
         { DestroyThing(child); }
-
-    GetThing(inID)->Shutdown();
     auto status{DestroyThingOnly(inID)};
     return status;
 }
