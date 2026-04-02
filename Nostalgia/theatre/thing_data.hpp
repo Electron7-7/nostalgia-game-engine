@@ -88,7 +88,7 @@ namespace TheatreFile
                 return OK;
             }
 
-        template<typename T> requires std::derived_from<T, Resource>
+        template<Resource_t T>
             Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
             {
                 if(not inValue)
@@ -96,7 +96,7 @@ namespace TheatreFile
                 return set_variable(inValue->uid(), inName);
             }
 
-        template<typename T> requires std::derived_from<T, Thinker>
+        template<Thinker_t T>
             Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
             {
                 if(not inValue)
@@ -104,7 +104,7 @@ namespace TheatreFile
                 return set_variable(inValue->uid(), inName);
             }
 
-        template<typename T, StringType... Names> requires std::derived_from<T, Resource>
+        template<Resource_t T, StringType... Names>
             Error get_variable(Shared<T>& outValue, Names... inNames) const
             {
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
@@ -117,7 +117,7 @@ namespace TheatreFile
                 return ERR_NOT_FOUND;
             }
 
-        template<typename T, StringType... Names> requires std::derived_from<T, Thinker>
+        template<Thinker_t T, StringType... Names>
             Error get_variable(Shared<T>& outValue, Names... inNames) const
             {
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
