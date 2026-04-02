@@ -28,7 +28,7 @@ void Light3D::Ready()
     if(Settings::Engine::IsEditorHint // the debug mesh instance should only be visible in the editor
         and not DerivedFrom(ThingType::DirectionalLight3D)) // and not visible for directional lights
     {
-        std::string mat_name{mName + "-debug-material"};
+        std::string mat_name{name() + "-debug-material"};
         ID mat_id{},
             mesh_inst_id{};
         if(!Theatre::Current()->ThingExists(mat_name))
@@ -42,7 +42,7 @@ void Light3D::Ready()
         else
             { mat_id = Theatre::Current()->GetThing(mat_name)->uid(); }
 
-        std::string mesh_inst_name{mName + "-debug-mesh-instance"};
+        std::string mesh_inst_name{name() + "-debug-mesh-instance"};
         if(!Theatre::Current()->ThingExists(mesh_inst_name))
         {
             ThingData mesh_inst_dat{ThingType::MeshInstance3D, mesh_inst_name};

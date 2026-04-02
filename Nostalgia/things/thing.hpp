@@ -61,7 +61,6 @@ public:
 protected:
     friend class Theatre;
     friend class ResourceDatabase;
-    std::string mName{""};
     Shared<TheatreFile::ThingData> m_pStartingData;
 
     virtual void Init() {}
@@ -72,8 +71,10 @@ protected:
     virtual void Input(InputEvent*) {}
 
 private:
+    friend class Theatre;
     friend class ResourceDatabase;
     ID mUID{};
+    std::string mName{""};
 };
 
 template<typename T>

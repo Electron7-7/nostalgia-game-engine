@@ -68,7 +68,7 @@ Error Mesh::LoadModel()
     std::vector<uint>  indices{};
     if(Error status{s_CreateMeshData(vertices, indices, m_pModel)}; not status)
     {
-        print_error("Mesh [{}, {}] failed to parse mesh data", mName, uid()());
+        print_error("Mesh [{}, {}] failed to parse mesh data", name(), uid()());
         return status;
     }
     mVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));

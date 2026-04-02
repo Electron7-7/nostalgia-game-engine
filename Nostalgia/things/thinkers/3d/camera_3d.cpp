@@ -27,7 +27,7 @@ void Camera3D::Ready()
             Theatre::Current()->CreateThing(mat_data);
         }
 
-        std::string mesh_inst_name{mName + "-debug-mesh-instance"};
+        std::string mesh_inst_name{name() + "-debug-mesh-instance"};
         if(!Theatre::Current()->ThingExists(mesh_inst_name))
         {
             ThingData mesh_inst_data{ThingType::MeshInstance3D, mesh_inst_name};

@@ -48,7 +48,7 @@ void ImageTexture::SetImage(Shared<Image> inImage)
 
     if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat)))
     {
-        print_error("Failed to create Texture ['{}', {}]", mName, uid()());
+        print_error("Failed to create Texture ['{}', {}]", name(), uid()());
         return;
     }
     else

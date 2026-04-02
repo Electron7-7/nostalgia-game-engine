@@ -324,7 +324,7 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
     {
         print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
             uid()(),
-            mName,
+            name(),
             inOtherColliderID(),
             Theatre::Current()->GetThing(inOtherColliderID)->name());
     }
@@ -337,22 +337,22 @@ void Collider3D::OnContactPersisted(ID inOtherColliderID,
     JPH::ContactSettings& ioSettings)
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_persisted_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' Contact Persisted", uid()(), mName); }
+        { print_debug("Collider3D#{} '{}' Contact Persisted", uid()(), name()); }
 }
 
 /*void Collider3D::OnContactRemoved(Farg<JPH::SubShapeIDPair> inSubShapeIDPair)
 {
-    print_debug("Collider3D#{} '{}' Contact Removed", uid()(), mName);
+    print_debug("Collider3D#{} '{}' Contact Removed", uid()(), name());
 }*/
 
 void Collider3D::OnBodyActivated()
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' activated", uid()(), mName); }
+        { print_debug("Collider3D#{} '{}' activated", uid()(), name()); }
 }
 
 void Collider3D::OnBodyDeactivated()
 {
     if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
-        { print_debug("Collider3D#{} '{}' deactivated", uid()(), mName); }
+        { print_debug("Collider3D#{} '{}' deactivated", uid()(), name()); }
 }
