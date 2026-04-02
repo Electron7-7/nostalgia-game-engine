@@ -1,4 +1,4 @@
-|[../../return to wiki home](https://github.com/Electron7-7/nostalgia-game-engine/wiki/Home) | [../return to things index](things_index.md)|
+|[../return to things index](things_index.md)|[../../return to wiki home](https://github.com/Electron7-7/nostalgia-game-engine/wiki/Home)|
 |---|---|
 
 ### Index
