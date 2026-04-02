@@ -41,7 +41,7 @@ A [concept](https://en.cppreference.com/w/cpp/language/constraints.html) used in
 | Return Type | Signature |
 |    ----     |    ---    |
 | constexpr const [PID]()& | [Type](#virtual-constexpr-const-pid-type-const)() const |
-| void | [Init](#void-init)() |
+| void | [Init](#virtual-void-init)() |
 | void | [Ready](#virtual-void-ready)() |
 | void | [Shutdown](#virtual-void-shutdown)() |
 | void | [Tick](#virtual-void-tick)() |
