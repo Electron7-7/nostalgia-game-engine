@@ -64,10 +64,10 @@ A [concept](https://en.cppreference.com/w/cpp/language/constraints.html) used in
 ## Variables
 | Scope | Type | Name | Default Value |
 |  ---  | ---- | ---- |      ---      |
-| public | bool | mIsHoveredInDebugger | `false` |
-| protected | std::string | mName | `""` |
-| protected | std::shared_ptr<[TheatreFile::ThingData]()> | m_pStartingData | `nullptr` |
-| private | [ID]() | mUID | `ID::Invalid` |
+| public | bool | [mIsHoveredInDebugger](#bool-mishoveredindebuggerfalse) | `false` |
+| protected | std::string | [mName](#stdstring-mname) | `""` |
+| protected | std::shared_ptr<[TheatreFile::ThingData]()> | [m_pStartingData](#stdshared_ptrtheatrefilethingdata-m_pstartingdatanullptr) | `nullptr` |
+| private | [ID]() | [mUID](#id-muididinvalid) | `ID::Invalid` |
 
 
 ## Variable Descriptions
