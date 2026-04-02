@@ -45,12 +45,6 @@ public:
     Thing(Sarg inName, ID inUID = {}) noexcept;
     virtual ~Thing() noexcept;
 
-    virtual void Init() {}
-    virtual void Ready() {}
-    virtual void Shutdown() {}
-    virtual void Tick() {}
-    virtual void Update() {}
-    virtual void Input(InputEvent*) {}
     // Derived classes must call `Super::SetVariables` at the start of their own implementation.
     virtual void SetVariables(Farg<TheatreFile::ThingData>);
     // Derived classes must call `Super::GetVariables` at the start of their own implementation.
@@ -69,6 +63,13 @@ protected:
     friend class ResourceDatabase;
     std::string mName{""};
     Shared<TheatreFile::ThingData> m_pStartingData;
+
+    virtual void Init() {}
+    virtual void Ready() {}
+    virtual void Shutdown() {}
+    virtual void Tick() {}
+    virtual void Update() {}
+    virtual void Input(InputEvent*) {}
 
 private:
     friend class ResourceDatabase;
