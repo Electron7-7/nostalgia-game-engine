@@ -9,6 +9,7 @@
 - [Variables](#variables)
 - [Virtual Functions](#virtual-functions)
 - [Non-Virtual Functions](#non-virtual-functions)
+- [Variable Descriptions](#variable-descriptions)
 - [Function Descriptions](#function-descriptions)
 
 ---
