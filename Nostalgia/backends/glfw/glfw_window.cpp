@@ -108,10 +108,10 @@ void WindowGLFW::AddMonitor(GLFWmonitor* inMonitor)
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 {
     mInitStatus = Init(inProperties);
-    EnumPrettifier::Register(MOUSE_MODE_VISIBLE,  "MOUSE_MODE_VISIBLE");
-    EnumPrettifier::Register(MOUSE_MODE_CAPTURED, "MOUSE_MODE_CAPTURED");
-    EnumPrettifier::Register(MOUSE_MODE_HIDDEN,   "MOUSE_MODE_HIDDEN");
-    EnumPrettifier::Register(MOUSE_MODE_DISABLED, "MOUSE_MODE_DISABLED");
+    EnumRegistry::Register(MOUSE_MODE_VISIBLE,  "MOUSE_MODE_VISIBLE");
+    EnumRegistry::Register(MOUSE_MODE_CAPTURED, "MOUSE_MODE_CAPTURED");
+    EnumRegistry::Register(MOUSE_MODE_HIDDEN,   "MOUSE_MODE_HIDDEN");
+    EnumRegistry::Register(MOUSE_MODE_DISABLED, "MOUSE_MODE_DISABLED");
     PRINT_PRETTY_CONSTRUCTOR;
 }
 
@@ -223,8 +223,8 @@ Error WindowGLFW::SetMouseMode(MouseMode inMode)
     if(gDebugPrintStateChanges)
     {
         print_debug("Mouse mode set: {} (from: {})",
-            EnumPrettifier::Prettify(inMode),
-            EnumPrettifier::Prettify(mData.mouse_mode));
+            EnumRegistry::Prettify(inMode),
+            EnumRegistry::Prettify(mData.mouse_mode));
     }
     mData.mouse_mode = inMode;
     return OK;

@@ -17,7 +17,7 @@ extern MessageLabel ErrorLabel,
     DestructorLabel;
 extern MessageLabel* __all_labels_for_debugging[7];
 
-class EnumPrettifier;
+class EnumRegistry;
 namespace EnumSet
 {
     extern constinit const char* Global;

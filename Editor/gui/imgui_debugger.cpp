@@ -1333,13 +1333,13 @@ void ImGui_Debugger::InspectTheatreWindow()
             {
                 TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
                 TextF("Color Channels: {}", selected.texture_format.channels);
-                TextF("Type: {}", EnumPrettifier::Prettify(selected.texture_format.type));
+                TextF("Type: {}", EnumRegistry::Prettify(selected.texture_format.type));
                 TextF("MipMaps: {}", selected.texture_format.mipmaps);
                 static const std::map<SamplerFilter, const char*> sampler_filter
                 {
-                    {SAMPLER_FILTER_NEAREST, EnumPrettifier::Prettify(SAMPLER_FILTER_NEAREST).data()},
-                    {SAMPLER_FILTER_LINEAR,  EnumPrettifier::Prettify(SAMPLER_FILTER_LINEAR).data()},
-                    {SAMPLER_FILTER_NONE,    EnumPrettifier::Prettify(SAMPLER_FILTER_NONE).data()},
+                    {SAMPLER_FILTER_NEAREST, EnumRegistry::Prettify(SAMPLER_FILTER_NEAREST).data()},
+                    {SAMPLER_FILTER_LINEAR,  EnumRegistry::Prettify(SAMPLER_FILTER_LINEAR).data()},
+                    {SAMPLER_FILTER_NONE,    EnumRegistry::Prettify(SAMPLER_FILTER_NONE).data()},
                 };
                 SeparatorText("Sampler");
                 QUICK_COMBO_THING_VAR(mSampler.min_filter, sampler_filter, sampler_state.min_filter, texture->SetSampler(selected.sampler_state); selected = {texture})

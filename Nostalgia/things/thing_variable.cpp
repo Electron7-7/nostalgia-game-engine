@@ -7,7 +7,7 @@ std::string ThingVariable::get_log() const noexcept
     return std::format("[name: {}, value: {}, type: {}]",
         name,
         value,
-        EnumPrettifier::Prettify(type));
+        EnumRegistry::Prettify(type));
 }
 
 std::string ThingVariable::get_parsable_string() const noexcept

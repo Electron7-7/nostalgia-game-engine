@@ -300,13 +300,13 @@ PhysicsEngine::PhysicsEngine() noexcept
     m_pJobSystem     = new JobSystemThreadPool{cMaxPhysicsJobs, cMaxPhysicsBarriers};
 
 #ifdef NOSTALGIA_DEBUGGING
-    EnumPrettifier::Register(ShapeType::Box,        "ShapeType::Box");
-    EnumPrettifier::Register(ShapeType::Sphere,     "ShapeType::Sphere");
-    EnumPrettifier::Register(ShapeType::Capsule,    "ShapeType::Capsule");
-    EnumPrettifier::Register(ShapeType::Cylinder,   "ShapeType::Cylinder");
-    EnumPrettifier::Register(MotionType::Dynamic,   "MotionType::Dynamic");
-    EnumPrettifier::Register(MotionType::Kinematic, "MotionType::Kinematic");
-    EnumPrettifier::Register(MotionType::Static,    "MotionType::Static");
+    EnumRegistry::Register(ShapeType::Box,        "ShapeType::Box");
+    EnumRegistry::Register(ShapeType::Sphere,     "ShapeType::Sphere");
+    EnumRegistry::Register(ShapeType::Capsule,    "ShapeType::Capsule");
+    EnumRegistry::Register(ShapeType::Cylinder,   "ShapeType::Cylinder");
+    EnumRegistry::Register(MotionType::Dynamic,   "MotionType::Dynamic");
+    EnumRegistry::Register(MotionType::Kinematic, "MotionType::Kinematic");
+    EnumRegistry::Register(MotionType::Static,    "MotionType::Static");
 #endif // NOSTALGIA_DEBUGGING
 }
 

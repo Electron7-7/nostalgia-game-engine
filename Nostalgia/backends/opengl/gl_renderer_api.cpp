@@ -52,25 +52,25 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::Fonts]->CompileShader(GLSL_Font_Vert, GLSL_Font_Frag);
 #endif
 
-    EnumPrettifier::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");
-    EnumPrettifier::Assign(TEXTURE_TYPE_2D,         "TEXTURE_TYPE_2D");
-    EnumPrettifier::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
-    EnumPrettifier::Assign(TEXTURE_TYPE_1D_ARRAY,   "TEXTURE_TYPE_1D_ARRAY");
-    EnumPrettifier::Assign(TEXTURE_TYPE_2D_ARRAY,   "TEXTURE_TYPE_2D_ARRAY");
-    EnumPrettifier::Assign(TEXTURE_TYPE_3D_ARRAY,   "TEXTURE_TYPE_3D_ARRAY");
-    EnumPrettifier::Assign(TEXTURE_TYPE_CUBE,       "TEXTURE_TYPE_CUBE");
-    EnumPrettifier::Assign(TEXTURE_TYPE_CUBE_ARRAY, "TEXTURE_TYPE_CUBE_ARRAY");
-    EnumPrettifier::Assign(TEXTURE_TYPE_NONE,       "TEXTURE_TYPE_NONE");
+    EnumRegistry::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");
+    EnumRegistry::Assign(TEXTURE_TYPE_2D,         "TEXTURE_TYPE_2D");
+    EnumRegistry::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
+    EnumRegistry::Assign(TEXTURE_TYPE_1D_ARRAY,   "TEXTURE_TYPE_1D_ARRAY");
+    EnumRegistry::Assign(TEXTURE_TYPE_2D_ARRAY,   "TEXTURE_TYPE_2D_ARRAY");
+    EnumRegistry::Assign(TEXTURE_TYPE_3D_ARRAY,   "TEXTURE_TYPE_3D_ARRAY");
+    EnumRegistry::Assign(TEXTURE_TYPE_CUBE,       "TEXTURE_TYPE_CUBE");
+    EnumRegistry::Assign(TEXTURE_TYPE_CUBE_ARRAY, "TEXTURE_TYPE_CUBE_ARRAY");
+    EnumRegistry::Assign(TEXTURE_TYPE_NONE,       "TEXTURE_TYPE_NONE");
 
-    EnumPrettifier::Assign(SAMPLER_FILTER_NEAREST, "SAMPLER_FILTER_NEAREST");
-    EnumPrettifier::Assign(SAMPLER_FILTER_LINEAR,  "SAMPLER_FILTER_LINEAR");
-    EnumPrettifier::Assign(SAMPLER_FILTER_NONE,    "SAMPLER_FILTER_NONE");
+    EnumRegistry::Assign(SAMPLER_FILTER_NEAREST, "SAMPLER_FILTER_NEAREST");
+    EnumRegistry::Assign(SAMPLER_FILTER_LINEAR,  "SAMPLER_FILTER_LINEAR");
+    EnumRegistry::Assign(SAMPLER_FILTER_NONE,    "SAMPLER_FILTER_NONE");
 
-    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_REPEAT,               "SAMPLER_REPEAT_MODE_REPEAT");
-    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SAMPLER_REPEAT_MODE_MIRRORED_REPEAT");
-    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE");
-    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
-    EnumPrettifier::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_REPEAT,               "SAMPLER_REPEAT_MODE_REPEAT");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SAMPLER_REPEAT_MODE_MIRRORED_REPEAT");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
 
     return true;
 }

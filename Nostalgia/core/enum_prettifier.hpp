@@ -1,7 +1,7 @@
-#ifndef ENUM_PRETTIFIER_H
-#define ENUM_PRETTIFIER_H
+#ifndef ENUM_REGISTRY_H
+#define ENUM_REGISTRY_H
 
-class EnumPrettifier
+class EnumRegistry
 {
 public:
     using enums_map = std::unordered_map<long, std::string>;
@@ -39,4 +39,4 @@ private:
     inline static std::string m_sEmpty{"Unregistered Enum"};
 };
 
-#endif // ENUM_PRETTIFIER_H
+#endif // ENUM_REGISTRY_H
