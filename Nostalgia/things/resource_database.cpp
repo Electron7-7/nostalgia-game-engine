@@ -16,7 +16,7 @@ ID ResourceDatabase::Create(FPID inType, Sarg inName)
         print_error("A Resource with the name '{}' already exists", inName);
         return ID::Invalid;
     }
-    return Register(ThingFactory::MakeResource(inType, inName, UID::Generate()));
+    return Register(DCast<Resource>(ThingFactory::MakeThing(inType, inName, UID::Generate())));
 }
 
 ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)

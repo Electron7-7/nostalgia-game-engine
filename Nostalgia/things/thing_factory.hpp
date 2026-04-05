@@ -28,9 +28,7 @@ public:
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType_t> GetType(FPID inType) noexcept;
 
-    static Shared<Thing>    MakeThing(FPID inTypeID, Sarg inName, ID inUID = {});
-    static Shared<Thinker>  MakeThinker(FPID inTypeID, Sarg inName, ID inUID = {});
-    static Shared<Resource> MakeResource(FPID inTypeID, Sarg inName, ID inUID = {});
+    static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty, ID inUID = {});
 
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);

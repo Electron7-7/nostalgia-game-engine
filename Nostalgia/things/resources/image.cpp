@@ -32,7 +32,7 @@ Image::~Image() noexcept
 
 Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, DataFormat inFormat)
 {
-    auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
+    auto output{DCast<Image>(ThingFactory::MakeThing(ThingType::Image, "Untitled_Image"))};
     output->SetData(nullptr, 0, inFormat);
     output->mWidth  = inWidth;
     output->mHeight = inHeight;
@@ -41,7 +41,7 @@ Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, DataFormat inFormat)
 
 Shared<Image> Image::CreateFromData(const uchar* inImageData, int inImageDataSize, DataFormat inFormat)
 {
-    auto output{DCast<Image>(ThingFactory::MakeResource(ThingType::Image, "Untitled_Image"))};
+    auto output{DCast<Image>(ThingFactory::MakeThing(ThingType::Image, "Untitled_Image"))};
     output->SetData(inImageData, inImageDataSize, inFormat);
     output->Import();
     return output;

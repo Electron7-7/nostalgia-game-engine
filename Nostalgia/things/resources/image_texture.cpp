@@ -7,7 +7,7 @@ using namespace TheatreFile;
 
 Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage)
 {
-    auto output{DCast<ImageTexture>(ThingFactory::MakeResource(ThingType::ImageTexture, "Untitled_ImageTexture"))};
+    auto output{DCast<ImageTexture>(ThingFactory::MakeThing(ThingType::ImageTexture, "Untitled_ImageTexture"))};
     output->SetImage(inImage);
     return output;
 }

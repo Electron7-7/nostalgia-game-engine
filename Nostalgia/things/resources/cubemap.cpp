@@ -7,7 +7,7 @@ using namespace TheatreFile;
 
 Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> inImages)
 {
-    auto output{DCast<Cubemap>(ThingFactory::MakeResource(ThingType::Cubemap, "Untitled_Cubemap"))};
+    auto output{DCast<Cubemap>(ThingFactory::MakeThing(ThingType::Cubemap, "Untitled_Cubemap"))};
     output->mFormat.type = TEXTURE_TYPE_CUBE;
     FAUTO first{inImages.begin()->get()};
     output->mFormat.data_format = first->Format();

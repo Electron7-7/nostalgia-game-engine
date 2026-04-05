@@ -144,20 +144,6 @@ Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName, ID inUID)
     return ThingMakerTemplate<Thing>(inName, inUID);
 }
 
-Shared<Thinker> ThingFactory::MakeThinker(FPID inTypeID, Sarg inName, ID inUID)
-{
-    if(!IsThinker(inTypeID))
-        { return MakeShared<Thinker>(); }
-    return DCast<Thinker>(MakeThing(inTypeID, inName, inUID));
-}
-
-Shared<Resource> ThingFactory::MakeResource(FPID inTypeID, Sarg inName, ID inUID)
-{
-    if(!IsResource(inTypeID))
-        { return MakeShared<Resource>(); }
-    return DCast<Resource>(MakeThing(inTypeID, inName, inUID));
-}
-
 bool ThingFactory::SetPriority(FPID type, int priority)
 {
     if(!IsThing(type))

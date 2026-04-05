@@ -9,7 +9,7 @@ using namespace TheatreFile;
 
 Shared<Font> Font::CreateFromMemory(const uchar* inData, size_t inSize)
 {
-    Shared<Font> output{DCast<Font>(ThingFactory::MakeResource(ThingType::Font, "Untitled_Font"))};
+    Shared<Font> output{DCast<Font>(ThingFactory::MakeThing(ThingType::Font, "Untitled_Font"))};
     output->m_pFont = MakeShared<FileData>(inData, inSize);
     output->LoadFont();
     return output;
