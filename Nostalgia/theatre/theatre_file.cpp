@@ -76,7 +76,7 @@ void sDebugPrintLexerLogs(Farg<TokenArray> inTokens)
         if(gDebugDontPrintCommentsInLexerLogs and comment != Comment::NO_COMMENT)
             { continue; }
         debug_print("\tToken [{}, '{}']",
-            EnumRegistry::Prettify(token.category),
+            EnumRegistry::GetEnumName(token.category),
             (token.token[0] == '\n')
                 ? "\\n"
                 : token.token);

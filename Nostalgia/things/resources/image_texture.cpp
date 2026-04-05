@@ -77,9 +77,9 @@ void ImageTexture::UpdateImage(Shared<Image> inImage)
     {
         print_error("Image parameters do not match ImageTexture's parameters");
         print_debug("Image Params        - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
-            inImage->Width(),inImage->Height(),inImage->Channels(),EnumRegistry::Prettify(inImage->Format()));
+            inImage->Width(),inImage->Height(),inImage->Channels(),EnumRegistry::GetEnumName(inImage->Format()));
         print_debug("ImageTexture Params - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
-            mFormat.width, mFormat.height, mFormat.channels, EnumRegistry::Prettify(mFormat.data_format));
+            mFormat.width, mFormat.height, mFormat.channels, EnumRegistry::GetEnumName(mFormat.data_format));
         return;
     }
 

@@ -223,8 +223,8 @@ Error WindowGLFW::SetMouseMode(MouseMode inMode)
     if(gDebugPrintStateChanges)
     {
         print_debug("Mouse mode set: {} (from: {})",
-            EnumRegistry::Prettify(inMode),
-            EnumRegistry::Prettify(mData.mouse_mode));
+            EnumRegistry::GetEnumName(inMode),
+            EnumRegistry::GetEnumName(mData.mouse_mode));
     }
     mData.mouse_mode = inMode;
     return OK;

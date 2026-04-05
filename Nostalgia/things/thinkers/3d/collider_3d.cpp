@@ -73,8 +73,8 @@ void Collider3D::SetVariables(Farg<ThingData> data)
     if(CreateBody(mActivateOnNextChange))
     {
         print_jolt("Physics Body Created [{}, {}]",
-            EnumRegistry::Prettify(mShape),
-            EnumRegistry::Prettify(mMotion));
+            EnumRegistry::GetEnumName(mShape),
+            EnumRegistry::GetEnumName(mMotion));
     }
     else
         { print_error("Failed to create physics body for Collider3D#{}", uid()()); }
@@ -102,8 +102,8 @@ void Collider3D::Shutdown()
 {
     DestroyBody();
     print_jolt("Physics Body Destroyed [{}, {}]",
-        EnumRegistry::Prettify(mShape),
-        EnumRegistry::Prettify(mMotion));
+        EnumRegistry::GetEnumName(mShape),
+        EnumRegistry::GetEnumName(mMotion));
     Super::Shutdown();
 }
 
