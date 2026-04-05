@@ -85,7 +85,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/thing_variable.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/parser.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/lexer.cpp
-    ${NOSTALGIA_ROOT}/theatre/variable_registry.cpp
     ${NOSTALGIA_ROOT}/theatre/call_sheet.cpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.cpp
     ${NOSTALGIA_ROOT}/theatre/tree.cpp
@@ -176,7 +175,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/theatre/tree.hpp
     ${NOSTALGIA_ROOT}/things/thing_data.hpp
     ${NOSTALGIA_ROOT}/theatre/call_sheet.hpp
-    ${NOSTALGIA_ROOT}/theatre/variable_registry.hpp
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
