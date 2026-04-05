@@ -3,7 +3,7 @@
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
 #include "rendering/renderer_api.hpp"
-#include "theatre/resource_database.hpp"
+#include "things/resource_database.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 
 using namespace ManagerEnums;

@@ -3,7 +3,7 @@
 #include "models.hpp"
 #include "images.hpp"
 #include "fonts.hpp"
-#include "theatre/resource_database.hpp"
+#include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
 #include "things/thinkers/2d/sprite_2d.hpp"
