@@ -125,8 +125,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/ansi_codes.hpp
     ${NOSTALGIA_ROOT}/core/mutex.hpp
     ${NOSTALGIA_ROOT}/core/message_labels.hpp
-    ${NOSTALGIA_ROOT}/core/safe_return.hpp
-    ${NOSTALGIA_ROOT}/core/enum_prettifier.hpp
+    ${NOSTALGIA_ROOT}/core/enum_registry.hpp
     ${NOSTALGIA_ROOT}/core/farg.hpp
     ${NOSTALGIA_ROOT}/core/bitmask.hpp
     ${NOSTALGIA_ROOT}/core/concepts.hpp
