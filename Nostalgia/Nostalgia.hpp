@@ -5,7 +5,7 @@
 #define __n_make_string(x) __n_make_string_2(x)
 
 #define NOSTALGIA_VERSION_MAJOR 0
-#define NOSTALGIA_VERSION_MINOR 10
+#define NOSTALGIA_VERSION_MINOR 11
 #define NOSTALGIA_VERSION_PATCH 0
 #define NOSTALGIA_VERSION_STRING \
     __n_make_string(NOSTALGIA_VERSION_MAJOR) "." \
@@ -13,17 +13,17 @@
     __n_make_string(NOSTALGIA_VERSION_PATCH)
 
 #ifdef _WIN32
-#   include <windows.h> // IWYU pragma: keep
 #   include <stdio.h>   // IWYU pragma: keep
 #   include <tchar.h>   // IWYU pragma: keep
+#   include <windows.h> // IWYU pragma: keep
 #   define DIV 1048576
 #   define WIDTH 7
 #endif // _WIN32
 
 #ifdef linux
+#   include <stdio.h>  // IWYU pragma: keep
 #   include <unistd.h> // IWYU pragma: keep
 #   include <stdlib.h> // IWYU pragma: keep
-#   include <stdio.h>  // IWYU pragma: keep
 #   include <string.h> // IWYU pragma: keep
 #endif
 
@@ -31,16 +31,16 @@
 #include <set>              // IWYU pragma: keep
 #include <map>              // IWYU pragma: keep
 #include <print>            // IWYU pragma: keep
+#include <array>            // IWYU pragma: keep
+#include <mutex>            // IWYU pragma: keep
 #include <string>           // IWYU pragma: keep
 #include <vector>           // IWYU pragma: keep
 #include <memory>           // IWYU pragma: keep
-#include <array>            // IWYU pragma: keep
-#include <mutex>            // IWYU pragma: keep
-#include <cstdlib>          // IWYU pragma: keep
 #include <format>           // IWYU pragma: keep
 #include <random>           // IWYU pragma: keep
 #include <ranges>           // IWYU pragma: keep
 #include <chrono>           // IWYU pragma: keep
+#include <cstdlib>          // IWYU pragma: keep
 #include <concepts>         // IWYU pragma: keep
 #include <typeindex>        // IWYU pragma: keep
 #include <stdexcept>        // IWYU pragma: keep
