@@ -7,7 +7,7 @@ using namespace TheatreFile;
 Thing::Thing() noexcept = default;
 
 Thing::Thing(Sarg inName, ID inUID) noexcept:
-    mName{inName}, mUID{inUID} {}
+    mUID{inUID}, mName{inName} {}
 
 Thing::~Thing() noexcept
 { this->Shutdown(); }
