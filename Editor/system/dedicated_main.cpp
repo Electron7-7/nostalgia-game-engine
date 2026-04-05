@@ -1,6 +1,9 @@
 #include "./program_arguments.hpp"
 #include "app/nostalgia_goggles.hpp"
-#include <getargs/argument_parser.hpp>
+// #include <getargs/argument_parser.hpp>
+#define GETARGS_IMPLEMENTATION
+#define GETARGS_HANDLE_INVALID_ARGS
+#include "thirdparty/getargs/getargs.hpp"
 #include <Nostalgia/filesystem/filesystem.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/settings/engine.hpp>
@@ -13,34 +16,30 @@
 
 int DedicatedMain(int argc, char** argv)
 {
-    global_ArgumentParser->AddFlag(&Flags::Help);
-    global_ArgumentParser->AddFlag(&Flags::Version);
-    global_ArgumentParser->AddFlag(&Flags::NoColors);
-    global_ArgumentParser->AddFlag(&Flags::DisableEditorHint);
+    getargs::set_valid_args("--help", "-h", "--version", "-v", "--no-colors", "--no-editor-hint");
 
-    int parser_status{global_ArgumentParser->ParseArguments(argc, argv)};
-    if(parser_status == ARG_STATUS_FAILED)
+    if(getargs::get_args(argc, argv))
         { return 1; }
 
     std::string program_name{"NostalgiaGoggles"};
 
-    if(Flags::Help.IsActive())
+    if(getargs::get_flag("help") or getargs::get_flag("h"))
     {
         std::println("{}", GetHelpMessage(program_name.data()));
         return 0;
     }
-    else if(Flags::Version.IsActive())
+    else if(getargs::get_flag("version") or getargs::get_flag("v"))
     {
         std::println("{}", GetVersionMessage(program_name.data()));
         return 0;
     }
-    else if(Flags::NoColors.IsActive())
+    else if(getargs::get_flag("no-colors"))
     {
         for(int i{0}; i < 7; ++i)
             { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
     }
 
-    Settings::Engine::IsEditorHint = !Flags::DisableEditorHint.IsActive();
+    Settings::Engine::IsEditorHint = not getargs::get_flag("no-editor-hint");
 
     NostalgiaGoggles application{};
     return Application()->Main();
