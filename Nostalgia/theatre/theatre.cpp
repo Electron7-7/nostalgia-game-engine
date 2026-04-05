@@ -1,5 +1,5 @@
 #include "./theatre.hpp"
-#include "./thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "models.hpp"
 #include "images.hpp"
 #include "fonts.hpp"

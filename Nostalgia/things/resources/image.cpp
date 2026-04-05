@@ -1,5 +1,5 @@
 #include "./image.hpp"
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG // generate user friendly error messages

@@ -1,6 +1,6 @@
 #include "./image_texture.hpp"
 #include "things/thing_factory.hpp"
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;

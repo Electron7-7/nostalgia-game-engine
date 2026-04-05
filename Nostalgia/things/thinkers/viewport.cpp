@@ -1,5 +1,5 @@
 #include "./viewport.hpp"
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/3d/camera_3d.hpp"

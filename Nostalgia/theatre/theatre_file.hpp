@@ -1,7 +1,7 @@
 #ifndef THEATRE_FILE_H
 #define THEATRE_FILE_H
 
-#include <Nostalgia/theatre/thing_data.hpp>
+#include <Nostalgia/things/thing_data.hpp>
 
 namespace TheatreFile
 {

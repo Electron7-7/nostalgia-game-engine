@@ -1,5 +1,5 @@
 #include "./collider_3d.hpp"
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "physics/engine.hpp"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>

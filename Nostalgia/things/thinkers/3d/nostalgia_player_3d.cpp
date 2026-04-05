@@ -1,6 +1,6 @@
 #include "./nostalgia_player_3d.hpp"
 #include "../viewport.hpp" // IWYU pragma: keep
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "settings/engine.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"

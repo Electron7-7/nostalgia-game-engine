@@ -1,5 +1,5 @@
 #include "./test_animated_sprite.hpp"
-#include <Nostalgia/theatre/thing_data.hpp>
+#include <Nostalgia/things/thing_data.hpp>
 #include <Nostalgia/managers/manager.hpp>
 
 using namespace TheatreFile;

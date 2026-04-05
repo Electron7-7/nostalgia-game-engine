@@ -1,5 +1,5 @@
 #include "./light_3d.hpp"
-#include "theatre/thing_data.hpp"
+#include "things/thing_data.hpp"
 #include "settings/engine.hpp"
 #include "managers/theatre_manager.hpp"
 #ifdef NOSTALGIA_DEBUGGING
