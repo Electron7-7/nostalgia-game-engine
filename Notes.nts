@@ -1363,3 +1363,8 @@ Okay, I'm gonna start implementing `Image` and trying to see if I can get it wor
 Ooh, wait, I could just implement a new `ImageTexture` class which lets me try to implement `Image` without fucking up `Texture`, *and* sets me up for the switch over to `ImageTexture` being for images only and `Texture` being the base representation of texture data on the GPU.
 
 All right, it's a bit janky but it *does* work. Time to iron out all the kinks.
+
+[04/05/26]
+I wanna implement brushes. Note before I do so: I also wanna implement a fast way to "get" console variables that'll return an empty variable/false if the requested variable doesn't exist. Then I could, say, use it in the rendering function for 'mat_fullbright' or something. Anyways, on to brushes.
+
+Okay, while I didn't do that I did finally fully remove the VariableRegistry class and replace the enum functionality with the new EnumRegistry (replacing what was the EnumPrettifier). In a new branch, I'll work on mesh-related changes in preparation for brushes.
