@@ -2,18 +2,24 @@
 #include "things/thing_data.hpp"
 #include "./thing_factory.hpp"
 
-using namespace TheatreFile;
+#define LOCK(MUTEX) LockGuard<RMutex> lock{MUTEX}
 
-Thing::Thing() noexcept = default;
+using namespace TheatreFile;
 
 Thing::Thing(Sarg inName, ID inUID) noexcept:
     mUID{inUID}, mName{inName} {}
 
 Thing::~Thing() noexcept
-{ this->Shutdown(); }
+{
+    this->Shutdown();
+    LOCK(mMutex);
+    if(not mUID.invalid() and UID::Contains(mUID) and UID::Erase(mUID))
+        { mUID = ID::Invalid; }
+}
 
 void Thing::SetVariables(Farg<ThingData> data)
 {
+    LOCK(mMutex);
     if(mName.empty() and not data.name.empty())
         { mName = data.name; }
     if(mUID.invalid() and not data.type.invalid())
@@ -23,6 +29,7 @@ void Thing::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> Thing::GetVariables() const
 {
+    LOCK(mMutex);
     auto data{MakeShared<ThingData>()};
     data->name = mName;
     data->_uid = mUID;
@@ -31,22 +38,22 @@ Shared<ThingData> Thing::GetVariables() const
 }
 
 bool Thing::DerivedFrom(FPID inType) const
-{ return ThingFactory::IsDerivedFrom(Type(), inType); }
+{ LOCK(mMutex); return ThingFactory::IsDerivedFrom(Type(), inType); }
 
 bool Thing::IsThinker() const
-{ return ThingFactory::IsThinker(Type()); }
+{ LOCK(mMutex); return ThingFactory::IsThinker(Type()); }
 
 bool Thing::IsResource() const
-{ return ThingFactory::IsResource(Type()); }
+{ LOCK(mMutex); return ThingFactory::IsResource(Type()); }
 
 ThingData Thing::GetStartingVariables() const
-{ return *m_pStartingData; }
+{ LOCK(mMutex); return *m_pStartingData; }
 
 ID Thing::uid() const
-{ return mUID; }
+{ LOCK(mMutex); return mUID; }
 
 Farg<std::string> Thing::name() const
-{ return mName; }
+{ LOCK(mMutex); return mName; }
 
 const char* const Thing::c_name() const
-{ return mName.data(); }
+{ LOCK(mMutex); return mName.data(); }

@@ -41,8 +41,7 @@ public:
 
     bool mIsHoveredInDebugger{false};
 
-    Thing() noexcept;
-    Thing(Sarg inName, ID inUID = {}) noexcept;
+    Thing(Sarg inName = GlobalConstants::str_untitled_thing, ID inUID = {}) noexcept;
     virtual ~Thing() noexcept;
 
     // Derived classes must call `Super::SetVariables` at the start of their own implementation.
@@ -73,6 +72,7 @@ protected:
 private:
     friend class Theatre;
     friend class ResourceDatabase;
+    mutable RMutex mMutex{};
     ID mUID{};
     std::string mName{""};
 };
