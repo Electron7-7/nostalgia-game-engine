@@ -11,9 +11,14 @@ static std::map<std::string, ID> sNames{};
 ID ResourceDatabase::Create(FPID inType, Sarg inName)
 {
     LOCK_MUTEX;
-    if(Contains(inName))
+    if(not ThingFactory::IsResource(inType))
     {
-        print_error("A Resource with the name '{}' already exists", inName);
+        print_error("Type '{}' is not a Resource", inType.name());
+        return ID::Invalid;
+    }
+    else if(Contains(inName))
+    {
+        print_error("A Resource named '{}' already exists", inName);
         return ID::Invalid;
     }
     return Register(DCast<Resource>(ThingFactory::MakeThing(inType, inName, UID::Generate())));
@@ -22,7 +27,7 @@ ID ResourceDatabase::Create(FPID inType, Sarg inName)
 ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
 {
     LOCK_MUTEX;
-    if(inResource->mUID.invalid() and (inResource->mUID = UID::Generate()).invalid())
+    if(not inResource or (inResource->mUID.invalid() and (inResource->mUID = UID::Generate()).invalid()))
         { return ID::Invalid; }
     else if(not inNameOverride.empty())
         { inResource->mName = inNameOverride; }
