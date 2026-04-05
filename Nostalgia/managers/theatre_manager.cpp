@@ -1,7 +1,6 @@
 #include "./theatre_manager.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/theatre_file.hpp"
-#include "things/thing_factory.hpp"
 
 #define LOCK_MUTEX LockGuard<RMutex> lock{mTheatreMutex}
 
@@ -49,7 +48,7 @@ bool TheatreManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     m_pCurrentTheatre = MakeUnique<Theatre>();
-    return ThingFactory::Init();
+    return true;
 }
 
 void TheatreManager::Update()

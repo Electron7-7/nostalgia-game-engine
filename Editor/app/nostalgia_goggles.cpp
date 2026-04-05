@@ -8,6 +8,7 @@
 #include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/events/action.hpp>
 #include <Nostalgia/managers/physics_manager.hpp>
+#include <Nostalgia/managers/resource_manager.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/managers/render_manager.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
@@ -37,6 +38,7 @@ int NostalgiaGoggles::Main()
     imgui_impl->CreateSolution<ImGui_Editor>();
     imgui_impl->CreateSolution<ImGui_Debugger>();
 
+    IManager::Add(g_pResourceManager);
     IManager::Add(g_pPhysicsManager);
     IManager::Add(g_pTheatreManager);
     IManager::Add(g_pRenderManager);

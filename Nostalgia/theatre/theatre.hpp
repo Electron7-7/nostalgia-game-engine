@@ -116,7 +116,6 @@ protected:
     void SetupOwnership(TheatreFile::ThingData&, bool isStartup = false);
     void SetupUID(TheatreFile::ThingData&);
 
-    void  CreateEmbeddedResources();
     ID    CreateThingNoReady(Farg<TheatreFile::ThingData>, bool doSetup = true);
     ID    CreateThingNoReady(TheatreFile::ThingData&, bool doSetup = true);
     Error DestroyThingOnly(ID);

@@ -36,6 +36,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/managers/input_manager.cpp
     ${NOSTALGIA_ROOT}/managers/render_manager.cpp
     ${NOSTALGIA_ROOT}/managers/theatre_manager.cpp
+    ${NOSTALGIA_ROOT}/managers/resource_manager.cpp
     ${NOSTALGIA_ROOT}/managers/manager.cpp
     ${NOSTALGIA_ROOT}/managers/ui_manager.cpp
     ${NOSTALGIA_ROOT}/settings/world.cpp
@@ -107,6 +108,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/managers/ui_manager.hpp
     ${NOSTALGIA_ROOT}/managers/input_manager.hpp
     ${NOSTALGIA_ROOT}/managers/theatre_manager.hpp
+    ${NOSTALGIA_ROOT}/managers/resource_manager.hpp
     ${NOSTALGIA_ROOT}/managers/manager.hpp
     ${NOSTALGIA_ROOT}/managers/render_manager.hpp
     ${NOSTALGIA_ROOT}/managers/physics_manager.hpp
