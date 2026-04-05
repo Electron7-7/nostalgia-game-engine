@@ -150,8 +150,6 @@ bool Theatre::Startup()
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
 
-    VariableRegistry::RegisterEngineEnums();
-
     CreateEmbeddedResources();
 
     m_pRootViewport = GetThinker<Viewport>(UID::o_RootViewport = CreateThingNoReady({ThingType::Viewport, "Root_Viewport"}));

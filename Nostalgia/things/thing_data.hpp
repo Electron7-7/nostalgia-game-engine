@@ -3,7 +3,6 @@
 
 #include <Nostalgia/things/thinkers/thinker.hpp>
 #include <Nostalgia/things/resources/resource.hpp>
-#include <Nostalgia/theatre/variable_registry.hpp>
 
 #define ASSERT_THING_VARIABLE(ThingVarName, InVarNames, ReturnOnFail...) \
     Farg<ThingVariable> ThingVarName{_get_variable({inNames...})}; \
@@ -81,11 +80,9 @@ namespace TheatreFile
         template<IsEnum T>
             Error set_variable(T inValue, Sarg inName)
             {
-                std::string enum_name{};
-                if(!VariableRegistry::try_GetEnumName(inValue, enum_name))
-                    { return ERR_INVALID; }
-                variables.emplace_back(inName, enum_name, ThingVarType::Enum);
-                return OK;
+                if(auto enum_name{EnumRegistry::GetEnumName(inValue)}; not enum_name.empty())
+                    { variables.emplace_back(inName, enum_name, ThingVarType::Enum); return OK; }
+                return ERR_INVALID;
             }
 
         template<Resource_t T>
@@ -172,7 +169,7 @@ namespace TheatreFile
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
                 if(thing_var.type != ThingVarType::Enum)
                     { return ERR_MISMATCHED_TYPES; }
-                else if(!VariableRegistry::try_GetEnum(thing_var.value, outValue))
+                else if(not EnumRegistry::GetEnum(thing_var.value, outValue))
                     { return ERR_INVALID; }
                 return OK;
             }

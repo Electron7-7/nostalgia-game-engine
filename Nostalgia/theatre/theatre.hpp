@@ -6,7 +6,6 @@
 #include <Nostalgia/things/resources/resource.hpp>
 #include <Nostalgia/theatre/theatre_file.hpp>
 #include <Nostalgia/theatre/call_sheet.hpp>
-#include <Nostalgia/theatre/variable_registry.hpp>
 
 class Theatre
 {

@@ -4,7 +4,8 @@
 #include "ui_manager.hpp"
 #include "rendering/renderer_api.hpp"
 #include "things/resource_database.hpp"
-#define GLM_ENABLE_EXPERIMENTAL
+#include "rendering/texture_buffer.hpp"
+#include "rendering/environment.hpp"
 
 using namespace ManagerEnums;
 
@@ -15,6 +16,19 @@ bool RenderManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     mRendererAPI = RendererAPI::Activate();
+    EnumRegistry::Assign(TextureType::TEXTURE_TYPE_2D,             "2DTexture");
+    EnumRegistry::Assign(TextureType::TEXTURE_TYPE_CUBE,           "CubeMapTexture");
+    EnumRegistry::Assign(Environment::BG_CUSTOM_COLOR,             "CustomColor");
+    EnumRegistry::Assign(Environment::BG_CLEAR_COLOR,              "ClearColor");
+    EnumRegistry::Assign(Environment::BG_SKYBOX,                   "Skybox");
+    EnumRegistry::Assign(SAMPLER_FILTER_NONE,                      "SamplerNoFilter");
+    EnumRegistry::Assign(SAMPLER_FILTER_LINEAR,                    "SamplerFilterLinear");
+    EnumRegistry::Assign(SAMPLER_FILTER_NEAREST,                   "SamplerFilterNearest");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_REPEAT,               "SamplerRepeat");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SamplerRepeatMirrored");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SamplerClampEdge");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SamplerClampBorder");
+    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SamplerMirrorClampEdge");
     return mRendererAPI->Init();
 }
 

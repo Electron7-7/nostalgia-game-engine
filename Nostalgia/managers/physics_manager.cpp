@@ -1,6 +1,7 @@
 #include "physics_manager.hpp"
 #include "settings/engine.hpp"
 #include "physics/engine.hpp"
+#include "things/thinkers/3d/collider_3d.hpp"
 
 static PhysicsManager sPhysicsManager;
 PhysicsManager* g_pPhysicsManager{&sPhysicsManager};
@@ -10,6 +11,13 @@ bool PhysicsManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     PhysicsEngine::Instantiate();
+    EnumRegistry::Assign(MotionType::Static,    "Static");
+    EnumRegistry::Assign(MotionType::Dynamic,   "Dynamic");
+    EnumRegistry::Assign(MotionType::Kinematic, "Kinematic");
+    EnumRegistry::Assign(ShapeType::Box,        "Box");
+    EnumRegistry::Assign(ShapeType::Capsule,    "Capsule");
+    EnumRegistry::Assign(ShapeType::Cylinder,   "Cylinder");
+    EnumRegistry::Assign(ShapeType::Sphere,     "Sphere");
     return PhysicsEngine::Instance() != nullptr;
 }
 
