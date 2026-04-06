@@ -1,4 +1,5 @@
 #include "./theatre.hpp"
+#include "application/application.hpp"
 #include "things/thing_data.hpp"
 #include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
@@ -23,6 +24,7 @@
 #include "console/console.hpp"
 
 #define LOCK_THINGS LockGuard<RMutex> things_lock{mThingsMutex}
+#define LOCK_CALLSHEET LockGuard<RMutex> callsheet_lock{mCallSheetMutex}
 
 using namespace TheatreFile;
 
@@ -63,12 +65,12 @@ void Theatre::Input(InputEvent* inInput)
 void Theatre::LoadTheatreData(Shared<TheatreFile::TheatreData> inData)
 {
     Shutdown();
-
     m_pInitialState = inData;
     mWasLoadedFromFile = false;
     mTheatreFileDirectory.clear();
-
-    LoadCurrentTheatreData();
+    mName  = m_pInitialState->name;
+    mIndex = m_pInitialState->index;
+    mInitStatus = OK;
 }
 
 Error Theatre::LoadFile(Sarg inFilePath)
@@ -80,8 +82,9 @@ Error Theatre::LoadFile(Sarg inFilePath)
         { return mInitStatus = ERR_INIT_FAILED; }
     mWasLoadedFromFile = true;
     mTheatreFileDirectory = FileSystem::GetDir(theatre_file.filepath(), true);
-    LoadCurrentTheatreData();
-    return OK;
+    mName  = m_pInitialState->name;
+    mIndex = m_pInitialState->index;
+    return mInitStatus = OK;
 }
 
 Error Theatre::LoadData(Farg<FileData> inData)
@@ -90,8 +93,9 @@ Error Theatre::LoadData(Farg<FileData> inData)
         { return mInitStatus = ERR_INIT_FAILED; }
     else if((mWasLoadedFromFile = inData.has_filepath()))
         { mTheatreFileDirectory = FileSystem::GetDir(inData.filepath(), true); }
-    LoadCurrentTheatreData();
-    return OK;
+    mName  = m_pInitialState->name;
+    mIndex = m_pInitialState->index;
+    return mInitStatus = OK;
 }
 
 Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
@@ -144,45 +148,79 @@ bool Theatre::Startup()
         { return true; }
 
     LOCK_THINGS;
+    LOCK_CALLSHEET;
 
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
 
-    m_pRootViewport = GetThinker<Viewport>(UID::o_RootViewport = CreateThingNoReady({ThingType::Viewport, "Root_Viewport"}));
-
-    for(auto& thing_dat : *m_pInitialState)
-        { CreateThingNoReady(thing_dat, false); }
-
-    for(auto& thing_dat : *m_pInitialState)
+    for(auto iter{m_pInitialState->begin()}; iter != m_pInitialState->end();)
     {
-        if(auto found_it{mThings.find(thing_dat._uid)}; found_it != mThings.end())
-            { found_it->second->SetVariables(thing_dat); }
+        if(iter->invalid())
+        {
+            if(iter->name.empty())
+                { print_warning("Removing `ThingData` with empty name"); }
+            else if(not ThingFactory::IsThing(iter->type))
+                { print_warning("Removing `ThingData` with invalid type id: '{}'", iter->type.name()); }
+            iter = m_pInitialState->erase(iter);
+            continue;
+        }
+        else if((ThingFactory::IsDerivedFrom(iter->type, ThingType::NostalgiaPlayer3D) or
+            ThingFactory::IsDerivedFrom(iter->type, ThingType::NostalgiaPlayer3D)) and
+                m_pPlayer)
+        {
+            print_warning("Only one player at a time, please");
+            iter = m_pInitialState->erase(iter);
+            continue;
+        }
+        auto thing{ThingFactory::MakeThing(iter->type, iter->name)};
+        mThings[thing->uid()] = thing;
+        mNames[thing->name()] = thing->uid();
+        thing->Init();
+        UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
+        mCallSheet.Add(thing->uid());
+        if(Console::try_GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+            { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
+        ++iter;
     }
 
-    auto uids{ThingIDs()};
-    for(ID uid : uids)
-        { mThings.at(uid)->Ready(); }
+    for(auto iter{m_pInitialState->begin()}; iter != m_pInitialState->end();)
+    {
+        if(auto found_it{mNames.find(iter->name)}; found_it != mNames.end())
+        {
+            if(mThings.contains(found_it->second))
+            {
+                if(ID parent{GetUID(iter->parent_variable.value)}; not parent.invalid())
+                {
+                    if(not mCallSheet.Has(parent))
+                        { mCallSheet.Add(parent); }
+                    if(not mCallSheet.Reparent(found_it->second, parent))
+                        { mCallSheet.Add(found_it->second, parent); }
+                }
+                for(FAUTO child_var : iter->children_variables)
+                {
+                    ID child{GetUID(child_var.value)};
+                    if(not child.invalid() and not mCallSheet.Reparent(child, found_it->second))
+                        { mCallSheet.Add(child, found_it->second); }
+                }
+                ++iter;
+                continue;
+            }
+        }
+        mNames.erase(iter->name);
+        print_warning("Removing broken ThingData with name '{}'", iter->name);
+        iter = m_pInitialState->erase(iter);
+    }
+
+    for(FAUTO thing_data : *m_pInitialState)
+        { mThings.at(mNames.at(thing_data.name))->SetVariables(thing_data); }
+
+    for(FAUTO thing_data : *m_pInitialState)
+        { mThings.at(mNames.at(thing_data.name))->Ready(); }
+
+    if(Console::try_GetVariable("Theatre.debug_callsheet_msgs")->int_value)
+        { print_debug("{}", mCallSheet.debug_log(mThings)); }
 
     mIsStarted = true;
-
-    for(ID uid : GetChildren({}))
-    {
-        if(DerivedFrom(uid, ThingType::Actor3D))
-        {
-            auto actor{GetThinker<Actor3D>(uid)};
-            actor->SetPosition(actor->Position());
-            actor->SetQuaternion(actor->Quaternion());
-            actor->SetScale(actor->Scale());
-        }
-        else if(DerivedFrom(uid, ThingType::Actor2D))
-        {
-            auto actor{GetThinker<Actor2D>(uid)};
-            actor->SetPosition(actor->Position());
-            actor->SetRotation(actor->Rotation());
-            actor->SetScale(actor->Scale());
-        }
-    }
-
     return true;
 }
 
@@ -198,7 +236,6 @@ bool Theatre::Shutdown()
         DestroyThing(uid);
     }
     mNames.clear();
-    UID::Clear();
     mCallSheet.Clear();
     mThings.clear();
     return !(mIsStarted = false);
@@ -315,12 +352,29 @@ bool Theatre::DerivedFrom(ID inID, FPID inType)
     return ResourceDatabase::DerivedFrom(inID, inType);
 }
 
-ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData)
+ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    ID output{CreateThingNoReady(inData)};
-    GetThing(output)->Ready();
-    return output;
+    if(inData.name.empty())
+        { print_warning("ThingData::name cannot be empty"); return ID::Invalid; }
+    else if((ThingFactory::IsDerivedFrom(inData.type,ThingType::NostalgiaPlayer3D) or
+        ThingFactory::IsDerivedFrom(inData.type,ThingType::NostalgiaPlayer2D)) and m_pPlayer)
+            { print_warning("Only one player at a time, please!"); return m_pPlayer->uid(); }
+    else if(ThingExists(inData.name))
+        { return GetUID(inData.name); }
+
+    auto thing{ThingFactory::MakeThing(inData.type, inData.name)};
+    mThings[thing->uid()] = thing;
+    mNames[thing->name()] = thing->uid();
+    thing->Init();
+    UpdateCallsheet(thing->uid(), inData);
+    UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
+    thing->SetVariables(inData);
+    if(inDoReadyThing)
+        { thing->Ready(); }
+    if(Console::try_GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+        { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
+    return thing->uid();
 }
 
 Error Theatre::DestroyThing(ID inID)
@@ -395,37 +449,38 @@ IdSet_arg Theatre::Get2DCameras()
 
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     return mCallSheet.Get(inParentID).children;
 }
 
 ID Theatre::GetParent(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     return mCallSheet.Get(inChildID).parent;
 }
 
 IdSet_t Theatre::GetAllChildren(ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     return mCallSheet.Descendants(inParentID);
 }
 
 IdSet_t Theatre::GetAllParents(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     return mCallSheet.Ancestors(inChildID);
 }
 
 Error Theatre::SetParent(ID inChildID, ID inParentID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     LOCK_THINGS;
 
     // NOTE: Probably redundant. Too bad!
-    if(not mCallSheet.Has(inChildID)
-        or (not inParentID.invalid() and not mCallSheet.Has(inParentID)))
-            { return print_error_enum(ERR_NOT_FOUND); }
+    if(not mCallSheet.Has(inChildID))
+        { print_error("CallSheet missing child UID {}", inChildID()); return print_error_enum(ERR_NOT_FOUND); }
+    else if(not inParentID.invalid() and not mCallSheet.Has(inParentID))
+        { print_error("CallSheet missing parent UID {}", inParentID()); return print_error_enum(ERR_NOT_FOUND); }
 
     auto old_parent_id{mCallSheet.Get(inChildID).parent};
     auto old_ancestors{mCallSheet.Ancestors(inChildID)};
@@ -466,7 +521,7 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 
 Error Theatre::DropParent(ID inChildID)
 {
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
     LOCK_THINGS;
 
     auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
@@ -524,117 +579,49 @@ Shared<Thinker> Theatre::GetThinker(ID inID)
     return MakeShared<Thinker>();
 }
 
-bool Theatre::LoadCurrentTheatreData()
+void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
 {
-    if(mIsStarted)
-        { return false; }
+    LOCK_CALLSHEET;
 
-    mName  = m_pInitialState->name;
-    mIndex = m_pInitialState->index;
-
-    for(auto& thing_data : *m_pInitialState)
-        { SetupUID(thing_data); }
-
-    for(auto& thing_data : *m_pInitialState)
-        { SetupOwnership(thing_data, true); }
-
-    mInitStatus = OK;
-    return true;
-}
-
-void Theatre::SetupUID(ThingData& ioData)
-{
-    ioData._uid = UID::Generate();
-    if(ioData.name.empty())
-        { ioData.name = "Untitled_Thing"; }
-    if(not ioData.name.empty())
-        { mNames[ioData.name] = ioData._uid; }
-    if(ThingFactory::IsThinker(ioData.type))
-        { mCallSheet.Add(ioData._uid); }
-}
-
-void Theatre::SetupOwnership(ThingData& ioData, bool isStartup)
-{
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
-
-    if(ID parent{GetUID(ioData.parent_variable.value)}; not parent.invalid())
+    if(not mCallSheet.Has(inUID))
+        { mCallSheet.Add(inUID); }
+    if(ID parent{GetUID(inData.parent_variable.value)}; not parent.invalid())
     {
-        if(not mCallSheet.Has(parent) and isStartup)
+        if(not mCallSheet.Has(parent))
             { mCallSheet.Add(parent); }
-        if(not mCallSheet.Reparent(ioData._uid, parent))
-            { mCallSheet.Add(ioData._uid, parent); }
+        if(not mCallSheet.Reparent(inUID, parent))
+            { mCallSheet.Add(inUID, parent); }
     }
-    for(FAUTO child_var : ioData.children_variables)
+    for(FAUTO child_var : inData.children_variables)
     {
         ID child{GetUID(child_var.value)};
-        if(not child.invalid() and not mCallSheet.Reparent(child, ioData._uid) and isStartup)
-            { mCallSheet.Add(child, ioData._uid); }
-    }
-
-    if(not isStartup)
-        { return; }
-
-    ioData.parent_variable.clear();
-    ioData.children_variables.clear();
-
-    if(FAUTO node{mCallSheet.Get(ioData._uid)}; not node.invalid())
-    {
-        ioData.parent_variable = {"Parent", GetName(node.parent), ThingVarType::Parent};
-
-        for(ID child : node.children)
-            { ioData.children_variables.emplace_back("Child", GetName(child), ThingVarType::Child); }
+        if(not child.invalid() and not mCallSheet.Reparent(child, inUID))
+            { mCallSheet.Add(child, inUID); }
     }
 }
 
-ID Theatre::CreateThingNoReady(Farg<TheatreFile::ThingData> inData, bool doSetup)
-{ auto data{inData}; return CreateThingNoReady(data, doSetup); }
-
-ID Theatre::CreateThingNoReady(TheatreFile::ThingData& ioData, bool doSetup)
+void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-
-    bool is_player{ThingFactory::IsDerivedFrom(ioData.type, ThingType::NostalgiaPlayer3D)};
-
-    if(is_player and ThingExists(UID::o_Player))
-        { print_warning("Only one player at a time, please!"); return UID::o_Player; }
-
-    if(doSetup)
+    if((ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer3D) or
+            ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer2D)) and
+        not m_pPlayer)
+            { m_pPlayer = GetThinker(inUID); }
+    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
+        { mViewportIDs.insert(inUID); }
+    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))
     {
-        if(ThingExists(ioData.name))
-            { return GetUID(ioData.name); }
-        SetupUID(ioData);
-        SetupOwnership(ioData);
+        mVisual3DIDs.insert(inUID);
+        if(ThingFactory::IsDerivedFrom(inType, ThingType::Light3D))
+            { mLightIDs.insert(inUID); }
     }
-
-    auto& thing{mThings[ioData._uid] = ThingFactory::MakeThing(ioData.type, ioData.name, ioData._uid)};
-    thing->Init();
-    if(doSetup)
-        { thing->SetVariables(ioData); }
-
-    if(is_player)
-        { UID::o_Player = ioData._uid; }
-    else if(thing->DerivedFrom(ThingType::Viewport))
-        { mViewportIDs.insert(thing->uid()); }
-    else if(thing->DerivedFrom(ThingType::Camera3D))
-        { mCamera3DIDs.insert(thing->uid()); }
-    else if(thing->DerivedFrom(ThingType::Camera2D))
-        { mCamera2DIDs.insert(thing->uid()); }
-    else if(thing->DerivedFrom(ThingType::Visual3D))
-    {
-        mVisual3DIDs.insert(thing->uid());
-        if(thing->DerivedFrom(ThingType::Light3D))
-            { mLightIDs.insert(thing->uid()); }
-    }
-    else if(thing->DerivedFrom(ThingType::Visual2D))
-        { mVisual2DIDs.insert(thing->uid()); }
-
-    return thing->uid();
+    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual2D))
+        { mVisual2DIDs.insert(inUID); }
 }
 
 Error Theatre::DestroyThingOnly(ID inID)
 {
     LockGuard<RMutex> lock{mThingsMutex};
-    LockGuard<RMutex> callsheet_lock{mCallSheetMutex};
+    LOCK_CALLSHEET;
 
     if(!mThings.contains(inID))
     {
@@ -651,7 +638,6 @@ Error Theatre::DestroyThingOnly(ID inID)
             break;
         }
     }
-    UID::Erase(inID());
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);

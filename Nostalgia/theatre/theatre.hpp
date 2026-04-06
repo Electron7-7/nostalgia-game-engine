@@ -46,7 +46,7 @@ public:
     bool    ThingExists(Sarg inName);
     FPID    TypeOf(ID);
     bool    DerivedFrom(ID, FPID);
-    ID      CreateThing(Farg<TheatreFile::ThingData>);
+    ID      CreateThing(Farg<TheatreFile::ThingData>, bool inDoReadyThing = true);
     Error   DestroyThing(ID);
     ID      GetUID(Sarg inName);
     Sarg    GetName(ID);
@@ -111,13 +111,10 @@ protected:
 
     Shared<Viewport> m_pRootViewport{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
+    Shared<Thinker> m_pPlayer{nullptr};
 
-    bool  LoadCurrentTheatreData();
-    void SetupOwnership(TheatreFile::ThingData&, bool isStartup = false);
-    void SetupUID(TheatreFile::ThingData&);
-
-    ID    CreateThingNoReady(Farg<TheatreFile::ThingData>, bool doSetup = true);
-    ID    CreateThingNoReady(TheatreFile::ThingData&, bool doSetup = true);
+    void UpdateCallsheet(ID, Farg<TheatreFile::ThingData>);
+    void UpdateIdSetsAndSpecialThings(FPID, ID);
     Error DestroyThingOnly(ID);
 
     void Draw3DThinkers(Shared<Viewport>);
