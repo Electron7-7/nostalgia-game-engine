@@ -1,5 +1,4 @@
 #include "./theatre_file.hpp"
-#include "filesystem/filesystem.hpp"
 
 using namespace TheatreFile;
 
@@ -13,16 +12,7 @@ static void sDebugPrintParserLogs(Farg<std::vector<ThingData>>);
 
 Error TheatreFile::Load(Sarg inPathToFile,
     Shared<TheatreData>& outData)
-{
-    std::string file_path{inPathToFile};
-    if(!FileSystem::IsFile(file_path))
-    {
-        file_path = FileSystem::GetCurrentDirectory() + "/" + inPathToFile;
-        if(!FileSystem::IsFile(file_path))
-            { return ERR_NOT_FOUND; }
-    }
-    return Load(FileData{file_path}, outData);
-}
+{ return Load(FileData{inPathToFile}, outData); }
 
 Error TheatreFile::Load(Farg<FileData> inFileData,
     Shared<TheatreData>& outData)
