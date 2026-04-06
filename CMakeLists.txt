@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.30.0..4.3.0)
 project(Nostalgia
-    VERSION 0.11.2
+    VERSION 0.11.3
     LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
 option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
-option(BUILD_EDITOR "Build the editor/testing app" ON)
+option(BUILD_EDITOR "Build the editor/testing app" OFF)
 option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
@@ -163,8 +163,8 @@ if(BUILD_EDITOR)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    target_link_directories(NostalgiaGoggles PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-    target_link_libraries(NostalgiaGoggles PUBLIC $<TARGET_FILE:Nostalgia>)
+    find_library(NOSTALGIA_LIB Nostalgia$<$<CONFIG:Debug>:d> PATHS ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries(NostalgiaGoggles PUBLIC ${NOSTALGIA_LIB})
     target_link_options(NostalgiaGoggles
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
 
@@ -186,8 +186,8 @@ set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
     add_dependencies(${TARGET_NAME} Nostalgia)
-    target_link_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-    target_link_libraries(${TARGET_NAME} PUBLIC $<TARGET_FILE:Nostalgia>)
+    find_library(NOSTALGIA_LIB Nostalgia$<$<CONFIG:Debug>:d> PATHS ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries(${TARGET_NAME} PUBLIC ${NOSTALGIA_LIB})
     target_compile_definitions(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(${TARGET_NAME}
