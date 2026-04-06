@@ -1,5 +1,7 @@
 #include "gl_frame_buffer.hpp"
 #include "rendering/texture_buffer.hpp"
+#include "rendering/renderer_api.hpp"
+#include "managers/render_manager.hpp"
 #include "thirdparty/glad/glad.h"
 
 static Error s_CheckFramebufferStatus(uint inID)
@@ -56,7 +58,10 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(Farg<Size2D> inSize) noexcept:
 }
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
-{ if(mStatus == OK and mBufferID) { glDeleteFramebuffers(1, &mBufferID); } }
+{
+    if(mStatus == OK and g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
+        { glDeleteFramebuffers(1, &mBufferID); }
+}
 
 uint OpenGLFrameBuffer::TextureID() const
 { return mTextureBuffer->ID(); }

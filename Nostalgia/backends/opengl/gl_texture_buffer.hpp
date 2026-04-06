@@ -20,7 +20,6 @@ private:
     uint mBufferID{0};
     TextureType mType{TEXTURE_TYPE_NONE};
     Error mStatus{ERR_UNINITIALIZED};
-    int mCubemapOffsetIterator{0};
 };
 
 #endif // GL_TEXTURE_BUFFER_H

@@ -165,7 +165,10 @@ void WindowGLFW::Shutdown()
 {
     glfwDestroyWindow(m_pWindow);
     if(--sShittyWindowTrackerPleaseMakeSomethingBetter <= 0)
-        { glfwTerminate(); }
+    {
+        g_pRenderManager->GetAPI()->Shutdown();
+        glfwTerminate();
+    }
 }
 
 void WindowGLFW::Update()

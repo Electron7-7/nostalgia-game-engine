@@ -1,4 +1,6 @@
 #include "gl_texture_buffer.hpp"
+#include "rendering/renderer_api.hpp"
+#include "managers/render_manager.hpp"
 #include "thirdparty/glad/glad.h"
 
 static GLenum s_GLType(TextureType inType)
@@ -137,7 +139,10 @@ OpenGLTextureBuffer::OpenGLTextureBuffer()
 { glGenTextures(1, &mBufferID); }
 
 OpenGLTextureBuffer::~OpenGLTextureBuffer()
-{ glDeleteTextures(1, &mBufferID); }
+{
+    if(g_pRenderManager->GetAPI()->IsRunning())
+        { glDeleteTextures(1, &mBufferID); }
+}
 
 Error OpenGLTextureBuffer::Status() const
 { return mStatus; }

@@ -2,6 +2,7 @@
 #define GL_FRAME_BUFFER_H
 
 #include <Nostalgia/rendering/frame_buffer.hpp>
+#include <Nostalgia/rendering/texture_buffer.hpp>
 
 class OpenGLFrameBuffer : public FrameBuffer
 {
@@ -21,7 +22,7 @@ public:
 private:
     uint mBufferID{0};
     uint mRenderBufferID{0};
-    Shared<TextureBuffer> mTextureBuffer{nullptr};
+    Shared<TextureBuffer> mTextureBuffer{TextureBuffer::Create()};
     Error mStatus{FAILED};
 };
 
