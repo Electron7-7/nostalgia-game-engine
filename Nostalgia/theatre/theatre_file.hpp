@@ -49,6 +49,7 @@ namespace TheatreFile
         auto end()          noexcept { return data.end();    }
         auto cbegin() const noexcept { return data.cbegin(); }
         auto cend()   const noexcept { return data.cend();   }
+        auto erase(FAUTO inIterator) noexcept { return data.erase(inIterator); }
     };
 
     using TokenArray = std::vector<Token>;
