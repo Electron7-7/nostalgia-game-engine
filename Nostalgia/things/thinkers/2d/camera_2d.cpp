@@ -1,5 +1,6 @@
 #include "./camera_2d.hpp"
 #include "../viewport.hpp"
+#include "application/application.hpp"
 #include "things/thing_data.hpp"
 #include "settings/graphics.hpp"
 #include "theatre/theatre.hpp"
@@ -12,7 +13,7 @@ void Camera2D::Ready()
     Super::Ready();
     auto parent{Theatre::Current()->GetParent(uid())};
 
-    if(mViewportID == UID::o_RootViewport and not parent.invalid())
+    if(mViewportID.invalid() and not parent.invalid())
     {
         if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
@@ -27,9 +28,8 @@ void Camera2D::Ready()
         }
     }
 
-    if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
-        mInitCurrent and my_viewport->CurrentCamera2D().invalid())
-            { my_viewport->SetCurrentCamera2D(uid()); }
+    if(mInitCurrent)
+        { Theatre::Current()->SetCurrentCamera(uid(), mViewportID); }
 }
 
 void Camera2D::SetVariables(Farg<ThingData> data)
@@ -61,14 +61,13 @@ ID Camera2D::ViewportID() const
 { return mViewportID; }
 
 bool Camera2D::Current() const
-{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera2D() == uid(); }
+{ return Theatre::Current()->GetCurrentCamera2D(mViewportID) == uid(); }
 
 Error Camera2D::SetCurrent(bool isCurrent)
 {
-    if(isCurrent == Current()) { return OK; }
-    return Theatre::Current()
-        ->GetThinker<Viewport>(mViewportID)
-            ->SetCurrentCamera2D((isCurrent) ? uid() : ID::Invalid);
+    if(isCurrent == Current())
+        { return OK; }
+    return Theatre::Current()->SetCurrentCamera(uid(), mViewportID);
 }
 
 BitMask Camera2D::LayersMask() const
@@ -104,8 +103,8 @@ glm::mat4 Camera2D::ViewMatrix() const
 glm::mat4 Camera2D::ProjectionMatrix() const
 {
     Scale2D upper{}, lower{},
-        viewport_size{(mViewportID == UID::o_RootViewport)
-            ? Theatre::Current()->GetRootViewport()->Size()
+        viewport_size{(mViewportID.invalid())
+            ? MainWindow()->GetScale()
             : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
     if(mViewportID == UID::o_RootViewport
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)

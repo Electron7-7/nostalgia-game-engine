@@ -33,7 +33,7 @@ public:
 
 protected:
     bool mInitCurrent{true};
-    ID mViewportID{UID::o_RootViewport};
+    ID mViewportID{};
     BitMask mLayersMask{};
     ID mEditorMeshInstanceID{};
 

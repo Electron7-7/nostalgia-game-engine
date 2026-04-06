@@ -39,7 +39,7 @@ void Camera3D::Ready()
 
     auto parent{Theatre::Current()->GetParent(uid())};
 
-    if(mViewportID == UID::o_RootViewport and not parent.invalid())
+    if(mViewportID.invalid() and not parent.invalid())
     {
         if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; }
@@ -54,9 +54,8 @@ void Camera3D::Ready()
         }
     }
 
-    if(auto my_viewport{Theatre::Current()->GetThinker<Viewport>(mViewportID)};
-        mInitCurrent and my_viewport->CurrentCamera3D().invalid())
-            { my_viewport->SetCurrentCamera3D(uid()); }
+    if(mInitCurrent)
+        { Theatre::Current()->SetCurrentCamera(uid(), mViewportID); }
 }
 
 void Camera3D::SetVariables(Farg<ThingData> data)
@@ -68,8 +67,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mFOV, "FOV");
     data.get_variable(mViewCutoffNear, "Near", "CutoffNear");
     data.get_variable(mViewCutoffFar, "Far", "CutoffFar");
-    if(bool use_env{false};
-        data.get_variable(use_env, "UseDefaultSkybox") == OK)
+    if(bool use_default_skybox{false}; data.get_variable(use_default_skybox, "UseDefaultSkybox") == OK)
     {
         mEnvironment.mType = Environment::BG_SKYBOX;
         mEnvironment.mSkyboxTextureID = UID::t_ShittySkybox;
@@ -112,14 +110,13 @@ ID Camera3D::ViewportID() const
 { return mViewportID; }
 
 bool Camera3D::Current() const
-{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->CurrentCamera3D() == uid(); }
+{ return Theatre::Current()->GetCurrentCamera3D(mViewportID) == uid(); }
 
 Error Camera3D::SetCurrent(bool isCurrent)
 {
-    if(isCurrent == Current()) { return OK; }
-    return Theatre::Current()
-        ->GetThinker<Viewport>(mViewportID)
-            ->SetCurrentCamera3D((isCurrent) ? uid() : ID::Invalid);
+    if(isCurrent == Current())
+        { return OK; }
+    return Theatre::Current()->SetCurrentCamera(uid(), mViewportID);
 }
 
 BitMask Camera3D::LayersMask() const
@@ -153,7 +150,7 @@ void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::o_RootViewport; }
+        { mViewportID = {}; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)

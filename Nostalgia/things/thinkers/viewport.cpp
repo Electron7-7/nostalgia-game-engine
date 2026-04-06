@@ -2,24 +2,9 @@
 #include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
-#include "things/thinkers/3d/camera_3d.hpp"
-#include "things/thinkers/2d/camera_2d.hpp"
 #include "application/application.hpp"
 
 using namespace TheatreFile;
-
-void Viewport::Ready()
-{
-    if(uid() != UID::o_RootViewport)
-        { mFramebuffer = FrameBuffer::Create(mSize); }
-    else
-        { mFramebuffer = FrameBuffer::Create(); }
-
-    if(mCurrentCamera3D.invalid())
-        { SetCurrentCamera3D(); }
-    if(mCurrentCamera2D.invalid())
-        { SetCurrentCamera2D(); }
-}
 
 void Viewport::SetVariables(Farg<ThingData> data)
 {
@@ -29,6 +14,7 @@ void Viewport::SetVariables(Farg<ThingData> data)
     data.get_variable(mCurrentCamera2D, "CurrentCamera2D");
     if(glm::vec2 size{}; data.get_variable(size, "ViewportSize", "ContentSize") == OK)
         { mSize = size; }
+    mFramebuffer = FrameBuffer::Create(mSize);
 }
 
 Shared<ThingData> Viewport::GetVariables() const
@@ -51,66 +37,35 @@ ID Viewport::CurrentCamera3D()
 ID Viewport::CurrentCamera2D()
 { return mCurrentCamera2D; }
 
-Error Viewport::SetCurrentCamera3D(ID inID)
+void Viewport::UpdateCurrentCameras()
 {
-    IdSet_t descendants{inID};
-    if(inID.invalid())
+    auto descendants{Theatre::Current()->GetAllChildren(uid())};
+    for(FAUTO descendant : descendants)
     {
-        if(uid() == UID::o_RootViewport)
-            { descendants = Theatre::Current()->Get3DCameras(); }
-        else
-            { descendants = Theatre::Current()->GetAllChildren(uid()); }
-        for(ID descendant : descendants)
-        {
-            if(mCurrentCamera3D != descendant
-                and Theatre::Current()->GetThinker<Camera3D>(descendant)->ViewportID() == uid())
-            {
-                mCurrentCamera3D = descendant;
-                return OK;
-            }
-        }
-        mCurrentCamera3D = ID::Invalid;
+        if(mCurrentCamera3D.invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera3D))
+            { mCurrentCamera3D = descendant; }
+        else if(mCurrentCamera2D.invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera2D))
+            { mCurrentCamera2D = descendant; }
     }
-    else if(Theatre::Current()->GetThinker<Camera3D>(inID)->ViewportID() == uid())
-    {
-        mCurrentCamera3D = inID;
-        return OK;
-    }
-
-    return ERR_NOT_FOUND;
 }
 
-Error Viewport::SetCurrentCamera2D(ID inID)
+void Viewport::SetCurrentCamera3D(ID inID)
 {
-    IdSet_t descendants{inID};
+    mCurrentCamera3D = inID;
     if(inID.invalid())
-    {
-        if(uid() == UID::o_RootViewport)
-            { descendants = Theatre::Current()->Get2DCameras(); }
-        else
-            { descendants = Theatre::Current()->GetAllChildren(uid()); }
-        for(ID descendant : descendants)
-        {
-            if(mCurrentCamera2D != descendant
-                and Theatre::Current()->GetThinker<Camera2D>(descendant)->ViewportID() == uid())
-            {
-                mCurrentCamera2D = descendant;
-                return OK;
-            }
-        }
-        mCurrentCamera2D = ID::Invalid;
-    }
-    else if(Theatre::Current()->GetThinker<Camera2D>(inID)->ViewportID() == uid())
-    {
-        mCurrentCamera2D = inID;
-        return OK;
-    }
-    return ERR_NOT_FOUND;
+        { UpdateCurrentCameras(); }
+}
+
+void Viewport::SetCurrentCamera2D(ID inID)
+{
+    mCurrentCamera2D = inID;
+    if(inID.invalid())
+        { UpdateCurrentCameras(); }
 }
 
 Size2D Viewport::Size() const
 {
-    return (uid() == UID::o_RootViewport)
+    return (uid().invalid())
         ? MainWindow()->GetScale()
         : mSize;
 }
@@ -136,9 +91,11 @@ void Viewport::SetFramebuffer(Shared<FrameBuffer> inFramebuffer)
 void Viewport::OnDescendantRemoved(Relative inRelative)
 {
     if(inRelative.uid == mCurrentCamera3D)
-        { SetCurrentCamera3D(); }
+        { mCurrentCamera3D = {}; }
     else if(inRelative.uid == mCurrentCamera2D)
-        { SetCurrentCamera2D(); }
+        { mCurrentCamera2D = {}; }
+    if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
+        { UpdateCurrentCameras(); }
 }
 
 void Viewport::OnDescendantAdded(Relative inRelative)

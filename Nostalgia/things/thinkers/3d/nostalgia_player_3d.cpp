@@ -60,5 +60,5 @@ void NostalgiaPlayer3D::Ready()
     }
 
     if(not mCameraID.invalid())
-        { Theatre::Current()->GetRootViewport()->SetCurrentCamera3D(mCameraID); }
+        { Theatre::Current()->SetCurrentCamera(mCameraID); }
 }
