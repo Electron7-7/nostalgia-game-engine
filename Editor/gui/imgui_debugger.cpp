@@ -111,7 +111,6 @@ void ImGui_Debugger::TheatreExited()
 void ImGui_Debugger::Update()
 {
     static bool sPopOutStopwatches{false};
-    // InspectTheatreWindow();
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
     if(gDebugConsoleOpened)
         { DebugConsoleWindow(); }

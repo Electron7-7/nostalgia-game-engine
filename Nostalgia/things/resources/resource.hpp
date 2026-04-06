@@ -7,8 +7,8 @@
 class Resource : public Thing
 {
 public:
-	SET_SUPER(Thing)
-	SET_TYPEID(ThingType::Resource)
+    SET_SUPER(Thing)
+    SET_TYPEID(ThingType::Resource)
 
 private:
     void Update() final {}

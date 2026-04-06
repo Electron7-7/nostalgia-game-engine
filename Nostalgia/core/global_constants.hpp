@@ -7,7 +7,6 @@ namespace GlobalConstants
     namespace Init
     {
         constinit const char cstr_empty[]{""},
-            cstr_untitled_thing[]{"Untitled_Thing"},
             cstr_NA[]{"N/A"},
             cstr_Invalid[]{"Invalid"},
             cstr_true[]{"true"},
@@ -15,7 +14,6 @@ namespace GlobalConstants
     }
 
     const std::string str_empty{Init::cstr_empty},
-        str_untitled_thing{Init::cstr_untitled_thing},
         str_NA{Init::cstr_NA},
         str_Invalid{Init::cstr_Invalid},
         str_true{Init::cstr_true},
