@@ -74,10 +74,12 @@ void Theatre::LoadTheatreData(Shared<TheatreFile::TheatreData> inData)
 Error Theatre::LoadFile(Sarg inFilePath)
 {
     Shutdown();
-    if(not print_error_enum(TheatreFile::Load(inFilePath, m_pInitialState)))
+    FileData theatre_file{};
+    if(not print_error_enum(theatre_file.LoadFile(inFilePath))
+        or not print_error_enum(TheatreFile::Load(theatre_file, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
     mWasLoadedFromFile = true;
-    mTheatreFileDirectory = FileSystem::GetDir(inFilePath, true);
+    mTheatreFileDirectory = FileSystem::GetDir(theatre_file.filepath(), true);
     LoadCurrentTheatreData();
     return OK;
 }
@@ -86,7 +88,7 @@ Error Theatre::LoadData(Farg<FileData> inData)
 {
     if(not print_error_enum(TheatreFile::Load(inData, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
-    if((mWasLoadedFromFile = inData.has_filepath()))
+    else if((mWasLoadedFromFile = inData.has_filepath()))
         { mTheatreFileDirectory = FileSystem::GetDir(inData.filepath(), true); }
     LoadCurrentTheatreData();
     return OK;
