@@ -1,10 +1,8 @@
 #include "./program_arguments.hpp"
 #include "app/nostalgia_goggles.hpp"
-// #include <getargs/argument_parser.hpp>
 #define GETARGS_IMPLEMENTATION
 #define GETARGS_HANDLE_INVALID_ARGS
 #include "thirdparty/getargs/getargs.hpp"
-#include <Nostalgia/filesystem/filesystem.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/settings/engine.hpp>
 
