@@ -60,6 +60,7 @@
 #include <Nostalgia/core/types.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
+#include <Nostalgia/core/mutex.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/smart_pointers.hpp>          // IWYU pragma: keep
 #include <Nostalgia/core/global_constants.hpp>        // IWYU pragma: keep
 #include <Nostalgia/core/constexpr_string_hash.hpp>   // IWYU pragma: keep
@@ -70,7 +71,6 @@
 #include <Nostalgia/core/message_labels.hpp>          // IWYU pragma: keep
 #include <Nostalgia/core/log.hpp>                     // IWYU pragma: keep
 #include <Nostalgia/core/time.hpp>                    // IWYU pragma: keep
-#include <Nostalgia/core/mutex.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/concepts.hpp>                // IWYU pragma: keep
 #include <Nostalgia/core/vector.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/macros.hpp>                  // IWYU pragma: keep
