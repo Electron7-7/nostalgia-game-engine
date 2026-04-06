@@ -9,9 +9,6 @@ void Thinker::SetVariables(Farg<ThingData> inData)
     Super::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
-    Theatre::Current()->SetParent(uid(), inData.get_parent());
-    for(FAUTO child : inData.get_children())
-        { Theatre::Current()->SetParent(child, uid()); }
 }
 
 Shared<ThingData> Thinker::GetVariables() const
