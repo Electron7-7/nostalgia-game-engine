@@ -55,8 +55,6 @@ namespace TheatreFile
         ThingVariable parent_variable{};
         ThingVarArray children_variables{};
 
-        ID _uid{}; // Should never be set manually, as it gets automatically filled in via `UID::Generate`
-
         std::string get_log() const noexcept;
         std::string get_parsable_string() const noexcept;
 

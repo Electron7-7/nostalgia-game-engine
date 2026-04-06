@@ -41,7 +41,9 @@ public:
 
     bool mIsHoveredInDebugger{false};
 
-    Thing(Sarg inName = GlobalConstants::str_untitled_thing, ID inUID = {}) noexcept;
+    Thing(Sarg inName) noexcept;
+    // Used by the Theatre & ResourceDatabase when a '::GetThing' function fails to return a `Thing` with an invalid UID.
+    Thing() noexcept;
     virtual ~Thing() noexcept;
 
     // Derived classes must call `Super::SetVariables` at the start of their own implementation.
@@ -60,7 +62,8 @@ public:
 protected:
     friend class Theatre;
     friend class ResourceDatabase;
-    Shared<TheatreFile::ThingData> m_pStartingData;
+
+    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
     virtual void Init() {}
     virtual void Ready() {}
@@ -70,11 +73,20 @@ protected:
     virtual void Input(InputEvent*) {}
 
 private:
-    friend class Theatre;
-    friend class ResourceDatabase;
+    friend class ThingFactory;
+
+    inline static RMutex m_sUIDMutex{};
+    inline static std::set<uint> m_sActiveUIDs{};
+    inline static std::uniform_int_distribution<uint> m_sDistribution{UID::front, UID::back};
+    inline static std::random_device m_sRandomSeed{};
+    inline static std::mt19937 m_sIdEngine{m_sRandomSeed()};
+
     mutable RMutex mMutex{};
     ID mUID{};
-    std::string mName{""};
+    std::string mName{GlobalConstants::Init::cstr_empty};
+
+    ID _generate();
+    uint _get_random();
 };
 
 template<typename T>

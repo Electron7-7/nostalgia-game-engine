@@ -13,18 +13,15 @@ void Camera3D::Ready()
     // the debug mesh/material shouldn't override a manually specificed one
     if(Settings::Engine::IsEditorHint)
     {
-        PID cam_mat{"camera-mat"};
         std::string cam_mat_name{"camera-debug-material"};
-        if(!Theatre::Current()->ThingExists(cam_mat_name))
+        ID cam_mat_id{Theatre::Current()->GetUID(cam_mat_name)};
+        if(cam_mat_id.invalid())
         {
-            ThingData mat_data{ThingType::Material,
-                cam_mat_name,
-                {}, {}, {},
-                cam_mat};
+            ThingData mat_data{ThingType::Material, cam_mat_name};
             mat_data.set_variable(true, "FullBright");
             mat_data.set_variable(true, "NoTextures");
             mat_data.set_variable(glm::vec3{200.0f, 80.0f, 255.0f}, "Color");
-            Theatre::Current()->CreateThing(mat_data);
+            cam_mat_id = Theatre::Current()->CreateThing(mat_data);
         }
 
         std::string mesh_inst_name{name() + "-debug-mesh-instance"};
@@ -32,7 +29,7 @@ void Camera3D::Ready()
         {
             ThingData mesh_inst_data{ThingType::MeshInstance3D, mesh_inst_name};
             mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
-            mesh_inst_data.set_variable(cam_mat, "MaterialOverride");
+            mesh_inst_data.set_variable(cam_mat_id, "MaterialOverride");
             mEditorMeshInstanceID = Theatre::Current()->CreateThing(mesh_inst_data);
         }
         else

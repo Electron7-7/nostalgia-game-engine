@@ -4,7 +4,7 @@
 #include <Nostalgia/things/thinkers/thinker.hpp>
 #include <Nostalgia/things/resources/resource.hpp>
 
-typedef Shared<Thing> (*pThingMakerTemplate_t)(Sarg inName, ID inUID);
+typedef Shared<Thing> (*pThingMakerTemplate_t)(Sarg inName);
 
 // This is a class instead of a namespace because fuck typing anything
 // other than `friend class ThingFactory` in `ThingType`.
@@ -12,8 +12,8 @@ class ThingFactory
 {
 public:
     template<typename T> requires std::derived_from<T, Thing>
-        static Shared<Thing> ThingMakerTemplate(Sarg inName = "", ID inUID = {})
-        { return Shared<Thing>(new T{inName, inUID}); }
+        static Shared<Thing> ThingMakerTemplate(Sarg inName = "")
+        { return Shared<Thing>(new T{inName}); }
 
     static constexpr int cDefaultPriority{1};
 
@@ -28,7 +28,7 @@ public:
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType_t> GetType(FPID inType) noexcept;
 
-    static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty, ID inUID = {});
+    static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty);
 
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);

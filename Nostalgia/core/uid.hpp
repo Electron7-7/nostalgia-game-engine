@@ -6,7 +6,8 @@ namespace UID
     constexpr uint
     // UID Boundaries
         front {0x00},
-        back  {static_cast<uint>(-1)};
+        back  {static_cast<uint>(-1)},
+        max_size{UID::back - UID::front};
 
     // UIDs for engine-embedded Resources (these are set when their repsective Resource gets registered)
     inline ID
@@ -28,15 +29,9 @@ namespace UID
         f_DejaVuSans,
         f_Audiowide,
     // Other
-        o_Player,
         o_RootViewport;
 
-    ID    Generate();
-    bool  Contains(ID inUID);
-    bool  Erase(ID inUID);
-    bool  Push(ID inUID);
-    void  Clear();
-    uint  GetRandom();
-}
+    uint GetRandom();
+};
 
 #endif // UID_H

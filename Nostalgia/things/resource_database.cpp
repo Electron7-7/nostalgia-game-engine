@@ -21,13 +21,13 @@ ID ResourceDatabase::Create(FPID inType, Sarg inName)
         print_error("A Resource named '{}' already exists", inName);
         return ID::Invalid;
     }
-    return Register(DCast<Resource>(ThingFactory::MakeThing(inType, inName, UID::Generate())));
+    return Register(DCast<Resource>(ThingFactory::MakeThing(inType, inName)));
 }
 
 ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
 {
     LOCK_MUTEX;
-    if(not inResource or (inResource->mUID.invalid() and (inResource->mUID = UID::Generate()).invalid()))
+    if(not inResource)
         { return ID::Invalid; }
     else if(not inNameOverride.empty())
         { inResource->mName = inNameOverride; }

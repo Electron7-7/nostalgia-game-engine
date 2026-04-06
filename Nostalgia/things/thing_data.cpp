@@ -37,8 +37,8 @@ Shared<Thinker> ThingData::_try_get_thinker(Sarg inName) const
 
 std::string ThingData::get_log() const noexcept
 {
-    std::string output{std::format("<ThingData>\n\ttype: {}\n\tname: {}\n\tuid: {}\n\tvariables:",
-        type.name(), name, _uid())};
+    std::string output{std::format("<ThingData>\n\ttype: {}\n\tname: {}\n\tvariables:",
+        type.name(), name)};
     for(FAUTO var : variables)
         { output += std::format("\n\t\t{}", var.get_log()); }
     if(!children_variables.empty())
@@ -78,7 +78,6 @@ void ThingData::set_variable(Sarg inValue, Sarg inName)
 void ThingData::clear()
 {
     type = {};
-    _uid = {};
     name.clear();
     variables.clear();
     parent_variable.clear();

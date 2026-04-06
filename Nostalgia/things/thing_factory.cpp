@@ -135,13 +135,13 @@ Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
     return sBadType;
 }
 
-Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName, ID inUID)
+Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
     if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
-        { return found_it->second(inName, inUID); }
+        { return found_it->second(inName); }
     print_warning("ThingType_t '{}' is an invalid type! An empty Thing will be returned",
         inType.name());
-    return ThingMakerTemplate<Thing>(inName, inUID);
+    return ThingMakerTemplate<Thing>(inName);
 }
 
 bool ThingFactory::SetPriority(FPID type, int priority)
