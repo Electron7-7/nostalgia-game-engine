@@ -22,6 +22,7 @@ public:
 
     virtual bool Init() = 0;
     virtual void Shutdown() = 0;
+    virtual bool IsRunning() = 0;
 
     virtual void SetViewport(Farg<Position2D> inPosition, Farg<Size2D> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;

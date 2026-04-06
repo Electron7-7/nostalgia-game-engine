@@ -72,10 +72,14 @@ bool OpenGLRendererAPI::Init()
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
 
-    return true;
+    return mIsRunning = true;
 }
 
-void OpenGLRendererAPI::Shutdown() {}
+void OpenGLRendererAPI::Shutdown()
+{ mIsRunning = false; }
+
+bool OpenGLRendererAPI::IsRunning()
+{ return mIsRunning; }
 
 void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
 { SetViewport({XPosition, YPosition}, {Width, Height}); }
@@ -104,7 +108,7 @@ void OpenGLRendererAPI::SetLineWidth(float Width)
 ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 {
     while(inID.invalid() or mShaders.contains(inID))
-        { inID = UID::GetRandom(); }
+        { inID = inID() + 1; }
     mShaders[inID] = inShader;
     return inID;
 }

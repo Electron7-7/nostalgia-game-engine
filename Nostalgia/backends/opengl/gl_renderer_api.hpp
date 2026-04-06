@@ -9,6 +9,7 @@ class OpenGLRendererAPI final : public RendererAPI
 public:
     bool Init() final;
     void Shutdown() final;
+    bool IsRunning() final;
 
     void SetViewport(Farg<Position2D>, Farg<Size2D>) final;
     void SetViewport(int, int, int, int) final;
@@ -43,6 +44,7 @@ public:
 private:
     std::unordered_map<ID, Shared<Shader>> mShaders{};
     std::array<double, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
+    bool mIsRunning{false};
 };
 
 #endif // OPENGL_RENDERER_H
