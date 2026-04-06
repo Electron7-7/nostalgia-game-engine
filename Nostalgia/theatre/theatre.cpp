@@ -159,9 +159,7 @@ bool Theatre::Startup()
             iter = m_pInitialState->erase(iter);
             continue;
         }
-        else if((ThingFactory::IsDerivedFrom(iter->type, ThingType::NostalgiaPlayer3D) or
-            ThingFactory::IsDerivedFrom(iter->type, ThingType::NostalgiaPlayer3D)) and
-                m_pPlayer)
+        else if(ThingFactory::IsDerivedFrom(iter->type, ThingType::NostalgiaPlayer3D) and m_pPlayer)
         {
             print_warning("Only one player at a time, please");
             iter = m_pInitialState->erase(iter);
@@ -408,9 +406,8 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
     LockGuard<RMutex> lock{mThingsMutex};
     if(inData.name.empty())
         { print_warning("ThingData::name cannot be empty"); return ID::Invalid; }
-    else if((ThingFactory::IsDerivedFrom(inData.type,ThingType::NostalgiaPlayer3D) or
-        ThingFactory::IsDerivedFrom(inData.type,ThingType::NostalgiaPlayer2D)) and m_pPlayer)
-            { print_warning("Only one player at a time, please!"); return m_pPlayer->uid(); }
+    else if(ThingFactory::IsDerivedFrom(inData.type,ThingType::NostalgiaPlayer3D) and m_pPlayer)
+        { print_warning("Only one player at a time, please!"); return m_pPlayer->uid(); }
     else if(ThingExists(inData.name))
         { return GetUID(inData.name); }
 
@@ -651,10 +648,8 @@ void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
 
 void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
 {
-    if((ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer3D) or
-            ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer2D)) and
-        not m_pPlayer)
-            { m_pPlayer = GetThinker(inUID); }
+    if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer3D) and not m_pPlayer)
+        { m_pPlayer = GetThinker(inUID); }
     else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
         { mViewportIDs.insert(inUID); }
     else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))

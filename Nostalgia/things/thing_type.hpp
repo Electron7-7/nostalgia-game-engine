@@ -31,7 +31,6 @@ namespace ThingType
                             TYPE_ID(SpotLight3D),
                             TYPE_ID(DirectionalLight3D),
                 TYPE_ID(Actor2D),
-                    TYPE_ID(NostalgiaPlayer2D),
                     TYPE_ID(Camera2D),
                     TYPE_ID(Visual2D),
                         TYPE_ID(Sprite2D),
