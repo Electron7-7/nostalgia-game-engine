@@ -5,7 +5,7 @@ project(Nostalgia
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
 option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
-option(BUILD_EDITOR "Build the editor/testing app" OFF)
+option(BUILD_EDITOR "Build the editor/testing app" ON)
 option(NOSTALGIA_INSTALL "Generate install targets" ON)
 option(NOSTALGIA_INCLUDE_GLM_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/glm" ON)
 option(NOSTALGIA_INCLUDE_JOLT_HEADERS "When installing Nostalgia's headers, include Nostalgia/thirdparty/Jolt" ON)
@@ -14,6 +14,10 @@ if(NOT MSVC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 endif()
 option(NOSTALGIA_DISABLE_PIC "Disable position independant code (-fPIC)" OFF)
 mark_as_advanced(NOSTALGIA_DISABLE_PIC)
+
+if(NOT MSVC AND BUILD_SHARED_LIBS)
+    option(EDITOR_AND_APPS_USE_GLOBAL_LIBRARY "When building the editor and/or testing apps, link against the version of Nostalgia found in the global install directory (typically '/usr/local/lib')" OFF)
+endif()
 
 # Always enable PIC unless otherwise specified
 # This makes sure you don't have to re-compile everything when switching between static and shared library builds
@@ -153,6 +157,14 @@ endif()
 ################
 set(EDITOR_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Editor)
 
+if(EDITOR_AND_APPS_USE_GLOBAL_LIBRARY)
+    if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+        find_library(NOSTALGIA_LIB Nostalgia)
+    else()
+        find_library(NOSTALGIA_LIB Nostalgiad)
+    endif()
+endif()
+
 if(BUILD_EDITOR)
     add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
     add_dependencies(NostalgiaGoggles Nostalgia)
@@ -163,8 +175,8 @@ if(BUILD_EDITOR)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    find_library(NOSTALGIA_LIB Nostalgia$<$<CONFIG:Debug>:d> PATHS ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries(NostalgiaGoggles PUBLIC ${NOSTALGIA_LIB})
+    target_link_libraries(NostalgiaGoggles PUBLIC
+        $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_FILE:Nostalgia>>)
     target_link_options(NostalgiaGoggles
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
 
@@ -186,8 +198,8 @@ set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 function(add_test_target TARGET_NAME TARGET_SOURCES)
     add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
     add_dependencies(${TARGET_NAME} Nostalgia)
-    find_library(NOSTALGIA_LIB Nostalgia$<$<CONFIG:Debug>:d> PATHS ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries(${TARGET_NAME} PUBLIC ${NOSTALGIA_LIB})
+    target_link_libraries(${TARGET_NAME} PUBLIC
+        $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_FILE:Nostalgia>>)
     target_compile_definitions(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(${TARGET_NAME}
