@@ -26,7 +26,7 @@ public:
 
     virtual void  LoadTheatreData(Shared<TheatreFile::TheatreData> inTheatreData);
     virtual Error LoadData(Farg<FileData> inData);
-    virtual Error LoadFile(Sarg inFilePath);
+    virtual Error LoadFile(std::string inFilePath);
     virtual Error Save(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();

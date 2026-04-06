@@ -10,9 +10,14 @@ bool TheatreFile::gDebugPrintLexerLogs{false},
 static void sDebugPrintLexerLogs(Farg<TokenArray>);
 static void sDebugPrintParserLogs(Farg<std::vector<ThingData>>);
 
-Error TheatreFile::Load(Sarg inPathToFile,
-    Shared<TheatreData>& outData)
-{ return Load(FileData{inPathToFile}, outData); }
+Error TheatreFile::Load(std::string& ioPathToFile, Shared<TheatreData>& outData)
+{
+    FileData theatre_file{};
+    if(not theatre_file.LoadFile(ioPathToFile))
+        { return ERR_FILE_LOAD; }
+    ioPathToFile = theatre_file.filepath();
+    return Load(theatre_file, outData);
+}
 
 Error TheatreFile::Load(Farg<FileData> inFileData,
     Shared<TheatreData>& outData)

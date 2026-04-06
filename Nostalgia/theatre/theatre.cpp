@@ -70,15 +70,13 @@ void Theatre::LoadTheatreData(Shared<TheatreFile::TheatreData> inData)
     mInitStatus = OK;
 }
 
-Error Theatre::LoadFile(Sarg inFilePath)
+Error Theatre::LoadFile(std::string inFilePath)
 {
     Shutdown();
-    FileData theatre_file{};
-    if(not print_error_enum(theatre_file.LoadFile(inFilePath))
-        or not print_error_enum(TheatreFile::Load(theatre_file, m_pInitialState)))
+    if(not print_error_enum(TheatreFile::Load(inFilePath, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
+    mTheatreFileDirectory = FileSystem::GetDir(inFilePath, true);
     mWasLoadedFromFile = true;
-    mTheatreFileDirectory = FileSystem::GetDir(theatre_file.filepath(), true);
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
     return mInitStatus = OK;
