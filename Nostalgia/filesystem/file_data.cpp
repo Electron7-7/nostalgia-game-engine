@@ -1,6 +1,6 @@
 #include "frozen/map.h"
 #include "frozen/string.h"
-#include "managers/theatre_manager.hpp"
+#include "theatre/theatre.hpp"
 #include <fstream> // IWYU pragma: keep
 
 static constinit const frozen::map<frozen::string, FileType, 9>
@@ -42,8 +42,8 @@ Error FileData::LoadFile(Sarg inPath)
         {
             if(not FileSystem::IsFile(file_path = FileSystem::GetProgramDirectory() + inPath))
             {
-                if(auto* theatre{g_pTheatreManager->Current()}; theatre and theatre->WasLoadedFromFile()
-                    and not FileSystem::IsFile(file_path = theatre->TheatreFileDirectory() + inPath))
+                if(FAUTO theatre_dir{Theatre::Current()->TheatreFileDirectory()};
+                    not FileSystem::IsFile(file_path = theatre_dir + "/" + inPath))
                         { return ERR_INVALID_PATH; }
             }
         }
@@ -52,7 +52,7 @@ Error FileData::LoadFile(Sarg inPath)
     std::ifstream file_stream{file_path, std::ios::binary};
     mData = std::vector<unsigned char>{std::istreambuf_iterator<char>(file_stream), {}};
     mType = sDetectFileType(inPath);
-    mPath = inPath;
+    mPath = file_path;
     file_stream.close();
     return mStatus = OK;
 }
