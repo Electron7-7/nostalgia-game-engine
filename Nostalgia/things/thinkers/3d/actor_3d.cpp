@@ -47,6 +47,7 @@ Shared<ThingData> Actor3D::GetVariables() const
 void Actor3D::Ready()
 {
     Super::Ready();
+    // Only update top-level Actors, since this will recurse through their children
     if(auto parent_id{Theatre::Current()->GetParent(uid())};
         parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor3D))
     {

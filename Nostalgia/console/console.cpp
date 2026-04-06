@@ -15,7 +15,11 @@ sVariableNames{
     "Theatre.draw_3d",
     "Theatre.draw_2d",
     "Theatre.debug_save_msgs",
+    "Theatre.debug_create_thing_msgs",
+    "Theatre.debug_callsheet_msgs",
     "Theatre.draw_text_new",
+    "ThingFactory.debug_register_msgs",
+    "ResourceDatabase.debug_register_msgs",
     "Collider3D.debug_collision_msgs",
     "Collider3D.debug_collision_persisted_msgs",
 };
@@ -23,8 +27,12 @@ static Variables
 sVariables{
     MakeShared<Variable>("Theatre.draw_3d", true),
     MakeShared<Variable>("Theatre.draw_2d", true),
-    MakeShared<Variable>("Theatre.debug_save_msgs", false),
     MakeShared<Variable>("Theatre.draw_text_new", false),
+    MakeShared<Variable>("Theatre.debug_save_msgs", false),
+    MakeShared<Variable>("Theatre.debug_create_thing_msgs", false),
+    MakeShared<Variable>("Theatre.debug_callsheet_msgs", false),
+    MakeShared<Variable>("ThingFactory.debug_register_msgs", false),
+    MakeShared<Variable>("ResourceDatabase.debug_register_msgs", false),
     MakeShared<Variable>("Collider3D.debug_collision_msgs", false),
     MakeShared<Variable>("Collider3D.debug_collision_persisted_msgs", false),
 };

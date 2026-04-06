@@ -29,7 +29,7 @@
 bool ThingFactory::m_sIsInitialized{false};
 std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
 std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
-std::set<ThingType_t>                 ThingFactory::m_sAllTypes{};
+std::set<ThingType_t>               ThingFactory::m_sAllTypes{};
 
 bool ThingFactory::Init()
 {
@@ -83,7 +83,8 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
         m_sAllTypes.emplace(type);
         m_sThingMakers[inType]    = inPtr;
         m_sTypePriorities[inType] = inPriority;
-        print_debug("Registered New ThingType_t: {}", type.log());
+        if(Console::try_GetVariable("ThingFactory.debug_register_msgs")->int_value)
+            { print_debug("Registered New ThingType_t: {}", type.log()); }
         return OK;
     }
     else if(m_sAllTypes.contains(type))
@@ -110,7 +111,8 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
             { next_base = ThingType::Thing; }
     }
     type._all_base_types.emplace(next_base);
-    print_debug("Registered New ThingType_t: {}", type.log());
+    if(Console::try_GetVariable("ThingFactory.debug_register_msgs")->int_value)
+        { print_debug("Registered New ThingType_t: {}", type.log()); }
     m_sAllTypes.emplace(type);
 
     m_sThingMakers[inType]    = inPtr;
