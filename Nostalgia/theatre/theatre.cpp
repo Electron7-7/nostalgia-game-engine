@@ -32,10 +32,7 @@ bool gDebugToggleTextRenderingMethod{false},
     gDebugEnable3DRendering{true},
     gDebugEnable2DRendering{true};
 
-Theatre::Theatre() noexcept:
-    m_pRootViewport{MakeShared<Viewport>()},
-    m_pInitialState{MakeShared<TheatreFile::TheatreData>()} {}
-
+Theatre::Theatre() noexcept = default;
 Theatre::~Theatre() noexcept = default;
 
 Theatre* Theatre::Current()
@@ -261,22 +258,28 @@ void Theatre::Draw()
     {
         auto viewport{GetThinker<Viewport>(viewport_id)};
 
-        if(!viewport->Framebuffer())
-            { continue; }
-
         viewport->Framebuffer()->Bind();
 
         g_pRenderManager->GetAPI()->SetViewport({0, 0}, viewport->Size());
         g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
         g_pRenderManager->GetAPI()->Clear();
 
-        if(gDebugEnable3DRendering)
-            { Draw3DThinkers(viewport); }
-        if(gDebugEnable2DRendering)
-            { Draw2DThinkers(viewport); }
+        if(gDebugEnable3DRendering and not viewport->CurrentCamera3D().invalid())
+            { Draw3DThinkers(GetThinker<Camera3D>(viewport->CurrentCamera3D())); }
+        if(gDebugEnable2DRendering and not viewport->CurrentCamera2D().invalid())
+            { Draw2DThinkers(GetThinker<Camera2D>(viewport->CurrentCamera2D())); }
 
         viewport->Framebuffer()->Unbind();
     }
+
+    g_pRenderManager->GetAPI()->SetViewport({0, 0}, MainWindow()->GetScale());
+    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
+    g_pRenderManager->GetAPI()->Clear();
+
+    if(gDebugEnable3DRendering and not mRootViewportCurrentCamera3D.invalid())
+        { Draw3DThinkers(GetThinker<Camera3D>(mRootViewportCurrentCamera3D)); }
+    if(gDebugEnable2DRendering and not mRootViewportCurrentCamera3D.invalid())
+        { Draw2DThinkers(GetThinker<Camera2D>(mRootViewportCurrentCamera2D)); }
 }
 
 Sarg Theatre::Name() const
@@ -308,6 +311,56 @@ TheatreData Theatre::CurrentState()
     for(FAUTO [id, thing] : mThings)
         { data.emplace_back(*thing->GetVariables()); }
     return data;
+}
+
+ID Theatre::GetCurrentCamera2D(ID inViewportID)
+{
+    if(inViewportID.invalid())
+        { return mRootViewportCurrentCamera2D; }
+    return GetThinker<Viewport>(inViewportID)->CurrentCamera2D();
+}
+
+ID Theatre::GetCurrentCamera3D(ID inViewportID)
+{
+    if(inViewportID.invalid())
+        { return mRootViewportCurrentCamera3D; }
+    return GetThinker<Viewport>(inViewportID)->CurrentCamera3D();
+}
+
+Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
+{
+    LOCK_THINGS;
+    LOCK_CALLSHEET;
+
+    bool is_3d{DerivedFrom(inCameraID, ThingType::Camera3D)};
+
+    auto camera{GetThinker<Camera3D>(inCameraID)};
+    IdSet_t ancestors{GetAllParents(inCameraID)};
+
+    if(camera->uid().invalid() or (not is_3d and not DerivedFrom(inCameraID, ThingType::Camera2D)))
+        { return ERR_INVALID_ID; }
+    else if(inViewportID.invalid())
+    {
+        for(FAUTO ancestor : ancestors)
+        {
+            if(DerivedFrom(ancestor, ThingType::Viewport))
+                { return ERR_INVALID; }
+        }
+        if(is_3d)
+            { mRootViewportCurrentCamera3D = inCameraID; }
+        else
+            { mRootViewportCurrentCamera2D = inCameraID; }
+        return OK;
+    }
+    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->uid().invalid() and ancestors.contains(inViewportID))
+    {
+        if(is_3d)
+            { viewport->SetCurrentCamera3D(inCameraID); }
+        else
+            { viewport->SetCurrentCamera2D(inCameraID); }
+        return OK;
+    }
+    return ERR_NOT_FOUND;
 }
 
 IdVec_t Theatre::ThingIDs()
@@ -435,17 +488,15 @@ Error Theatre::SetName(Sarg inOldName, Sarg inNewName)
     return SetName(GetUID(inOldName), inNewName);
 }
 
-Shared<Viewport> Theatre::GetRootViewport()
-{ return m_pRootViewport; }
+Shared<Thinker> Theatre::GetPlayer()
+{
+    return (m_pPlayer)
+        ? m_pPlayer
+        : MakeShared<Thinker>();
+}
 
 IdSet_arg Theatre::GetViewports()
 { return mViewportIDs; }
-
-IdSet_arg Theatre::Get3DCameras()
-{ return mCamera3DIDs; }
-
-IdSet_arg Theatre::Get2DCameras()
-{ return mCamera2DIDs; }
 
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
@@ -641,38 +692,34 @@ Error Theatre::DestroyThingOnly(ID inID)
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
-    mCamera3DIDs.erase(inID);
-    mCamera2DIDs.erase(inID);
     mLightIDs.erase(inID);
     mCallSheet.Remove(inID);
     mThings.erase(inID);
     return OK;
 }
 
-void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
+void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
 {
-    LOCK_THINGS;
+    if(not inCamera)
+        { return; }
 
-    if(inViewport->CurrentCamera3D().invalid()
-        and not inViewport->SetCurrentCamera3D())
-            { return; }
+    LOCK_THINGS;
 
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
-    auto camera{GetThinker<Camera3D>(inViewport->CurrentCamera3D())};
-    auto view_matrix{camera->ViewMatrix()};
-    auto projection_matrix{camera->ProjectionMatrix()};
+    auto view_matrix{inCamera->ViewMatrix()};
+    auto projection_matrix{inCamera->ProjectionMatrix()};
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto mesh{GetResource<Mesh>(ID::Invalid)};
 
-    switch(camera->mEnvironment.mType)
+    switch(inCamera->mEnvironment.mType)
     {
     case Environment::BG_SKYBOX:
         renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
         renderer_api->Clear();
         renderer_api->SetWireframe(false);
-        renderer_api->BindTexture(GetResource<Texture>(camera->mEnvironment.mSkyboxTextureID), 0);
+        renderer_api->BindTexture(GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID), 0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
@@ -680,7 +727,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         renderer_api->DrawSkybox(GetResource<Mesh>(UID::m_Cube)->MeshData());
         break;
     case Environment::BG_CUSTOM_COLOR:
-        renderer_api->SetClearColor(camera->mEnvironment.get_custom_color().glm());
+        renderer_api->SetClearColor(inCamera->mEnvironment.get_custom_color().glm());
         renderer_api->Clear();
         break;
     case Environment::BG_CLEAR_COLOR:
@@ -694,8 +741,8 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         auto visual3d{GetThinker<Visual3D>(v3d_id)};
         if(DerivedFrom(v3d_id, ThingType::Light3D) or
             not visual3d->Visible()
-            or not camera->LayersMask().contains(visual3d->Layers())
-            or camera->EditorMeshInstanceID() == v3d_id)
+            or not inCamera->LayersMask().contains(visual3d->Layers())
+            or inCamera->EditorMeshInstanceID() == v3d_id)
                 { continue; }
 
         glm::vec3 scale_vector{visual3d->GlobalScale()};
@@ -779,7 +826,7 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
         shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
         shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
         shader->SetUniform("view_matrix", view_matrix);
-        shader->SetUniform("view_position", camera->GlobalPosition());
+        shader->SetUniform("view_position", inCamera->GlobalPosition());
 
         glm::vec4 debug_highlight{visual3d->mDebugHighlight};
         debug_highlight *= (visual3d->mIsHoveredInDebugger or visual3d->mOverrideEnableDebugHighlight);
@@ -791,17 +838,14 @@ void Theatre::Draw3DThinkers(Shared<Viewport> inViewport)
     }
 }
 
-void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
+void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
 {
+    if(not inCamera)
+        { return; }
+
     LOCK_THINGS;
 
-    if(inViewport->uid() != UID::o_RootViewport
-        and inViewport->CurrentCamera2D().invalid()
-        and not inViewport->SetCurrentCamera2D())
-            { return; }
-
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
-    auto camera{GetThinker<Camera2D>(inViewport->CurrentCamera2D())};
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
     auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
@@ -811,7 +855,7 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
         auto shader{renderer_api->GetShader(Shaders::Fast2D)};
         auto visual2d{GetThinker<Visual2D>(v2d_id)};
         if(not visual2d->Visible()
-            or not camera->LayersMask().contains(visual2d->Layers()))
+            or not inCamera->LayersMask().contains(visual2d->Layers()))
                 { continue; }
 
         if(visual2d->DerivedFrom(ThingType::Sprite2D))
@@ -836,9 +880,9 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
             renderer_api->SetFramebufferSRGB(use_texture);
 
             shader->SetUniform("model_matrix", model_matrix);
-            shader->SetUniform("projection_matrix", camera->ProjectionMatrix());
-            shader->SetUniform("view_matrix", camera->ViewMatrix());
-            shader->SetUniform("view_position", camera->GlobalPosition());
+            shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
+            shader->SetUniform("view_matrix", inCamera->ViewMatrix());
+            shader->SetUniform("view_position", inCamera->GlobalPosition());
             shader->SetUniform("sprite_texture",  0);
             shader->SetUniform("use_texture",  use_texture);
             shader->SetUniform("sprite_color", glm::vec3{1.0f});
@@ -864,10 +908,10 @@ void Theatre::Draw2DThinkers(Shared<Viewport> inViewport)
 
             shader->SetUniform("debug_highlight", text2d->mDebugHighlight
                 * static_cast<float>(text2d->mIsHoveredInDebugger));
-            shader->SetUniform("projection_matrix", camera->ProjectionMatrix());
+            shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
             shader->SetUniform("model_matrix", default_model);
-            shader->SetUniform("view_matrix", camera->ViewMatrix());
-            shader->SetUniform("view_position", camera->GlobalPosition());
+            shader->SetUniform("view_matrix", inCamera->ViewMatrix());
+            shader->SetUniform("view_position", inCamera->GlobalPosition());
             shader->SetUniform("glyph", 0);
             shader->Bind();
 

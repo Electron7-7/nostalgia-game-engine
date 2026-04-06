@@ -10,9 +10,10 @@
 class Theatre
 {
 public:
-    enum FileOverwriteAction { OVERWRITE, RENAME, CANCEL };
-
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
+    using Names_t = std::map<std::string, ID>;
+
+    enum FileOverwriteAction { OVERWRITE, RENAME, CANCEL };
 
     static Theatre* Current();
 
@@ -41,6 +42,10 @@ public:
     Farg<TheatreFile::TheatreData> InitialState() const;
     TheatreFile::TheatreData       CurrentState();
 
+    ID    GetCurrentCamera2D(ID inViewportID = {});
+    ID    GetCurrentCamera3D(ID inViewportID = {});
+    Error SetCurrentCamera(ID inCameraID, ID inViewportID = {});
+
     IdVec_t ThingIDs();
     bool    ThingExists(ID);
     bool    ThingExists(Sarg inName);
@@ -53,10 +58,8 @@ public:
     Error   SetName(ID inUID, Sarg inNewName);
     Error   SetName(Sarg inOldName, Sarg inNewName);
 
-    Shared<Viewport> GetRootViewport();
-    IdSet_arg GetViewports(); // Does not include the root viewport
-    IdSet_arg Get3DCameras();
-    IdSet_arg Get2DCameras();
+    Shared<Thinker> GetPlayer();
+    IdSet_arg GetViewports();
 
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
@@ -71,13 +74,20 @@ public:
     Shared<Resource> GetResource(ID ObjectID);
     Shared<Thinker>  GetThinker(ID ObjectID);
 
+    template<typename T> requires std::derived_from<T, NostalgiaPlayer3D>
+        Shared<T> GetPlayer()
+        {
+            if(auto player{DCast<T>(m_pPlayer)})
+                { return player; }
+            return MakeShared<T>();
+        }
+
     template<typename T> requires std::derived_from<T,Resource>
         Shared<T> GetResource(ID ObjectID)
         {
             if(auto resource{DCast<T>(GetResource(ObjectID))})
                 { return resource; }
-            auto output{MakeShared<T>()};
-            return output;
+            return MakeShared<T>();
         }
 
     template<typename T> requires std::derived_from<T,Thinker>
@@ -85,8 +95,7 @@ public:
         {
             if(auto thinker{DCast<T>(GetThinker(ObjectID))})
                 { return thinker; }
-            auto output{MakeShared<T>()};
-            return output;
+            return MakeShared<T>();
         }
 
 protected:
@@ -100,25 +109,23 @@ protected:
     RMutex mThingsMutex{},
         mCallSheetMutex{};
     Things_t mThings{};
-    std::map<std::string, ID> mNames{};
+    Names_t mNames{};
+    ID mRootViewportCurrentCamera3D{},
+        mRootViewportCurrentCamera2D{};
     IdSet_t mLightIDs{},
-        mCamera3DIDs{},
-        mCamera2DIDs{},
         mVisual3DIDs{},
         mVisual2DIDs{},
         mViewportIDs{};
     CallSheet mCallSheet{};
 
-    Shared<Viewport> m_pRootViewport{nullptr};
-    Shared<TheatreFile::TheatreData> m_pInitialState{nullptr};
     Shared<Thinker> m_pPlayer{nullptr};
+    Shared<TheatreFile::TheatreData> m_pInitialState{MakeShared<TheatreFile::TheatreData>()};
 
     void UpdateCallsheet(ID, Farg<TheatreFile::ThingData>);
     void UpdateIdSetsAndSpecialThings(FPID, ID);
     Error DestroyThingOnly(ID);
-
-    void Draw3DThinkers(Shared<Viewport>);
-    void Draw2DThinkers(Shared<Viewport>);
+    void Draw3DThinkers(Shared<Camera3D>);
+    void Draw2DThinkers(Shared<Camera2D>);
 };
 
 #endif // THEATRE_H
