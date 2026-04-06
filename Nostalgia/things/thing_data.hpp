@@ -58,6 +58,7 @@ namespace TheatreFile
         std::string get_log() const noexcept;
         std::string get_parsable_string() const noexcept;
 
+        bool invalid() const;
         void clear();
 
         ID get_parent() const;

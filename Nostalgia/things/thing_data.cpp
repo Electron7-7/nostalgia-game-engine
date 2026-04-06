@@ -1,5 +1,6 @@
 #include "./thing_data.hpp"
 #include "theatre/theatre.hpp"
+#include "things/thing_factory.hpp"
 
 using namespace TheatreFile;
 
@@ -34,6 +35,9 @@ Shared<Resource> ThingData::_try_get_resource(Sarg inName) const
 
 Shared<Thinker> ThingData::_try_get_thinker(Sarg inName) const
 { return Theatre::Current()->GetThinker(Theatre::Current()->GetUID(inName)); }
+
+bool ThingData::invalid() const
+{ return name.empty() or not ThingFactory::IsThing(type); }
 
 std::string ThingData::get_log() const noexcept
 {
