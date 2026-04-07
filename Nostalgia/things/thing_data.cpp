@@ -77,7 +77,10 @@ std::string ThingData::get_parsable_string() const noexcept
 }
 
 void ThingData::set_variable(Sarg inValue, Sarg inName)
-{ variables.emplace_back(inName, inValue, ThingVarType::String); }
+{
+    if(not inValue.empty())
+        { variables.emplace_back(inName, inValue, ThingVarType::String); }
+}
 
 void ThingData::clear()
 {
