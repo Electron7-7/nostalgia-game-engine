@@ -126,6 +126,8 @@ protected:
     Error DestroyThingOnly(ID);
     void Draw3DThinkers(Shared<Camera3D>);
     void Draw2DThinkers(Shared<Camera2D>);
+
+    static Error SetThingName(Sarg,Sarg);
 };
 
 #endif // THEATRE_H

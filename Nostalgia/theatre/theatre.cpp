@@ -25,6 +25,7 @@
 
 #define LOCK_THINGS LockGuard<RMutex> things_lock{mThingsMutex}
 #define LOCK_CALLSHEET LockGuard<RMutex> callsheet_lock{mCallSheetMutex}
+#define FOUND_IT(MAP, KEY, ...) auto found_it##__VA_ARGS__{MAP.find(KEY)}; found_it##__VA_ARGS__ != MAP.end()
 
 using namespace TheatreFile;
 
@@ -168,6 +169,7 @@ bool Theatre::Startup()
         auto thing{ThingFactory::MakeThing(iter->type, iter->name)};
         mThings[thing->uid()] = thing;
         mNames[thing->name()] = thing->uid();
+        thing->SetNameChangeCallback(&Theatre::SetThingName);
         thing->Init();
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
         mCallSheet.Add(thing->uid());
@@ -414,6 +416,7 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
     auto thing{ThingFactory::MakeThing(inData.type, inData.name)};
     mThings[thing->uid()] = thing;
     mNames[thing->name()] = thing->uid();
+    thing->SetNameChangeCallback(&Theatre::SetThingName);
     thing->Init();
     UpdateCallsheet(thing->uid(), inData);
     UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
@@ -974,4 +977,11 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             }
         }
     }
+}
+
+Error Theatre::SetThingName(Sarg inOldName, Sarg inNewName)
+{
+    if(not Theatre::Current())
+        { return ERR_NULLPTR; }
+    return Theatre::Current()->SetName(inOldName, inNewName);
 }
