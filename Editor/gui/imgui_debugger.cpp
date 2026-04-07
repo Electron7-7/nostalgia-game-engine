@@ -944,16 +944,16 @@ void ImGui_Debugger::InspectTheatreWindow()
             and g_pTheatreManager->Current()->DestroyThing(selected.ptr->uid()))
             { EndChild(); EndChild(); selected = last_selected; return; }
         SeparatorText("Properties");
+        Text("Type - %s", selected.ptr->Type().c_name());
         BeginDisabled();
             InputUInt("UID", &selected.id);
         EndDisabled();
         if(InputText("Name", &selected.name))
         {
-            if(not theatre->SetName(selected.id, selected.name))
-                { selected.name = theatre->GetName(selected.id); }
+            FAUTO old_name{selected.ptr->name()};
+            if(not selected.ptr->rename(selected.name))
+                { selected.name = old_name; }
         }
-        if(selected.ptr)
-            { Text("Type - %s", selected.ptr->Type().c_name()); }
         static bool collider_update_transform_instantly{false};
         // THINKERS
         if(auto thinker{DCast<Thinker>(selected.ptr)})
