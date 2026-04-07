@@ -58,10 +58,13 @@ public:
     ID uid() const;
     Sarg name() const;
     const char* const c_name() const;
+    Error rename(Sarg inNewName);
 
 protected:
     friend class Theatre;
     friend class ResourceDatabase;
+
+    typedef Error (*pNameChangeCallback_f)(Sarg inOldName, Sarg inNewName);
 
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
@@ -71,6 +74,8 @@ protected:
     virtual void Tick() {}
     virtual void Update() {}
     virtual void Input(InputEvent*) {}
+
+    void SetNameChangeCallback(pNameChangeCallback_f = nullptr);
 
 private:
     friend class ThingFactory;
@@ -84,6 +89,7 @@ private:
     mutable RMutex mMutex{};
     ID mUID{};
     std::string mName{GlobalConstants::Init::cstr_empty};
+    pNameChangeCallback_f m_pNameChangeCallback{nullptr};
 
     ID _generate();
     uint _get_random();

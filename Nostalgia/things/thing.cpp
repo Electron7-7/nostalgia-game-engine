@@ -60,6 +60,23 @@ Farg<std::string> Thing::name() const
 const char* const Thing::c_name() const
 { LOCK(mMutex); return mName.data(); }
 
+Error Thing::rename(Sarg inNewName)
+{
+    LOCK(mMutex);
+    Error status{OK};
+    if(m_pNameChangeCallback)
+        { status = m_pNameChangeCallback(mName, inNewName); }
+    if(status == OK)
+        { mName = inNewName; }
+    return status;
+}
+
+void Thing::SetNameChangeCallback(pNameChangeCallback_f inCallback)
+{
+    LOCK(mMutex);
+    m_pNameChangeCallback = inCallback;
+}
+
 ID Thing::_generate()
 {
     LOCK(m_sUIDMutex);
