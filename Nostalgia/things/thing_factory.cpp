@@ -6,6 +6,7 @@
 #include "things/resources/image_texture.hpp"
 #include "things/resources/image.hpp"
 #include "things/resources/mesh.hpp"
+#include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
 #include "things/thinkers/viewport.hpp"
 #include "things/thinkers/2d/actor_2d.hpp"
@@ -40,6 +41,7 @@ bool ThingFactory::Init()
         ADD_THING(Resource, Thing)
             ADD_THING(Font, Resource)
             ADD_THING(Mesh, Resource)
+                ADD_THING(ArrayMesh, Resource)
             ADD_THING(Texture, Resource)
             ADD_THING(Image, Resource)
             ADD_THING(Cubemap, Resource)

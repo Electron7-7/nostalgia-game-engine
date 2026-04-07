@@ -11,6 +11,7 @@ namespace ThingType
             TYPE_ID(Resource),
                 TYPE_ID(Font),
                 TYPE_ID(Mesh),
+                    TYPE_ID(ArrayMesh),
                 TYPE_ID(Texture),
                 TYPE_ID(Cubemap),
                 TYPE_ID(ViewportTexture),
