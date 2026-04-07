@@ -1,5 +1,7 @@
 #include "gl_vertex_array.hpp"
 #include "thirdparty/glad/glad.h"
+#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 
 // Also stolen from Hazel [https://github.com/TheCherno/Hazel]
 
@@ -31,7 +33,10 @@ OpenGLVertexArray::OpenGLVertexArray()
 { glGenVertexArrays(1, &mObjectID); }
 
 OpenGLVertexArray::~OpenGLVertexArray()
-{ glDeleteVertexArrays(1, &mObjectID); }
+{
+    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
+        { glDeleteVertexArrays(1, &mObjectID); }
+}
 
 void OpenGLVertexArray::Bind() const
 { glBindVertexArray(mObjectID); }
