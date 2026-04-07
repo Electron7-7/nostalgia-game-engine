@@ -15,20 +15,14 @@ public:
     enum ModelType : int
     { MODEL_OBJ };
 
-    static Shared<Mesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelType inType);
-
-    virtual Farg<Shared<VertexArray>> MeshData() const;
-    virtual void MeshData(Shared<VertexArray>);
+    // All Mesh-derived classes MUST override this function (pure virtual classes aren't supported, yet)
+    virtual Shared<VertexArray> MeshData() const;
 
     virtual ID MaterialID() const;
     virtual void MaterialID(ID);
 
 protected:
-    Shared<FileData> m_pModel{MakeShared<FileData>()};
-    Shared<VertexArray> mVertexArray{nullptr};
     ID mMaterialID{};
-
-    Error LoadModel();
 };
 
 #endif // MESH_H

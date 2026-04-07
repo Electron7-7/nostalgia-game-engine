@@ -6,7 +6,7 @@
 #include "things/resource_database.hpp"
 #include "things/resources/cubemap.hpp"
 #include "things/resources/image.hpp"
-#include "things/resources/mesh.hpp"
+#include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
 
 ResourceManager sResourceManager{};
@@ -29,23 +29,23 @@ bool ResourceManager::Init()
         ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Verdana,
             std::size(Fonts::Verdana)), "Verdana");
     UID::m_Error =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Error,
-            std::size(Models::Error), Mesh::MODEL_OBJ), "ErrorModel");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Error,
+            std::size(Models::Error), ArrayMesh::MODEL_OBJ), "ErrorModel");
     UID::m_Cube =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Cube,
-            std::size(Models::Cube), Mesh::MODEL_OBJ), "DefaultCube");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Cube,
+            std::size(Models::Cube), ArrayMesh::MODEL_OBJ), "DefaultCube");
     UID::m_Quad =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Quad,
-            std::size(Models::Quad), Mesh::MODEL_OBJ), "DefaultQuad");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Quad,
+            std::size(Models::Quad), ArrayMesh::MODEL_OBJ), "DefaultQuad");
     UID::m_Ramiel =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Ramiel,
-            std::size(Models::Ramiel), Mesh::MODEL_OBJ), "RamielModel");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Ramiel,
+            std::size(Models::Ramiel), ArrayMesh::MODEL_OBJ), "RamielModel");
     UID::m_Camera3D =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::Camera,
-            std::size(Models::Camera), Mesh::MODEL_OBJ), "CameraModel");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Camera,
+            std::size(Models::Camera), ArrayMesh::MODEL_OBJ), "CameraModel");
     UID::m_DebugAxis =
-        ResourceDatabase::Register(Mesh::CreateFromMemory(Models::DebugAxis,
-            std::size(Models::DebugAxis), Mesh::MODEL_OBJ), "3DAxisModel");
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::DebugAxis,
+            std::size(Models::DebugAxis), ArrayMesh::MODEL_OBJ), "3DAxisModel");
     UID::i_Missing =
         ResourceDatabase::Register(Image::CreateFromData(Images::Missing,
             std::size(Images::Missing)), "MissingImage");

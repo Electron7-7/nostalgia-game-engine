@@ -34,11 +34,11 @@ ImageTexture StupidTex
     Image = <StupidImage>
 }
 
-Mesh IcoSphere
+ArrayMesh IcoSphere
 {
     /// While "File" is the default name for Resource's file data variable, other derived
         Resources may add additional aliases depending on the context of the data. For example,
-        Mesh accepts "Model" as well as "File". ///
+        ArrayMesh accepts "Model" as well as "File". ///
     Model = 'testing_resources/IcoSphere.obj'
     Material = <StupidMaterial>
 }
