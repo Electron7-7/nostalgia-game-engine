@@ -93,8 +93,6 @@ static std::string s_GetDebugLog(Farg<Tree> inTree,
             indentation,
             child(),
             name);
-        // if(inTree.all_nodes.contains(child))
-            // { log += s_GetDebugLog(inTree, inTree.all_nodes.at(child), inThings, ++indent); }
     }
     return log;
 }
