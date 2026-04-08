@@ -331,11 +331,9 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     LOCK_CALLSHEET;
 
     bool is_3d{DerivedFrom(inCameraID, ThingType::Camera3D)};
-
-    auto camera{GetThinker<Camera3D>(inCameraID)};
     IdSet_t ancestors{GetAllParents(inCameraID)};
 
-    if(camera->uid().invalid() or (not is_3d and not DerivedFrom(inCameraID, ThingType::Camera2D)))
+    if(not is_3d and not DerivedFrom(inCameraID, ThingType::Camera2D))
         { return ERR_INVALID_ID; }
     else if(inViewportID.invalid())
     {
