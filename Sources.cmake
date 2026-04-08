@@ -62,7 +62,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/resources/material.cpp
     ${NOSTALGIA_ROOT}/things/resources/font.cpp
     ${NOSTALGIA_ROOT}/things/resources/array_mesh.cpp
-    ${NOSTALGIA_ROOT}/things/resources/mesh.cpp
     ${NOSTALGIA_ROOT}/things/resources/cubemap.cpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/texture.cpp
@@ -155,7 +154,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/resources/font.hpp
     ${NOSTALGIA_ROOT}/things/resources/resource.hpp
     ${NOSTALGIA_ROOT}/things/resources/array_mesh.hpp
-    ${NOSTALGIA_ROOT}/things/resources/mesh.hpp
     ${NOSTALGIA_ROOT}/things/resources/material.hpp
     ${NOSTALGIA_ROOT}/things/thing.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/nostalgia_player_3d.hpp
