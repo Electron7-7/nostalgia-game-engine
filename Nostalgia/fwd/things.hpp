@@ -6,6 +6,7 @@ class Thing;
         class Material;
         class Font;
         class Mesh;
+            class ArrayMesh;
         class Texture;
     class Thinker;
     class Viewport;
