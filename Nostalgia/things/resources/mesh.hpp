@@ -10,6 +10,7 @@ public:
 	SET_SUPER(Resource)
 	SET_TYPEID(ThingType::Mesh)
 
+    virtual Shared<VertexArray> MeshData() const { return nullptr; }
     virtual int SurfaceCount() const { return 0; }
 };
 
