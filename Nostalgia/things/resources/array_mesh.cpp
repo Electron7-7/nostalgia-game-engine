@@ -9,21 +9,23 @@
 
 using namespace TheatreFile;
 
-static Error s_CreateMeshData(std::vector<float>&, std::vector<uint>&, Farg<FileData>);
-static Error s_CreateOBJMesh(std::vector<float>&, std::vector<uint>&, Farg<FileData>);
 static FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType);
+static Error s_LoadOBJ(Farg<FileData>, Shared<VertexArray>&);
 
 void ArrayMesh::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
     if(data.get_variable(mModelFilepath, "File", "Model") == OK)
         { LoadModelFile(mModelFilepath); }
+
+    data.get_variable(mMaterialID, "Material");
 }
 
 Shared<ThingData> ArrayMesh::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mModelFilepath, "Model");
+    data->set_variable(mMaterialID, "Material");
     return data;
 }
 
@@ -41,6 +43,13 @@ Shared<ArrayMesh> ArrayMesh::CreateFromFile(Sarg inFilePath)
     return output;
 }
 
+#pragma message("TODO: combine duplicate code")
+Error ArrayMesh::LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType)
+{ return CreateMeshData({inData, inSize, s_ModelTypeToFileType(inType)}); }
+
+Error ArrayMesh::LoadModelFile(Sarg inFilePath)
+{ return CreateMeshData({inFilePath}); }
+
 Shared<VertexArray> ArrayMesh::MeshData() const
 { return m_pVertexArray; }
 
@@ -49,38 +58,6 @@ bool ArrayMesh::LoadedFromFile() const
 
 Sarg ArrayMesh::ModelFilePath() const
 { return mModelFilepath; }
-
-#pragma message("TODO: combine duplicate code")
-Error ArrayMesh::LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType)
-{
-    std::vector<float> vertices{};
-    std::vector<uint>  indices{};
-    FileData model_file{inData, inSize, s_ModelTypeToFileType(inType)};
-    if(Error status{s_CreateMeshData(vertices, indices, model_file)}; not status)
-    {
-        print_error("ArrayMesh [{}, {}] failed to parse mesh data", name(), uid()());
-        return status;
-    }
-    m_pVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
-    m_pVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
-    return OK;
-}
-
-Error ArrayMesh::LoadModelFile(Sarg inFilePath)
-{
-    std::vector<float> vertices{};
-    std::vector<uint>  indices{};
-    FileData model_file{inFilePath};
-    if(Error status{s_CreateMeshData(vertices, indices, model_file)}; not status)
-    {
-        print_error("ArrayMesh [{}, {}] failed to parse mesh data", name(), uid()());
-        return status;
-    }
-    mModelFilepath = model_file.filepath();
-    m_pVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
-    m_pVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
-    return OK;
-}
 
 FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType inType)
 {
@@ -94,18 +71,15 @@ FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType inType)
     }
 }
 
-//////////////////
-// MESH PARSING //
-//////////////////
-Error s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<FileData> inData)
+Error ArrayMesh::CreateMeshData(Farg<FileData> inModelFile)
 {
-    if(!inData.status())
-        { return inData.status(); }
+    if(not inModelFile.status())
+        { return inModelFile.status(); }
 
-    switch(inData.file_type())
+    switch(inModelFile.file_type())
     {
     case FileType::model_OBJ:
-        return s_CreateOBJMesh(ioVerts, ioInds, inData);
+        return s_LoadOBJ(inModelFile, m_pVertexArray);
     case FileType::Unknown:
     default:
         print_error("Data of unknown file-type cannot be buffered");
@@ -114,12 +88,15 @@ Error s_CreateMeshData(std::vector<float>& ioVerts, std::vector<uint>& ioInds, F
     return OK;
 }
 
-Error s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Farg<FileData> inData)
+///////////////////
+// MODEL PARSING //
+///////////////////
+Error s_LoadOBJ(Farg<FileData> inModelFile, Shared<VertexArray>& ioVertexArray)
 {
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(inData.raw_data_str(), "", reader_config))
+    if(!reader.ParseFromString(inModelFile.raw_data_str(), "", reader_config))
     {
         if(!reader.Error().empty())
             { print_error("TinyObjReader Error: '{}'", reader.Error()); }
@@ -134,6 +111,9 @@ Error s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Fa
 
     uint   vertex_count{0};
     Vertex temp_vertex{};
+
+    std::vector<uint> indices{};
+    std::vector<float> vertices{};
 
     // This looping code is from https://github.com/tinyobjloader/tinyobjloader
     // Loop over shapes (Shapes are full meshes in the OBJ (there can be multiple))
@@ -190,11 +170,13 @@ Error s_CreateOBJMesh(std::vector<float>& ioVerts, std::vector<uint>& ioInds, Fa
                 else
                     { temp_vertex.SetColor(glm::vec3(1.0f)); }
 
-                temp_vertex.GetVertexData(ioVerts);
-                ioInds.push_back(vertex_count++);
+                temp_vertex.GetVertexData(vertices);
+                indices.push_back(vertex_count++);
             }
             index_offset += fv;
         }
     }
+    ioVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
+    ioVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
     return OK;
 }

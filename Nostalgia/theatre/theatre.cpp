@@ -14,7 +14,7 @@
 #include "things/thinkers/viewport.hpp"
 #include "things/resources/material.hpp"
 #include "things/resources/texture.hpp"
-#include "things/resources/mesh.hpp"
+#include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
 #include "managers/render_manager.hpp"
 #include "managers/theatre_manager.hpp"
@@ -707,7 +707,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
     auto projection_matrix{inCamera->ProjectionMatrix()};
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
-    auto mesh{GetResource<Mesh>(ID::Invalid)};
+    auto mesh{GetResource<ArrayMesh>(ID::Invalid)};
 
     switch(inCamera->mEnvironment.mType)
     {
@@ -720,7 +720,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
-        renderer_api->DrawSkybox(GetResource<Mesh>(UID::m_Cube)->MeshData());
+        renderer_api->DrawSkybox(GetResource<ArrayMesh>(UID::m_Cube)->MeshData());
         break;
     case Environment::BG_CUSTOM_COLOR:
         renderer_api->SetClearColor(inCamera->mEnvironment.get_custom_color().glm());
@@ -748,7 +748,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
             if(mesh_instance->MeshID().invalid())
                 { continue; }
-            mesh = GetResource<Mesh>(mesh_instance->MeshID());
+            mesh = GetResource<ArrayMesh>(mesh_instance->MeshID());
             auto material{GetResource<Material>(mesh->MaterialID())};
 
             if(!mesh_instance->MaterialOverrideID().invalid())
@@ -785,7 +785,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         else if(visual3d->DerivedFrom(ThingType::Sprite3D))
         {
             auto sprite{DCast<Sprite3D>(visual3d)};
-            mesh = GetResource<Mesh>(UID::m_Quad);
+            mesh = GetResource<ArrayMesh>(UID::m_Quad);
 
             auto texture{(sprite->TextureID().invalid())
                 ? missing_texture
@@ -810,7 +810,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         }
 
         if(not mesh->MeshData())
-            { mesh = GetResource<Mesh>(UID::m_Error); }
+            { mesh = GetResource<ArrayMesh>(UID::m_Error); }
 
         glm::mat4 model_matrix{visual3d->GlobalTransform().model_matrix()};
 
@@ -844,7 +844,7 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
-    auto quad_mesh{GetResource<Mesh>(UID::m_Quad)};
+    auto quad_mesh{GetResource<ArrayMesh>(UID::m_Quad)};
 
     for(ID v2d_id : mVisual2DIDs)
     {

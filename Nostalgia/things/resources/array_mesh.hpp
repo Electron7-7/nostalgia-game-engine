@@ -17,17 +17,25 @@ public:
     static Shared<ArrayMesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelFileType inType);
     static Shared<ArrayMesh> CreateFromFile(Sarg inFilePath);
 
+    virtual Error LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType);
+    virtual Error LoadModelFile(Sarg inFilePath);
+
     virtual Shared<VertexArray> MeshData() const override;
 
     virtual bool LoadedFromFile() const;
     virtual Sarg ModelFilePath() const;
 
-    virtual Error LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType);
-    virtual Error LoadModelFile(Sarg inFilePath);
+    ID MaterialID() const { return mMaterialID; }
+    void MaterialID(ID inUID) { mMaterialID = inUID; }
 
 protected:
     std::string mModelFilepath{""};
     Shared<VertexArray> m_pVertexArray{VertexArray::Create()};
+
+    virtual Error CreateMeshData(Farg<FileData> inModelFile);
+
+private:
+    ID mMaterialID{};
 };
 
 #endif // ARRAY_MESH_H
