@@ -6,6 +6,13 @@
 
 using namespace TheatreFile;
 
+void Viewport::Ready()
+{
+    Super::Ready();
+    if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
+        { UpdateCurrentCameras(); }
+}
+
 void Viewport::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
