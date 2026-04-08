@@ -17,13 +17,15 @@
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
+#include <Nostalgia/rendering/vertex_array.hpp>
+#include <Nostalgia/rendering/mesh_buffers.hpp>
 #include <Nostalgia/things/thinkers/2d/text_2d.hpp>
 #include <Nostalgia/things/thinkers/2d/sprite_2d.hpp>
 #include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
 #include <Nostalgia/things/thinkers/3d/light_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
-#include <Nostalgia/things/resources/mesh.hpp>
+#include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/things/resources/material.hpp>
 #include <Nostalgia/things/resources/font.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
@@ -700,7 +702,7 @@ struct thing_data_buffer
                 specularTexture  = mat->SpecularTextureID()();
                 specularStrength = mat->SpecularStrength();
             }
-            else if(auto mesh{DCast<Mesh>(ptr)})
+            else if(auto mesh{DCast<ArrayMesh>(ptr)})
             {
                 material = mesh->MaterialID()();
             }
@@ -1371,15 +1373,82 @@ void ImGui_Debugger::InspectTheatreWindow()
                     }
                 }
             }
-            else if(auto mesh{DCast<Mesh>(selected.ptr)})
+            else if(auto _mesh{DCast<Mesh>(selected.ptr)})
             {
-                if(InputUInt("Material UID", &selected.material, 0, 0))
-                    { mesh->MaterialID(selected.material); }
-                SameLine();
-                if(Button("Inspect"))
+                if(auto mesh{DCast<ArrayMesh>(selected.ptr)})
                 {
-                    last_selected = selected;
-                    selected = {theatre->GetThing(selected.material)};
+                    SeparatorText("Vertex Data Properties");
+                        static std::vector<std::vector<float>> vbo_vecs{{},{},{},{},{},{},{},{},{},{}};
+                        static std::vector<uint> ibo_vec{};
+                        static ID last_selected_id{};
+
+                        FAUTO vbos{mesh->MeshData()->GetVertexBuffers()};
+                        TextF("VAO {}", mesh->MeshData()->GetID());
+                        TextF("VBOs (size: {})", vbos.size());
+                        int index{0};
+                        for(FAUTO vbo : vbos)
+                        {
+                            TextF("\t\tVBO {}", vbo->GetID());
+                            FAUTO layout{vbo->GetLayout()};
+                            TextF("\t\t\t\tLayout (stride: {}):", layout.GetStride());
+                            FAUTO layout_elements{layout.GetElements()};
+                            for(FAUTO element : layout_elements)
+                            {
+                                TextF("\t\t\t\t\t\t<{}> {} (offset: {})",
+                                    EnumRegistry::GetEnumName(element.type),
+                                    element.name,
+                                    element.offset);
+                            }
+                            if(last_selected_id != selected.id)
+                            {
+                                void* data{nullptr};
+                                int size{0};
+                                vbo->QueryData(data, &size);
+                                vbo_vecs[index] = {(float*)data, (float*)data + (size / sizeof(float))};
+                                free(data);
+                            }
+                            if(TreeNodeEx(std::format("Buffer Data##{}", vbo->GetID()).data()))
+                            {
+                                TextF("(size: {}) {}", vbo_vecs[index].size(), (void*)vbo_vecs[index].data());
+                                if(TreeNodeEx(std::format("Data Stream##{}", vbo->GetID()).data()))
+                                {
+                                    TextWrappedF("Data: {}", vbo_vecs[index]);
+                                    TreePop();
+                                }
+                                TreePop();
+                            }
+                            ++index;
+                        }
+                        FAUTO ibo{mesh->MeshData()->GetIndexBuffer()};
+                        TextF("IBO {} (count: {})", ibo->GetID(), ibo->GetCount());
+                        if(last_selected_id != selected.id)
+                        {
+                            void* data{nullptr};
+                            int size{0};
+                            ibo->QueryData(data, &size);
+                            ibo_vec = {(float*)data, (float*)data + (size / sizeof(float))};
+                            free(data);
+                            last_selected_id = selected.id;
+                        }
+                        if(TreeNodeEx(std::format("Buffer Data##{}", ibo->GetID()).data()))
+                        {
+                            TextF("(size: {}) {}", ibo_vec.size(), (void*)ibo_vec.data());
+                            if(TreeNodeEx(std::format("Data Stream##{}", ibo->GetID()).data()))
+                            {
+                                TextWrappedF("Data: {}", ibo_vec);
+                                TreePop();
+                            }
+                            TreePop();
+                        }
+                    Separator();
+                    if(InputUInt("Material UID", &selected.material, 0, 0))
+                        { mesh->MaterialID(selected.material); }
+                    SameLine();
+                    if(Button("Inspect"))
+                    {
+                        last_selected = selected;
+                        selected = {theatre->GetThing(selected.material)};
+                    }
                 }
             }
             else if(auto material{DCast<Material>(selected.ptr)})
