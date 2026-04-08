@@ -6,7 +6,7 @@
 class ResourceManager : public Manager
 {
 public:
-    consteval const char* DebugName() override { return "ResourceManager"; }
+    constexpr const char* DebugName() override { return "ResourceManager"; }
     bool Init() override;
 };
 

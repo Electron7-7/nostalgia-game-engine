@@ -7,7 +7,7 @@
 class EventManager : public Manager
 {
 public:
-    consteval const char* DebugName() final { return "EventManager"; }
+    constexpr const char* DebugName() final { return "EventManager"; }
     bool Init()   override;
     void Update() override;
 

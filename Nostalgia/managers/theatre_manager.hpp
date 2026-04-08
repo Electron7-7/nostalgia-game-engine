@@ -12,7 +12,7 @@ public:
     void     LoadFromFileData(Shared<FileData> inTheatreFileData);
     void     LoadFromFile(Sarg inTheatreFilePath);
 
-    consteval const char* DebugName() override { return "TheatreManager"; }
+    constexpr const char* DebugName() override { return "TheatreManager"; }
     bool Init() override;
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) override;
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) override;

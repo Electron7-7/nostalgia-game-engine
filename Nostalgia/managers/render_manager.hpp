@@ -17,7 +17,7 @@ inline ushort gShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
 class RenderManager : public Manager
 {
 public:
-    consteval const char* DebugName() final { return "RenderManager"; }
+    constexpr const char* DebugName() final { return "RenderManager"; }
 
     bool Init() final;
     ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) final;

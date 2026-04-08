@@ -9,7 +9,7 @@ typedef void (*pInputCallback_f)(InputEvent*);
 class InputManager : public Manager
 {
 public:
-    consteval const char* DebugName() final { return "InputManager"; }
+    constexpr const char* DebugName() final { return "InputManager"; }
     bool Init()   override;
     void Update() override;
 

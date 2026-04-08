@@ -26,7 +26,7 @@ namespace ManagerEnums
 class IManager : public OnUpdate, public OnTick, public OnInput, public OnEngineEvent
 {
 public:
-    virtual consteval const char* DebugName() = 0;
+    virtual constexpr const char* DebugName() = 0;
     virtual bool Init() = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
@@ -106,7 +106,7 @@ public:
     virtual ~Manager();
 
     // Managers are expected to implement these methods.
-    virtual consteval const char* DebugName() override { return "Manager"; };
+    virtual constexpr const char* DebugName() override { return "Manager"; };
     virtual bool Init()      override { return true; }
     virtual void Shutdown()  override {}
     virtual void OnSave()    override {}
