@@ -17,6 +17,7 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
+#include <Nostalgia/rendering/mesh_buffers.hpp>
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};
@@ -24,7 +25,7 @@ static ImGui_Debugger sImGui_Debugger{};
 std::string gToggleFullscreen{"ToggleFullscreen"};
 
 void NostalgiaGoggles::Stop()
-{ IManager::Stop(); }
+{ Manager::Stop(); }
 
 int NostalgiaGoggles::Main()
 {
@@ -38,18 +39,31 @@ int NostalgiaGoggles::Main()
     imgui_impl->CreateSolution<ImGui_Editor>();
     imgui_impl->CreateSolution<ImGui_Debugger>();
 
-    IManager::Add(g_pResourceManager);
-    IManager::Add(g_pPhysicsManager);
-    IManager::Add(g_pTheatreManager);
-    IManager::Add(g_pRenderManager);
-    IManager::Add(g_pInputManager);
-    IManager::Add(g_pEventManager);
-    IManager::Add(g_pUIManager);
+    Manager::Add(g_pRenderManager);
+    Manager::Add(g_pResourceManager);
+    Manager::Add(g_pPhysicsManager);
+    Manager::Add(g_pTheatreManager);
+    Manager::Add(g_pInputManager);
+    Manager::Add(g_pEventManager);
+    Manager::Add(g_pUIManager);
 
-    IManager::InitAllManagers();
+    Manager::InitAllManagers();
 
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
+
+    EnumRegistry::Assign(IBuffer::Element::Type::None,   "None");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float,  "Float");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float2, "Float2");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float3, "Float3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float4, "Float4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int,    "Int");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int2,   "Int2");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int3,   "Int3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int4,   "Int4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Mat3,   "Mat3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Mat4,   "Mat4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Bool,   "Bool");
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
@@ -57,9 +71,9 @@ int NostalgiaGoggles::Main()
     g_pInputManager->SetAction({"+left",     Key::A});
     g_pInputManager->SetAction({"+right",    Key::D});
 
-    IManager::Start(); // gameloop
-    IManager::ShutdownAllManagers();
-    IManager::RemoveAll();
+    Manager::Start(); // gameloop
+    Manager::ShutdownAllManagers();
+    Manager::RemoveAll();
 
     return 0;
 }
