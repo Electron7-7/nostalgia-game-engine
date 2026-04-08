@@ -12,6 +12,7 @@ public:
 
     virtual void Bind()   const = 0;
     virtual void Unbind() const = 0;
+    virtual uint GetID()  const = 0;
 
     virtual void AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer) = 0;
     virtual void SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer) = 0;

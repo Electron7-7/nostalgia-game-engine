@@ -1,7 +1,6 @@
 #ifndef OPENGL_RENDERER_API_H
 #define OPENGL_RENDERER_API_H
 
-#include <array>
 #include <Nostalgia/rendering/renderer_api.hpp>
 
 class OpenGLRendererAPI final : public RendererAPI

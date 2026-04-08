@@ -11,6 +11,7 @@ public:
 
     void Bind()   const final;
     void Unbind() const final;
+    uint GetID()  const final;
 
     void AddVertexBuffer(Shared<VertexBuffer>) final;
     void SetIndexBuffer(Shared<IndexBuffer>) final;
@@ -19,7 +20,6 @@ public:
 
 private:
     uint mObjectID{};
-    uint mVertexBufferIndex{0};
 };
 
 #endif // GL_VERTEX_ARRAY_H

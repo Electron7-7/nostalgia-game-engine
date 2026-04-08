@@ -225,8 +225,7 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
 void OpenGLRendererAPI::DrawText(Sarg inText,
     Shared<Font> inFont, glm::vec2 inPos, glm::vec2 inScale)
 {
-    static uint VAO{0},
-        VBO{0};
+    static uint VAO{0}, VBO{0};
 
     if(!VAO or !VBO)
     {
@@ -293,23 +292,22 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
 
 void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
-    if(!inVAO or !inVAO->GetIndexBuffer()) { return; }
+    if(not inVAO or not inVAO->GetIndexBuffer())
+        { return; }
     inVAO->Bind();
-    inVAO->GetIndexBuffer()->Bind();
     glDrawElements(GL_TRIANGLES,
         (inIndexCount)
             ? inIndexCount
             : inVAO->GetIndexBuffer()->GetCount(),
-        GL_UNSIGNED_INT,
-        nullptr);
+        GL_UNSIGNED_INT, nullptr);
 }
 
 void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
 {
-    if(!inVAO) { return; }
+    if(not inVAO or not inVAO->GetIndexBuffer())
+        { return; }
     glDepthMask(GL_FALSE);
     inVAO->Bind();
-    inVAO->GetIndexBuffer()->Bind();
     glDrawElements(GL_TRIANGLES,
         inVAO->GetIndexBuffer()->GetCount(),
         GL_UNSIGNED_INT,

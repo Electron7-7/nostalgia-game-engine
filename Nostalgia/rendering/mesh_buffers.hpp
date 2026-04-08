@@ -67,12 +67,17 @@ public:
     virtual uint GetID() const = 0;
     virtual Farg<Layout> GetLayout() const = 0;
     virtual void SetLayout(Farg<Layout> inLayout) = 0;
+
+    virtual void QuerySize(int*) const {}
+    virtual void QueryData(void*& outData, int* outSize) const {}
 };
 
 class VertexBuffer : public IBuffer
 {
 public:
     virtual ~VertexBuffer() = default;
+
+    virtual int GetSize() const = 0;
 
     static Shared<VertexBuffer> Create(size_t inSize);
     static Shared<VertexBuffer> Create(float* inVertices, size_t inSize);

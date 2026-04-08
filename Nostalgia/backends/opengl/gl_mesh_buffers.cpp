@@ -1,18 +1,18 @@
 #include "gl_mesh_buffers.hpp"
 #include "thirdparty/glad/glad.h"
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize)
+OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize):
+    mSize{static_cast<int>(inSize)}
 {
-    glGenBuffers(1, &mBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
-    glBufferData(GL_ARRAY_BUFFER, inSize * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    glCreateBuffers(1, &mBufferID);
+    glNamedBufferStorage(mBufferID, inSize * sizeof(float), nullptr, GL_DYNAMIC_STORAGE_BIT);
 }
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(float* inVertices, size_t inSize)
+OpenGLVertexBuffer::OpenGLVertexBuffer(float* inVertices, size_t inSize):
+    mSize{static_cast<int>(inSize)}
 {
-    glGenBuffers(1, &mBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
-    glBufferData(GL_ARRAY_BUFFER, inSize * sizeof(float), inVertices, GL_STATIC_DRAW);
+    glCreateBuffers(1, &mBufferID);
+    glNamedBufferStorage(mBufferID, inSize * sizeof(float), inVertices, GL_DYNAMIC_STORAGE_BIT);
 }
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
@@ -26,9 +26,19 @@ void OpenGLVertexBuffer::Unbind() const
 
 void OpenGLVertexBuffer::SetData(const void* inData, size_t inSize)
 {
-    Bind();
-    glBufferSubData(GL_ARRAY_BUFFER, 0, inSize, inData);
+    glNamedBufferSubData(mBufferID, 0, inSize, inData);
+    mSize = static_cast<int>(inSize);
 }
+
+void OpenGLVertexBuffer::QueryData(void*& outData, int* outSize) const
+{
+    glGetNamedBufferParameteriv(mBufferID, GL_BUFFER_SIZE, outSize);
+    outData = malloc(*outSize);
+    glGetNamedBufferSubData(mBufferID, 0, *outSize, outData);
+}
+
+int OpenGLVertexBuffer::GetSize() const
+{ return mSize; }
 
 uint OpenGLVertexBuffer::GetID() const
 { return mBufferID; }
@@ -42,9 +52,8 @@ void OpenGLVertexBuffer::SetLayout(Farg<Layout> inLayout)
 OpenGLIndexBuffer::OpenGLIndexBuffer(uint* inIndices, size_t inCount):
     mCount{static_cast<uint>(inCount)}
 {
-    glGenBuffers(1, &mBufferID);
-    glBindBuffer(GL_ARRAY_BUFFER, mBufferID);
-    glBufferData(GL_ARRAY_BUFFER, inCount * sizeof(uint), inIndices, GL_STATIC_DRAW);
+    glCreateBuffers(1, &mBufferID);
+    glNamedBufferStorage(mBufferID, inCount * sizeof(uint), inIndices, GL_DYNAMIC_STORAGE_BIT);
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
@@ -61,3 +70,10 @@ uint OpenGLIndexBuffer::GetID() const
 
 uint OpenGLIndexBuffer::GetCount() const
 { return mCount; }
+
+void OpenGLIndexBuffer::QueryData(void*& outData, int* outSize) const
+{
+    glGetNamedBufferParameteriv(mBufferID, GL_BUFFER_SIZE, outSize);
+    outData = malloc(*outSize);
+    glGetNamedBufferSubData(mBufferID, 0, *outSize, outData);
+}
