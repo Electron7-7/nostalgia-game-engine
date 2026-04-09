@@ -39,19 +39,24 @@ void Camera3D::Ready()
 
     auto parent{Theatre::Current()->GetParent(uid())};
 
-    if(mViewportID.invalid() and not parent.invalid())
+    if(mViewportID.invalid())
     {
-        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
-            { mViewportID = parent; }
-        else
+        if(not parent.invalid())
         {
-            auto ancestors{Theatre::Current()->GetAllParents(uid())};
-            for(ID parent : ancestors)
+            if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+                { mViewportID = parent; }
+            else
             {
-                if(parent != UID::o_RootViewport and Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
-                    { mViewportID = parent; break; }
+                auto ancestors{Theatre::Current()->GetAllParents(uid())};
+                for(ID parent : ancestors)
+                {
+                    if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+                        { mViewportID = parent; break; }
+                }
             }
         }
+        else
+            { mInitCurrent = false; }
     }
 
     if(mInitCurrent)
