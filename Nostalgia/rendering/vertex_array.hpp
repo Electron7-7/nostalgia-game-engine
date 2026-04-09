@@ -14,12 +14,16 @@ public:
     virtual void Unbind() const = 0;
     virtual uint GetID()  const = 0;
 
-    virtual void SetVertexBuffer(Shared<VertexBuffer> inVertexBuffer) = 0;
+    virtual void AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer) = 0;
     virtual void SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer) = 0;
-    virtual Farg<Shared<VertexBuffer>> GetVertexBuffer() const = 0;
-    virtual Farg<Shared<IndexBuffer>> GetIndexBuffer() const = 0;
+    virtual Farg<std::vector<Shared<VertexBuffer>>> GetVertexBuffers() const = 0;
+    virtual Shared<IndexBuffer> GetIndexBuffer() const = 0;
 
     static Shared<VertexArray> Create();
+
+protected:
+    std::vector<Shared<VertexBuffer>> mVertexBuffers{};
+    Shared<IndexBuffer> mIndexBuffer{nullptr};
 };
 
 #endif // VERTEX_ARRAY_H

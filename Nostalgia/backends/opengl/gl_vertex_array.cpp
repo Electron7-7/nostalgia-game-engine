@@ -47,7 +47,7 @@ void OpenGLVertexArray::Unbind() const
 uint OpenGLVertexArray::GetID() const
 { return mObjectID; }
 
-void OpenGLVertexArray::SetVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
+void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
 {
     if(inVertexBuffer->GetLayout().GetElements().empty())
     {
@@ -56,7 +56,7 @@ void OpenGLVertexArray::SetVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
     }
 
     FAUTO layout{inVertexBuffer->GetLayout()};
-    glVertexArrayVertexBuffer(mObjectID, 0, inVertexBuffer->GetID(), 0, layout.GetStride());
+    glVertexArrayVertexBuffer(mObjectID, mVertexBuffers.size(), inVertexBuffer->GetID(), 0, layout.GetStride());
 
     uint vertex_attribute_index{0};
     for(FAUTO element : layout)
@@ -107,10 +107,10 @@ void OpenGLVertexArray::SetVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
             print_error("Unknown IBuffer::Element::Type!");
             return;
         }
-        glVertexArrayAttribBinding(mObjectID, vertex_attribute_index++, 0);
+        glVertexArrayAttribBinding(mObjectID, vertex_attribute_index++, mVertexBuffers.size());
     }
 
-    mVertexBuffer = inVertexBuffer;
+    mVertexBuffers.push_back(inVertexBuffer);
 }
 
 
@@ -120,8 +120,8 @@ void OpenGLVertexArray::SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer)
     mIndexBuffer = inIndexBuffer;
 }
 
-Farg<Shared<VertexBuffer>> OpenGLVertexArray::GetVertexBuffer() const
-{ return mVertexBuffer; }
+Farg<std::vector<Shared<VertexBuffer>>> OpenGLVertexArray::GetVertexBuffers() const
+{ return mVertexBuffers; }
 
-Farg<Shared<IndexBuffer>> OpenGLVertexArray::GetIndexBuffer() const
+Shared<IndexBuffer> OpenGLVertexArray::GetIndexBuffer() const
 { return mIndexBuffer; }
