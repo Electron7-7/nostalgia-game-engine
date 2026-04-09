@@ -19,6 +19,7 @@ public:
     void SetFramebufferSRGB(bool) const final;
     void SetWireframe(bool inValue) const final;
     void SetBlend(bool) const final;
+    void SetDepthMask(bool isEnabled) const final;
 
     ColorRGBA GetClearColor() final;
     float GetLineWidth() final;
@@ -37,7 +38,6 @@ public:
 
     void DrawText(Sarg, Shared<Font>, glm::vec2, glm::vec2) final;
     void DrawIndexed(Shared<VertexArray>, uint) final;
-    void DrawSkybox(Shared<VertexArray>) final;
     void Clear() final;
 
 private:

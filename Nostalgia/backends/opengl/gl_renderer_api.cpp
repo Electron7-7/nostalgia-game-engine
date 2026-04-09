@@ -179,6 +179,9 @@ void OpenGLRendererAPI::SetBlend(bool isEnabled) const
     else { glDisable(GL_BLEND); }
 }
 
+void OpenGLRendererAPI::SetDepthMask(bool isEnabled) const
+{ glDepthMask((isEnabled) ? GL_TRUE : GL_FALSE); }
+
 ColorRGBA OpenGLRendererAPI::GetClearColor()
 { return {mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]}; }
 
@@ -300,20 +303,6 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount
             ? inIndexCount
             : inVAO->GetIndexBuffer()->GetCount(),
         GL_UNSIGNED_INT, nullptr);
-}
-
-void OpenGLRendererAPI::DrawSkybox(Shared<VertexArray> inVAO)
-{
-    if(not inVAO or not inVAO->GetIndexBuffer())
-        { return; }
-    glDepthMask(GL_FALSE);
-    inVAO->Bind();
-    glDrawElements(GL_TRIANGLES,
-        inVAO->GetIndexBuffer()->GetCount(),
-        GL_UNSIGNED_INT,
-        nullptr);
-    inVAO->Unbind();
-    glDepthMask(GL_TRUE);
 }
 
 //----------------------------------------------------------------------------------

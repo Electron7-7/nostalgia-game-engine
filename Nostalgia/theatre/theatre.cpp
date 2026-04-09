@@ -718,7 +718,9 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
-        renderer_api->DrawSkybox(GetResource<ArrayMesh>(UID::m_Cube)->MeshData());
+        renderer_api->SetDepthMask(false);
+        renderer_api->DrawIndexed(GetResource<ArrayMesh>(UID::m_Cube)->MeshData());
+        renderer_api->SetDepthMask(true);
         break;
     case Environment::BG_CUSTOM_COLOR:
         renderer_api->SetClearColor(inCamera->mEnvironment.get_custom_color().glm());
