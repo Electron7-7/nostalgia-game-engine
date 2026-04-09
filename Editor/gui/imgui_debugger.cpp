@@ -1401,46 +1401,40 @@ void ImGui_Debugger::InspectTheatreWindow()
                 if(auto mesh{DCast<ArrayMesh>(selected.ptr)})
                 {
                     SeparatorText("Vertex Data Properties");
-                        static std::vector<std::vector<float>> vbo_vecs{{},{},{},{},{},{},{},{},{},{}};
+                        static std::vector<float> vbo_vec{};
                         static std::vector<uint> ibo_vec{};
                         static ID last_selected_id{};
 
-                        FAUTO vbos{mesh->MeshData()->GetVertexBuffers()};
+                        FAUTO vbo{mesh->MeshData()->GetVertexBuffer()};
                         TextF("VAO {}", mesh->MeshData()->GetID());
-                        TextF("VBOs (size: {})", vbos.size());
-                        int index{0};
-                        for(FAUTO vbo : vbos)
+                        TextF("VBO {}", vbo->GetID());
+                        FAUTO layout{vbo->GetLayout()};
+                        TextF("\t\tLayout (stride: {}):", layout.GetStride());
+                        FAUTO layout_elements{layout.GetElements()};
+                        for(FAUTO element : layout_elements)
                         {
-                            TextF("\t\tVBO {}", vbo->GetID());
-                            FAUTO layout{vbo->GetLayout()};
-                            TextF("\t\t\t\tLayout (stride: {}):", layout.GetStride());
-                            FAUTO layout_elements{layout.GetElements()};
-                            for(FAUTO element : layout_elements)
+                            TextF("\t\t\t\t<{}> {} (offset: {})",
+                                EnumRegistry::GetEnumName(element.type),
+                                element.name,
+                                element.offset);
+                        }
+                        if(last_selected_id != selected.id)
+                        {
+                            void* data{nullptr};
+                            int size{0};
+                            vbo->QueryData(data, &size);
+                            vbo_vec = {(float*)data, (float*)data + (size / sizeof(float))};
+                            free(data);
+                        }
+                        if(TreeNodeEx(std::format("Buffer Data##{}", vbo->GetID()).data()))
+                        {
+                            TextF("(size: {}) {}", vbo_vec.size(), (void*)vbo_vec.data());
+                            if(TreeNodeEx(std::format("Data Stream##{}", vbo->GetID()).data()))
                             {
-                                TextF("\t\t\t\t\t\t<{}> {} (offset: {})",
-                                    EnumRegistry::GetEnumName(element.type),
-                                    element.name,
-                                    element.offset);
-                            }
-                            if(last_selected_id != selected.id)
-                            {
-                                void* data{nullptr};
-                                int size{0};
-                                vbo->QueryData(data, &size);
-                                vbo_vecs[index] = {(float*)data, (float*)data + (size / sizeof(float))};
-                                free(data);
-                            }
-                            if(TreeNodeEx(std::format("Buffer Data##{}", vbo->GetID()).data()))
-                            {
-                                TextF("(size: {}) {}", vbo_vecs[index].size(), (void*)vbo_vecs[index].data());
-                                if(TreeNodeEx(std::format("Data Stream##{}", vbo->GetID()).data()))
-                                {
-                                    TextWrappedF("Data: {}", vbo_vecs[index]);
-                                    TreePop();
-                                }
+                                TextWrappedF("{}", vbo_vec);
                                 TreePop();
                             }
-                            ++index;
+                            TreePop();
                         }
                         FAUTO ibo{mesh->MeshData()->GetIndexBuffer()};
                         TextF("IBO {} (count: {})", ibo->GetID(), ibo->GetCount());
@@ -1458,7 +1452,7 @@ void ImGui_Debugger::InspectTheatreWindow()
                             TextF("(size: {}) {}", ibo_vec.size(), (void*)ibo_vec.data());
                             if(TreeNodeEx(std::format("Data Stream##{}", ibo->GetID()).data()))
                             {
-                                TextWrappedF("Data: {}", ibo_vec);
+                                TextWrappedF("{}", ibo_vec);
                                 TreePop();
                             }
                             TreePop();
