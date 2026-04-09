@@ -176,7 +176,7 @@ Error s_LoadOBJ(Farg<FileData> inModelFile, Shared<VertexArray>& ioVertexArray)
             index_offset += fv;
         }
     }
-    ioVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
+    ioVertexArray->SetVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
     ioVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
     return OK;
 }

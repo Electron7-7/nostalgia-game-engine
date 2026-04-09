@@ -13,13 +13,15 @@ public:
     void Unbind() const final;
     uint GetID()  const final;
 
-    void AddVertexBuffer(Shared<VertexBuffer>) final;
+    void SetVertexBuffer(Shared<VertexBuffer>) final;
     void SetIndexBuffer(Shared<IndexBuffer>) final;
-    Farg<std::vector<Shared<VertexBuffer>>> GetVertexBuffers() const final;
-    Shared<IndexBuffer> GetIndexBuffer() const final;
+    Farg<Shared<VertexBuffer>> GetVertexBuffer() const final;
+    Farg<Shared<IndexBuffer>> GetIndexBuffer() const final;
 
 private:
     uint mObjectID{};
+    Shared<VertexBuffer> mVertexBuffer{nullptr};
+    Shared<IndexBuffer> mIndexBuffer{nullptr};
 };
 
 #endif // GL_VERTEX_ARRAY_H
