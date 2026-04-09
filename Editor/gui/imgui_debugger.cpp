@@ -73,6 +73,12 @@ static Theatre::FileOverwriteAction sCurrentFileOverwriteAction{Theatre::RENAME}
 static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
+static void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
+{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(true); }
+
+static void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
+{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
+
 void ImGui_Debugger::Init()
 { PRINT_PRETTY_FUNCTION; }
 
@@ -1332,6 +1338,23 @@ void ImGui_Debugger::InspectTheatreWindow()
         {
             if(auto texture{DCast<ImageTexture>(selected.ptr)})
             {
+                static ImVec2 _image_size{};
+                static float _preview_scale{};
+                static ID _image_uid{};
+                if(_image_uid != selected.id)
+                {
+                    _image_uid = selected.id;
+                    _preview_scale = 1;
+                    _image_size = {(float)selected.texture_format.width,
+                        (float)selected.texture_format.height};
+                }
+                InputFloat("Image Preview Scale", &_preview_scale, 0.5f, 2.0f);
+                if(auto buffer{texture->GetBuffer()})
+                {
+                    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+                    ImGui::Image(buffer->ID(), _image_size * _preview_scale, {0, 1}, {1, 0});
+                    GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+                }
                 TextF("Width/Height: [{}, {}]", selected.texture_format.width, selected.texture_format.height);
                 TextF("Color Channels: {}", selected.texture_format.channels);
                 TextF("Type: {}", EnumRegistry::GetEnumName(selected.texture_format.type));
