@@ -36,14 +36,17 @@ public:
     Shared<Shader> GetShader(ID) final;
     Error RemoveShader(ID) final;
 
-    void DrawText(Sarg, Shared<Font>, glm::vec2, glm::vec2) final;
+    void DrawText(Sarg, Shared<Font>, glm::vec2, Farg<glm::vec2>) final;
     void DrawIndexed(Shared<VertexArray>, uint) final;
     void Clear() final;
 
 private:
+    mutable RMutex mTextMutex{}, mShadersMutex{}, mClearColorMutex{};
     std::unordered_map<ID, Shared<Shader>> mShaders{};
     std::array<double, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
     bool mIsRunning{false};
+    uint mTextVAO{0};
+    uint mTextVBOs[2]{0, 0};
 };
 
 #endif // OPENGL_RENDERER_H

@@ -12,11 +12,14 @@
 #include "settings/world.hpp"
 #include "thirdparty/glad/glad.h"
 
+#define LOCK_MUTEX(MUTEX) LockGuard<RMutex> MUTEX##_lock{MUTEX};
+
 bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{false};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
 static bool sWireframe{};
+static constinit const float TEXT_UVS[12]{0,1, 0,0, 1,0, 0,1, 1,0, 1,1};
 
 #ifdef NOSTALGIA_DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
@@ -24,6 +27,9 @@ static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLs
 
 bool OpenGLRendererAPI::Init()
 {
+    if(mIsRunning)
+        { return true; }
+
     PRINT_PRETTY_FUNCTION;
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
@@ -52,6 +58,21 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::Fonts]->CompileShader(GLSL_Font_Vert, GLSL_Font_Frag);
 #endif
 
+    long _offsets[2]{0, 0};
+    int  _strides[2]{2 * sizeof(float), 2 * sizeof(float)};
+
+    glCreateVertexArrays(1, &mTextVAO);
+    glCreateBuffers(2, mTextVBOs);
+    glNamedBufferData(mTextVBOs[0], 12 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+    glNamedBufferData(mTextVBOs[1], 12 * sizeof(float), TEXT_UVS, GL_STATIC_DRAW);
+    glVertexArrayVertexBuffers(mTextVAO, 0, 2, mTextVBOs, _offsets, _strides);
+    glEnableVertexArrayAttrib(mTextVAO, 0);
+    glEnableVertexArrayAttrib(mTextVAO, 1);
+    glVertexArrayAttribFormat(mTextVAO, 0, 2, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribFormat(mTextVAO, 1, 2, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(mTextVAO, 0, 0);
+    glVertexArrayAttribBinding(mTextVAO, 1, 1);
+
     EnumRegistry::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");
     EnumRegistry::Assign(TEXTURE_TYPE_2D,         "TEXTURE_TYPE_2D");
     EnumRegistry::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
@@ -76,7 +97,14 @@ bool OpenGLRendererAPI::Init()
 }
 
 void OpenGLRendererAPI::Shutdown()
-{ mIsRunning = false; }
+{
+    LOCK_MUTEX(mShadersMutex)
+    LOCK_MUTEX(mTextMutex)
+    mIsRunning = false;
+    mShaders.clear();
+    glDeleteBuffers(2, mTextVBOs);
+    glDeleteVertexArrays(1, &mTextVAO);
+}
 
 bool OpenGLRendererAPI::IsRunning()
 { return mIsRunning; }
@@ -88,13 +116,22 @@ void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Size2D> inSize)
 { glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
 void OpenGLRendererAPI::SetClearColor(double Red, double Green, double Blue, double Alpha)
-{ mClearColor = {Red, Green, Blue, Alpha}; }
+{
+    LOCK_MUTEX(mClearColorMutex)
+    mClearColor = {Red, Green, Blue, Alpha};
+}
 
 void OpenGLRendererAPI::SetClearColor(Farg<glm::vec4> Color)
-{ mClearColor = {Color.r, Color.g, Color.b, Color.a}; }
+{
+    LOCK_MUTEX(mClearColorMutex)
+    mClearColor = {Color.r, Color.g, Color.b, Color.a};
+}
 
 void OpenGLRendererAPI::SetClearColor(Farg<ColorRGBA> Color)
-{ mClearColor = {Color.r(), Color.g(), Color.b(), Color.a()}; }
+{
+    LOCK_MUTEX(mClearColorMutex)
+    mClearColor = {Color.r(), Color.g(), Color.b(), Color.a()};
+}
 
 void OpenGLRendererAPI::Clear()
 {
@@ -107,6 +144,7 @@ void OpenGLRendererAPI::SetLineWidth(float Width)
 
 ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 {
+    LOCK_MUTEX(mShadersMutex)
     while(inID.invalid() or mShaders.contains(inID))
         { inID = inID() + 1; }
     mShaders[inID] = inShader;
@@ -115,6 +153,7 @@ ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 
 Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
 {
+    LOCK_MUTEX(mShadersMutex)
     if(auto found_it{mShaders.find(inID())}; found_it != mShaders.end())
         { return found_it->second; }
     return mShaders.at(Shaders::BlinnPhong);
@@ -122,6 +161,7 @@ Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
 
 Error OpenGLRendererAPI::RemoveShader(ID inID)
 {
+    LOCK_MUTEX(mShadersMutex)
     return (mShaders.erase(inID))
         ? OK
         : (mShaders.empty())
@@ -144,6 +184,7 @@ void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight)
     else
         { return; }
 
+    LOCK_MUTEX(mShadersMutex)
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "color",             inLight->mColor);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "energy",            inLight->mEnergy);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "specular_strength", inLight->mSpecularStrength);
@@ -183,7 +224,10 @@ void OpenGLRendererAPI::SetDepthMask(bool isEnabled) const
 { glDepthMask((isEnabled) ? GL_TRUE : GL_FALSE); }
 
 ColorRGBA OpenGLRendererAPI::GetClearColor()
-{ return {mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]}; }
+{
+    LOCK_MUTEX(mClearColorMutex)
+    return {mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]};
+}
 
 float OpenGLRendererAPI::GetLineWidth()
 {
@@ -204,9 +248,9 @@ bool OpenGLRendererAPI::GetBlend() const
 
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const
 {
-    if(!inBuffer
-        or !inBuffer->Status()
-        or !inBuffer->ID())
+    if(not inBuffer
+        or not inBuffer->ID()
+        or not inBuffer->Status())
             { return false; }
     glBindTextureUnit(inUnit, inBuffer->ID());
     return true;
@@ -214,9 +258,9 @@ bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit)
 
 bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    if(!inTexture->uid().invalid())
-        { return BindTexture(inTexture->GetBuffer(), inUnit); }
-    return false;
+    if(inTexture->uid().invalid())
+        { return false; }
+    return BindTexture(inTexture->GetBuffer(), inUnit);
 }
 
 void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
@@ -226,30 +270,16 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
 }
 
 void OpenGLRendererAPI::DrawText(Sarg inText,
-    Shared<Font> inFont, glm::vec2 inPos, glm::vec2 inScale)
+    Shared<Font> inFont, glm::vec2 inPos, Farg<glm::vec2> inScale)
 {
-    static uint VAO{0}, VBO{0};
+    if(not mTextVAO)
+        { return; }
 
-    if(!VAO or !VBO)
-    {
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 66, nullptr, GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(0));
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
-        glEnableVertexAttribArray(3);
-    }
+    LOCK_MUTEX(mTextMutex)
+
+    glBindVertexArray(mTextVAO);
 
     glm::vec2 initial_position{inPos};
-    inScale = {1.0f,1.0f};
-
     for(auto c{inText.cbegin()}; c != inText.cend(); ++c)
     {
         FAUTO glyph{inFont->GetGlyph(*c)};
@@ -272,30 +302,28 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
             continue;
         }
 
-        float vertices[66] =
+        float _positions[12]
         {
-            pos.x          , pos.y + scale.y, 0, 1,1,1, 0,0,0, 0.0f, 1.0f,
-            pos.x          , pos.y          , 0, 1,1,1, 0,0,0, 0.0f, 0.0f,
-            pos.x + scale.x, pos.y          , 0, 1,1,1, 0,0,0, 1.0f, 0.0f,
-            pos.x          , pos.y + scale.y, 0, 1,1,1, 0,0,0, 0.0f, 1.0f,
-            pos.x + scale.x, pos.y          , 0, 1,1,1, 0,0,0, 1.0f, 0.0f,
-            pos.x + scale.x, pos.y + scale.y, 0, 1,1,1, 0,0,0, 1.0f, 1.0f,
+            pos.x,           pos.y + scale.y,
+            pos.x,           pos.y,
+            pos.x + scale.x, pos.y,
+            pos.x,           pos.y + scale.y,
+            pos.x + scale.x, pos.y,
+            pos.x + scale.x, pos.y + scale.y
         };
 
         inPos.x += (glyph.advance_x >> 6) * inScale.x;
         inPos.y -= (glyph.advance_y >> 6) * inScale.y;
 
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBindTextureUnit(0, glyph.texture->ID());
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), &vertices);
+        glNamedBufferSubData(mTextVBOs[0], 0, 12 * sizeof(float), _positions);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 }
 
 void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
 {
-    if(not inVAO or not inVAO->GetIndexBuffer())
+    if(not inVAO or (not inIndexCount and not inVAO->GetIndexBuffer()))
         { return; }
     inVAO->Bind();
     glDrawElements(GL_TRIANGLES,
