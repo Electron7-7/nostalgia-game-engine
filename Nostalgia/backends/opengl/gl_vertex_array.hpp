@@ -20,6 +20,7 @@ public:
 
 private:
     uint mObjectID{};
+    uint mVertexAttributeIndex{0};
 };
 
 #endif // GL_VERTEX_ARRAY_H

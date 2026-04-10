@@ -58,10 +58,9 @@ void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
     FAUTO layout{inVertexBuffer->GetLayout()};
     glVertexArrayVertexBuffer(mObjectID, mVertexBuffers.size(), inVertexBuffer->GetID(), 0, layout.GetStride());
 
-    uint vertex_attribute_index{0};
     for(FAUTO element : layout)
     {
-        glEnableVertexArrayAttrib(mObjectID, vertex_attribute_index);
+        glEnableVertexArrayAttrib(mObjectID, mVertexAttributeIndex);
         switch(element.type)
         {
         case IBuffer::Element::Type::Float:
@@ -69,7 +68,7 @@ void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
         case IBuffer::Element::Type::Float3:
         case IBuffer::Element::Type::Float4:
             glVertexArrayAttribFormat(mObjectID,
-                vertex_attribute_index,
+                mVertexAttributeIndex,
                 element.GetCount(),
                 sElementTypeToOpenGLType(element.type),
                 element.normalized ? GL_TRUE : GL_FALSE,
@@ -81,7 +80,7 @@ void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
         case IBuffer::Element::Type::Int4:
         case IBuffer::Element::Type::Bool:
             glVertexArrayAttribIFormat(mObjectID,
-                vertex_attribute_index,
+                mVertexAttributeIndex,
                 element.GetCount(),
                 sElementTypeToOpenGLType(element.type),
                 element.offset);
@@ -93,12 +92,12 @@ void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
             for(uint i{0}; i < count; ++i)
             {
                 glVertexArrayAttribFormat(mObjectID,
-                    vertex_attribute_index,
+                    mVertexAttributeIndex,
                     count,
                     sElementTypeToOpenGLType(element.type),
                     element.normalized ? GL_TRUE : GL_FALSE,
                     element.offset + sizeof(float) * count * i);
-                glVertexArrayBindingDivisor(mObjectID, vertex_attribute_index, 1);
+                glVertexArrayBindingDivisor(mObjectID, mVertexAttributeIndex, 1);
             }
             break;
         }
@@ -107,12 +106,10 @@ void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
             print_error("Unknown IBuffer::Element::Type!");
             return;
         }
-        glVertexArrayAttribBinding(mObjectID, vertex_attribute_index++, mVertexBuffers.size());
+        glVertexArrayAttribBinding(mObjectID, mVertexAttributeIndex++, mVertexBuffers.size());
     }
-
     mVertexBuffers.push_back(inVertexBuffer);
 }
-
 
 void OpenGLVertexArray::SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer)
 {
