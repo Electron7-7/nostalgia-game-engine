@@ -29,6 +29,7 @@ public:
     virtual int SurfaceCount() const override;
     virtual PrimitiveType SurfaceGetPrimitive(int inIndex) const override;
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const override;
+    // TODO: implement per-surface materials
     virtual ID SurfaceGetMaterialID(int inIndex) const override;
 
     // TODO: remove this and replace it with per-surface materials
