@@ -19,6 +19,14 @@ bool ResourceManager::Init()
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
 
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,  "Position");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,  "Color");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS, "Normal");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,      "UV");
+    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,  "Triangles");
+    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,     "Points");
+    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,      "Lines");
+
     UID::f_Audiowide =
         ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide,
             std::size(Fonts::Audiowide)), "Audiowide");
