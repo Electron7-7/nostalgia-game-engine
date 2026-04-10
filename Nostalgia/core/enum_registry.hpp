@@ -102,6 +102,19 @@ public:
     // Searches for the given enum and returns the string registered to it; if the enum cannot be found,
     // an empty string is returned instead
     template<IsEnum T>
+        static Sarg GetEnumName(long inEnumValue) noexcept
+        {
+            LOCK_MUTEX;
+            if(auto found_it{std::find_if(m_sEnums.begin(), m_sEnums.end(), [inEnumValue](Farg<Enum_t> enum_it)
+                        { return enum_it.type == typeid(T).hash_code() and enum_it.value == inEnumValue; } )};
+                    found_it != m_sEnums.end())
+                { return found_it->name; }
+            return GlobalConstants::str_empty;
+        }
+
+    // Searches for the given enum and returns the string registered to it; if the enum cannot be found,
+    // an empty string is returned instead
+    template<IsEnum T>
         static Sarg GetEnumName(T inEnum) noexcept
         {
             LOCK_MUTEX;
