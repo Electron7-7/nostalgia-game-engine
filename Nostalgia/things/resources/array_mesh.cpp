@@ -41,12 +41,29 @@ Shared<ArrayMesh> ArrayMesh::CreateFromFile(Sarg inFilePath)
     return output;
 }
 
-#pragma message("TODO: combine duplicate code")
+FileType ArrayMesh::ConvertToFileType(ModelFileType inType)
+{
+    switch(inType)
+    {
+    case ArrayMesh::MODEL_OBJ:
+        return FileType::model_OBJ;
+    default:
+        print_warning("Invalid/unknown model file type encountered");
+        return FileType::Unknown;
+    }
+}
+
 Error ArrayMesh::LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType)
-{ return CreateMeshData({inData, inSize, sModelTypeToFileType(inType)}); }
+{ return CreateMeshData({inData, inSize, ConvertToFileType(inType)}); }
 
 Error ArrayMesh::LoadModelFile(Sarg inFilePath)
 { return CreateMeshData({inFilePath}); }
+
+bool ArrayMesh::LoadedFromFile() const
+{ return not mModelFilepath.empty(); }
+
+Sarg ArrayMesh::ModelFilePath() const
+{ return mModelFilepath; }
 
 void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<Indices_t> inIndices)
 {
@@ -121,24 +138,6 @@ ID ArrayMesh::SurfaceGetMaterialID(int inIndex) const
 {
     ASSERT_SURFACE_INDEX(inIndex, ID::Invalid)
     return mSurfaces.at(inIndex).material_id;
-}
-
-bool ArrayMesh::LoadedFromFile() const
-{ return not mModelFilepath.empty(); }
-
-Sarg ArrayMesh::ModelFilePath() const
-{ return mModelFilepath; }
-
-FileType ArrayMesh::sModelTypeToFileType(ModelFileType inType)
-{
-    switch(inType)
-    {
-    case ArrayMesh::MODEL_OBJ:
-        return FileType::model_OBJ;
-    default:
-        print_warning("Invalid/unknown model file type encountered");
-        return FileType::Unknown;
-    }
 }
 
 Error ArrayMesh::CreateMeshData(Farg<FileData> inModelFile)

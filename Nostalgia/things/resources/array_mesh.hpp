@@ -16,9 +16,12 @@ public:
 
     static Shared<ArrayMesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelFileType inType);
     static Shared<ArrayMesh> CreateFromFile(Sarg inFilePath);
+    static FileType ConvertToFileType(ArrayMesh::ModelFileType);
 
     virtual Error LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType);
     virtual Error LoadModelFile(Sarg inFilePath);
+    virtual bool LoadedFromFile() const;
+    virtual Sarg ModelFilePath() const;
 
     virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) override;
     virtual void ClearSurfaces() override;
@@ -28,17 +31,12 @@ public:
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const override;
     virtual ID SurfaceGetMaterialID(int inIndex) const override;
 
-    virtual bool LoadedFromFile() const;
-    virtual Sarg ModelFilePath() const;
-
     // TODO: remove this and replace it with per-surface materials
     ID mMaterialID;
     ID MaterialID() const { return mMaterialID; }
     void MaterialID(ID inID) { mMaterialID = inID; }
 
 protected:
-    static FileType sModelTypeToFileType(ArrayMesh::ModelFileType);
-
     std::string mModelFilepath{""};
     std::vector<Surface> mSurfaces{};
 
