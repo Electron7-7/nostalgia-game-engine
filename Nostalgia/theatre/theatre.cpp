@@ -721,7 +721,6 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         renderer_api->SetDepthMask(false);
         for(int i{0}; i < GetResource<ArrayMesh>(UID::m_Cube)->SurfaceCount(); ++i)
         	{ renderer_api->DrawIndexed(GetResource<ArrayMesh>(UID::m_Cube)->SurfaceGetVertexArray(i)); }
-
         renderer_api->SetDepthMask(true);
         break;
     case Environment::BG_CUSTOM_COLOR:
@@ -811,7 +810,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
                 { scale_vector *= glm::vec3{1.0f, 1.0f / ((float)height / width), 1.0f}; }
         }
 
-        if(not mesh->MeshData())
+        if(not mesh->SurfaceCount())
             { mesh = GetResource<ArrayMesh>(UID::m_Error); }
 
         glm::mat4 model_matrix{visual3d->GlobalTransform().model_matrix()};
@@ -833,7 +832,6 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         shader->Bind();
         for(int i{0}; i < mesh->SurfaceCount(); ++i)
         	{ renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
-
         renderer_api->SetFramebufferSRGB(false);
     }
 }
@@ -894,7 +892,6 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             shader->Bind();
             for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
             	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-
             renderer_api->SetFramebufferSRGB(false);
         }
         else if(visual2d->DerivedFrom(ThingType::Text2D))
@@ -966,9 +963,9 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
 
                     renderer_api->BindTexture(glyph.texture, 0);
                     renderer_api->SetWireframe(false);
+
                     for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
                     	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-
 
                     if(text2d->mDebugSolid)
                     {
@@ -978,7 +975,6 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
                         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
                         for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
                         	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-
                     }
 
                     position.x += (glyph.advance_x >> 6);
