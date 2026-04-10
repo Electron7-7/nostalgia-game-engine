@@ -3,13 +3,7 @@
 // Implementations
 #include "backends/opengl/gl_mesh_buffers.hpp"
 
-const IBuffer::Layout IBuffer::Layout::cIndexBufferLayout{{Element::Type::Int, "FaceIndex"}};
-const IBuffer::Layout IBuffer::Layout::cDefaultMeshLayout{
-    {Element::Type::Float3, "Position"},
-    {Element::Type::Float3, "Color"},
-    {Element::Type::Float3, "Normal"},
-    {Element::Type::Float2, "UV"},
-};
+const IBuffer::Layout IndexBuffer::s_cIndexBufferLayout{{Element::Type::Int, "FaceIndex"}};
 
 uint IBuffer::Element::GetComponentCount(Type inType)
 {
@@ -56,9 +50,6 @@ uint IBuffer::Element::GetCount() const
 
 void IBuffer::Element::DebugLog() const
 { print_debug("Element {}: size: {}, offset: {}", name, size, offset); }
-
-IBuffer::Layout::Layout():
-    Layout{cDefaultMeshLayout} {}
 
 IBuffer::Layout::Layout(std::initializer_list<Element> inElements):
     mElements{inElements}
@@ -117,7 +108,7 @@ Shared<VertexBuffer> VertexBuffer::Create(size_t inSize)
     }
 }
 
-Shared<VertexBuffer> VertexBuffer::Create(float* inVertices, size_t inSize)
+Shared<VertexBuffer> VertexBuffer::Create(const float* inVertices, size_t inSize)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -133,7 +124,7 @@ Shared<VertexBuffer> VertexBuffer::Create(float* inVertices, size_t inSize)
     }
 }
 
-Shared<IndexBuffer> IndexBuffer::Create(uint* inIndices, size_t inSize)
+Shared<IndexBuffer> IndexBuffer::Create(const uint* inIndices, size_t inSize)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())

@@ -38,12 +38,8 @@ public:
     struct Layout
     {
     public:
-        static const Layout cIndexBufferLayout;
-        static const Layout cDefaultMeshLayout;
-
         typedef std::vector<Element> ElementList;
 
-        Layout();
         Layout(std::initializer_list<Element> inElements);
 
         uint GetStride() const;
@@ -93,7 +89,8 @@ public:
     static Shared<IndexBuffer> Create(const uint* inIndices, size_t inSize);
 
 private:
-    Farg<Layout> GetLayout() const final { return Layout::cIndexBufferLayout; }
+    static const Layout s_cIndexBufferLayout;
+    Farg<Layout> GetLayout() const final { return s_cIndexBufferLayout; }
     void SetLayout(Farg<Layout>) final {}
     void SetData(const void*, size_t) final {}
 };
