@@ -25,8 +25,10 @@ public:
     virtual bool LoadedFromFile() const;
     virtual Sarg ModelFilePath() const;
 
+    // TODO: remove this and replace it with per-surface materials
+    ID mMaterialID;
     ID MaterialID() const { return mMaterialID; }
-    void MaterialID(ID inUID) { mMaterialID = inUID; }
+    void MaterialID(ID inID) { mMaterialID = inID; }
 
 protected:
     std::string mModelFilepath{""};
@@ -34,8 +36,6 @@ protected:
 
     virtual Error CreateMeshData(Farg<FileData> inModelFile);
 
-private:
-    ID mMaterialID{};
 };
 
 #endif // ARRAY_MESH_H
