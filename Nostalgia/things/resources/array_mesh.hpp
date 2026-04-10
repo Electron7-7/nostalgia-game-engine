@@ -21,6 +21,12 @@ public:
     virtual Error LoadModelFile(Sarg inFilePath);
 
     virtual Shared<VertexArray> MeshData() const override;
+    virtual void ClearSurfaces() override;
+    virtual void RemoveSurface(int inIndex) override;
+    virtual int SurfaceCount() const override;
+    virtual PrimitiveType SurfaceGetPrimitive(int inIndex) const override;
+    virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const override;
+    virtual ID SurfaceGetMaterialID(int inIndex) const override;
 
     virtual bool LoadedFromFile() const;
     virtual Sarg ModelFilePath() const;
@@ -33,6 +39,7 @@ public:
 protected:
     std::string mModelFilepath{""};
     Shared<VertexArray> m_pVertexArray{VertexArray::Create()};
+    std::vector<Surface> mSurfaces{};
 
     virtual Error CreateMeshData(Farg<FileData> inModelFile);
 

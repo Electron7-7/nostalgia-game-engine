@@ -8,6 +8,7 @@
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
 
 using namespace TheatreFile;
+#define ASSERT_SURFACE_INDEX(INDEX, ...) if(INDEX >= mSurfaces.size()) { return __VA_ARGS__; }
 
 static FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType);
 static Error s_LoadOBJ(Farg<FileData>, Shared<VertexArray>&);
@@ -52,6 +53,40 @@ Error ArrayMesh::LoadModelFile(Sarg inFilePath)
 
 Shared<VertexArray> ArrayMesh::MeshData() const
 { return m_pVertexArray; }
+
+void ArrayMesh::ClearSurfaces()
+{
+    mSurfaces.clear();
+}
+
+void ArrayMesh::RemoveSurface(int inIndex)
+{
+    ASSERT_SURFACE_INDEX(inIndex)
+    mSurfaces.erase(mSurfaces.cbegin() + inIndex);
+}
+
+int ArrayMesh::SurfaceCount() const
+{
+    return static_cast<int>(mSurfaces.size());
+}
+
+Mesh::PrimitiveType ArrayMesh::SurfaceGetPrimitive(int inIndex) const
+{
+    ASSERT_SURFACE_INDEX(inIndex, PRIMITIVE_MAX)
+    return mSurfaces.at(inIndex).primitive;
+}
+
+Shared<VertexArray> ArrayMesh::SurfaceGetVertexArray(int inIndex) const
+{
+    ASSERT_SURFACE_INDEX(inIndex, nullptr)
+    return mSurfaces.at(inIndex).vertex_array;
+}
+
+ID ArrayMesh::SurfaceGetMaterialID(int inIndex) const
+{
+    ASSERT_SURFACE_INDEX(inIndex, ID::Invalid)
+    return mSurfaces.at(inIndex).material_id;
+}
 
 bool ArrayMesh::LoadedFromFile() const
 { return not mModelFilepath.empty(); }
