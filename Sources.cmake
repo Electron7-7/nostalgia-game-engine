@@ -187,7 +187,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/rendering/debugging.hpp
     ${NOSTALGIA_ROOT}/rendering/vertex_array.hpp
     ${NOSTALGIA_ROOT}/rendering/environment.hpp
-    ${NOSTALGIA_ROOT}/rendering/vertex.hpp
     ${NOSTALGIA_ROOT}/rendering/frame_buffer.hpp
     ${NOSTALGIA_ROOT}/rendering/mesh_buffers.hpp
     ${NOSTALGIA_ROOT}/rendering/shader.hpp
