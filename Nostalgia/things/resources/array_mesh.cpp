@@ -2,16 +2,13 @@
 #include "things/thing_factory.hpp"
 #include "things/thing_data.hpp"
 #include "rendering/mesh_buffers.hpp"
-#include "rendering/vertex.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
 
-using namespace TheatreFile;
 #define ASSERT_SURFACE_INDEX(INDEX, ...) if(INDEX >= mSurfaces.size()) { return __VA_ARGS__; }
 
-static FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType);
-static Error s_LoadOBJ(Farg<FileData>, Shared<VertexArray>&);
+using namespace TheatreFile;
 
 void ArrayMesh::SetVariables(Farg<ThingData> data)
 {
@@ -46,13 +43,51 @@ Shared<ArrayMesh> ArrayMesh::CreateFromFile(Sarg inFilePath)
 
 #pragma message("TODO: combine duplicate code")
 Error ArrayMesh::LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType)
-{ return CreateMeshData({inData, inSize, s_ModelTypeToFileType(inType)}); }
+{ return CreateMeshData({inData, inSize, sModelTypeToFileType(inType)}); }
 
 Error ArrayMesh::LoadModelFile(Sarg inFilePath)
 { return CreateMeshData({inFilePath}); }
 
-Shared<VertexArray> ArrayMesh::MeshData() const
-{ return m_pVertexArray; }
+void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<Indices_t> inIndices)
+{
+    MeshData_t _mutable_mesh_data{};
+    if(inData.empty() or inData[0].empty())
+        { print_error("No vertex positions in ArrayMesh surface data"); return; }
+    else if(inData.size() < ARRAY_FORMAT_MAX)
+        { _mutable_mesh_data = inData; }
+
+    Farg<MeshData_t> _mesh_data{(_mutable_mesh_data.empty()) ? inData : _mutable_mesh_data};
+    auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), ID::Invalid)};
+
+    for(int i{0}; i < ARRAY_FORMAT_MAX; ++i)
+    {
+        IBuffer::Element::Type _element_type{IBuffer::Element::Type::Float3};
+        size_t _vertices_count{_mesh_data[0].size()};
+        float _fill_value{0.0f};
+        switch(i)
+        {
+        case Mesh::ARRAY_FORMAT_UV:
+            _element_type = IBuffer::Element::Type::Float2;
+            _vertices_count = _vertices_count - (_vertices_count / 3);
+            break;
+        case Mesh::ARRAY_FORMAT_COLORS:
+            _fill_value = 1.0f;
+            [[fallthrough]];
+        default:
+            break;
+        }
+        if(i >= _mesh_data.size())
+            { _mutable_mesh_data[i] = std::vector<float>(_vertices_count, _fill_value); }
+        auto vbo{VertexBuffer::Create(inData[i].data(), inData[i].size())};
+        vbo->SetLayout({{_element_type, EnumRegistry::GetEnumName<ArrayFormat>(i)}});
+        _surface.vertex_array->AddVertexBuffer(vbo);
+    }
+
+    std::vector<uint> _indices(inData[ARRAY_FORMAT_VERTEX].size() / 3);
+    // https://stackoverflow.com/a/17694667
+    std::iota(_indices.begin(), _indices.end(), 0);
+    _surface.vertex_array->SetIndexBuffer(IndexBuffer::Create(_indices.data(), _indices.size()));
+}
 
 void ArrayMesh::ClearSurfaces()
 {
@@ -94,7 +129,7 @@ bool ArrayMesh::LoadedFromFile() const
 Sarg ArrayMesh::ModelFilePath() const
 { return mModelFilepath; }
 
-FileType s_ModelTypeToFileType(ArrayMesh::ModelFileType inType)
+FileType ArrayMesh::sModelTypeToFileType(ModelFileType inType)
 {
     switch(inType)
     {
@@ -114,7 +149,7 @@ Error ArrayMesh::CreateMeshData(Farg<FileData> inModelFile)
     switch(inModelFile.file_type())
     {
     case FileType::model_OBJ:
-        return s_LoadOBJ(inModelFile, m_pVertexArray);
+        return CreateMeshFromOBJ(inModelFile);
     case FileType::Unknown:
     default:
         print_error("Data of unknown file-type cannot be buffered");
@@ -123,32 +158,28 @@ Error ArrayMesh::CreateMeshData(Farg<FileData> inModelFile)
     return OK;
 }
 
-///////////////////
-// MODEL PARSING //
-///////////////////
-Error s_LoadOBJ(Farg<FileData> inModelFile, Shared<VertexArray>& ioVertexArray)
+Error ArrayMesh::CreateMeshFromOBJ(Farg<FileData> inModelFile)
 {
     tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
 
-    if(!reader.ParseFromString(inModelFile.raw_data_str(), "", reader_config))
+    if(not reader.ParseFromString(inModelFile.raw_data_str(), "", reader_config))
     {
         if(!reader.Error().empty())
             { print_error("TinyObjReader Error: '{}'", reader.Error()); }
         return ERR_FILE_READ;
     }
 
-    if(!reader.Warning().empty())
+    if(not reader.Warning().empty())
         { print_warning("TinyObjReader Warning: '{}'", reader.Warning()); }
 
     auto& attrib{reader.GetAttrib()};
     auto& shapes{reader.GetShapes()};
 
-    uint   vertex_count{0};
-    Vertex temp_vertex{};
-
-    std::vector<uint> indices{};
-    std::vector<float> vertices{};
+    std::vector<float> _positions{}, _colors{}, _normals{}, _uvs{};
+    const std::vector<float> _empty_color{1.0f, 1.0f, 1.0f},
+        _empty_normal{0.0f, 0.0f, 0.0f},
+        _empty_uv{0.0f, 0.0f};
 
     // This looping code is from https://github.com/tinyobjloader/tinyobjloader
     // Loop over shapes (Shapes are full meshes in the OBJ (there can be multiple))
@@ -164,54 +195,42 @@ Error s_LoadOBJ(Farg<FileData> inModelFile, Shared<VertexArray>& ioVertexArray)
             for(size_t v = 0; v < fv; ++v)
             {
                 // access to vertex
-                tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-                tinyobj::real_t vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
-                tinyobj::real_t vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
-                tinyobj::real_t vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
+                tinyobj::index_t idx{shapes[s].mesh.indices[index_offset + v]};
+                _positions.push_back(attrib.vertices[3*size_t(idx.vertex_index)+0]);
+                _positions.push_back(attrib.vertices[3*size_t(idx.vertex_index)+1]);
+                _positions.push_back(attrib.vertices[3*size_t(idx.vertex_index)+2]);
 
-                temp_vertex.SetPosition(glm::vec3((float)vx, (float)vy, (float)vz));
+                std::vector<float> _color{_empty_color}, _normal{_empty_normal}, _uv{_empty_uv};
+
+                if(not attrib.colors.empty())
+                {
+                    _color[0] = attrib.colors[3*size_t(idx.vertex_index)+0];
+                    _color[1] = attrib.colors[3*size_t(idx.vertex_index)+1];
+                    _color[2] = attrib.colors[3*size_t(idx.vertex_index)+2];
+                }
 
                 // Check if `normal_index` is zero or positive. negative = no normal data
                 if(idx.normal_index >= 0)
                 {
-                    tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];
-                    tinyobj::real_t ny = attrib.normals[3*size_t(idx.normal_index)+1];
-                    tinyobj::real_t nz = attrib.normals[3*size_t(idx.normal_index)+2];
-
-                    temp_vertex.SetNormal(glm::vec3((float)nx, (float)ny, (float)nz));
+                    _normal[0] = attrib.normals[3*size_t(idx.normal_index)+0];
+                    _normal[1] = attrib.normals[3*size_t(idx.normal_index)+1];
+                    _normal[2] = attrib.normals[3*size_t(idx.normal_index)+2];
                 }
-                else
-                    { temp_vertex.SetNormal(glm::vec3(0.0f)); }
 
                 // Check if `texcoord_index` is zero or positive. negative = no texcoord data
                 if(idx.texcoord_index >= 0)
                 {
-                    tinyobj::real_t tx = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
-                    tinyobj::real_t ty = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
-
-                    temp_vertex.SetUV(glm::vec2((float)tx, (float)ty));
+                    _uv[0] = attrib.texcoords[2*size_t(idx.texcoord_index)+0];
+                    _uv[1] = attrib.texcoords[2*size_t(idx.texcoord_index)+1];
                 }
-                else
-                    { temp_vertex.SetUV(glm::vec2(0.0f)); }
-
-                if(idx.texcoord_index >= 0)
-                {
-                    tinyobj::real_t red   = attrib.colors[3*size_t(idx.vertex_index)+0];
-                    tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
-                    tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
-
-                    temp_vertex.SetColor(glm::vec3((float)red, (float)green, (float)blue));
-                }
-                else
-                    { temp_vertex.SetColor(glm::vec3(1.0f)); }
-
-                temp_vertex.GetVertexData(vertices);
-                indices.push_back(vertex_count++);
+                _colors.insert(_colors.end(), _color.begin(), _color.end());
+                _normals.insert(_normals.end(), _normal.begin(), _normal.end());
+                _uvs.insert(_uvs.end(), _uv.begin(), _uv.end());
             }
             index_offset += fv;
         }
+        AddSurface(PRIMITIVE_TRIANGLES, {_positions, _colors, _normals, _uvs});
     }
-    ioVertexArray->AddVertexBuffer(VertexBuffer::Create(vertices.data(), vertices.size()));
-    ioVertexArray->SetIndexBuffer(IndexBuffer::Create(indices.data(), indices.size()));
+
     return OK;
 }

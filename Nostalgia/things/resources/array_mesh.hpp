@@ -20,7 +20,7 @@ public:
     virtual Error LoadModelData(const uchar* inData, size_t inSize, ModelFileType inType);
     virtual Error LoadModelFile(Sarg inFilePath);
 
-    virtual Shared<VertexArray> MeshData() const override;
+    virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) override;
     virtual void ClearSurfaces() override;
     virtual void RemoveSurface(int inIndex) override;
     virtual int SurfaceCount() const override;
@@ -37,12 +37,13 @@ public:
     void MaterialID(ID inID) { mMaterialID = inID; }
 
 protected:
+    static FileType sModelTypeToFileType(ArrayMesh::ModelFileType);
+
     std::string mModelFilepath{""};
-    Shared<VertexArray> m_pVertexArray{VertexArray::Create()};
     std::vector<Surface> mSurfaces{};
 
-    virtual Error CreateMeshData(Farg<FileData> inModelFile);
-
+    Error CreateMeshData(Farg<FileData>);
+    Error CreateMeshFromOBJ(Farg<FileData>);
 };
 
 #endif // ARRAY_MESH_H

@@ -719,7 +719,9 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
         renderer_api->SetDepthMask(false);
-        renderer_api->DrawIndexed(GetResource<ArrayMesh>(UID::m_Cube)->MeshData());
+        for(int i{0}; i < GetResource<ArrayMesh>(UID::m_Cube)->SurfaceCount(); ++i)
+        	{ renderer_api->DrawIndexed(GetResource<ArrayMesh>(UID::m_Cube)->SurfaceGetVertexArray(i)); }
+
         renderer_api->SetDepthMask(true);
         break;
     case Environment::BG_CUSTOM_COLOR:
@@ -829,7 +831,9 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         shader->SetUniform("debug_highlight", debug_highlight);
 
         shader->Bind();
-        renderer_api->DrawIndexed(mesh->MeshData());
+        for(int i{0}; i < mesh->SurfaceCount(); ++i)
+        	{ renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
+
         renderer_api->SetFramebufferSRGB(false);
     }
 }
@@ -888,7 +892,9 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             shader->SetUniform("debug_highlight", debug_highlight);
 
             shader->Bind();
-            renderer_api->DrawIndexed(quad_mesh->MeshData());
+            for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+            	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+
             renderer_api->SetFramebufferSRGB(false);
         }
         else if(visual2d->DerivedFrom(ThingType::Text2D))
@@ -960,7 +966,9 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
 
                     renderer_api->BindTexture(glyph.texture, 0);
                     renderer_api->SetWireframe(false);
-                    renderer_api->DrawIndexed(quad_mesh->MeshData());
+                    for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+                    	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+
 
                     if(text2d->mDebugSolid)
                     {
@@ -968,7 +976,9 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
                         if(text2d->Wireframe() and text2d->mDebugSolid)
                             { shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f}); }
                         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
-                        renderer_api->DrawIndexed(quad_mesh->MeshData());
+                        for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+                        	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+
                     }
 
                     position.x += (glyph.advance_x >> 6);

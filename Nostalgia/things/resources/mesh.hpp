@@ -33,7 +33,6 @@ public:
         ID material_id{};
     };
 
-    virtual Shared<VertexArray> MeshData() const { return nullptr; }
     virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) {}
     virtual void ClearSurfaces() {}
     virtual void RemoveSurface(int inIndex) {}
