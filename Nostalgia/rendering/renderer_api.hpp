@@ -52,7 +52,7 @@ public:
 
     virtual void DrawText(Sarg inText,
         Shared<Font> inFont, glm::vec2 inPos, Farg<glm::vec2> inScale = {1.0f,1.0f}) = 0;
-    virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0) = 0;
+    virtual void DrawIndexed(Shared<VertexArray>, uint IndexCount = 0, uint IndexOffset = 0) = 0;
     virtual void Clear() = 0;
 
 private:

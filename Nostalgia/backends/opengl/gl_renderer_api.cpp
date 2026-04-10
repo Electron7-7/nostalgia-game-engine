@@ -321,16 +321,13 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
     }
 }
 
-void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount)
+void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount, uint inIndexOffset)
 {
     if(not inVAO or (not inIndexCount and not inVAO->GetIndexBuffer()))
         { return; }
+    inIndexCount = (inIndexCount) ? inIndexCount : inVAO->GetIndexBuffer()->GetCount();
     inVAO->Bind();
-    glDrawElements(GL_TRIANGLES,
-        (inIndexCount)
-            ? inIndexCount
-            : inVAO->GetIndexBuffer()->GetCount(),
-        GL_UNSIGNED_INT, nullptr);
+    glDrawElementsBaseVertex(GL_TRIANGLES, inIndexCount, GL_UNSIGNED_INT, nullptr, inIndexOffset);
 }
 
 //----------------------------------------------------------------------------------

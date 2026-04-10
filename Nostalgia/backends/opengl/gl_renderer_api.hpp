@@ -37,7 +37,7 @@ public:
     Error RemoveShader(ID) final;
 
     void DrawText(Sarg, Shared<Font>, glm::vec2, Farg<glm::vec2>) final;
-    void DrawIndexed(Shared<VertexArray>, uint) final;
+    void DrawIndexed(Shared<VertexArray>, uint = 0, uint = 0) final;
     void Clear() final;
 
 private:
