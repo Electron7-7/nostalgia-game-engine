@@ -80,7 +80,7 @@ public:
     virtual int GetSize() const = 0;
 
     static Shared<VertexBuffer> Create(size_t inSize);
-    static Shared<VertexBuffer> Create(float* inVertices, size_t inSize);
+    static Shared<VertexBuffer> Create(const float* inVertices, size_t inSize);
 };
 
 class IndexBuffer : public IBuffer
@@ -90,7 +90,7 @@ public:
 
     virtual uint GetCount() const = 0;
 
-    static Shared<IndexBuffer> Create(uint* inIndices, size_t inSize);
+    static Shared<IndexBuffer> Create(const uint* inIndices, size_t inSize);
 
 private:
     Farg<Layout> GetLayout() const final { return Layout::cIndexBufferLayout; }

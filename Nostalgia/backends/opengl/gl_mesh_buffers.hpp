@@ -7,7 +7,7 @@ class OpenGLVertexBuffer final : public VertexBuffer
 {
 public:
     OpenGLVertexBuffer(size_t);
-    OpenGLVertexBuffer(float*, size_t);
+    OpenGLVertexBuffer(const float*, size_t);
     virtual ~OpenGLVertexBuffer();
 
     void Bind() const final;
@@ -29,7 +29,7 @@ private:
 class OpenGLIndexBuffer final : public IndexBuffer
 {
 public:
-    OpenGLIndexBuffer(uint*, size_t);
+    OpenGLIndexBuffer(const uint*, size_t);
     virtual ~OpenGLIndexBuffer();
 
     void Bind() const final;

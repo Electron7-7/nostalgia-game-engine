@@ -8,7 +8,7 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize):
     glNamedBufferStorage(mBufferID, inSize * sizeof(float), nullptr, GL_DYNAMIC_STORAGE_BIT);
 }
 
-OpenGLVertexBuffer::OpenGLVertexBuffer(float* inVertices, size_t inSize):
+OpenGLVertexBuffer::OpenGLVertexBuffer(const float* inVertices, size_t inSize):
     mSize{static_cast<int>(inSize)}
 {
     glCreateBuffers(1, &mBufferID);
@@ -49,7 +49,7 @@ Farg<IBuffer::Layout> OpenGLVertexBuffer::GetLayout() const
 void OpenGLVertexBuffer::SetLayout(Farg<Layout> inLayout)
 { mLayout = inLayout; }
 
-OpenGLIndexBuffer::OpenGLIndexBuffer(uint* inIndices, size_t inCount):
+OpenGLIndexBuffer::OpenGLIndexBuffer(const uint* inIndices, size_t inCount):
     mCount{static_cast<uint>(inCount)}
 {
     glCreateBuffers(1, &mBufferID);
