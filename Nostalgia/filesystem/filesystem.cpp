@@ -11,11 +11,16 @@ std::string FileSystem::GetCurrentDirectory()
 
 // `FileSystem::GetProgramDirectory` is defined differently for Linux & Windows
 #ifdef _WIN32
+#   define PATH_MAX_CHARS 13107
     std::string FileSystem::GetProgramDirectory()
     {
-        std::string out_path{};
-        GetModuleFileName(nullptr, out_path.data(), out_path.max_size());
-        return fs::path{out_path}.remove_filename().string() + "/";
+        char _out_path[PATH_MAX_CHARS]{};
+        if(GetModuleFileName(nullptr, _out_path, PATH_MAX_CHARS) == 0)
+        {
+            print_error("Failed to get executable location via GetModuleFileName");
+            return std::string{""};
+        }
+         return fs::path{std::string{_out_path}}.remove_filename().string() + "/";
     }
 #else  // !_WIN32
     std::string FileSystem::GetProgramDirectory()
