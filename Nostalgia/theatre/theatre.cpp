@@ -221,19 +221,17 @@ bool Theatre::Startup()
 
 bool Theatre::Shutdown()
 {
-    if(!mIsStarted)
+    if(not mIsStarted)
         { return true; }
+    mIsStarted = false;
     LOCK_THINGS;
-    for(ID uid : ThingIDs())
-    {
-        if(!mThings.contains(uid))
-            { continue; }
-        DestroyThing(uid);
-    }
+    IdVec_t _uids{ThingUIDs()};
+    for(FAUTO uid : _uids)
+        { DestroyThing(uid); }
     mNames.clear();
     mCallSheet.Clear();
     mThings.clear();
-    return !(mIsStarted = false);
+    return true;
 }
 
 void Theatre::Draw()
@@ -359,11 +357,23 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     return ERR_NOT_FOUND;
 }
 
-IdVec_t Theatre::ThingIDs()
+IdVec_t Theatre::ThingUIDs()
 {
-    LockGuard<RMutex> lock{mThingsMutex};
+    LOCK_THINGS;
     auto keys{std::views::keys(mThings)};
     return {keys.begin(), keys.end()};
+}
+
+IdSet_arg Theatre::ThinkerUIDs()
+{
+    LOCK_THINGS;
+    return mThinkerUIDs;
+}
+
+IdSet_arg Theatre::ResourceUIDs()
+{
+    LOCK_THINGS;
+    return mResourceUIDs;
 }
 
 bool Theatre::ThingExists(ID inUID)
@@ -429,7 +439,8 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
 Error Theatre::DestroyThing(ID inID)
 {
     LOCK_THINGS;
-
+    if(not mThings.contains(inID))
+        { return ERR_NOT_FOUND; }
     auto children{GetChildren(inID)};
     for(ID child : children)
         { DestroyThing(child); }
@@ -649,18 +660,24 @@ void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
 
 void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
 {
-    if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer3D) and not m_pPlayer)
-        { m_pPlayer = GetThinker(inUID); }
-    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
-        { mViewportIDs.insert(inUID); }
-    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))
+    if(ThingFactory::IsThinker(inType))
     {
-        mVisual3DIDs.insert(inUID);
-        if(ThingFactory::IsDerivedFrom(inType, ThingType::Light3D))
-            { mLightIDs.insert(inUID); }
+        mThinkerUIDs.insert(inUID);
+        if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer3D) and not m_pPlayer)
+            { m_pPlayer = GetThinker(inUID); }
+        else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
+            { mViewportIDs.insert(inUID); }
+        else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))
+        {
+            mVisual3DIDs.insert(inUID);
+            if(ThingFactory::IsDerivedFrom(inType, ThingType::Light3D))
+                { mLightIDs.insert(inUID); }
+        }
+        else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual2D))
+            { mVisual2DIDs.insert(inUID); }
     }
-    else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual2D))
-        { mVisual2DIDs.insert(inUID); }
+    else if(ThingFactory::IsResource(inType))
+        { mResourceUIDs.insert(inUID); }
 }
 
 Error Theatre::DestroyThingOnly(ID inID)
@@ -683,6 +700,9 @@ Error Theatre::DestroyThingOnly(ID inID)
             break;
         }
     }
+
+    mThinkerUIDs.erase(inID);
+    mResourceUIDs.erase(inID);
     mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
@@ -991,3 +1011,9 @@ Error Theatre::SetThingName(Sarg inOldName, Sarg inNewName)
         { return ERR_NULLPTR; }
     return Theatre::Current()->SetName(inOldName, inNewName);
 }
+
+const LockGuard<RMutex> Theatre::GetThingsLock()
+{ return LockGuard<RMutex>{mThingsMutex}; }
+
+const LockGuard<RMutex> Theatre::GetCallSheetLock()
+{ return LockGuard<RMutex>{mCallSheetMutex}; }

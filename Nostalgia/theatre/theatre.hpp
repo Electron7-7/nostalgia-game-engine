@@ -46,7 +46,10 @@ public:
     ID    GetCurrentCamera3D(ID inViewportID = {});
     Error SetCurrentCamera(ID inCameraID, ID inViewportID = {});
 
-    IdVec_t ThingIDs();
+    IdVec_t ThingUIDs();
+    IdSet_arg ThinkerUIDs();
+    IdSet_arg ResourceUIDs();
+
     bool    ThingExists(ID);
     bool    ThingExists(Sarg inName);
     FPID    TypeOf(ID);
@@ -73,6 +76,9 @@ public:
     Shared<Thing>    GetThing(ID ObjectID);
     Shared<Resource> GetResource(ID ObjectID);
     Shared<Thinker>  GetThinker(ID ObjectID);
+
+    const LockGuard<RMutex> GetThingsLock();
+    const LockGuard<RMutex> GetCallSheetLock();
 
     template<typename T> requires std::derived_from<T, NostalgiaPlayer3D>
         Shared<T> GetPlayer()
@@ -112,7 +118,8 @@ protected:
     Names_t mNames{};
     ID mRootViewportCurrentCamera3D{},
         mRootViewportCurrentCamera2D{};
-    IdSet_t mLightIDs{},
+    IdSet_t mThinkerUIDs{}, mResourceUIDs{},
+        mLightIDs{},
         mVisual3DIDs{},
         mVisual2DIDs{},
         mViewportIDs{};
