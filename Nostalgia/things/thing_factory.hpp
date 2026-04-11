@@ -20,6 +20,7 @@ public:
     static bool Init();
     static bool IsInitialized();
 
+    static Error AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists = false);
     static Error AddThing(pThingMakerTemplate_t inPtr,
         Sarg inTypeName,
         FPID inBaseType,
@@ -27,6 +28,7 @@ public:
 
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType_t> GetType(FPID inType) noexcept;
+    static PID GetClosestType(FPID inType) noexcept;
 
     static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty);
 

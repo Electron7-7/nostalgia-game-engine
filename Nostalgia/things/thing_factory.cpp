@@ -27,6 +27,8 @@
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
     AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
 
+static std::map<PID, PID> sTypeDeclarations{};
+
 bool ThingFactory::m_sIsInitialized{false};
 std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
 std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
@@ -72,6 +74,16 @@ bool ThingFactory::Init()
 
 bool ThingFactory::IsInitialized()
 { return m_sIsInitialized; }
+
+Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
+{
+    if(not doOverrideIfExists and sTypeDeclarations.contains(inTypeName))
+        { return ERR_ALREADY_EXISTS; }
+    else if(not IsThing(inSuperName))
+        { return ERR_INVALID_TYPE; }
+    sTypeDeclarations[inTypeName] = inSuperName;
+    return OK;
+}
 
 Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     Sarg inType,
@@ -133,10 +145,16 @@ Error ThingFactory::RemoveThing(FPID inType) noexcept
 Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
 {
     static ThingType_t sBadType{ThingType::Invalid};
-    if(auto found_it{m_sAllTypes.find(inType)};
-        found_it != m_sAllTypes.end())
-            { return *found_it; }
+    if(auto found_it{m_sAllTypes.find(inType)}; found_it != m_sAllTypes.end())
+        { return *found_it; }
     return sBadType;
+}
+
+PID ThingFactory::GetClosestType(FPID inType) noexcept
+{
+    if(auto found_it{sTypeDeclarations.find(inType)}; found_it != sTypeDeclarations.end())
+        { return found_it->second; }
+    return GetType(inType).type();
 }
 
 Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)

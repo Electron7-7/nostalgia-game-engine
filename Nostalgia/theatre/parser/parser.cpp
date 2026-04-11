@@ -61,8 +61,7 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData
 
 void s_ParseDeclaration(size_t& inIndex, Farg<TokenArray> inTokens)
 {
-    std::string new_type{},
-        base_type{};
+    std::string new_type{}, base_type{};
     while(inIndex < inTokens.size() and (new_type.empty() or base_type.empty()))
     {
         FAUTO token{inTokens.at(++inIndex)};
@@ -75,6 +74,7 @@ void s_ParseDeclaration(size_t& inIndex, Farg<TokenArray> inTokens)
         }
     }
     s_ThingTypeForwardDeclarations[new_type] = base_type;
+    print_error_enum(ThingFactory::AddThingDeclaration(new_type, base_type, true));
 }
 
 bool s_CheckIfComment(Comment& ioComment, Farg<Token> inToken)
