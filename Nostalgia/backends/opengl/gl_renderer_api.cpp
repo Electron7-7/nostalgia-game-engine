@@ -58,8 +58,8 @@ bool OpenGLRendererAPI::Init()
     mShaders[Shaders::Fonts]->CompileShader(GLSL_Font_Vert, GLSL_Font_Frag);
 #endif
 
-    long _offsets[2]{0, 0};
-    int  _strides[2]{2 * sizeof(float), 2 * sizeof(float)};
+    GLintptr _offsets[2]{0, 0};
+    GLsizei  _strides[2]{2 * sizeof(float), 2 * sizeof(float)};
 
     glCreateVertexArrays(1, &mTextVAO);
     glCreateBuffers(2, mTextVBOs);
