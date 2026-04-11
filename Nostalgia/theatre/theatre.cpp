@@ -364,6 +364,19 @@ IdVec_t Theatre::ThingUIDs()
     return {keys.begin(), keys.end()};
 }
 
+IdVec_t Theatre::ThinkersWithNoParents()
+{
+    LOCK_THINGS;
+    LOCK_CALLSHEET;
+    IdVec_t _thinkers{};
+    for(ID uid : mThinkerUIDs)
+    {
+        if(FAUTO node{mCallSheet.Get(uid)}; not node.invalid() and node.parent.invalid())
+            { _thinkers.push_back(uid); }
+    }
+    return _thinkers;
+}
+
 IdSet_arg Theatre::ThinkerUIDs()
 {
     LOCK_THINGS;
