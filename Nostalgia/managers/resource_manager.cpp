@@ -19,13 +19,25 @@ bool ResourceManager::Init()
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
 
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,  "Position");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,  "Color");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS, "Normal");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,      "UV");
-    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,  "Triangles");
-    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,     "Points");
-    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,      "Lines");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,    "Position");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,    "Color");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS,   "Normal");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,        "UV");
+    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,    "Triangles");
+    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,       "Points");
+    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,        "Lines");
+    EnumRegistry::Assign(IBuffer::Element::Type::None,   "IBuffer::Element::Type::None");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float,  "Float");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float2, "Float2");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float3, "Float3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Float4, "Float4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int,    "Int");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int2,   "Int2");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int3,   "Int3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Int4,   "Int4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Mat3,   "Mat3");
+    EnumRegistry::Assign(IBuffer::Element::Type::Mat4,   "Mat4");
+    EnumRegistry::Assign(IBuffer::Element::Type::Bool,   "Bool");
 
     UID::f_Audiowide =
         ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide,
