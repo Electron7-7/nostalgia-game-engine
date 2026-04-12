@@ -1,4 +1,6 @@
 #include "./nostalgia_goggles.hpp"
+#include "editor_icons.hpp"
+#include "assets/icon_uids.hpp"
 #include "gui/imgui_implementor.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
@@ -17,7 +19,12 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
+#include <Nostalgia/things/resource_database.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/rendering/mesh_buffers.hpp>
+
+#define REGISTER_ICON(NAME, VAR_NAME, UID_OUT) \
+    UID_OUT = ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromData(VAR_NAME, std::size(VAR_NAME))), #NAME);
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};
@@ -52,18 +59,35 @@ int NostalgiaGoggles::Main()
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
-    EnumRegistry::Assign(IBuffer::Element::Type::None,   "None");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float,  "Float");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float2, "Float2");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float3, "Float3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float4, "Float4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int,    "Int");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int2,   "Int2");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int3,   "Int3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int4,   "Int4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Mat3,   "Mat3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Mat4,   "Mat4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Bool,   "Bool");
+    REGISTER_ICON(Actor2d, _EditorIcons::actor_2d, Icons::actor_2d)
+    REGISTER_ICON(Actor3d, _EditorIcons::actor_3d, Icons::actor_3d)
+    REGISTER_ICON(ArrayMesh, _EditorIcons::array_mesh, Icons::array_mesh)
+    REGISTER_ICON(Camera2d, _EditorIcons::camera_2d, Icons::camera_2d)
+    REGISTER_ICON(Camera3d, _EditorIcons::camera_3d, Icons::camera_3d)
+    REGISTER_ICON(Collider3d, _EditorIcons::collider_3d, Icons::collider_3d)
+    REGISTER_ICON(Cubemap, _EditorIcons::cubemap, Icons::cubemap)
+    REGISTER_ICON(DirectionalLight3d, _EditorIcons::directional_light_3d, Icons::directional_light_3d)
+    REGISTER_ICON(Font, _EditorIcons::font, Icons::font)
+    REGISTER_ICON(Image, _EditorIcons::image, Icons::image)
+    REGISTER_ICON(ImageTexture, _EditorIcons::image_texture, Icons::image_texture)
+    REGISTER_ICON(Light3d, _EditorIcons::light_3d, Icons::light_3d)
+    REGISTER_ICON(Material, _EditorIcons::material, Icons::material)
+    REGISTER_ICON(Mesh, _EditorIcons::mesh, Icons::mesh)
+    REGISTER_ICON(MeshInstance3d, _EditorIcons::mesh_instance_3d, Icons::mesh_instance_3d)
+    REGISTER_ICON(NostalgiaPlayer3d, _EditorIcons::nostalgia_player_3d, Icons::nostalgia_player_3d)
+    REGISTER_ICON(PointLight3d, _EditorIcons::point_light_3d, Icons::point_light_3d)
+    REGISTER_ICON(Resource, _EditorIcons::resource, Icons::resource)
+    REGISTER_ICON(SpotLight3d, _EditorIcons::spot_light_3d, Icons::spot_light_3d)
+    REGISTER_ICON(Sprite2d, _EditorIcons::sprite_2d, Icons::sprite_2d)
+    REGISTER_ICON(Sprite3d, _EditorIcons::sprite_3d, Icons::sprite_3d)
+    REGISTER_ICON(Text2d, _EditorIcons::text_2d, Icons::text_2d)
+    REGISTER_ICON(Texture, _EditorIcons::texture, Icons::texture)
+    REGISTER_ICON(Thing, _EditorIcons::thing, Icons::thing)
+    REGISTER_ICON(Thinker, _EditorIcons::thinker, Icons::thinker)
+    REGISTER_ICON(Viewport, _EditorIcons::viewport, Icons::viewport)
+    REGISTER_ICON(ViewportTexture, _EditorIcons::viewport_texture, Icons::viewport_texture)
+    REGISTER_ICON(Visual2d, _EditorIcons::visual_2d, Icons::visual_2d)
+    REGISTER_ICON(Visual3d, _EditorIcons::visual_3d, Icons::visual_3d)
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
