@@ -75,7 +75,7 @@ set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
 
 add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
     COMMAND ${CMAKE_COMMAND}
-    ARGS -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
+    ARGS -D_EMBED_NOSTALGIA=ON -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
 
 include(Sources.cmake)
 include(Thirdparty.cmake)
@@ -166,7 +166,13 @@ if(EDITOR_AND_APPS_USE_GLOBAL_LIBRARY)
 endif()
 
 if(BUILD_EDITOR)
-    add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES})
+    set(_EMBED_EDITOR ON)
+    set(_EMBED_NOSTALGIA OFF)
+    set(EDITOR_ASSET_FILES editor_icons.hpp)
+    add_custom_command(OUTPUT ${EDITOR_ASSET_FILES}
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -D_EMBED_EDITOR=ON -DSOURCE_DIR=${EDITOR_ROOT}/assets -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
+    add_executable(NostalgiaGoggles ${EDITOR_SRC_FILES} ${EDITOR_ASSET_FILES})
     add_dependencies(NostalgiaGoggles Nostalgia)
     target_compile_definitions(NostalgiaGoggles PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(NostalgiaGoggles
