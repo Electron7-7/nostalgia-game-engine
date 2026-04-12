@@ -56,7 +56,7 @@ using namespace ImGui;
 static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
-static bool sPrintLoadedTheatreData{false};
+// static bool sPrintLoadedTheatreData{false};
 static bool sAutoStopwatchEnabled{true};
 
 static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
@@ -70,14 +70,13 @@ static std::vector<StopwatchLog> sStopwatchLogs{};
 static std::set<int>             sStopwatchLogIds{};
 static Theatre::FileOverwriteAction sCurrentFileOverwriteAction{Theatre::RENAME};
 
-static void s_TheatreDebuggingWindow();
 static void s_GeneralDebuggingWindow();
 
-static void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
+/*static void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
 { g_pRenderManager->GetAPI()->SetFramebufferSRGB(true); }
 
 static void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
-{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
+{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }*/
 
 void ImGui_Debugger::Init()
 { PRINT_PRETTY_FUNCTION; }
@@ -159,11 +158,11 @@ void ImGui_Debugger::Update()
                     }
                     EndTabItem();
                 }
-                if(BeginTabItem("Theatres"))
-                {
-                    s_TheatreDebuggingWindow();
-                    EndTabItem();
-                }
+                // if(BeginTabItem("Theatres"))
+                // {
+                //     s_TheatreDebuggingWindow();
+                //     EndTabItem();
+                // }
             }
             EndTabBar();
         }
@@ -518,7 +517,7 @@ void ImGui_Debugger::m_ManualStopwatchWindow(float width)
     EndChild();
 }
 
-static void s_TheatreDebuggingWindow()
+/*static void s_TheatreDebuggingWindow()
 {
     BeginChild("Theatre Debugging");
 // #ifdef NOSTALGIA_DEBUGGING
@@ -606,7 +605,7 @@ static void s_TheatreDebuggingWindow()
         }
     }
     EndChild();
-}
+}*/
 
 struct thing_data_buffer
 {
@@ -772,7 +771,7 @@ struct thing_data_buffer
     std::string text{};
 };
 
-static void s_ThingTreeBranch(ID inUID)
+/*static void s_ThingTreeBranch(ID inUID)
 {
     auto* theatre{g_pTheatreManager->Current()};
     auto children{theatre->GetChildren(inUID)};
@@ -785,9 +784,9 @@ static void s_ThingTreeBranch(ID inUID)
             { s_ThingTreeBranch(child); }
         TreePop();
     }
-}
+}*/
 
-void ImGui_Debugger::InspectTheatreWindow()
+/*void ImGui_Debugger::InspectTheatreWindow()
 {
     static std::unordered_map<ID, bool> is_hovered{};
     static uint mNewChildUID{0};
@@ -1400,70 +1399,120 @@ void ImGui_Debugger::InspectTheatreWindow()
             {
                 if(auto mesh{DCast<ArrayMesh>(selected.ptr)})
                 {
-                    SeparatorText("Vertex Data Properties");
-                        static std::vector<std::vector<float>> vbo_vecs{{},{},{},{},{},{},{},{},{},{}};
+                    SeparatorText("Surfaces");
+                        static std::vector<std::vector<float>> vbo_vecs(20);
                         static std::vector<uint> ibo_vec{};
-                        static ID last_selected_id{};
 
-                        FAUTO vbos{mesh->MeshData()->GetVertexBuffers()};
-                        TextF("VAO {}", mesh->MeshData()->GetID());
-                        TextF("VBOs (size: {})", vbos.size());
-                        int index{0};
-                        for(FAUTO vbo : vbos)
+                        for(int i{0}; i < mesh->SurfaceCount(); ++i)
                         {
-                            TextF("\t\tVBO {}", vbo->GetID());
-                            FAUTO layout{vbo->GetLayout()};
-                            TextF("\t\t\t\tLayout (stride: {}):", layout.GetStride());
-                            FAUTO layout_elements{layout.GetElements()};
-                            for(FAUTO element : layout_elements)
+                            auto _prim{mesh->SurfaceGetPrimitive(i)};
+                            auto _vao{mesh->SurfaceGetVertexArray(i)};
+                            FAUTO _vbos{_vao->GetVertexBuffers()};
+                            if(TreeNodeEx(std::format("Vertex Array ({}) (primitive: {})",
+                                _vao->GetID(),
+                                EnumRegistry::GetEnumName(_prim)).data()))
                             {
-                                TextF("\t\t\t\t\t\t<{}> {} (offset: {})",
-                                    EnumRegistry::GetEnumName(element.type),
-                                    element.name,
-                                    element.offset);
-                            }
-                            if(last_selected_id != selected.id)
-                            {
-                                void* data{nullptr};
-                                int size{0};
-                                vbo->QueryData(data, &size);
-                                vbo_vecs[index] = {(float*)data, (float*)data + (size / sizeof(float))};
-                                free(data);
-                            }
-                            if(TreeNodeEx(std::format("Buffer Data##{}", vbo->GetID()).data()))
-                            {
-                                TextF("(size: {}) {}", vbo_vecs[index].size(), (void*)vbo_vecs[index].data());
-                                if(TreeNodeEx(std::format("Data Stream##{}", vbo->GetID()).data()))
+                                if(TreeNodeEx(std::format("Vertex Buffers (count: {})", _vbos.size()).data()))
                                 {
-                                    TextWrappedF("Data: {}", vbo_vecs[index]);
+                                    int _index{0};
+                                    for(FAUTO vbo : _vbos)
+                                    {
+                                        FAUTO layout{vbo->GetLayout()};
+                                        FAUTO layout_elements{layout.GetElements()};
+                                        auto layout_stride{vbo->GetLayout().GetStride()};
+                                        std::string _header, _body;
+                                        if(layout_elements.size() <= 1)
+                                        {
+                                            FAUTO _element{layout_elements.begin()};
+                                            if(TreeNodeEx(std::format("({}) Vertex Buffer '{}' (stride: {})",
+                                                vbo->GetID(),
+                                                _element->name,
+                                                layout_stride).data()))
+                                            {
+                                                TextF("Type: {}", EnumRegistry::GetEnumName(_element->type));
+                                                TextF("Offset: {}", _element->offset);
+                                                if(TreeNodeEx(std::format("Buffer Data##{} (size: {})",
+                                                    vbo->GetID(),
+                                                    vbo->GetSize()).data()))
+                                                {
+                                                    if(vbo_vecs[_index].empty())
+                                                    {
+                                                        void* data{nullptr};
+                                                        int size{0};
+                                                        vbo->QueryData(data, &size);
+                                                        vbo_vecs[_index] = {(float*)data, (float*)data + (size / sizeof(float))};
+                                                        free(data);
+                                                    }
+                                                    TextWrappedF("{}", vbo_vecs[_index]);
+                                                    TreePop();
+                                                }
+                                                else
+                                                    { vbo_vecs[_index] = {}; }
+                                                TreePop();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if(TreeNodeEx(std::format("({}) Vertex Buffer (stride: {})",
+                                                vbo->GetID(),
+                                                layout_stride).data()))
+                                            {
+                                                if(TreeNodeEx("Elements"))
+                                                {
+                                                    for(FAUTO element : layout_elements)
+                                                    {
+                                                        TextF("({}) '{}' (offset: {})",
+                                                            EnumRegistry::GetEnumName(element.type),
+                                                            element.name,
+                                                            element.offset);
+                                                    }
+                                                    TreePop();
+                                                }
+                                                if(TreeNodeEx(std::format("Buffer Data##{} (size: {})",
+                                                    vbo->GetID(),
+                                                    vbo->GetSize()).data()))
+                                                {
+                                                    if(vbo_vecs[_index].empty())
+                                                    {
+                                                        void* data{nullptr};
+                                                        int size{0};
+                                                        vbo->QueryData(data, &size);
+                                                        vbo_vecs[_index] = {(float*)data, (float*)data + (size / sizeof(float))};
+                                                        free(data);
+                                                    }
+                                                    TextWrappedF("{}", vbo_vecs[_index]);
+                                                    TreePop();
+                                                }
+                                                else
+                                                    { vbo_vecs[_index] = {}; }
+                                                TreePop();
+                                            }
+                                        }
+                                        ++_index;
+                                    }
                                     TreePop();
                                 }
+                                FAUTO ibo{_vao->GetIndexBuffer()};
+                                if(TreeNodeEx(std::format("Index Buffer ({}) (indices count: {})",
+                                    ibo->GetID(),
+                                    ibo->GetCount()).data()))
+                                {
+                                    if(ibo_vec.empty())
+                                    {
+                                        void* data{nullptr};
+                                        int size{0};
+                                        ibo->QueryData(data, &size);
+                                        ibo_vec = {(float*)data, (float*)data + (size / sizeof(float))};
+                                        free(data);
+                                    }
+                                    TextWrappedF("{}", ibo_vec);
+                                    TreePop();
+                                }
+                                else
+                                    { ibo_vec = {}; }
                                 TreePop();
                             }
-                            ++index;
                         }
-                        FAUTO ibo{mesh->MeshData()->GetIndexBuffer()};
-                        TextF("IBO {} (count: {})", ibo->GetID(), ibo->GetCount());
-                        if(last_selected_id != selected.id)
-                        {
-                            void* data{nullptr};
-                            int size{0};
-                            ibo->QueryData(data, &size);
-                            ibo_vec = {(float*)data, (float*)data + (size / sizeof(float))};
-                            free(data);
-                            last_selected_id = selected.id;
-                        }
-                        if(TreeNodeEx(std::format("Buffer Data##{}", ibo->GetID()).data()))
-                        {
-                            TextF("(size: {}) {}", ibo_vec.size(), (void*)ibo_vec.data());
-                            if(TreeNodeEx(std::format("Data Stream##{}", ibo->GetID()).data()))
-                            {
-                                TextWrappedF("Data: {}", ibo_vec);
-                                TreePop();
-                            }
-                            TreePop();
-                        }
-                    Separator();
                     if(InputUInt("Material UID", &selected.material, 0, 0))
                         { mesh->MaterialID(selected.material); }
                     SameLine();
@@ -1507,7 +1556,7 @@ void ImGui_Debugger::InspectTheatreWindow()
         EndChild();
     }
     EndChild();
-}
+}*/
 
 void ImGui_Debugger::DebugConsoleWindow()
 {

@@ -21,7 +21,6 @@ public:
     void StartTheatreTiming(bool IsTheatreLoading);
     void StopTheatreTiming(bool IsTheatreLoading);
 
-    static void InspectTheatreWindow();
     void DebugConsoleWindow();
 
 private:
