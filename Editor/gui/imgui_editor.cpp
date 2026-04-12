@@ -1,8 +1,9 @@
 #include "imgui_editor.hpp"
-#include "imgui_debugger.hpp"
+#include "assets/icon_uids.hpp"
 #include "things/player.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "thirdparty/DearImGui/imgui_internal.h"
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/events/event.hpp>
@@ -14,9 +15,12 @@
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
+#include <Nostalgia/things/resource_database.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 
+using namespace Icons;
 using namespace ImGui;
 
 static ImGui_Editor sImGuiEditor{};
@@ -26,7 +30,8 @@ bool gTheatreInspectorActive{false};
 bool gShowDebugWindow{false};
 bool gDebugConsoleOpened{false};
 
-static void s_ThingAdder();
+static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
+
 static ID sSpawnLocationMaterialID{};
 static ID sSpawnLocationMeshInstanceID{};
 static ID sSpawnLocationID{};
@@ -108,10 +113,9 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    auto theatre{g_pTheatreManager->Current()};
     if(!Settings::Engine::IsEditorHint)
     {
-        auto player{theatre->GetPlayer<EditorPlayer3D>()};
+        auto player{Theatre::Current()->GetPlayer<EditorPlayer3D>()};
         UI_Implementor::SetGlobalCanHandleEvents(false);
         MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         player->mCaptureKeyboard = true;
@@ -122,35 +126,35 @@ void ImGui_Editor::TheatreEntered()
     TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
     mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
     mat_dat.set_variable(true, "FullBright");
-    sSpawnLocationMaterialID = theatre->CreateThing(mat_dat);
+    sSpawnLocationMaterialID = Theatre::Current()->CreateThing(mat_dat);
 
     TheatreFile::ThingData mesh_inst_dat{ThingType::MeshInstance3D,"ThingAdderSpawnLocation_MeshInstance"};
     mesh_inst_dat.set_variable(UID::m_Ramiel, "Mesh");
     mesh_inst_dat.set_variable(sSpawnLocationMaterialID, "MaterialOverride");
     mesh_inst_dat.set_variable(true, "Wireframe");
-    sSpawnLocationMeshInstanceID = theatre->CreateThing(mesh_inst_dat);
+    sSpawnLocationMeshInstanceID = Theatre::Current()->CreateThing(mesh_inst_dat);
 
     TheatreFile::ThingData spawn_dat{ThingType::Actor3D, "ThingAdderSpawnLocation"};
     spawn_dat.set_variable(sSpawnLocationMeshInstanceID, "Child");
     spawn_dat.set_variable(glm::vec3{1.0f}, "Scale");
 
-    sSpawnLocationID = theatre->CreateThing(spawn_dat);
+    sSpawnLocationID = Theatre::Current()->CreateThing(spawn_dat);
 
-    if(not theatre->ThingExists("EditorViewport"))
-        { sEditorViewportID = theatre->CreateThing({ThingType::Viewport, "EditorViewport"}); }
+    if(not Theatre::Current()->ThingExists("EditorViewport"))
+        { sEditorViewportID = Theatre::Current()->CreateThing({ThingType::Viewport, "EditorViewport"}); }
     else
-        { sEditorViewportID = theatre->GetThing("EditorViewport")->uid(); }
+        { sEditorViewportID = Theatre::Current()->GetThing("EditorViewport")->uid(); }
 
-    if(not theatre->ThingExists("EditorCamera"))
+    if(not Theatre::Current()->ThingExists("EditorCamera"))
     {
         TheatreFile::ThingData cam_dat{ThingType::Camera3D, "EditorCamera"};
         cam_dat.set_variable(glm::vec3{1.0, 5.0, 1.0}, "Position");
         cam_dat.set_variable(glm::vec3{-40.0, 10.0, 0.0}, "RotationDegrees");
         cam_dat.set_variable(true, "UseDefaultSkybox");
         cam_dat.set_variable(true, "Current");
-        theatre->CreateThing(cam_dat);
+        Theatre::Current()->CreateThing(cam_dat);
     }
-    theatre->SetParent(theatre->GetThing("EditorCamera")->uid(), sEditorViewportID);
+    Theatre::Current()->SetParent(Theatre::Current()->GetThing("EditorCamera")->uid(), sEditorViewportID);
 }
 
 void ImGui_Editor::TheatreExited()
@@ -202,7 +206,9 @@ static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
 
 void ImGui_Editor::Update()
 {
-    if(!Settings::Engine::IsEditorHint)
+    if(not Settings::Engine::IsEditorHint or
+            not Theatre::Current() or
+            not Theatre::Current()->IsStarted())
         { return; }
     static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
         ImGuiChildFlags_ResizeY |
@@ -235,8 +241,7 @@ void ImGui_Editor::Update()
                 if(MenuItem("Quit", "CTRL+Q"))
                     { Application()->Stop(); }
                 ImGui::EndMenu();
-            }
-            EndMenuBar();
+            }            EndMenuBar();
         }
         if(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
             { End(); return; }
@@ -252,7 +257,7 @@ void ImGui_Editor::Update()
                 ImGuiWindowFlags_NoScrollbar |
                     ImGuiWindowFlags_NoScrollWithMouse);
                 GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-                Image((ImTextureID)viewport->Framebuffer()->TextureID(),
+                ImGui::Image((ImTextureID)viewport->Framebuffer()->TextureID(),
                     {(float)viewport->Size().w(), (float)viewport->Size().h()},
                     {0, 1},
                     {1, 0});
@@ -288,16 +293,16 @@ void ImGui_Editor::Update()
                 and !player->mCaptureMouse)
                 { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
             BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
-                s_ThingAdder();
+                ThingAdder();
             EndChild();
         EndChild();
         SameLine();
-        ImGui_Debugger::InspectTheatreWindow();
+        TheatreInspector();
     }
     End();
 }
 
-void s_ThingAdder()
+void ImGui_Editor::ThingAdder()
 {
     if(!Settings::Engine::IsEditorHint)
         { return; }
@@ -357,4 +362,184 @@ void s_ThingAdder()
     }
 
     EndChild();
+}
+
+void ImGui_Editor::TheatreInspector()
+{
+    if(not Theatre::Current()->IsStarted())
+    {
+        mInspectingResourceUID = mInspectingThinkerUID = ID::Invalid;
+        return;
+    }
+    BeginChild("TheatreInspector");
+        if(CollapsingHeader("Resources"))
+        {
+            for(FAUTO uid : Theatre::Current()->ResourceUIDs())
+                { _resource_list_item(uid); }
+        }
+        SetNextItemOpen(true, ImGuiCond_Once);
+        if(CollapsingHeader("Thinkers"))
+        {
+            for(FAUTO uid : Theatre::Current()->ThinkerUIDs())
+            {
+                if(not Theatre::Current()->GetParent(uid).invalid())
+                    { continue; }
+                _thinker_tree_branch(uid);
+            }
+        }
+        if(not mInspectingThinkerUID.invalid())
+            { InspectThinker(); }
+        if(not mInspectingResourceUID.invalid())
+            { InspectResource(); }
+    EndChild();
+}
+
+void ImGui_Editor::_display_thinker(ID inUID)
+{
+    SameLine();
+    ImGui::Image((ImTextureRef)GetIconTextureBufferID(Theatre::Current()->TypeOf(inUID)),
+        {30, 30},
+        {0, 1},
+        {1, 0});
+    SameLine();
+    bool _pressed{Button(std::format("{}##{}",
+        Theatre::Current()->GetThing(inUID)->c_name(),
+        inUID()).data(),
+        {0, 30})};
+    if(_pressed)
+        { mInspectingThinkerUID = inUID; }
+}
+
+void ImGui_Editor::_thinker_tree_branch(ID inUID)
+{
+    auto children{Theatre::Current()->GetChildren(inUID)};
+    if(s_TreeNodeEx(Theatre::Current()->GetThing(inUID)->c_name(),
+        (children.empty()) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None))
+    {
+        _display_thinker(inUID);
+        for(ID child : children)
+            { _thinker_tree_branch(child); }
+        TreePop();
+    }
+    else
+        { _display_thinker(inUID); }
+}
+
+void ImGui_Editor::_resource_list_item(ID inUID)
+{
+    bool _pressed{ImageButton(std::format("Resource##{}", inUID()).data(),
+        GetIconTextureBufferID(Theatre::Current()->TypeOf(inUID)),
+        {30, 30},
+        {0, 1},
+        {1, 0})};
+    SameLine();
+    _pressed = Button(Theatre::Current()->GetThing(inUID)->c_name(), {0, 30});
+    if(_pressed)
+        { mInspectingResourceUID = inUID; }
+}
+
+// https://github.com/ocornut/imgui/issues/282#issuecomment-1964859909
+bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
+{
+    Farg<ImGuiContext> g{*ImGui::GetCurrentContext()};
+    ImGuiWindow* _window{g.CurrentWindow};
+
+    ImVec2 pos{_window->DC.CursorPos};
+    ImGuiID _id{_window->GetID(inLabel)};
+    ImVec2 _button_min{pos[0] + g.FontSize, pos[1] + g.Style.FramePadding[1] * 2 + g.Style.CellPadding[1]};
+    ImRect _bb{_button_min, _button_min + ImVec2{g.FontSize, g.FontSize}};
+    bool _opened{TreeNodeGetOpen(_id)},
+        _hovered{},
+        _held{};
+
+    if(not (inFlags & ImGuiTreeNodeFlags_Leaf))
+    {
+        if(ButtonBehavior(_bb,
+                _id,
+                &_hovered,
+                &_held,
+                ImGuiButtonFlags_PressedOnClick))
+            { _window->DC.StateStorage->SetInt(_id, not _opened); }
+
+        RenderArrow(_window->DrawList,
+            _button_min,
+            GetColorU32(ImGuiCol_Text),
+            (_opened) ? ImGuiDir_Down : ImGuiDir_Right,
+            1.0f);
+    }
+
+    ItemSize(ImRect{_bb.Min, _bb.Max + g.Style.FramePadding * 2}, g.Style.FramePadding.y);
+    ItemAdd(_bb, _id);
+
+    if(_opened)
+        { TreePush(inLabel); }
+
+    return _opened;
+}
+
+uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
+{
+    if(not g_pRenderManager->GetAPI() or not g_pRenderManager->GetAPI()->IsRunning())
+        { return 0; }
+    auto _type{ThingFactory::GetClosestType(inType)};
+    ID _uid{Icons::thing};
+    if(_type == ThingType::Thing)
+        _uid = Icons::thing;
+    else if(_type == ThingType::Resource)
+        _uid = Icons::resource;
+    else if(_type == ThingType::Font)
+        _uid = Icons::font;
+    else if(_type == ThingType::Mesh)
+        _uid = Icons::mesh;
+    else if(_type == ThingType::ArrayMesh)
+        _uid = Icons::array_mesh;
+    else if(_type == ThingType::Texture)
+        _uid = Icons::texture;
+    else if(_type == ThingType::Cubemap)
+        _uid = Icons::cubemap;
+    else if(_type == ThingType::ViewportTexture)
+        _uid = Icons::viewport_texture;
+    else if(_type == ThingType::ImageTexture)
+        _uid = Icons::image_texture;
+    else if(_type == ThingType::Material)
+        _uid = Icons::material;
+    else if(_type == ThingType::Image)
+        _uid = Icons::image;
+    else if(_type == ThingType::Thinker)
+        _uid = Icons::thinker;
+    else if(_type == ThingType::Viewport)
+        _uid = Icons::viewport;
+    else if(_type == ThingType::Actor3D)
+        _uid = Icons::actor_3d;
+    else if(_type == ThingType::NostalgiaPlayer3D)
+        _uid = Icons::nostalgia_player_3d;
+    else if(_type == ThingType::Camera3D)
+        _uid = Icons::camera_3d;
+    else if(_type == ThingType::Collider3D)
+        _uid = Icons::collider_3d;
+    else if(_type == ThingType::Visual3D)
+        _uid = Icons::visual_3d;
+    else if(_type == ThingType::MeshInstance3D)
+        _uid = Icons::mesh_instance_3d;
+    else if(_type == ThingType::Sprite3D)
+        _uid = Icons::sprite_3d;
+    else if(_type == ThingType::Light3D)
+        _uid = Icons::light_3d;
+    else if(_type == ThingType::PointLight3D)
+        _uid = Icons::point_light_3d;
+    else if(_type == ThingType::SpotLight3D)
+        _uid = Icons::spot_light_3d;
+    else if(_type == ThingType::DirectionalLight3D)
+        _uid = Icons::directional_light_3d;
+    else if(_type == ThingType::Actor2D)
+        _uid = Icons::actor_2d;
+    else if(_type == ThingType::Camera2D)
+        _uid = Icons::camera_2d;
+    else if(_type == ThingType::Visual2D)
+        _uid = Icons::visual_2d;
+    else if(_type == ThingType::Sprite2D)
+        _uid = Icons::sprite_2d;
+    else if(_type == ThingType::Text2D)
+        _uid = Icons::text_2d;
+    return ResourceDatabase::GetResource<ImageTexture>(_uid)->GetBuffer()->ID();
 }

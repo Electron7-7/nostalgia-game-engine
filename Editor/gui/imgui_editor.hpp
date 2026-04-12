@@ -13,6 +13,19 @@ public:
     void Input(InputEvent*) final;
     void TheatreEntered() final;
     void TheatreExited()  final;
+
+private:
+    static uint GetIconTextureBufferID(FPID inType);
+
+    ID mInspectingResourceUID{}, mInspectingThinkerUID{};
+
+    void ThingAdder();
+    void TheatreInspector();
+    void InspectResource();
+    void InspectThinker();
+    void _display_thinker(ID);
+    void _thinker_tree_branch(ID);
+    void _resource_list_item(ID);
 };
 
 extern bool gShowDebugWindow,
