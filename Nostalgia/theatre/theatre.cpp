@@ -857,10 +857,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
         shader->SetUniform("view_matrix", view_matrix);
         shader->SetUniform("view_position", inCamera->GlobalPosition());
-
-        glm::vec4 debug_highlight{visual3d->mDebugHighlight};
-        debug_highlight *= (visual3d->mIsHoveredInDebugger or visual3d->mOverrideEnableDebugHighlight);
-        shader->SetUniform("debug_highlight", debug_highlight);
+        shader->SetUniform("debug_highlight", visual3d->DebugHighlight());
 
         shader->Bind();
         for(int i{0}; i < mesh->SurfaceCount(); ++i)
@@ -917,10 +914,7 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             shader->SetUniform("sprite_texture",  0);
             shader->SetUniform("use_texture",  use_texture);
             shader->SetUniform("sprite_color", glm::vec3{1.0f});
-
-            glm::vec4 debug_highlight{sprite->mDebugHighlight};
-            debug_highlight *= (sprite->mIsHoveredInDebugger);
-            shader->SetUniform("debug_highlight", debug_highlight);
+            shader->SetUniform("debug_highlight", sprite->DebugHighlight());
 
             shader->Bind();
             for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
@@ -938,8 +932,7 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             default_model = glm::rotate(default_model, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
             default_model = glm::scale(default_model, {text2d->GlobalScale(), 0.0f});
 
-            shader->SetUniform("debug_highlight", text2d->mDebugHighlight
-                * static_cast<float>(text2d->mIsHoveredInDebugger));
+            shader->SetUniform("debug_highlight", text2d->DebugHighlight());
             shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
             shader->SetUniform("model_matrix", default_model);
             shader->SetUniform("view_matrix", inCamera->ViewMatrix());
