@@ -193,9 +193,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/rendering/shader.hpp
     ${NOSTALGIA_ROOT}/rendering/texture_buffer.hpp
     ${NOSTALGIA_ROOT}/console/console.hpp
-    ${NOSTALGIA_ROOT}/common/colors.hpp
-    ${NOSTALGIA_ROOT}/common/status_map.hpp
-    ${NOSTALGIA_ROOT}/common/string_compare.hpp
     ${NOSTALGIA_ROOT}/components/game_loop.hpp
     ${NOSTALGIA_ROOT}/components/event_handling.hpp
     ${NOSTALGIA_ROOT}/fwd/ui.hpp

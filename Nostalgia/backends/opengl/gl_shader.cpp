@@ -1,5 +1,4 @@
 #include "gl_shader.hpp"
-#include "common/colors.hpp"
 #include "thirdparty/glm/gtc/type_ptr.hpp"
 #include "thirdparty/glad/glad.h"
 
@@ -13,7 +12,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glCompileShader(vertex);
     if(!GLShaderErrorHandler(vertex))
     {
-        print_debug("Vertex Shader Code:{}\n{}", Sty::Reset, v_shader_code);
+        print_debug("Vertex Shader Code:\033[0m\n{}", v_shader_code);
         return print_errorv(VERBOSE0, "Vertex shader failed to compile!");
     }
 
@@ -22,7 +21,7 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glCompileShader(fragment);
     if(!GLShaderErrorHandler(fragment))
     {
-        print_debug("Fragment Shader Code:{}\n{}", Sty::Reset, f_shader_code);
+        print_debug("Fragment Shader Code:\033[0m\n{}", f_shader_code);
         return print_errorv(VERBOSE0, "Fragment shader failed to compile!");
     }
 
@@ -32,8 +31,8 @@ bool GLShader::CompileShader(const std::string& vertex_shader_code, const std::s
     glLinkProgram(mID());
     if(!GLShaderErrorHandler(mID, true))
     {
-        print_debug("Vertex Shader Code:{}\n{}", Sty::Reset, v_shader_code);
-        print_debug("Fragment Shader Code:{}\n{}", Sty::Reset, f_shader_code);
+        print_debug("Vertex Shader Code:\033[0m\n{}", v_shader_code);
+        print_debug("Fragment Shader Code:\033[0m\n{}", f_shader_code);
         return print_errorv(VERBOSE0, "Shader Program failed to compile!");
     }
 #pragma message("TODO: Should these be called even when an error occurs? I'm thinking they could free memory, which you'd want to do (unless the memory isn't used up on an error occuring)")
