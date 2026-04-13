@@ -24,14 +24,17 @@ public:
     void Update() final;
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) final;
     void Shutdown() final;
-
+    void CalculateFrameTime(bool);
+    bool CalculatingFrameTime() const;
+    double GetTheatreFrameTime() const;
+    double GetUIFrameTime() const;
     void SetAutomaticWindowClear(bool);
-
     const Unique<RendererAPI>& GetAPI() const;
 
 private:
     Unique<RendererAPI> mRendererAPI{nullptr};
-    bool mCanClearWindow{true};
+    bool mCanClearWindow{true}, mCanCalculateFrametime{false};
+    double mTheatreFrametime{0.0}, mUIFrametime{0.0};
 };
 
 // Singleton accessor

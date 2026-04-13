@@ -46,14 +46,31 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_
 
 void RenderManager::Update()
 {
+    auto _start_time{Runtime::Current()};
     if(mCanClearWindow and mRendererAPI)
     {
         mRendererAPI->SetClearColor(Settings::Graphics::ClearColor.glm());
         mRendererAPI->Clear();
     }
     g_pTheatreManager->DrawCurrentTheatre();
+    if(mCanCalculateFrametime)
+        { mTheatreFrametime = Runtime::Current() - _start_time; }
     g_pUIManager->DrawUI();
+    if(mCanCalculateFrametime)
+        { mUIFrametime = Runtime::Current() - _start_time; }
 }
+
+void RenderManager::CalculateFrameTime(bool inCalculate)
+{ mCanCalculateFrametime = inCalculate; }
+
+bool RenderManager::CalculatingFrameTime() const
+{ return mCanCalculateFrametime; }
+
+double RenderManager::GetTheatreFrameTime() const
+{ return mTheatreFrametime; }
+
+double RenderManager::GetUIFrameTime() const
+{ return mUIFrametime; }
 
 void RenderManager::SetAutomaticWindowClear(bool inEnableClear)
 { mCanClearWindow = inEnableClear; }
