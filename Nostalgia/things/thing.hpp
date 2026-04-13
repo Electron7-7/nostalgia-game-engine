@@ -39,8 +39,6 @@ class Thing
 public:
     virtual constexpr FPID Type() const { return ThingType::Thing; }
 
-    bool mIsHoveredInDebugger{false};
-
     Thing(Sarg inName) noexcept;
     // Used by the Theatre & ResourceDatabase when a '::GetThing' function fails to return a `Thing` with an invalid UID.
     Thing() noexcept;

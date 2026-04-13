@@ -21,8 +21,6 @@ void Visual2D::SetVariables(Farg<ThingData> data)
 
     if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
         { mVisualLayers.set(layers); }
-
-    data.get_variable(mDebugHighlight, "DebugHighlight");
     data.get_variable(mWireframe, "Wireframe", "WireFrame");
 }
 
@@ -31,7 +29,6 @@ Shared<ThingData> Visual2D::GetVariables() const
     auto data{Super::GetVariables()};
 
     data->set_variable(mVisualLayers.get(), "VisualLayers");
-    data->set_variable(mDebugHighlight, "DebugHighlight");
     data->set_variable(mWireframe, "Wireframe");
 
     return data;

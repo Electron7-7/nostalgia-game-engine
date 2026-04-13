@@ -9,6 +9,7 @@ void Thinker::SetVariables(Farg<ThingData> inData)
     Super::SetVariables(inData);
 
     inData.get_variable(mVisible, "Visible");
+    inData.get_variable(mDebugHighlight, "DebugHighlight");
 }
 
 Shared<ThingData> Thinker::GetVariables() const
@@ -20,12 +21,13 @@ Shared<ThingData> Thinker::GetVariables() const
     for(FAUTO child_id : children)
         { data->set_variable(child_id, "Child"); }
 
+    data->set_variable(mDebugHighlight, "DebugHighlight");
     return data;
 }
 
 bool Thinker::Visible() const
 {
-    if(Parent().invalid() or Theatre::Current()->GetThinker(Parent())->Visible())
+    if(auto _parent{Parent()}; _parent.invalid() or Theatre::Current()->GetThinker(_parent)->Visible())
         { return mVisible; }
     return false;
 }
@@ -56,4 +58,23 @@ Error Thinker::DropParent()
 {
     if(!Theatre::Current()) { return ERR_NULLPTR; }
     return Theatre::Current()->DropParent(uid());
+}
+
+Farg<glm::vec4> Thinker::DebugHighlight() const
+{
+    return (this->IsHighlighted())
+        ? mDebugHighlight
+        : m_sNoHighlight;
+}
+
+void Thinker::DebugHighlight(Farg<glm::vec4> inColor)
+{ mDebugHighlight = inColor; }
+
+void Thinker::IsHighlighted(bool inHighlighted)
+{ mIsHighlighted = inHighlighted; }
+
+bool Thinker::IsHighlighted() const
+{
+    auto _parent{Parent()};
+    return mIsHighlighted or (not _parent.invalid() and Theatre::Current()->GetThinker(_parent)->IsHighlighted());
 }

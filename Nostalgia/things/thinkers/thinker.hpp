@@ -22,6 +22,11 @@ public:
     // has no parent (e.g: `ID::Invalid`), nothing happens (if you would consult the graphs).
     Error DropParent();
 
+    Farg<glm::vec4> DebugHighlight() const;
+    void DebugHighlight(Farg<glm::vec4> inColor);
+    void IsHighlighted(bool);
+    bool IsHighlighted() const;
+
 protected:
     friend class Theatre;
 
@@ -41,7 +46,11 @@ protected:
         { return uid.invalid() or type.invalid(); }
     };
 
+    inline static const glm::vec4 m_sNoHighlight{0.0f};
+    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 1.0f};
+
     bool mVisible{true};
+    bool mIsHighlighted{false};
 
     virtual void OnChildAdded(Relative) {}
     virtual void OnChildRemoved(Relative) {}

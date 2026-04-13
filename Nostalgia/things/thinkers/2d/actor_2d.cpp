@@ -12,11 +12,11 @@ void Actor2D::SetVariables(Farg<ThingData> data)
     data.get_variable(mLocalTransform.scale, "Scale", "Size", "OuuughImSoBigAndRound");
     if(data.get_variable(mLocalTransform.rotation_degrees, "RotationDegrees") == OK)
         { mLocalTransform.rotation_radians = glm::radians(mLocalTransform.rotation_degrees); }
-    if(data.get_variable(mLocalTransform.rotation_radians, "Rotation", "RotationRadians") == OK)
+    else if(data.get_variable(mLocalTransform.rotation_radians, "Rotation", "RotationRadians") == OK)
         { mLocalTransform.rotation_degrees = glm::degrees(mLocalTransform.rotation_radians); }
     data.get_variable(mVisible, "Visible");
 
-    data.get_variable(mDebugHighlight, "DebugHighlight");
+    _update_global_transform();
 }
 
 Shared<ThingData> Actor2D::GetVariables() const
@@ -25,10 +25,9 @@ Shared<ThingData> Actor2D::GetVariables() const
 
     data->set_variable(mLocalTransform.position, "Position");
     data->set_variable(mLocalTransform.scale, "Scale");
-    data->set_variable(mLocalTransform.rotation_radians, "RotationRadians");
+    data->set_variable(mLocalTransform.rotation_degrees, "RotationDegrees");
+    data->set_variable(mLocalTransform.rotation_radians, "Rotation");
     data->set_variable(mVisible, "Visible");
-
-    data->set_variable(mDebugHighlight, "DebugHighlight");
 
     return data;
 }

@@ -18,17 +18,18 @@ void Actor3D::SetVariables(Farg<ThingData> data)
         mLocalTrans.rotation = glm::radians(mLocalTrans.rotation_degrees);
         mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
     }
-    if(data.get_variable(mLocalTrans.rotation,
+    else if(data.get_variable(mLocalTrans.rotation,
         "Rotation", "RotationRadians", "Euler", "EulerRadians") == OK)
     {
         mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
         mLocalTrans.rotation_degrees = glm::degrees(mLocalTrans.rotation);
     }
-    if(data.get_variable(mLocalTrans.quaternion, "Quaternion") == OK)
+    else if(data.get_variable(mLocalTrans.quaternion, "Quaternion") == OK)
     {
         mLocalTrans.rotation = glm::radians(mLocalTrans.rotation_degrees);
         mLocalTrans.quaternion = glm::normalize(glm::quat{mLocalTrans.rotation});
     }
+    _update_global_transform();
 }
 
 Shared<ThingData> Actor3D::GetVariables() const
@@ -38,6 +39,8 @@ Shared<ThingData> Actor3D::GetVariables() const
     LOCK_TRANSFORM;
 
     data->set_variable(mLocalTrans.position, "Position");
+    data->set_variable(mLocalTrans.rotation_degrees, "RotationDegrees");
+    data->set_variable(mLocalTrans.rotation, "Rotation");
     data->set_variable(mLocalTrans.quaternion, "Quaternion");
     data->set_variable(mLocalTrans.scale, "Scale");
 

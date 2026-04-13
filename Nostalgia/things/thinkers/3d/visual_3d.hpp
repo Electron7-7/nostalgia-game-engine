@@ -12,9 +12,6 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    bool mOverrideEnableDebugHighlight{false};
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 1.0f};
-
     virtual BitMask Layers() const;
     virtual void SetLayers(BitMask inVisualLayers);
 

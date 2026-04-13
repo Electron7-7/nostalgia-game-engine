@@ -14,8 +14,6 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    glm::vec4 mDebugHighlight{1.0f, 0.2f, 0.9f, 0.0f}; // Off by default (alpha == 0.0f)
-
     virtual void SetPosition(Farg<glm::vec2>);
     virtual void SetRotation(float);
     virtual void SetRotationDegrees(float);
