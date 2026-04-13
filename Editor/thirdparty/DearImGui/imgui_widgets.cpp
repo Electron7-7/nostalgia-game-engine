@@ -2825,6 +2825,20 @@ bool ImGui::DragGLMv3(const char* label, glm::vec3* v, float v_speed, float v_mi
     return false;
 }
 
+bool ImGui::DragGLMv4(const char* label, glm::vec4* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
+{
+    float l_Scalars[4] = {v->w, v->x, v->y, v->z};
+    if(DragScalarN(label, ImGuiDataType_Float, l_Scalars, 4, v_speed, &v_min, &v_max, format, flags))
+    {
+        v->w = l_Scalars[0];
+        v->x = l_Scalars[1];
+        v->y = l_Scalars[2];
+        v->z = l_Scalars[3];
+        return true;
+    }
+    return false;
+}
+
 bool ImGui::DragGLMquat(const char* label, glm::quat* v, float v_speed, float v_min, float v_max, const char* format, ImGuiSliderFlags flags)
 {
     float l_Scalars[4] = {v->w, v->x, v->y, v->z};
@@ -2890,6 +2904,11 @@ bool ImGui::DragFloatRange2(const char* label, float* v_current_min, float* v_cu
     PopID();
 
     return value_changed;
+}
+
+bool ImGui::DragUInt(const char* label, uint* v, float v_speed, uint v_min, uint v_max, const char* format, ImGuiSliderFlags flags)
+{
+    return DragScalar(label, ImGuiDataType_U32, v, v_speed, &v_min, &v_max, format, flags);
 }
 
 // NB: v_speed is float to allow adjusting the drag speed with more precision
@@ -3858,6 +3877,20 @@ bool ImGui::InputGLMv3(const char* label, glm::vec3* v, float step, float step_f
         v->x = l_Scalars[0];
         v->y = l_Scalars[1];
         v->z = l_Scalars[2];
+        return true;
+    }
+    return false;
+}
+
+bool ImGui::InputGLMv4(const char* label, glm::vec4* v, float step, float step_fast, const char* format, ImGuiInputTextFlags flags)
+{
+    float l_Scalars[4] = {v->w, v->x, v->y, v->z};
+    if(InputScalarN(label, ImGuiDataType_Float, (void*)l_Scalars, 4, (void*)(step > 0.0f ? &step : NULL), (void*)(step_fast > 0.0f ? &step_fast : NULL), format, flags))
+    {
+        v->w = l_Scalars[0];
+        v->x = l_Scalars[1];
+        v->y = l_Scalars[2];
+        v->z = l_Scalars[3];
         return true;
     }
     return false;
