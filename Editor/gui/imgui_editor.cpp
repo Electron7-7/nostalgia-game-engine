@@ -388,26 +388,34 @@ void ImGui_Editor::TheatreInspector()
             }
         }
         if(not mInspectingThinkerUID.invalid())
-            { InspectThinker(); }
+        {
+            if(mInspectingThinkerName.empty())
+                { mInspectingThinkerName = Theatre::Current()->GetName(mInspectingThinkerUID); }
+            InspectThinker();
+        }
         if(not mInspectingResourceUID.invalid())
-            { InspectResource(); }
+        {
+            if(mInspectingResourceName.empty())
+                { mInspectingResourceName = Theatre::Current()->GetName(mInspectingResourceUID); }
+            InspectResource();
+        }
     EndChild();
 }
 
 void ImGui_Editor::_display_thinker(ID inUID)
 {
+    auto _thinker{Theatre::Current()->GetThinker(inUID)};
     SameLine();
     ImGui::Image((ImTextureRef)GetIconTextureBufferID(Theatre::Current()->TypeOf(inUID)),
         {30, 30},
         {0, 1},
         {1, 0});
     SameLine();
-    bool _pressed{Button(std::format("{}##{}",
-        Theatre::Current()->GetThing(inUID)->c_name(),
-        inUID()).data(),
-        {0, 30})};
-    if(_pressed)
+    PushID(inUID());
+    if(Button(_thinker->c_name(), {0, 30}))
         { mInspectingThinkerUID = inUID; }
+    PopID();
+    _thinker->IsHighlighted(IsItemHovered());
 }
 
 void ImGui_Editor::_thinker_tree_branch(ID inUID)

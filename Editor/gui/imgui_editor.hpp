@@ -18,6 +18,7 @@ private:
     static uint GetIconTextureBufferID(FPID inType);
 
     ID mInspectingResourceUID{}, mInspectingThinkerUID{};
+    std::string mInspectingThinkerName{}, mInspectingResourceName{};
 
     void ThingAdder();
     void TheatreInspector();
