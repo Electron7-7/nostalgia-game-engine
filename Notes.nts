@@ -1368,3 +1368,11 @@ All right, it's a bit janky but it *does* work. Time to iron out all the kinks.
 I wanna implement brushes. Note before I do so: I also wanna implement a fast way to "get" console variables that'll return an empty variable/false if the requested variable doesn't exist. Then I could, say, use it in the rendering function for 'mat_fullbright' or something. Anyways, on to brushes.
 
 Okay, while I didn't do that I did finally fully remove the VariableRegistry class and replace the enum functionality with the new EnumRegistry (replacing what was the EnumPrettifier). In a new branch, I'll work on mesh-related changes in preparation for brushes.
+
+[04/09/26]
+Okay, I made some changes to the rendering code and added `ArrayMesh` to replace `Mesh`. Frankly, it might not need to exist, but it's whatever. I think I wanna try and change how `VertexArray` works and implement it into surfaces? What if each surface corresponded to a unique `VertexArray` or `VertexBuffer` in a `VertexArray`? Then you'd just have to loop through each buffer when rendering an array?
+
+Okay, each surface is going to have it's own VAO but I want to decide whether or not to implement each surface being combined into a singular VAO and the `Surface` struct holding the values to its offsets within each VBO and the IBO.
+
+[04/13/26]
+Todo: add sections to `ThingData` to differentiate between the variables for different types, and add the ability to discern whether a reference variable is for a specific type or not (e.g. `Resource`, `Thinker`, `MeshInstance3D`, `Thing`).
