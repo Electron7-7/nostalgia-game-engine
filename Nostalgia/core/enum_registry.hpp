@@ -99,6 +99,35 @@ public:
             return ERR_NOT_FOUND;
         }
 
+    // Searches for the enum via the given name and, if found, assigns its value to `ioEnumValue`
+    static Error GetEnum(Sarg inName, long& ioEnumValue) noexcept
+    {
+        LOCK_MUTEX;
+        if(FOUND_BY_NAME(inName))
+        {
+            ioEnumValue = found_it->value;
+            return OK;
+        }
+        return ERR_NOT_FOUND;
+    }
+
+    // Searches for the enum via the given name and, if found, returns an unordered set containing all enums of the same type
+    static Enums_t GetEnumsOfSameType(Sarg inName) noexcept
+    {
+        LOCK_MUTEX;
+        Enums_t _output{};
+        if(FOUND_BY_NAME(inName))
+        {
+            size_t _type{found_it->type};
+            for(FAUTO _enum : m_sEnums)
+            {
+                if(_enum.type == _type)
+                    { _output.insert(_enum); }
+            }
+        }
+        return _output;
+    }
+
     // Searches for the given enum and returns the string registered to it; if the enum cannot be found,
     // an empty string is returned instead
     template<IsEnum T>
