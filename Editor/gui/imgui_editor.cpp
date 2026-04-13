@@ -13,7 +13,6 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/ui/implementor.hpp>
-#include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>

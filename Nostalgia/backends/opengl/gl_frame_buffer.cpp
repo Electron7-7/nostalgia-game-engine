@@ -1,6 +1,5 @@
 #include "gl_frame_buffer.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "rendering/renderer_api.hpp"
 #include "managers/render_manager.hpp"
 #include "thirdparty/glad/glad.h"
 

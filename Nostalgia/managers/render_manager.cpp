@@ -2,7 +2,6 @@
 #include "settings/graphics.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
-#include "rendering/renderer_api.hpp"
 #include "things/resource_database.hpp"
 #include "rendering/texture_buffer.hpp"
 #include "rendering/environment.hpp"

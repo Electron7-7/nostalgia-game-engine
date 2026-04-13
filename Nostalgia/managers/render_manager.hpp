@@ -2,7 +2,7 @@
 #define RENDER_MANAGER_H
 
 #include <Nostalgia/managers/manager.hpp>
-#include <Nostalgia/fwd/rendering.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
 
 enum class ShaderDebugOutput : ushort
 {
@@ -32,7 +32,7 @@ public:
     const Unique<RendererAPI>& GetAPI() const;
 
 private:
-    Unique<RendererAPI> mRendererAPI{nullptr};
+    Unique<RendererAPI> mRendererAPI{RendererAPI::Activate()};
     bool mCanClearWindow{true}, mCanCalculateFrametime{false};
     double mTheatreFrametime{0.0}, mUIFrametime{0.0};
 };

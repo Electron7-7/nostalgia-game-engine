@@ -4,7 +4,6 @@
 #include "managers/event_manager.hpp"
 #include "managers/input_manager.hpp"
 #include "managers/render_manager.hpp"
-#include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
