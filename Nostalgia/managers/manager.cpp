@@ -2,22 +2,22 @@
 #include "settings/engine.hpp"
 #include "application/application.hpp"
 #include <cassert>
-#include <thread>
-
-bool gDebugPrintFrameNumbers {false};
-bool gDebugPrintTickNumbers  {false};
 
 using namespace ManagerEnums;
 
-long IManager::m_sFrameNumber = 0;
-long IManager::m_sTickNumber  = 0;
-bool IManager::m_sStopRequested = false;
-bool IManager::m_sIsRunning     = false;
-bool IManager::m_sIsInitialized = false;
-bool IManager::m_sTheatreStartRequested    = false;
-bool IManager::m_sTheatreShutdownRequested = false;
-ManagerEnums::TheatreState_t IManager::theatre_state = NOT_IN_LEVEL;
-std::vector<IManager*> IManager::m_sGameManagers = {};
+long IManager::m_sFrameNumber{0},
+    IManager::m_sTickNumber{0};
+bool IManager::m_sStopRequested{false},
+    IManager::m_sIsRunning{false},
+    IManager::m_sIsInitialized{false},
+    IManager::m_sTheatreStartRequested{false},
+    IManager::m_sTheatreShutdownRequested{false},
+    IManager::m_sCountFPS{false};
+double IManager::m_sCurrentTime{0.0},
+    IManager::m_sLastTime{0.0},
+    IManager::m_sFrameRate{0.0};
+ManagerEnums::TheatreState_t IManager::theatre_state{NOT_IN_LEVEL};
+std::vector<IManager*> IManager::m_sGameManagers{};
 
 void IManager::Add(IManager* newManager)
 {
@@ -173,17 +173,38 @@ void IManager::Start()
 
     m_sIsRunning = true;
     m_sStopRequested = false;
-
-    std::thread tick_thread(IManager::TickLoop);
+    m_sCurrentTime = m_sLastTime = Runtime::Current();
+    double _current_tick_length{0.0}, _fps_timer{0.0};
+    uint _frame_counter{0};
 
     while(!m_sStopRequested)
     {
+        // Tickrate Calculation (From GraphX)
+        m_sCurrentTime = Runtime::Current();
+        _current_tick_length += (m_sCurrentTime - m_sLastTime) / Settings::Engine::TickInterval();
+        while(_current_tick_length >= 1.0)
+        {
+            --_current_tick_length;
+            InvokeMethod(&IManager::Tick);
+            ++m_sTickNumber;
+        }
         UpdateTheatreStateMachine();
         InvokeMethod(&IManager::Update);
         MainWindow()->Update();
         ++m_sFrameNumber;
-        if(gDebugPrintFrameNumbers)
-            { print_debug("Frame #{}", m_sFrameNumber); }
+        ++_frame_counter;
+
+        if(m_sCountFPS)
+        {
+            _fps_timer += Runtime::Current() - m_sCurrentTime;
+            if(_fps_timer >= 1.0)
+            {
+                m_sFrameRate = _frame_counter;
+                _frame_counter = 0;
+                _fps_timer = 0.0;
+            }
+        }
+        m_sLastTime = m_sCurrentTime;
     }
 
     if(theatre_state != TheatreState_t::NOT_IN_LEVEL)
@@ -192,42 +213,42 @@ void IManager::Start()
         UpdateTheatreStateMachine();
     }
 
-    tick_thread.join();
     m_sIsRunning = false;
-}
-
-void IManager::TickLoop()
-{
-    // Tickrate SetupVariables (From GraphX)
-    double last_time = Runtime::Current();
-    double current_tick_length = 0.0;
-    double current_time = 0.0;
-
-    while(!m_sStopRequested)
-    {
-        // Tickrate Calculation (From GraphX)
-        current_time = Runtime::Current();
-        current_tick_length += (current_time - last_time) / Settings::Engine::TickInterval();
-        last_time = current_time;
-        while(current_tick_length >= 1.0)
-        {
-            --current_tick_length;
-            InvokeMethod(&IManager::Tick);
-            ++m_sTickNumber;
-            if(gDebugPrintTickNumbers)
-                { print_debug("Tick #{}", m_sTickNumber); }
-        }
-    }
 }
 
 void IManager::Stop()
 { m_sStopRequested = (m_sIsRunning); }
+
+void IManager::FPSCounter(bool inCounter)
+{
+    m_sCountFPS = inCounter;
+    if(not inCounter)
+        { m_sFrameRate = 0.0; }
+}
+
+bool IManager::FPSCounterEnabled()
+{ return m_sCountFPS; }
+
+double IManager::GetFPS()
+{ return m_sFrameRate; }
 
 long IManager::FrameNumber()
 { return m_sFrameNumber; }
 
 long IManager::TickNumber()
 { return m_sTickNumber; }
+
+double IManager::FixedUpdateCurrentTime()
+{ return m_sFrameNumber * Settings::Engine::TickInterval(); }
+
+double IManager::FixedUpdateDeltaTime()
+{ return Settings::Engine::TickInterval(); }
+
+double IManager::CurrentTime()
+{ return m_sCurrentTime; }
+
+double IManager::DeltaTime()
+{ return m_sCurrentTime - m_sLastTime; }
 
 ManagerEnums::TheatreState_t IManager::GetTheatreState()
 { return theatre_state; }

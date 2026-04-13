@@ -52,13 +52,17 @@ public:
     static void Start();
     static void Stop();
 
+    static void FPSCounter(bool);
+    static bool FPSCounterEnabled();
+    static double GetFPS();
+
     // Return the current frame or tick number
     static long FrameNumber();
     static long TickNumber();
 
     // In fixed update: return current/delta time
-    static float FixedUpdateCurrentTime();
-    static float FixedUpdateDeltaTime();
+    static double FixedUpdateCurrentTime();
+    static double FixedUpdateDeltaTime();
 
     // In rendering: return current/delta time
     static double CurrentTime();
@@ -87,17 +91,15 @@ protected:
     static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
 
     static std::vector<IManager*> m_sGameManagers;
-    static bool m_sTheatreShutdownRequested;
-    static bool m_sTheatreStartRequested;
-    static bool m_sStopRequested;
-    static bool m_sIsRunning;
-    static bool m_sIsInitialized;
-    static long m_sFrameNumber;
-    static long m_sTickNumber;
+    static bool m_sTheatreShutdownRequested,
+        m_sTheatreStartRequested,
+        m_sStopRequested,
+        m_sIsRunning,
+        m_sIsInitialized,
+        m_sCountFPS;
+    static long m_sFrameNumber, m_sTickNumber;
+    static double m_sCurrentTime, m_sLastTime, m_sFrameRate;
     static ManagerEnums::TheatreState_t theatre_state;
-
-private:
-    static void TickLoop();
 };
 
 class Manager : public IManager
@@ -124,8 +126,5 @@ public:
 // Automatically remove the game manager if it gets deleted
 inline Manager::~Manager()
 { IManager::Remove(this); }
-
-extern bool gDebugPrintFrameNumbers;
-extern bool gDebugPrintTickNumbers;
 
 #endif // MANAGER_H
