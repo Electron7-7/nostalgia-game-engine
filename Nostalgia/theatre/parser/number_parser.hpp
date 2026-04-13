@@ -1,6 +1,11 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
+enum class NumberType : int
+{
+    NIL=0, FLOAT, INT, VEC2, VEC3, VEC4
+};
+
 template<GLMContainer T>
     consteval ushort gGlmSize()
     {
@@ -34,12 +39,12 @@ template<typename T>
         T number{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::Invalid`
         if constexpr(not std::is_integral_v<T>)
         {
-            try { number = std::stold(string); }
+            try { number = std::stof(string); }
             catch(std::invalid_argument const& e) { return false; }
         }
         else
         {
-            try { number = std::stoll(string); }
+            try { number = std::stoi(string); }
             catch(std::invalid_argument const& e) { return false; }
         }
         output = number;
@@ -92,5 +97,32 @@ inline bool StringToNum(glm::vec4& output, const std::string& string)
 template<>
 inline bool StringToNum(glm::quat& output, const std::string& string)
 { return InterpretGLM<4>(output, string); }
+
+inline NumberType GetNumberType(Sarg inNumber)
+{
+    int _int_test;
+    float _float_test;
+    glm::vec2 _vec2_test;
+    glm::vec3 _vec3_test;
+    glm::vec4 _vec4_test;
+
+    if(inNumber.contains(','))
+    {
+        if(StringToNum(_vec2_test, inNumber))
+            { return NumberType::VEC2; }
+        else if(StringToNum(_vec3_test, inNumber))
+            { return NumberType::VEC3; }
+        else if(StringToNum(_vec4_test, inNumber))
+            { return NumberType::VEC4; }
+    }
+    else if(inNumber.contains('.'))
+    {
+        if(StringToNum(_float_test, inNumber))
+            { return NumberType::FLOAT; }
+    }
+    else if(StringToNum(_int_test, inNumber))
+        { return NumberType::INT; }
+    return NumberType::NIL;
+}
 
 #endif // NUMBER_PARSER_H
