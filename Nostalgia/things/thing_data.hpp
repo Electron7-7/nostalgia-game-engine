@@ -71,16 +71,25 @@ namespace TheatreFile
         Error set_variable(ID inValue, Sarg inName);
         void  set_variable(bool inValue, Sarg inName);
         Error set_variable(Shared<FileData> inValue, Sarg inName);
+        Error set_enum_variable(Sarg inEnumName, Sarg inName);
 
         template<NumberOrGLM T, StringType... Names>
             void set_variable(Farg<T> inValue, Sarg inName)
-            { variables.emplace_back(inName, NumToString(inValue), ThingVarType::Number); }
+            {
+                FAUTO __find_name{inName};
+                auto found_it{std::find_if(variables.begin(), variables.end(),
+                    [__find_name](Farg<ThingVariable> var_it)
+                        { return not var_it.name.compare(__find_name); })};
+                if(found_it != variables.end())
+                    { found_it->value = NumToString(inValue); return; }
+                variables.emplace_back(inName, NumToString(inValue), ThingVarType::Number);
+            }
 
         template<IsEnum T>
             Error set_variable(T inValue, Sarg inName)
             {
                 if(auto enum_name{EnumRegistry::GetEnumName(inValue)}; not enum_name.empty())
-                    { variables.emplace_back(inName, enum_name, ThingVarType::Enum); return OK; }
+                    { return set_enum_variable(enum_name, inName); }
                 return ERR_INVALID;
             }
 

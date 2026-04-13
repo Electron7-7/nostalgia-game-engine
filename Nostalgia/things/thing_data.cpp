@@ -2,6 +2,17 @@
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
 
+#define FIND_VAR(VAR_NAME, VECTOR) \
+    std::find_if(VECTOR.begin(), VECTOR.end(), \
+        [VAR_NAME](Farg<ThingVariable> var_it) \
+            { return not var_it.name.compare(VAR_NAME); } )
+
+#define FOUND_VAR(VAR_NAME) \
+    auto found_it{FIND_VAR(VAR_NAME, variables)}; found_it != variables.end()
+
+#define FOUND_CHILD(CHILD_NAME) \
+    auto found_it{FIND_VAR(CHILD_NAME, children_variables)}; found_it != children_variables.end()
+
 using namespace TheatreFile;
 
 Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> inNames) const
@@ -79,7 +90,12 @@ std::string ThingData::get_parsable_string() const noexcept
 void ThingData::set_variable(Sarg inValue, Sarg inName)
 {
     if(not inValue.empty())
-        { variables.emplace_back(inName, inValue, ThingVarType::String); }
+    {
+        if(FOUND_VAR(inName))
+            { found_it->value = inName; }
+        else
+            { variables.emplace_back(inName, inValue, ThingVarType::String); }
+    }
 }
 
 void ThingData::clear()
@@ -149,21 +165,53 @@ Error ThingData::set_variable(ID inValue, Sarg inName)
         { return ERR_INVALID_ID; }
 
     if(temp.type == ThingVarType::Child)
-        { children_variables.push_back(temp); }
+    {
+        Sarg _name{temp.value};
+        if(FOUND_CHILD(_name))
+            { *found_it = temp; }
+        else
+            { children_variables.push_back(temp); }
+    }
     else if(temp.type == ThingVarType::Parent)
         { parent_variable = temp; }
+    else if(FOUND_VAR(inName))
+        { *found_it = temp; }
     else
         { variables.push_back(temp); }
     return OK;
 }
 
 void ThingData::set_variable(bool inValue, Sarg inName)
-{ variables.emplace_back(inName, std::format("{}", inValue), ThingVarType::Bool); }
+{
+    std::string _value{std::format("{}", inValue)};
+    if(FOUND_VAR(inName))
+        { found_it->value = _value; }
+    else
+        { variables.emplace_back(inName, _value, ThingVarType::Bool); }
+}
 
 Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName)
 {
     if(not inValue->has_filepath())
         { return ERR_INVALID_PATH; }
-    variables.emplace_back(inName, inValue->filepath(), ThingVarType::String);
+    std::string _value{inValue->filepath()};
+    if(FOUND_VAR(inName))
+        { found_it->value = _value; }
+    else
+        { variables.emplace_back(inName, _value, ThingVarType::String);}
     return OK;
+}
+
+
+Error ThingData::set_enum_variable(Sarg inEnumName, Sarg inName)
+{
+    if(EnumRegistry::Contains(inEnumName))
+    {
+        if(FOUND_VAR(inName))
+            { found_it->value = inEnumName; }
+        else
+            { variables.emplace_back(inName, inEnumName, ThingVarType::Enum); }
+        return OK;
+    }
+    return ERR_INVALID;
 }
