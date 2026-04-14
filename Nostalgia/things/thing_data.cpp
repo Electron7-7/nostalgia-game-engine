@@ -58,12 +58,12 @@ std::string ThingData::get_log() const noexcept
         { output += std::format("\n\t\t{}", var.get_log()); }
     if(!children_variables.empty())
     {
-        output += "\n\tchildren_variables:";
+        output += "\n\tchildren:";
         for(FAUTO var : children_variables)
             { output += std::format("\n\t\t{}", var.get_log()); }
     }
     if(!parent_variable.invalid())
-        { output += std::format("\n\t\n\tparent_variable: {}", parent_variable.get_log()); }
+        { output += std::format("\n\t\n\tparent: {}", parent_variable.get_log()); }
     return output + "\n";
 }
 
