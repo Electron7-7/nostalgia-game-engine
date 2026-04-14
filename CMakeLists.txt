@@ -121,6 +121,7 @@ target_include_directories(Nostalgia
 
 if(MSVC)
     target_compile_features(Nostalgia PUBLIC cxx_std_23)
+    target_compile_options(Nostalgia PUBLIC -EHsc)
     set_property(TARGET Nostalgia PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     set_property(TARGET Jolt PROPERTY
@@ -188,6 +189,7 @@ if(BUILD_EDITOR)
 
     if(MSVC)
         target_compile_features(NostalgiaGoggles PUBLIC cxx_std_23)
+        target_compile_options(NostalgiaGoggles PUBLIC -EHsc)
         set_property(TARGET NostalgiaGoggles PROPERTY
             MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     else()
@@ -216,6 +218,7 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     if(MSVC)
         target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
         target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
+        target_compile_options(${TARGET_NAME} PUBLIC -EHsc)
         set_property(TARGET ${TARGET_NAME} PROPERTY
             MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     else()
