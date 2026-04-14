@@ -4,10 +4,12 @@ using namespace TheatreFile;
 
 std::string ThingVariable::get_log() const noexcept
 {
-    return std::format("[name: {}, value: {}, type: {}]",
+    static const std::string _type_str{", thing_type: "};
+    return std::format("[name: {}, value: {}, type: {}{}]",
         name,
         value,
-        EnumRegistry::GetEnumName(type));
+        EnumRegistry::GetEnumName(type),
+        (thing_type.invalid()) ? GlobalConstants::str_empty : _type_str + thing_type.name());
 }
 
 std::string ThingVariable::get_parsable_string() const noexcept
@@ -47,7 +49,7 @@ std::string ThingVariable::get_parsable_string() const noexcept
         delim_out = ")";
         break;
     }
-    return std::format("    {} = {}{}{}",
+    return std::format("\t{} = {}{}{}",
         variable_name,
         delim_in,
         variable_value,

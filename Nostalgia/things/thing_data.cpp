@@ -154,26 +154,29 @@ Error ThingData::remove_child(Sarg inName)
 Error ThingData::set_variable(ID inValue, Sarg inName)
 {
     ThingVariable temp{inName, "", ThingVarType::ID};
-    if(!inName.compare("Parent"))
-        { temp.type = ThingVarType::Parent; }
-    else if(!inName.compare("Child"))
-        { temp.type = ThingVarType::Child; }
 
     if(FAUTO name{Theatre::Current()->GetName(inValue)}; not name.empty())
-        { temp.value = name; }
+    {
+        temp.value = name;
+        temp.thing_type = Theatre::Current()->TypeOf(inValue);
+    }
     else
         { return ERR_INVALID_ID; }
 
-    if(temp.type == ThingVarType::Child)
+    if(not inName.compare("Parent"))
     {
-        Sarg _name{temp.value};
+        temp.type = ThingVarType::Parent;
+        parent_variable = temp;
+    }
+    else if(not inName.compare("Child"))
+    {
+        temp.type = ThingVarType::Child;
+        Sarg _name{};
         if(FOUND_CHILD(_name))
             { *found_it = temp; }
         else
             { children_variables.push_back(temp); }
     }
-    else if(temp.type == ThingVarType::Parent)
-        { parent_variable = temp; }
     else if(FOUND_VAR(inName))
         { *found_it = temp; }
     else
