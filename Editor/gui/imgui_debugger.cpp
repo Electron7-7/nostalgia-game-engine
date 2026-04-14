@@ -59,8 +59,8 @@ static bool sAutoStopwatchEnabled{true},
     sEnableFrameCounter{true},
     sEnableFps{true},
     sEnableFrametime{true},
-    sEnableTickRate{true},
-    sEnableTickInterval{true},
+    sEnableTickRate{false},
+    sEnableTickInterval{false},
     sEnableRenderManagerFrametime{true};
 
 static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
