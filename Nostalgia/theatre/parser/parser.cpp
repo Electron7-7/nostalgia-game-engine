@@ -1,31 +1,37 @@
 #include "../theatre_file.hpp"
+#include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
+#include "console/console.hpp"
 
 // These preprocessor definitions are used on unknown/invalid types to approximate their closest inherited type
 #define ACTOR_VAR_NAMES "Position", "Origin", "Scale", "Size", "OuuughImSoBigAndRound", "RotationDegrees", "Rotation", "RotationRadians"
 #define ACTOR3D_VAR_NAMES "EulerDegrees", "Euler", "EulerRadians", "Quaternion"
 #define RESOURCE_VAR_NAMES "File", "Data", "Path", "Font", "Model", "Image", "Image0", "Image1", "DiffuseTexture", "SpecularTexture", "FullBright"
 
-static constexpr char cDelimiterTheatreName    {'@'};
-static constexpr char cDelimiterTheatreIndex   {'#'};
-static constexpr char cDelimiterStartSandwich  {':'};
-static constexpr char cDelimiterExitContext    {'}'};
-static constexpr char cDelimiterEnterNumber    {'['};
-static constexpr char cDelimiterExitNumber     {']'};
-static constexpr char cDelimiterEnterEnum      {'('};
-static constexpr char cDelimiterEnterRefOrEnum {'<'};
-static constexpr char cDelimiterWeakString     {'"'};
-static constexpr char cDelimiterStrongString   {'\''};
-static constexpr const char* cKeywordDeclare   {"declare"};
+static constexpr const char* cKeywordDeclare{"declare"};
+static constexpr char
+    cDelimiterTheatreName     {'@'},
+    cDelimiterTheatreIndex    {'#'},
+    cDelimiterStartSandwich   {':'},
+    cDelimiterEnterDefinition {'{'},
+    cDelimiterExitDefinition  {'}'},
+    cDelimiterEnterNumber     {'['},
+    cDelimiterExitNumber      {']'},
+    cDelimiterEnterEnum       {'('},
+    cDelimiterEnterReference  {'<'},
+    cDelimiterExitReference   {'>'},
+    cDelimiterWeakString      {'"'},
+    cDelimiterStrongString    {'\''};
 
 using namespace TheatreFile;
 
 enum Comment { SINGLE_LINE, MULTI_LINE, NO_COMMENT }; // yes, `NO_COMMENT` is a pun
 
-static std::map<std::string, std::string> s_ThingTypeForwardDeclarations{};
+static std::map<std::string, PID> s_ThingNameToTypeID{};
 
-static void s_ParseDeclaration(size_t&, Farg<TokenArray>);
-static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData>);
+static void s_SetupNamesAndTypes(Farg<TokenArray>, TheatreFile::TheatreData&);
+static void s_ParseDeclaration(size_t&, Farg<TokenArray>, TheatreFile::TheatreData&);
+static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, TheatreFile::TheatreData&);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
 Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
@@ -34,6 +40,24 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
     ThingVariable thing_var{};
 
     Comment in_comment{NO_COMMENT};
+
+    s_ThingNameToTypeID.clear();
+
+    s_SetupNamesAndTypes(inTokens, *outData);
+
+    if(Console::GetVariable("TheatreFile.Parser.print_declarations")->int_value)
+    {
+        print_debug("Parser Forward Declarations:");
+        for(FAUTO [name, type] : outData->type_declarations)
+            { debug_print("\t[ {} == {} ]", name, type); }
+    }
+
+    if(Console::GetVariable("TheatreFile.Parser.print_name_type_map")->int_value)
+    {
+        print_debug("Parser Name to TypeID Map:");
+        for(FAUTO [name, type] : s_ThingNameToTypeID)
+            { debug_print("\t[ {} == {} ]", name, type.name()); }
+    }
 
     for(size_t i{0}; i < inTokens.size(); ++i)
     {
@@ -52,19 +76,74 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
             }
         }
         else if(token.category == TokenName::Keyword and not token.token.compare(cKeywordDeclare))
-            { s_ParseDeclaration(i, inTokens); }
+        {
+            while(++i < inTokens.size())
+            {
+                FAUTO _token{inTokens.at(i)};
+                if(_token.category == TokenName::Whitespace and _token.token[0] == '\n')
+                    { break; }
+            }
+        }
         else if(token.category == TokenName::Identifier)
-            { s_ParseThing(i, inTokens, outData); }
+            { s_ParseThing(i, inTokens, *outData); }
     }
     return OK;
 }
 
-void s_ParseDeclaration(size_t& inIndex, Farg<TokenArray> inTokens)
+void s_SetupNamesAndTypes(Farg<TokenArray> inTokens, TheatreFile::TheatreData& outData)
+{
+    std::string _type{};
+    Comment in_comment{NO_COMMENT};
+    bool _skip_definition{false}, _in_sandwich{false};
+
+    for(size_t i{0}; i < inTokens.size(); ++i)
+    {
+        Token _token{inTokens.at(i)};
+        if(s_CheckIfComment(in_comment, _token))
+            { continue; }
+        else if(_token.token[0] == cDelimiterStartSandwich)
+            { _in_sandwich = true; }
+        else if(_token.token[0] == cDelimiterEnterDefinition)
+            { _skip_definition = true; }
+        else if(_token.token[0] == cDelimiterExitDefinition)
+            { _skip_definition = false; }
+        else if(_skip_definition and not _in_sandwich)
+            { continue; }
+        else if(_token.category == TokenName::Keyword and not _token.token.compare(cKeywordDeclare))
+            { s_ParseDeclaration(i, inTokens, outData); }
+        else if(_token.category == TokenName::Identifier)
+        {
+            if(ThingFactory::IsThing(_token.token))
+                { _type = _token.token; }
+            else if(auto found_it{outData.type_declarations.find(_token.token)};
+                    found_it != outData.type_declarations.end())
+                { _type = _token.token; }
+            else
+                { continue; }
+
+            while(++i < inTokens.size())
+            {
+                _token = inTokens.at(i);
+                if(_token.category == TokenName::Identifier)
+                {
+                    s_ThingNameToTypeID[_token.token] = _type;
+                    _type.clear();
+                    break;
+                }
+            }
+            _in_sandwich = false;
+            _skip_definition = true;
+            continue;
+        }
+    }
+}
+
+void s_ParseDeclaration(size_t& ioIndex, Farg<TokenArray> inTokens, TheatreFile::TheatreData& outData)
 {
     std::string new_type{}, base_type{};
-    while(inIndex < inTokens.size() and (new_type.empty() or base_type.empty()))
+    while(ioIndex < inTokens.size() and (new_type.empty() or base_type.empty()))
     {
-        FAUTO token{inTokens.at(++inIndex)};
+        FAUTO token{inTokens.at(++ioIndex)};
         if(token.category == TokenName::Identifier)
         {
             if(new_type.empty())
@@ -73,7 +152,7 @@ void s_ParseDeclaration(size_t& inIndex, Farg<TokenArray> inTokens)
                 { base_type = token.token; }
         }
     }
-    s_ThingTypeForwardDeclarations[new_type] = base_type;
+    outData.type_declarations[new_type] = base_type;
     print_error_enum(ThingFactory::AddThingDeclaration(new_type, base_type, true));
 }
 
@@ -101,9 +180,9 @@ bool s_CheckIfComment(Comment& ioComment, Farg<Token> inToken)
     return ioComment != NO_COMMENT;
 }
 
-TheatreFile::ThingData s_ParseThing(size_t& inIndex,
+TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
     Farg<TokenArray> inTokens,
-    Shared<TheatreFile::TheatreData> outData)
+    TheatreFile::TheatreData& outData)
 {
     TheatreFile::ThingData thing_data{};
     ThingVariable thing_var{};
@@ -113,9 +192,9 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
     bool in_literal{false},
         in_string{false};
 
-    for(; inIndex < inTokens.size(); ++inIndex)
+    for(; ioIndex < inTokens.size(); ++ioIndex)
     {
-        FAUTO token{inTokens.at(inIndex)};
+        FAUTO token{inTokens.at(ioIndex)};
         if(s_CheckIfComment(in_comment, token))
             { continue; }
         else if((in_literal and token.token[0] != cDelimiterExitNumber)
@@ -146,27 +225,28 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                 Token next_token{};
                 bool exit_for{false};
 #pragma message("TODO: make this less shit")
-                ++inIndex;
-                for(; inIndex < inTokens.size() and !exit_for; ++inIndex)
+                ++ioIndex;
+                for(; ioIndex < inTokens.size() and !exit_for; ++ioIndex)
                 {
-                    next_token = inTokens.at(inIndex);
+                    next_token = inTokens.at(ioIndex);
                     if(next_token.category != TokenName::Keyword and
                         next_token.category != TokenName::Identifier)
                             { continue; }
                     thing_var.name = next_token.token;
-                    for(size_t i{inIndex+1}; i < inTokens.size() and !exit_for; ++i)
+                    for(size_t i{ioIndex+1}; i < inTokens.size() and !exit_for; ++i)
                     {
                         next_token = inTokens.at(i);
                         if(next_token.category != TokenName::Identifier)
                             { continue; }
                         thing_var.value = next_token.token;
+                        thing_var.thing_type = thing_var.name;
                         exit_for = true;
                     }
-                    --inIndex;
+                    --ioIndex;
                 }
                 thing_data.children_variables.push_back(thing_var);
                 thing_var.clear();
-                s_ParseThing(inIndex, inTokens, outData);
+                s_ParseThing(ioIndex, inTokens, outData);
                 continue;
             }
             break;
@@ -188,7 +268,18 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
         case TokenName::Separator:
             switch(token.token[0])
             {
-            case cDelimiterEnterRefOrEnum:
+            case cDelimiterExitReference:
+            {
+                std::string _name{thing_var.value};
+                if(thing_var.type != ThingVarType::ID and thing_var.name.compare("Child"))
+                    { _name = thing_var.name; }
+                if(auto found_it{s_ThingNameToTypeID.find(_name)}; found_it != s_ThingNameToTypeID.end())
+                    { thing_var.thing_type = found_it->second; }
+                else
+                    { thing_var.thing_type = ResourceDatabase::TypeOf(_name); }
+                break;
+            }
+            case cDelimiterEnterReference:
                 if(thing_var.type == ThingVarType::None)
                     { thing_var.type = ThingVarType::ID; }
                 break;
@@ -218,7 +309,7 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             case cDelimiterStrongString:
                 in_string = !in_string;
                 break;
-            case cDelimiterExitContext:
+            case cDelimiterExitDefinition:
                 if(not thing_var.invalid())
                 {
                     if(thing_var.type == ThingVarType::Child)
@@ -252,7 +343,7 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                         thing_data.get_variable(resource_test, RESOURCE_VAR_NAMES) == OK)
                             { thing_data.type = ThingType::Resource; }
                 }
-                outData->push_back(thing_data);
+                outData.push_back(thing_data);
                 return thing_data;
             default:
                 break;
@@ -269,8 +360,8 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
             {
                 if(ThingFactory::IsThing(token.token))
                     { thing_data.type = token.token; }
-                else if(auto found_it{s_ThingTypeForwardDeclarations.find(token.token)};
-                    found_it != s_ThingTypeForwardDeclarations.end())
+                else if(auto found_it{outData.type_declarations.find(token.token)};
+                    found_it != outData.type_declarations.end())
                 {
                     thing_data.type = found_it->second;
                     print_warning("ThingType '{}' wasn't loaded, but a forward declaration was found. A '{}' will be made in its place",
@@ -280,7 +371,10 @@ TheatreFile::ThingData s_ParseThing(size_t& inIndex,
                     { thing_data.type = token.token; }
             }
             else if(thing_data.name.empty())
-                { thing_data.name = token.token; }
+            {
+                thing_data.name = token.token;
+                s_ThingNameToTypeID[thing_data.name] = thing_data.type;
+            }
             else if(thing_var.name.empty())
                 { thing_var.name = token.token; }
             else if(thing_var.value.empty())
