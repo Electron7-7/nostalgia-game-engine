@@ -23,6 +23,8 @@ namespace TheatreFile
         std::string  value{};
         // The variable's type.
         ThingVarType type{ThingVarType::None};
+        // If the variable is a reference, this is the type of the Thing it is referencing.
+        PID thing_type{ThingType::Invalid};
 
         void clear()
         { *this = ThingVariable{}; }
