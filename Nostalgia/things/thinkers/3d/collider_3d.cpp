@@ -320,7 +320,7 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
     Farg<JPH::ContactManifold> manifold,
     JPH::ContactSettings& ioSettings)
 {
-    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+    if(Console::GetVariable("Collider3D.debug_collision_msgs")->int_value)
     {
         print_debug("Collider3D#{} '{}' contact added with Collider3D#{} '{}'",
             uid()(),
@@ -336,7 +336,7 @@ void Collider3D::OnContactPersisted(ID inOtherColliderID,
     Farg<JPH::ContactManifold> manifold,
     JPH::ContactSettings& ioSettings)
 {
-    if(Console::try_GetVariable("Collider3D.debug_collision_persisted_msgs")->int_value)
+    if(Console::GetVariable("Collider3D.debug_collision_persisted_msgs")->int_value)
         { print_debug("Collider3D#{} '{}' Contact Persisted", uid()(), name()); }
 }
 
@@ -347,12 +347,12 @@ void Collider3D::OnContactPersisted(ID inOtherColliderID,
 
 void Collider3D::OnBodyActivated()
 {
-    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+    if(Console::GetVariable("Collider3D.debug_collision_msgs")->int_value)
         { print_debug("Collider3D#{} '{}' activated", uid()(), name()); }
 }
 
 void Collider3D::OnBodyDeactivated()
 {
-    if(Console::try_GetVariable("Collider3D.debug_collision_msgs")->int_value)
+    if(Console::GetVariable("Collider3D.debug_collision_msgs")->int_value)
         { print_debug("Collider3D#{} '{}' deactivated", uid()(), name()); }
 }

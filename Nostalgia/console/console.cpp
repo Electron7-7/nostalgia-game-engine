@@ -18,6 +18,8 @@ sVariableNames{
     "Theatre.debug_create_thing_msgs",
     "Theatre.debug_callsheet_msgs",
     "Theatre.draw_text_new",
+    "TheatreFile.Parser.print_declarations",
+    "TheatreFile.Parser.print_name_type_map",
     "ThingFactory.debug_register_msgs",
     "ResourceDatabase.debug_register_msgs",
     "Collider3D.debug_collision_msgs",
@@ -30,6 +32,8 @@ sVariables{
     MakeShared<Variable>("Theatre.draw_text_new", false),
     MakeShared<Variable>("Theatre.debug_save_msgs", false),
     MakeShared<Variable>("Theatre.debug_create_thing_msgs", false),
+    MakeShared<Variable>("TheatreFile.Parser.print_declarations", false),
+    MakeShared<Variable>("TheatreFile.Parser.print_name_type_map", false),
     MakeShared<Variable>("Theatre.debug_callsheet_msgs", false),
     MakeShared<Variable>("ThingFactory.debug_register_msgs", false),
     MakeShared<Variable>("ResourceDatabase.debug_register_msgs", false),
@@ -61,7 +65,7 @@ Error Console::ProcessLine(Sarg inInput)
     {
         if(sVariableNames.contains(shitty_tokens[i]))
         {
-            auto variable{try_GetVariable(shitty_tokens[i])};
+            auto variable{GetVariable(shitty_tokens[i])};
             while(i < shitty_tokens.size() and shitty_tokens[i].compare("=")) { ++i; }
             if(++i < shitty_tokens.size())
             {
@@ -90,7 +94,7 @@ Error Console::ProcessLine(Sarg inInput)
     return FAILED;
 }
 
-Shared<Variable> Console::try_GetVariable(Sarg inName)
+Shared<Variable> Console::GetVariable(Sarg inName)
 {
     if(sVariables.empty() or !sVariableNames.contains(inName))
         { return sEmptyVariable; }

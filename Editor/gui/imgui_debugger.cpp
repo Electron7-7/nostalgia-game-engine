@@ -280,10 +280,18 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Event Logs", &gPrintEventLogs);
             Checkbox("Print Input Logs", &gPrintInputLogs);
         SeparatorText("Theatre");
-            static auto save_msgs{Console::try_GetVariable("Theatre.debug_save_msgs")};
+            static auto save_msgs{Console::GetVariable("Theatre.debug_save_msgs")};
             bool save_msgs_b{(bool)save_msgs->int_value};
             if(Checkbox("Print TheatreFile Save Progress", &save_msgs_b))
                 { Console::SetVariable("Theatre.debug_save_msgs", save_msgs_b); }
+            static bool _print_fwd{static_cast<bool>(
+                Console::GetVariable("TheatreFile.Parser.print_declarations")->int_value)};
+            if(Checkbox("Print Parsed Forward Declarations", &_print_fwd))
+                { Console::SetVariable("TheatreFile.Parser.print_declarations", _print_fwd); }
+            static bool _print_name_type_map{static_cast<bool>(
+                Console::GetVariable("TheatreFile.Parser.print_name_type_map")->int_value)};
+            if(Checkbox("Print Parsed Name/Type Map", &_print_name_type_map))
+                { Console::SetVariable("TheatreFile.Parser.print_name_type_map", _print_name_type_map); }
             Checkbox("Print TheatreFile Lexer Logs", &TheatreFile::gDebugPrintLexerLogs);
             Checkbox("Print TheatreFile Parser Logs", &TheatreFile::gDebugPrintParserLogs);
             Checkbox("Disable Whitespace In Lexer Logs", &TheatreFile::gDebugDontPrintWhitespaceInLexerLogs);
@@ -310,9 +318,9 @@ static void s_GeneralDebuggingWindow()
 #endif // NOSTALGIA_DEBUGGING
     if(CollapsingHeader("Rendering"))
     {
-        static auto text_rendering{Console::try_GetVariable("Theatre.draw_text_new")},
-            enable3d{Console::try_GetVariable("Theatre.draw_3d")},
-            enable2d{Console::try_GetVariable("Theatre.draw_2d")};
+        static auto text_rendering{Console::GetVariable("Theatre.draw_text_new")},
+            enable3d{Console::GetVariable("Theatre.draw_3d")},
+            enable2d{Console::GetVariable("Theatre.draw_2d")};
         bool text_rendering_b{(bool)text_rendering->int_value},
             enable3d_b{(bool)enable3d->int_value},
             enable2d_b{(bool)enable2d->int_value};

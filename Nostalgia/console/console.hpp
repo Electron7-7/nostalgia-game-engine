@@ -40,7 +40,7 @@ namespace Console
 
     Error ProcessLine(Sarg inInput);
 
-    Shared<Variable> try_GetVariable(Sarg inName);
+    Shared<Variable> GetVariable(Sarg inName);
     Error GetVariable(Sarg inName, Shared<Variable>& outVariable);
     Error SetVariable(Sarg inName, Sarg  inValue);
     Error SetVariable(Sarg inName, int   inValue);

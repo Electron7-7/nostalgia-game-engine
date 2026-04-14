@@ -97,7 +97,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
         m_sAllTypes.emplace(type);
         m_sThingMakers[inType]    = inPtr;
         m_sTypePriorities[inType] = inPriority;
-        if(Console::try_GetVariable("ThingFactory.debug_register_msgs")->int_value)
+        if(Console::GetVariable("ThingFactory.debug_register_msgs")->int_value)
             { print_debug("Registered New ThingType_t: {}", type.log()); }
         return OK;
     }
@@ -125,7 +125,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
             { next_base = ThingType::Thing; }
     }
     type._all_base_types.emplace(next_base);
-    if(Console::try_GetVariable("ThingFactory.debug_register_msgs")->int_value)
+    if(Console::GetVariable("ThingFactory.debug_register_msgs")->int_value)
         { print_debug("Registered New ThingType_t: {}", type.log()); }
     m_sAllTypes.emplace(type);
 

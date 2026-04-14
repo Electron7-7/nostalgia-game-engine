@@ -129,7 +129,7 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
     LOCK_THINGS;
     for(FAUTO [id, thing] : mThings)
     {
-        if(Console::try_GetVariable("Theatre.debug_save_msgs")->int_value)
+        if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
             { print_debug("Saving [{}, {}]", thing->name(), id()); }
         output += thing->GetVariables()->get_parsable_string();
     }
@@ -172,7 +172,7 @@ bool Theatre::Startup()
         thing->Init();
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
         mCallSheet.Add(thing->uid());
-        if(Console::try_GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+        if(Console::GetVariable("Theatre.debug_create_thing_msgs")->int_value)
             { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
         ++iter;
     }
@@ -211,7 +211,7 @@ bool Theatre::Startup()
     for(FAUTO thing_data : *m_pInitialState)
         { mThings.at(mNames.at(thing_data.name))->Ready(); }
 
-    if(Console::try_GetVariable("Theatre.debug_callsheet_msgs")->int_value)
+    if(Console::GetVariable("Theatre.debug_callsheet_msgs")->int_value)
         { print_debug("{}", mCallSheet.debug_log(mThings)); }
 
     mIsStarted = true;
@@ -443,7 +443,7 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
     thing->SetVariables(inData);
     if(inDoReadyThing)
         { thing->Ready(); }
-    if(Console::try_GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+    if(Console::GetVariable("Theatre.debug_create_thing_msgs")->int_value)
         { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
     return thing->uid();
 }
