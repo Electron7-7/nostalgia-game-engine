@@ -46,6 +46,9 @@ int NostalgiaGoggles::Main()
     imgui_impl->CreateSolution<ImGui_Editor>();
     imgui_impl->CreateSolution<ImGui_Debugger>();
 
+    IManager::FPSCounter(true);
+    g_pRenderManager->CalculateFrameTime(true);
+
     Manager::Add(g_pRenderManager);
     Manager::Add(g_pResourceManager);
     Manager::Add(g_pPhysicsManager);
