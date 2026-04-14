@@ -9,7 +9,6 @@ bool TheatreFile::gDebugPrintLexerLogs{false},
 
 static void sDebugPrintLexerLogs(Farg<TokenArray>);
 
-Error TheatreFile::Load(std::string& ioPathToFile, Shared<TheatreData>& outData)
 std::string TheatreFile::TheatreData::get_log() const
 {
     std::string _out{std::format("TheatreData [{}, {}]\n", name, index)};
@@ -27,6 +26,8 @@ std::string TheatreFile::TheatreData::get_parsable_string() const
         { _out += std::format("{}\n", _data.get_parsable_string()); }
     return _out;
 }
+
+Error TheatreFile::Load(std::string& ioPathToFile, Shared<TheatreData> outData)
 {
     FileData theatre_file{};
     if(not theatre_file.LoadFile(ioPathToFile))
@@ -35,8 +36,7 @@ std::string TheatreFile::TheatreData::get_parsable_string() const
     return Load(theatre_file, outData);
 }
 
-Error TheatreFile::Load(Farg<FileData> inFileData,
-    Shared<TheatreData>& outData)
+Error TheatreFile::Load(Farg<FileData> inFileData, Shared<TheatreData> outData)
 {
     TokenArray tokens{};
     Error lexer_code{Lex(inFileData, tokens)};

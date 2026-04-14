@@ -28,7 +28,7 @@ static void s_ParseDeclaration(size_t&, Farg<TokenArray>);
 static TheatreFile::ThingData s_ParseThing(size_t&, Farg<TokenArray>, Shared<TheatreFile::TheatreData>);
 static bool s_CheckIfComment(Comment&, Farg<Token>);
 
-Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData)
+Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
 {
     ThingData     thing_dat{};
     ThingVariable thing_var{};

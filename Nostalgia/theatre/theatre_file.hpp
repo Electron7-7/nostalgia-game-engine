@@ -56,10 +56,10 @@ namespace TheatreFile
     using TokenArray = std::vector<Token>;
 
     Error Lex(Farg<FileData> inFileData, TokenArray& outTokens);
-    Error Parse(Farg<TokenArray> inTokens, Shared<TheatreData>& outData);
+    Error Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData);
     // `ioFilepath` will be changed if needed, according to the file lookup code in `FileData::LoadFile`
-    Error Load(std::string& ioFilepath, Shared<TheatreData>& outData);
-    Error Load(Farg<FileData> inFileData, Shared<TheatreData>& outData);
+    Error Load(std::string& ioFilepath, Shared<TheatreData> outData);
+    Error Load(Farg<FileData> inFileData, Shared<TheatreData> outData);
 }
 
 #endif // THEATRE_FILE_H
