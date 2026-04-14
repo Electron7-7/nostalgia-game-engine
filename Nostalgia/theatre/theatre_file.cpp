@@ -8,9 +8,25 @@ bool TheatreFile::gDebugPrintLexerLogs{false},
     TheatreFile::gDebugDontPrintCommentsInLexerLogs{false};
 
 static void sDebugPrintLexerLogs(Farg<TokenArray>);
-static void sDebugPrintParserLogs(Farg<std::vector<ThingData>>);
 
 Error TheatreFile::Load(std::string& ioPathToFile, Shared<TheatreData>& outData)
+std::string TheatreFile::TheatreData::get_log() const
+{
+    std::string _out{std::format("TheatreData [{}, {}]\n", name, index)};
+    for(FAUTO _data : data)
+        { _out += std::format("{}\n", _data.get_log()); }
+    return _out;
+}
+
+std::string TheatreFile::TheatreData::get_parsable_string() const
+{
+    std::string _out{std::format("@{}#{}\n\n", name, index)};
+    for(FAUTO [type, super] : type_declarations)
+        { _out += std::format("declare {} inherits {}\n", type, super); }
+    for(FAUTO _data : data)
+        { _out += std::format("{}\n", _data.get_parsable_string()); }
+    return _out;
+}
 {
     FileData theatre_file{};
     if(not theatre_file.LoadFile(ioPathToFile))
@@ -31,7 +47,7 @@ Error TheatreFile::Load(Farg<FileData> inFileData,
 
     Error parser_code{Parse(tokens, outData)};
     if(gDebugPrintParserLogs)
-        { sDebugPrintParserLogs(outData->data); }
+        { print_debug("Parser Output\n{}\n", outData->get_log()); }
     if(!print_error_enum(parser_code))
         { return ERR_THEATRE_PARSER; }
     return OK;
@@ -75,21 +91,5 @@ void sDebugPrintLexerLogs(Farg<TokenArray> inTokens)
             (token.token[0] == '\n')
                 ? "\\n"
                 : token.token);
-    }
-}
-
-void sDebugPrintParserLogs(Farg<std::vector<ThingData>> inData)
-{
-    print_debug("Parser Output");
-    for(FAUTO thing_data : inData)
-    {
-        debug_print("<ThingData>");
-        debug_print("\ttype:   {}", thing_data.type.name());
-        debug_print("\tname:   {}", thing_data.name);
-        if(!thing_data.parent_variable.invalid())
-            { debug_print("\tparent: {}", thing_data.parent_variable.get_log()); }
-        for(FAUTO child : thing_data.children_variables)
-            { debug_print("\tchild: {}", child.get_log()); }
-        debug_print(""); // Extra newline
     }
 }

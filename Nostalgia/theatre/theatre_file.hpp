@@ -35,6 +35,7 @@ namespace TheatreFile
         std::string name{"Untitled Theatre"};
         uint index{ID::Invalid};
         std::vector<ThingData> data{};
+        std::map<std::string, std::string> type_declarations{};
 
         template<typename... _Args>
             auto emplace_back(_Args&&... __args) noexcept
@@ -42,7 +43,7 @@ namespace TheatreFile
 
         void push_back(Farg<ThingData> inData) noexcept { data.push_back(inData); }
         void clear() noexcept { data.clear(); }
-        std::string get_log(bool doIndentation = false, bool doANSIColors = false) const;
+        std::string get_log() const;
         std::string get_parsable_string() const;
 
         auto begin()        noexcept { return data.begin();  }
