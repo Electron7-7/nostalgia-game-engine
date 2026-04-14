@@ -353,6 +353,7 @@ Viewport EditorViewport
 Viewport TestViewport
 {
     ViewportSize = [1920, 1080]
+
     Child : Camera2D TestViewportCamera2D
     { Position = [-1920, 1080] }
 

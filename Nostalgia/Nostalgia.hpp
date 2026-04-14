@@ -5,8 +5,8 @@
 #define __n_make_string(x) __n_make_string_2(x)
 
 #define NOSTALGIA_VERSION_MAJOR 0
-#define NOSTALGIA_VERSION_MINOR 13
-#define NOSTALGIA_VERSION_PATCH 1
+#define NOSTALGIA_VERSION_MINOR 14
+#define NOSTALGIA_VERSION_PATCH 0
 #define NOSTALGIA_VERSION_STRING \
     __n_make_string(NOSTALGIA_VERSION_MAJOR) "." \
     __n_make_string(NOSTALGIA_VERSION_MINOR) "." \
