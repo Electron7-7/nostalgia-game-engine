@@ -134,6 +134,9 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     return OK;
 }
 
+Farg<std::map<PID, PID>> ThingFactory::GetThingDeclarations()
+{ return sTypeDeclarations; }
+
 Error ThingFactory::RemoveThing(FPID inType) noexcept
 {
     m_sAllTypes.erase(inType);
@@ -182,7 +185,7 @@ int ThingFactory::GetPriority(FPID type)
 }
 
 bool ThingFactory::IsThing(FPID inTypeID)
-{ return m_sAllTypes.contains(inTypeID); }
+{ return m_sAllTypes.contains(inTypeID) or sTypeDeclarations.contains(inTypeID); }
 
 bool ThingFactory::IsThinker(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Thinker); }
@@ -194,6 +197,8 @@ bool ThingFactory::IsDerivedFrom(FPID inTypeID1, FPID inTypeID2)
 {
     if(auto found_it{m_sAllTypes.find(inTypeID1)}; found_it != m_sAllTypes.end())
         { return (found_it->type() == inTypeID2 or found_it->is_derived_from(inTypeID2)); }
+    else if(auto found_it{sTypeDeclarations.find(inTypeID1)}; found_it != sTypeDeclarations.end())
+        { return IsDerivedFrom(found_it->second, inTypeID2); }
     return false;
 }
 

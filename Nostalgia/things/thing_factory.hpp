@@ -26,6 +26,8 @@ public:
         FPID inBaseType,
         int inPriority = cDefaultPriority);
 
+    static Farg<std::map<PID, PID>> GetThingDeclarations();
+
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType_t> GetType(FPID inType) noexcept;
     static PID GetClosestType(FPID inType) noexcept;
