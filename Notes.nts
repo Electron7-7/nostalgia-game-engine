@@ -1376,3 +1376,6 @@ Okay, each surface is going to have it's own VAO but I want to decide whether or
 
 [04/13/26]
 Todo: add sections to `ThingData` to differentiate between the variables for different types, and add the ability to discern whether a reference variable is for a specific type or not (e.g. `Resource`, `Thinker`, `MeshInstance3D`, `Thing`).
+
+[04/14/26]
+All right, the editor is coming along nicely; I feel like enhancing `ThingData` a bit would probably be a good next course of action. That and also trying to improve text rendering or even starting to implement flats (brushes).
