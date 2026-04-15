@@ -71,10 +71,10 @@
 #include <Nostalgia/core/message_labels.hpp>          // IWYU pragma: keep
 #include <Nostalgia/core/log.hpp>                     // IWYU pragma: keep
 #include <Nostalgia/core/time.hpp>                    // IWYU pragma: keep
+#include <Nostalgia/core/bitmask.hpp>                 // IWYU pragma: keep
 #include <Nostalgia/core/concepts.hpp>                // IWYU pragma: keep
 #include <Nostalgia/core/vector.hpp>                  // IWYU pragma: keep
 #include <Nostalgia/core/macros.hpp>                  // IWYU pragma: keep
-#include <Nostalgia/core/bitmask.hpp>                 // IWYU pragma: keep
 #include <Nostalgia/core/enum_registry.hpp>           // IWYU pragma: keep
 #include <Nostalgia/console/console.hpp>              // IWYU pragma: keep
 #include <Nostalgia/math/conversion.hpp>              // IWYU pragma: keep
