@@ -41,8 +41,7 @@ void Camera2D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
-        { mLayersMask.set(bitmask); }
+    data.get_variable(mLayersMask, "RenderLayersMask", "LayersMask", "RenderLayers");
     data.get_variable(mZoom, "Zoom");
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
 
@@ -53,11 +52,9 @@ Shared<ThingData> Camera2D::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
 
-    data->set_variable(mLayersMask.get(), "RenderLayersMask");
+    data->set_variable(mLayersMask, "RenderLayersMask");
     data->set_variable(mZoom, "Zoom");
     data->set_variable(mInitCurrent, "Current");
-    if(!mViewportID.invalid())
-        { data->set_variable(mViewportID, "Parent"); }
 
     return data;
 }

@@ -67,8 +67,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    if(int bitmask; data.get_variable(bitmask, "RenderLayersMask", "LayersMask") == OK)
-        { mLayersMask.set(bitmask); }
+    data.get_variable(mLayersMask, "RenderLayersMask", "LayersMask", "RenderLayers");
     data.get_variable(mFOV, "FOV");
     data.get_variable(mViewCutoffNear, "Near", "CutoffNear");
     data.get_variable(mViewCutoffFar, "Far", "CutoffFar");
@@ -94,7 +93,7 @@ Shared<ThingData> Camera3D::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
 
-    data->set_variable(mLayersMask.get(), "RenderLayersMask");
+    data->set_variable(mLayersMask, "RenderLayersMask");
     data->set_variable(mFOV, "FOV");
     data->set_variable(mViewCutoffNear, "Near");
     data->set_variable(mViewCutoffFar, "Far");
@@ -105,8 +104,6 @@ Shared<ThingData> Camera3D::GetVariables() const
     if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
         { data->set_variable(mEnvironment.mCustomColor.glm(), "EnvironmentColor"); }
     data->set_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
-    if(!mViewportID.invalid())
-        { data->set_variable(mViewportID, "Parent"); }
 
     return data;
 }

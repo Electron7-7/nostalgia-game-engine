@@ -19,15 +19,14 @@ void Visual3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    if(int layers; data.get_variable(layers, "VisualLayers", "RenderLayers", "Layers") == OK)
-        { mVisualLayers.set(layers); }
+    data.get_variable(mVisualLayers, "VisualLayers", "RenderLayers", "Layers");
 }
 
 Shared<ThingData> Visual3D::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(mVisualLayers.get(), "VisualLayers");
+    data->set_variable(mVisualLayers, "VisualLayers");
 
     return data;
 }
