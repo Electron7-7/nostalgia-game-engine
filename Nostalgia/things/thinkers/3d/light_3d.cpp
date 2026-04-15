@@ -1,5 +1,6 @@
 #include "./light_3d.hpp"
 #include "things/thing_data.hpp"
+#include "things/thing_factory.hpp"
 #include "settings/engine.hpp"
 #include "theatre/theatre.hpp"
 #ifdef NOSTALGIA_DEBUGGING
@@ -30,24 +31,19 @@ void Light3D::Ready()
     {
         std::string mat_name{name() + "-debug-material"},
             mesh_inst_name{name() + "-debug-mesh-instance"};
-        ID tex_uid{Theatre::Current()->GetUID("debug-light3d-texture")};
-        if(tex_uid.invalid())
-        {
-            ThingData tex_data{ThingType::ImageTexture, "debug-light3d-texture"};
-            tex_data.set_variable(UID::i_LightDebug, "Image");
-            tex_uid = Theatre::Current()->CreateThing(tex_data);
-        }
 
         ThingData mat_data{ThingType::Material, mat_name};
         mat_data.set_variable(mColor, "Color");
-        mat_data.set_variable(tex_uid, "DiffuseTexture");
         mat_data.set_variable(true, "FullBright");
         ID mat_id{Theatre::Current()->CreateThing(mat_data)};
 
         ThingData mesh_inst_dat{ThingType::MeshInstance3D, mesh_inst_name};
-        mesh_inst_dat.set_variable(UID::m_Cube, "Mesh");
+        if(ThingFactory::IsDerivedFrom(Type(), ThingType::PointLight3D))
+            { mesh_inst_dat.set_variable(UID::m_PointLight3D, "Mesh"); }
+        else if(ThingFactory::IsDerivedFrom(Type(), ThingType::SpotLight3D))
+            { mesh_inst_dat.set_variable(UID::m_SpotLight3D, "Mesh"); }
         mesh_inst_dat.set_variable(mat_id, "MaterialOverride");
-        mesh_inst_dat.set_variable(glm::vec3{0.1f}, "Scale");
+        mesh_inst_dat.set_variable(glm::vec3{0.4f}, "Scale");
         mesh_inst_dat.set_variable(uid(), "Parent");
         ID mesh_inst_id{Theatre::Current()->CreateThing(mesh_inst_dat)};
 
