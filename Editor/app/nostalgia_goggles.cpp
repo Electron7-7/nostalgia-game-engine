@@ -4,7 +4,7 @@
 #include "gui/imgui_implementor.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
-#include "things/player.hpp"
+#include "things/editor_player_3d.hpp"
 #include "things/test_animated_sprite.hpp"
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/events/event_queue.hpp>
@@ -59,7 +59,7 @@ int NostalgiaGoggles::Main()
 
     Manager::InitAllManagers();
 
-    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::NostalgiaPlayer3D);
+    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
     REGISTER_ICON(Actor2d, _EditorIcons::actor_2d, Icons::actor_2d)
