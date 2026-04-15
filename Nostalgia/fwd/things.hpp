@@ -16,7 +16,7 @@ class Thing;
                 class Sprite2D;
                 class Text2D;
         class Actor3D;
-            class NostalgiaPlayer3D;
+            class NostalgiaPlayer;
             class Camera3D;
             class Collider3D;
             class Visual3D;
