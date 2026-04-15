@@ -26,11 +26,11 @@ void Camera2D::Ready()
                 {
                     if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
                         { mViewportID = parent; break; }
+                    else if(Theatre::Current()->DerivedFrom(parent, ThingType::NostalgiaPlayer))
+                        { mInitCurrent = true; }
                 }
             }
         }
-        else
-            { mInitCurrent = false; }
     }
 
     if(mInitCurrent)
