@@ -81,7 +81,7 @@ public:
     const LockGuard<RMutex> GetThingsLock();
     const LockGuard<RMutex> GetCallSheetLock();
 
-    template<typename T> requires std::derived_from<T, NostalgiaPlayer3D>
+    template<typename T> requires std::derived_from<T, NostalgiaPlayer>
         Shared<T> GetPlayer()
         {
             if(auto player{DCast<T>(m_pPlayer)})
