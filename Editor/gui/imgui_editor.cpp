@@ -1,6 +1,5 @@
 #include "imgui_editor.hpp"
 #include "assets/icon_uids.hpp"
-#include "things/player.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "thirdparty/DearImGui/imgui_internal.h"
@@ -9,7 +8,6 @@
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/managers/render_manager.hpp>
-#include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/ui/implementor.hpp>
@@ -18,6 +16,7 @@
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
+#include <Nostalgia/theatre/theatre.hpp>
 
 using namespace Icons;
 using namespace ImGui;
@@ -31,15 +30,7 @@ bool gDebugConsoleOpened{false};
 
 static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
 
-static ID sSpawnLocationMaterialID{};
-static ID sSpawnLocationMeshInstanceID{};
-static ID sSpawnLocationID{};
 static ID sEditorViewportID{};
-static float sSpawnLocationRotationSpeed{1.0f};
-static float sSpawnLocationScaleSpeedStore{0.0085f};
-static float sSpawnLocationScaleSpeed{sSpawnLocationScaleSpeedStore};
-static float sSpawnLocationScaleMax{1.0f};
-static float sSpawnLocationScaleMin{0.6f};
 static int sSelectedType{0};
 static std::vector<const char*> sTypeNames{
     ThingType::Thing.c_name(),
@@ -52,8 +43,8 @@ static std::vector<const char*> sTypeNames{
     ThingType::Material.c_name(),
     ThingType::Thinker.c_name(),
     ThingType::Viewport.c_name(),
+    ThingType::NostalgiaPlayer.c_name(),
     ThingType::Actor3D.c_name(),
-    ThingType::NostalgiaPlayer3D.c_name(),
     ThingType::Camera3D.c_name(),
     ThingType::Collider3D.c_name(),
     ThingType::Visual3D.c_name(),
@@ -80,8 +71,8 @@ static std::vector<PID> sTypes{
     ThingType::Material,
     ThingType::Thinker,
     ThingType::Viewport,
+    ThingType::NostalgiaPlayer,
     ThingType::Actor3D,
-    ThingType::NostalgiaPlayer3D,
     ThingType::Camera3D,
     ThingType::Collider3D,
     ThingType::Visual3D,
@@ -112,32 +103,8 @@ void ImGui_Editor::Shutdown()
 
 void ImGui_Editor::TheatreEntered()
 {
-    if(!Settings::Engine::IsEditorHint)
-    {
-        auto player{Theatre::Current()->GetPlayer<EditorPlayer3D>()};
-        UI_Implementor::SetGlobalCanHandleEvents(false);
-        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
-        player->mCaptureKeyboard = true;
-        player->mCaptureMouse    = true;
-        return;
-    }
-
-    TheatreFile::ThingData mat_dat{ThingType::Material, "ThingAdderSpawnLocation_Material"};
-    mat_dat.set_variable(glm::vec3{1.0f, 0.0f, 0.0f}, "Color");
-    mat_dat.set_variable(true, "FullBright");
-    sSpawnLocationMaterialID = Theatre::Current()->CreateThing(mat_dat);
-
-    TheatreFile::ThingData mesh_inst_dat{ThingType::MeshInstance3D,"ThingAdderSpawnLocation_MeshInstance"};
-    mesh_inst_dat.set_variable(UID::m_Ramiel, "Mesh");
-    mesh_inst_dat.set_variable(sSpawnLocationMaterialID, "MaterialOverride");
-    mesh_inst_dat.set_variable(true, "Wireframe");
-    sSpawnLocationMeshInstanceID = Theatre::Current()->CreateThing(mesh_inst_dat);
-
-    TheatreFile::ThingData spawn_dat{ThingType::Actor3D, "ThingAdderSpawnLocation"};
-    spawn_dat.set_variable(sSpawnLocationMeshInstanceID, "Child");
-    spawn_dat.set_variable(glm::vec3{1.0f}, "Scale");
-
-    sSpawnLocationID = Theatre::Current()->CreateThing(spawn_dat);
+    if(not Settings::Engine::IsEditorHint)
+        { return; }
 
     if(not Theatre::Current()->ThingExists("EditorViewport"))
         { sEditorViewportID = Theatre::Current()->CreateThing({ThingType::Viewport, "EditorViewport"}); }
@@ -157,147 +124,91 @@ void ImGui_Editor::TheatreEntered()
 }
 
 void ImGui_Editor::TheatreExited()
-{
-    sSpawnLocationMaterialID = ID{};
-    sSpawnLocationMeshInstanceID = ID{};
-    sSpawnLocationID = ID{};
-    sEditorViewportID = ID{};
-    auto player{g_pTheatreManager->Current()->GetPlayer<EditorPlayer3D>()};
-    UI_Implementor::SetGlobalCanHandleEvents(true);
-    MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
-    player->mCaptureMouse    = false;
-    player->mCaptureKeyboard = false;
-}
+{ sEditorViewportID = ID{}; }
 
 void ImGui_Editor::Input(InputEvent* event)
 {
-    if(MainWindow()->GetMouseMode() == IWindow::MOUSE_MODE_DISABLED)
-    {
-        if(event->IsJustPressed(Key::Escape))
-        {
-            auto player{g_pTheatreManager->Current()->GetPlayer<EditorPlayer3D>()};
-            UI_Implementor::SetGlobalCanHandleEvents(true);
-            MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
-            player->mCaptureMouse    = false;
-            player->mCaptureKeyboard = false;
-        }
-        return;
-    }
-    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)
-        and Manager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-    {
-        auto player{g_pTheatreManager->Current()->GetPlayer<EditorPlayer3D>()};
-        UI_Implementor::SetGlobalCanHandleEvents(false);
-        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
-        player->mCaptureKeyboard = true;
-        player->mCaptureMouse    = true;
-    }
-    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
+    if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { gShowDebugWindow = !gShowDebugWindow; }
 }
 
-enum ScaleDir
-{
-    SCALE_DIRECTION_UP   = 1,
-    SCALE_DIRECTION_DOWN = -1
-};
-static ScaleDir sScaleDirection{SCALE_DIRECTION_DOWN};
-
 void ImGui_Editor::Update()
 {
-    if(not Settings::Engine::IsEditorHint or
-            not Theatre::Current() or
-            not Theatre::Current()->IsStarted())
+    if(not Settings::Engine::IsEditorHint)
         { return; }
     static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
         ImGuiChildFlags_ResizeY |
         ImGuiChildFlags_ResizeX};
-    if(!sSpawnLocationID.invalid())
+    if(not Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar))
+        { End(); }
+    if(BeginMenuBar())
     {
-        auto thingy{g_pTheatreManager->Current()->GetThinker<Actor3D>(sSpawnLocationMeshInstanceID)};
-        if(thingy->Scale().y > sSpawnLocationScaleMax)
-            { sScaleDirection = SCALE_DIRECTION_DOWN; }
-        else if(thingy->Scale().y < sSpawnLocationScaleMin)
-            { sScaleDirection = SCALE_DIRECTION_UP; }
-        sSpawnLocationScaleSpeed = (int)sScaleDirection * sSpawnLocationScaleSpeedStore;
-        thingy->SetRotationDegrees(thingy->RotationDegrees() + glm::vec3{0.0f, sSpawnLocationRotationSpeed, 0.0f});
-        thingy->SetScale(thingy->Scale() + glm::vec3{0.0f, sSpawnLocationScaleSpeed, 0.0f});
-    }
-    if(Begin("Nostalgia Editor", nullptr, ImGuiWindowFlags_MenuBar))
-    {
-        if(BeginMenuBar())
+        if(BeginMenu("Menu"))
         {
-            if(BeginMenu("Menu"))
-            {
-                if(MenuItem("Debug Menu", "CTRL+D"))
-                    { gShowDebugWindow = true; }
-                BeginDisabled(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL);
-                if(MenuItem("Theatre Inspector", "F3"))
-                    { gTheatreInspectorActive = true; }
-                EndDisabled();
-                if(MenuItem("Debug Console", "~"))
-                    { gDebugConsoleOpened = true; }
-                if(MenuItem("Quit", "CTRL+Q"))
-                    { Application()->Stop(); }
-                ImGui::EndMenu();
-            }            EndMenuBar();
-        }
-        if(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
-            { End(); return; }
-        auto viewport{g_pTheatreManager->Current()->GetThinker<Viewport>(sEditorViewportID)};
-        if(viewport->uid().invalid())
-            { End(); return; }
-        BeginChild("LeftSide",
-            {0, 0},
-            sResizableChildWithBorder);
-            BeginChild("Viewport",
-                {500, 500},
-                sResizableChildWithBorder,
-                ImGuiWindowFlags_NoScrollbar |
-                    ImGuiWindowFlags_NoScrollWithMouse);
-                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-                ImGui::Image((ImTextureID)viewport->Framebuffer()->TextureID(),
-                    {(float)viewport->Size().w(), (float)viewport->Size().h()},
-                    {0, 1},
-                    {1, 0});
-                GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-            EndChild();
-            static bool camera_moving{false};
-            auto player{g_pTheatreManager->Current()->GetPlayer<EditorPlayer3D>()};
-            if((IsItemHovered() or camera_moving)
-                and !player->mCaptureMouse)
-            {
-                if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
-                    { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
-                if(InputManager::IsKeyDown(Key::MouseLeft))
-                {
-                    auto camera{g_pTheatreManager->Current()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
-                    auto motion{InputManager::MouseMotion()};
-                    camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
-                    glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
-                        InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
-
-                    camera->SetPosition(camera->Position() +
-                        ((
-                            ((camera->Quaternion() * Settings::World::Front()) *
-                                movement_direction[1]) +
-                            ((camera->Quaternion() * Settings::World::Right()) *
-                                movement_direction[0])
-                        ) * 0.1f)
-                    );
-                }
-            }
-            if(InputManager::IsKeyUp(Key::MouseLeft)
-                and camera_moving
-                and !player->mCaptureMouse)
-                { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
-            BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
-                ThingAdder();
-            EndChild();
-        EndChild();
-        SameLine();
-        TheatreInspector();
+            if(MenuItem("Debug Menu", "CTRL+D"))
+                { gShowDebugWindow = true; }
+            BeginDisabled(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL);
+            if(MenuItem("Theatre Inspector", "F3"))
+                { gTheatreInspectorActive = true; }
+            EndDisabled();
+            if(MenuItem("Debug Console", "~"))
+                { gDebugConsoleOpened = true; }
+            if(MenuItem("Quit", "CTRL+Q"))
+                { Application()->Stop(); }
+            ImGui::EndMenu();
+        }            EndMenuBar();
     }
+    if(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL)
+        { End(); return; }
+    auto viewport{Theatre::Current()->GetThinker<Viewport>(sEditorViewportID)};
+    if(viewport->uid().invalid())
+        { End(); return; }
+    BeginChild("LeftSide",
+        {0, 0},
+        sResizableChildWithBorder);
+        BeginChild("Viewport",
+            {500, 500},
+            sResizableChildWithBorder,
+            ImGuiWindowFlags_NoScrollbar |
+                ImGuiWindowFlags_NoScrollWithMouse);
+            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+            ImGui::Image((ImTextureID)viewport->Framebuffer()->TextureID(),
+                {(float)viewport->Size().w(), (float)viewport->Size().h()},
+                {0, 1},
+                {1, 0});
+            GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+        EndChild();
+        static bool camera_moving{false};
+        if((IsItemHovered() or camera_moving))
+        {
+            if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
+                { UI_Implementor::SetGlobalCanHandleEvents(false); camera_moving = true; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED); }
+            if(InputManager::IsKeyDown(Key::MouseLeft))
+            {
+                auto camera{Theatre::Current()->GetThinker<Camera3D>(viewport->CurrentCamera3D())};
+                auto motion{InputManager::MouseMotion()};
+                camera->SetRotationDegrees(camera->RotationDegrees() - (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
+                glm::vec2 movement_direction{InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
+                    InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
+
+                camera->SetPosition(camera->Position() +
+                    ((
+                        ((camera->Quaternion() * Settings::World::Front()) *
+                            movement_direction[1]) +
+                        ((camera->Quaternion() * Settings::World::Right()) *
+                            movement_direction[0])
+                    ) * 0.1f)
+                );
+            }
+        }
+        if(InputManager::IsKeyUp(Key::MouseLeft) and camera_moving)
+            { UI_Implementor::SetGlobalCanHandleEvents(true); camera_moving = false; MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE); }
+        BeginChild("AddThingMenu", {500, 690}, sResizableChildWithBorder);
+            ThingAdder();
+        EndChild();
+    EndChild();
+    SameLine();
+    TheatreInspector();
     End();
 }
 
@@ -305,17 +216,8 @@ void ImGui_Editor::ThingAdder()
 {
     if(!Settings::Engine::IsEditorHint)
         { return; }
-    auto theatre{g_pTheatreManager->Current()};
-    auto spawn_locator{theatre->GetThinker<Actor3D>(sSpawnLocationID)};
+    auto theatre{Theatre::Current()};
     BeginChild("MakeNewThing");
-    if(CollapsingHeader("Thing Spawner Widget"))
-    {
-        DragFloat("Spawn Location Rotation Speed", &sSpawnLocationRotationSpeed, 0.001f, 0.0f, 0.0f, "%.2f");
-        DragFloat("Spawn Location Scale Speed", &sSpawnLocationScaleSpeedStore, 0.1f, 0.0f, 0.0f, "%.2f");
-        DragFloat("Spawn Location Scale Max", &sSpawnLocationScaleMax, 0.1f, 0.0f, 0.0f, "%.2f");
-        DragFloat("Spawn Location Scale Min", &sSpawnLocationScaleMin, 0.1f, 0.0f, 0.0f, "%.2f");
-    }
-    SeparatorText("Thing Spawner");
     static TheatreFile::ThingData thing_dat{};
     static std::string thing_name{};
     InputTextWithHint("Name", "UntitledThing", &thing_name);
@@ -334,21 +236,6 @@ void ImGui_Editor::ThingAdder()
     static glm::vec3 spawn_location{0.0f},
         spawn_rotation{0.0f},
         spawn_scale{0.0f};
-    if(ThingFactory::IsDerivedFrom(sTypes[sSelectedType], ThingType::Actor3D))
-    {
-        if(DragGLMv3("Position", &spawn_location, 0.01f, 0.0f, 0.0f, "%.2f"))
-            { spawn_locator->SetPosition(spawn_location); }
-        if(DragGLMv3("Rotation (Degrees)", &spawn_rotation, 0.01f, 0.0f, 0.0f, "%.2f"))
-            { spawn_locator->SetRotationDegrees(spawn_rotation); }
-        if(DragGLMv3("Scale", &spawn_scale, 0.01f, 0.0f, 0.0f, "%.2f"))
-            { spawn_locator->SetScale(spawn_scale); }
-        if(Button("Reset Spawn Transform"))
-        {
-            spawn_locator->SetPosition(spawn_location = glm::vec3{0.0f});
-            spawn_locator->SetRotationDegrees(spawn_rotation = glm::vec3{0.0f});
-            spawn_locator->SetScale(spawn_scale = glm::vec3{1.0f});
-        }
-    }
     if(Button("Spawn Thing"))
     {
         thing_dat = {sTypes[sSelectedType], (thing_name.empty()) ? "UntitledThing" : thing_name};
@@ -518,7 +405,7 @@ uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
         _uid = Icons::viewport;
     else if(_type == ThingType::Actor3D)
         _uid = Icons::actor_3d;
-    else if(_type == ThingType::NostalgiaPlayer3D)
+    else if(_type == ThingType::NostalgiaPlayer)
         _uid = Icons::nostalgia_player_3d;
     else if(_type == ThingType::Camera3D)
         _uid = Icons::camera_3d;
@@ -549,4 +436,33 @@ uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
     else if(_type == ThingType::Text2D)
         _uid = Icons::text_2d;
     return ResourceDatabase::GetResource<ImageTexture>(_uid)->GetBuffer()->ID();
+}
+
+void ImGui_Editor::SelectUID(const char* inLabel, ID& ioUID, bool& outChanged)
+{
+    static const int _max_per_row{3};
+    PushID(ioUID());
+    if(Button(inLabel))
+        { OpenPopup("Thing Selection"); }
+    if(BeginPopup("Thing Selection"))
+    {
+        auto uids{Theatre::Current()->ThingUIDs()};
+        int _counter{0};
+        for(ID uid : uids)
+        {
+            if(Button(Theatre::Current()->GetName(uid).data(), {(700.0f / _max_per_row) - 5.0f, 0.0f}))
+            {
+                EndPopup();
+                PopID();
+                ioUID = uid;
+                outChanged = true;
+                return;
+            }
+            Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
+            if(++_counter < _max_per_row) { SameLine(); }
+            else { _counter = 0; }
+        }
+        EndPopup();
+    }
+    PopID();
 }

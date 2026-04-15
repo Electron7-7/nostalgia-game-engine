@@ -3,6 +3,7 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/ui/solution.hpp>
+#include <Nostalgia/fwd/theatre.hpp>
 
 class ImGui_Editor : public UI_Solution
 {
@@ -24,6 +25,8 @@ private:
     void TheatreInspector();
     void InspectResource();
     void InspectThinker();
+    void SelectUID(const char* inLabel, ID& ioUID, bool& outChanged);
+    bool InspectThing(ID inUID, Farg<Shared<TheatreFile::ThingData>> inData, TheatreFile::ThingData& outData);
     void _display_thinker(ID);
     void _thinker_tree_branch(ID);
     void _resource_list_item(ID);

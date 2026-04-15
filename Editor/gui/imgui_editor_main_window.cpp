@@ -2,29 +2,11 @@
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include <Nostalgia/theatre/theatre.hpp>
-#include <Nostalgia/things/resources/font.hpp>
-#include <Nostalgia/things/resources/array_mesh.hpp>
-#include <Nostalgia/things/resources/image_texture.hpp>
-#include <Nostalgia/things/resources/viewport_texture.hpp>
-#include <Nostalgia/things/resources/cubemap.hpp>
-#include <Nostalgia/things/thinkers/viewport.hpp>
-#include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
-#include <Nostalgia/things/thinkers/2d/sprite_2d.hpp>
-#include <Nostalgia/things/thinkers/2d/text_2d.hpp>
-#include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/collider_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/light_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/sprite_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/nostalgia_player_3d.hpp>
 
 using namespace ImGui;
 using namespace TheatreFile;
 
 static ID _last_resource_uid{}, _last_thinker_uid{};
-
-static bool s_InspectThing(ID, Farg<Shared<ThingData>>, ThingData&);
-static void s_SelectUID(const char*, ID&, bool&);
 
 void ImGui_Editor::InspectResource()
 {
@@ -44,7 +26,7 @@ void ImGui_Editor::InspectResource()
         End();
         return;
     }
-    else if(s_InspectThing(mInspectingResourceUID, Theatre::Current()->GetThing(mInspectingResourceUID)->GetVariables(), _data))
+    else if(InspectThing(mInspectingResourceUID, Theatre::Current()->GetThing(mInspectingResourceUID)->GetVariables(), _data))
         { Theatre::Current()->GetThing(mInspectingResourceUID)->SetVariables(_data); }
     End();
 }
@@ -67,12 +49,12 @@ void ImGui_Editor::InspectThinker()
         End();
         return;
     }
-    else if(s_InspectThing(mInspectingThinkerUID, Theatre::Current()->GetThing(mInspectingThinkerUID)->GetVariables(), _data))
+    else if(InspectThing(mInspectingThinkerUID, Theatre::Current()->GetThing(mInspectingThinkerUID)->GetVariables(), _data))
         { Theatre::Current()->GetThing(mInspectingThinkerUID)->SetVariables(_data); }
     End();
 }
 
-bool s_InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData)
+bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData)
 {
     bool _changed{false};
     for(FAUTO var : inData->variables)
@@ -183,7 +165,7 @@ bool s_InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData
                 DragUInt(var.name.data(), &_value_uint, 0, 0, ImGuiInputTextFlags_ReadOnly);
                 PopID();
                 SameLine();
-                s_SelectUID("Select Thing", _value, _changed);
+                SelectUID("Select Thing", _value, _changed);
                 outData.set_variable(_value, var.name);
                 break;
             }
@@ -220,33 +202,4 @@ bool s_InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData
         }
     }
     return _changed;
-}
-
-void s_SelectUID(const char* inLabel, ID& ioUID, bool& outChanged)
-{
-    static const int _max_per_row{3};
-    PushID(ioUID());
-    if(Button(inLabel))
-        { OpenPopup("Thing Selection"); }
-    if(BeginPopup("Thing Selection"))
-    {
-        auto uids{Theatre::Current()->ThingUIDs()};
-        int _counter{0};
-        for(ID uid : uids)
-        {
-            if(Button(Theatre::Current()->GetName(uid).data(), {(700.0f / _max_per_row) - 5.0f, 0.0f}))
-            {
-                EndPopup();
-                PopID();
-                ioUID = uid;
-                outChanged = true;
-                return;
-            }
-            Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
-            if(++_counter < _max_per_row) { SameLine(); }
-            else { _counter = 0; }
-        }
-        EndPopup();
-    }
-    PopID();
 }

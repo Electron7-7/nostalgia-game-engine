@@ -55,7 +55,8 @@ using namespace ImGui;
 static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
-static bool sAutoStopwatchEnabled{true},
+static bool sTogglingEditorInTheatre{false},
+    sAutoStopwatchEnabled{true},
     sEnableFrameCounter{true},
     sEnableFps{true},
     sEnableFrametime{true},
@@ -87,12 +88,6 @@ void ImGui_Debugger::Input(InputEvent* event)
 {
     if(event->IsJustPressed(Key::Tilde))
         { gDebugConsoleOpened = !gDebugConsoleOpened; }
-    else if(event->IsJustPressed(Key::F3))
-    {
-        gTheatreInspectorActive = (IManager::GetTheatreState() == ManagerEnums::IN_LEVEL)
-            ? !gTheatreInspectorActive
-            : false;
-    }
     else if(event->IsJustPressed(Key::F4) or
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
             { Manager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
@@ -100,12 +95,19 @@ void ImGui_Debugger::Input(InputEvent* event)
         (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
     {
         gTheatreInspectorActive = false;
+        sTogglingEditorInTheatre = false;
+        Settings::Engine::IsEditorHint = true;
         sLastAttemptedTheatreFilePath = sTheatreFilePath;
         g_pTheatreManager->LoadFromFile(sTheatreFilePath);
     }
     else if(event->IsJustPressed(Key::F6) or
         (event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control)))
             { g_pTheatreManager->Current()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
+    else if(event->IsJustPressed(Key::F3) and not sTogglingEditorInTheatre)
+    {
+        g_pTheatreManager->ShutdownTheatre();
+        sTogglingEditorInTheatre = true;
+    }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -116,6 +118,13 @@ void ImGui_Debugger::TheatreExited()
 
 void ImGui_Debugger::Update()
 {
+    if(sTogglingEditorInTheatre and Manager::GetTheatreState() == ManagerEnums::NOT_IN_LEVEL)
+    {
+        Settings::Engine::IsEditorHint = false;
+        g_pTheatreManager->LoadFromFile(sLastAttemptedTheatreFilePath);
+        sTogglingEditorInTheatre = false;
+    }
+
     s_FPSCounter();
     static bool sPopOutStopwatches{false};
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
