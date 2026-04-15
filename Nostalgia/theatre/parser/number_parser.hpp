@@ -33,7 +33,7 @@ template<GLMContainer T, uint size = gGlmSize<T>()>
         return buffer;
     }
 
-template<typename T>
+template<NumberOrGLM T>
     bool StringToNum(T& output, const std::string& string)
     {
         T number{static_cast<T>(-1)}; // Because this is used a lot on IDs, and '-1' == `ID::Invalid`
@@ -44,7 +44,12 @@ template<typename T>
         }
         else
         {
-            try { number = std::stoi(string); }
+            int _base{10};
+            if(string.starts_with("0b"))
+                { _base = 2; }
+            else if(string.starts_with("0x"))
+                { _base = 16; }
+            try { number = std::stoi(string, nullptr, _base); }
             catch(std::invalid_argument const& e) { return false; }
         }
         output = number;
@@ -81,6 +86,19 @@ template<uint size = 0, GLMContainer T>
         }
         return true;
     }
+
+template<>
+inline bool StringToNum(BitMask& output, const std::string& string)
+{
+    int _num{0};
+    int _base{(string.starts_with("0b")) ? 2 : 10};
+    if(string.starts_with("0x"))
+        { _base = 16; }
+    try { _num = std::stoi(string, nullptr, _base); }
+    catch(std::invalid_argument const& e) { return false; }
+    output.set(_num);
+    return true;
+}
 
 template<>
 inline bool StringToNum(glm::vec2& output, const std::string& string)
