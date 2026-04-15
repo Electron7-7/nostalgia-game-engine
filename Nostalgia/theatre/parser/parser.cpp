@@ -2,16 +2,24 @@
 #include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "console/console.hpp"
+#include "thirdparty/frozen/map.h"
+#include "thirdparty/frozen/string.h"
 
 // These preprocessor definitions are used on unknown/invalid types to approximate their closest inherited type
 #define ACTOR_VAR_NAMES "Position", "Origin", "Scale", "Size", "OuuughImSoBigAndRound", "RotationDegrees", "Rotation", "RotationRadians"
 #define ACTOR3D_VAR_NAMES "EulerDegrees", "Euler", "EulerRadians", "Quaternion"
 #define RESOURCE_VAR_NAMES "File", "Data", "Path", "Font", "Model", "Image", "Image0", "Image1", "DiffuseTexture", "SpecularTexture", "FullBright"
 
+static constexpr frozen::map<frozen::string, frozen::string, 2>
+sNamedNumbers{
+    {"ALL",  "0b111111111111111111111111111111"},
+    {"NONE", "0"},
+};
 static constexpr const char* cKeywordDeclare{"declare"};
 static constexpr char
     cDelimiterTheatreName     {'@'},
     cDelimiterTheatreIndex    {'#'},
+    cDelimiterNamedNumber     {'#'},
     cDelimiterStartSandwich   {':'},
     cDelimiterEnterDefinition {'{'},
     cDelimiterExitDefinition  {'}'},
@@ -287,8 +295,25 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 thing_var.type = ThingVarType::Enum;
                 break;
             case cDelimiterEnterNumber:
-                in_literal = true;
                 thing_var.type = ThingVarType::Number;
+                if(ioIndex + 2 < inTokens.size())
+                {
+                    FAUTO _first_token{inTokens.at(ioIndex + 1)};
+                    FAUTO _second_token{inTokens.at(ioIndex + 2)};
+                    if(_first_token.category == TokenName::Separator
+                        and _first_token.token[0] == cDelimiterNamedNumber)
+                    {
+                        ++ioIndex;
+                        if(auto found_it{sNamedNumbers.find(frozen::string{_second_token.token})};
+                            found_it != sNamedNumbers.end())
+                        {
+                            ++ioIndex;
+                            thing_var.value = found_it->second.data();
+                        }
+                        break;
+                    }
+                }
+                in_literal = true;
                 break;
             case cDelimiterExitNumber:
                 in_literal = false;
