@@ -1,6 +1,7 @@
 #include "./theatre_manager.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/theatre_file.hpp"
+#include "settings/engine.hpp"
 
 #define LOCK_MUTEX LockGuard<RMutex> lock{mTheatreMutex}
 
@@ -109,5 +110,5 @@ void TheatreManager::DrawCurrentTheatre()
     if(theatre_state != IN_LEVEL or not m_pCurrentTheatre)
         { return; }
     LOCK_MUTEX;
-    m_pCurrentTheatre->Draw();
+    m_pCurrentTheatre->Draw(not Settings::Engine::IsEditorHint);
 }
