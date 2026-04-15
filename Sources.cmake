@@ -4,7 +4,7 @@ set(NOSTALGIA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia")
 set(EDITOR_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Editor")
 
 set(EDITOR_SRC_FILES
-    ${EDITOR_ROOT}/things/player.cpp
+    ${EDITOR_ROOT}/things/editor_player_3d.cpp
     ${EDITOR_ROOT}/things/test_animated_sprite.cpp
     ${EDITOR_ROOT}/app/nostalgia_goggles.cpp
     ${EDITOR_ROOT}/system/dedicated_main.cpp
