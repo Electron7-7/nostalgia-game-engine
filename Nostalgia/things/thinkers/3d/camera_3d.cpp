@@ -67,7 +67,12 @@ void Camera3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
+    BitMask::StatusArray _render_layers{mLayersMask.status()};
+
     data.get_variable(mLayersMask, "RenderLayersMask", "LayersMask", "RenderLayers");
+    for(uint i{0}; i < BitMask::max; ++i)
+        { data.get_variable(_render_layers[i], std::format("RenderLayer{}", i+1), std::format("Layer{}", i+1)); }
+    mLayersMask.set(_render_layers);
     data.get_variable(mFOV, "FOV");
     data.get_variable(mViewCutoffNear, "Near", "CutoffNear");
     data.get_variable(mViewCutoffFar, "Far", "CutoffFar");

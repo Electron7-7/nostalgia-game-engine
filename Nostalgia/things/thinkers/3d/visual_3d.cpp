@@ -20,6 +20,10 @@ void Visual3D::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
 
     data.get_variable(mVisualLayers, "VisualLayers", "RenderLayers", "Layers");
+    BitMask::StatusArray _render_layers{mVisualLayers.status()};
+    for(uint i{0}; i < BitMask::max; ++i)
+        { data.get_variable(_render_layers[i], std::format("RenderLayer{}", i+1), std::format("Layer{}", i+1)); }
+    mVisualLayers.set(_render_layers);
 }
 
 Shared<ThingData> Visual3D::GetVariables() const
