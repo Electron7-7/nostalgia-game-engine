@@ -11,6 +11,9 @@ namespace TheatreFile
 
     struct Token;
     struct TheatreData;
+    enum class ThingVarType;
+    struct ThingVariable;
+    struct ThingData;
 }
 
 #endif // THEATRE_FWD_H
