@@ -70,11 +70,11 @@ void BitMask::disable(int inBits) noexcept
 void BitMask::toggle(int inBits) noexcept
 { layers_ ^= inBits; }
 
-std::string BitMask::log(bool noLayersStatus) const noexcept
+std::string BitMask::log(bool inMakePretty) const noexcept
 {
-    std::string output{std::format("(count: {})", max)};
-    if(!noLayersStatus)
+    if(inMakePretty)
     {
+        std::string output{std::format("(count: {})", max)};
         output += " [";
         for(int i{0}; i < max; ++i)
         {
@@ -84,6 +84,7 @@ std::string BitMask::log(bool noLayersStatus) const noexcept
                     ? ", "
                     : "]");
         }
+        return output;
     }
-    return output;
+    return std::format("{:#020b}", layers_);
 }

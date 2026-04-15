@@ -31,7 +31,7 @@ public:
     void disable(int inBits) noexcept;
     void toggle(int inBits) noexcept;
 
-    std::string log(bool noLayersStatus = false) const noexcept;
+    std::string log(bool inMakePretty = false) const noexcept;
 
     constexpr bool operator==(const BitMask& inLayers) const noexcept
     { return layers_ == inLayers.layers_; }
@@ -44,7 +44,7 @@ template<>
     struct std::formatter<BitMask> : std::formatter<std::string>
     {
         auto format(const BitMask& inT, std::format_context& ctx) const
-            { return std::formatter<std::string>::format(inT.log(), ctx); }
+            { return std::formatter<std::string>::format(inT.log(false), ctx); }
     };
 
 #endif // BIT_MASK_H
