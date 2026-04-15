@@ -2906,7 +2906,7 @@ bool ImGui::DragFloatRange2(const char* label, float* v_current_min, float* v_cu
     return value_changed;
 }
 
-bool ImGui::DragUInt(const char* label, uint* v, float v_speed, uint v_min, uint v_max, const char* format, ImGuiSliderFlags flags)
+bool ImGui::DragUInt(const char* label, unsigned int* v, float v_speed, unsigned int v_min, unsigned int v_max, const char* format, ImGuiSliderFlags flags)
 {
     return DragScalar(label, ImGuiDataType_U32, v, v_speed, &v_min, &v_max, format, flags);
 }
