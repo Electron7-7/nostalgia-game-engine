@@ -22,7 +22,7 @@ Shared<ThingData> Text2D::GetVariables() const
     data->set_variable(mDebugSolid, "Solid");
     data->set_variable(mDebugOutline, "Outline");
     data->set_variable(mFontID, "Font");
-    data->set_variable(mText, "Text");
+    data->set_variable(mText, "Text", true);
     data->set_variable(mColor.glm(), "Color");
 
     return data;

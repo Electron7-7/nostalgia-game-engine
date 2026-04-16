@@ -69,7 +69,7 @@ namespace TheatreFile
         Error remove_variable(Sarg inName);
         Error remove_child(Sarg inName);
 
-        void  set_variable(Sarg inValue, Sarg inName);
+        void  set_variable(Sarg inValue, Sarg inName, bool inAcceptEmptyString = false);
         Error set_variable(ID inValue, Sarg inName);
         void  set_variable(bool inValue, Sarg inName);
         Error set_variable(Shared<FileData> inValue, Sarg inName);
@@ -158,9 +158,7 @@ namespace TheatreFile
             Error get_variable(T& outValue, Names... inNames) const
             {
                 ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
-                if(thing_var.value.empty())
-                    { return ERR_EMPTY; }
-                else if(thing_var.type != ThingVarType::String)
+                if(thing_var.type != ThingVarType::String)
                     { return ERR_MISMATCHED_TYPES; }
                 outValue = thing_var.value;
                 return OK;

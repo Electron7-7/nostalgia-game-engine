@@ -87,12 +87,12 @@ std::string ThingData::get_parsable_string() const noexcept
     return std::format("{}\n}}\n", output);
 }
 
-void ThingData::set_variable(Sarg inValue, Sarg inName)
+void ThingData::set_variable(Sarg inValue, Sarg inName, bool inAcceptEmptyString)
 {
-    if(not inValue.empty())
+    if(inAcceptEmptyString or not inValue.empty())
     {
         if(FOUND_VAR(inName))
-            { found_it->value = inName; }
+            { found_it->value = inValue; }
         else
             { variables.emplace_back(inName, inValue, ThingVarType::String); }
     }
