@@ -9,7 +9,15 @@ bool TheatreFile::gDebugPrintLexerLogs{false},
 
 static void sDebugPrintLexerLogs(Farg<TokenArray>);
 
-std::string TheatreFile::TheatreData::get_log() const
+void TheatreData::sort_by_priority()
+{
+    std::sort(begin(),
+        end(),
+        [](Farg<ThingData> lhs, Farg<ThingData> rhs)
+        { return ThingFactory::GetPriority(lhs.type) > ThingFactory::GetPriority(rhs.type); });
+}
+
+std::string TheatreData::get_log() const
 {
     std::string _out{std::format("TheatreData [{}, {}]\n", name, index)};
     for(FAUTO _data : data)

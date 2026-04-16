@@ -41,6 +41,7 @@ namespace TheatreFile
             auto emplace_back(_Args&&... __args) noexcept
             { return data.emplace_back(std::forward<_Args>(__args)...); }
 
+        void sort_by_priority();
         void push_back(Farg<ThingData> inData) noexcept { data.push_back(inData); }
         void clear() noexcept { data.clear(); }
         std::string get_log() const;
