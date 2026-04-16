@@ -1,5 +1,6 @@
 #include "gl_mesh_buffers.hpp"
 #include "thirdparty/glad/glad.h"
+#include "managers/render_manager.hpp"
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize):
     mSize{static_cast<int>(inSize)}
@@ -16,7 +17,10 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(const float* inVertices, size_t inSize):
 }
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
-{ glDeleteBuffers(1, &mBufferID); }
+{
+    if(g_pRenderManager->GetAPI()->IsRunning())
+        { glDeleteBuffers(1, &mBufferID); }
+}
 
 void OpenGLVertexBuffer::Bind() const
 { glBindBuffer(GL_ARRAY_BUFFER, mBufferID); }
@@ -57,7 +61,10 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(const uint* inIndices, size_t inCount):
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
-{ glDeleteBuffers(1, &mBufferID); }
+{
+    if(g_pRenderManager->GetAPI()->IsRunning())
+        { glDeleteBuffers(1, &mBufferID); }
+}
 
 void OpenGLIndexBuffer::Bind() const
 { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferID); }

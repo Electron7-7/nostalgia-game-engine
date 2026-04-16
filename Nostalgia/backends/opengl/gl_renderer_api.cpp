@@ -258,7 +258,7 @@ bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit)
 
 bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    if(inTexture->uid().invalid())
+    if(not inTexture)
         { return false; }
     return BindTexture(inTexture->GetBuffer(), inUnit);
 }
@@ -272,7 +272,7 @@ void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
 void OpenGLRendererAPI::DrawText(Sarg inText,
     Shared<Font> inFont, glm::vec2 inPos, Farg<glm::vec2> inScale)
 {
-    if(not mTextVAO)
+    if(not inFont or not mTextVAO)
         { return; }
 
     LOCK_MUTEX(mTextMutex)
