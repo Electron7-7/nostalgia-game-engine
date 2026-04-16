@@ -22,5 +22,5 @@ void main()
 {
 	vec3 use_texture_vec3 = vec3(1.0f - current_material.use_diffuse);
 	vec3 material_out = vec3(texture(current_material.texture_diffuse, vertex_uv).rgb * current_material.use_diffuse) + use_texture_vec3;
-	FragColor = vec4(material_out * current_material.diffuse_color, 1.0f) + debug_highlight;
+	FragColor = vec4(material_out * current_material.diffuse_color * vertex_color, 1.0f) + debug_highlight;
 }
