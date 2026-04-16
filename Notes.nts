@@ -1379,3 +1379,15 @@ Todo: add sections to `ThingData` to differentiate between the variables for dif
 
 [04/14/26]
 All right, the editor is coming along nicely; I feel like enhancing `ThingData` a bit would probably be a good next course of action. That and also trying to improve text rendering or even starting to implement flats (brushes).
+
+Up next: the editor should not load a Theatre with the TheatreManager, it should represent all the Theatre data and handle all the rendering and *not* tick or update the Things. Then, if the "load Theatre" button is pressed, the Theatre is loaded via the TheatreManager. I built a fucking renderer api, so I don't need to use the Theatre to render Things. This *does* mean that I might want to move all the relationship/theatre setup code into something like `TheatreData`, so I don't have to copy-paste it all into the editor.
+
+Eh, it's not that much code, tbh, so I should probably just copy-paste it. It's really only 1-2 functions.
+
+OH WAIT A MINUTE! The benefits of `Theatre` being designed with instancing in mind FINALLY shows up!!! I can just make a static `Theatre` variable for special loading! OH! And I can make a custom `Theatre` class for this purpose!
+
+[04/15/26]
+# NOTE: I should replace as many shared pointers as I can with unique pointers.
+See (https://www.reddit.com/r/cpp/comments/1734ubb/should_unique_pointer_be_used_at_all) for why, and don't forget you can (and should) just pass by reference.
+
+#NOTE: I should make the 2D coordinate system disconnected from pixels/resolution (e.g. glmOrtho(0, aspect, 0, <some_num>))
