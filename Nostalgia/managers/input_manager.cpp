@@ -39,6 +39,7 @@ void InputManager::Update()
         {
             g_pUIManager->Input(input_event.get());
             Application()->Input(input_event.get());
+            g_pTheatreManager->Input(input_event.get());
             for(auto callback : mCallbacks)
                 { callback(input_event.get()); }
             if(gPrintInputLogs)
