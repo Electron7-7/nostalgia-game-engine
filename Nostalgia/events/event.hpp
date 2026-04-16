@@ -82,6 +82,10 @@ public:
     virtual size_t GetHash() const;
     virtual std::string GetDebugLog() const;
 
+    // InputEventMouseScroll
+    virtual bool IsMouseScroll() const;
+    virtual Farg<Position2D> ScrollOffset() const;
+
     // InputEventMouseMotion
     virtual bool IsMouseMotion() const;
     virtual bool IsStoppedMouseMotion() const;
@@ -111,6 +115,20 @@ protected:
     static Position2D empty_position;
     static Motion2D   empty_motion;
 };
+
+class InputEventMouseScroll final : public InputEvent
+{
+public:
+    InputEventMouseScroll();
+    InputEventMouseScroll(Farg<Position2D> inScrollOffset);
+
+    std::string GetDebugLog() const final { return std::format("InputEventMouseScroll - scroll offset: [{}, {}]", mScrollOffset.x(), mScrollOffset.y()); }
+    Farg<Position2D> ScrollOffset() const final;
+
+private:
+    Position2D mScrollOffset{};
+};
+
 
 class InputEventMouseMotion final : public InputEvent
 {

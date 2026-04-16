@@ -6,6 +6,8 @@
 ////////////////
 size_t           InputEvent::GetHash()                        const { return ID::Invalid;             }
 std::string      InputEvent::GetDebugLog()                    const { return "InputEvent Base Class"; }
+bool             InputEvent::IsMouseScroll()                  const { return false;                   }
+Farg<Position2D> InputEvent::ScrollOffset()                   const { return empty_position;          }
 bool             InputEvent::IsMouseMotion()                  const { return false;                   }
 bool             InputEvent::IsStoppedMouseMotion()           const { return false;                   }
 Farg<Position2D> InputEvent::MousePosition()                  const { return empty_position;          }
@@ -34,6 +36,16 @@ void InputEvent::sPrintMouseWarning(const char* inFunction)
 
 Position2D InputEvent::empty_position{};
 Motion2D   InputEvent::empty_motion{};
+
+///////////////////////////
+// InputEventMouseScroll //
+///////////////////////////
+InputEventMouseScroll::InputEventMouseScroll() = default;
+InputEventMouseScroll::InputEventMouseScroll(Farg<Position2D> inScrollOffset):
+    mScrollOffset{inScrollOffset} {}
+
+Farg<Position2D> InputEventMouseScroll::ScrollOffset() const
+{ return mScrollOffset; }
 
 ///////////////////////////
 // InputEventMouseMotion //
