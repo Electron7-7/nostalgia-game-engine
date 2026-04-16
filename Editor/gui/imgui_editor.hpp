@@ -3,7 +3,10 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/ui/solution.hpp>
-#include <Nostalgia/fwd/theatre.hpp>
+#include <Nostalgia/theatre/theatre.hpp>
+
+// Forward Declaration
+class EditorTheatre;
 
 class ImGui_Editor : public UI_Solution
 {
@@ -17,24 +20,32 @@ public:
 
 private:
     static uint GetIconTextureBufferID(FPID inType);
+    static std::string m_sTheatreFilePath,
+        m_sTheatreFileSavePath,
+        m_sLastAttemptedTheatreFilePath;
+    static Theatre::FileOverwriteAction m_sCurrentFileOverwriteAction;
+    static EditorTheatre* m_spEditorTheatre;
+    static bool m_sTheatreRunning, m_sInspectingNewThinker, m_sInspectingNewResource, m_sAddThing;
 
     ID mInspectingResourceUID{}, mInspectingThinkerUID{};
     std::string mInspectingThinkerName{}, mInspectingResourceName{};
+    TheatreFile::TheatreData mEditorTheatreData{};
 
+    void Viewport3DWindow();
+    void Viewport2DWindow();
+    void TheatreLoadingWindow();
+    void LoadTheatre(bool inLoadFile);
+    void LoadEditorTheatre(bool inContinue);
     void ThingAdder();
+    void TheatreViewport();
     void TheatreInspector();
-    void InspectResource();
     void InspectThinker();
-    void SelectUID(const char* inLabel, ID& ioUID, bool& outChanged);
+    void InspectResource();
+    void SelectThing(const char* inLabel, ID& ioUID, bool& outChanged);
     bool InspectThing(ID inUID, Farg<Shared<TheatreFile::ThingData>> inData, TheatreFile::ThingData& outData);
-    void _display_thinker(ID);
+    void _select_thing(ID, ID&);
     void _thinker_tree_branch(ID);
-    void _resource_list_item(ID);
 };
-
-extern bool gShowDebugWindow,
-    gDebugConsoleOpened,
-    gTheatreInspectorActive;
 
 extern ImGui_Editor* g_pImGuiEditor;
 

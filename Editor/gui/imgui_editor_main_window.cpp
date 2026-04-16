@@ -6,27 +6,30 @@
 using namespace ImGui;
 using namespace TheatreFile;
 
-static ID _last_resource_uid{}, _last_thinker_uid{};
-
 void ImGui_Editor::InspectResource()
 {
     static ThingData _data{};
-    if(_last_resource_uid != mInspectingResourceUID)
+    if(mInspectingResourceName.empty())
+        { mInspectingResourceName = Theatre::Current()->GetName(mInspectingResourceUID); }
+    if(m_sInspectingNewResource)
     {
-        _last_resource_uid = mInspectingResourceUID;
+        m_sInspectingNewResource = false;
         _data.clear();
     }
 
-    if(not Begin(mInspectingResourceName.data()))
+    if(not Begin(mInspectingResourceName.data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         { End(); return; }
     else if(Button("Exit"))
     {
         mInspectingResourceUID = ID::Invalid;
         mInspectingResourceName.clear();
+        _data.clear();
         End();
         return;
     }
-    else if(InspectThing(mInspectingResourceUID, Theatre::Current()->GetThing(mInspectingResourceUID)->GetVariables(), _data))
+    else if(InspectThing(mInspectingResourceUID,
+        Theatre::Current()->GetThing(mInspectingResourceUID)->GetVariables(),
+        _data))
         { Theatre::Current()->GetThing(mInspectingResourceUID)->SetVariables(_data); }
     End();
 }
@@ -34,22 +37,27 @@ void ImGui_Editor::InspectResource()
 void ImGui_Editor::InspectThinker()
 {
     static ThingData _data{};
-    if(_last_thinker_uid != mInspectingThinkerUID)
+    if(mInspectingThinkerName.empty())
+        { mInspectingThinkerName = Theatre::Current()->GetName(mInspectingThinkerUID); }
+    if(m_sInspectingNewThinker)
     {
-        _last_thinker_uid = mInspectingThinkerUID;
+        m_sInspectingNewThinker = false;
         _data.clear();
     }
 
-    if(not Begin(mInspectingThinkerName.data()))
+    if(not Begin(mInspectingThinkerName.data(), nullptr, ImGuiWindowFlags_AlwaysAutoResize))
         { End(); return; }
     else if(Button("Exit"))
     {
         mInspectingThinkerUID = ID::Invalid;
         mInspectingThinkerName.clear();
+        _data.clear();
         End();
         return;
     }
-    else if(InspectThing(mInspectingThinkerUID, Theatre::Current()->GetThing(mInspectingThinkerUID)->GetVariables(), _data))
+    else if(InspectThing(mInspectingThinkerUID,
+        Theatre::Current()->GetThing(mInspectingThinkerUID)->GetVariables(),
+        _data))
         { Theatre::Current()->GetThing(mInspectingThinkerUID)->SetVariables(_data); }
     End();
 }
@@ -80,9 +88,9 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 inData->get_variable(_value, _name);
                 if(InputText(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
+                    std::string _output{_value};
+                    outData.set_variable(_output, _name, true);
                     _changed = true;
-                    break;
                 }
                 break;
             }
@@ -158,15 +166,13 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
             }
         case ThingVarType::ID:
             {
-                ID _value{};
-                uint _value_uint{_value()};
-                inData->get_variable(_value, var.name);
-                PushID(_value());
-                DragUInt(var.name.data(), &_value_uint, 0, 0, ImGuiInputTextFlags_ReadOnly);
-                PopID();
-                SameLine();
-                SelectUID("Select Thing", _value, _changed);
-                outData.set_variable(_value, var.name);
+                ID _uid{};
+                inData->get_variable(_uid, var.name);
+                std::string _name{Theatre::Current()->GetName(_uid)};
+                SelectThing(std::format("{}: {}", var.name, (_name.empty()) ? GlobalConstants::str_NA : _name).data(),
+                    _uid,
+                    _changed);
+                outData.set_variable(_uid, var.name);
                 break;
             }
         case ThingVarType::Enum:

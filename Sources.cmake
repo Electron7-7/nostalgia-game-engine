@@ -4,6 +4,7 @@ set(NOSTALGIA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia")
 set(EDITOR_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Editor")
 
 set(EDITOR_SRC_FILES
+    ${EDITOR_ROOT}/theatre/editor_theatre.cpp
     ${EDITOR_ROOT}/things/editor_player_3d.cpp
     ${EDITOR_ROOT}/things/test_animated_sprite.cpp
     ${EDITOR_ROOT}/app/nostalgia_goggles.cpp
@@ -13,6 +14,8 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/gui/imgui_debugger.cpp
     ${EDITOR_ROOT}/gui/imgui_editor.cpp
     ${EDITOR_ROOT}/gui/imgui_editor_main_window.cpp
+    ${EDITOR_ROOT}/gui/imgui_theatre_loading_tab.cpp
+    ${EDITOR_ROOT}/gui/imgui_thing_adder.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_impl_opengl3.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_widgets.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_stdlib.cpp
