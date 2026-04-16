@@ -17,8 +17,33 @@ public:
 
     static Theatre* Current();
 
-    explicit Theatre() noexcept;
+    Theatre() noexcept;
     virtual ~Theatre() noexcept;
+
+    template<typename T> requires std::derived_from<T, Theatre>
+        void Copy(Farg<T> inTheatre) noexcept
+        {
+            LockGuard<RMutex> _things_lock{mThingsMutex};
+            LockGuard<RMutex> _callsheet_lock{mCallSheetMutex};
+            mName = inTheatre.mName;
+            mIndex = inTheatre.mIndex;
+            mIsStarted = inTheatre.mIsStarted;
+            mWasLoadedFromFile = inTheatre.mWasLoadedFromFile;
+            mInitStatus = inTheatre.mInitStatus;
+            mThings = inTheatre.mThings;
+            mNames = inTheatre.mNames;
+            mRootViewportCurrentCamera3D = inTheatre.mRootViewportCurrentCamera3D;
+            mRootViewportCurrentCamera2D = inTheatre.mRootViewportCurrentCamera2D;
+            mThinkerUIDs = inTheatre.mThinkerUIDs;
+            mResourceUIDs = inTheatre.mResourceUIDs;
+            mLightIDs = inTheatre.mLightIDs;
+            mVisual3DIDs = inTheatre.mVisual3DIDs;
+            mVisual2DIDs = inTheatre.mVisual2DIDs;
+            mViewportIDs = inTheatre.mViewportIDs;
+            mCallSheet = inTheatre.mCallSheet;
+            m_pPlayer = inTheatre.m_pPlayer;
+            m_pInitialState = inTheatre.m_pInitialState;
+        }
 
     virtual void Update();
     virtual void Tick();
