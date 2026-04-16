@@ -26,8 +26,15 @@ FileType FileData::sDetectFileType(Sarg inPath)
 
 FileData::FileData() = default;
 
-FileData::FileData(const uchar* inData, size_t inSize, FileType inType):
-    mData{inData, inData + inSize}, mType{inType}, mStatus{OK} {}
+FileData::FileData(const uchar* inData, size_t inSize, FileType inType, Sarg inOverridePath):
+    mData{inData, inData + inSize}, mPath{inOverridePath}, mType{inType}, mStatus{OK} {}
+
+FileData::FileData(Sarg inStrData, FileType inType, Sarg inOverridePath):
+    mPath{inOverridePath}, mType{inType}, mStatus{OK}
+{
+    mData = Data_t(inStrData.size());
+    std::copy(inStrData.begin(), inStrData.end(), mData.begin());
+}
 
 FileData::FileData(Sarg path):
     mData{}, mPath{path}, mType{FileType::Unknown}, mStatus{ERR_NOT_LOADED}

@@ -22,7 +22,8 @@ public:
     static FileType sDetectFileType(Sarg inPath);
 
     FileData();
-    FileData(const uchar* inData, size_t inSize, FileType inType = FileType::Unknown);
+    FileData(const uchar* inData, size_t inSize, FileType inType = FileType::Unknown, Sarg inOverridePath = "");
+    FileData(Sarg inStrData, FileType inType, Sarg inOverridePath = "");
     FileData(Sarg inPath);
 
     Error LoadFile(Sarg inPath);
