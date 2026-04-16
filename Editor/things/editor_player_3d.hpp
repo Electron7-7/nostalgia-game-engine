@@ -14,6 +14,7 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
     TICK_OVERRIDE
+    INPUT_OVERRIDE
 
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};

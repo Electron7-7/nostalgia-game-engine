@@ -121,3 +121,12 @@ void EditorPlayer3D::Tick()
         Math::Convert<JPH::Vec3>(mVelocity));
     SetPosition(m_pCollider->Position());
 }
+
+void EditorPlayer3D::Input(InputEvent* inInput)
+{
+    if(inInput->IsJustPressed(Key::Escape))
+    {
+        mCaptureMouse = mCaptureKeyboard = not mCaptureMouse;
+        MainWindow()->SetMouseMode((mCaptureMouse) ? IWindow::MOUSE_MODE_DISABLED : IWindow::MOUSE_MODE_VISIBLE);
+    }
+}
