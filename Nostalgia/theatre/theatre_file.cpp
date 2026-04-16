@@ -1,4 +1,6 @@
 #include "./theatre_file.hpp"
+#include "things/thing_data.hpp"
+#include "things/thing_factory.hpp"
 
 using namespace TheatreFile;
 
@@ -25,7 +27,7 @@ std::string TheatreData::get_log() const
     return _out;
 }
 
-std::string TheatreFile::TheatreData::get_parsable_string() const
+std::string TheatreData::get_parsable_string() const
 {
     std::string _out{std::format("@{}#{}\n\n", name, index)};
     for(FAUTO [type, super] : type_declarations)
@@ -35,12 +37,11 @@ std::string TheatreFile::TheatreData::get_parsable_string() const
     return _out;
 }
 
-Error TheatreFile::Load(std::string& ioPathToFile, Shared<TheatreData> outData)
+Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreData> outData)
 {
     FileData theatre_file{};
-    if(not theatre_file.LoadFile(ioPathToFile))
+    if(not theatre_file.LoadFile(inFilePath))
         { return ERR_FILE_LOAD; }
-    ioPathToFile = theatre_file.filepath();
     return Load(theatre_file, outData);
 }
 
@@ -48,6 +49,8 @@ Error TheatreFile::Load(Farg<FileData> inFileData, Shared<TheatreData> outData)
 {
     TokenArray tokens{};
     Error lexer_code{Lex(inFileData, tokens)};
+    outData->file_path = FileSystem::GetAbsolute(inFileData.filepath());
+
     if(gDebugPrintLexerLogs)
         { sDebugPrintLexerLogs(tokens); }
     if(!print_error_enum(lexer_code))

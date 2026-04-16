@@ -59,12 +59,11 @@ void Theatre::Input(InputEvent* inInput)
         { thing->Input(inInput); }
 }
 
-void Theatre::LoadTheatreData(Shared<TheatreFile::TheatreData> inData)
+void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
 {
     Shutdown();
-    m_pInitialState = inData;
+    *m_pInitialState = inData;
     mWasLoadedFromFile = false;
-    mTheatreFileDirectory.clear();
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
     mInitStatus = OK;
@@ -75,7 +74,6 @@ Error Theatre::LoadFile(std::string inFilePath)
     Shutdown();
     if(not print_error_enum(TheatreFile::Load(inFilePath, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
-    mTheatreFileDirectory = FileSystem::GetDir(inFilePath, true);
     mWasLoadedFromFile = true;
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
@@ -86,14 +84,26 @@ Error Theatre::LoadData(Farg<FileData> inData)
 {
     if(not print_error_enum(TheatreFile::Load(inData, m_pInitialState)))
         { return mInitStatus = ERR_INIT_FAILED; }
-    else if((mWasLoadedFromFile = inData.has_filepath()))
-        { mTheatreFileDirectory = FileSystem::GetDir(inData.filepath(), true); }
+    mWasLoadedFromFile = inData.has_filepath();
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
     return mInitStatus = OK;
 }
 
-Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
+std::string Theatre::GetSaveData()
+{
+    LOCK_THINGS;
+    std::string _output{std::format("@{}#{}\n", mName, mIndex)};
+    for(FAUTO [id, thing] : mThings)
+    {
+        if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
+            { print_debug("Saving [{}, {}]", thing->name(), id()); }
+        _output += thing->GetVariables()->get_parsable_string();
+    }
+    return _output;
+}
+
+Error Theatre::SaveToFile(Sarg inOutputFilePath, FileOverwriteAction inAction)
 {
     std::string file_path{inOutputFilePath};
     if(FileSystem::IsFile(inOutputFilePath))
@@ -124,16 +134,8 @@ Error Theatre::Save(Sarg inOutputFilePath, FileOverwriteAction inAction)
             break;
         }
     }
-    std::string output{std::format("@{}#{}\n", mName, mIndex)};
 
-    LOCK_THINGS;
-    for(FAUTO [id, thing] : mThings)
-    {
-        if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
-            { print_debug("Saving [{}, {}]", thing->name(), id()); }
-        output += thing->GetVariables()->get_parsable_string();
-    }
-    return print_error_enum(FileSystem::try_WriteFileFromString(file_path, output));
+    return print_error_enum(FileSystem::try_WriteFileFromString(file_path, GetSaveData()));
 }
 
 bool Theatre::Startup()
@@ -147,6 +149,8 @@ bool Theatre::Startup()
 
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
+
+    m_pInitialState->sort_by_priority();
 
     for(auto iter{m_pInitialState->begin()}; iter != m_pInitialState->end();)
     {

@@ -24,10 +24,11 @@ public:
     virtual void Tick();
     virtual void Input(InputEvent*);
 
-    virtual void  LoadTheatreData(Shared<TheatreFile::TheatreData> inTheatreData);
+    virtual void  LoadTheatreData(Farg<TheatreFile::TheatreData> inTheatreData);
     virtual Error LoadData(Farg<FileData> inData);
     virtual Error LoadFile(std::string inFilePath);
-    virtual Error Save(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
+    virtual std::string GetSaveData();
+    virtual Error SaveToFile(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();
     virtual void  Draw();
@@ -35,7 +36,9 @@ public:
     Sarg Name() const;
     uint Index() const;
     bool WasLoadedFromFile() const;
-    Sarg TheatreFileDirectory() const;
+    Sarg TheatreFilePath() const;
+    std::string TheatreFileDirectory() const;
+    std::string TheatreFileName() const;
 
     Error InitStatus() const;
     bool  IsStarted()  const;
@@ -108,7 +111,6 @@ public:
 protected:
     std::string mName{"Untitled Theatre"};
     uint mIndex{ID::Invalid};
-    std::string mTheatreFileDirectory{""};
     bool mIsStarted{false},
         mWasLoadedFromFile{false};
     Error mInitStatus{ERR_UNINITIALIZED};
