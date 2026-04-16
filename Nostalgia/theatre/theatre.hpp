@@ -30,7 +30,7 @@ public:
     virtual Error Save(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();
-    virtual void  Draw(bool inRenderMainViewport = true);
+    virtual void  Draw();
 
     Sarg Name() const;
     uint Index() const;

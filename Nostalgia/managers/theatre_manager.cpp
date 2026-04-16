@@ -110,5 +110,5 @@ void TheatreManager::DrawCurrentTheatre()
     if(theatre_state != IN_LEVEL or not m_pCurrentTheatre)
         { return; }
     LOCK_MUTEX;
-    m_pCurrentTheatre->Draw(not Settings::Engine::IsEditorHint);
+    m_pCurrentTheatre->Draw();
 }

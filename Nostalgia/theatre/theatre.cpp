@@ -233,7 +233,7 @@ bool Theatre::Shutdown()
     return true;
 }
 
-void Theatre::Draw(bool inRenderMainViewport)
+void Theatre::Draw()
 {
     Shared<Console::Variable> var{nullptr};
     if(Console::GetVariable("Theatre.draw_3d", var) == OK)
@@ -266,9 +266,6 @@ void Theatre::Draw(bool inRenderMainViewport)
 
         viewport->Framebuffer()->Unbind();
     }
-
-    if(not inRenderMainViewport)
-        { return; }
 
     g_pRenderManager->GetAPI()->SetViewport({0, 0}, MainWindow()->GetScale());
     g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
