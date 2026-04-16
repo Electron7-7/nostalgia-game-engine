@@ -10,32 +10,6 @@ using namespace TheatreFile;
 void Camera3D::Ready()
 {
     Super::Ready();
-    // the debug mesh/material shouldn't override a manually specificed one
-    if(Settings::Engine::IsEditorHint)
-    {
-        std::string cam_mat_name{"camera-debug-material"};
-        ID cam_mat_id{Theatre::Current()->GetUID(cam_mat_name)};
-        if(cam_mat_id.invalid())
-        {
-            ThingData mat_data{ThingType::Material, cam_mat_name};
-            mat_data.set_variable(true, "FullBright");
-            mat_data.set_variable(true, "NoTextures");
-            mat_data.set_variable(glm::vec3{200.0f, 80.0f, 255.0f}, "Color");
-            cam_mat_id = Theatre::Current()->CreateThing(mat_data);
-        }
-
-        std::string mesh_inst_name{name() + "-debug-mesh-instance"};
-        if(!Theatre::Current()->ThingExists(mesh_inst_name))
-        {
-            ThingData mesh_inst_data{ThingType::MeshInstance3D, mesh_inst_name};
-            mesh_inst_data.set_variable(UID::m_Camera3D, "Mesh");
-            mesh_inst_data.set_variable(cam_mat_id, "MaterialOverride");
-            mEditorMeshInstanceID = Theatre::Current()->CreateThing(mesh_inst_data);
-        }
-        else
-            { mEditorMeshInstanceID = Theatre::Current()->GetThing(mesh_inst_name)->uid(); }
-        Theatre::Current()->SetParent(mEditorMeshInstanceID, uid());
-    }
 
     auto parent{Theatre::Current()->GetParent(uid())};
 
