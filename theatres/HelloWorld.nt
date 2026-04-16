@@ -354,7 +354,7 @@ Viewport TestViewport
     Child : Text2D TestText2DThing
     {
         Font = <Verdana>
-        Position = [-1900, 700]
+        Position = [-1900, 960]
         Color = [1, 1, 1]
         Scale = [1.8, 2]
         Text = "Hello, Sprite3D! (Hello, ViewportTexture!)"
@@ -374,7 +374,7 @@ ViewportTexture TestViewportTexture
 Sprite3D TestViewportTextureTester
 {
     Texture = <TestViewportTexture>
-    Position = [8, 1, -3.4]
-    RotationDegrees = [0, -45.60, 0]
+    Position = [4.98, 4.86, -1.8]
+    RotationDegrees = [0, -36.12, 0]
     Scale = [1.47, 1.47, 1.47]
 }
