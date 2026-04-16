@@ -1,54 +1,59 @@
 #include "./theatre_manager.hpp"
 #include "theatre/theatre.hpp"
 #include "theatre/theatre_file.hpp"
-#include "settings/engine.hpp"
 
 #define LOCK_MUTEX LockGuard<RMutex> lock{mTheatreMutex}
 
 using namespace ManagerEnums;
 
-static Shared<TheatreFile::TheatreData> s_pTheatreData{nullptr};
-static Shared<FileData> s_pTheatreFileData{nullptr};
-static std::string sTheatreFilePath{};
+static Unique<TheatreFile::TheatreData> s_pTheatreData{nullptr};
+static Unique<FileData> s_pTheatreFileData{nullptr};
+static Unique<std::string> sTheatreFilePath{nullptr};
 
 static TheatreManager sTheatreManager;
 TheatreManager* g_pTheatreManager{&sTheatreManager};
 
 Theatre* TheatreManager::Current()
 {
-    if(not m_pCurrentTheatre)
-        { m_pCurrentTheatre = MakeUnique<Theatre>(); }
+    LOCK_MUTEX;
     return m_pCurrentTheatre.get();
 }
 
-void TheatreManager::LoadFromData(Shared<TheatreFile::TheatreData> inTheatreData)
+Farg<Unique<Theatre>> TheatreManager::Current() const
+{ return m_pCurrentTheatre; }
+
+void TheatreManager::LoadFromData(Farg<TheatreFile::TheatreData> inTheatreData)
 {
-    s_pTheatreData = inTheatreData;
+    LOCK_MUTEX;
+    s_pTheatreData = MakeUnique<TheatreFile::TheatreData>(inTheatreData);
     s_pTheatreFileData = nullptr;
-    sTheatreFilePath.clear();
+    sTheatreFilePath = nullptr;
     StartNewTheatre();
 }
 
-void TheatreManager::LoadFromFileData(Shared<FileData> inTheatreFileData)
+void TheatreManager::LoadFromFileData(Farg<FileData> inTheatreFileData)
 {
+    LOCK_MUTEX;
     s_pTheatreData = nullptr;
-    s_pTheatreFileData = inTheatreFileData;
-    sTheatreFilePath.clear();
+    s_pTheatreFileData = MakeUnique<FileData>(inTheatreFileData);
+    sTheatreFilePath = nullptr;
     StartNewTheatre();
 }
 
 void TheatreManager::LoadFromFile(Sarg inTheatreFilePath)
 {
+    LOCK_MUTEX;
     s_pTheatreData = nullptr;
     s_pTheatreFileData = nullptr;
-    sTheatreFilePath = inTheatreFilePath;
+    sTheatreFilePath = MakeUnique<std::string>(inTheatreFilePath);
     StartNewTheatre();
 }
 
 bool TheatreManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    m_pCurrentTheatre = MakeUnique<Theatre>();
+    if(not m_pCurrentTheatre)
+        { m_pCurrentTheatre = MakeUnique<Theatre>(); }
     return true;
 }
 
@@ -77,17 +82,18 @@ void TheatreManager::Input(InputEvent* inInput)
 ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreInit(bool is_first_call)
 {
     LOCK_MUTEX;
+
     if(!is_first_call)
         { return FINISHED; }
-    else if(not m_pCurrentTheatre or not m_pCurrentTheatre->InitStatus())
-        { m_pCurrentTheatre = MakeUnique<Theatre>(); }
+    else if(m_spNewTheatreType)
+        { m_pCurrentTheatre = std::move(m_spNewTheatreType); }
+
     if(s_pTheatreData)
-        { m_pCurrentTheatre->LoadTheatreData(s_pTheatreData); }
+        { m_pCurrentTheatre->LoadTheatreData(*s_pTheatreData); }
     else if(s_pTheatreFileData and not print_error_enum(m_pCurrentTheatre->LoadData(*s_pTheatreFileData)))
         { return FUCKED; }
-    else if(not sTheatreFilePath.empty() and
-        not print_error_enum(m_pCurrentTheatre->LoadFile(sTheatreFilePath)))
-            { return FUCKED; }
+    else if(sTheatreFilePath and not print_error_enum(m_pCurrentTheatre->LoadFile(*sTheatreFilePath)))
+        { return FUCKED; }
     if(not m_pCurrentTheatre->Startup())
         { print_warning("Theatre::Startup failed!"); }
     return FINISHED;
