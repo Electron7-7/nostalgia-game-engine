@@ -89,6 +89,15 @@ void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWin
     }
 }
 
+void WindowGLFW::CallbackHandler::sMouseScrollCallbackFunction(GLFWwindow* inWindow,
+    double inOffsetX,
+    double inOffsetY)
+{
+    static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))->mFramesWithNoScrollOffset = 0;
+    static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))->mScrollCurrent = {inOffsetX, inOffsetY};
+    g_pInputManager->UpdateScrollOffset(inOffsetX, inOffsetY);
+}
+
 void WindowGLFW::AddMonitor(GLFWmonitor* inMonitor)
 {
     m_sMonitors.push_back(MakeUnique<Monitor>(inMonitor, glfwGetMonitorName(inMonitor)));
@@ -157,6 +166,7 @@ Error WindowGLFW::InitializeCallbacks()
     glfwSetCursorPosCallback(m_pWindow, &CallbackHandler::sCursorPosCallbackFunction);
     glfwSetKeyCallback(m_pWindow, &CallbackHandler::sKeyCallbackFunction);
     glfwSetMouseButtonCallback(m_pWindow, &CallbackHandler::sMouseButtonCallbackFunction);
+    glfwSetScrollCallback(m_pWindow, &CallbackHandler::sMouseScrollCallbackFunction);
     return OK;
 }
 
@@ -178,6 +188,12 @@ void WindowGLFW::Update()
     glfwGetCursorPos(m_pWindow, &mMouseCurrent[0], &mMouseCurrent[1]);
     if(mMouseCurrent != mMouseLast or ++mFramesWithNoMouseMovement < mFrameLimitForNoMouseMovement)
         { g_pInputManager->Queue()->add<InputEventMouseMotion>(mMouseCurrent, mMouseLast); }
+    if(mScrollCurrent != Position2D{0.0, 0.0} and ++mFramesWithNoScrollOffset >= mFrameLimitForNoMouseMovement)
+    {
+        mScrollCurrent = {0.0, 0.0};
+        g_pInputManager->UpdateScrollOffset(0.0, 0.0);
+        mFramesWithNoScrollOffset = 0;
+    }
 }
 
 WINDOW_SET_POSITION_DEFINITION(WindowGLFW, inPosition)

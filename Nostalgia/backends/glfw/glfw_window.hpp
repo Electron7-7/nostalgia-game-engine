@@ -45,6 +45,7 @@ private:
         static void sCursorPosCallbackFunction(GLFWwindow*,double,double);
         static void sKeyCallbackFunction(GLFWwindow*,int,int,int,int);
         static void sMouseButtonCallbackFunction(GLFWwindow*,int,int,int);
+        static void sMouseScrollCallbackFunction(GLFWwindow*,double,double);
 
         inline static WindowGLFW* s_pWindow{nullptr};
     };
@@ -54,7 +55,8 @@ private:
     Unique<IGraphicsContext> mGraphicsContext{nullptr};
     Position2D mMouseCurrent{};
     Position2D mMouseLast{};
-    int mFramesWithNoMouseMovement{0};
+    Position2D mScrollCurrent{};
+    int mFramesWithNoMouseMovement{0}, mFramesWithNoScrollOffset{0};
 
     Error InitializeCallbacks() override;
     Error Init(const WindowProperties&);
