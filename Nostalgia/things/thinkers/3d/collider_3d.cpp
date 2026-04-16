@@ -66,11 +66,9 @@ void Collider3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
     data.get_variable(mMass, "Mass", "ColliderMass", "BodyMass");
     data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
-    data.get_variable(mActivateOnNextChange, "StartActive", "Active");
-    if(data.get_variable(mActivateOnNextChange, "StartInactive", "Inactive") == OK)
-        { mActivateOnNextChange = true; }
+    data.get_variable(mActivateOnStart, "StartActive", "Active");
 
-    if(CreateBody(mActivateOnNextChange))
+    if(CreateBody(mActivateOnStart))
     {
         print_jolt("Physics Body Created [{}, {}]",
             EnumRegistry::GetEnumName(mShape),
@@ -78,8 +76,6 @@ void Collider3D::SetVariables(Farg<ThingData> data)
     }
     else
         { print_error("Failed to create physics body for Collider3D#{}", uid()()); }
-
-    mActivateOnNextChange = false;
 }
 
 Shared<ThingData> Collider3D::GetVariables() const
@@ -89,7 +85,7 @@ Shared<ThingData> Collider3D::GetVariables() const
     data->set_variable(mMotion, "Motion");
     data->set_variable(mMass, "Mass");
     data->set_variable(mMaterial.friction, "Friction");
-    data->set_variable(mActivateOnNextChange, "StartActive");
+    data->set_variable(mActivateOnStart, "StartActive");
     return data;
 }
 
@@ -147,7 +143,7 @@ bool Collider3D::Active() const
 }
 
 bool Collider3D::ActivateOnNextChange() const
-{ return mActivateOnNextChange; }
+{ return mActivateOnChange; }
 
 void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
 {
@@ -155,7 +151,7 @@ void Collider3D::SetPosition(Farg<glm::vec3> inPosition)
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
-        PhysicsEngine::GetActivation(mActivateOnNextChange));
+        PhysicsEngine::GetActivation(mActivateOnChange));
 }
 
 void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
@@ -164,7 +160,7 @@ void Collider3D::SetQuaternion(Farg<glm::quat> inQuaternion)
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
-        PhysicsEngine::GetActivation(mActivateOnNextChange));
+        PhysicsEngine::GetActivation(mActivateOnChange));
 }
 
 void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
@@ -173,7 +169,7 @@ void Collider3D::SetRotation(Farg<glm::vec3> inRotation)
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
-        PhysicsEngine::GetActivation(mActivateOnNextChange));
+        PhysicsEngine::GetActivation(mActivateOnChange));
 }
 
 void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
@@ -182,7 +178,7 @@ void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
-        PhysicsEngine::GetActivation(mActivateOnNextChange));
+        PhysicsEngine::GetActivation(mActivateOnChange));
 }
 
 void Collider3D::SetScale(Farg<glm::vec3> inScale)
@@ -191,7 +187,7 @@ void Collider3D::SetScale(Farg<glm::vec3> inScale)
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
-        PhysicsEngine::GetActivation(mActivateOnNextChange));
+        PhysicsEngine::GetActivation(mActivateOnChange));
 }
 
 Error Collider3D::SetMaterial(Farg<ColliderMaterial> inMaterial)
@@ -246,7 +242,7 @@ void Collider3D::SetActive(bool isActive) const
 }
 
 void Collider3D::SetActivateOnNextChange(bool setActive)
-{ mActivateOnNextChange = setActive; }
+{ mActivateOnChange = setActive; }
 
 bool Collider3D::CreateBody(bool setActive)
 {
@@ -267,7 +263,7 @@ bool Collider3D::CreateBody(bool setActive)
     auto engine{PhysicsEngine::Instance()};
 
     mBodyID = engine->BodyInterface().CreateAndAddBody(*m_pBodyCreationSettings,
-        engine->GetActivation(mActivateOnNextChange));
+        engine->GetActivation(mActivateOnChange));
 
     if(mBodyID.IsInvalid())
         { return false; }

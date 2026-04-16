@@ -71,7 +71,7 @@ protected:
     MotionType mMotion{MotionType::Static};
     ColliderMaterial mMaterial{};
     float mMass{1.0f};
-    bool mActivateOnNextChange{true};
+    bool mActivateOnStart{true}, mActivateOnChange{true};
 
     virtual void OnContactAdded(ID inOtherColliderID,
         Farg<JPH::Body> inBody1,
