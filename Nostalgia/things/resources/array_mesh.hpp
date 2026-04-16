@@ -30,12 +30,10 @@ public:
     virtual PrimitiveType SurfaceGetPrimitive(int inIndex) const override;
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const override;
     // TODO: implement per-surface materials
-    virtual ID SurfaceGetMaterialID(int inIndex) const override;
+    virtual Shared<Material> SurfaceGetMaterial(int inIndex) const override;
 
     // TODO: remove this and replace it with per-surface materials
-    ID mMaterialID;
-    ID MaterialID() const { return mMaterialID; }
-    void MaterialID(ID inID) { mMaterialID = inID; }
+    Shared<Material> mMaterial{MakeShared<Material>()};
 
 protected:
     std::string mModelFilepath{""};

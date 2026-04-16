@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include <Nostalgia/things/resources/resource.hpp>
+#include <Nostalgia/things/resources/texture.hpp>
 
 class Material : public Resource
 {
@@ -11,11 +12,11 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    ID DiffuseTextureID() const;
-    void DiffuseTextureID(ID TextureID);
+    Shared<Texture> DiffuseTexture() const;
+    void DiffuseTexture(Shared<Texture> Texture);
 
-    ID SpecularTextureID() const;
-    void SpecularTextureID(ID TextureID);
+    Shared<Texture> SpecularTexture() const;
+    void SpecularTexture(Shared<Texture> Texture);
 
     float SpecularStrength() const;
     void SpecularStrength(float);
@@ -26,8 +27,8 @@ public:
     bool      mFullBright{false};
 
 protected:
-    ID mDiffuseTextureID{},
-        mSpecularTextureID{};
+    Shared<Texture> m_pDiffuseTexture{MakeShared<Texture>()},
+        m_pSpecularTexture{MakeShared<Texture>()};
     float mSpecularStrength{0.0f};
 };
 

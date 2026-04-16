@@ -1,5 +1,7 @@
 #include "./material.hpp"
+#include "./texture.hpp"
 #include "things/thing_data.hpp"
+#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 
@@ -7,8 +9,8 @@ void Material::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(mDiffuseTextureID, "DiffuseTexture");
-    data.get_variable(mSpecularTextureID, "SpecularTexture");
+    data.get_variable(m_pDiffuseTexture, "DiffuseTexture");
+    data.get_variable(m_pSpecularTexture, "SpecularTexture");
     data.get_variable(mColor, "Color");
     data.get_variable(mAlpha, "Alpha");
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
@@ -20,8 +22,8 @@ Shared<ThingData> Material::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
 
-    data->set_variable(mDiffuseTextureID, "DiffuseTexture");
-    data->set_variable(mSpecularTextureID, "SpecularTexture");
+    data->set_variable(m_pDiffuseTexture, "DiffuseTexture");
+    data->set_variable(m_pSpecularTexture, "SpecularTexture");
     data->set_variable(mColor, "Color");
     data->set_variable(mAlpha, "Alpha");
     data->set_variable(mSpecularSharpness, "SpecularSharpness");
@@ -31,17 +33,17 @@ Shared<ThingData> Material::GetVariables() const
     return data;
 }
 
-ID Material::DiffuseTextureID() const
-{ return mDiffuseTextureID; }
+Shared<Texture> Material::DiffuseTexture() const
+{ return m_pDiffuseTexture; }
 
-void Material::DiffuseTextureID(ID texture_id)
-{ mDiffuseTextureID = texture_id; }
+void Material::DiffuseTexture(Shared<Texture> inTexture)
+{ m_pDiffuseTexture = inTexture; }
 
-ID Material::SpecularTextureID() const
-{ return mSpecularTextureID; }
+Shared<Texture> Material::SpecularTexture() const
+{ return m_pSpecularTexture; }
 
-void Material::SpecularTextureID(ID texture_id)
-{ mSpecularTextureID = texture_id; }
+void Material::SpecularTexture(Shared<Texture> inTexture)
+{ m_pSpecularTexture = inTexture; }
 
 float Material::SpecularStrength() const
 { return mSpecularStrength; }

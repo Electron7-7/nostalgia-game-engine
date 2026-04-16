@@ -16,7 +16,7 @@ public:
 protected:
     int mInterval{35};
     size_t mIndex{0};
-    std::vector<ID> mTextureIDs{};
+    std::vector<Shared<Texture>> mTextures{};
 };
 
 #endif // TEST_ANIMATED_SPRITE_H

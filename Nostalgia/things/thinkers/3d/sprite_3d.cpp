@@ -7,20 +7,20 @@ void Sprite3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(mTextureID, "Texture", "Sprite");
+    data.get_variable(mTexture, "Texture", "Sprite");
 }
 
 Shared<ThingData> Sprite3D::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(mTextureID, "Texture");
+    data->set_variable(mTexture, "Texture");
 
     return data;
 }
 
-ID Sprite3D::TextureID() const
-{ return mTextureID; }
+Shared<Texture> Sprite3D::GetTexture() const
+{ return mTexture; }
 
-void Sprite3D::SetTextureID(ID inID)
-{ mTextureID = inID; }
+void Sprite3D::SetTexture(Shared<Texture> inTexture)
+{ mTexture = inTexture; }

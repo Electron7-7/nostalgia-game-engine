@@ -17,14 +17,14 @@ void ArrayMesh::SetVariables(Farg<ThingData> data)
     if(data.get_variable(mModelFilepath, "File", "Model") == OK)
         { LoadModelFile(mModelFilepath); }
 
-    data.get_variable(mMaterialID, "Material");
+    data.get_variable(mMaterial, "Material");
 }
 
 Shared<ThingData> ArrayMesh::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mModelFilepath, "Model");
-    data->set_variable(mMaterialID, "Material");
+    data->set_variable(mMaterial, "Material");
     return data;
 }
 
@@ -75,7 +75,7 @@ void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<I
         { _mutable_mesh_data = inData; }
 
     Farg<MeshData_t> _mesh_data{(_mutable_mesh_data.empty()) ? inData : _mutable_mesh_data};
-    auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), ID::Invalid)};
+    auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), MakeShared<Material>())};
 
     for(int i{0}; i < ARRAY_FORMAT_MAX; ++i)
     {
@@ -135,9 +135,9 @@ Shared<VertexArray> ArrayMesh::SurfaceGetVertexArray(int inIndex) const
     return mSurfaces.at(inIndex).vertex_array;
 }
 
-ID ArrayMesh::SurfaceGetMaterialID(int inIndex) const
+Shared<Material> ArrayMesh::SurfaceGetMaterial(int inIndex) const
 {
-    ASSERT_SURFACE_INDEX(inIndex, ID::Invalid)
+    ASSERT_SURFACE_INDEX(inIndex, nullptr)
     return mSurfaces.at(inIndex).material_id;
 }
 

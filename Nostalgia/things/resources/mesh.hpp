@@ -30,7 +30,7 @@ public:
     {
         PrimitiveType primitive{PRIMITIVE_TRIANGLES};
         Shared<VertexArray> vertex_array{nullptr};
-        ID material_id{};
+        Shared<Material> material_id{nullptr};
     };
 
     virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) {}
@@ -39,7 +39,7 @@ public:
     virtual int SurfaceCount() const { return 0; }
     virtual PrimitiveType SurfaceGetPrimitive(int inIndex) const { return PRIMITIVE_TRIANGLES; }
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const { return nullptr; }
-    virtual ID SurfaceGetMaterialID(int inIndex) const { return ID::Invalid; }
+    virtual Shared<Material> SurfaceGetMaterial(int inIndex) const { return nullptr; }
 };
 
 #endif // MESH_H

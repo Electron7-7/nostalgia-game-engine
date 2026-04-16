@@ -11,14 +11,14 @@ void TestAnimatedSprite2D::SetVariables(Farg<ThingData> data)
     data.get_variable(mInterval, "Interval");
 
     int i{0};
-    ID id{};
-    while(data.get_variable(id, std::format("Texture{}", i)) == OK)
+    Shared<Texture> _tex{nullptr};
+    while(data.get_variable(_tex, std::format("Texture{}", i)) == OK)
     {
-        mTextureIDs.push_back(id);
+        mTextures.push_back(_tex);
         ++i;
     }
-    if(!mTextureIDs.empty())
-        { mTextureID = mTextureIDs.front(); }
+    if(not mTextures.empty())
+        { mTexture = mTextures.front(); }
 }
 
 Shared<ThingData> TestAnimatedSprite2D::GetVariables() const
@@ -28,8 +28,8 @@ Shared<ThingData> TestAnimatedSprite2D::GetVariables() const
     data->set_variable(mInterval, "Interval");
 
     int i{0};
-    for(ID id : mTextureIDs)
-        { data->set_variable(id, std::format("Texture{}", i)); }
+    for(FAUTO texture : mTextures)
+        { data->set_variable(texture, std::format("Texture{}", i++)); }
 
     return data;
 }
@@ -38,9 +38,9 @@ void TestAnimatedSprite2D::Tick()
 {
     if(!(Manager::TickNumber() % mInterval))
     {
-        mIndex = (++mIndex >= mTextureIDs.size())
+        mIndex = (++mIndex >= mTextures.size())
             ? 0
             : mIndex;
-        mTextureID = mTextureIDs[mIndex];
+        mTexture = mTextures[mIndex];
     }
 }

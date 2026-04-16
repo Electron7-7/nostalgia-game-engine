@@ -740,7 +740,7 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
     auto projection_matrix{inCamera->ProjectionMatrix()};
 
     auto missing_texture{GetResource<Texture>(UID::i_Missing)};
-    auto mesh{GetResource<ArrayMesh>(ID::Invalid)};
+    auto mesh{GetResource<ArrayMesh>(UID::m_Error)};
 
     switch(inCamera->mEnvironment.mType)
     {
@@ -782,21 +782,20 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
         if(visual3d->DerivedFrom(ThingType::MeshInstance3D))
         {
             auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
-            if(mesh_instance->MeshID().invalid())
-                { continue; }
-            mesh = GetResource<ArrayMesh>(mesh_instance->MeshID());
-            auto material{GetResource<Material>(mesh->MaterialID())};
+            if(DCast<ArrayMesh>(mesh_instance->GetMesh()))
+                { mesh = DCast<ArrayMesh>(mesh_instance->GetMesh()); }
+            auto material{mesh->mMaterial};
 
-            if(!mesh_instance->MaterialOverrideID().invalid())
-                { material = GetResource<Material>(mesh_instance->MaterialOverrideID()); }
+            if(mesh_instance->GetMaterialOverride())
+                { material = mesh_instance->GetMaterialOverride(); }
 
-            auto diffuse_texture{GetResource<Texture>(material->DiffuseTextureID())};
-            auto specular_texture{GetResource<Texture>(material->SpecularTextureID())};
+            auto diffuse_texture{material->DiffuseTexture()};
+            auto specular_texture{material->SpecularTexture()};
 
-            if(!material->DiffuseTextureID().invalid() and !diffuse_texture->GetBuffer())
+            if(not material->DiffuseTexture()->uid().invalid() and not diffuse_texture->GetBuffer())
                 { diffuse_texture = missing_texture; }
 
-            if(!material->SpecularTextureID().invalid() and !specular_texture->GetBuffer())
+            if(not material->SpecularTexture()->uid().invalid() and not specular_texture->GetBuffer())
                 { specular_texture = missing_texture; }
 
             shader = renderer_api->GetShader((material->mFullBright)
@@ -823,9 +822,9 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
             auto sprite{DCast<Sprite3D>(visual3d)};
             mesh = GetResource<ArrayMesh>(UID::m_Quad);
 
-            auto texture{(sprite->TextureID().invalid())
+            auto texture{(not sprite->GetTexture())
                 ? missing_texture
-                : GetResource<Texture>(sprite->TextureID())};
+                : sprite->GetTexture()};
 
             shader = renderer_api->GetShader(Shaders::Fullbright);
 
@@ -891,11 +890,11 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
         if(visual2d->DerivedFrom(ThingType::Sprite2D))
         {
             auto sprite{DCast<Sprite2D>(visual2d)};
-            auto texture{GetResource<Texture>(sprite->TextureID())};
+            auto texture{sprite->GetTexture()};
 
             glm::vec2 texture_size{texture->Format().width, texture->Format().height};
 
-            if(!sprite->TextureID().invalid() and !texture->GetBuffer())
+            if(texture and not texture->GetBuffer())
                 { texture = missing_texture; }
 
             auto size{sprite->GlobalScale() * texture_size};
