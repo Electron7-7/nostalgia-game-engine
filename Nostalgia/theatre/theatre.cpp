@@ -290,8 +290,14 @@ uint Theatre::Index() const
 bool Theatre::WasLoadedFromFile() const
 { return mWasLoadedFromFile; }
 
-Sarg Theatre::TheatreFileDirectory() const
-{ return mTheatreFileDirectory; }
+Sarg Theatre::TheatreFilePath() const
+{ return m_pInitialState->file_path; }
+
+std::string Theatre::TheatreFileDirectory() const
+{ return FileSystem::GetDir(m_pInitialState->file_path); }
+
+std::string Theatre::TheatreFileName() const
+{ return FileSystem::GetStem(m_pInitialState->file_path, true); }
 
 Error Theatre::InitStatus() const
 { return mInitStatus; }
