@@ -12,7 +12,6 @@
 #include "things/thinkers/3d/camera_3d.hpp"
 #include "things/thinkers/3d/visual_3d.hpp"
 #include "things/thinkers/viewport.hpp"
-#include "things/resources/material.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
@@ -27,10 +26,6 @@
 #define FOUND_IT(MAP, KEY, ...) auto found_it##__VA_ARGS__{MAP.find(KEY)}; found_it##__VA_ARGS__ != MAP.end()
 
 using namespace TheatreFile;
-
-bool gDebugToggleTextRenderingMethod{false},
-    gDebugEnable3DRendering{true},
-    gDebugEnable2DRendering{true};
 
 Theatre::Theatre() noexcept = default;
 Theatre::~Theatre() noexcept = default;
@@ -111,7 +106,8 @@ Error Theatre::SaveToFile(Sarg inOutputFilePath, FileOverwriteAction inAction)
         switch(inAction)
         {
         case CANCEL:
-            print_warning("A file already exists at '{}'", inOutputFilePath);
+            if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
+                { print_warning("A file already exists at '{}'", inOutputFilePath); }
             return ERR_FILE_EXISTS;
         case RENAME:
             {
@@ -127,10 +123,13 @@ Error Theatre::SaveToFile(Sarg inOutputFilePath, FileOverwriteAction inAction)
                         ++i,
                         file_extension);
                 }
+                if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
+                    { print_debug("Save data will be written to: {}", file_path); }
                 break;
             }
         case OVERWRITE:
-            print_warning("The file at '{}' will be overwritten", inOutputFilePath);
+            if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
+                { print_warning("The file at '{}' will be overwritten", inOutputFilePath); }
             break;
         }
     }
@@ -239,13 +238,8 @@ bool Theatre::Shutdown()
 
 void Theatre::Draw()
 {
-    Shared<Console::Variable> var{nullptr};
-    if(Console::GetVariable("Theatre.draw_3d", var) == OK)
-        { gDebugEnable3DRendering = var->int_value; }
-    if(Console::GetVariable("Theatre.draw_2d", var) == OK)
-        { gDebugEnable2DRendering = var->int_value; }
-    if(Console::GetVariable("Theatre.draw_text_new", var) == OK)
-        { gDebugToggleTextRenderingMethod = var->int_value; }
+    bool _enable_3d_rendering = Console::GetVariable("Theatre.draw_3d")->int_value,
+        _enable_2d_rendering = Console::GetVariable("Theatre.draw_2d")->int_value;
 
     LOCK_THINGS;
 
@@ -263,9 +257,9 @@ void Theatre::Draw()
         g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
         g_pRenderManager->GetAPI()->Clear();
 
-        if(gDebugEnable3DRendering and not viewport->CurrentCamera3D().invalid())
+        if(_enable_3d_rendering and not viewport->CurrentCamera3D().invalid())
             { Draw3DThinkers(GetThinker<Camera3D>(viewport->CurrentCamera3D())); }
-        if(gDebugEnable2DRendering and not viewport->CurrentCamera2D().invalid())
+        if(_enable_2d_rendering and not viewport->CurrentCamera2D().invalid())
             { Draw2DThinkers(GetThinker<Camera2D>(viewport->CurrentCamera2D())); }
 
         viewport->Framebuffer()->Unbind();
@@ -275,9 +269,9 @@ void Theatre::Draw()
     g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
     g_pRenderManager->GetAPI()->Clear();
 
-    if(gDebugEnable3DRendering and not mRootViewportCurrentCamera3D.invalid())
+    if(_enable_3d_rendering and not mRootViewportCurrentCamera3D.invalid())
         { Draw3DThinkers(GetThinker<Camera3D>(mRootViewportCurrentCamera3D)); }
-    if(gDebugEnable2DRendering and not mRootViewportCurrentCamera3D.invalid())
+    if(_enable_2d_rendering and not mRootViewportCurrentCamera3D.invalid())
         { Draw2DThinkers(GetThinker<Camera2D>(mRootViewportCurrentCamera2D)); }
 }
 
@@ -314,7 +308,7 @@ TheatreData Theatre::CurrentState()
     TheatreData data{*m_pInitialState};
     data.clear();
     for(FAUTO [id, thing] : mThings)
-        { data.emplace_back(*thing->GetVariables()); }
+        { data.push_back(*thing->GetVariables()); }
     return data;
 }
 
@@ -948,7 +942,7 @@ void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
             shader->SetUniform("glyph", 0);
             shader->Bind();
 
-            if(!gDebugToggleTextRenderingMethod)
+            if(not Console::GetVariable("Theatre.draw_text_new")->int_value)
             {
                 if(text2d->mDebugOutline)
                 {
