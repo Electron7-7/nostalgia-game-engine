@@ -40,18 +40,18 @@ bool ThingFactory::Init()
         { return true; }
 
     ADD_THING(Thing, Thing)
-        ADD_THING(Resource, Thing)
-            ADD_THING(Font, Resource)
+        ADD_THING(Resource, Thing, +1)
+            ADD_THING(Image, Resource, +2)
+            ADD_THING(Font, Resource, +2)
             ADD_THING(Mesh, Resource)
                 ADD_THING(ArrayMesh, Resource)
             ADD_THING(Texture, Resource)
-            ADD_THING(Image, Resource)
-            ADD_THING(Cubemap, Resource)
-            ADD_THING(ViewportTexture, Resource)
-            ADD_THING(ImageTexture, Texture)
+                ADD_THING(Cubemap, Resource)
+                ADD_THING(ViewportTexture, Resource)
+                ADD_THING(ImageTexture, Texture)
             ADD_THING(Material, Resource)
         ADD_THING(Thinker, Thing)
-            ADD_THING(Viewport, Thinker)
+            ADD_THING(Viewport, Thinker, +1)
             ADD_THING(NostalgiaPlayer, Thinker)
             ADD_THING(Actor3D, Thinker)
                 ADD_THING(Visual3D, Actor3D)
@@ -111,6 +111,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
         print_error("Base ThingType_t '{}' is invalid!", inBaseType.name());
         return ERR_INVALID_TYPE;
     }
+    int _priority{inPriority};
     type._all_base_types.emplace(type._base_type_id = inBaseType);
     PID next_base{type._base_type_id};
     while(next_base != ThingType::Thing)
@@ -119,6 +120,20 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
             found_it != m_sAllTypes.end())
         {
             type._all_base_types.emplace(next_base);
+            if(_priority == cDefaultPriority)
+            {
+                PID _next_base{next_base};
+                while(_next_base != ThingType::Thing)
+                {
+                    if(auto found_it_again{m_sTypePriorities.find(_next_base)};
+                        found_it_again != m_sTypePriorities.end() and found_it_again->second != cDefaultPriority)
+                    {
+                        _priority = found_it_again->second;
+                        break;
+                    }
+                    _next_base = m_sAllTypes.find(_next_base)->_base_type_id;
+                }
+            }
             next_base = found_it->_base_type_id;
         }
         else
@@ -126,11 +141,11 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     }
     type._all_base_types.emplace(next_base);
     if(Console::GetVariable("ThingFactory.debug_register_msgs")->int_value)
-        { print_debug("Registered New ThingType_t: {}", type.log()); }
+        { print_debug("Registered New ThingType_t w/ priority {: }: {}", _priority, type.log()); }
     m_sAllTypes.emplace(type);
 
     m_sThingMakers[inType]    = inPtr;
-    m_sTypePriorities[inType] = inPriority;
+    m_sTypePriorities[inType] = _priority;
     return OK;
 }
 

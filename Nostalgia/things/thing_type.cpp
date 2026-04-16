@@ -23,10 +23,11 @@ bool ThingType_t::is_derived_from(FPID inTypeID) const noexcept
 
 std::string ThingType_t::log() const noexcept
 {
-    std::string out{std::format("{} > [", _type_id.name())};
+    std::string out{std::format("{}", _type_id.name())};
+    std::vector<PID> _types{};
     for(FAUTO id : _all_base_types)
-        { out += id.name() + ","; }
-    out.pop_back();
-    out.push_back(']');
+        { _types.insert(_types.begin(), id); }
+    for(FAUTO id : _types)
+        { out += " > " + id.name(); }
     return out;
 }

@@ -15,7 +15,7 @@ public:
         static Shared<Thing> ThingMakerTemplate(Sarg inName = "")
         { return Shared<Thing>(new T{inName}); }
 
-    static constexpr int cDefaultPriority{1};
+    static constexpr int cDefaultPriority{0};
 
     static bool Init();
     static bool IsInitialized();

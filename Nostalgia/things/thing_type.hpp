@@ -13,9 +13,9 @@ namespace ThingType
                 TYPE_ID(Mesh),
                     TYPE_ID(ArrayMesh),
                 TYPE_ID(Texture),
-                TYPE_ID(Cubemap),
-                TYPE_ID(ViewportTexture),
-                TYPE_ID(ImageTexture),
+                    TYPE_ID(Cubemap),
+                    TYPE_ID(ViewportTexture),
+                    TYPE_ID(ImageTexture),
                 TYPE_ID(Material),
                 TYPE_ID(Image),
             TYPE_ID(Thinker),
@@ -45,13 +45,13 @@ struct ThingType_t
 private:
     PID _type_id{};
     PID _base_type_id{};
-    std::set<PID> _all_base_types{};
+    std::unordered_set<PID> _all_base_types{};
 
     friend class ThingFactory;
     ThingType_t(FPID) noexcept;
 
 public:
-    using typeids_t = std::set<PID>;
+    using typeids_t = std::unordered_set<PID>;
 
     ThingType_t() noexcept;
 
