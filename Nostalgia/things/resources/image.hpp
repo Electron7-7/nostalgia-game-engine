@@ -23,9 +23,11 @@ public:
     Error LoadFile(Sarg inFilePath);
     void SetData(const uchar* inData, int inSize, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
 
+    Farg<FileData> file_data() const;
     const uchar* raw_data() const;
     uchar* raw_data();
     int size() const;
+    Sarg get_filepath() const;
 
     bool UseMipmaps() const;
     void SetUseMipmaps(bool inUseMipmaps);

@@ -36,21 +36,19 @@ void Cubemap::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
     mFormat.type = TEXTURE_TYPE_CUBE;
-    ID image_uid{};
-    std::string filepath{};
     Shared<Image> image{nullptr};
     for(uint i{0}; i < 6; ++i)
     {
         std::string variable_name{"Image" + std::to_string(i)};
-        if(data.get_variable(image_uid, variable_name) == OK
-            and Theatre::Current()->DerivedFrom(image_uid, ThingType::Image))
+        if(data.get_variable(mInitialImageUIDs->at(i), variable_name) == OK
+            and Theatre::Current()->DerivedFrom(mInitialImageUIDs->at(i), ThingType::Image))
         {
-            image = Theatre::Current()->GetResource<Image>(image_uid);
+            image = Theatre::Current()->GetResource<Image>(mInitialImageUIDs->at(i));
         }
-        else if(data.get_variable(filepath, variable_name) == OK)
+        else if(data.get_variable(mInitialImagePaths->at(i), variable_name) == OK)
         {
             image = Image::CreateEmpty(0, 0);
-            image->LoadFile(filepath);
+            image->LoadFile(mInitialImagePaths->at(i));
         }
         else
             { continue; }
@@ -61,7 +59,6 @@ void Cubemap::SetVariables(Farg<ThingData> data)
             mFormat.height = image->Height();
         }
         UpdateLayer(image, i);
-        mInitialImageIDs[i] = image_uid;
     }
 }
 
@@ -69,7 +66,11 @@ Shared<ThingData> Cubemap::GetVariables() const
 {
     Shared<ThingData> data{Super::GetVariables()};
     for(uint i{0}; i < 6; ++i)
-        { data->set_variable(mInitialImageIDs[i], "Image" + std::to_string(i)); }
+    {
+        std::string _name{"Image" + std::to_string(i)};
+        if(not data->set_variable(mInitialImageUIDs->at(i), _name))
+            { data->set_variable(mInitialImagePaths->at(i), _name); }
+    }
     return data;
 }
 

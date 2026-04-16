@@ -19,6 +19,7 @@ public:
 
 protected:
     ID mInitialImageID{};
+    std::string mInitialImagePath{};
 };
 
 #endif // IMAGE_TEXTURE_H

@@ -18,10 +18,10 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
     mFormat.type = TEXTURE_TYPE_2D;
     if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
-    else if(std::string filepath; data.get_variable(filepath, "Image", "Data") == OK)
+    else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
     {
         auto image{Image::CreateEmpty(0, 0)};
-        image->LoadFile(filepath);
+        image->LoadFile(mInitialImagePath);
         SetImage(image);
     }
 }
@@ -30,6 +30,7 @@ Shared<ThingData> ImageTexture::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mInitialImageID, "Image");
+    data->set_variable(mInitialImagePath, "Image");
     return data;
 }
 
@@ -45,6 +46,7 @@ void ImageTexture::SetImage(Shared<Image> inImage)
     }
 
     mFormat = {inImage->Width(), inImage->Height(), inImage->Format()};
+    mInitialImageID = inImage->uid();
 
     if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat)))
     {
@@ -83,5 +85,6 @@ void ImageTexture::UpdateImage(Shared<Image> inImage)
         return;
     }
 
+    mInitialImageID = inImage->uid();
     print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat));
 }

@@ -70,7 +70,7 @@ Shared<TheatreFile::ThingData> Image::GetVariables() const
     data->set_variable(mHeight, "Height");
     data->set_variable(mFormat, "Format");
     data->set_variable(mUseMipmaps, "Mipmaps");
-    data->set_variable(m_pImage, "FilePath");
+    data->set_variable(m_pFileData, "FilePath");
     return data;
 }
 
@@ -153,6 +153,9 @@ void Image::free()
     }
 }
 
+Farg<FileData> Image::file_data() const
+{ return *m_pFileData; }
+
 const uchar* Image::raw_data() const
 { return m_pImage; }
 
@@ -161,6 +164,9 @@ uchar* Image::raw_data()
 
 int Image::size() const
 { return mSize; }
+
+Sarg Image::get_filepath() const
+{ return m_pFileData->filepath(); }
 
 bool Image::UseMipmaps() const
 { return mUseMipmaps; }
