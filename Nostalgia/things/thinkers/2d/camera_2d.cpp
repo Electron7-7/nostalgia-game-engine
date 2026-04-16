@@ -47,7 +47,8 @@ void Camera2D::SetVariables(Farg<ThingData> data)
         { data.get_variable(_render_layers[i], std::format("RenderLayer{}", i+1), std::format("Layer{}", i+1)); }
     mLayersMask.set(_render_layers);
 
-    data.get_variable(mZoom, "Zoom");
+    if(glm::vec2 _zoom{mZoom}; data.get_variable(_zoom, "Zoom") == OK)
+        { SetZoom(_zoom); } // Make sure mZoom never contains a 0
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
 
     mVisible = mVisible and Settings::Engine::IsEditorHint;
@@ -99,23 +100,36 @@ void Camera2D::OnAncestorAdded(Relative inAncestor)
 
 glm::mat4 Camera2D::ViewMatrix() const
 {
-    glm::vec2 global_position{(uid().invalid())
-        ? glm::vec2{0.0f}
-        : GlobalPosition()};
-    return glm::lookAt(glm::vec3{global_position, 0.0f},
-        {global_position, 1.0f},
-        {0.0f, -1.0f, 0.0f});
+    Size2D viewport_size{(mViewportID.invalid())
+        ? MainWindow()->GetScale()
+        : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
+    viewport_size[1] *= -1.0f;
+
+    glm::vec3 _position{GlobalPosition(), 0.0f};
+    glm::vec3 _center{GlobalPosition() + (viewport_size.glm() / 2.0f), 0.0f};
+
+    auto _view{glm::lookAt(_position,
+        {GlobalPosition(), 1.0f},
+        {0.0f, -1.0f, 0.0f})};
+
+    _view = glm::translate(_view, _center);
+    _view = glm::scale(_view, {mZoom, 1.0f});
+    _view = glm::translate(_view, -_center);
+
+    return _view;
 }
 
 glm::mat4 Camera2D::ProjectionMatrix() const
 {
-    Scale2D upper{}, lower{},
-        viewport_size{(mViewportID.invalid())
-            ? MainWindow()->GetScale()
-            : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
+    Size2D viewport_size{(mViewportID.invalid())
+        ? MainWindow()->GetScale()
+        : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
+    float left{0.0f}, right{(float)viewport_size[0]}, up{0.0f}, down{(float)viewport_size[1]},
+        _aspect_ratio{static_cast<float>(viewport_size.AspectRatio())};
     if(mViewportID == UID::o_RootViewport
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)
     {
+
         switch(Settings::Graphics::Stretch::Aspect)
         {
         case Settings::Graphics::StretchAspect::Ignore:
@@ -123,24 +137,21 @@ glm::mat4 Camera2D::ProjectionMatrix() const
             break;
         case Settings::Graphics::StretchAspect::Keep:
             // https://gamedev.stackexchange.com/a/49698
-            auto aspect{viewport_size.AspectRatio()};
-            lower[0] = upper[0] = 0.0f;
-            lower[1] = viewport_size[0];
-            upper[1] = viewport_size[1];
-            if(aspect < 1.0f)
+            left = right = 0.0f;
+            up = viewport_size[0];
+            if(_aspect_ratio < 1.0f)
             {
-                lower[1] /= aspect;
-                upper[1] /= aspect;
+                down /= _aspect_ratio;
+                up   /= _aspect_ratio;
             }
         }
     }
-    else
-        { upper = viewport_size; }
 
-    return glm::ortho(lower.x(),
-        upper.x(),
-        upper.y(),
-        lower.y(),
+    return glm::ortho(
+        left,
+        right,
+        down,
+        up,
         -1.0f,
         1.0f);
 }
@@ -149,7 +160,13 @@ Farg<glm::vec2> Camera2D::Zoom() const
 { return mZoom; }
 
 void Camera2D::SetZoom(Farg<glm::vec2> inZoom)
-{ mZoom = inZoom; }
+{
+    if(not inZoom[0] or not inZoom[1])
+        { print_warning("Zoom values cannot be 0!"); }
+
+    mZoom[0] = (inZoom[0]) ? inZoom[0] : mZoom[0];
+    mZoom[1] = (inZoom[1]) ? inZoom[1] : mZoom[1];
+}
 
 void Camera2D::SetZoom(float inUniformZoom)
-{ mZoom = glm::vec2{inUniformZoom}; }
+{ SetZoom(glm::vec2{inUniformZoom}); }
