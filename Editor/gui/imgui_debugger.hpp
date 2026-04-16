@@ -8,6 +8,8 @@
 class ImGui_Debugger : public UI_Solution
 {
 public:
+    inline static bool m_sDebugConsoleOpened{false}, m_sDebugWindowOpened{false};
+
     void Init()             final;
     void Shutdown()         final;
     void Update()           final;
@@ -15,7 +17,7 @@ public:
     void TheatreEntered() final;
     void TheatreExited()  final;
 
-    StopwatchLog& StartStopwatch(const std::string& Message = "No Message");
+    StopwatchLog& StartStopwatch(Sarg Message = "No Message");
     bool StopStopwatch(StopwatchLog& Stopwatch);
 
     void StartTheatreTiming(bool IsTheatreLoading);
@@ -26,7 +28,7 @@ public:
 private:
     RMutex mStopwatchMutex{};
 
-    StopwatchLog& m_StartStopwatch(const std::string& Message);
+    StopwatchLog& m_StartStopwatch(Sarg Message);
     bool m_StopStopwatch(StopwatchLog& Stopwatch);
     void m_AutomaticStopwatchWindow(float inWidth);
     void m_ManualStopwatchWindow(float inWidth);

@@ -1,5 +1,4 @@
 #include "imgui_debugger.hpp"
-#include "imgui_editor.hpp"
 #include "tools/stopwatch_log.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
@@ -55,8 +54,7 @@ using namespace ImGui;
 static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
-static bool sTogglingEditorInTheatre{false},
-    sAutoStopwatchEnabled{true},
+static bool sAutoStopwatchEnabled{true},
     sEnableFrameCounter{true},
     sEnableFps{true},
     sEnableFrametime{true},
@@ -64,16 +62,12 @@ static bool sTogglingEditorInTheatre{false},
     sEnableTickInterval{false},
     sEnableRenderManagerFrametime{true};
 
-static std::string               sTheatreFilePath{"theatres/HelloWorld.nt"};
-static std::string               sTheatreFileSavePath{"theatres/SavedTheatre.nt"};
-static std::string               sLastAttemptedTheatreFilePath{sTheatreFilePath};
 static std::string               sDemoFileOut{"demo"};
 static std::string               sDemoFileIn{std::format("{}.dem", sDemoFileOut)};
 static std::vector<TheatreLog>   sTheatreLogs{};
 static std::vector<StopwatchLog> sManualStopwatchLogs{};
 static std::vector<StopwatchLog> sStopwatchLogs{};
 static std::set<int>             sStopwatchLogIds{};
-static Theatre::FileOverwriteAction sCurrentFileOverwriteAction{Theatre::RENAME};
 
 static void s_GeneralDebuggingWindow();
 static void s_FPSCounter();
@@ -87,27 +81,7 @@ void ImGui_Debugger::Shutdown()
 void ImGui_Debugger::Input(InputEvent* event)
 {
     if(event->IsJustPressed(Key::Tilde))
-        { gDebugConsoleOpened = !gDebugConsoleOpened; }
-    else if(event->IsJustPressed(Key::F4) or
-        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control | Key::Mod_Shift)))
-            { Manager::ShutdownTheatre(); MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE); }
-    else if(event->IsJustPressed(Key::F5) or
-        (event->IsJustPressed(Key::L) and event->IsModifierActive(Key::Mod_Control)))
-    {
-        gTheatreInspectorActive = false;
-        sTogglingEditorInTheatre = false;
-        Settings::Engine::IsEditorHint = true;
-        sLastAttemptedTheatreFilePath = sTheatreFilePath;
-        g_pTheatreManager->LoadFromFile(sTheatreFilePath);
-    }
-    else if(event->IsJustPressed(Key::F6) or
-        (event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control)))
-            { g_pTheatreManager->Current()->Save(sTheatreFileSavePath, sCurrentFileOverwriteAction); }
-    else if(event->IsJustPressed(Key::F3) and not sTogglingEditorInTheatre)
-    {
-        g_pTheatreManager->ShutdownTheatre();
-        sTogglingEditorInTheatre = true;
-    }
+        { m_sDebugConsoleOpened = !m_sDebugConsoleOpened; }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -118,21 +92,14 @@ void ImGui_Debugger::TheatreExited()
 
 void ImGui_Debugger::Update()
 {
-    if(sTogglingEditorInTheatre and Manager::GetTheatreState() == ManagerEnums::NOT_IN_LEVEL)
-    {
-        Settings::Engine::IsEditorHint = false;
-        g_pTheatreManager->LoadFromFile(sLastAttemptedTheatreFilePath);
-        sTogglingEditorInTheatre = false;
-    }
-
     s_FPSCounter();
     static bool sPopOutStopwatches{false};
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
-    if(gDebugConsoleOpened)
+    if(m_sDebugConsoleOpened)
         { DebugConsoleWindow(); }
-    if(gShowDebugWindow)
+    if(m_sDebugWindowOpened)
     {
-        if(not Begin("Debugging", &gShowDebugWindow))
+        if(not Begin("Debugging", &m_sDebugWindowOpened))
             { End(); }
         else if(BeginTabBar("Debug Tools"))
         {
@@ -225,7 +192,7 @@ void ImGui_Debugger::StartTheatreTiming(bool loading)
     {
         TheatreLog& log = sTheatreLogs.emplace_back();
         log.load_time.Start();
-        log.name_or_file_path = sLastAttemptedTheatreFilePath;
+        log.name_or_file_path = Theatre::Current()->TheatreFileDirectory() + Theatre::Current()->Name();
     }
     else
     {
@@ -453,8 +420,9 @@ static const std::map<_fps_counter_position_enum, const char*> _counter_pos_map
 
 static void s_FPSCounter()
 {
-    static ImVec2 _fps_counter_pos{0, 0};
-    static _fps_counter_position_enum _fps_counter_position{FPS_COUNTER_UL};
+    static int _first_run{0};
+    static ImVec2 _fps_counter_pos{0,0};
+    static _fps_counter_position_enum _fps_counter_position{FPS_COUNTER_UR};
     static bool _fps_position_changed{true};
     static uint _graph_max_size{60};
     static uint _current_graph_index{0};
@@ -471,7 +439,7 @@ static void s_FPSCounter()
             SetNextWindowPos(_fps_counter_pos);
             _fps_position_changed = false;
         }
-        Begin("FPS & Frametime",
+        Begin("Frame Profiler",
             nullptr,
             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             if(++_current_graph_index >= _graph_max_size)
@@ -544,6 +512,13 @@ static void s_FPSCounter()
                 }
             }
             ImVec2 _window_size{GetWindowSize()};
+            if(_first_run == 2)
+            {
+                _fps_counter_position = FPS_COUNTER_UR;
+                SetWindowPos(_fps_counter_pos = {static_cast<float>(MainWindow()->GetWidth() - _window_size[0]), 0});
+            }
+            else if(_first_run < 2) // don't just keep incrementing the counter, since it can eventually overflow
+                { ++_first_run; }
             if(BeginCombo("Position", _counter_pos_map.at(_fps_counter_position)))
             {
                 for(FAUTO [value, name] : _counter_pos_map)
@@ -582,6 +557,8 @@ static void s_FPSCounter()
                 _fps_counter_position != FPS_COUNTER_NA and
                 _fps_counter_pos != GetWindowPos())
                     { _fps_counter_position = FPS_COUNTER_NA; }
+            if(Button("Close"))
+                { sEnableFrameCounter = false; }
         End();
     }
 }
@@ -689,7 +666,7 @@ void ImGui_Debugger::DebugConsoleWindow()
     static std::string buffer{};
     if(buffer.ends_with('`'))
         { buffer.clear(); }
-    if(!gDebugConsoleOpened)
+    if(!m_sDebugConsoleOpened)
         { return; }
     if(Begin("Debug Console"))
     {
