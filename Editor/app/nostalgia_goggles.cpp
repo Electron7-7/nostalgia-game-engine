@@ -59,6 +59,8 @@ int NostalgiaGoggles::Main()
 
     Manager::InitAllManagers();
 
+    Console::SetVariable("ThingFactory.debug_register_msgs", 1);
+
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
