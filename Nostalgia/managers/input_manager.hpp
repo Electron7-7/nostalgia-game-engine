@@ -16,6 +16,7 @@ public:
     EventQueue* Queue();
 
     bool UpdateKeyState(KeyID inKeyID, bool inCurrentState);
+    void UpdateScrollOffset(double inOffsetX, double inOffsetY);
     void SetAction(Farg<InputAction> inAction);
     Error AddAction(Farg<InputAction> inAction);
     Error DeleteAction(Farg<std::string> inActionName);
@@ -36,6 +37,8 @@ public:
     static Position2D MousePosition() noexcept;
     static Position2D LastMousePosition() noexcept;
     static Motion2D MouseMotion() noexcept;
+
+    static Position2D ScrollOffset() noexcept;
 
 private:
     struct InputState
@@ -82,6 +85,7 @@ private:
 
     std::vector<pInputCallback_f> mCallbacks{};
     std::recursive_mutex mCallbacksMutex{};
+    static Position2D m_sScrollOffset;
     static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
     static std::unordered_map<uint, InputManager::InputState> m_sPreviousInputState;
 };

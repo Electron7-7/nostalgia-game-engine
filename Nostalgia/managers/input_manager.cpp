@@ -1,5 +1,6 @@
 #include "input_manager.hpp"
 #include "ui_manager.hpp"
+#include "theatre_manager.hpp"
 #include "application/application.hpp"
 #include "events/event_queue.hpp"
 #include "events/action.hpp"
@@ -10,6 +11,7 @@ static std::unordered_map<std::string, InputAction> sInputActions{};
 static EventQueue sInputEventQueue{};
 static InputManager sInputManager{};
 
+Position2D InputManager::m_sScrollOffset{0.0, 0.0};
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sInputStateBuffer{};
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sPreviousInputState{};
 bool gPrintInputLogs{false};
@@ -62,6 +64,13 @@ bool InputManager::UpdateKeyState(KeyID inKeyID, bool inCurrentState)
             { sInputEventQueue.add<InputEventAction>(action); }
     }
     return m_sInputStateBuffer[inKeyID()].just_changed();
+}
+
+void InputManager::UpdateScrollOffset(double inOffsetX, double inOffsetY)
+{
+    const std::lock_guard<std::recursive_mutex> lock{sInputEventQueue.get_mutex()};
+    m_sScrollOffset = {inOffsetX, inOffsetY};
+    sInputEventQueue.add<InputEventMouseScroll>(Position2D{inOffsetX, inOffsetY});
 }
 
 EventQueue* InputManager::Queue()
@@ -153,3 +162,6 @@ Position2D InputManager::LastMousePosition() noexcept
 
 Motion2D InputManager::MouseMotion() noexcept
 { return MainWindow()->GetMousePosition() - MainWindow()->GetLastMousePosition(); }
+
+Position2D InputManager::ScrollOffset() noexcept
+{ return m_sScrollOffset; }
