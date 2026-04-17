@@ -25,6 +25,8 @@ namespace TheatreFile
         ThingVarType type{ThingVarType::None};
         // If the variable is a reference, this is the type of the Thing it is referencing.
         PID thing_type{ThingType::Invalid};
+        // If the variable is a number, this is the type of number it is.
+        NumberType number_type{NumberType::NIL};
 
         void clear()
         { *this = ThingVariable{}; }
@@ -79,13 +81,34 @@ namespace TheatreFile
         template<NumberOrGLM T, StringType... Names>
             void set_variable(Farg<T> inValue, Sarg inName)
             {
+                NumberType _number_type{NumberType::NIL};
+                if constexpr(std::same_as<T, float> or std::same_as<T, double>)
+                    { _number_type = NumberType::FLOAT; }
+                if constexpr(std::same_as<T, long> or std::same_as<T, int>)
+                    { _number_type = NumberType::INT; }
+                if constexpr(std::same_as<T, glm::vec2>)
+                    { _number_type = NumberType::VEC2; }
+                if constexpr(std::same_as<T, glm::vec3>)
+                    { _number_type = NumberType::VEC3; }
+                if constexpr(std::same_as<T, glm::vec4> or std::same_as<T, glm::quat>)
+                    { _number_type = NumberType::VEC4; }
+
                 FAUTO __find_name{inName};
                 auto found_it{std::find_if(variables.begin(), variables.end(),
                     [__find_name](Farg<ThingVariable> var_it)
                         { return not var_it.name.compare(__find_name); })};
                 if(found_it != variables.end())
-                    { found_it->value = NumToString(inValue); return; }
-                variables.emplace_back(inName, NumToString(inValue), ThingVarType::Number);
+                {
+                    found_it->value = NumToString(inValue);
+                    found_it->number_type = _number_type;
+                    return;
+                }
+
+                variables.emplace_back(inName,
+                    NumToString(inValue),
+                    ThingVarType::Number,
+                    ThingType::Invalid,
+                    _number_type);
             }
 
         template<IsEnum T>
