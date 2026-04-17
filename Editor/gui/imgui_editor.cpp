@@ -107,9 +107,13 @@ void ImGui_Editor::Input(InputEvent* event)
         { ImGui_Debugger::m_sDebugWindowOpened = !ImGui_Debugger::m_sDebugWindowOpened; }
     else if(event->IsJustPressed(Key::F3))
     {
-        bool _started{Theatre::Current()->IsStarted()};
-        if(not _started or not Settings::Engine::IsEditorHint)
+        if(not Settings::Engine::IsEditorHint)
             { return; }
+        if(not m_sTheatreRunning)
+        {
+            LoadTheatre(true);
+            return;
+        }
         mEditorTheatreData = m_spEditorTheatre->CurrentState();
         LoadTheatre(false);
     }
@@ -133,7 +137,7 @@ void ImGui_Editor::Input(InputEvent* event)
 void ImGui_Editor::Update()
 {
     m_sTheatreRunning = Manager::GetTheatreState() == ManagerEnums::IN_LEVEL;
-    if(not Settings::Engine::IsEditorHint)
+    if(not Settings::Engine::IsEditorHint and MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_VISIBLE)
         { return; }
     SetNextWindowPos({0,0}, ImGuiCond_Once);
     SetNextWindowSize({static_cast<float>(MainWindow()->GetWidth()),
@@ -209,7 +213,8 @@ void ImGui_Editor::Update()
             _editor_flags = ImGuiTabItemFlags_SetSelected;
             sEditorJustLoaded = false;
         }
-        if(m_sTheatreRunning and BeginTabItem("Editor", nullptr, _editor_flags))
+        if(m_sTheatreRunning and Settings::Engine::IsEditorHint
+            and BeginTabItem("Editor", nullptr, _editor_flags))
         {
             TheatreViewport();
             SameLine();
