@@ -13,23 +13,24 @@
 static constexpr frozen::map<frozen::string, frozen::string, 2>
 sNamedNumbers{
     {"ALL",  "0b111111111111111111111111111111"},
-    {"NONE", "0"},
+    {"NONE", "0b000000000000000000000000000000"},
 };
 static constexpr const char* cKeywordDeclare{"declare"};
 static constexpr char
-    cDelimiterTheatreName     {'@'},
-    cDelimiterTheatreIndex    {'#'},
-    cDelimiterNamedNumber     {'#'},
-    cDelimiterStartSandwich   {':'},
-    cDelimiterEnterDefinition {'{'},
-    cDelimiterExitDefinition  {'}'},
-    cDelimiterEnterNumber     {'['},
-    cDelimiterExitNumber      {']'},
-    cDelimiterEnterEnum       {'('},
-    cDelimiterEnterReference  {'<'},
-    cDelimiterExitReference   {'>'},
-    cDelimiterWeakString      {'"'},
-    cDelimiterStrongString    {'\''};
+    cDelimiterTheatreName      {'@'},
+    cDelimiterTheatreIndex     {'#'},
+    cDelimiterNamedNumber      {'#'},
+    cDelimiterStartSandwich    {':'},
+    cDelimiterEnterDefinition  {'{'},
+    cDelimiterExitDefinition   {'}'},
+    cDelimiterEnterNumber      {'['},
+    cDelimiterExitNumber       {']'},
+    cDelimiterEnterExitBitMask {'|'},
+    cDelimiterEnterEnum        {'('},
+    cDelimiterEnterReference   {'<'},
+    cDelimiterExitReference    {'>'},
+    cDelimiterWeakString       {'"'},
+    cDelimiterStrongString     {'\''};
 
 using namespace TheatreFile;
 
@@ -293,6 +294,35 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 break;
             case cDelimiterEnterEnum:
                 thing_var.type = ThingVarType::Enum;
+                break;
+            case cDelimiterEnterExitBitMask:
+                if(not in_literal)
+                {
+#pragma message("TODO: merge duplicate code")
+                    thing_var.type = ThingVarType::BitMask;
+                    if(ioIndex + 2 < inTokens.size())
+                    {
+                        FAUTO _first_token{inTokens.at(ioIndex + 1)};
+                        FAUTO _second_token{inTokens.at(ioIndex + 2)};
+                        if(_first_token.category == TokenName::Separator
+                            and _first_token.token[0] == cDelimiterNamedNumber)
+                        {
+                            ++ioIndex;
+                            if(auto found_it{sNamedNumbers.find(frozen::string{_second_token.token})};
+                                found_it != sNamedNumbers.end())
+                            {
+                                ++ioIndex;
+                                thing_var.value = found_it->second.data();
+                                if(thing_var.value.starts_with("0b"))
+                                    { thing_var.value = thing_var.value.substr(2); }
+                            }
+                            break;
+                        }
+                    }
+                    in_literal = true;
+                    break;
+                }
+                in_literal = false;
                 break;
             case cDelimiterEnterNumber:
                 thing_var.type = ThingVarType::Number;

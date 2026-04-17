@@ -11,7 +11,7 @@
 namespace TheatreFile
 {
     enum class ThingVarType
-    { String, Bool, Number, Enum, Child, Parent, ID, None };
+    { String, Bool, Number, BitMask, Enum, Child, Parent, ID, None };
 
     struct ThingVariable
     {

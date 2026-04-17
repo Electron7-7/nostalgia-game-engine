@@ -14,8 +14,8 @@ static constexpr frozen::set<char, 2>
     cOperators{'=', ':'};
 static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
-static constexpr frozen::set<char, 11>
-    cSeparators{',', '[', ']', '{', '}', '<', '>', '(', ')', '@', '#'};
+static constexpr frozen::set<char, 12>
+    cSeparators{',', '[', ']', '|', '{', '}', '<', '>', '(', ')', '@', '#'};
 static constexpr frozen::set<frozen::string, 4>
     cKeywords{"Child", "Parent", "declare", "inherits"};
 
@@ -141,6 +141,7 @@ void debug_PrettifyEnums()
     EnumRegistry::Register(ThingVarType::String,   "String");
     EnumRegistry::Register(ThingVarType::Bool,     "Bool");
     EnumRegistry::Register(ThingVarType::Number,   "Number");
+    EnumRegistry::Register(ThingVarType::BitMask,  "BitMask");
     EnumRegistry::Register(ThingVarType::Enum,     "Enum");
     EnumRegistry::Register(ThingVarType::Child,    "Child");
     EnumRegistry::Register(ThingVarType::Parent,   "Parent");

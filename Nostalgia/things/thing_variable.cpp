@@ -44,6 +44,9 @@ std::string ThingVariable::get_parsable_string() const noexcept
         delim_in  = "[";
         delim_out = "]";
         break;
+    case ThingVarType::BitMask:
+        delim_in = delim_out = "|";
+        break;
     case ThingVarType::Enum:
         delim_in  = "(";
         delim_out = ")";
