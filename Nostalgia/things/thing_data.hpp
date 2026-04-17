@@ -73,6 +73,7 @@ namespace TheatreFile
         Error set_variable(ID inValue, Sarg inName);
         void  set_variable(bool inValue, Sarg inName);
         Error set_variable(Shared<FileData> inValue, Sarg inName);
+        void  set_variable(BitMask inValue, Sarg inName);
         Error set_enum_variable(Sarg inEnumName, Sarg inName);
 
         template<NumberOrGLM T, StringType... Names>
@@ -205,6 +206,17 @@ namespace TheatreFile
                     { return ERR_MISMATCHED_TYPES; }
                 else if(!StringToNum(outValue, thing_var.value))
                     { return ERR_INVALID; }
+                return OK;
+            }
+
+        template<StringType... Names>
+            Error get_variable(BitMask& outValue, Names... inNames) const
+            {
+                ASSERT_THING_VARIABLE(thing_var, inNames, ERR_NOT_FOUND)
+                if(thing_var.type != ThingVarType::BitMask)
+                    { return ERR_MISMATCHED_TYPES; }
+                for(uint i{0}; i < BitMask::max and i < thing_var.value.size(); ++i)
+                    { outValue.set_index(i, thing_var.value[i] == '1'); }
                 return OK;
             }
 

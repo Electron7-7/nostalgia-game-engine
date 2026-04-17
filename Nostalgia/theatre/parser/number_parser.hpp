@@ -88,19 +88,6 @@ template<uint size = 0, GLMContainer T>
     }
 
 template<>
-inline bool StringToNum(BitMask& output, const std::string& string)
-{
-    int _num{0};
-    int _base{(string.starts_with("0b")) ? 2 : 10};
-    if(string.starts_with("0x"))
-        { _base = 16; }
-    try { _num = std::stoi(string, nullptr, _base); }
-    catch(std::invalid_argument const& e) { return false; }
-    output.set(_num);
-    return true;
-}
-
-template<>
 inline bool StringToNum(glm::vec2& output, const std::string& string)
 { return InterpretGLM<2>(output, string); }
 

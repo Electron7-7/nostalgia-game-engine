@@ -3,7 +3,7 @@
 
 // Math Concepts
 template<typename T>
-    concept NumberOrBool = std::integral<T> || std::floating_point<T> || std::same_as<T, BitMask>;
+    concept NumberOrBool = std::integral<T> || std::floating_point<T>;
 
 template<typename T>
     concept Number = NumberOrBool<T> && !(std::same_as<T, bool>);

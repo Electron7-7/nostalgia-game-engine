@@ -205,6 +205,17 @@ Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName)
     return OK;
 }
 
+void ThingData::set_variable(BitMask inValue, Sarg inName)
+{
+    BitMask::StatusArray _status_arr{inValue.status()};
+    std::string _value{};
+    for(bool _status : _status_arr)
+        { _value.push_back((_status) ? '1' : '0'); }
+    if(FOUND_VAR(inName))
+        { found_it->value = _value; }
+    else
+        { variables.emplace_back(inName, _value, ThingVarType::BitMask);}
+}
 
 Error ThingData::set_enum_variable(Sarg inEnumName, Sarg inName)
 {
