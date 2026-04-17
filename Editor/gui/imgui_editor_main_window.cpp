@@ -164,6 +164,38 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 }
                 break;
             }
+        case ThingVarType::BitMask:
+            {
+                BitMask _value{};
+                inData->get_variable(_value, _name);
+                BitMask::StatusArray _status_arr{_value.status()};
+                Text("%s", _name.data());
+                if(Button("Disable All"))
+                {
+                    _value.set(BitMask::all_disabled);
+                    outData.set_variable(_value, _name);
+                    _changed = true;
+                }
+                SameLine();
+                if(Button("Enable All"))
+                {
+                    _value.set(BitMask::all_enabled);
+                    outData.set_variable(_value, _name);
+                    _changed = true;
+                }
+                for(uint i{0}; i < BitMask::max; ++i)
+                {
+                    if(i > 0 and i != BitMask::max / 2)
+                        { SameLine(); }
+                    if(Checkbox(std::format("{:2}", i+1).data(), &_status_arr[i]))
+                    {
+                        _value.set(_status_arr);
+                        outData.set_variable(_value, _name);
+                        _changed = true;
+                    }
+                }
+                break;
+            }
         case ThingVarType::ID:
             {
                 ID _uid{};
