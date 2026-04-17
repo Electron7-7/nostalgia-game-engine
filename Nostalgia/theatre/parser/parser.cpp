@@ -12,8 +12,8 @@
 
 static constexpr frozen::map<frozen::string, frozen::string, 2>
 sNamedNumbers{
-    {"ALL",  "0b111111111111111111111111111111"},
-    {"NONE", "0b000000000000000000000000000000"},
+    {"ALL",  "111111111111111111111111111111"},
+    {"NONE", "000000000000000000000000000000"},
 };
 static constexpr const char* cKeywordDeclare{"declare"};
 static constexpr char
@@ -206,10 +206,11 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
         FAUTO token{inTokens.at(ioIndex)};
         if(s_CheckIfComment(in_comment, token))
             { continue; }
-        else if((in_literal and token.token[0] != cDelimiterExitNumber)
+        else if((in_literal
+                and token.token[0] != cDelimiterExitNumber and token.token[0] != cDelimiterEnterExitBitMask)
             or (in_string
-                    and token.token[0] != cDelimiterStrongString
-                    and token.token[0] != cDelimiterWeakString))
+                and token.token[0] != cDelimiterStrongString
+                and token.token[0] != cDelimiterWeakString))
             { thing_var.value += token.token; continue; }
         switch(token.category)
         {
@@ -296,7 +297,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 thing_var.type = ThingVarType::Enum;
                 break;
             case cDelimiterEnterExitBitMask:
-                if(not in_literal)
+                if(not in_literal and thing_var.value.empty())
                 {
 #pragma message("TODO: merge duplicate code")
                     thing_var.type = ThingVarType::BitMask;
@@ -321,8 +322,6 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                     break;
                 }
                 in_literal = false;
-                if(thing_var.value.starts_with("0b"))
-                    { thing_var.value = thing_var.value.substr(2); }
                 break;
             case cDelimiterEnterNumber:
                 thing_var.type = ThingVarType::Number;
