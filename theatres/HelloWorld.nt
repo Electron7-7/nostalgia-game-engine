@@ -229,7 +229,6 @@ SpotLight3D SpotLight
     position doesn't matter, so why bother? ///
 DirectionalLight3D TheSun
 {
-    Visible = [true]
     RotationDegrees = [180, 100, -25]
     Energy = [0.6]
 }
