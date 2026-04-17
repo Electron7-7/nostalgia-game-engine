@@ -514,6 +514,7 @@ static void s_FPSCounter()
             ImVec2 _window_size{GetWindowSize()};
             if(_first_run == 2)
             {
+                ++_first_run;
                 _fps_counter_position = FPS_COUNTER_UR;
                 SetWindowPos(_fps_counter_pos = {static_cast<float>(MainWindow()->GetWidth() - _window_size[0]), 0});
             }
