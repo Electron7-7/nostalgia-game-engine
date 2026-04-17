@@ -117,6 +117,7 @@ void ImGui_Editor::Input(InputEvent* event)
     {
         Manager::ShutdownTheatre();
         Settings::Engine::IsEditorHint = true;
+        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
     }
     else if(event->IsJustPressed(Key::F5))
         { LoadEditorTheatre(m_sTheatreRunning and not Settings::Engine::IsEditorHint); }
