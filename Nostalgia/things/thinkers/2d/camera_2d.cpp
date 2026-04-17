@@ -42,11 +42,6 @@ void Camera2D::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
 
     data.get_variable(mLayersMask, "RenderLayersMask", "LayersMask", "RenderLayers");
-    BitMask::StatusArray _render_layers{mLayersMask.status()};
-    for(uint i{0}; i < BitMask::max; ++i)
-        { data.get_variable(_render_layers[i], std::format("RenderLayer{}", i+1), std::format("Layer{}", i+1)); }
-    mLayersMask.set(_render_layers);
-
     if(glm::vec2 _zoom{mZoom}; data.get_variable(_zoom, "Zoom") == OK)
         { SetZoom(_zoom); } // Make sure mZoom never contains a 0
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
