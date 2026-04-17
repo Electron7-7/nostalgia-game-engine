@@ -313,8 +313,6 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                             {
                                 ++ioIndex;
                                 thing_var.value = found_it->second.data();
-                                if(thing_var.value.starts_with("0b"))
-                                    { thing_var.value = thing_var.value.substr(2); }
                             }
                             break;
                         }
@@ -323,6 +321,8 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                     break;
                 }
                 in_literal = false;
+                if(thing_var.value.starts_with("0b"))
+                    { thing_var.value = thing_var.value.substr(2); }
                 break;
             case cDelimiterEnterNumber:
                 thing_var.type = ThingVarType::Number;
