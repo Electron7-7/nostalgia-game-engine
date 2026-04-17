@@ -96,36 +96,36 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
             }
         case ThingVarType::Number:
             {
-                switch(GetNumberType(var.value))
+                switch(var.number_type)
                 {
-                case NumberType::NIL:
+                case ThingVariable::NIL:
                 default:
                     break;
-                case NumberType::INT:
+                case ThingVariable::INT:
                     {
                         int _value{};
                         inData->get_variable(_value, _name);
                         if(DragInt(_name.data(), &_value))
                         {
-                            outData.set_variable(_value, _name);
+                            outData.set_variable<int>(_value, _name);
                             _changed = true;
                             break;
                         }
                         break;
                     }
-                case NumberType::FLOAT:
+                case ThingVariable::FLOAT:
                     {
                         float _value{};
                         inData->get_variable(_value, _name);
                         if(DragFloat(_name.data(), &_value))
                         {
-                            outData.set_variable(_value, _name);
+                            outData.set_variable<float>(_value, _name);
                             _changed = true;
                             break;
                         }
                         break;
                     }
-                case NumberType::VEC2:
+                case ThingVariable::VEC2:
                     {
                         glm::vec2 _value{};
                         inData->get_variable(_value, _name);
@@ -137,7 +137,7 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                         }
                         break;
                     }
-                case NumberType::VEC3:
+                case ThingVariable::VEC3:
                     {
                         glm::vec3 _value{};
                         inData->get_variable(_value, _name);
@@ -149,7 +149,7 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                         }
                         break;
                     }
-                case NumberType::VEC4:
+                case ThingVariable::VEC4:
                     {
                         glm::vec4 _value{};
                         inData->get_variable(_value, _name);

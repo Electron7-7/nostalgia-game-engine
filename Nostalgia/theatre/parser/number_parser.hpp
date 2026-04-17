@@ -1,11 +1,6 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
-enum class NumberType : int
-{
-    NIL=0, FLOAT, INT, VEC2, VEC3, VEC4
-};
-
 template<GLMContainer T>
     consteval ushort gGlmSize()
     {
@@ -102,32 +97,5 @@ inline bool StringToNum(glm::vec4& output, const std::string& string)
 template<>
 inline bool StringToNum(glm::quat& output, const std::string& string)
 { return InterpretGLM<4>(output, string); }
-
-inline NumberType GetNumberType(Sarg inNumber)
-{
-    int _int_test;
-    float _float_test;
-    glm::vec2 _vec2_test;
-    glm::vec3 _vec3_test;
-    glm::vec4 _vec4_test;
-
-    if(inNumber.contains(','))
-    {
-        if(StringToNum(_vec2_test, inNumber))
-            { return NumberType::VEC2; }
-        else if(StringToNum(_vec3_test, inNumber))
-            { return NumberType::VEC3; }
-        else if(StringToNum(_vec4_test, inNumber))
-            { return NumberType::VEC4; }
-    }
-    else if(inNumber.contains('.'))
-    {
-        if(StringToNum(_float_test, inNumber))
-            { return NumberType::FLOAT; }
-    }
-    else if(StringToNum(_int_test, inNumber))
-        { return NumberType::INT; }
-    return NumberType::NIL;
-}
 
 #endif // NUMBER_PARSER_H

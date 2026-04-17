@@ -15,6 +15,9 @@ namespace TheatreFile
 
     struct ThingVariable
     {
+        enum NumberType : int
+        { NIL=0, FLOAT, INT, VEC2, VEC3, VEC4 };
+
         // The name of the variable, or, if this is a Child/Parent variable, the name of the
         // Child/Parent Thing.
         std::string  name{};
@@ -26,7 +29,7 @@ namespace TheatreFile
         // If the variable is a reference, this is the type of the Thing it is referencing.
         PID thing_type{ThingType::Invalid};
         // If the variable is a number, this is the type of number it is.
-        NumberType number_type{NumberType::NIL};
+        NumberType number_type{NIL};
 
         void clear()
         { *this = ThingVariable{}; }
@@ -81,17 +84,17 @@ namespace TheatreFile
         template<NumberOrGLM T, StringType... Names>
             void set_variable(Farg<T> inValue, Sarg inName)
             {
-                NumberType _number_type{NumberType::NIL};
+                ThingVariable::NumberType _number_type{ThingVariable::NIL};
                 if constexpr(std::same_as<T, float> or std::same_as<T, double>)
-                    { _number_type = NumberType::FLOAT; }
+                    { _number_type = ThingVariable::FLOAT; }
                 if constexpr(std::same_as<T, long> or std::same_as<T, int>)
-                    { _number_type = NumberType::INT; }
+                    { _number_type = ThingVariable::INT; }
                 if constexpr(std::same_as<T, glm::vec2>)
-                    { _number_type = NumberType::VEC2; }
+                    { _number_type = ThingVariable::VEC2; }
                 if constexpr(std::same_as<T, glm::vec3>)
-                    { _number_type = NumberType::VEC3; }
+                    { _number_type = ThingVariable::VEC3; }
                 if constexpr(std::same_as<T, glm::vec4> or std::same_as<T, glm::quat>)
-                    { _number_type = NumberType::VEC4; }
+                    { _number_type = ThingVariable::VEC4; }
 
                 FAUTO __find_name{inName};
                 auto found_it{std::find_if(variables.begin(), variables.end(),
