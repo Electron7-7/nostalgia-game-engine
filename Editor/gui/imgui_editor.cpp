@@ -223,7 +223,7 @@ void ImGui_Editor::Update()
             Separator();
             if(MenuItem("Quit", "CTRL+Q"))
                 { Application()->Stop(); }
-            EndMenu();
+            ImGui::EndMenu();
         }
         if(BeginMenu("Edit"))
         {
@@ -231,7 +231,7 @@ void ImGui_Editor::Update()
                 if(MenuItem("Add Thing", "CTRL+SHIFT+A"))
                     { m_sAddThing = true; }
             EndDisabled();
-            EndMenu();
+            ImGui::EndMenu();
         }
         if(BeginMenu("Window"))
         {
@@ -239,15 +239,15 @@ void ImGui_Editor::Update()
                 { ImGui_Debugger::m_sDebugWindowOpened = true; }
             if(MenuItem("Debug Console", "~"))
                 { ImGui_Debugger::m_sDebugConsoleOpened = true; }
-            EndMenu();
+            ImGui::EndMenu();
         }
         if(BeginMenu("Preferences"))
         {
             SliderFloat("2D Camera Movement Speed", &s2DCameraMovementSpeed, 1.0f, 100.0f);
             SliderFloat("2D Camera Zooming Factor", &s2DCameraZoomFactor, 0.001f, 0.999f);
-            EndMenu();
+            ImGui::EndMenu();
         }
-        EndMenuBar();
+        ImGui::EndMenuBar();
     }
     if(BeginTabBar("EditorTabs"))
     {
