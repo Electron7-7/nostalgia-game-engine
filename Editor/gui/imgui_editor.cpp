@@ -119,7 +119,7 @@ void ImGui_Editor::Input(InputEvent* event)
         Settings::Engine::IsEditorHint = true;
     }
     else if(event->IsJustPressed(Key::F5))
-        { LoadEditorTheatre(Theatre::Current() and Theatre::Current()->IsStarted()); }
+        { LoadEditorTheatre(m_sTheatreRunning and not Settings::Engine::IsEditorHint); }
     else if(event->IsJustPressed(Key::F6))
         { Theatre::Current()->SaveToFile(m_sTheatreFileSavePath, m_sCurrentFileOverwriteAction); }
     else if(event->IsJustPressed(Key::A)
