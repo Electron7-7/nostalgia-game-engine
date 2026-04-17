@@ -4,6 +4,7 @@
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/ui/solution.hpp>
 #include <Nostalgia/theatre/theatre.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 
 // Forward Declaration
 class EditorTheatre;
@@ -26,6 +27,8 @@ private:
     static Theatre::FileOverwriteAction m_sCurrentFileOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
     static bool m_sTheatreRunning, m_sInspectingNewThinker, m_sInspectingNewResource, m_sAddThing;
+    static std::unordered_map<PID, Shared<ImageTexture>> m_sEditorIcons;
+    static std::unordered_set<ID> m_sEditorIconUIDs;
 
     ID mInspectingResourceUID{}, mInspectingThinkerUID{};
     std::string mInspectingThinkerName{}, mInspectingResourceName{};

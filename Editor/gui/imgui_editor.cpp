@@ -1,5 +1,7 @@
 #include "./imgui_editor.hpp"
 #include "./imgui_debugger.hpp"
+#include "editor_icons.hpp"
+#include "assets/icon_uids.hpp"
 #include "theatre/editor_theatre.hpp"
 #include "assets/icon_uids.hpp"
 #include "thirdparty/DearImGui/imgui.h"
@@ -22,6 +24,11 @@
 #include <Nostalgia/thirdparty/Jolt/Jolt.h>
 #include <Nostalgia/thirdparty/Jolt/Core/StringTools.h>
 
+#define REGISTER_ICON(TYPE, VAR_NAME, UID_OUT) \
+    m_sEditorIcons[TYPE] = ImageTexture::CreateFromImage(Image::CreateFromData(VAR_NAME, std::size(VAR_NAME))); \
+    m_sEditorIcons[TYPE]->rename(#TYPE); \
+    m_sEditorIconUIDs.emplace(UID_OUT = m_sEditorIcons[TYPE]->uid()); \
+
 using namespace Icons;
 using namespace ImGui;
 
@@ -37,6 +44,8 @@ bool ImGui_Editor::m_sTheatreRunning{false},
     ImGui_Editor::m_sInspectingNewThinker{false},
     ImGui_Editor::m_sInspectingNewResource{false},
     ImGui_Editor::m_sAddThing{false};
+std::unordered_map<PID, Shared<ImageTexture>> ImGui_Editor::m_sEditorIcons{};
+std::unordered_set<ID> ImGui_Editor::m_sEditorIconUIDs{};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
     ImGuiChildFlags_ResizeY |
@@ -53,10 +62,45 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 { g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
 
 void ImGui_Editor::Init()
-{ PRINT_PRETTY_FUNCTION; }
+{
+    PRINT_PRETTY_FUNCTION;
+    REGISTER_ICON(ThingType::Actor2D, _EditorIcons::actor_2d, Icons::actor_2d)
+    REGISTER_ICON(ThingType::Actor3D, _EditorIcons::actor_3d, Icons::actor_3d)
+    REGISTER_ICON(ThingType::ArrayMesh, _EditorIcons::array_mesh, Icons::array_mesh)
+    REGISTER_ICON(ThingType::Camera2D, _EditorIcons::camera_2d, Icons::camera_2d)
+    REGISTER_ICON(ThingType::Camera3D, _EditorIcons::camera_3d, Icons::camera_3d)
+    REGISTER_ICON(ThingType::Collider3D, _EditorIcons::collider_3d, Icons::collider_3d)
+    REGISTER_ICON(ThingType::Cubemap, _EditorIcons::cubemap, Icons::cubemap)
+    REGISTER_ICON(ThingType::DirectionalLight3D, _EditorIcons::directional_light_3d, Icons::directional_light_3d)
+    REGISTER_ICON(ThingType::Font, _EditorIcons::font, Icons::font)
+    REGISTER_ICON(ThingType::Image, _EditorIcons::image, Icons::image)
+    REGISTER_ICON(ThingType::ImageTexture, _EditorIcons::image_texture, Icons::image_texture)
+    REGISTER_ICON(ThingType::Light3D, _EditorIcons::light_3d, Icons::light_3d)
+    REGISTER_ICON(ThingType::Material, _EditorIcons::material, Icons::material)
+    REGISTER_ICON(ThingType::Mesh, _EditorIcons::mesh, Icons::mesh)
+    REGISTER_ICON(ThingType::MeshInstance3D, _EditorIcons::mesh_instance_3d, Icons::mesh_instance_3d)
+    REGISTER_ICON(ThingType::NostalgiaPlayer, _EditorIcons::nostalgia_player_3d, Icons::nostalgia_player_3d)
+    REGISTER_ICON(ThingType::PointLight3D, _EditorIcons::point_light_3d, Icons::point_light_3d)
+    REGISTER_ICON(ThingType::Resource, _EditorIcons::resource, Icons::resource)
+    REGISTER_ICON(ThingType::SpotLight3D, _EditorIcons::spot_light_3d, Icons::spot_light_3d)
+    REGISTER_ICON(ThingType::Sprite2D, _EditorIcons::sprite_2d, Icons::sprite_2d)
+    REGISTER_ICON(ThingType::Sprite3D, _EditorIcons::sprite_3d, Icons::sprite_3d)
+    REGISTER_ICON(ThingType::Text2D, _EditorIcons::text_2d, Icons::text_2d)
+    REGISTER_ICON(ThingType::Texture, _EditorIcons::texture, Icons::texture)
+    REGISTER_ICON(ThingType::Thing, _EditorIcons::thing, Icons::thing)
+    REGISTER_ICON(ThingType::Thinker, _EditorIcons::thinker, Icons::thinker)
+    REGISTER_ICON(ThingType::Viewport, _EditorIcons::viewport, Icons::viewport)
+    REGISTER_ICON(ThingType::ViewportTexture, _EditorIcons::viewport_texture, Icons::viewport_texture)
+    REGISTER_ICON(ThingType::Visual2D, _EditorIcons::visual_2d, Icons::visual_2d)
+    REGISTER_ICON(ThingType::Visual3D, _EditorIcons::visual_3d, Icons::visual_3d)
+}
 
 void ImGui_Editor::Shutdown()
-{ PRINT_PRETTY_FUNCTION; }
+{
+    PRINT_PRETTY_FUNCTION;
+    m_sEditorIcons.clear();
+    m_sEditorIconUIDs.clear();
+}
 
 void ImGui_Editor::TheatreEntered()
 {
@@ -498,69 +542,10 @@ bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
 
 uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
 {
-    if(not g_pRenderManager->GetAPI() or not g_pRenderManager->GetAPI()->IsRunning())
+    if(not g_pRenderManager->GetAPI() or not g_pRenderManager->GetAPI()->IsRunning()
+        or not m_sEditorIcons.contains(inType))
         { return 0; }
-    auto _type{ThingFactory::GetClosestType(inType)};
-    ID _uid{Icons::thing};
-    if(_type == ThingType::Thing)
-        _uid = Icons::thing;
-    else if(_type == ThingType::Resource)
-        _uid = Icons::resource;
-    else if(_type == ThingType::Font)
-        _uid = Icons::font;
-    else if(_type == ThingType::Mesh)
-        _uid = Icons::mesh;
-    else if(_type == ThingType::ArrayMesh)
-        _uid = Icons::array_mesh;
-    else if(_type == ThingType::Texture)
-        _uid = Icons::texture;
-    else if(_type == ThingType::Cubemap)
-        _uid = Icons::cubemap;
-    else if(_type == ThingType::ViewportTexture)
-        _uid = Icons::viewport_texture;
-    else if(_type == ThingType::ImageTexture)
-        _uid = Icons::image_texture;
-    else if(_type == ThingType::Material)
-        _uid = Icons::material;
-    else if(_type == ThingType::Image)
-        _uid = Icons::image;
-    else if(_type == ThingType::Thinker)
-        _uid = Icons::thinker;
-    else if(_type == ThingType::Viewport)
-        _uid = Icons::viewport;
-    else if(_type == ThingType::Actor3D)
-        _uid = Icons::actor_3d;
-    else if(_type == ThingType::NostalgiaPlayer)
-        _uid = Icons::nostalgia_player_3d;
-    else if(_type == ThingType::Camera3D)
-        _uid = Icons::camera_3d;
-    else if(_type == ThingType::Collider3D)
-        _uid = Icons::collider_3d;
-    else if(_type == ThingType::Visual3D)
-        _uid = Icons::visual_3d;
-    else if(_type == ThingType::MeshInstance3D)
-        _uid = Icons::mesh_instance_3d;
-    else if(_type == ThingType::Sprite3D)
-        _uid = Icons::sprite_3d;
-    else if(_type == ThingType::Light3D)
-        _uid = Icons::light_3d;
-    else if(_type == ThingType::PointLight3D)
-        _uid = Icons::point_light_3d;
-    else if(_type == ThingType::SpotLight3D)
-        _uid = Icons::spot_light_3d;
-    else if(_type == ThingType::DirectionalLight3D)
-        _uid = Icons::directional_light_3d;
-    else if(_type == ThingType::Actor2D)
-        _uid = Icons::actor_2d;
-    else if(_type == ThingType::Camera2D)
-        _uid = Icons::camera_2d;
-    else if(_type == ThingType::Visual2D)
-        _uid = Icons::visual_2d;
-    else if(_type == ThingType::Sprite2D)
-        _uid = Icons::sprite_2d;
-    else if(_type == ThingType::Text2D)
-        _uid = Icons::text_2d;
-    return ResourceDatabase::GetResource<ImageTexture>(_uid)->GetBuffer()->ID();
+    return m_sEditorIcons.at(inType)->GetBuffer()->ID();
 }
 
 void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
@@ -574,10 +559,18 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
         {
             InputText("Search", &_name_input);
 
-            auto uids{Theatre::Current()->ThingUIDs()};
+            auto _theatre_uids{Theatre::Current()->ThingUIDs()};
+            size_t _back_of_theatre{_theatre_uids.size()};
+            auto _resource_uids{ResourceDatabase::GetUIDs()};
+            _theatre_uids.insert(_theatre_uids.cend(), _resource_uids.cbegin(), _resource_uids.cend());
             int _counter{0};
-            for(ID uid : uids)
+            for(size_t i{0}; i < _theatre_uids.size(); ++i)
             {
+                ID uid{_theatre_uids.at(i)};
+                if(uid == _theatre_uids.front())
+                    { SeparatorText("Theatre"); }
+                else if(i == _back_of_theatre)
+                    { SeparatorText("ResourceDatabase"); }
                 std::string _name{Theatre::Current()->GetName(uid)};
                 if(_name.empty() or
                     (not _name_input.empty() and not JPH::ToLower(_name).contains(JPH::ToLower(_name_input))))
@@ -592,7 +585,7 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
                     return;
                 }
                 Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
-                if(++_counter < _max_per_row) { SameLine(); }
+                if(++_counter < _max_per_row and i+1 != _back_of_theatre) { SameLine(); }
                 else { _counter = 0; }
             }
             EndPopup();
