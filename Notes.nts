@@ -1391,3 +1391,6 @@ OH WAIT A MINUTE! The benefits of `Theatre` being designed with instancing in mi
 See (https://www.reddit.com/r/cpp/comments/1734ubb/should_unique_pointer_be_used_at_all) for why, and don't forget you can (and should) just pass by reference.
 
 #NOTE: I should make the 2D coordinate system disconnected from pixels/resolution (e.g. glmOrtho(0, aspect, 0, <some_num>))
+
+[04/16/26]
+I'm really fucking happy with how the editor looks. I just want to implement collider body rendering for the editor/debugging. I *don't*, however, want to learn how to use Jolt's renderer shit. Maybe I can get the triangle data from the bodies and render them myself? (that might just be what defining my own renderer for Jolt is, lmfao....).
