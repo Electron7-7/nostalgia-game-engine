@@ -3,11 +3,15 @@
 
 class Thing;
     class Resource;
+        class Image;
         class Material;
         class Font;
         class Mesh;
             class ArrayMesh;
         class Texture;
+            class ImageTexture;
+            class ViewportTexture;
+            class Cubemap;
     class Thinker;
     class Viewport;
         class Actor2D;
