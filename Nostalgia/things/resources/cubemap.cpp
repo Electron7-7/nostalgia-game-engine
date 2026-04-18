@@ -97,7 +97,7 @@ Error Cubemap::UpdateLayer(Shared<Image> inImage, int inLayer)
         return ERR_INVALID;
     }
 
-    if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat, inLayer)))
+    if(not print_error_enum(mTextureBuffer->Load(inImage->data(), mFormat, inLayer)))
     {
         print_error("Failed to create Cubemap ['{}', {}]", name(), uid()());
         return ERR_DATA_LOAD;

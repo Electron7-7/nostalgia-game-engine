@@ -19,11 +19,7 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
     if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
     else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
-    {
-        auto image{Image::CreateEmpty(0, 0)};
-        image->LoadFile(mInitialImagePath);
-        SetImage(image);
-    }
+        { SetImage(Image::CreateFromFile(mInitialImagePath)); }
 }
 
 Shared<ThingData> ImageTexture::GetVariables() const
@@ -39,16 +35,15 @@ void ImageTexture::SetImage(Shared<Image> inImage)
     if(not mTextureBuffer)
         { mTextureBuffer = TextureBuffer::Create(); }
 
-    if(not inImage or not inImage->raw_data())
+    if(not inImage or not inImage->data())
     {
         print_error("No image data found/loaded");
         return;
     }
 
     mFormat = {inImage->Width(), inImage->Height(), inImage->Format()};
-    mInitialImageID = inImage->uid();
 
-    if(not print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat)))
+    if(not print_error_enum(mTextureBuffer->Load(inImage->data(), mFormat)))
     {
         print_error("Failed to create Texture ['{}', {}]", name(), uid()());
         return;
@@ -86,5 +81,5 @@ void ImageTexture::UpdateImage(Shared<Image> inImage)
     }
 
     mInitialImageID = inImage->uid();
-    print_error_enum(mTextureBuffer->Load(inImage->raw_data(), mFormat));
+    print_error_enum(mTextureBuffer->Load(inImage->data(), mFormat));
 }
