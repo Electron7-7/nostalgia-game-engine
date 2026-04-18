@@ -13,11 +13,12 @@ enum Error : int {
     ERR_INDEX_OUT_OF_BOUNDS,
     ERR_NOT_FOUND, // Generic search failure
     ERR_FILE, // Generic file error
-    ERR_FILE_EXISTS, // A file already exists at a given path
-    ERR_FILE_LOAD, // Specifically, a `FileData::LoadFile` error
+    ERR_FILE_EXISTS, // A file exists at a given path
+    ERR_DIR_EXISTS, // A directory exists at a given path
+    ERR_FILE_OPEN,
+    ERR_FILE_LOAD,
     ERR_FILE_READ,
     ERR_FILE_WRITE,
-    ERR_FILE_READ_WRITE,
     ERR_DATA_LOAD, // Example use: OpenGLTextureBuffer's constructor sets `mStatus` to this if `stbi_load_from_memory` fails
     ERR_NOT_LOADED, // Data hasn't been loaded in yet
     ERR_INVALID, // Generic "invalid <data>" error
