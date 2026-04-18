@@ -15,6 +15,7 @@
 #include "things/resources/texture.hpp"
 #include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
+#include "things/resources/image.hpp"
 #include "managers/theatre_manager.hpp"
 #include "managers/render_manager.hpp"
 #include "rendering/shader.hpp"
@@ -98,44 +99,8 @@ std::string Theatre::GetSaveData()
     return _output;
 }
 
-Error Theatre::SaveToFile(Sarg inOutputFilePath, FileOverwriteAction inAction)
-{
-    std::string file_path{inOutputFilePath};
-    if(FileSystem::IsFile(inOutputFilePath))
-    {
-        switch(inAction)
-        {
-        case CANCEL:
-            if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
-                { print_warning("A file already exists at '{}'", inOutputFilePath); }
-            return ERR_FILE_EXISTS;
-        case RENAME:
-            {
-                uint i{0};
-                std::string file_directory{FileSystem::GetDir(file_path)};
-                std::string file_stem{FileSystem::GetStem(file_path, true)};
-                std::string file_extension{FileSystem::GetExtension(file_path)};
-                while(FileSystem::Exists(file_path))
-                {
-                    file_path = std::format("{}/{}_{:#0}{}",
-                        file_directory,
-                        file_stem,
-                        ++i,
-                        file_extension);
-                }
-                if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
-                    { print_debug("Save data will be written to: {}", file_path); }
-                break;
-            }
-        case OVERWRITE:
-            if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
-                { print_warning("The file at '{}' will be overwritten", inOutputFilePath); }
-            break;
-        }
-    }
-
-    return print_error_enum(FileSystem::try_WriteFileFromString(file_path, GetSaveData()));
-}
+Error Theatre::SaveToFile(Sarg inPath, FileSystem::OverwriteAction inAction)
+{ return print_error_enum(FileSystem::Lazy::Write(inPath, GetSaveData(), inAction)); }
 
 bool Theatre::Startup()
 {

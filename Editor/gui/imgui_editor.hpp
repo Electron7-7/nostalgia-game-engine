@@ -21,10 +21,11 @@ public:
 
 private:
     static uint GetIconTextureBufferID(FPID inType);
-    static std::string m_sTheatreFilePath,
+    static std::string m_sScreenshotFilePath,
+        m_sTheatreFilePath,
         m_sTheatreFileSavePath,
         m_sLastAttemptedTheatreFilePath;
-    static Theatre::FileOverwriteAction m_sCurrentFileOverwriteAction;
+    static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
     static bool m_sTheatreRunning, m_sInspectingNewThinker, m_sInspectingNewResource, m_sAddThing;
     static std::unordered_map<PID, Shared<ImageTexture>> m_sEditorIcons;

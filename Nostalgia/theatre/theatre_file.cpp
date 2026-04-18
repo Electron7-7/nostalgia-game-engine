@@ -40,7 +40,7 @@ std::string TheatreData::get_parsable_string() const
 Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreData> outData)
 {
     FileData theatre_file{};
-    if(not theatre_file.LoadFile(inFilePath))
+    if(not theatre_file.ReadFile(inFilePath))
         { return ERR_FILE_LOAD; }
     return Load(theatre_file, outData);
 }

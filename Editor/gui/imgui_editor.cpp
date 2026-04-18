@@ -25,7 +25,7 @@
 #include <Nostalgia/thirdparty/Jolt/Core/StringTools.h>
 
 #define REGISTER_ICON(TYPE, VAR_NAME, UID_OUT) \
-    m_sEditorIcons[TYPE] = ImageTexture::CreateFromImage(Image::CreateFromData(VAR_NAME, std::size(VAR_NAME))); \
+    m_sEditorIcons[TYPE] = ImageTexture::CreateFromImage(Image::CreateFromFile({VAR_NAME,std::size(VAR_NAME)}));\
     m_sEditorIcons[TYPE]->rename(#TYPE); \
     m_sEditorIconUIDs.emplace(UID_OUT = m_sEditorIcons[TYPE]->uid()); \
 
@@ -36,8 +36,9 @@ static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
 EditorTheatre* ImGui_Editor::m_spEditorTheatre{nullptr};
-Theatre::FileOverwriteAction ImGui_Editor::m_sCurrentFileOverwriteAction{Theatre::RENAME};
-std::string ImGui_Editor::m_sTheatreFilePath{"theatres/HelloWorld.nt"},
+FileSystem::OverwriteAction ImGui_Editor::m_sCurrentOverwriteAction{FileSystem::RENAME};
+std::string ImGui_Editor::m_sScreenshotFilePath{"NostalgiaGoggles_Screenshot.jpg"},
+    ImGui_Editor::m_sTheatreFilePath{"theatres/HelloWorld.nt"},
     ImGui_Editor::m_sTheatreFileSavePath{"theatres/SavedTheatre.nt"},
     ImGui_Editor::m_sLastAttemptedTheatreFilePath{m_sTheatreFilePath};
 bool ImGui_Editor::m_sTheatreRunning{false},
@@ -170,7 +171,7 @@ void ImGui_Editor::Input(InputEvent* event)
     else if(event->IsJustPressed(Key::F5))
         { LoadEditorTheatre(m_sTheatreRunning and not Settings::Engine::IsEditorHint); }
     else if(event->IsJustPressed(Key::F6))
-        { Theatre::Current()->SaveToFile(m_sTheatreFileSavePath, m_sCurrentFileOverwriteAction); }
+        { Theatre::Current()->SaveToFile(m_sTheatreFileSavePath, m_sCurrentOverwriteAction); }
     else if(event->IsJustPressed(Key::A)
         and event->IsModifierActive(Key::Mod_Control)
         and event->IsModifierActive(Key::Mod_Shift)
@@ -213,7 +214,7 @@ void ImGui_Editor::Update()
                 }
             BeginDisabled(not m_sTheatreRunning);
                 if(MenuItem("Save Theatre to File", "F6"))
-                    { Theatre::Current()->SaveToFile(m_sTheatreFileSavePath, m_sCurrentFileOverwriteAction); }
+                    { Theatre::Current()->SaveToFile(m_sTheatreFileSavePath, m_sCurrentOverwriteAction); }
                 if(MenuItem("Close Theatre", "F4"))
                 {
                     Manager::ShutdownTheatre();

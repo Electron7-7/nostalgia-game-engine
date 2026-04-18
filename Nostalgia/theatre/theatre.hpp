@@ -13,8 +13,6 @@ public:
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
     using Names_t = std::map<std::string, ID>;
 
-    enum FileOverwriteAction { OVERWRITE, RENAME, CANCEL };
-
     static Theatre* Current();
 
     Theatre() noexcept;
@@ -53,7 +51,7 @@ public:
     virtual Error LoadData(Farg<FileData> inData);
     virtual Error LoadFile(std::string inFilePath);
     virtual std::string GetSaveData();
-    virtual Error SaveToFile(Sarg inOutputFilePath, FileOverwriteAction = RENAME);
+    virtual Error SaveToFile(Sarg inOutputFilePath, FileSystem::OverwriteAction = FileSystem::RENAME);
     virtual bool  Startup();
     virtual bool  Shutdown();
     virtual void  Draw();

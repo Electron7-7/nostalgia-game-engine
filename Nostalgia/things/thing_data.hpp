@@ -173,7 +173,7 @@ namespace TheatreFile
                 else if(thing_var.type == ThingVarType::String)
                 {
                     auto output{MakeShared<FileData>()};
-                    Error status{print_error_enum(output->LoadFile(thing_var.value))};
+                    Error status{print_error_enum(output->ReadFile(thing_var.value))};
                     if(status == OK)
                         { outValue = output; }
                     return status;
