@@ -8,7 +8,9 @@ class Image : public Resource
 {
 public:
     static Shared<Image> CreateEmpty(int inWidth, int inHeight, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
-    static Shared<Image> CreateFromData(const uchar* inImageData, int inImageDataSize, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    static Shared<Image> CreateFromFile(Farg<FileData> inFile, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    static Shared<Image> CreateFromData(uchar* inData, int inSize, int inWidth, int inHeight, int inChannels,
+        bool inUseMipmaps = true, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
     static void GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels);
 
 	SET_SUPER(Resource)
@@ -20,14 +22,14 @@ public:
     virtual ~Image() noexcept;
 
     Error Import();
-    Error LoadFile(Sarg inFilePath);
-    void SetData(const uchar* inData, int inSize, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    Error LoadFile(Farg<FileData> inFile, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    void SetData(uchar* inData, int inSize, int inWidth, int inHeight, int inChannels,
+        bool inUseMipmaps = true, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
 
-    Farg<FileData> file_data() const;
-    const uchar* raw_data() const;
-    uchar* raw_data();
+    const uchar* data() const;
+    uchar* data();
     int size() const;
-    Sarg get_filepath() const;
+    Sarg filepath() const;
 
     bool UseMipmaps() const;
     void SetUseMipmaps(bool inUseMipmaps);
@@ -38,7 +40,8 @@ public:
     int Channels() const;
 
 protected:
-    Shared<FileData> m_pFileData{MakeShared<FileData>()};
+    bool mAllocatedWithSTB{false};
+    std::string mFilepath{};
     uchar* m_pImage{nullptr};
     int mSize{0};
     DataFormat mFormat{DATA_FORMAT_SRGB_ALPHA};
