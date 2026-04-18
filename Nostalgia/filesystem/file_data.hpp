@@ -26,6 +26,7 @@ public:
     FileData(Sarg inStrData, FileType inType, Sarg inOverridePath = "");
     FileData(Sarg inPath);
 
+    void  SetData(const uchar* inData, size_t inSize, FileType inType = FileType::Unknown);
     Error ReadFile(Sarg inPath);
     SafeReturn<std::string> WriteFile(Sarg inPath, FileSystem::OverwriteAction = FileSystem::RENAME);
 

@@ -40,6 +40,14 @@ FileData::FileData(Sarg path):
     mData{}, mPath{path}, mType{FileType::Unknown}, mStatus{ERR_NOT_LOADED}
 { print_error_enum(ReadFile(path)); }
 
+void FileData::SetData(const uchar* inData, size_t inSize, FileType inType)
+{
+    mPath.clear();
+    mData = std::vector<uchar>{inData, inData + inSize};
+    mType = inType;
+    mStatus = OK;
+}
+
 Error FileData::ReadFile(Sarg inPath)
 {
     std::string file_path{inPath};
