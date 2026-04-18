@@ -39,6 +39,7 @@ public:
     virtual float GetLineWidth() = 0;
     virtual bool GetWireframe() const = 0;
     virtual bool GetBlend() const = 0;
+    virtual Shared<Image> GetFullScreenshot() const = 0;
 
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 

@@ -1,6 +1,7 @@
 #include "gl_renderer_api.hpp"
 #include "gl_shader.hpp"        // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
 #include "shaders.hpp" // IWYU pragma: keep // clangd crashes when processing the embedded shaders so I hide them from it
+#include "things/resources/image.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/font.hpp"
 #include "things/thinkers/3d/light_3d.hpp"
@@ -244,6 +245,22 @@ bool OpenGLRendererAPI::GetBlend() const
     unsigned char output;
     glGetBooleanv(GL_BLEND, &output);
     return static_cast<bool>(output);
+}
+
+// See [https://www.songho.ca/opengl/gl_pbo.html#pack] for examples on PBO usage
+#pragma message("TODO: use PBOs for screenshots")
+Shared<Image> OpenGLRendererAPI::GetFullScreenshot() const
+{
+    // https://lencerf.github.io/post/2019-09-21-save-the-opengl-rendering-to-image-file
+    auto _size{MainWindow()->GetScale()};
+    GLsizei _width{_size.w()},
+        _height{_size.h()},
+        _channels{4};
+    std::vector<uchar> _buffer(_width * _height * _channels);
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, _buffer.data());
+    return Image::CreateFromData(_buffer.data(), _buffer.size(), _width, _height, _channels, true,
+        DATA_FORMAT_RGBA);
 }
 
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const

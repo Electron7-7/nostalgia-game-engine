@@ -25,6 +25,7 @@ public:
     float GetLineWidth() final;
     bool GetWireframe() const final;
     bool GetBlend() const final;
+    Shared<Image> GetFullScreenshot() const final;
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 
