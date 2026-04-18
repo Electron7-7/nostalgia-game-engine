@@ -25,6 +25,8 @@ public:
     Error LoadFile(Farg<FileData> inFile, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
     void SetData(uchar* inData, int inSize, int inWidth, int inHeight, int inChannels,
         bool inUseMipmaps = true, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
+    SafeReturn<std::string> SaveJPG(Sarg inFilePath,
+        FileSystem::OverwriteAction inOverwriteAction = FileSystem::RENAME, int inQuality = 100);
 
     const uchar* data() const;
     uchar* data();

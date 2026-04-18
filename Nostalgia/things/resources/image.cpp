@@ -2,8 +2,10 @@
 #include "things/thing_data.hpp"
 #include "things/thing_factory.hpp"
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG // generate user friendly error messages
 #include "stb_image/stb_image.h"
+#include "stb_image/stb_image_write.h"
 
 static int sDataFormatToSTBI(DataFormat inFormat)
 {
@@ -130,9 +132,20 @@ void Image::SetData(uchar* inData, int inSize, int inWidth, int inHeight, int in
     mFilepath.clear();
 }
 
+SafeReturn<std::string> Image::SaveJPG(Sarg inPath, FileSystem::OverwriteAction inAction, int inQuality)
 {
+    if(not m_pImage)
+        { return ERR_NULLPTR; }
+    auto _test_write{FileSystem::Lazy::Write(inPath, {}, inAction, true)};
+    if(not _test_write.status())
+        { return _test_write; }
+    stbi_flip_vertically_on_write(true);
+    if(not stbi_write_jpg(_test_write.data().data(), mWidth, mHeight, mChannels, m_pImage, inQuality))
     {
+        print_error("STBI failed to write file with reason: {}", stbi_failure_reason());
+        return ERR_FILE_WRITE;
     }
+    return OK;
 }
 
 void Image::free()
