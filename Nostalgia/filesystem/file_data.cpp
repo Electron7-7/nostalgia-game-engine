@@ -38,9 +38,9 @@ FileData::FileData(Sarg inStrData, FileType inType, Sarg inOverridePath):
 
 FileData::FileData(Sarg path):
     mData{}, mPath{path}, mType{FileType::Unknown}, mStatus{ERR_NOT_LOADED}
-{ print_error_enum(LoadFile(path)); }
+{ print_error_enum(ReadFile(path)); }
 
-Error FileData::LoadFile(Sarg inPath)
+Error FileData::ReadFile(Sarg inPath)
 {
     std::string file_path{inPath};
     if(not FileSystem::IsFile(inPath))
@@ -64,13 +64,8 @@ Error FileData::LoadFile(Sarg inPath)
     return mStatus = OK;
 }
 
-void FileData::LoadData(const uchar* inData, size_t inSize, FileType inType)
-{
-    mPath.clear();
-    mData = std::vector<uchar>{inData, inData + inSize};
-    mType = inType;
-    mStatus = OK;
-}
+SafeReturn<std::string> FileData::WriteFile(Sarg inPath, FileSystem::OverwriteAction inOverwriteAction)
+{ return FileSystem::Lazy::Write(inPath, mData.data(), mData.size(), inOverwriteAction); }
 
 void FileData::clear()
 {
