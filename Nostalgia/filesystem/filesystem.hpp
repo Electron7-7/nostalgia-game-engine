@@ -3,13 +3,27 @@
 
 namespace FileSystem
 {
+    enum OverwriteAction : int
+    { OVERWRITE, RENAME, CANCEL };
+
     std::string GetProgramDirectory();
     std::string GetCurrentDirectory();
 
-    Error try_WriteFileFromString(Sarg Path, Sarg Data);
-    bool try_ReadFileToString(Sarg Path, std::string& Output);
-    bool try_GetFileSize(Sarg Path, size_t& Output);
+    namespace Lazy
+    {
+        SafeReturn<std::string> Write(Sarg inPath, uchar* inData, int inSize, OverwriteAction inAction = RENAME,
+            bool inDryRun = false);
+        SafeReturn<std::string> Write(Sarg inPath, Sarg inData, OverwriteAction inAction = RENAME,
+            bool inDryRun = false);
+    }
 
+    bool MakeUniquePath(std::string& ioPath);
+    std::string MakeUniquePath(Sarg inPath);
+    Error Write(Sarg inPath, uchar* inData, int inSize);
+    Error Write(Sarg inPath, Sarg inData);
+    bool Read(Sarg inPath, std::vector<uchar>& outData);
+    bool Read(Sarg inPath, std::string& outData);
+    bool SizeOf(Sarg inPath, size_t& outSize);
     bool Exists(Sarg Path);
     bool IsFile(Sarg Path);
     bool IsDirectory(Sarg Path);

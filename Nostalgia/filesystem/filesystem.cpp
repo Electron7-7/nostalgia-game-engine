@@ -27,89 +27,150 @@ std::string FileSystem::GetCurrentDirectory()
     { return fs::read_symlink({"/proc/self/exe"}).remove_filename().string() + "/"; }
 #endif // _WIN32
 
-Error FileSystem::try_WriteFileFromString(const std::string& path, const std::string& data)
+SafeReturn<std::string> FileSystem::Lazy::Write(Sarg inPath, uchar* inData, int inSize, OverwriteAction inAction,
+    bool inDryRun)
 {
-    std::string absolute_path = GetAbsolute(path);
-    if(FileSystem::Exists(path))
-        { print_warning("Overwriting file '{}'!", path); }
+    std::string _path{inPath};
+    bool _exists{Exists(inPath)};
+    if(_exists and inAction == CANCEL)
+    {
+        print_warning("A file/directory already exists at {} and will not be overwritten", inPath);
+        return (IsDirectory(inPath)) ? ERR_DIR_EXISTS : ERR_FILE_EXISTS;
+    }
+    else if(_exists and inAction == RENAME)
+        { MakeUniquePath(_path); }
+    if(not inDryRun)
+    {
+        if(Error _status{FileSystem::Write(_path, inData, inSize)}; not _status)
+            { return _status; }
+    }
+    return SafeReturn(_path);
+}
 
-    std::ofstream file(absolute_path);
-    if(!file.is_open())
+SafeReturn<std::string> FileSystem::Lazy::Write(Sarg inPath, Sarg inData, OverwriteAction inAction,
+    bool inDryRun)
+{
+    std::string _path{inPath};
+    bool _exists{Exists(inPath)};
+    if(_exists and inAction == CANCEL)
+    {
+        print_warning("A file/directory already exists at {} and will not be overwritten", inPath);
+        return (IsDirectory(inPath)) ? ERR_DIR_EXISTS : ERR_FILE_EXISTS;
+    }
+    else if(_exists and inAction == RENAME)
+        { MakeUniquePath(_path); }
+    if(not inDryRun)
+    {
+        if(Error _status{FileSystem::Write(_path, inData)}; not _status)
+            { return _status; }
+    }
+    return SafeReturn(_path);
+}
+
+bool FileSystem::MakeUniquePath(std::string& ioPath)
+{
+    uint i{0};
+    std::string _directory{FileSystem::GetDir(ioPath, true)},
+        _stem{FileSystem::GetStem(ioPath, true)},
+        _extension{FileSystem::GetExtension(ioPath)};
+    while(Exists(ioPath))
+        { ioPath = std::format("{}/{}_{:02}{}", _directory, _stem, ++i, _extension); }
+    return i > 0;
+}
+
+std::string FileSystem::MakeUniquePath(Sarg inPath)
+{
+    std::string _path{inPath};
+    MakeUniquePath(_path);
+    return _path;
+}
+
+Error FileSystem::Write(Sarg inPath, uchar* inData, int inSize)
+{
+    std::basic_ofstream<uchar> file(inPath);
+    if(not file.is_open() or file.bad() or file.fail())
+        { return ERR_FILE_OPEN; }
+    file.write(inData, inSize);
+    file.close();
+    if(file.bad() or file.fail())
         { return ERR_FILE_WRITE; }
-    file.write(data.data(), data.size());
+    return OK;
+}
+
+Error FileSystem::Write(Sarg inPath, Sarg inData)
+{
+    std::ofstream file(inPath);
+    if(not file.is_open())
+        { return ERR_FILE_WRITE; }
+    file.write(inData.data(), inData.size());
     file.close();
     return OK;
 }
 
-bool FileSystem::try_ReadFileToString(const std::string& string_path, std::string& output)
+bool FileSystem::Read(Sarg inPath, std::vector<uchar>& outData)
 {
-    std::string file_path = "";
-    if(!GetAbsolute(string_path, file_path))
+    std::basic_ifstream<uchar> file(inPath);
+    if(not file.is_open())
         { return false; }
+    outData = std::vector<uchar>(std::istreambuf_iterator<uchar>(file), std::istreambuf_iterator<uchar>());
+    file.close();
+    return not file.bad() and not file.fail();
+}
 
-    std::ifstream file_stream(file_path);
-
-    if(!file_stream.is_open())
+bool FileSystem::Read(Sarg inPath, std::string& outData)
+{
+    std::ifstream file(inPath);
+    if(not file.is_open())
         { return false; }
+    outData = std::string(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
+    file.close();
+    return not file.bad() and not file.fail();
+}
 
-    output = std::string(std::istreambuf_iterator<char>(file_stream), std::istreambuf_iterator<char>());
-    file_stream.close();
-
+bool FileSystem::SizeOf(Sarg inPath, size_t& outSize)
+{
+    // https://stackoverflow.com/a/13394183
+    std::ifstream _file(inPath, std::ios::binary | std::ios::ate);
+    if(_file.fail() or _file.bad())
+        { return false; }
+    outSize = _file.tellg();
     return true;
 }
 
-bool FileSystem::try_GetFileSize(const std::string& string_path, size_t& output)
-{
-    std::string file_path = "";
-    if(!GetAbsolute(string_path, file_path))
-        { return false; }
-
-    // https://stackoverflow.com/a/22131201
-    FILE* file = fopen(file_path.c_str(), "r+");
-
-    if(!file)
-        { return false; }
-
-    fseek(file, 0, SEEK_END);
-    output = ftell(file); // This could overflow(?)... too bad!
-    fclose(file);
-    return true;
-}
-
-bool FileSystem::Exists(const std::string& string_path)
+bool FileSystem::Exists(Sarg string_path)
 { return fs::exists({string_path}); }
 
-bool FileSystem::IsFile(const std::string& string_path)
+bool FileSystem::IsFile(Sarg string_path)
 { return fs::is_regular_file({string_path}); }
 
-bool FileSystem::IsDirectory(const std::string& string_path)
+bool FileSystem::IsDirectory(Sarg string_path)
 { return fs::is_directory({string_path}); }
 
-bool FileSystem::IsAbsolute(const std::string& string_path)
+bool FileSystem::IsAbsolute(Sarg string_path)
 { return fs::path(string_path).is_absolute(); }
 
-std::string FileSystem::GetAbsolute(const std::string& string_path)
+std::string FileSystem::GetAbsolute(Sarg string_path)
 { return fs::absolute({string_path}).string(); }
 
-bool FileSystem::GetAbsolute(const std::string& string_path, std::string& output)
+bool FileSystem::GetAbsolute(Sarg string_path, std::string& output)
 {
     output = GetAbsolute(string_path);
     return fs::exists({output});
 }
 
-bool FileSystem::IsRelative(const std::string& string_path)
+bool FileSystem::IsRelative(Sarg string_path)
 { return fs::path(string_path).is_relative(); }
 
-std::string FileSystem::GetRelative(const std::string& string_path)
+std::string FileSystem::GetRelative(Sarg string_path)
 { return fs::relative({string_path}).string(); }
 
-bool FileSystem::GetRelative(const std::string& string_path, std::string& output)
+bool FileSystem::GetRelative(Sarg string_path, std::string& output)
 {
     output = GetRelative(string_path);
     return fs::exists({output});
 }
 
-std::string FileSystem::GetDir(const std::string& string_path, bool make_absolute)
+std::string FileSystem::GetDir(Sarg string_path, bool make_absolute)
 {
     fs::path path = (make_absolute)
         ? fs::path{GetAbsolute(string_path)}
@@ -119,37 +180,37 @@ std::string FileSystem::GetDir(const std::string& string_path, bool make_absolut
         : string_path + "/";
 }
 
-void FileSystem::GetDir(const std::string& string_path, std::string& output, bool make_absolute)
+void FileSystem::GetDir(Sarg string_path, std::string& output, bool make_absolute)
 { output = GetDir(string_path, make_absolute); }
 
 // NOTE: Should I add a boolean to toggle accepting stems with no extensions as a valid directory? Because this is basically a way of detecting whether or not a path is to a directory or not, regardless of whether or not it exists
-bool FileSystem::HasStem(const std::string& string_path)
+bool FileSystem::HasStem(Sarg string_path)
 { return !(fs::path{string_path}.stem().string().empty()); }
 
-std::string FileSystem::GetStem(const std::string& string_path, bool remove_extension)
+std::string FileSystem::GetStem(Sarg string_path, bool remove_extension)
 {
     if(!remove_extension)
         { return fs::path{string_path}.stem().string(); }
     return fs::path{string_path}.stem().replace_extension("").string();
 }
 
-bool FileSystem::HasExtension(const std::string& string_path)
+bool FileSystem::HasExtension(Sarg string_path)
 { return !GetExtension(string_path).empty(); }
 
-void FileSystem::GetStem(const std::string& string_path, std::string& output, bool remove_extension)
+void FileSystem::GetStem(Sarg string_path, std::string& output, bool remove_extension)
 { output = GetStem(string_path, remove_extension); }
 
-void FileSystem::GetExtension(const std::string& name, std::string& output, bool remove_prefix)
+void FileSystem::GetExtension(Sarg name, std::string& output, bool remove_prefix)
 { output = GetExtension(name, remove_prefix); }
 
-std::string FileSystem::GetExtension(const std::string& name, bool remove_prefix)
+std::string FileSystem::GetExtension(Sarg name, bool remove_prefix)
 {
     std::string extension = fs::path(name).extension().string();
     return (remove_prefix && extension.size() > 1) ? extension.substr(1) : extension;
 }
 
-void FileSystem::ReplaceExtension(const std::string& extension, std::string& output)
+void FileSystem::ReplaceExtension(Sarg extension, std::string& output)
 { output = fs::path{output}.replace_extension({extension}).generic_string(); }
 
-std::string FileSystem::ReplaceExtension(const std::string& extension, const std::string& string_path)
+std::string FileSystem::ReplaceExtension(Sarg extension, Sarg string_path)
 { return fs::path{string_path}.replace_extension({extension}).generic_string(); }
