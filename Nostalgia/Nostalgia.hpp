@@ -62,6 +62,7 @@
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/mutex.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/smart_pointers.hpp>          // IWYU pragma: keep
+#include <Nostalgia/core/safe_return.hpp>             // IWYU pragma: keep
 #include <Nostalgia/core/global_constants.hpp>        // IWYU pragma: keep
 #include <Nostalgia/core/constexpr_string_hash.hpp>   // IWYU pragma: keep
 #include <Nostalgia/core/id.hpp>                      // IWYU pragma: keep
