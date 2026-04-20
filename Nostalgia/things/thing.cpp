@@ -71,6 +71,9 @@ Error Thing::rename(Sarg inNewName)
     return status;
 }
 
+bool Thing::Invalid() const
+{ return mUID.invalid() or mName.empty(); }
+
 void Thing::SetNameChangeCallback(pNameChangeCallback_f inCallback)
 {
     LOCK(mMutex);

@@ -57,6 +57,7 @@ public:
     Sarg name() const;
     const char* const c_name() const;
     Error rename(Sarg inNewName);
+    bool Invalid() const;
 
 protected:
     friend class Theatre;

@@ -314,7 +314,7 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
             { mRootViewportCurrentCamera2D = inCameraID; }
         return OK;
     }
-    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->uid().invalid() and ancestors.contains(inViewportID))
+    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->Invalid() and ancestors.contains(inViewportID))
     {
         if(is_3d)
             { viewport->SetCurrentCamera3D(inCameraID); }
@@ -758,10 +758,10 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
             auto diffuse_texture{material->DiffuseTexture()};
             auto specular_texture{material->SpecularTexture()};
 
-            if(not material->DiffuseTexture()->uid().invalid() and not diffuse_texture->GetBuffer())
+            if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->GetBuffer())
                 { diffuse_texture = missing_texture; }
 
-            if(not material->SpecularTexture()->uid().invalid() and not specular_texture->GetBuffer())
+            if(not material->SpecularTexture()->Invalid() and not specular_texture->GetBuffer())
                 { specular_texture = missing_texture; }
 
             shader = renderer_api->GetShader((material->mFullBright)

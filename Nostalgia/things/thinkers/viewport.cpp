@@ -72,7 +72,7 @@ void Viewport::SetCurrentCamera2D(ID inID)
 
 Size2D Viewport::Size() const
 {
-    return (uid().invalid())
+    return (Invalid())
         ? MainWindow()->GetScale()
         : mSize;
 }
