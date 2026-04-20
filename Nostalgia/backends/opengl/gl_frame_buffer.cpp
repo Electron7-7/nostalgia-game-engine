@@ -90,9 +90,9 @@ void OpenGLFrameBuffer::ClearColor(Farg<ColorRGBA> inColor) const
         GLfloat _colorf[4]  (inColor[0], inColor[1], inColor[2], inColor[3]);
         GLuint  _colorui[4] (inColor[0], inColor[1], inColor[2], inColor[3]);
         GLint   _colori[4]  (inColor[0], inColor[1], inColor[2], inColor[3]);
-        glClearNamedFramebufferfv(mBufferID,  GL_COLOR, GL_DRAW_BUFFER1, _colorf);
-        glClearNamedFramebufferiv(mBufferID,  GL_COLOR, GL_DRAW_BUFFER1, _colori);
-        glClearNamedFramebufferuiv(mBufferID, GL_COLOR, GL_DRAW_BUFFER1, _colorui);
+        glClearNamedFramebufferfv(mBufferID,  GL_COLOR, 1, _colorf);
+        glClearNamedFramebufferiv(mBufferID,  GL_COLOR, 1, _colori);
+        glClearNamedFramebufferuiv(mBufferID, GL_COLOR, 1, _colorui);
     }
 }
 
