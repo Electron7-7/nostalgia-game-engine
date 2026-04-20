@@ -118,9 +118,6 @@ glm::mat4 Camera3D::ProjectionMatrix() const
     );
 }
 
-ID Camera3D::EditorMeshInstanceID() const
-{ return mEditorMeshInstanceID; }
-
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);

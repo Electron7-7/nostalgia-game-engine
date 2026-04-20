@@ -29,13 +29,10 @@ public:
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
 
-    ID EditorMeshInstanceID() const;
-
 protected:
     bool mInitCurrent{true};
     ID mViewportID{};
     BitMask mLayersMask{};
-    ID mEditorMeshInstanceID{};
 
     virtual void OnAncestorRemoved(Relative) override;
     virtual void OnAncestorAdded(Relative) override;

@@ -736,10 +736,9 @@ void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
     for(ID v3d_id : mVisual3DIDs)
     {
         auto visual3d{GetThinker<Visual3D>(v3d_id)};
-        if(DerivedFrom(v3d_id, ThingType::Light3D) or
-            not visual3d->Visible()
-            or not inCamera->LayersMask().contains(visual3d->Layers())
-            or inCamera->EditorMeshInstanceID() == v3d_id)
+        if(not visual3d->Visible()
+            or visual3d->DerivedFrom(ThingType::Light3D)
+            or not inCamera->LayersMask().contains(visual3d->Layers()))
                 { continue; }
 
         glm::vec3 scale_vector{visual3d->GlobalScale()};
