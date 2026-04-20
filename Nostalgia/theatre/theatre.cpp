@@ -216,11 +216,10 @@ void Theatre::Draw()
     {
         auto viewport{GetThinker<Viewport>(viewport_id)};
 
+        viewport->Clear();
         viewport->Framebuffer()->Bind();
 
         g_pRenderManager->GetAPI()->SetViewport({0, 0}, viewport->Size());
-        g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
-        g_pRenderManager->GetAPI()->Clear();
 
         if(_enable_3d_rendering and not viewport->CurrentCamera3D().invalid())
             { Draw3DThinkers(GetThinker<Camera3D>(viewport->CurrentCamera3D())); }

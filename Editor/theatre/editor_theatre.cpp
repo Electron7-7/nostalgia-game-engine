@@ -49,11 +49,9 @@ void EditorTheatre::Draw()
     {
         auto viewport{GetThinker<Viewport>(viewport_id)};
 
+        viewport->Clear();
         viewport->Framebuffer()->Bind();
-
         g_pRenderManager->GetAPI()->SetViewport({0, 0}, viewport->Size());
-        g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
-        g_pRenderManager->GetAPI()->Clear();
 
         auto _camera3d{GetThinker<Camera3D>(viewport->CurrentCamera3D())};
         auto _camera2d{GetThinker<Camera2D>(viewport->CurrentCamera2D())};

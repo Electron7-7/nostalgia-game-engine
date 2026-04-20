@@ -13,6 +13,8 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
+    virtual void Clear();
+
     Farg<Shared<FrameBuffer>> Framebuffer() const;
 
     ID CurrentCamera3D();
@@ -25,6 +27,8 @@ public:
     void SetSize(Farg<Size2D>);
 
 protected:
+    mutable RMutex mFramebufferMutex{}; // evil mutable
+    bool mFramebufferClear{false};
     Shared<FrameBuffer> mFramebuffer{FrameBuffer::Create()};
     Size2D mSize{512, 512};
     ID mCurrentCamera3D{},

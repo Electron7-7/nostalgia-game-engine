@@ -4,6 +4,8 @@
 #include "things/thing_factory.hpp"
 #include "application/application.hpp"
 
+#define LOCK LockGuard<RMutex> _lock{mFramebufferMutex};
+
 using namespace TheatreFile;
 
 void Viewport::Ready()
@@ -33,6 +35,16 @@ Shared<ThingData> Viewport::GetVariables() const
     data->set_variable(glm::vec2{mSize}, "ViewportSize");
 
     return data;
+}
+
+void Viewport::Clear()
+{
+    LOCK
+    if(mFramebufferClear)
+        { return; }
+    mFramebuffer->ClearColor();
+    mFramebuffer->ClearDepth();
+    mFramebufferClear = true;
 }
 
 Farg<Shared<FrameBuffer>> Viewport::Framebuffer() const
