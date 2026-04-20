@@ -73,25 +73,25 @@ bool ResourceManager::Init()
         ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::DebugAxis,
             std::size(Models::DebugAxis), ArrayMesh::MODEL_OBJ), "3DAxisModel");
     UID::i_Missing =
-        ResourceDatabase::Register(Image::CreateFromData(Images::Missing,
-            std::size(Images::Missing)), "MissingImage");
+        ResourceDatabase::Register(Image::CreateFromFile({Images::Missing,
+            std::size(Images::Missing)}), "MissingImage");
     UID::i_LightDebug =
-        ResourceDatabase::Register(Image::CreateFromData(Images::LightDebug,
-            std::size(Images::LightDebug)), "LightImage");
+        ResourceDatabase::Register(Image::CreateFromFile({Images::LightDebug,
+            std::size(Images::LightDebug)}), "LightImage");
     UID::i_COMP04_5 =
-        ResourceDatabase::Register(Image::CreateFromData(Images::COMP04_5,
-            std::size(Images::COMP04_5)), "DoomImage");
+        ResourceDatabase::Register(Image::CreateFromFile({Images::COMP04_5,
+            std::size(Images::COMP04_5)}), "DoomImage");
     UID::i_LolBit =
-        ResourceDatabase::Register(Image::CreateFromData(Images::LolBit,
-            std::size(Images::LolBit)), "LolBitImage");
+        ResourceDatabase::Register(Image::CreateFromFile({Images::LolBit,
+            std::size(Images::LolBit)}), "LolBitImage");
     UID::t_ShittySkybox =
         ResourceDatabase::Register(Cubemap::CreateFromImages({
-            Image::CreateFromData(Images::SkyboxXp, std::size(Images::SkyboxXp)),
-            Image::CreateFromData(Images::SkyboxXn, std::size(Images::SkyboxXn)),
-            Image::CreateFromData(Images::SkyboxYp, std::size(Images::SkyboxYp)),
-            Image::CreateFromData(Images::SkyboxYn, std::size(Images::SkyboxYn)),
-            Image::CreateFromData(Images::SkyboxZp, std::size(Images::SkyboxZp)),
-            Image::CreateFromData(Images::SkyboxZn, std::size(Images::SkyboxZn))}),
+            Image::CreateFromFile({Images::SkyboxXp, std::size(Images::SkyboxXp)}),
+            Image::CreateFromFile({Images::SkyboxXn, std::size(Images::SkyboxXn)}),
+            Image::CreateFromFile({Images::SkyboxYp, std::size(Images::SkyboxYp)}),
+            Image::CreateFromFile({Images::SkyboxYn, std::size(Images::SkyboxYn)}),
+            Image::CreateFromFile({Images::SkyboxZp, std::size(Images::SkyboxZp)}),
+            Image::CreateFromFile({Images::SkyboxZn, std::size(Images::SkyboxZn)})}),
         "ShittySkybox");
 
     return true;
