@@ -14,10 +14,11 @@ public:
     GET_VARIABLES_OVERRIDE
 
     Farg<Shared<FrameBuffer>> Framebuffer() const;
-    void SetFramebuffer(Shared<FrameBuffer>);
 
     ID CurrentCamera3D();
     ID CurrentCamera2D();
+    void SetCurrentCamera3D(ID = ID::Invalid);
+    void SetCurrentCamera2D(ID = ID::Invalid);
     void UpdateCurrentCameras();
 
     Size2D Size() const;
@@ -31,10 +32,6 @@ protected:
 
     virtual void OnDescendantRemoved(Relative) override;
     virtual void OnDescendantAdded(Relative) override;
-
-    friend class Theatre;
-    void SetCurrentCamera3D(ID = ID::Invalid);
-    void SetCurrentCamera2D(ID = ID::Invalid);
 };
 
 #endif // VIEWPORT_H

@@ -28,21 +28,35 @@ Shared<ThingData> Viewport::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    if(not mCurrentCamera3D.invalid())
-        { data->set_variable(mCurrentCamera3D, "CurrentCamera3D"); }
-    if(not mCurrentCamera2D.invalid())
-        { data->set_variable(mCurrentCamera2D, "CurrentCamera2D"); }
-
+    data->set_variable(mCurrentCamera3D, "CurrentCamera3D");
+    data->set_variable(mCurrentCamera2D, "CurrentCamera2D");
     data->set_variable(glm::vec2{mSize}, "ViewportSize");
 
     return data;
 }
+
+Farg<Shared<FrameBuffer>> Viewport::Framebuffer() const
+{ return mFramebuffer; }
 
 ID Viewport::CurrentCamera3D()
 { return mCurrentCamera3D; }
 
 ID Viewport::CurrentCamera2D()
 { return mCurrentCamera2D; }
+
+void Viewport::SetCurrentCamera3D(ID inUID)
+{
+    mCurrentCamera3D = inUID;
+    if(inUID.invalid())
+        { UpdateCurrentCameras(); }
+}
+
+void Viewport::SetCurrentCamera2D(ID inUID)
+{
+    mCurrentCamera2D = inUID;
+    if(inUID.invalid())
+        { UpdateCurrentCameras(); }
+}
 
 void Viewport::UpdateCurrentCameras()
 {
@@ -56,20 +70,6 @@ void Viewport::UpdateCurrentCameras()
     }
 }
 
-void Viewport::SetCurrentCamera3D(ID inID)
-{
-    mCurrentCamera3D = inID;
-    if(inID.invalid())
-        { UpdateCurrentCameras(); }
-}
-
-void Viewport::SetCurrentCamera2D(ID inID)
-{
-    mCurrentCamera2D = inID;
-    if(inID.invalid())
-        { UpdateCurrentCameras(); }
-}
-
 Size2D Viewport::Size() const
 {
     return (Invalid())
@@ -77,22 +77,12 @@ Size2D Viewport::Size() const
         : mSize;
 }
 
-Farg<Shared<FrameBuffer>> Viewport::Framebuffer() const
-{ return mFramebuffer; }
-
 void Viewport::SetSize(Farg<Size2D> inSize)
 {
     if(mSize == inSize)
         { return; }
     mFramebuffer = FrameBuffer::Create(inSize);
     mSize = inSize;
-}
-
-void Viewport::SetFramebuffer(Shared<FrameBuffer> inFramebuffer)
-{
-    if(uid() == UID::o_RootViewport)
-        { return; }
-    mFramebuffer = inFramebuffer;
 }
 
 void Viewport::OnDescendantRemoved(Relative inRelative)
