@@ -19,6 +19,9 @@ public:
     Error Status() const final;
     Shared<TextureBuffer> Texture() const final;
 
+    void ClearColor(Farg<ColorRGBA> = Settings::Graphics::ClearColor) const final;
+    void ClearDepth(float inDepth = 0.0f) const final;
+
 private:
     uint mBufferID{0};
     uint mRenderBufferID{0};

@@ -82,3 +82,22 @@ uint OpenGLFrameBuffer::ID() const
 
 Error OpenGLFrameBuffer::Status() const
 { return mStatus; }
+
+void OpenGLFrameBuffer::ClearColor(Farg<ColorRGBA> inColor) const
+{
+    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
+    {
+        GLfloat _colorf[4]  (inColor[0], inColor[1], inColor[2], inColor[3]);
+        GLuint  _colorui[4] (inColor[0], inColor[1], inColor[2], inColor[3]);
+        GLint   _colori[4]  (inColor[0], inColor[1], inColor[2], inColor[3]);
+        glClearNamedFramebufferfv(mBufferID,  GL_COLOR, GL_DRAW_BUFFER1, _colorf);
+        glClearNamedFramebufferiv(mBufferID,  GL_COLOR, GL_DRAW_BUFFER1, _colori);
+        glClearNamedFramebufferuiv(mBufferID, GL_COLOR, GL_DRAW_BUFFER1, _colorui);
+    }
+}
+
+void OpenGLFrameBuffer::ClearDepth(float inDepth) const
+{
+    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
+        { glClearNamedFramebufferfv(mBufferID, GL_DEPTH, 0, &inDepth); }
+}
