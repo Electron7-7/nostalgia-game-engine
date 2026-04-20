@@ -18,6 +18,8 @@ public:
         mViewCutoffFar{1000.0f};
     Environment mEnvironment{};
 
+    virtual void DrawBackground() const;
+
     virtual ID ViewportID() const;
 
     virtual bool Current() const;

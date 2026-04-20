@@ -1,8 +1,14 @@
 #include "./camera_3d.hpp"
 #include "../viewport.hpp"
 #include "things/thing_data.hpp"
+#include "things/resources/texture.hpp"
+#include "things/resources/array_mesh.hpp"
 #include "theatre/theatre.hpp"
 #include "settings/world.hpp"
+#include "managers/render_manager.hpp"
+#include "rendering/shader.hpp"
+#include "theatre/theatre.hpp"
+#include "things/resource_database.hpp"
 
 using namespace TheatreFile;
 
@@ -79,6 +85,38 @@ Shared<ThingData> Camera3D::GetVariables() const
     data->set_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
 
     return data;
+}
+
+void Camera3D::DrawBackground() const
+{
+    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    switch(mEnvironment.mType)
+    {
+    case Environment::BG_SKYBOX:
+        {
+#pragma message("TODO: move all Resource creation to the ResourceDatabase, even the ones made by a Theatre")
+            renderer_api->BindTexture(Theatre::Current()
+                ->GetResource<Texture>(mEnvironment.mSkyboxTextureID), 0);
+            renderer_api->GetShader(Shaders::SkyBox)->Bind();
+            renderer_api->GetShader(Shaders::SkyBox)
+                ->SetUniform("view_matrix", glm::mat4{glm::mat3{ViewMatrix()}});
+            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", ProjectionMatrix());
+            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
+            renderer_api->SetDepthMask(false);
+            auto _cube{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Cube)};
+            for(int i{0}; i < _cube->SurfaceCount(); ++i)
+                { renderer_api->DrawIndexed(_cube->SurfaceGetVertexArray(i)); }
+            renderer_api->SetDepthMask(true);
+            return;
+        }
+    case Environment::BG_CUSTOM_COLOR:
+        renderer_api->SetClearColor(mEnvironment.get_custom_color().glm());
+        break;
+    case Environment::BG_CLEAR_COLOR:
+        renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
+        break;
+    }
+    renderer_api->Clear();
 }
 
 ID Camera3D::ViewportID() const
