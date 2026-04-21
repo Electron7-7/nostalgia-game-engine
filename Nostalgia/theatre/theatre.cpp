@@ -1,24 +1,14 @@
 #include "./theatre.hpp"
 #include "application/application.hpp"
+#include "managers/theatre_manager.hpp"
 #include "things/thing_data.hpp"
 #include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
-#include "things/thinkers/2d/sprite_2d.hpp"
-#include "things/thinkers/2d/text_2d.hpp"
-#include "things/thinkers/3d/light_3d.hpp"
-#include "things/thinkers/3d/sprite_3d.hpp"
-#include "things/thinkers/3d/mesh_instance_3d.hpp"
 #include "things/thinkers/3d/camera_3d.hpp"
-#include "things/thinkers/3d/visual_3d.hpp"
+#include "things/thinkers/3d/light_3d.hpp"
 #include "things/thinkers/viewport.hpp"
-#include "things/resources/texture.hpp"
-#include "things/resources/array_mesh.hpp"
-#include "things/resources/font.hpp"
-#include "things/resources/image.hpp"
-#include "managers/theatre_manager.hpp"
 #include "managers/render_manager.hpp"
-#include "rendering/shader.hpp"
 #include "settings/graphics.hpp"
 #include "console/console.hpp"
 
@@ -212,31 +202,46 @@ void Theatre::Draw()
     for(ID id : mLightIDs)
         { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
 
-    for(ID viewport_id : mViewportIDs)
-    {
-        auto viewport{GetThinker<Viewport>(viewport_id)};
-
-        viewport->Clear();
-        viewport->Framebuffer()->Bind();
-
-        g_pRenderManager->GetAPI()->SetViewport({0, 0}, viewport->Size());
-
-        if(_enable_3d_rendering and not viewport->CurrentCamera3D().invalid())
-            { Draw3DThinkers(GetThinker<Camera3D>(viewport->CurrentCamera3D())); }
-        if(_enable_2d_rendering and not viewport->CurrentCamera2D().invalid())
-            { Draw2DThinkers(GetThinker<Camera2D>(viewport->CurrentCamera2D())); }
-
-        viewport->Framebuffer()->Unbind();
-    }
-
+    // Render the root viewport
+    g_pRenderManager->GetAPI()->BindFramebuffer();
     g_pRenderManager->GetAPI()->SetViewport({0, 0}, MainWindow()->GetScale());
-    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor.glm());
+    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor);
     g_pRenderManager->GetAPI()->Clear();
 
     if(_enable_3d_rendering and not mRootViewportCurrentCamera3D.invalid())
-        { Draw3DThinkers(GetThinker<Camera3D>(mRootViewportCurrentCamera3D)); }
+    {
+        auto _camera{GetThinker<Camera3D>(mRootViewportCurrentCamera3D)};
+        _camera->DrawBackground();
+        for(ID _uid : mVisual3DIDs)
+            { _camera->Draw(GetThinker<Visual3D>(_uid)); }
+    }
     if(_enable_2d_rendering and not mRootViewportCurrentCamera3D.invalid())
-        { Draw2DThinkers(GetThinker<Camera2D>(mRootViewportCurrentCamera2D)); }
+    {
+        auto _camera{GetThinker<Camera2D>(mRootViewportCurrentCamera2D)};
+        for(ID _uid : mVisual2DIDs)
+            { _camera->Draw(GetThinker<Visual2D>(_uid)); }
+    }
+
+    // Render other viewports
+    for(ID viewport_id : mViewportIDs)
+    {
+        auto viewport{GetThinker<Viewport>(viewport_id)};
+        viewport->Attach();
+        if(_enable_3d_rendering and not viewport->CurrentCamera3D().invalid())
+        {
+            auto _camera{GetThinker<Camera3D>(viewport->CurrentCamera3D())};
+            _camera->DrawBackground();
+            for(ID _uid : mVisual3DIDs)
+                { _camera->Draw(GetThinker<Visual3D>(_uid)); }
+        }
+        if(_enable_2d_rendering and not viewport->CurrentCamera2D().invalid())
+        {
+            auto _camera{GetThinker<Camera2D>(viewport->CurrentCamera2D())};
+            for(ID _uid : mVisual2DIDs)
+                { _camera->Draw(GetThinker<Visual2D>(_uid)); }
+        }
+        viewport->Detach();
+    }
 }
 
 Sarg Theatre::Name() const
@@ -690,290 +695,6 @@ Error Theatre::DestroyThingOnly(ID inID)
     mCallSheet.Remove(inID);
     mThings.erase(inID);
     return OK;
-}
-
-void Theatre::Draw3DThinkers(Shared<Camera3D> inCamera)
-{
-    if(not inCamera)
-        { return; }
-
-    LOCK_THINGS;
-
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
-    auto shader{renderer_api->GetShader(Shaders::Fullbright)};
-    auto view_matrix{inCamera->ViewMatrix()};
-    auto projection_matrix{inCamera->ProjectionMatrix()};
-
-    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
-    auto mesh{GetResource<ArrayMesh>(UID::m_Error)};
-
-    switch(inCamera->mEnvironment.mType)
-    {
-    case Environment::BG_SKYBOX:
-        renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
-        renderer_api->Clear();
-        renderer_api->SetWireframe(false);
-        renderer_api->BindTexture(GetResource<Texture>(inCamera->mEnvironment.mSkyboxTextureID), 0);
-        renderer_api->GetShader(Shaders::SkyBox)->Bind();
-        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("view_matrix", glm::mat4{glm::mat3{view_matrix}});
-        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", projection_matrix);
-        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
-        renderer_api->SetDepthMask(false);
-        for(int i{0}; i < GetResource<ArrayMesh>(UID::m_Cube)->SurfaceCount(); ++i)
-        	{ renderer_api->DrawIndexed(GetResource<ArrayMesh>(UID::m_Cube)->SurfaceGetVertexArray(i)); }
-        renderer_api->SetDepthMask(true);
-        break;
-    case Environment::BG_CUSTOM_COLOR:
-        renderer_api->SetClearColor(inCamera->mEnvironment.get_custom_color().glm());
-        renderer_api->Clear();
-        break;
-    case Environment::BG_CLEAR_COLOR:
-        renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
-        renderer_api->Clear();
-        break;
-    }
-
-    for(ID v3d_id : mVisual3DIDs)
-    {
-        auto visual3d{GetThinker<Visual3D>(v3d_id)};
-        if(not visual3d->Visible()
-            or visual3d->DerivedFrom(ThingType::Light3D)
-            or not inCamera->LayersMask().contains(visual3d->Layers()))
-                { continue; }
-
-        glm::vec3 scale_vector{visual3d->GlobalScale()};
-
-        if(visual3d->DerivedFrom(ThingType::MeshInstance3D))
-        {
-            auto mesh_instance{DCast<MeshInstance3D>(visual3d)};
-            if(DCast<ArrayMesh>(mesh_instance->GetMesh()))
-                { mesh = DCast<ArrayMesh>(mesh_instance->GetMesh()); }
-            auto material{mesh->mMaterial};
-
-            if(mesh_instance->GetMaterialOverride())
-                { material = mesh_instance->GetMaterialOverride(); }
-
-            auto diffuse_texture{material->DiffuseTexture()};
-            auto specular_texture{material->SpecularTexture()};
-
-            if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->GetBuffer())
-                { diffuse_texture = missing_texture; }
-
-            if(not material->SpecularTexture()->Invalid() and not specular_texture->GetBuffer())
-                { specular_texture = missing_texture; }
-
-            shader = renderer_api->GetShader((material->mFullBright)
-                ? Shaders::Fullbright
-                : Shaders::BlinnPhong);
-
-            bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
-            bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
-
-            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
-            renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
-
-            shader->SetUniform("current_material.texture_diffuse",  0);
-            shader->SetUniform("current_material.texture_specular", 1);
-            shader->SetUniform("current_material.use_diffuse",  use_diffuse);
-            shader->SetUniform("current_material.use_specular", use_specular);
-            shader->SetUniform("current_material.diffuse_color", material->mColor);
-            shader->SetUniform("current_material.alpha", material->mAlpha);
-            shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-            shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
-        }
-        else if(visual3d->DerivedFrom(ThingType::Sprite3D))
-        {
-            auto sprite{DCast<Sprite3D>(visual3d)};
-            mesh = GetResource<ArrayMesh>(UID::m_Quad);
-
-            auto texture{(not sprite->GetTexture())
-                ? missing_texture
-                : sprite->GetTexture()};
-
-            shader = renderer_api->GetShader(Shaders::Fullbright);
-
-            renderer_api->BindTexture(texture, 0);
-            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
-            renderer_api->SetFramebufferSRGB(true);
-
-            shader->SetUniform("current_material.texture_diffuse", 0);
-            shader->SetUniform("current_material.use_diffuse", true);
-            shader->SetUniform("current_material.diffuse_color", {1.0f,1.0f,1.0f});
-
-            auto height{texture->Format().height};
-            auto width{texture->Format().width};
-            if(width > height)
-                { scale_vector *= glm::vec3{1.0f / ((float)height / width), 1.0f, 1.0f}; }
-            else
-                { scale_vector *= glm::vec3{1.0f, 1.0f / ((float)height / width), 1.0f}; }
-        }
-
-        if(not mesh->SurfaceCount())
-            { mesh = GetResource<ArrayMesh>(UID::m_Error); }
-
-        glm::mat4 model_matrix{visual3d->GlobalTransform().model_matrix()};
-
-        shader->SetUniform("model_matrix", model_matrix);
-        shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
-        shader->SetUniform("projection_matrix", projection_matrix);
-        shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
-        shader->SetUniform("point_lights_count", PointLight3D::GetCount());
-        shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
-        shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
-        shader->SetUniform("view_matrix", view_matrix);
-        shader->SetUniform("view_position", inCamera->GlobalPosition());
-        shader->SetUniform("debug_highlight", visual3d->DebugHighlight());
-
-        shader->Bind();
-        for(int i{0}; i < mesh->SurfaceCount(); ++i)
-        	{ renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
-        renderer_api->SetFramebufferSRGB(false);
-    }
-}
-
-void Theatre::Draw2DThinkers(Shared<Camera2D> inCamera)
-{
-    if(not inCamera)
-        { return; }
-
-    LOCK_THINGS;
-
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
-
-    auto missing_texture{GetResource<Texture>(UID::i_Missing)};
-    auto quad_mesh{GetResource<ArrayMesh>(UID::m_Quad)};
-
-    for(ID v2d_id : mVisual2DIDs)
-    {
-        auto shader{renderer_api->GetShader(Shaders::Fast2D)};
-        auto visual2d{GetThinker<Visual2D>(v2d_id)};
-        if(not visual2d->Visible()
-            or not inCamera->LayersMask().contains(visual2d->Layers()))
-                { continue; }
-
-        if(visual2d->DerivedFrom(ThingType::Sprite2D))
-        {
-            auto sprite{DCast<Sprite2D>(visual2d)};
-            auto texture{sprite->GetTexture()};
-
-            glm::vec2 texture_size{texture->Format().width, texture->Format().height};
-
-            if(texture and not texture->GetBuffer())
-                { texture = missing_texture; }
-
-            auto size{sprite->GlobalScale() * texture_size};
-
-            auto model_matrix{glm::translate(glm::mat4{1.0f}, glm::vec3{sprite->GlobalPosition(), 0.0f})};
-            model_matrix = glm::rotate(model_matrix, sprite->GlobalRotation(), glm::vec3{0.0f, 0.0f, -1.0f});
-            model_matrix = glm::scale(model_matrix, glm::vec3{size, 1.0f});
-
-            bool use_texture {renderer_api->BindTexture(texture, 0)};
-
-            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or sprite->Wireframe());
-            renderer_api->SetFramebufferSRGB(use_texture);
-
-            shader->SetUniform("model_matrix", model_matrix);
-            shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-            shader->SetUniform("view_matrix", inCamera->ViewMatrix());
-            shader->SetUniform("view_position", inCamera->GlobalPosition());
-            shader->SetUniform("sprite_texture",  0);
-            shader->SetUniform("use_texture",  use_texture);
-            shader->SetUniform("sprite_color", glm::vec3{1.0f});
-            shader->SetUniform("debug_highlight", sprite->DebugHighlight());
-
-            shader->Bind();
-            for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
-            	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-            renderer_api->SetFramebufferSRGB(false);
-        }
-        else if(visual2d->DerivedFrom(ThingType::Text2D))
-        {
-            auto text2d{DCast<Text2D>(visual2d)};
-            auto font{GetResource<Font>(text2d->Font())};
-            auto shader{renderer_api->GetShader(Shaders::Fonts)};
-
-            glm::mat4 default_model{1.0f};
-            default_model = glm::translate(default_model, {text2d->GlobalPosition(), 0.0f});
-            default_model = glm::rotate(default_model, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
-            default_model = glm::scale(default_model, {text2d->GlobalScale(), 0.0f});
-
-            shader->SetUniform("debug_highlight", text2d->DebugHighlight());
-            shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-            shader->SetUniform("model_matrix", default_model);
-            shader->SetUniform("view_matrix", inCamera->ViewMatrix());
-            shader->SetUniform("view_position", inCamera->GlobalPosition());
-            shader->SetUniform("glyph", 0);
-            shader->Bind();
-
-            if(not Console::GetVariable("Theatre.draw_text_new")->int_value)
-            {
-                if(text2d->mDebugOutline)
-                {
-                    shader->SetUniform("debug_solid", 1);
-                    shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f});
-                    renderer_api->SetWireframe(true);
-                    renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
-                }
-
-                shader->SetUniform("debug_solid", text2d->mDebugSolid);
-                shader->SetUniform("text_color", text2d->Color().glm());
-
-                renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
-                renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
-            }
-            else
-            {
-                FAUTO text{text2d->Text()};
-                glm::vec2 position{0.0f, 0.0f};
-                auto glyph_top{font->GetGlyph('H').bitmap_top};
-                for(auto c{text.cbegin()}; c != text.cend(); ++c)
-                {
-                    FAUTO glyph{font->GetGlyph(*c)};
-                    if(!glyph.texture) { continue; }
-
-                    glm::vec2 pos{
-                        (c != text.cbegin()) * position.x + glyph.bitmap_left,
-                        (c != text.cbegin()) * position.y - (glyph_top - glyph.bitmap_top),
-                    },
-                    scale{
-                        glyph.bitmap_width,
-                        glyph.bitmap_height,
-                    };
-
-                    glm::mat4 model_matrix{1.0f};
-                    model_matrix = glm::translate(model_matrix, {text2d->GlobalPosition(), 0.0f});
-                    model_matrix = glm::rotate(model_matrix, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
-                    model_matrix = glm::scale(model_matrix, {text2d->GlobalScale(), 0.0f});
-
-                    model_matrix = glm::translate(model_matrix, {pos, 0.0f});
-                    model_matrix = glm::scale(model_matrix, {scale, 0.0f});
-
-                    shader->SetUniform("debug_solid", 0);
-                    shader->SetUniform("text_color", text2d->Color().glm());
-                    shader->SetUniform("model_matrix", model_matrix);
-
-                    renderer_api->BindTexture(glyph.texture, 0);
-                    renderer_api->SetWireframe(false);
-
-                    for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
-                    	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-
-                    if(text2d->mDebugSolid)
-                    {
-                        shader->SetUniform("debug_solid", 1);
-                        if(text2d->Wireframe() and text2d->mDebugSolid)
-                            { shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f}); }
-                        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
-                        for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
-                        	{ renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
-                    }
-
-                    position.x += (glyph.advance_x >> 6);
-                    position.y -= (glyph.advance_y >> 6);
-                }
-            }
-        }
-    }
 }
 
 Error Theatre::SetThingName(Sarg inOldName, Sarg inNewName)

@@ -154,13 +154,11 @@ protected:
     Shared<Thinker> m_pPlayer{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{MakeShared<TheatreFile::TheatreData>()};
 
-    virtual void UpdateCallsheet(ID, Farg<TheatreFile::ThingData>);
-    virtual void UpdateIdSetsAndSpecialThings(FPID, ID);
-    virtual Error DestroyThingOnly(ID);
-    virtual void Draw3DThinkers(Shared<Camera3D>);
-    virtual void Draw2DThinkers(Shared<Camera2D>);
-
     static Error SetThingName(Sarg,Sarg);
+
+    virtual void  UpdateCallsheet(ID, Farg<TheatreFile::ThingData>);
+    virtual void  UpdateIdSetsAndSpecialThings(FPID, ID);
+    virtual Error DestroyThingOnly(ID);
 };
 
 #endif // THEATRE_H
