@@ -50,8 +50,7 @@ Shared<Image> Image::CreateFromData(uchar* inData, int inSize, int inWidth, int 
     bool inUseMipmaps, DataFormat inFormat)
 {
     auto output{Image::CreateEmpty(0, 0)};
-    output->SetData(inData, 2880, inWidth, inHeight, inChannels, inUseMipmaps, inFormat);
-    print_debug("Image Size: {}", output->mSize);
+    output->SetData(inData, inSize, inWidth, inHeight, inChannels, inUseMipmaps, inFormat);
     return output;
 }
 
@@ -122,7 +121,7 @@ void Image::SetData(uchar* inData, int inSize, int inWidth, int inHeight, int in
     bool inUseMipmaps, DataFormat inFormat)
 {
     free();
-    m_pImage = inData;
+    m_pImage = new uchar[inSize];
     mSize = inSize;
     mWidth = inWidth;
     mHeight = inHeight;
@@ -130,6 +129,12 @@ void Image::SetData(uchar* inData, int inSize, int inWidth, int inHeight, int in
     mUseMipmaps = inUseMipmaps;
     mFormat = inFormat;
     mFilepath.clear();
+
+    for(int i{0}; i < inSize; ++i)
+        { m_pImage[i] = inData[i]; }
+
+    mAllocatedWithNew = true;
+    mAllocatedWithSTB = false;
 }
 
 SafeReturn<std::string> Image::SaveJPG(Sarg inPath, FileSystem::OverwriteAction inAction, int inQuality)
@@ -150,8 +155,13 @@ SafeReturn<std::string> Image::SaveJPG(Sarg inPath, FileSystem::OverwriteAction 
 
 void Image::free()
 {
-    if(m_pImage and mAllocatedWithSTB)
-        { stbi_image_free(m_pImage); }
+    if(m_pImage)
+    {
+        if(mAllocatedWithSTB)
+            { stbi_image_free(m_pImage); }
+        else if(mAllocatedWithNew)
+            { delete [] m_pImage; }
+    }
     m_pImage = nullptr;
     mAllocatedWithSTB = false;
     mSize = 0;

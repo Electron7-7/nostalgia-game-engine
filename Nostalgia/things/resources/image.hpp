@@ -42,7 +42,7 @@ public:
     int Channels() const;
 
 protected:
-    bool mAllocatedWithSTB{false};
+    bool mAllocatedWithSTB{false}, mAllocatedWithNew{false};
     std::string mFilepath{};
     uchar* m_pImage{nullptr};
     int mSize{0};
