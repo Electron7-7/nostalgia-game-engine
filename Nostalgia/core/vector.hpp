@@ -257,8 +257,8 @@ typedef vector<3,double,VectorMembers::XYZ>  Position3D;
 typedef vector<3,double,VectorMembers::XYZ>  Motion3D;
 typedef vector<3,int,VectorMembers::WHL>     Size3D;
 typedef vector<3,float,VectorMembers::XYZ>   Scale3D;
-typedef vector<3,double,VectorMembers::RGB>  ColorRGB;
-typedef vector<4,double,VectorMembers::RGBA> ColorRGBA;
+typedef vector<3,float,VectorMembers::RGB>   ColorRGB;
+typedef vector<4,float,VectorMembers::RGBA>  ColorRGBA;
 
 #undef ONLY_IF
 #undef INDEX_ACCESSOR
