@@ -13,8 +13,6 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-
-    Farg<Shared<FrameBuffer>> Framebuffer() const;
     virtual void Attach() const;
     virtual void Detach() const;
     virtual Shared<TextureBuffer> GetTextureBuffer() const;

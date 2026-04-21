@@ -53,8 +53,11 @@ void Viewport::Detach() const
     mFramebuffer->Unbind();
 }
 
-Farg<Shared<FrameBuffer>> Viewport::Framebuffer() const
-{ return mFramebuffer; }
+Shared<TextureBuffer> Viewport::GetTextureBuffer() const
+{
+    LOCK
+    return mFramebuffer->Texture();
+}
 
 ID Viewport::CurrentCamera3D()
 { return mCurrentCamera3D; }

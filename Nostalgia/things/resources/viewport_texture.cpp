@@ -42,7 +42,7 @@ Error ViewportTexture::Import()
 }
 
 Shared<TextureBuffer> ViewportTexture::GetBuffer() const
-{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->Framebuffer()->Texture(); }
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->GetTextureBuffer(); }
 
 Error ViewportTexture::SetBuffer(Shared<TextureBuffer>)
 { return ERR_NOT_ALLOWED; }
