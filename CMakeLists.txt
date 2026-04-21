@@ -26,14 +26,11 @@ if(NOT NOSTALGIA_DISABLE_PIC)
 endif()
 
 # Testapp Options
-option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
-option(BUILD_NO_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_NoThirdparty'" OFF)
-option(BUILD_JOLT_THIRDPARTY_TEST "Build 'ThirdpartyTestApp_JoltPhysics'" OFF)
+# option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
 
-if(BUILD_ALL_TESTS)
-    set(BUILD_NO_THIRDPARTY_TEST ON)
-    set(BUILD_JOLT_THIRDPARTY_TEST ON)
-endif()
+# if(BUILD_ALL_TESTS)
+    # set(BUILD_TEST_APP ON)
+# endif()
 
 if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
@@ -226,10 +223,6 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     endif()
 endfunction()
 
-if(BUILD_NO_THIRDPARTY_TEST)
-    add_test_target(ThirdpartyTestApp_NoThirdparty ${TESTAPP_DIR}/Thirdparty/NoThirdparty/app.cpp)
-endif()
-
-if(BUILD_JOLT_THIRDPARTY_TEST)
-    add_test_target(ThirdpartyTestApp_JoltPhysics ${TESTAPP_DIR}/Thirdparty/JoltPhysics/app.cpp)
-endif()
+# if(BUILD_TEST_APP)
+    # add_test_target(TestApp ${TESTAPP_DIR}/TestApp/app.cpp)
+# endif()
