@@ -26,8 +26,6 @@ public:
 
     virtual void SetViewport(Farg<Position2D> inPosition, Farg<Size2D> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
-    virtual void SetClearColor(double Red, double Green, double Blue, double Alpha) = 0;
-    virtual void SetClearColor(Farg<glm::vec4> Color) = 0;
     virtual void SetClearColor(Farg<ColorRGBA> Color) = 0;
     virtual void SetLineWidth(float Width) = 0;
     virtual void SetFramebufferSRGB(bool inValue) const = 0;

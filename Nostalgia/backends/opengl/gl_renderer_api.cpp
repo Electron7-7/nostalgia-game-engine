@@ -116,29 +116,11 @@ void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int
 void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Size2D> inSize)
 { glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
-void OpenGLRendererAPI::SetClearColor(double Red, double Green, double Blue, double Alpha)
-{
-    LOCK_MUTEX(mClearColorMutex)
-    mClearColor = {Red, Green, Blue, Alpha};
-}
-
-void OpenGLRendererAPI::SetClearColor(Farg<glm::vec4> Color)
-{
-    LOCK_MUTEX(mClearColorMutex)
-    mClearColor = {Color.r, Color.g, Color.b, Color.a};
-}
-
 void OpenGLRendererAPI::SetClearColor(Farg<ColorRGBA> Color)
-{
-    LOCK_MUTEX(mClearColorMutex)
-    mClearColor = {Color.r(), Color.g(), Color.b(), Color.a()};
-}
+{ glClearColor(Color.r(), Color.g(), Color.b(), Color.a()); }
 
 void OpenGLRendererAPI::Clear()
-{
-    glClearColor(mClearColor[0],mClearColor[1],mClearColor[2],mClearColor[3]);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
+{ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
 void OpenGLRendererAPI::SetLineWidth(float Width)
 { glLineWidth(Width); }
@@ -226,8 +208,9 @@ void OpenGLRendererAPI::SetDepthMask(bool isEnabled) const
 
 ColorRGBA OpenGLRendererAPI::GetClearColor()
 {
-    LOCK_MUTEX(mClearColorMutex)
-    return {mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]};
+    ColorRGBA _output{};
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, _output.data());
+    return _output;
 }
 
 float OpenGLRendererAPI::GetLineWidth()

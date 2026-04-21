@@ -12,8 +12,6 @@ public:
 
     void SetViewport(Farg<Position2D>, Farg<Size2D>) final;
     void SetViewport(int, int, int, int) final;
-    void SetClearColor(double, double, double, double) final;
-    void SetClearColor(Farg<glm::vec4>) final;
     void SetClearColor(Farg<ColorRGBA>) final;
     void SetLineWidth(float) override;
     void SetFramebufferSRGB(bool) const final;
@@ -42,9 +40,8 @@ public:
     void Clear() final;
 
 private:
-    mutable RMutex mTextMutex{}, mShadersMutex{}, mClearColorMutex{};
+    mutable RMutex mTextMutex{}, mShadersMutex{};
     std::unordered_map<ID, Shared<Shader>> mShaders{};
-    std::array<double, 4> mClearColor{1.0f, 0.2f, 0.8f, 1.0f};
     bool mIsRunning{false};
     uint mTextVAO{0};
     uint mTextVBOs[2]{0, 0};
