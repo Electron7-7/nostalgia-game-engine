@@ -84,29 +84,6 @@ static GLenum s_GLWrap(SamplerRepeat inRepeat)
     }
 }
 
-Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat, int inLayer)
-{
-    GLenum gl_type{s_GLType(mType = inFormat.type)};
-    GLenum gl_target{(gl_type == GL_TEXTURE_CUBE_MAP)
-        ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + inLayer
-        : gl_type};
-
-    glBindTexture(gl_type, mBufferID);
-    if(inFormat.data_format == DATA_FORMAT_RED) { glPixelStorei(GL_UNPACK_ALIGNMENT, 1); }
-    glTexImage2D(gl_target,
-        0,
-        s_GLFormat(inFormat.data_format, true),
-        inFormat.width,
-        inFormat.height,
-        0,
-        s_GLFormat(inFormat.data_format),
-        GL_UNSIGNED_BYTE,
-        inData);
-
-    glBindTexture(gl_type, 0);
-    return mStatus = OK;
-}
-
 Error OpenGLTextureBuffer::GenerateMipMaps()
 {
     glBindTexture(s_GLType(mType), mBufferID);
@@ -132,6 +109,29 @@ Error OpenGLTextureBuffer::SetSamplerState(Farg<SamplerState> inSamplerState) co
     else if(!mStatus)
         { return mStatus; }
     return OK;
+}
+
+Error OpenGLTextureBuffer::Load(InputData inData, Farg<TextureFormat> inFormat, int inLayer)
+{
+    GLenum gl_type{s_GLType(mType = inFormat.type)};
+    GLenum gl_target{(gl_type == GL_TEXTURE_CUBE_MAP)
+        ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + inLayer
+        : gl_type};
+
+    glBindTexture(gl_type, mBufferID);
+    if(inFormat.data_format == DATA_FORMAT_RED) { glPixelStorei(GL_UNPACK_ALIGNMENT, 1); }
+    glTexImage2D(gl_target,
+        0,
+        s_GLFormat(inFormat.data_format, true),
+        inFormat.width,
+        inFormat.height,
+        0,
+        s_GLFormat(inFormat.data_format),
+        GL_UNSIGNED_BYTE,
+        inData);
+
+    glBindTexture(gl_type, 0);
+    return mStatus = OK;
 }
 
 OpenGLTextureBuffer::OpenGLTextureBuffer()
