@@ -151,7 +151,12 @@ void ImGui_Editor::Input(InputEvent* event)
     if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { ImGui_Debugger::m_sDebugWindowOpened = !ImGui_Debugger::m_sDebugWindowOpened; }
     else if(event->IsJustPressed(Key::F2) and m_sTheatreRunning)
-        { Theatre::Current()->TakeScreenshot()->SaveJPG(m_sScreenshotFilePath); }
+    {
+        if(Settings::Engine::IsEditorHint)
+            { m_spEditorTheatre->m_pEditor3DViewport->GetImage()->SaveJPG(m_sScreenshotFilePath); }
+        else
+            { Theatre::Current()->TakeScreenshot()->SaveJPG(m_sScreenshotFilePath); }
+    }
     else if(event->IsJustPressed(Key::F3))
     {
         if(not Settings::Engine::IsEditorHint)
@@ -178,7 +183,7 @@ void ImGui_Editor::Input(InputEvent* event)
         and event->IsModifierActive(Key::Mod_Control)
         and event->IsModifierActive(Key::Mod_Shift)
         and m_sTheatreRunning and Settings::Engine::IsEditorHint)
-        { m_sAddThing = true; }
+            { m_sAddThing = true; }
 }
 
 void ImGui_Editor::Update()
