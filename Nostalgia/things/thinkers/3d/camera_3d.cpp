@@ -3,12 +3,14 @@
 #include "things/thing_data.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/array_mesh.hpp"
-#include "theatre/theatre.hpp"
 #include "settings/world.hpp"
 #include "managers/render_manager.hpp"
 #include "rendering/shader.hpp"
 #include "theatre/theatre.hpp"
 #include "things/resource_database.hpp"
+#include "things/thinkers/3d/light_3d.hpp"
+#include "things/thinkers/3d/mesh_instance_3d.hpp"
+#include "things/thinkers/3d/sprite_3d.hpp"
 
 using namespace TheatreFile;
 
@@ -90,33 +92,131 @@ Shared<ThingData> Camera3D::GetVariables() const
 void Camera3D::DrawBackground() const
 {
     FAUTO renderer_api{g_pRenderManager->GetAPI()};
-    switch(mEnvironment.mType)
+    if(mEnvironment.mType == Environment::BG_SKYBOX)
     {
-    case Environment::BG_SKYBOX:
-        {
 #pragma message("TODO: move all Resource creation to the ResourceDatabase, even the ones made by a Theatre")
-            renderer_api->BindTexture(Theatre::Current()
-                ->GetResource<Texture>(mEnvironment.mSkyboxTextureID), 0);
-            renderer_api->GetShader(Shaders::SkyBox)->Bind();
-            renderer_api->GetShader(Shaders::SkyBox)
-                ->SetUniform("view_matrix", glm::mat4{glm::mat3{ViewMatrix()}});
-            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", ProjectionMatrix());
-            renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
-            renderer_api->SetDepthMask(false);
-            auto _cube{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Cube)};
-            for(int i{0}; i < _cube->SurfaceCount(); ++i)
-                { renderer_api->DrawIndexed(_cube->SurfaceGetVertexArray(i)); }
-            renderer_api->SetDepthMask(true);
-            return;
-        }
-    case Environment::BG_CUSTOM_COLOR:
-        renderer_api->SetClearColor(mEnvironment.get_custom_color().glm());
-        break;
-    case Environment::BG_CLEAR_COLOR:
-        renderer_api->SetClearColor(Settings::Graphics::ClearColor.glm());
-        break;
+        renderer_api->BindTexture(Theatre::Current()
+            ->GetResource<Texture>(mEnvironment.mSkyboxTextureID), 0);
+        renderer_api->GetShader(Shaders::SkyBox)->Bind();
+        renderer_api->GetShader(Shaders::SkyBox)
+            ->SetUniform("view_matrix", glm::mat4{glm::mat3{ViewMatrix()}});
+        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("projection_matrix", ProjectionMatrix());
+        renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
+        renderer_api->SetWireframe(false);
+        renderer_api->SetDepthMask(false);
+        auto _cube{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Cube)};
+        for(int i{0}; i < _cube->SurfaceCount(); ++i)
+            { renderer_api->DrawIndexed(_cube->SurfaceGetVertexArray(i)); }
+        renderer_api->SetDepthMask(true);
+        return;
     }
+    renderer_api->SetClearColor((mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
+        ? mEnvironment.get_custom_color() : Settings::Graphics::ClearColor);
     renderer_api->Clear();
+}
+
+void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
+{
+    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    auto shader{renderer_api->GetShader(Shaders::Fullbright)};
+    auto view_matrix{ViewMatrix()};
+    auto projection_matrix{ProjectionMatrix()};
+
+    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::i_Missing)};
+    auto mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Error)};
+
+    if(not inVisual3D->Visible()
+        or inVisual3D->DerivedFrom(ThingType::Light3D)
+        or not LayersMask().contains(inVisual3D->Layers()))
+            { return; }
+
+    glm::vec3 scale_vector{inVisual3D->GlobalScale()};
+
+    if(inVisual3D->DerivedFrom(ThingType::MeshInstance3D))
+    {
+        auto mesh_instance{DCast<MeshInstance3D>(inVisual3D)};
+        if(DCast<ArrayMesh>(mesh_instance->GetMesh()))
+            { mesh = DCast<ArrayMesh>(mesh_instance->GetMesh()); }
+        auto material{mesh->mMaterial};
+
+        if(mesh_instance->GetMaterialOverride())
+            { material = mesh_instance->GetMaterialOverride(); }
+
+        auto diffuse_texture{material->DiffuseTexture()};
+        auto specular_texture{material->SpecularTexture()};
+
+        if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->GetBuffer())
+            { diffuse_texture = missing_texture; }
+
+        if(not material->SpecularTexture()->Invalid() and not specular_texture->GetBuffer())
+            { specular_texture = missing_texture; }
+
+        shader = renderer_api->GetShader((material->mFullBright)
+            ? Shaders::Fullbright
+            : Shaders::BlinnPhong);
+
+        bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
+        bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
+
+        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
+        renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
+
+        shader->SetUniform("current_material.texture_diffuse",  0);
+        shader->SetUniform("current_material.texture_specular", 1);
+        shader->SetUniform("current_material.use_diffuse",  use_diffuse);
+        shader->SetUniform("current_material.use_specular", use_specular);
+        shader->SetUniform("current_material.diffuse_color", material->mColor);
+        shader->SetUniform("current_material.alpha", material->mAlpha);
+        shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+        shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
+    }
+    else if(inVisual3D->DerivedFrom(ThingType::Sprite3D))
+    {
+        auto sprite{DCast<Sprite3D>(inVisual3D)};
+        mesh = ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad);
+
+        auto texture{(not sprite->GetTexture())
+            ? missing_texture
+            : sprite->GetTexture()};
+
+        shader = renderer_api->GetShader(Shaders::Fullbright);
+
+        renderer_api->BindTexture(texture, 0);
+        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
+        renderer_api->SetFramebufferSRGB(true);
+
+        shader->SetUniform("current_material.texture_diffuse", 0);
+        shader->SetUniform("current_material.use_diffuse", true);
+        shader->SetUniform("current_material.diffuse_color", {1.0f,1.0f,1.0f});
+
+        auto height{texture->Format().height};
+        auto width{texture->Format().width};
+        if(width > height)
+            { scale_vector *= glm::vec3{1.0f / ((float)height / width), 1.0f, 1.0f}; }
+        else
+            { scale_vector *= glm::vec3{1.0f, 1.0f / ((float)height / width), 1.0f}; }
+    }
+
+    if(not mesh->SurfaceCount())
+        { mesh = ResourceDatabase::GetResource<ArrayMesh>(UID::m_Error); }
+
+    glm::mat4 model_matrix{inVisual3D->GlobalTransform().model_matrix()};
+
+    shader->SetUniform("model_matrix", model_matrix);
+    shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+    shader->SetUniform("projection_matrix", projection_matrix);
+    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("point_lights_count", PointLight3D::GetCount());
+    shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
+    shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
+    shader->SetUniform("view_matrix", view_matrix);
+    shader->SetUniform("view_position", GlobalPosition());
+    shader->SetUniform("debug_highlight", inVisual3D->DebugHighlight());
+
+    shader->Bind();
+    for(int i{0}; i < mesh->SurfaceCount(); ++i)
+        { renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
+    renderer_api->SetFramebufferSRGB(false);
 }
 
 ID Camera3D::ViewportID() const

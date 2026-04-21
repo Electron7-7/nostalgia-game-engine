@@ -5,6 +5,14 @@
 #include "settings/graphics.hpp"
 #include "theatre/theatre.hpp"
 #include "settings/engine.hpp"
+#include "things/resources/texture.hpp"
+#include "things/resources/font.hpp"
+#include "managers/render_manager.hpp"
+#include "things/resources/array_mesh.hpp"
+#include "rendering/shader.hpp"
+#include "things/resource_database.hpp"
+#include "things/thinkers/2d/sprite_2d.hpp"
+#include "things/thinkers/2d/text_2d.hpp"
 
 using namespace TheatreFile;
 
@@ -58,6 +66,141 @@ Shared<ThingData> Camera2D::GetVariables() const
     data->set_variable(mInitCurrent, "Current");
 
     return data;
+}
+
+void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
+{
+    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+
+    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::i_Missing)};
+    auto quad_mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad)};
+
+    auto shader{renderer_api->GetShader(Shaders::Fast2D)};
+    if(not inVisual2D->Visible()
+        or not LayersMask().contains(inVisual2D->Layers()))
+            { return; }
+    else if(inVisual2D->DerivedFrom(ThingType::Sprite2D))
+    {
+        auto sprite{DCast<Sprite2D>(inVisual2D)};
+        auto texture{sprite->GetTexture()};
+
+        glm::vec2 texture_size{texture->Format().width, texture->Format().height};
+
+        if(texture and not texture->GetBuffer())
+            { texture = missing_texture; }
+
+        auto size{sprite->GlobalScale() * texture_size};
+
+        auto model_matrix{glm::translate(glm::mat4{1.0f}, glm::vec3{sprite->GlobalPosition(), 0.0f})};
+        model_matrix = glm::rotate(model_matrix, sprite->GlobalRotation(), glm::vec3{0.0f, 0.0f, -1.0f});
+        model_matrix = glm::scale(model_matrix, glm::vec3{size, 1.0f});
+
+        bool use_texture {renderer_api->BindTexture(texture, 0)};
+
+        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or sprite->Wireframe());
+        renderer_api->SetFramebufferSRGB(use_texture);
+
+        shader->SetUniform("model_matrix", model_matrix);
+        shader->SetUniform("projection_matrix", ProjectionMatrix());
+        shader->SetUniform("view_matrix", ViewMatrix());
+        shader->SetUniform("view_position", GlobalPosition());
+        shader->SetUniform("sprite_texture",  0);
+        shader->SetUniform("use_texture",  use_texture);
+        shader->SetUniform("sprite_color", glm::vec3{1.0f});
+        shader->SetUniform("debug_highlight", sprite->DebugHighlight());
+
+        shader->Bind();
+        for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+            { renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+        renderer_api->SetFramebufferSRGB(false);
+    }
+    else if(inVisual2D->DerivedFrom(ThingType::Text2D))
+    {
+        auto text2d{DCast<Text2D>(inVisual2D)};
+        auto font{ResourceDatabase::GetResource<Font>(text2d->Font())};
+        auto shader{renderer_api->GetShader(Shaders::Fonts)};
+
+        glm::mat4 default_model{1.0f};
+        default_model = glm::translate(default_model, {text2d->GlobalPosition(), 0.0f});
+        default_model = glm::rotate(default_model, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
+        default_model = glm::scale(default_model, {text2d->GlobalScale(), 0.0f});
+
+        shader->SetUniform("debug_highlight", text2d->DebugHighlight());
+        shader->SetUniform("projection_matrix", ProjectionMatrix());
+        shader->SetUniform("model_matrix", default_model);
+        shader->SetUniform("view_matrix", ViewMatrix());
+        shader->SetUniform("view_position", GlobalPosition());
+        shader->SetUniform("glyph", 0);
+        shader->Bind();
+
+        if(not Console::GetVariable("Theatre.draw_text_new")->int_value)
+        {
+            if(text2d->mDebugOutline)
+            {
+                shader->SetUniform("debug_solid", 1);
+                shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f});
+                renderer_api->SetWireframe(true);
+                renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+            }
+
+            shader->SetUniform("debug_solid", text2d->mDebugSolid);
+            shader->SetUniform("text_color", text2d->Color().glm());
+
+            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
+            renderer_api->DrawText(text2d->Text(), font, glm::vec2{0.0f}, glm::vec2{1.0f});
+        }
+        else
+        {
+            FAUTO text{text2d->Text()};
+            glm::vec2 position{0.0f, 0.0f};
+            auto glyph_top{font->GetGlyph('H').bitmap_top};
+            for(auto c{text.cbegin()}; c != text.cend(); ++c)
+            {
+                FAUTO glyph{font->GetGlyph(*c)};
+                if(!glyph.texture) { continue; }
+
+                glm::vec2 pos{
+                    (c != text.cbegin()) * position.x + glyph.bitmap_left,
+                    (c != text.cbegin()) * position.y - (glyph_top - glyph.bitmap_top),
+                },
+                scale{
+                    glyph.bitmap_width,
+                    glyph.bitmap_height,
+                };
+
+                glm::mat4 model_matrix{1.0f};
+                model_matrix = glm::translate(model_matrix, {text2d->GlobalPosition(), 0.0f});
+                model_matrix = glm::rotate(model_matrix, text2d->GlobalRotation(), {0.0f, 0.0f, -1.0f});
+                model_matrix = glm::scale(model_matrix, {text2d->GlobalScale(), 0.0f});
+
+                model_matrix = glm::translate(model_matrix, {pos, 0.0f});
+                model_matrix = glm::scale(model_matrix, {scale, 0.0f});
+
+                shader->SetUniform("debug_solid", 0);
+                shader->SetUniform("text_color", text2d->Color().glm());
+                shader->SetUniform("model_matrix", model_matrix);
+
+                renderer_api->BindTexture(glyph.texture, 0);
+                renderer_api->SetWireframe(false);
+
+                for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+                    { renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+
+                if(text2d->mDebugSolid)
+                {
+                    shader->SetUniform("debug_solid", 1);
+                    if(text2d->Wireframe() and text2d->mDebugSolid)
+                        { shader->SetUniform("text_color", glm::vec3{1.0f, 0.4f, 1.0f}); }
+                    renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or text2d->Wireframe());
+                    for(int i{0}; i < quad_mesh->SurfaceCount(); ++i)
+                        { renderer_api->DrawIndexed(quad_mesh->SurfaceGetVertexArray(i)); }
+                }
+
+                position.x += (glyph.advance_x >> 6);
+                position.y -= (glyph.advance_y >> 6);
+            }
+        }
+    }
 }
 
 ID Camera2D::ViewportID() const

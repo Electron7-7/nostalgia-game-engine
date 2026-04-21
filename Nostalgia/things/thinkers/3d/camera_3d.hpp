@@ -1,7 +1,7 @@
 #ifndef CAMERA_3D_H
 #define CAMERA_3D_H
 
-#include <Nostalgia/things/thinkers/3d/actor_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/visual_3d.hpp>
 #include <Nostalgia/rendering/environment.hpp>
 
 class Camera3D : public Actor3D
@@ -19,6 +19,7 @@ public:
     Environment mEnvironment{};
 
     virtual void DrawBackground() const;
+    virtual void Draw(Shared<Visual3D>) const;
 
     virtual ID ViewportID() const;
 

@@ -1,7 +1,7 @@
 #ifndef CAMERA_2D_H
 #define CAMERA_2D_H
 
-#include <Nostalgia/things/thinkers/2d/actor_2d.hpp>
+#include <Nostalgia/things/thinkers/2d/visual_2d.hpp>
 
 class Camera2D : public Actor2D
 {
@@ -12,9 +12,7 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    Farg<glm::vec2> Zoom() const;
-    void SetZoom(Farg<glm::vec2>);
-    void SetZoom(float);
+    virtual void Draw(Shared<Visual2D>) const;
 
     virtual ID ViewportID() const;
 
@@ -23,6 +21,10 @@ public:
 
     virtual BitMask LayersMask() const;
     virtual void SetLayersMask(BitMask inRenderLayersMask);
+
+    Farg<glm::vec2> Zoom() const;
+    void SetZoom(Farg<glm::vec2>);
+    void SetZoom(float);
 
     glm::mat4 ViewMatrix() const;
     glm::mat4 ProjectionMatrix() const;
