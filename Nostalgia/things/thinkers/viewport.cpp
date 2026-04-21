@@ -1,4 +1,5 @@
 #include "./viewport.hpp"
+#include "managers/render_manager.hpp"
 #include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
@@ -37,14 +38,19 @@ Shared<ThingData> Viewport::GetVariables() const
     return data;
 }
 
-void Viewport::Clear()
+void Viewport::Attach() const
 {
     LOCK
-    if(mFramebufferClear)
-        { return; }
-    mFramebuffer->ClearColor();
-    mFramebuffer->ClearDepth();
-    mFramebufferClear = true;
+    mFramebuffer->Bind();
+    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor);
+    g_pRenderManager->GetAPI()->Clear();
+    g_pRenderManager->GetAPI()->SetViewport({0, 0}, Size());
+}
+
+void Viewport::Detach() const
+{
+    LOCK
+    mFramebuffer->Unbind();
 }
 
 Farg<Shared<FrameBuffer>> Viewport::Framebuffer() const
