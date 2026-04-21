@@ -47,6 +47,8 @@ public:
     virtual void Tick();
     virtual void Input(InputEvent*);
 
+    virtual Shared<Image> TakeScreenshot(ID inViewportUID = ID::Invalid);
+
     virtual void  LoadTheatreData(Farg<TheatreFile::TheatreData> inTheatreData);
     virtual Error LoadData(Farg<FileData> inData);
     virtual Error LoadFile(std::string inFilePath);

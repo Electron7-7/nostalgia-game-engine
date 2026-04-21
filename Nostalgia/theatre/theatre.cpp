@@ -45,6 +45,14 @@ void Theatre::Input(InputEvent* inInput)
         { thing->Input(inInput); }
 }
 
+Shared<Image> Theatre::TakeScreenshot(ID inViewportUID)
+{
+    LOCK_THINGS;
+    LOCK_CALLSHEET;
+    if(inViewportUID.invalid())
+        { return g_pRenderManager->GetAPI()->GetFullScreenshot(); }
+}
+
 void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
 {
     Shutdown();
