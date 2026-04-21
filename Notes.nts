@@ -1394,3 +1394,12 @@ See (https://www.reddit.com/r/cpp/comments/1734ubb/should_unique_pointer_be_used
 
 [04/16/26]
 I'm really fucking happy with how the editor looks. I just want to implement collider body rendering for the editor/debugging. I *don't*, however, want to learn how to use Jolt's renderer shit. Maybe I can get the triangle data from the bodies and render them myself? (that might just be what defining my own renderer for Jolt is, lmfao....).
+
+[04/17/26]
+During my attempts at writing screenshot code, I got half an image to produce and `GL_INVALID_OPERATION` error on `glReadBuffer`.
+
+I'm thinking (Miku) that I might just wanna create a "root viewport" that stays out of the `mThings` map and then write some code in `OpenGLFrameBuffer` for getting pixel data. Something like that.
+
+Okay, at work so here we go; I'm pretty sure the crash is due to the calculated size of the buffer being way larger than it should be. I printed it out and the 0s appear after ~2764800 bytes. Okay, and my incorrect calculation is 3686400. That's 921600 bytes too large. That's also what 1280x720 equals (my window size). I think that means that I'm just doubling the real count of pixels, which aligns with the crash after half the buffer was saved.
+
+Okay, lemme try writing code in `FrameBuffer` for saving to an `Image`.
