@@ -48,7 +48,7 @@ void RenderManager::Update()
     auto _start_time{Runtime::Current()};
     if(mCanClearWindow and mRendererAPI)
     {
-        mRendererAPI->SetClearColor(Settings::Graphics::ClearColor.glm());
+        mRendererAPI->SetClearColor(Settings::Graphics::ClearColor);
         mRendererAPI->Clear();
     }
     g_pTheatreManager->DrawCurrentTheatre();
