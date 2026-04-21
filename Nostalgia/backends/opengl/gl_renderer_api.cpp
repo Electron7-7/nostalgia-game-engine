@@ -246,6 +246,9 @@ Shared<Image> OpenGLRendererAPI::GetFullScreenshot() const
         DATA_FORMAT_RGBA);
 }
 
+void OpenGLRendererAPI::BindFramebuffer(uint inFrameBuffer) const
+{ glBindFramebuffer(GL_FRAMEBUFFER, inFrameBuffer); }
+
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const
 {
     if(not inBuffer
