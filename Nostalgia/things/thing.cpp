@@ -1,12 +1,12 @@
 #include "./thing.hpp"
-#include "things/thing_data.hpp"
+#include "./thing_data.hpp"
 #include "./thing_factory.hpp"
 
 #define LOCK(MUTEX) LockGuard<RMutex> lock{MUTEX}
 
 using namespace TheatreFile;
 
-Thing::Thing() noexcept: mUID{ID::Invalid} {}\
+Thing::Thing() noexcept: mUID{ID::Invalid} {}
 Thing::Thing(Sarg inName) noexcept: mUID{_generate()}, mName{inName} {}
 
 Thing::~Thing() noexcept

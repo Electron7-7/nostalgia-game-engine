@@ -1,6 +1,5 @@
 #include "./texture.hpp"
 #include "things/thing_data.hpp"
-#include "rendering/texture_buffer.hpp"
 
 using namespace TheatreFile;
 

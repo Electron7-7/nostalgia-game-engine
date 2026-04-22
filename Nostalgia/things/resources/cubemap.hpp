@@ -7,14 +7,14 @@
 class Cubemap : public Texture
 {
 public:
-    using images_t = std::initializer_list<Shared<Image>>;
-
-    static Shared<Cubemap> CreateFromImages(images_t inImages);
-
 	SET_SUPER(Texture)
 	SET_TYPEID(ThingType::Cubemap)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
+
+    using images_t = std::initializer_list<Shared<Image>>;
+
+    static Shared<Cubemap> CreateFromImages(images_t inImages);
 
     Error UpdateLayer(Shared<Image> inImage, int inLayer);
 
