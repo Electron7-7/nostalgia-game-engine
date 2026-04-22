@@ -1403,3 +1403,18 @@ I'm thinking (Miku) that I might just wanna create a "root viewport" that stays 
 Okay, at work so here we go; I'm pretty sure the crash is due to the calculated size of the buffer being way larger than it should be. I printed it out and the 0s appear after ~2764800 bytes. Okay, and my incorrect calculation is 3686400. That's 921600 bytes too large. That's also what 1280x720 equals (my window size). I think that means that I'm just doubling the real count of pixels, which aligns with the crash after half the buffer was saved.
 
 Okay, lemme try writing code in `FrameBuffer` for saving to an `Image`.
+
+[04/20/26]
+Today, I'm gonna try and work more of the rendering code into `Viewport`.
+
+I ended up making `::Draw` functions for the cameras, and merging all the framebuffer setup into `Viewport::Attach`; I also added a `Viewport::Detach` which just unbinds the framebuffer.
+
+[04/21/26]
+I fixed the problem with screenshots. Now, I want to implement code in `FrameBuffer` that lets me move the responsibility of creating and storing the render buffer and texture buffers to classes like `ViewportTexture`.
+
+I really need to figure out how I'm gonna fully convert to DSA opengl texture buffers... it's causing so many headaches.
+
+Everything's working except there's some weird shit going on with viewport position and size. I don't know what it is but I'm calling it here for now. All in all, a success.
+
+[04/22/26]
+Time to fix this weird bug.
