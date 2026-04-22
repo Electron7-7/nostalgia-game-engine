@@ -1,7 +1,12 @@
 #ifndef RENDERING_FWD_H
 #define RENDERING_FWD_H
 
+enum DataFormat       : int;
+enum BufferAttachment : int;
+
 class FrameBuffer;
+
+class RenderBuffer;
 
 class IGraphicsContext;
 
@@ -21,7 +26,7 @@ namespace Shaders
     extern constinit const uint Fonts;
 }
 
-enum TextureType : int;
+enum TextureType   : int;
 enum SamplerFilter : int;
 enum SamplerRepeat : int;
 struct SamplerState;
