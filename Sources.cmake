@@ -34,6 +34,8 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/backends/opengl/gl_shader.cpp
     ${NOSTALGIA_ROOT}/backends/opengl/gl_renderer_api.cpp
     ${NOSTALGIA_ROOT}/backends/opengl/gl_frame_buffer.cpp
+    ${NOSTALGIA_ROOT}/backends/opengl/gl_render_buffer.cpp
+    ${NOSTALGIA_ROOT}/backends/opengl/gl_enum_conversions.cpp
     ${NOSTALGIA_ROOT}/backends/glfw/glfw_window.cpp
     ${NOSTALGIA_ROOT}/managers/event_manager.cpp
     ${NOSTALGIA_ROOT}/managers/physics_manager.cpp
@@ -105,6 +107,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/rendering/vertex_array.cpp
     ${NOSTALGIA_ROOT}/rendering/mesh_buffers.cpp
     ${NOSTALGIA_ROOT}/rendering/frame_buffer.cpp
+    ${NOSTALGIA_ROOT}/rendering/render_buffer.cpp
     ${NOSTALGIA_ROOT}/console/console.cpp
     ${NOSTALGIA_ROOT}/math/conversion.cpp)
 
@@ -193,6 +196,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/rendering/vertex_array.hpp
     ${NOSTALGIA_ROOT}/rendering/environment.hpp
     ${NOSTALGIA_ROOT}/rendering/frame_buffer.hpp
+    ${NOSTALGIA_ROOT}/rendering/render_buffer.hpp
     ${NOSTALGIA_ROOT}/rendering/mesh_buffers.hpp
     ${NOSTALGIA_ROOT}/rendering/shader.hpp
     ${NOSTALGIA_ROOT}/rendering/texture_buffer.hpp
