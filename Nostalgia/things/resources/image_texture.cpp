@@ -42,26 +42,19 @@ void ImageTexture::SetImage(Shared<Image> inImage)
     }
 
     mFormat = {inImage->Width(), inImage->Height(), inImage->Format()};
+    mTextureBuffer->Load(inImage->data(), mFormat);
 
-    if(not print_error_enum(mTextureBuffer->Load(inImage->data(), mFormat)))
+    if(not inImage->UseMipmaps())
     {
-        print_error("Failed to create Texture ['{}', {}]", name(), uid()());
-        return;
+        mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
+        mTextureBuffer->SetSamplerState(mSampler);
     }
     else
     {
-        if(not inImage->UseMipmaps())
-        {
-            mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
-            mTextureBuffer->SetSamplerState(mSampler);
-        }
-        else
-        {
-            if(mSampler.mip_filter_min == SAMPLER_FILTER_NONE)
-                { mSampler.mip_filter_min = SAMPLER_FILTER_LINEAR; }
-            mTextureBuffer->SetSamplerState(mSampler);
-            mTextureBuffer->GenerateMipMaps();
-        }
+        if(mSampler.mip_filter_min == SAMPLER_FILTER_NONE)
+            { mSampler.mip_filter_min = SAMPLER_FILTER_LINEAR; }
+        mTextureBuffer->SetSamplerState(mSampler);
+        mTextureBuffer->GenerateMipMaps();
     }
 }
 
@@ -81,5 +74,5 @@ void ImageTexture::UpdateImage(Shared<Image> inImage)
     }
 
     mInitialImageID = inImage->uid();
-    print_error_enum(mTextureBuffer->Load(inImage->data(), mFormat));
+    mTextureBuffer->Load(inImage->data(), mFormat);
 }
