@@ -59,6 +59,9 @@ void RenderManager::Update()
         { mUIFrametime = Runtime::Current() - _start_time; }
 }
 
+bool RenderManager::IsAPIActive() const
+{ return (mRendererAPI and mRendererAPI->IsRunning()); }
+
 void RenderManager::CalculateFrameTime(bool inCalculate)
 { mCanCalculateFrametime = inCalculate; }
 

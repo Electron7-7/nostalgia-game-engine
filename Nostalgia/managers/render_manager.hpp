@@ -24,6 +24,8 @@ public:
     void Update() final;
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) final;
     void Shutdown() final;
+
+    bool IsAPIActive() const;
     void CalculateFrameTime(bool);
     bool CalculatingFrameTime() const;
     double GetTheatreFrameTime() const;
