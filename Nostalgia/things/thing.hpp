@@ -35,6 +35,7 @@ namespace TheatreFile { struct ThingData; }
 class Thing
 {
 public:
+    using Super = Thing;
     virtual constexpr FPID Type() const { return ThingType::Thing; }
 
     Thing(Sarg inName) noexcept;
