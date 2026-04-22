@@ -20,27 +20,19 @@ declare TestAnimatedSprite2D inherits Sprite2D
     Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
 ///
 
-Image StupidImage
+ImageTexture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
         will capture absolutely everything. Even whitespace. ///
-    File = 'testing_resources/Stupid.png'
-}
-
-ImageTexture StupidTex
-{
-    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
-        also reference embedded Resources, like the default cube mesh or missing texture image. ///
-    Image = <StupidImage>
+    Image = 'testing_resources/Stupid.png'
 }
 
 ArrayMesh IcoSphere
 {
-    /// While "File" is the default name for Resource's file data variable, other derived
-        Resources may add additional aliases depending on the context of the data. For example,
-        ArrayMesh accepts "Model" as well as "File". ///
-    Model = 'testing_resources/IcoSphere.obj'
+    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
+        also reference embedded Resources, like the default cube mesh or missing texture image. ///
     Material = <StupidMaterial>
+    Model = 'testing_resources/IcoSphere.obj'
 }
 
 ImageTexture LolBitTexture
@@ -57,7 +49,7 @@ ImageTexture LolBitTexture
 /// You don't need to use '=' when defining variables, so use whatever looks best to you. I personally like
     using '=' to visually separate the name and value. ///
 ImageTexture DoomTexture
-{ Image = <DoomImage> }
+{ Image <DoomImage> }
 
 Material LolBitMaterial
 { DiffuseTexture = <LolBitTexture> }
