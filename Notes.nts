@@ -1418,3 +1418,11 @@ Everything's working except there's some weird shit going on with viewport posit
 
 [04/22/26]
 Time to fix this weird bug.
+
+Fixed! The root viewport issue was just that `Camera3D::ProjectionMatrix` wasn't getting the main window's aspect ratio when its viewport id was invalid. The scaling issue, however, is odd because I don't know what was going wrong, but it was fixed when I moved the code back into `Viewport`. I'm gonna focus on converting the texturebuffer code fully to DSA now.
+
+`glTextureStorage2D` is immutable and the buffer size cannot be changed (you need to remake the entire texture buffer).
+
+`glTexImage2D` is mutable and can be resized (better for framebuffer?).
+
+Okay, I need to separate `glTextureStorage2D` from the `Load` function. Honestly, I should just redesign `TextureBuffer` to probably be more like `Texture`.
