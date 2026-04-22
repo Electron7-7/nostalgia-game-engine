@@ -1,0 +1,50 @@
+@KYS#67
+
+NostalgiaPlayer Player
+{
+    Position = [0, 0.3, 6]
+    Actor3D = <Player_EditorActor3D>
+    Child : EditorPlayer3D Player_EditorActor3D {}
+}
+
+DirectionalLight3D TheSun
+{ Energy = [0.6] }
+
+DirectionalLight3D TheSun2
+{
+    RotationDegrees = [0, 0, 0]
+    Energy = [0.5]
+}
+
+ImageTexture DoomTexture
+{ Image = <DoomImage> }
+
+Material DoomMaterial
+{ DiffuseTexture = <DoomTexture> }
+
+Collider3D Floor
+{
+    Position = [3, -5, -3]
+    Scale = [20, 2, 20]
+    Child : MeshInstance3D FloorMesh
+    {
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
+    }
+}
+
+ArrayMesh KYS_Mesh
+{ Model = 'testing_resources/kys.obj' }
+
+Collider3D KYS_Coll
+{
+    Position = [0, 50, -20]
+    Scale = [5, 5, 5]
+    Motion = (Dynamic)
+    Child : MeshInstance3D KYS_MeshInst
+    {
+        Scale = [2, 2, 2]
+        Position = [0, -1, 0]
+        Mesh = <KYS_Mesh>
+    }
+}
