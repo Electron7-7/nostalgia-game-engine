@@ -5,6 +5,7 @@
 #include "things/resources/array_mesh.hpp"
 #include "settings/world.hpp"
 #include "managers/render_manager.hpp"
+#include "application/application.hpp"
 #include "rendering/shader.hpp"
 #include "theatre/theatre.hpp"
 #include "things/resource_database.hpp"
@@ -249,8 +250,9 @@ glm::mat4 Camera3D::ViewMatrix() const
 glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
-        static_cast<float>(Theatre::Current()
-            ->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
+        static_cast<float>((mViewportID.invalid())
+            ? MainWindow()->GetScale().AspectRatio()
+            : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
     );
