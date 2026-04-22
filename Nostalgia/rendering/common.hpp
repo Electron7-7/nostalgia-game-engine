@@ -17,34 +17,16 @@ enum DataFormat : int
     DATA_FORMAT_RGBA8,
     DATA_FORMAT_SRGB,
     DATA_FORMAT_SRGB_ALPHA,
+    DATA_FORMAT_DEPTH,   // e.g. GL_DEPTH_COMPONENT
+    DATA_FORMAT_DEPTH32, // e.g. GL_DEPTH_COMPONENT32
 };
 
-enum ShaderLanguage
+enum BufferAttachment : int
 {
-    SHADER_LANGUAGE_GLSL,
-    // SHADER_LANGUAGE_HLSL,
-};
-
-enum RenderPrimitive // used like GL_TRIANGLES or GL_POINTS
-{
-    RENDER_PRIMITIVE_TRIANGLES,
-    RENDER_PRIMITIVE_POINTS,
-    RENDER_PRIMITIVE_LINES,
-};
-
-enum PolygonCullMode
-{
-    POLYGON_CULL_MODE_DISABLED,
-    POLYGON_CULL_MODE_FRONT,
-    POLYGON_CULL_MODE_BACK,
-};
-
-struct VertexAttribute
-{
-    uint location{0}; // layout(location = N)
-    uint offset{0};
-    uint stride{0};
-    DataFormat format{DataFormat::DATA_FORMAT_NONE};
+    ATTACHMENT_COLOR,
+    ATTACHMENT_DEPTH,
+    ATTACHMENT_STENCIL,
+    // ATTACHMENT_DEPTH_STENCIL,
 };
 
 #endif // RENDERER_COMMON_H
