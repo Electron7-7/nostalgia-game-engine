@@ -2,6 +2,7 @@
 #define TEXTURE_BUFFER_H
 
 #include <Nostalgia/rendering/common.hpp>
+#include <Nostalgia/things/resources/image.hpp>
 
 enum TextureType : int
 {
@@ -57,8 +58,8 @@ struct TextureFormat
 
     TextureType type{TEXTURE_TYPE_2D};
     DataFormat data_format{DATA_FORMAT_SRGB};
-    int  width{1}, height{1}, channels{0};
-    uint depth{1}, array_layers{1}, mipmaps{1};
+    int  width{1}, height{1}, channels{4};
+    uint depth{1}, array_layers{1}, mipmaps{0};
 
     constexpr bool operator==(Farg<TextureFormat> tf) const
     {
@@ -79,12 +80,12 @@ public:
 
     virtual ~TextureBuffer() = default;
 
-    virtual Error GenerateMipMaps() = 0;
-    virtual Error SetSamplerState(Farg<SamplerState>) const = 0;
-    virtual Error Load(InputData, Farg<TextureFormat>, int inLayer = 0) = 0;
+    virtual void GenerateMipMaps() = 0;
+    virtual void SetSamplerState(Farg<SamplerState>) const = 0;
+    virtual void Load(InputData, Farg<TextureFormat>, int inLayer = 0) = 0;
     virtual TextureType Type() const = 0;
-    virtual Error Status() const = 0;
     virtual uint ID() const = 0;
+    virtual Shared<Image> GetImage(int inMipMapLevel = 0) const = 0;
 
     static Shared<TextureBuffer> Create();
 };
