@@ -3,7 +3,6 @@
 #include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
-#include "application/application.hpp"
 
 #define LOCK LockGuard<RMutex> _lock{mFramebufferMutex};
 
@@ -14,6 +13,8 @@ void Viewport::Ready()
     Super::Ready();
     if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
         { UpdateCurrentCameras(); }
+    mFramebuffer = FrameBuffer::Create();
+    SetSize(mSize); // Update FrameBuffer
 }
 
 void Viewport::SetVariables(Farg<ThingData> data)
@@ -23,8 +24,7 @@ void Viewport::SetVariables(Farg<ThingData> data)
     data.get_variable(mCurrentCamera3D, "CurrentCamera3D");
     data.get_variable(mCurrentCamera2D, "CurrentCamera2D");
     if(glm::vec2 size{}; data.get_variable(size, "ViewportSize", "ContentSize") == OK)
-        { mSize = size; }
-    mFramebuffer = FrameBuffer::Create(mSize);
+        { SetSize(size); }
 }
 
 Shared<ThingData> Viewport::GetVariables() const
@@ -33,7 +33,7 @@ Shared<ThingData> Viewport::GetVariables() const
 
     data->set_variable(mCurrentCamera3D, "CurrentCamera3D");
     data->set_variable(mCurrentCamera2D, "CurrentCamera2D");
-    data->set_variable(glm::vec2{mSize}, "ViewportSize");
+    data->set_variable(mSize.glm(), "ViewportSize");
 
     return data;
 }
@@ -53,11 +53,14 @@ void Viewport::Detach() const
     mFramebuffer->Unbind();
 }
 
-Shared<TextureBuffer> Viewport::GetTextureBuffer() const
-{
-    LOCK
-    return mFramebuffer->Texture();
-}
+Shared<Image> Viewport::GetImage() const
+{ return mTexturebuffer->GetImage(); }
+
+Shared<TextureBuffer> Viewport::GetTextureBuffer()
+{ return mTexturebuffer; }
+
+uint Viewport::GetTextureBufferID() const
+{ return mTexturebuffer->ID(); }
 
 ID Viewport::CurrentCamera3D()
 { return mCurrentCamera3D; }
@@ -91,19 +94,22 @@ void Viewport::UpdateCurrentCameras()
     }
 }
 
-Size2D Viewport::Size() const
-{
-    return (Invalid())
-        ? MainWindow()->GetScale()
-        : mSize;
-}
+Farg<Size2D> Viewport::Size() const
+{ return mSize; }
 
 void Viewport::SetSize(Farg<Size2D> inSize)
 {
-    if(mSize == inSize)
-        { return; }
-    mFramebuffer = FrameBuffer::Create(inSize);
-    mSize = inSize;
+    if(inSize[0] == 0 or inSize[1] == 0)
+        { print_warning("Cannot set Viewport width/height to 0"); }
+    mSize[0] = (inSize[0]) ? inSize[0] : mSize[0];
+    mSize[1] = (inSize[1]) ? inSize[1] : mSize[1];
+
+    LOCK
+    mTexturebuffer->Load(nullptr, {mSize.w(), mSize.h(), DATA_FORMAT_SRGB});
+    mTexturebuffer->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
+    mRenderbuffer->SetStorage(inSize);
+    mFramebuffer->AttachRenderBuffer(mRenderbuffer);
+    mFramebuffer->AttachTextureBuffer(mTexturebuffer);
 }
 
 void Viewport::OnDescendantRemoved(Relative inRelative)

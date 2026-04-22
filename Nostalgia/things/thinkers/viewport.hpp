@@ -2,7 +2,10 @@
 #define VIEWPORT_H
 
 #include <Nostalgia/things/thinkers/thinker.hpp>
+#include <Nostalgia/things/resources/image.hpp>
 #include <Nostalgia/rendering/frame_buffer.hpp>
+#include <Nostalgia/rendering/render_buffer.hpp>
+#include <Nostalgia/rendering/texture_buffer.hpp>
 
 class Viewport : public Thinker
 {
@@ -13,22 +16,28 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
+    typedef void (*OnSizeChangedCallback_t)(Farg<Size2D>);
+
     virtual void Attach() const;
     virtual void Detach() const;
-    virtual Shared<TextureBuffer> GetTextureBuffer() const;
+    virtual Shared<Image> GetImage() const;
 
+    Shared<TextureBuffer> GetTextureBuffer();
+    uint GetTextureBufferID() const;
     ID CurrentCamera3D();
     ID CurrentCamera2D();
     void SetCurrentCamera3D(ID = ID::Invalid);
     void SetCurrentCamera2D(ID = ID::Invalid);
     void UpdateCurrentCameras();
 
-    Size2D Size() const;
+    Farg<Size2D> Size() const;
     void SetSize(Farg<Size2D>);
 
 protected:
     mutable RMutex mFramebufferMutex{}; // evil mutable
     Shared<FrameBuffer> mFramebuffer{FrameBuffer::Create()};
+    Shared<RenderBuffer> mRenderbuffer{RenderBuffer::Create()};
+    Shared<TextureBuffer> mTexturebuffer{TextureBuffer::Create()};
     Size2D mSize{512, 512};
     ID mCurrentCamera3D{},
         mCurrentCamera2D{};
