@@ -56,18 +56,8 @@ void Texture::SetSampler(Farg<SamplerState> inSampler)
     mTextureBuffer->SetSamplerState(mSampler);
 }
 
+Shared<Image> Texture::GetImage() const
+{ return mTextureBuffer->GetImage(); }
+
 Shared<TextureBuffer> Texture::GetBuffer() const
 { return mTextureBuffer; }
-
-Error Texture::SetBuffer(Shared<TextureBuffer> inBuffer)
-{
-    if(Error status{print_error_enum(inBuffer->Status())}; not status)
-    {
-        print_warning("Failed to replace the TextureBuffer in Texture ['{}', {}]",
-            name(),
-            uid()());
-        return status;
-    }
-    mTextureBuffer = inBuffer;
-    return OK;
-}
