@@ -76,8 +76,8 @@ Shared<ThingData> Cubemap::GetVariables() const
 
 Error Cubemap::UpdateLayer(Shared<Image> inImage, int inLayer)
 {
-    if(not mTextureBuffer)
-        { mTextureBuffer = TextureBuffer::Create(); }
+    if(mTextureBuffer->Type() != TEXTURE_TYPE_CUBE)
+        { mTextureBuffer = TextureBuffer::Create(TEXTURE_TYPE_CUBE); }
 
     if(inLayer > 5 or inLayer < 0)
     {
