@@ -7,7 +7,8 @@ uint Convert::GL_DataFormat(DataFormat inFormat, bool inGetInternal)
     switch(inFormat)
     {
     case DATA_FORMAT_RED:
-        return GL_RED;
+        if(inGetInternal) { return GL_R8; }
+        else              { return GL_RED;  }
     case DATA_FORMAT_RGB:
         if(inGetInternal) { return GL_RGB8; }
         else              { return GL_RGB;  }
