@@ -8,9 +8,6 @@
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/light_3d.hpp>
-#include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
-#include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/settings/graphics.hpp>
 
 using namespace TheatreFile;

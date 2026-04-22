@@ -400,7 +400,7 @@ void ImGui_Editor::Viewport3DWindow()
         _viewport_size = {(float)m_spEditorTheatre->m_pEditor3DViewport->Size().w(),
                 (float)m_spEditorTheatre->m_pEditor3DViewport->Size().h()};
         GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-        ImGui::Image((ImTextureID)m_spEditorTheatre->m_pEditor3DViewport->GetTextureBuffer()->ID(),
+        ImGui::Image((ImTextureRef)m_spEditorTheatre->m_pEditor3DViewport->GetTextureBufferID(),
             _viewport_size,
             {0, 1},
             {1, 0});
@@ -460,7 +460,7 @@ void ImGui_Editor::Viewport2DWindow()
         _viewport_size = {(float)m_spEditorTheatre->m_pEditor2DViewport->Size().w(),
                 (float)m_spEditorTheatre->m_pEditor2DViewport->Size().h()};
         GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-        ImGui::Image((ImTextureID)m_spEditorTheatre->m_pEditor2DViewport->GetTextureBuffer()->ID(),
+        ImGui::Image((ImTextureRef)m_spEditorTheatre->m_pEditor2DViewport->GetTextureBufferID(),
             _viewport_size,
             {0, 1},
             {1, 0});

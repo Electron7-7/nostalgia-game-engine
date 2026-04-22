@@ -19,10 +19,10 @@ public:
 
     void SetEditorViewports(ID in3DViewportUID, ID in2DViewportUID);
 
-    Shared<Viewport> m_pEditor3DViewport{MakeShared<Viewport>()};
-    Shared<Viewport> m_pEditor2DViewport{MakeShared<Viewport>()};
-    Shared<Camera3D> m_pEditorCamera3D{MakeShared<Camera3D>()};
-    Shared<Camera2D> m_pEditorCamera2D{MakeShared<Camera2D>()};
+    Shared<Camera3D> m_pEditorCamera3D{MakeShared<Camera3D>("Editor-Camera3D")};
+    Shared<Camera2D> m_pEditorCamera2D{MakeShared<Camera2D>("Editor-Camera2D")};
+    Shared<Viewport> m_pEditor3DViewport{MakeShared<Viewport>("Editor3D-Viewport")},
+        m_pEditor2DViewport{MakeShared<Viewport>("Editor2D-Viewport")};
 
 private:
     inline static Shared<Mesh> m_spCamera3DMesh{nullptr},
