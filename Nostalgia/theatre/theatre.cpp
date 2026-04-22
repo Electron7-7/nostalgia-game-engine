@@ -135,7 +135,6 @@ bool Theatre::Startup()
         mThings[thing->uid()] = thing;
         mNames[thing->name()] = thing->uid();
         thing->SetNameChangeCallback(&Theatre::SetThingName);
-        thing->Init();
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
         mCallSheet.Add(thing->uid());
         if(Console::GetVariable("Theatre.debug_create_thing_msgs")->int_value)
@@ -418,7 +417,6 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
     mThings[thing->uid()] = thing;
     mNames[thing->name()] = thing->uid();
     thing->SetNameChangeCallback(&Theatre::SetThingName);
-    thing->Init();
     UpdateCallsheet(thing->uid(), inData);
     UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
     thing->SetVariables(inData);

@@ -17,8 +17,6 @@ namespace TheatreFile { struct ThingData; }
 /// See 'Editor/things/player.hpp' for an example use case.
 #define DEFINE_TYPEID(CLASS, VAR_NAME) inline static const PID VAR_NAME{#CLASS}; SET_TYPEID(VAR_NAME)
 
-/// Helper macro for declaring an override for `Init`
-#define INIT_OVERRIDE virtual void Init() override;
 /// Helper macro for declaring an override for `Ready`
 #define READY_OVERRIDE virtual void Ready() override;
 /// Helper macro for declaring an override for `Shutdown`
@@ -67,7 +65,6 @@ protected:
 
     Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
 
-    virtual void Init() {}
     virtual void Ready() {}
     virtual void Shutdown() {}
     virtual void Tick() {}
