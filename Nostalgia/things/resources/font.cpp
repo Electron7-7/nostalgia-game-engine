@@ -68,11 +68,17 @@ void Font::LoadFont()
     FT_Set_Pixel_Sizes(face, 0, mFontSize);
 
     FT_GlyphSlot g = face->glyph;
-    for(u_char c{0}; c < 128; ++c)
+    for(u_char c{33}; c < 128; ++c)
     {
         if(FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             print_warning("FreeType failed to load Glyph for character '{}'", (char)c);
+            continue;
+        }
+        else if(not g->bitmap.width or not g->bitmap.rows)
+        {
+            if(Console::GetVariable("Font.debug_empty_glyph")->int_value)
+                { print_debug("Ignoring glyph #{} ('{}') as either its width or height are 0", c, (char)c); }
             continue;
         }
 
@@ -86,9 +92,9 @@ void Font::LoadFont()
         glyph.advance_x     = g->advance.x;
         glyph.advance_y     = g->advance.y;
 
+        glyph.texture->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
         glyph.texture->Load(face->glyph->bitmap.buffer,
             {glyph.bitmap_width, glyph.bitmap_height, DATA_FORMAT_RED});
-        glyph.texture->SetSamplerState({});
     }
 
     FT_Done_Face(face);
