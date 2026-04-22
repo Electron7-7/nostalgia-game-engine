@@ -24,6 +24,7 @@ sVariableNames{
     "ResourceDatabase.debug_register_msgs",
     "Collider3D.debug_collision_msgs",
     "Collider3D.debug_collision_persisted_msgs",
+    "Font.debug_empty_glyph",
 };
 static Variables
 sVariables{
@@ -39,6 +40,7 @@ sVariables{
     MakeShared<Variable>("ResourceDatabase.debug_register_msgs", false),
     MakeShared<Variable>("Collider3D.debug_collision_msgs", false),
     MakeShared<Variable>("Collider3D.debug_collision_persisted_msgs", false),
+    MakeShared<Variable>("Font.debug_empty_glyph", false),
 };
 
 static Error sProcessEngineCommand(Sarg);
