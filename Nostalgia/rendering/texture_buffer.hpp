@@ -76,18 +76,16 @@ struct TextureFormat
 class TextureBuffer
 {
 public:
-    using InputData = const u_char*;
-
     virtual ~TextureBuffer() = default;
 
     virtual void GenerateMipMaps() = 0;
     virtual void SetSamplerState(Farg<SamplerState>) const = 0;
-    virtual void Load(InputData, Farg<TextureFormat>, int inLayer = 0) = 0;
+    virtual void Load(const uchar* inData, Farg<TextureFormat> inFormat, int inLayer = 0) = 0;
     virtual TextureType Type() const = 0;
     virtual uint ID() const = 0;
-    virtual Shared<Image> GetImage(int inMipMapLevel = 0) const = 0;
+    virtual Shared<Image> GetImage(int inMipmapLevel = 0) const = 0;
 
-    static Shared<TextureBuffer> Create();
+    static Shared<TextureBuffer> Create(TextureType inType = TEXTURE_TYPE_2D);
 };
 
 #endif // TEXTURE_BUFFER_H

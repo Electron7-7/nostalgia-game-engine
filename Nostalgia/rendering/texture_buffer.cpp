@@ -3,7 +3,7 @@
 // Implementations
 #include "backends/opengl/gl_texture_buffer.hpp"
 
-Shared<TextureBuffer> TextureBuffer::Create()
+Shared<TextureBuffer> TextureBuffer::Create(TextureType inType)
 {
     std::string error_api_name{"GraphicsAPI::None"};
     switch(RendererAPI::GetAPI())
@@ -16,6 +16,6 @@ Shared<TextureBuffer> TextureBuffer::Create()
             error_api_name);
         [[fallthrough]];
     case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLTextureBuffer>();
+        return MakeShared<OpenGLTextureBuffer>(inType);
     }
 }
