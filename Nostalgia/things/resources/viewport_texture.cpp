@@ -14,41 +14,21 @@ void ViewportTexture::SetVariables(Farg<ThingData> data)
 
 Shared<ThingData> ViewportTexture::GetVariables() const
 {
-    auto data{Texture::GetVariables()};
+    auto data{Super::GetVariables()};
 
     data->set_variable(mViewportID, "Viewport");
 
     return data;
 }
 
-void ViewportTexture::Ready()
-{
-    Texture::Ready();
-    if(not mViewportID.invalid())
-    {
-        auto size{Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
-        mFormat.width  = size.w();
-        mFormat.height = size.h();
-    }
-}
-
-Error ViewportTexture::Import()
-{
-    if(mViewportID.invalid())
-        { return ERR_INVALID_ID; }
-    else if(not Theatre::Current()->DerivedFrom(mViewportID, ThingType::Viewport))
-        { return ERR_INVALID_TYPE; }
-    return OK;
-}
-
 Shared<TextureBuffer> ViewportTexture::GetBuffer() const
 { return Theatre::Current()->GetThinker<Viewport>(mViewportID)->GetTextureBuffer(); }
-
-Error ViewportTexture::SetBuffer(Shared<TextureBuffer>)
-{ return ERR_NOT_ALLOWED; }
 
 ID ViewportTexture::ViewportID() const
 { return mViewportID; }
 
 void ViewportTexture::SetViewportID(ID inID)
 { mViewportID = inID; }
+
+Farg<Size2D> ViewportTexture::Size() const
+{ return Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size(); }
