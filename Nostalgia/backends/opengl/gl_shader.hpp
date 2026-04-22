@@ -1,7 +1,7 @@
 #ifndef GL_SHADER_H
 #define GL_SHADER_H
 
-#include <Nostalgia/rendering/shader.hpp>
+#include "rendering/shader.hpp"
 
 class GLShader : public Shader
 {

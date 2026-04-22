@@ -1,8 +1,9 @@
 #ifndef GL_FRAME_BUFFER_H
 #define GL_FRAME_BUFFER_H
 
-#include <Nostalgia/rendering/frame_buffer.hpp>
-#include <Nostalgia/rendering/texture_buffer.hpp>
+#include "rendering/frame_buffer.hpp"
+#include "rendering/texture_buffer.hpp"
+#include "rendering/render_buffer.hpp"
 
 class OpenGLFrameBuffer : public FrameBuffer
 {

@@ -1,7 +1,7 @@
 #ifndef GL_GRAPHICS_CONTEXT_H
 #define GL_GRAPHICS_CONTEXT_H
 
-#include <Nostalgia/rendering/graphics_context.hpp>
+#include "rendering/graphics_context.hpp"
 
 struct GLFWwindow;
 

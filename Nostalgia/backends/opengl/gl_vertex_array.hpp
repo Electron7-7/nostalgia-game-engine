@@ -1,7 +1,7 @@
 #ifndef GL_VERTEX_ARRAY_H
 #define GL_VERTEX_ARRAY_H
 
-#include <Nostalgia/rendering/vertex_array.hpp>
+#include "rendering/vertex_array.hpp"
 
 class OpenGLVertexArray : public VertexArray
 {
