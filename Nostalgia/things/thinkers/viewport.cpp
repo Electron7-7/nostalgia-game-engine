@@ -105,6 +105,7 @@ void Viewport::SetSize(Farg<Size2D> inSize)
     mSize[1] = (inSize[1]) ? inSize[1] : mSize[1];
 
     LOCK
+    mTexturebuffer = TextureBuffer::Create();
     mTexturebuffer->Load(nullptr, {mSize.w(), mSize.h(), DATA_FORMAT_SRGB});
     mTexturebuffer->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
     mRenderbuffer->SetStorage(inSize);
