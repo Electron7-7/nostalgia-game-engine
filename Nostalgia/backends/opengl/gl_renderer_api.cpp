@@ -251,17 +251,15 @@ void OpenGLRendererAPI::BindFramebuffer(uint inFrameBuffer) const
 
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const
 {
-    if(not inBuffer
-        or not inBuffer->ID()
-        or not inBuffer->Status())
-            { return false; }
+    if(not inBuffer or not inBuffer->ID())
+        { return false; }
     glBindTextureUnit(inUnit, inBuffer->ID());
     return true;
 }
 
 bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    if(not inTexture)
+    if(not inTexture or inTexture->Invalid())
         { return false; }
     return BindTexture(inTexture->GetBuffer(), inUnit);
 }
