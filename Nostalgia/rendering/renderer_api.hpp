@@ -41,7 +41,7 @@ public:
 
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 
-    virtual void BindFramebuffer(uint inFrameBuffer = 0) const = 0;
+    virtual void BindFramebuffer(Shared<FrameBuffer> inBuffer = nullptr) const = 0;
 
     virtual bool BindTexture(Shared<Texture> inTexture, uint inTextureUnit) const = 0;
     virtual bool BindTexture(Shared<TextureBuffer> inBuffer, uint inTextureUnit) const = 0;

@@ -27,7 +27,7 @@ public:
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 
-    void BindFramebuffer(uint = 0) const final;
+    void BindFramebuffer(Shared<FrameBuffer> = nullptr) const final;
 
     bool BindTexture(Shared<Texture>, uint) const final;
     bool BindTexture(Shared<TextureBuffer>, uint) const final;
