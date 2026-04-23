@@ -1426,3 +1426,5 @@ Fixed! The root viewport issue was just that `Camera3D::ProjectionMatrix` wasn't
 `glTexImage2D` is mutable and can be resized (better for framebuffer?).
 
 Okay, I need to separate `glTextureStorage2D` from the `Load` function. Honestly, I should just redesign `TextureBuffer` to probably be more like `Texture`.
+
+Oh yeah, also, I added some screenshots to the repo :)
