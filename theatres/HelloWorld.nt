@@ -76,11 +76,11 @@ Actor3D LolBitCube
         Child variables always start with "Child", followed by the type of the child Thing;
         after that, it's just like a reference variable. ///
     Child = <LolBitCubeMeshInstance3D>
-    Position = [-0.25, 2, -3.5]
+    Position = [-0.25, 2, -3.5] // Another example of various number types working together!
     RotationDegrees = [25, 0, 1]
 }
 
-Actor3D Ramiel
+Collider3D DoomCube
 {
     /// This is a "Sandwich" variable, which is just a way of defining a Thing inside of
         another Thing for your sanity's sake. It's only used with child variables, to avoid
@@ -88,13 +88,15 @@ Actor3D Ramiel
         why I use them. The syntax for a Sandwich stars with "Child" and a colon instead of
         an equals sign; afterwards, it follows the same syntax as defining a Thing (type,
         name, braces, etc). ///
-    Child : MeshInstance3D RamielMeshInstance3D
+    Child : MeshInstance3D DoomCubeMeshInstance3D
     {
-        Mesh = <RamielModel>
-        MaterialOverride = <RamielMaterial>
+        Mesh = <DefaultCube>
+        MaterialOverride = <DoomMaterial>
     }
-    Scale = [120, 120, 120]
-    Position = [-30, 18.152, -215] // An example of various number types working together!
+    // Another example of an "Enum" variable
+    Motion = (Dynamic) // "Dynamic" is what `PhysicsBodyMotion::Dynamic` is registered under.
+    Position = [3.01, -0.1, -3]
+    RotationDegrees = [-20, 20, 50]
     Visible = [true]
 }
 
@@ -109,12 +111,6 @@ NostalgiaPlayer Player
 /// Thinkers that are referenced by other Thinkers don't need to be defined before being
     referenced. This material was referenced by the previous Thinker before it was defined,
     but that's totally valid! ///
-Material RamielMaterial
-{
-    NoTexture = [true]
-    SpecularStrength = [2.6]
-}
-
 Material StupidMaterial
 {
     Color = [0.9, 1, 1]
@@ -125,6 +121,13 @@ Material StupidMaterial
 Material DoomMaterial
 { DiffuseTexture = <DoomTexture> }
 
+Ramiel Ramiel
+{
+    Position = [-30, 18.152, -215]
+    Direction = [-0.05, 0.01, 1]
+    Speed = [0.01]
+}
+
 Collider3D Floor
 {
     Position = [3, -5, -3]
@@ -134,20 +137,6 @@ Collider3D Floor
         Mesh = <DefaultCube>
         MaterialOverride = <RedMaterial>
     }
-}
-
-Collider3D DoomCube
-{
-    Child : MeshInstance3D DoomCubeMeshInstance3D
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <DoomMaterial>
-    }
-    // Another example of an "Enum" variable
-    Motion = (Dynamic) // "Dynamic" is what `PhysicsBodyMotion::Dynamic` is registered under.
-    Position = [3, 0, -3]
-    RotationDegrees = [-20, 20, 50]
-    Visible = [true]
 }
 
 Collider3D DoomCube2

@@ -71,6 +71,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/resources/cubemap.cpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/texture.cpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/ramiel.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/visual_3d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/mesh_instance_3d.cpp
@@ -165,6 +166,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/resources/material.hpp
     ${NOSTALGIA_ROOT}/things/thing.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/nostalgia_player.hpp
+    ${NOSTALGIA_ROOT}/things/thinkers/3d/ramiel.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/sprite_3d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/collider_3d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/actor_3d.hpp
