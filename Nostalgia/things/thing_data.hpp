@@ -81,7 +81,7 @@ namespace TheatreFile
         void  set_variable(BitMask inValue, Sarg inName);
         Error set_enum_variable(Sarg inEnumName, Sarg inName);
 
-        template<NumberOrGLM T, StringType... Names>
+        template<NumberOrGLM T>
             void set_variable(Farg<T> inValue, Sarg inName)
             {
                 ThingVariable::NumberType _number_type{ThingVariable::NIL};
