@@ -67,6 +67,8 @@ void TheatreManager::Update()
 
 void TheatreManager::Tick()
 {
+    if(theatre_state != IN_LEVEL)
+        { return; }
     LOCK_MUTEX;
     m_pCurrentTheatre->Tick();
 }
