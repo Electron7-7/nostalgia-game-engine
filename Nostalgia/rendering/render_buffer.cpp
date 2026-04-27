@@ -4,21 +4,15 @@
 #include "backends/opengl/gl_render_buffer.hpp"
 
 Shared<RenderBuffer> RenderBuffer::Create()
-{ return MakeShared<OpenGLRenderBuffer>(); }
-
-Shared<RenderBuffer> RenderBuffer::Create(Farg<Size2D> inSize, DataFormat inComponent)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
+    case RendererAPI::NONE:
     default:
-        error_api_name = "Invalid";
+        print_warning("RendererAPI is dummy; defaulting to OpenGL");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
-        return MakeShared<OpenGLRenderBuffer>(inSize, inComponent);
+    case RendererAPI::OPENGL:
+        return MakeShared<OpenGLRenderBuffer>();
     }
 }
 

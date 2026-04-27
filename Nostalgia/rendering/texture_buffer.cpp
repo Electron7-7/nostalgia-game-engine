@@ -5,17 +5,13 @@
 
 Shared<TextureBuffer> TextureBuffer::Create(TextureType inType)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
+    case RendererAPI::NONE:
     default:
-        error_api_name = "Invalid";
+        print_warning("RendererAPI is dummy; defaulting to OpenGL");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)",
-            error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         return MakeShared<OpenGLTextureBuffer>(inType);
     }
 }

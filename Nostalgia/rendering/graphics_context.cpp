@@ -5,16 +5,13 @@
 
 Unique<IGraphicsContext> IGraphicsContext::CreateContext(void* inNativeWindowPointer)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
     default:
-        error_api_name = "Invalid";
+    case RendererAPI::NONE:
+        print_debug("Using the default graphics context (OpenGLContext)");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         return MakeUnique<OpenGLContext>(static_cast<GLFWwindow*>(inNativeWindowPointer));
     }
 }

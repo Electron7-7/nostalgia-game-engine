@@ -92,48 +92,39 @@ void IBuffer::Layout::CalculateOffsetsAndStride()
 
 Shared<VertexBuffer> VertexBuffer::Create(size_t inSize)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
+    case RendererAPI::NONE:
     default:
-        error_api_name = "Invalid";
+        print_warning("RendererAPI is dummy; defaulting to OpenGL");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         return MakeShared<OpenGLVertexBuffer>(inSize);
     }
 }
 
 Shared<VertexBuffer> VertexBuffer::Create(const float* inVertices, size_t inSize)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
+    case RendererAPI::NONE:
     default:
-        error_api_name = "Invalid";
+        print_warning("RendererAPI is dummy; defaulting to OpenGL");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         return MakeShared<OpenGLVertexBuffer>(inVertices, inSize);
     }
 }
 
 Shared<IndexBuffer> IndexBuffer::Create(const uint* inIndices, size_t inSize)
 {
-    std::string error_api_name{"GraphicsAPI::None"};
-    switch(RendererAPI::GetAPI())
+    switch(RendererAPI::CurrentAPI())
     {
+    case RendererAPI::NONE:
     default:
-        error_api_name = "Invalid";
+        print_warning("RendererAPI is dummy; defaulting to OpenGL");
         [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("RendererAPI::GetAPI() returned '{}' (defaulting to OpenGL)", error_api_name);
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         return MakeShared<OpenGLIndexBuffer>(inIndices, inSize);
     }
 }

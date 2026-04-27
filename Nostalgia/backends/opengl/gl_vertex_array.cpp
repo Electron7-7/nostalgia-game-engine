@@ -1,6 +1,8 @@
 #include "gl_vertex_array.hpp"
 #include "thirdparty/glad/glad.h"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
+
+#define ASSERT_API if(not RendererAPI::HasActiveInstance()) { return; }
 
 // Also stolen from Hazel [https://github.com/TheCherno/Hazel]
 
@@ -33,8 +35,8 @@ OpenGLVertexArray::OpenGLVertexArray()
 
 OpenGLVertexArray::~OpenGLVertexArray()
 {
-    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
-        { glDeleteVertexArrays(1, &mObjectID); }
+    ASSERT_API
+    glDeleteVertexArrays(1, &mObjectID);
 }
 
 void OpenGLVertexArray::Bind() const
@@ -48,13 +50,15 @@ uint OpenGLVertexArray::GetID() const
 
 void OpenGLVertexArray::AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer)
 {
-    if(inVertexBuffer->GetLayout().GetElements().empty())
+    IBuffer::Layout layout{};
+    inVertexBuffer->GetLayout(layout);
+
+    if(layout.GetElements().empty())
     {
         print_error("Vertex buffer layout has no elements!");
         return;
     }
 
-    FAUTO layout{inVertexBuffer->GetLayout()};
     glVertexArrayVertexBuffer(mObjectID, mVertexBuffers.size(), inVertexBuffer->GetID(), 0, layout.GetStride());
 
     for(FAUTO element : layout)

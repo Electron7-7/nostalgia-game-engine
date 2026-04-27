@@ -11,9 +11,6 @@
 #define ErrorWindowingLibrary print_error("invalid/unknown graphics API detected!"); return
 #define ReturnIf(CONDITION, RETURN_VALUE...) if(CONDITION) { return RETURN_VALUE; }
 
-static GraphicsAPI sGraphicsAPI() { return RendererAPI::GetAPI(); }
-static NativeWindowType sWindowType() { return MainWindow()->GetNativeWindowType(); }
-
 void ImGui_Implementor::Attach()
 {
     PRINT_PRETTY_FUNCTION;
@@ -24,10 +21,10 @@ void ImGui_Implementor::Attach()
     // ImGuiIO& io = ImGui::GetIO();
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-    switch(sGraphicsAPI())
+    switch(RendererAPI::CurrentAPI())
     {
-    case GraphicsAPI::OpenGL:
-        switch(sWindowType())
+    case RendererAPI::OPENGL:
+        switch(MainWindow()->GetNativeWindowType())
         {
         case NATIVE_GLFW_WINDOW:
             ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(MainWindow()->GetNativeWindow()), true);
@@ -49,11 +46,11 @@ void ImGui_Implementor::Detach()
 {
     ReturnIf(!mAttached)
     mState = STATE_DETACHING;
-    switch(sGraphicsAPI())
+    switch(RendererAPI::CurrentAPI())
     {
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         ImGui_ImplOpenGL3_Shutdown();
-        switch(sWindowType())
+        switch(MainWindow()->GetNativeWindowType())
         {
         case NATIVE_GLFW_WINDOW:
             ImGui_ImplGlfw_Shutdown();
@@ -77,22 +74,23 @@ void ImGui_Implementor::Begin()
     mState = STATE_BEGINNING_FRAME;
     ImGui::GetIO().WantCaptureKeyboard = mCanHandleEvents;
     ImGui::GetIO().WantCaptureMouse    = mCanHandleEvents;
+
     if(!mCanHandleEvents)
     {
         ImGui::GetIO().ClearEventsQueue();
         ImGui::GetIO().ClearInputMouse();
     }
 
-    switch(sGraphicsAPI())
+    switch(RendererAPI::CurrentAPI())
     {
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         ImGui_ImplOpenGL3_NewFrame();
         break;
     default:
         ErrorGraphicsAPI;
     }
 
-    switch(sWindowType())
+    switch(MainWindow()->GetNativeWindowType())
     {
     case NATIVE_GLFW_WINDOW:
         ImGui_ImplGlfw_NewFrame();
@@ -114,9 +112,9 @@ void ImGui_Implementor::End()
     io.DisplaySize = ImVec2{static_cast<float>(MainWindow()->GetWidth()), static_cast<float>(MainWindow()->GetHeight())};
 
     ImGui::Render();
-    switch(sGraphicsAPI())
+    switch(RendererAPI::CurrentAPI())
     {
-    case GraphicsAPI::OpenGL:
+    case RendererAPI::OPENGL:
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         break;
     default:

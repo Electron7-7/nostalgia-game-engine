@@ -3,7 +3,7 @@
 #include <Nostalgia/rendering/shader.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resource_database.hpp>
-#include <Nostalgia/managers/render_manager.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/things/resources/material.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
@@ -40,7 +40,7 @@ void EditorTheatre::Draw()
 
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
-        { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
+        { RendererAPI::Get()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
 
     for(ID viewport_id : mViewportIDs)
     {
@@ -113,7 +113,7 @@ void EditorTheatre::DrawCamera2DHelper(Shared<Camera2D> inCamera, Shared<Actor2D
 void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D> inOtherCamera)
 {
     LockGuard<RMutex> _things_lock{mThingsMutex};
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     shader->SetUniform("current_material.use_diffuse", 0);
     shader->SetUniform("current_material.use_specular", 0);
@@ -121,7 +121,7 @@ void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", inOtherCamera->GlobalTransform().model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inOtherCamera->DebugHighlight());
@@ -133,7 +133,7 @@ void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
 void EditorTheatre::DrawPlayer3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D> inPlayer)
 {
     LockGuard<RMutex> _things_lock{mThingsMutex};
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     shader->SetUniform("current_material.use_diffuse", 0);
     shader->SetUniform("current_material.use_specular", 0);
@@ -141,7 +141,7 @@ void EditorTheatre::DrawPlayer3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", inPlayer->GlobalTransform().model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inPlayer->DebugHighlight());
@@ -153,7 +153,7 @@ void EditorTheatre::DrawPlayer3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
 void EditorTheatre::DrawLight3DHelper(Shared<Camera3D> inCamera, Shared<Light3D> inLight)
 {
     LockGuard<RMutex> _things_lock{mThingsMutex};
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     auto _transform{inLight->GlobalTransform()};
     _transform.scale *= glm::vec3{0.4f};
@@ -163,7 +163,7 @@ void EditorTheatre::DrawLight3DHelper(Shared<Camera3D> inCamera, Shared<Light3D>
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", _transform.model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inLight->DebugHighlight());

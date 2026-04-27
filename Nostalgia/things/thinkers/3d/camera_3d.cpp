@@ -4,7 +4,7 @@
 #include "things/resources/texture.hpp"
 #include "things/resources/array_mesh.hpp"
 #include "settings/world.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "application/application.hpp"
 #include "rendering/shader.hpp"
 #include "theatre/theatre.hpp"
@@ -92,7 +92,7 @@ Shared<ThingData> Camera3D::GetVariables() const
 
 void Camera3D::DrawBackground() const
 {
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
     if(mEnvironment.mType == Environment::BG_SKYBOX)
     {
 #pragma message("TODO: move all Resource creation to the ResourceDatabase, even the ones made by a Theatre")
@@ -118,7 +118,7 @@ void Camera3D::DrawBackground() const
 
 void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
 {
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     auto view_matrix{ViewMatrix()};
     auto projection_matrix{ProjectionMatrix()};
@@ -206,7 +206,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     shader->SetUniform("model_matrix", model_matrix);
     shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
     shader->SetUniform("projection_matrix", projection_matrix);
-    shader->SetUniform("debug_output", static_cast<int>(gShaderDebugOutput));
+    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
     shader->SetUniform("point_lights_count", PointLight3D::GetCount());
     shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
     shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());

@@ -1,9 +1,9 @@
 #include "./gl_render_buffer.hpp"
 #include "./gl_enum_conversions.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "thirdparty/glad/glad.h"
 
-#define ASSERT_API if(not g_pRenderManager->IsAPIActive()) { return; }
+#define ASSERT_API if(not RendererAPI::HasActiveInstance()) { return; }
 
 OpenGLRenderBuffer::OpenGLRenderBuffer()
 {

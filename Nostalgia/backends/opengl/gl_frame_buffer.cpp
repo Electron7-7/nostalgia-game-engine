@@ -1,8 +1,10 @@
 #include "./gl_frame_buffer.hpp"
 #include "./gl_enum_conversions.hpp"
 #include "rendering/texture_buffer.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "thirdparty/glad/glad.h"
+
+#define ASSERT_API if(not RendererAPI::HasActiveInstance()) { return; }
 
 static constexpr const char* _gl_fbo_msg_1{"GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"};
 static constexpr const char* _gl_fbo_msg_2{"GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"};
@@ -47,14 +49,14 @@ static Error s_CheckStatus(bool inDoPrint, GLenum inStatus, uint inID)
 
 OpenGLFrameBuffer::OpenGLFrameBuffer() noexcept
 {
-    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
-        { glCreateFramebuffers(1, &mBufferID); }
+    ASSERT_API
+    glCreateFramebuffers(1, &mBufferID);
 }
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer() noexcept
 {
-    if(g_pRenderManager->GetAPI() and g_pRenderManager->GetAPI()->IsRunning())
-        { glDeleteFramebuffers(1, &mBufferID); }
+    ASSERT_API
+    glDeleteFramebuffers(1, &mBufferID);
 }
 
 void OpenGLFrameBuffer::Bind() const

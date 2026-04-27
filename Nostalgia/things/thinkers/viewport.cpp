@@ -1,5 +1,5 @@
 #include "./viewport.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 #include "things/thing_factory.hpp"
@@ -42,9 +42,9 @@ void Viewport::Attach() const
 {
     LOCK
     mFramebuffer->Bind();
-    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor);
-    g_pRenderManager->GetAPI()->Clear();
-    g_pRenderManager->GetAPI()->SetViewport({0, 0}, Size());
+    RendererAPI::Get()->SetClearColor(Settings::Graphics::ClearColor);
+    RendererAPI::Get()->Clear();
+    RendererAPI::Get()->SetViewport({0, 0}, Size());
 }
 
 void Viewport::Detach() const

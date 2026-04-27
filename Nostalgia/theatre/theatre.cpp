@@ -8,7 +8,7 @@
 #include "things/thinkers/3d/camera_3d.hpp"
 #include "things/thinkers/3d/light_3d.hpp"
 #include "things/thinkers/viewport.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "settings/graphics.hpp"
 #include "console/console.hpp"
 
@@ -50,7 +50,7 @@ Shared<Image> Theatre::TakeScreenshot(ID inViewportUID)
     LOCK_THINGS;
     LOCK_CALLSHEET;
     if(inViewportUID.invalid())
-        { return g_pRenderManager->GetAPI()->GetFullScreenshot(); }
+        { return RendererAPI::Get()->GetFullScreenshot(); }
 }
 
 void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
@@ -207,13 +207,13 @@ void Theatre::Draw()
 
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
-        { g_pRenderManager->GetAPI()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
+        { RendererAPI::Get()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
 
     // Render the root viewport
-    g_pRenderManager->GetAPI()->BindFramebuffer();
-    g_pRenderManager->GetAPI()->SetViewport({0, 0}, MainWindow()->GetScale());
-    g_pRenderManager->GetAPI()->SetClearColor(Settings::Graphics::ClearColor);
-    g_pRenderManager->GetAPI()->Clear();
+    RendererAPI::Get()->BindFramebuffer();
+    RendererAPI::Get()->SetViewport({0, 0}, MainWindow()->GetScale());
+    RendererAPI::Get()->SetClearColor(Settings::Graphics::ClearColor);
+    RendererAPI::Get()->Clear();
 
     if(_enable_3d_rendering and not mRootViewportCurrentCamera3D.invalid())
     {

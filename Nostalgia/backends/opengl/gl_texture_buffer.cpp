@@ -1,9 +1,10 @@
 #include "./gl_texture_buffer.hpp"
 #include "./gl_enum_conversions.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "thirdparty/glad/glad.h"
 
-#define ASSERT_API if(not g_pRenderManager->IsAPIActive()) { return; }
+#define ASSERT_API_RETURN(VALUE) if(not RendererAPI::HasActiveInstance()) { return VALUE; }
+#define ASSERT_API ASSERT_API_RETURN()
 
 OpenGLTextureBuffer::OpenGLTextureBuffer(TextureType inType):
     mType{inType}
@@ -99,8 +100,7 @@ uint OpenGLTextureBuffer::ID() const
 
 Shared<Image> OpenGLTextureBuffer::GetImage(int inMipmapLevel) const
 {
-    if(not g_pRenderManager->IsAPIActive())
-        { return Image::CreateEmpty(1, 1); }
+    ASSERT_API_RETURN(Image::CreateEmpty(1, 1))
     GLint _width, _height;
     glGetTextureLevelParameteriv(mBufferID, inMipmapLevel, GL_TEXTURE_WIDTH, &_width);
     glGetTextureLevelParameteriv(mBufferID, inMipmapLevel, GL_TEXTURE_HEIGHT, &_height);

@@ -3,7 +3,7 @@
 #include "events/event_queue.hpp"
 #include "managers/event_manager.hpp"
 #include "managers/input_manager.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
 
 static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
@@ -32,7 +32,7 @@ void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWind
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mData.width  = inWidth;
     pWindow->mData.height = inHeight;
-    g_pRenderManager->GetAPI()->SetViewport({0, 0}, pWindow->GetScale());
+    RendererAPI::Get()->SetViewport({0, 0}, pWindow->GetScale());
     EventManager::Queue()->add<AppEvent>(AppEvent::WindowResize);
 }
 
@@ -175,7 +175,7 @@ void WindowGLFW::Shutdown()
     glfwDestroyWindow(m_pWindow);
     if(--sShittyWindowTrackerPleaseMakeSomethingBetter <= 0)
     {
-        g_pRenderManager->GetAPI()->Shutdown();
+        RendererAPI::Get()->Shutdown();
         glfwTerminate();
     }
 }

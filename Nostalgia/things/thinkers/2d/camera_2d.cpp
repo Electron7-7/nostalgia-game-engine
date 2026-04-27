@@ -7,7 +7,7 @@
 #include "settings/engine.hpp"
 #include "things/resources/texture.hpp"
 #include "things/resources/font.hpp"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
 #include "things/resources/array_mesh.hpp"
 #include "rendering/shader.hpp"
 #include "things/resource_database.hpp"
@@ -70,7 +70,7 @@ Shared<ThingData> Camera2D::GetVariables() const
 
 void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
 {
-    FAUTO renderer_api{g_pRenderManager->GetAPI()};
+    FAUTO renderer_api{RendererAPI::Get()};
 
     auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::i_Missing)};
     auto quad_mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad)};

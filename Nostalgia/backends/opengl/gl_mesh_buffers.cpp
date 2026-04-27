@@ -1,6 +1,8 @@
 #include "gl_mesh_buffers.hpp"
 #include "thirdparty/glad/glad.h"
-#include "managers/render_manager.hpp"
+#include "rendering/renderer_api.hpp"
+
+#define ASSERT_API if(not RendererAPI::HasActiveInstance()) { return; }
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(size_t inSize):
     mSize{static_cast<int>(inSize)}
@@ -18,8 +20,8 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(const float* inVertices, size_t inSize):
 
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
 {
-    if(g_pRenderManager->GetAPI()->IsRunning())
-        { glDeleteBuffers(1, &mBufferID); }
+    ASSERT_API
+    glDeleteBuffers(1, &mBufferID);
 }
 
 void OpenGLVertexBuffer::Bind() const
@@ -62,8 +64,8 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(const uint* inIndices, size_t inCount):
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
 {
-    if(g_pRenderManager->GetAPI()->IsRunning())
-        { glDeleteBuffers(1, &mBufferID); }
+    ASSERT_API
+    glDeleteBuffers(1, &mBufferID);
 }
 
 void OpenGLIndexBuffer::Bind() const

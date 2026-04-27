@@ -274,7 +274,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Disable Comments In Lexer Logs", &TheatreFile::gDebugDontPrintCommentsInLexerLogs);
         SeparatorText("Rendering");
             Checkbox("Draw Command", &gPrintDrawLogs);
-        if(RendererAPI::GetAPI() == GraphicsAPI::OpenGL)
+        if(RendererAPI::CurrentAPI() == RendererAPI::OPENGL)
         {
             SeparatorText("OpenGL");
             Checkbox("Enable Notification Messages", &gOpenGLEnableNotificationMesssages);
@@ -310,7 +310,7 @@ static void s_GeneralDebuggingWindow()
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
         if(Combo("Shader Output", &sSelected, sSelectableNames))
-            { gShaderDebugOutput = static_cast<ushort>(sSelected); }
+            { RendererAPI::sShaderDebugOutput = static_cast<ushort>(sSelected); }
     }
     if(CollapsingHeader("Engine"))
     {

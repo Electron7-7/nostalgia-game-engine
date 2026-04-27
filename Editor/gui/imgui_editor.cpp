@@ -11,7 +11,7 @@
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
-#include <Nostalgia/managers/render_manager.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/world.hpp>
@@ -57,10 +57,10 @@ static bool sEditorJustLoaded{false};
 static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
 
 void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
-{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(true); }
+{ RendererAPI::Get()->SetFramebufferSRGB(true); }
 
 void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
-{ g_pRenderManager->GetAPI()->SetFramebufferSRGB(false); }
+{ RendererAPI::Get()->SetFramebufferSRGB(false); }
 
 void ImGui_Editor::Init()
 {
@@ -550,8 +550,7 @@ bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
 
 uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
 {
-    if(not g_pRenderManager->GetAPI() or not g_pRenderManager->GetAPI()->IsRunning()
-        or not m_sEditorIcons.contains(inType))
+    if(not m_sEditorIcons.contains(inType))
         { return 0; }
     return m_sEditorIcons.at(inType)->GetBuffer()->ID();
 }
