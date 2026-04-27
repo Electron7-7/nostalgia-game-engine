@@ -86,13 +86,8 @@ uint Convert::GL_TextureType(TextureType inType)
         return GL_TEXTURE_1D_ARRAY;
     case TEXTURE_TYPE_2D_ARRAY:
         return GL_TEXTURE_2D_ARRAY;
-    case TEXTURE_TYPE_CUBE_ARRAY:
-        return GL_TEXTURE_CUBE_MAP_ARRAY;
     case TEXTURE_TYPE_CUBE:
         return GL_TEXTURE_CUBE_MAP;
-    case TEXTURE_TYPE_NONE:
-    default:
-        return GL_TEXTURE_2D;
     }
 }
 

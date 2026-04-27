@@ -84,9 +84,9 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
         auto sprite{DCast<Sprite2D>(inVisual2D)};
         auto texture{sprite->GetTexture()};
 
-        glm::vec2 texture_size{texture->Format().width, texture->Format().height};
+        glm::vec2 texture_size{texture->Buffer()->GetFormat().width, texture->Buffer()->GetFormat().height};
 
-        if(texture and not texture->GetBuffer())
+        if(texture and not texture->Buffer())
             { texture = missing_texture; }
 
         auto size{sprite->GlobalScale() * texture_size};

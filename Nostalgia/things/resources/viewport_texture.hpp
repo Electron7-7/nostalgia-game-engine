@@ -12,7 +12,7 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    Shared<TextureBuffer> GetBuffer() const override;
+    Shared<TextureBuffer> Buffer() const override;
 
     virtual ID ViewportID() const;
     virtual void SetViewportID(ID);

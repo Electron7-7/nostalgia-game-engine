@@ -92,8 +92,11 @@ bool OpenGLFrameBuffer::HasAttachedRenderBuffer() const
 void OpenGLFrameBuffer::AttachTextureBuffer(Shared<TextureBuffer> inBuffer, BufferAttachment inAttachment)
 {
     DetachTextureBuffer();
-    glNamedFramebufferTexture(mBufferID, Convert::GL_BufferAttachment(inAttachment), inBuffer->ID(), 0);
-    mAttachedTextureBufferID = inBuffer->ID();
+    mAttachedTextureBufferID = inBuffer->GetID();
+    glNamedFramebufferTexture(mBufferID,
+        Convert::GL_BufferAttachment(inAttachment),
+        mAttachedTextureBufferID,
+        0);
     mHasTextureBuffer = true;
     if(not Status())
         { print_error("Failed to attach TextureBuffer to a FrameBuffer"); }

@@ -80,10 +80,7 @@ void OpenGLRendererAPI::Init()
     EnumRegistry::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
     EnumRegistry::Assign(TEXTURE_TYPE_1D_ARRAY,   "TEXTURE_TYPE_1D_ARRAY");
     EnumRegistry::Assign(TEXTURE_TYPE_2D_ARRAY,   "TEXTURE_TYPE_2D_ARRAY");
-    EnumRegistry::Assign(TEXTURE_TYPE_3D_ARRAY,   "TEXTURE_TYPE_3D_ARRAY");
     EnumRegistry::Assign(TEXTURE_TYPE_CUBE,       "TEXTURE_TYPE_CUBE");
-    EnumRegistry::Assign(TEXTURE_TYPE_CUBE_ARRAY, "TEXTURE_TYPE_CUBE_ARRAY");
-    EnumRegistry::Assign(TEXTURE_TYPE_NONE,       "TEXTURE_TYPE_NONE");
 
     EnumRegistry::Assign(SAMPLER_FILTER_NEAREST, "SAMPLER_FILTER_NEAREST");
     EnumRegistry::Assign(SAMPLER_FILTER_LINEAR,  "SAMPLER_FILTER_LINEAR");
@@ -252,9 +249,9 @@ void OpenGLRendererAPI::BindFramebuffer(Shared<FrameBuffer> inBuffer) const
 
 bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit) const
 {
-    if(not inBuffer or not inBuffer->ID())
+    if(not inBuffer or not inBuffer->GetID())
         { return false; }
-    glBindTextureUnit(inUnit, inBuffer->ID());
+    glBindTextureUnit(inUnit, inBuffer->GetID());
     return true;
 }
 
@@ -262,7 +259,7 @@ bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) cons
 {
     if(not inTexture or inTexture->Invalid())
         { return false; }
-    return BindTexture(inTexture->GetBuffer(), inUnit);
+    return BindTexture(inTexture->Buffer(), inUnit);
 }
 
 void OpenGLRendererAPI::UnbindTexture(texture_units inTextureUnits) const
@@ -317,7 +314,7 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
         inPos.x += (glyph.advance_x >> 6) * inScale.x;
         inPos.y -= (glyph.advance_y >> 6) * inScale.y;
 
-        glBindTextureUnit(0, glyph.texture->ID());
+        glBindTextureUnit(0, glyph.texture->GetID());
         glNamedBufferSubData(mTextVBOs[0], 0, 12 * sizeof(float), _positions);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }

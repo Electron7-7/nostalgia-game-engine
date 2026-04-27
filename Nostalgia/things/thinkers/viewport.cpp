@@ -14,7 +14,7 @@ void Viewport::Ready()
     if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
         { UpdateCurrentCameras(); }
     mFramebuffer = FrameBuffer::Create();
-    SetSize(mSize); // Update FrameBuffer
+    SetSize(mSize); // Update all buffers
 }
 
 void Viewport::SetVariables(Farg<ThingData> data)
@@ -60,7 +60,7 @@ Shared<TextureBuffer> Viewport::GetTextureBuffer()
 { return mTexturebuffer; }
 
 uint Viewport::GetTextureBufferID() const
-{ return mTexturebuffer->ID(); }
+{ return mTexturebuffer->GetID(); }
 
 ID Viewport::CurrentCamera3D()
 { return mCurrentCamera3D; }
@@ -105,8 +105,7 @@ void Viewport::SetSize(Farg<Size2D> inSize)
     mSize[1] = (inSize[1]) ? inSize[1] : mSize[1];
 
     LOCK
-    mTexturebuffer = TextureBuffer::Create();
-    mTexturebuffer->Load(nullptr, {mSize.w(), mSize.h(), DATA_FORMAT_SRGB});
+    mTexturebuffer = TextureBuffer::Create({TEXTURE_TYPE_2D, mSize.w(), mSize.h(), DATA_FORMAT_SRGB});
     mTexturebuffer->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
     mRenderbuffer->SetStorage(inSize);
     mFramebuffer->AttachRenderBuffer(mRenderbuffer);

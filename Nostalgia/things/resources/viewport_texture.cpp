@@ -21,7 +21,7 @@ Shared<ThingData> ViewportTexture::GetVariables() const
     return data;
 }
 
-Shared<TextureBuffer> ViewportTexture::GetBuffer() const
+Shared<TextureBuffer> ViewportTexture::Buffer() const
 { return Theatre::Current()->GetThinker<Viewport>(mViewportID)->GetTextureBuffer(); }
 
 ID ViewportTexture::ViewportID() const

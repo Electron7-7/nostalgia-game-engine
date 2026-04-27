@@ -83,7 +83,17 @@ void Font::LoadFont()
         }
 
         // https://stackoverflow.com/q/53267905
-        auto& glyph{mGlyphs[c] = {TextureBuffer::Create(), c}};
+        auto& glyph{mGlyphs[c] =
+        {
+            TextureBuffer::Create(
+                {
+                    TEXTURE_TYPE_2D,
+                    static_cast<int>(g->bitmap.width),
+                    static_cast<int>(g->bitmap.rows),
+                    DATA_FORMAT_RED
+                }),
+            c
+        }};
 
         glyph.bitmap_width  = g->bitmap.width;
         glyph.bitmap_height = g->bitmap.rows;
@@ -93,8 +103,7 @@ void Font::LoadFont()
         glyph.advance_y     = g->advance.y;
 
         glyph.texture->SetSamplerState({SAMPLER_FILTER_NEAREST, SAMPLER_FILTER_NONE, SAMPLER_FILTER_NEAREST});
-        glyph.texture->Load(face->glyph->bitmap.buffer,
-            {glyph.bitmap_width, glyph.bitmap_height, DATA_FORMAT_RED});
+        glyph.texture->SetData({face->glyph->bitmap.buffer});
     }
 
     FT_Done_Face(face);

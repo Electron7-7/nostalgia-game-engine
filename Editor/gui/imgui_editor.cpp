@@ -552,7 +552,7 @@ uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
 {
     if(not m_sEditorIcons.contains(inType))
         { return 0; }
-    return m_sEditorIcons.at(inType)->GetBuffer()->ID();
+    return m_sEditorIcons.at(inType)->Buffer()->GetID();
 }
 
 void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)

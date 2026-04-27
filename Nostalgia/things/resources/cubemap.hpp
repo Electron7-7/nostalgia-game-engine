@@ -21,7 +21,6 @@ public:
 protected:
     using ImageUIDs_t  = std::array<ID, 6>;
     using ImagePaths_t = std::array<std::string, 6>;
-    bool mInitialized{false};
     Unique<ImageUIDs_t>  mInitialImageUIDs{MakeUnique<ImageUIDs_t>()};
     Unique<ImagePaths_t> mInitialImagePaths{MakeUnique<ImagePaths_t>()};
 };

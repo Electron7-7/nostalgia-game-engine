@@ -3,6 +3,8 @@
 #include "things/thing_data.hpp"
 #include "theatre/theatre.hpp"
 
+#define LOCK LockGuard<RMutex> _lock{mBufferMutex};
+
 using namespace TheatreFile;
 
 Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage)
@@ -14,12 +16,12 @@ Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage)
 
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
-    Super::SetVariables(data);
-    mFormat.type = TEXTURE_TYPE_2D;
     if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
     else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }
+    // Since `Texture::SetVariables` only sets the sampler, it should come after the buffer is created
+    Super::SetVariables(data);
 }
 
 Shared<ThingData> ImageTexture::GetVariables() const
@@ -32,47 +34,34 @@ Shared<ThingData> ImageTexture::GetVariables() const
 
 void ImageTexture::SetImage(Shared<Image> inImage)
 {
-    if(not mTextureBuffer)
-        { mTextureBuffer = TextureBuffer::Create(); }
-
+    LOCK
     if(not inImage or not inImage->data())
     {
         print_error("No image data found/loaded");
         return;
     }
 
-    mFormat = {inImage->Width(), inImage->Height(), inImage->Format()};
-    mTextureBuffer->Load(inImage->data(), mFormat);
-
-    if(not inImage->UseMipmaps())
-    {
-        mSampler.mip_filter_min = SAMPLER_FILTER_NONE;
-        mTextureBuffer->SetSamplerState(mSampler);
-    }
-    else
-    {
-        if(mSampler.mip_filter_min == SAMPLER_FILTER_NONE)
-            { mSampler.mip_filter_min = SAMPLER_FILTER_LINEAR; }
-        mTextureBuffer->SetSamplerState(mSampler);
-        mTextureBuffer->GenerateMipMaps();
-    }
+    mBuffer = TextureBuffer::Create({TEXTURE_TYPE_2D, inImage->Width(), inImage->Height(), inImage->Format()});
+    mBuffer->SetData({inImage->data()});
+    mBuffer->SetSamplerState(mSampler);
 }
 
 void ImageTexture::UpdateImage(Shared<Image> inImage)
 {
-    if(mFormat.width != inImage->Width()
-        or mFormat.height != inImage->Height()
-        or mFormat.data_format != inImage->Format()
-        or mFormat.channels != inImage->Channels())
+    LOCK
+    auto _format{mBuffer->GetFormat()};
+    if(_format.width != inImage->Width()
+        or _format.height != inImage->Height()
+        or _format.data_format != inImage->Format())
     {
         print_error("Image parameters do not match ImageTexture's parameters");
-        print_debug("Image Params        - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
-            inImage->Width(),inImage->Height(),inImage->Channels(),EnumRegistry::GetEnumName(inImage->Format()));
-        print_debug("ImageTexture Params - Width: {}, Height: {}, Channels: {}, DataFormat: {}",
-            mFormat.width, mFormat.height, mFormat.channels, EnumRegistry::GetEnumName(mFormat.data_format));
+        print_debug("Image Params        - Width: {}, Height: {}, DataFormat: {}",
+            inImage->Width(), inImage->Height(), EnumRegistry::GetEnumName(inImage->Format()));
+        print_debug("ImageTexture Params - Width: {}, Height: {}, DataFormat: {}",
+            _format.width, _format.height, EnumRegistry::GetEnumName(_format.data_format));
         return;
     }
 
-    mInitialImageID = inImage->uid();
-    mTextureBuffer->Load(inImage->data(), mFormat);
+    mInitialImageID = (mInitialImageID.invalid()) ? inImage->uid() : mInitialImageID;
+    mBuffer->SetData({inImage->data(), 0, inImage->Width(), inImage->Height()});
 }

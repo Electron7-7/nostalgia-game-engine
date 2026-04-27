@@ -146,10 +146,10 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         auto diffuse_texture{material->DiffuseTexture()};
         auto specular_texture{material->SpecularTexture()};
 
-        if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->GetBuffer())
+        if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->Buffer())
             { diffuse_texture = missing_texture; }
 
-        if(not material->SpecularTexture()->Invalid() and not specular_texture->GetBuffer())
+        if(not material->SpecularTexture()->Invalid() and not specular_texture->Buffer())
             { specular_texture = missing_texture; }
 
         shader = renderer_api->GetShader((material->mFullBright)
@@ -190,8 +190,8 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         shader->SetUniform("current_material.use_diffuse", true);
         shader->SetUniform("current_material.diffuse_color", {1.0f,1.0f,1.0f});
 
-        auto height{texture->Format().height};
-        auto width{texture->Format().width};
+        auto height{texture->Buffer()->GetFormat().height};
+        auto width{texture->Buffer()->GetFormat().width};
         if(width > height)
             { scale_vector *= glm::vec3{1.0f / ((float)height / width), 1.0f, 1.0f}; }
         else
