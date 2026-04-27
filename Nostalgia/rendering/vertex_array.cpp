@@ -9,7 +9,7 @@ Shared<VertexArray> VertexArray::Create()
     {
     case RendererAPI::NONE:
     default:
-        print_warning("RendererAPI is dummy; defaulting to OpenGL");
+        print_warning(RendererAPI::s_cAPIWarningMessage);
         [[fallthrough]];
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLVertexArray>();

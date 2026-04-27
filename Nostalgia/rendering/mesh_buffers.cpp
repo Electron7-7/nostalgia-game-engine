@@ -96,7 +96,7 @@ Shared<VertexBuffer> VertexBuffer::Create(size_t inSize)
     {
     case RendererAPI::NONE:
     default:
-        print_warning("RendererAPI is dummy; defaulting to OpenGL");
+        print_warning(RendererAPI::s_cAPIWarningMessage);
         [[fallthrough]];
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLVertexBuffer>(inSize);
@@ -109,7 +109,7 @@ Shared<VertexBuffer> VertexBuffer::Create(const float* inVertices, size_t inSize
     {
     case RendererAPI::NONE:
     default:
-        print_warning("RendererAPI is dummy; defaulting to OpenGL");
+        print_warning(RendererAPI::s_cAPIWarningMessage);
         [[fallthrough]];
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLVertexBuffer>(inVertices, inSize);
@@ -122,7 +122,7 @@ Shared<IndexBuffer> IndexBuffer::Create(const uint* inIndices, size_t inSize)
     {
     case RendererAPI::NONE:
     default:
-        print_warning("RendererAPI is dummy; defaulting to OpenGL");
+        print_warning(RendererAPI::s_cAPIWarningMessage);
         [[fallthrough]];
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLIndexBuffer>(inIndices, inSize);
