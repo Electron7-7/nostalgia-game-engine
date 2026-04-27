@@ -97,12 +97,13 @@ public:
     DummyTextureBuffer() = default;
     virtual ~DummyTextureBuffer() = default;
 
-    virtual void GenerateMipmaps() {}
-    virtual void SetSamplerState(Farg<SamplerState>) {}
-    virtual void SetData(Farg<TextureDataFormat>) {}
-    virtual uint GetID() { return 0; }
-    virtual Farg<TextureFormat> GetFormat() { return _fmt; }
-    virtual Shared<Image> GetImage(int = 0, int = 0) { return Image::CreateEmpty(1, 1); }
+    void GenerateMipmaps() final {}
+    void SetSamplerState(Farg<SamplerState>) final {}
+    void SetData(Farg<TextureDataFormat>) final {}
+    uint GetID() final { return 0; }
+    Farg<TextureFormat> GetFormat() final { return _fmt; }
+    Shared<Image> GetImage(int = 0, int = 0) final { return Image::CreateEmpty(1, 1); }
+    void GetSamplerState(SamplerState&) final {}
 
 private:
     inline static constinit const TextureFormat _fmt{};
