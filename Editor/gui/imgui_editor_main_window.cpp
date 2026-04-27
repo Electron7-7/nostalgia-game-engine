@@ -210,11 +210,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case ThingVarType::Enum:
             {
                 long _value{};
-                if(auto _enums{EnumRegistry::GetEnumsOfSameType(var.name)}; not _enums.empty())
+                if(auto _enums{EnumRegistry::GetEnumsOfSameType(var.value)}; not _enums.empty())
                 {
-                    EnumRegistry::GetEnum(var.name, _value);
+                    EnumRegistry::GetEnum(var.value, _value);
 
-                    if(BeginCombo("Enum", var.name.data()))
+                    if(BeginCombo(var.name.data(), var.value.data()))
                     {
                         for(FAUTO _enum : _enums)
                         {
