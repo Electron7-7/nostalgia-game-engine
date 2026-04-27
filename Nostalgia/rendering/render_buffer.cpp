@@ -3,6 +3,9 @@
 // Implementations
 #include "backends/opengl/gl_render_buffer.hpp"
 
+Shared<RenderBuffer> RenderBuffer::CreateDummy()
+{ return MakeShared<DummyRenderBuffer>(); }
+
 Shared<RenderBuffer> RenderBuffer::Create()
 {
     switch(RendererAPI::CurrentAPI())
