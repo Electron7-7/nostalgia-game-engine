@@ -14,6 +14,7 @@ public:
     void Unbind() const final;
 
     void SetUniform(Sarg, int)             const final;
+    void SetUniform(Sarg, uint)            const final;
     void SetUniform(Sarg, float)           const final;
     void SetUniform(Sarg, Farg<glm::vec2>) const final;
     void SetUniform(Sarg, Farg<glm::vec3>) const final;

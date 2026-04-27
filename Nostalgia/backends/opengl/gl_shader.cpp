@@ -50,6 +50,9 @@ void GLShader::Unbind() const
 void GLShader::SetUniform(Sarg name, int value) const
 { glProgramUniform1i(mID(), glGetUniformLocation(mID(), name.data()), value); }
 
+void GLShader::SetUniform(Sarg inName, uint inValue) const
+{ glProgramUniform1ui(mID(), glGetUniformLocation(mID(), inName.data()), inValue); }
+
 void GLShader::SetUniform(Sarg name, float value) const
 { glProgramUniform1f(mID(), glGetUniformLocation(mID(), name.data()), value); }
 

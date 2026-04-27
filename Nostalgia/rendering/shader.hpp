@@ -22,6 +22,7 @@ public:
     virtual void Unbind() const = 0;
 
     virtual void SetUniform(Sarg inName, int inValue)             const = 0;
+    virtual void SetUniform(Sarg inName, uint inValue)            const = 0;
     virtual void SetUniform(Sarg inName, float inValue)           const = 0;
     virtual void SetUniform(Sarg inName, Farg<glm::vec2> inValue) const = 0;
     virtual void SetUniform(Sarg inName, Farg<glm::vec3> inValue) const = 0;
