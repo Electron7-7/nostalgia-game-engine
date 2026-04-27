@@ -35,8 +35,8 @@ public:
 
 protected:
     mutable RMutex mFramebufferMutex{}; // evil mutable
-    Shared<FrameBuffer> mFramebuffer{FrameBuffer::Create()};
-    Shared<RenderBuffer> mRenderbuffer{RenderBuffer::CreateDummy()};
+    Shared<FrameBuffer>   mFramebuffer{FrameBuffer::CreateDummy()};
+    Shared<RenderBuffer>  mRenderbuffer{RenderBuffer::CreateDummy()};
     Shared<TextureBuffer> mTexturebuffer{TextureBuffer::CreateDummy()};
     Size2D mSize{512, 512};
     ID mCurrentCamera3D{},

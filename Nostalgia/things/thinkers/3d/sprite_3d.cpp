@@ -1,5 +1,6 @@
 #include "./sprite_3d.hpp"
 #include "things/thing_data.hpp"
+#include "things/resources/image_texture.hpp"
 
 using namespace TheatreFile;
 
