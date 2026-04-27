@@ -9,8 +9,8 @@ class ViewportTexture : public Texture
 public:
 	SET_SUPER(Texture)
 	SET_TYPEID(ThingType::ViewportTexture)
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     Shared<TextureBuffer> Buffer() const override;
 

@@ -8,9 +8,9 @@ class Camera2D : public Actor2D
 public:
 	SET_SUPER(Actor2D)
 	SET_TYPEID(ThingType::Camera2D)
-    virtual SIG_READY override;
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     virtual void Draw(Shared<Visual2D>) const;
 

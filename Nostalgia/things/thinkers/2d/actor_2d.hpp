@@ -10,9 +10,9 @@ class Actor2D : public Thinker
 public:
 	SET_SUPER(Thinker)
 	SET_TYPEID(ThingType::Actor2D)
-    virtual SIG_READY override;
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     virtual void SetPosition(Farg<glm::vec2>);
     virtual void SetRotation(float);

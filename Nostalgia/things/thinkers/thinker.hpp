@@ -8,8 +8,8 @@ class Thinker : public Thing
 public:
     SET_SUPER(Thing)
 	SET_TYPEID(ThingType::Thinker)
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool Visible() const;
     void SetVisible(bool);

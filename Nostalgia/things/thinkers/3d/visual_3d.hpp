@@ -8,9 +8,9 @@ class Visual3D : public Actor3D
 public:
 	SET_SUPER(Actor3D)
 	SET_TYPEID(ThingType::Visual3D)
-    virtual SIG_READY override;
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     virtual BitMask Layers() const;
     virtual void SetLayers(BitMask inVisualLayers);

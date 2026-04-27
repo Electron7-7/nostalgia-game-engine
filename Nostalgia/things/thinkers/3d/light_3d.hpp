@@ -8,9 +8,9 @@ class Light3D : public Visual3D
 public:
 	SET_SUPER(Visual3D)
 	SET_TYPEID(ThingType::Light3D)
-    virtual SIG_READY override;
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    READY_OVERRIDE
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     static void ClearCounts();
 
@@ -58,8 +58,8 @@ public:
 	SET_TYPEID(ThingType::SpotLight3D)
 
     static int GetCount();
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
 };
@@ -71,8 +71,8 @@ public:
 	SET_TYPEID(ThingType::DirectionalLight3D)
 
     static int GetCount();
-    virtual SIG_SET_VARIABLES override;
-    virtual SIG_GET_VARIABLES override;
+    SET_VARIABLES_OVERRIDE
+    GET_VARIABLES_OVERRIDE
 
     bool IncrementIndex() final;
 };
