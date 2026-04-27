@@ -25,8 +25,27 @@ enum BufferAttachment : int
 {
     ATTACHMENT_COLOR,
     ATTACHMENT_DEPTH,
-    ATTACHMENT_STENCIL,
-    // ATTACHMENT_DEPTH_STENCIL,
+    ATTACHMENT_STENCIL
 };
+
+inline int GetChannels(DataFormat inFormat)
+{
+    switch(inFormat)
+    {
+    case DATA_FORMAT_NONE:
+        return 0;
+    case DATA_FORMAT_RED:
+    case DATA_FORMAT_DEPTH:
+    case DATA_FORMAT_DEPTH32:
+        return 1;
+    case DATA_FORMAT_RGB:
+    case DATA_FORMAT_SRGB:
+        return 3;
+    case DATA_FORMAT_RGBA:
+    case DATA_FORMAT_RGBA8:
+    case DATA_FORMAT_SRGB_ALPHA:
+        return 4;
+    }
+}
 
 #endif // RENDERER_COMMON_H
