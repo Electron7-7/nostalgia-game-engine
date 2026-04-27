@@ -9,8 +9,8 @@ class ArrayMesh : public Mesh
 public:
     SET_SUPER(Mesh)
     SET_TYPEID(ThingType::ArrayMesh)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     enum ModelFileType : int { MODEL_OBJ };
 

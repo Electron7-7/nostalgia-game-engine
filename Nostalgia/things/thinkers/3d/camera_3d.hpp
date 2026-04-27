@@ -9,9 +9,9 @@ class Camera3D : public Actor3D
 public:
 	SET_SUPER(Actor3D)
 	SET_TYPEID(ThingType::Camera3D)
-    READY_OVERRIDE
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_READY override;
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     float mFOV{75.0f},
         mViewCutoffNear{0.01f},

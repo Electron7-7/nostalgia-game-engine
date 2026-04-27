@@ -9,9 +9,9 @@ class NostalgiaPlayer : public Thinker
 public:
     SET_SUPER(Thinker)
     SET_TYPEID(ThingType::NostalgiaPlayer)
-    READY_OVERRIDE
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_READY override;
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     Shared<Actor3D> GetActor3D() const;
     Shared<Actor2D> GetActor2D() const;

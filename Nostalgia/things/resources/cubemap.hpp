@@ -9,8 +9,8 @@ class Cubemap : public Texture
 public:
 	SET_SUPER(Texture)
 	SET_TYPEID(ThingType::Cubemap)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     using images_t = std::initializer_list<Shared<Image>>;
 

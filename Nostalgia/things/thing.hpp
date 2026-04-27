@@ -17,20 +17,20 @@ namespace TheatreFile { struct ThingData; }
 /// See 'Editor/things/player.hpp' for an example use case.
 #define DEFINE_TYPEID(CLASS, VAR_NAME) inline static const PID VAR_NAME{#CLASS}; SET_TYPEID(VAR_NAME)
 
-/// Helper macro for declaring an override for `Ready`
-#define READY_OVERRIDE virtual void Ready() override;
-/// Helper macro for declaring an override for `Shutdown`
-#define SHUTDOWN_OVERRIDE virtual void Shutdown() override;
-/// Helper macro for declaring an override for `Update`
-#define UPDATE_OVERRIDE virtual void Update() override;
-/// Helper macro for declaring an override for `Tick`
-#define TICK_OVERRIDE virtual void Tick() override;
-/// Helper macro for declaring an override for `Input`
-#define INPUT_OVERRIDE virtual void Input(InputEvent*) override;
-/// Helper macro for declaring an override for `SetVariables`
-#define SET_VARIABLES_OVERRIDE virtual void SetVariables(Farg<TheatreFile::ThingData>) override;
-/// Helper macro for declaring an override for `GetVariables`
-#define GET_VARIABLES_OVERRIDE virtual Shared<TheatreFile::ThingData> GetVariables() const override;
+/// Helper macro for getting the signature of `Thing::Ready`
+#define SIG_READY void Ready()
+/// Helper macro for getting the signature of `Thing::Shutdown`
+#define SIG_SHUTDOWN void Shutdown()
+/// Helper macro for getting the signature of `Thing::Update`
+#define SIG_UPDATE void Update()
+/// Helper macro for getting the signature of `Thing::Tick`
+#define SIG_TICK void Tick()
+/// Helper macro for getting the signature of `Thing::Input`
+#define SIG_INPUT void Input(InputEvent*)
+/// Helper macro for getting the signature of `Thing::SetVariables`
+#define SIG_SET_VARIABLES void SetVariables(Farg<TheatreFile::ThingData>)
+/// Helper macro for getting the signature of `Thing::GetVariables`
+#define SIG_GET_VARIABLES Shared<TheatreFile::ThingData> GetVariables() const
 
 class Thing
 {

@@ -12,9 +12,9 @@ class Viewport : public Thinker
 public:
 	SET_SUPER(Thinker)
 	SET_TYPEID(ThingType::Viewport)
-    READY_OVERRIDE
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_READY override;
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     typedef void (*OnSizeChangedCallback_t)(Farg<Size2D>);
 

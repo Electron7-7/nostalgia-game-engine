@@ -11,8 +11,8 @@ public:
 
     SET_SUPER(Texture)
     SET_TYPEID(ThingType::ImageTexture)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     void SetImage(Shared<Image>);
     void UpdateImage(Shared<Image>);

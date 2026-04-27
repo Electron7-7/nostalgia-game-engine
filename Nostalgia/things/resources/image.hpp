@@ -15,9 +15,9 @@ public:
 
 	SET_SUPER(Resource)
 	SET_TYPEID(ThingType::Image)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
-    SHUTDOWN_OVERRIDE
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
+    virtual SIG_SHUTDOWN override;
 
     virtual ~Image() noexcept;
 

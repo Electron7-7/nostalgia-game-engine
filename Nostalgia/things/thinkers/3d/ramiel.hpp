@@ -8,10 +8,10 @@ class Ramiel : public Actor3D
 public:
     SET_SUPER(Actor3D)
     DEFINE_TYPEID(Ramiel, RamielType)
-    READY_OVERRIDE
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
-    TICK_OVERRIDE
+    virtual SIG_READY override;
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
+    virtual SIG_TICK override;
 
 private:
     float mSpeed{1.0f};

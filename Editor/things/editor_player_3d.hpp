@@ -10,11 +10,11 @@ class EditorPlayer3D : public Actor3D
 public:
     SET_SUPER(Actor3D)
     DEFINE_TYPEID(EditorPlayer3D, __editorplayer3d)
-    READY_OVERRIDE
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
-    TICK_OVERRIDE
-    INPUT_OVERRIDE
+    virtual SIG_READY override;
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
+    virtual SIG_TICK override;
+    virtual SIG_INPUT override;
 
     bool mCaptureMouse{false},
         mCaptureKeyboard{false};

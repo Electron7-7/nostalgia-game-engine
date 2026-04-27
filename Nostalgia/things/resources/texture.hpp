@@ -10,8 +10,8 @@ class Texture : public Resource
 public:
 	SET_SUPER(Resource)
 	SET_TYPEID(ThingType::Texture)
-    SET_VARIABLES_OVERRIDE
-    GET_VARIABLES_OVERRIDE
+    virtual SIG_SET_VARIABLES override;
+    virtual SIG_GET_VARIABLES override;
 
     virtual Shared<TextureBuffer> Buffer() const { return mBuffer; }
 
