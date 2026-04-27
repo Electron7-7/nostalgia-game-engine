@@ -6,12 +6,43 @@
 #define ASSERT_API_RETURN(VALUE) if(not RendererAPI::HasActiveInstance()) { return VALUE; }
 #define ASSERT_API ASSERT_API_RETURN()
 
-OpenGLTextureBuffer::OpenGLTextureBuffer(TextureType inType):
-    mType{inType}
+OpenGLTextureBuffer::OpenGLTextureBuffer(Farg<TextureFormat> inFormat):
+    mFormat{inFormat}
 {
     ASSERT_API
-    // glGenTextures(1, &mBufferID);
-    glCreateTextures(Convert::GL_TextureType(inType), 1, &mBufferID);
+    glCreateTextures(Convert::GL_TextureType(mFormat.type), 1, &mBufferID);
+    GLsizei _height{mFormat.height}, _depth{mFormat.depth};
+    switch(mFormat.type)
+    {
+    case TEXTURE_TYPE_1D:
+        glTextureStorage1D(mBufferID,
+            mFormat.mipmaps + 1,
+            Convert::GL_DataFormat(mFormat.data_format, true),
+            mFormat.width);
+        break;
+    case TEXTURE_TYPE_1D_ARRAY:
+        _height = mFormat.array_layers;
+        [[fallthrough]];
+    case TEXTURE_TYPE_CUBE:
+    case TEXTURE_TYPE_2D:
+        glTextureStorage2D(mBufferID,
+            mFormat.mipmaps + 1,
+            Convert::GL_DataFormat(mFormat.data_format, true),
+            mFormat.width,
+            _height);
+        break;
+    case TEXTURE_TYPE_2D_ARRAY:
+        _depth = mFormat.array_layers;
+        [[fallthrough]];
+    case TEXTURE_TYPE_3D:
+        glTextureStorage3D(mBufferID,
+            mFormat.mipmaps + 1,
+            Convert::GL_DataFormat(mFormat.data_format, true),
+            mFormat.width,
+            _height,
+            _depth);
+        break;
+    }
 }
 
 OpenGLTextureBuffer::~OpenGLTextureBuffer()
@@ -20,97 +51,116 @@ OpenGLTextureBuffer::~OpenGLTextureBuffer()
     glDeleteTextures(1, &mBufferID);
 }
 
-void OpenGLTextureBuffer::GenerateMipMaps()
+void OpenGLTextureBuffer::GenerateMipmaps()
 {
     ASSERT_API
-    // glBindTexture(Convert::GL_TextureType(mType), mBufferID);
-    glGenerateTextureMipmap(mBufferID);
-    // glBindTexture(Convert::GL_TextureType(mType), 0);
+    if(mFormat.mipmaps)
+        { glGenerateTextureMipmap(mBufferID); }
 }
 
-void OpenGLTextureBuffer::SetSamplerState(Farg<SamplerState> inSamplerState) const
+void OpenGLTextureBuffer::SetSamplerState(Farg<SamplerState> inSamplerState)
 {
     ASSERT_API
-    // glBindTexture(Convert::GL_TextureType(mType), mBufferID);
     if(inSamplerState.use_anisotropy)
         { glTextureParameterf(mBufferID, GL_TEXTURE_MAX_ANISOTROPY, inSamplerState.anisotropy_max); }
-    glTextureParameteri(mBufferID, GL_TEXTURE_MIN_FILTER, Convert::GL_SamplerFilter(inSamplerState.min_filter, inSamplerState.mip_filter_min));
-    glTextureParameteri(mBufferID, GL_TEXTURE_MAG_FILTER, Convert::GL_SamplerFilter(inSamplerState.mag_filter, SAMPLER_FILTER_NONE));
-    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_S, Convert::GL_SamplerRepeat(inSamplerState.repeat_u));
-    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_T, Convert::GL_SamplerRepeat(inSamplerState.repeat_v));
-    glTextureParameteri(mBufferID, GL_TEXTURE_WRAP_R, Convert::GL_SamplerRepeat(inSamplerState.repeat_w));
-    // glBindTexture(Convert::GL_TextureType(mType), 0);
+    glTextureParameteri(mBufferID,
+        GL_TEXTURE_MIN_FILTER,
+        Convert::GL_SamplerFilter(inSamplerState.min_filter, inSamplerState.mip_filter_min));
+    glTextureParameteri(mBufferID,
+        GL_TEXTURE_MAG_FILTER,
+        Convert::GL_SamplerFilter(inSamplerState.mag_filter, SAMPLER_FILTER_NONE));
+    glTextureParameteri(mBufferID,
+        GL_TEXTURE_WRAP_S,
+        Convert::GL_SamplerRepeat(inSamplerState.repeat_u));
+    glTextureParameteri(mBufferID,
+        GL_TEXTURE_WRAP_T,
+        Convert::GL_SamplerRepeat(inSamplerState.repeat_v));
+    glTextureParameteri(mBufferID,
+        GL_TEXTURE_WRAP_R,
+        Convert::GL_SamplerRepeat(inSamplerState.repeat_w));
+    GenerateMipmaps();
 }
 
-void OpenGLTextureBuffer::Load(const uchar* inData, Farg<TextureFormat> inFormat, int inLayer)
+void OpenGLTextureBuffer::SetData(Farg<TextureDataFormat> inFormat)
 {
     ASSERT_API
 
-    if(inFormat.data_format == DATA_FORMAT_RED)
-        { glPixelStorei(GL_UNPACK_ALIGNMENT, 1); }
+    GLint _yoffset{inFormat.yoffset}, _zoffset{inFormat.zoffset},
+        _width{(inFormat.width   == -1) ? mFormat.width  : inFormat.width},
+        _height{(inFormat.height == -1) ? mFormat.height : inFormat.height},
+        _depth{(inFormat.depth   == -1) ? mFormat.depth  : inFormat.depth};
 
-    if(mType != TEXTURE_TYPE_CUBE and mImmutableStorageAlreadyBuffered)
-    {
-        glDeleteTextures(1, &mBufferID);
-        glCreateTextures(1, Convert::GL_TextureType(mType), &mBufferID);
-        mImmutableStorageAlreadyBuffered = false;
-    }
+    glPixelStorei(GL_UNPACK_ALIGNMENT, GetChannels(mFormat.data_format));
 
-    if(not mImmutableStorageAlreadyBuffered)
-    {
-        glTextureStorage2D(mBufferID,
-            1,
-            Convert::GL_DataFormat(inFormat.data_format, true),
-            inFormat.width,
-            inFormat.height);
-        mImmutableStorageAlreadyBuffered = true;
-    }
-
-    switch(mType)
+    switch(mFormat.type)
     {
     default:
-        print_warning("Unsupported texture type encountered; defaulting to TEXTURE_TYPE_2D");
+    case TEXTURE_TYPE_1D:
+        glTextureSubImage1D(mBufferID,
+            inFormat.lod,
+            inFormat.xoffset,
+            _width,
+            Convert::GL_DataFormat(mFormat.data_format, true),
+            GL_UNSIGNED_BYTE,
+            inFormat.data);
+        break;
+    case TEXTURE_TYPE_1D_ARRAY:
+        _yoffset = inFormat.layer;
         [[fallthrough]];
     case TEXTURE_TYPE_2D:
-        glTextureSubImage2D(mBufferID, 0, 0, 0,
-            inFormat.width,
-            inFormat.height,
-            Convert::GL_DataFormat(inFormat.data_format),
+        glTextureSubImage2D(mBufferID,
+            inFormat.lod,
+            inFormat.xoffset,
+            _yoffset,
+            _width,
+            _height,
+            Convert::GL_DataFormat(mFormat.data_format),
             GL_UNSIGNED_BYTE,
-            inData);
+            inFormat.data);
         break;
     case TEXTURE_TYPE_CUBE:
-        glTextureSubImage3D(mBufferID, 0, 0, 0,
-            inLayer,
-            inFormat.width,
-            inFormat.height,
-            1,
-            Convert::GL_DataFormat(inFormat.data_format),
+    case TEXTURE_TYPE_2D_ARRAY:
+        _zoffset = inFormat.layer;
+        [[fallthrough]];
+    case TEXTURE_TYPE_3D:
+        glTextureSubImage3D(mBufferID,
+            inFormat.lod,
+            inFormat.xoffset,
+            inFormat.yoffset,
+            _zoffset,
+            _width,
+            _height,
+            _depth,
+            Convert::GL_DataFormat(mFormat.data_format),
             GL_UNSIGNED_BYTE,
-            inData);
+            inFormat.data);
         break;
     }
 }
 
-TextureType OpenGLTextureBuffer::Type() const
-{ return mType; }
-
-uint OpenGLTextureBuffer::ID() const
+uint OpenGLTextureBuffer::GetID()
 { return mBufferID; }
 
-Shared<Image> OpenGLTextureBuffer::GetImage(int inMipmapLevel) const
+Farg<TextureFormat> OpenGLTextureBuffer::GetFormat()
+{ return mFormat; }
+
+Shared<Image> OpenGLTextureBuffer::GetImage(int inLayer, int inMipmapLevel)
 {
-    ASSERT_API_RETURN(Image::CreateEmpty(1, 1))
-    GLint _width, _height;
-    glGetTextureLevelParameteriv(mBufferID, inMipmapLevel, GL_TEXTURE_WIDTH, &_width);
-    glGetTextureLevelParameteriv(mBufferID, inMipmapLevel, GL_TEXTURE_HEIGHT, &_height);
-    std::vector<uchar> _data(4 * _width * _height);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+    ASSERT_API_RETURN(Image::CreateEmpty(mFormat.width, mFormat.height, mFormat.data_format));
+    GLint _channels{GetChannels(mFormat.data_format)};
+    std::vector<uchar> _data(_channels * mFormat.width * mFormat.height);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, _channels);
     glGetTextureImage(mBufferID,
         inMipmapLevel,
-        GL_RGBA,
+        Convert::GL_DataFormat(mFormat.data_format),
         GL_UNSIGNED_BYTE,
         _data.size(),
         _data.data());
-    return Image::CreateFromData(_data.data(), _data.size(), _width, _height, 4, false);
+    return Image::CreateFromData(_data.data(),
+        _data.size(),
+        mFormat.width,
+        mFormat.height,
+        _channels,
+        false,
+        mFormat.data_format);
 }
