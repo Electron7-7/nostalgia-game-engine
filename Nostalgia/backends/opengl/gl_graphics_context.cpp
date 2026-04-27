@@ -4,7 +4,7 @@
 
 OpenGLContext::OpenGLContext(GLFWwindow* inNativeWindow):
     mWindow{inNativeWindow}
-{ if(!mWindow) { print_error("mWindow is nullptr!"); } }
+{ if(not mWindow) { print_error("mWindow is nullptr!"); } }
 
 #pragma message("TODO: if GLFW is the only windowing solution, this is fine; otherwise, make this agnostic!")
 Error OpenGLContext::Init()
