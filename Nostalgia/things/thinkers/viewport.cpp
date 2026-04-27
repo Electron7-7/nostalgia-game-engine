@@ -13,7 +13,8 @@ void Viewport::Ready()
     Super::Ready();
     if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
         { UpdateCurrentCameras(); }
-    mFramebuffer = FrameBuffer::Create();
+    mFramebuffer  = FrameBuffer::Create();
+    mRenderbuffer = RenderBuffer::Create();
     SetSize(mSize); // Update all buffers
 }
 
@@ -101,6 +102,7 @@ void Viewport::SetSize(Farg<Size2D> inSize)
 {
     if(inSize[0] == 0 or inSize[1] == 0)
         { print_warning("Cannot set Viewport width/height to 0"); }
+
     mSize[0] = (inSize[0]) ? inSize[0] : mSize[0];
     mSize[1] = (inSize[1]) ? inSize[1] : mSize[1];
 
