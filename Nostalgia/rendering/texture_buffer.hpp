@@ -35,6 +35,9 @@ struct SamplerState
     float anisotropy_max{1.0f};
 
     static constinit const SamplerState JuliansPreferredDefaults;
+
+    void SetVariables(Farg<TheatreFile::ThingData> inData);
+    void GetVariables(Shared<TheatreFile::ThingData>& ioData) const;
 };
 
 inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
