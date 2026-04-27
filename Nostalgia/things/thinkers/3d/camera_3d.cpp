@@ -123,7 +123,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     auto view_matrix{ViewMatrix()};
     auto projection_matrix{ProjectionMatrix()};
 
-    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::i_Missing)};
+    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::t_Missing)};
     auto mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Error)};
 
     if(not inVisual3D->Visible()

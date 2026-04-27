@@ -72,7 +72,7 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
 {
     FAUTO renderer_api{RendererAPI::Get()};
 
-    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::i_Missing)};
+    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::t_Missing)};
     auto quad_mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad)};
 
     auto shader{renderer_api->GetShader(Shaders::Fast2D)};

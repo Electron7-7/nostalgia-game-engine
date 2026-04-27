@@ -5,7 +5,7 @@
 #include "things/thing_factory.hpp"
 #include "things/resource_database.hpp"
 #include "things/resources/cubemap.hpp"
-#include "things/resources/image.hpp"
+#include "things/resources/image_texture.hpp"
 #include "things/resources/array_mesh.hpp"
 #include "things/resources/font.hpp"
 
@@ -72,18 +72,18 @@ bool ResourceManager::Init()
     UID::m_DebugAxis =
         ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::DebugAxis,
             std::size(Models::DebugAxis), ArrayMesh::MODEL_OBJ), "3DAxisModel");
-    UID::i_Missing =
-        ResourceDatabase::Register(Image::CreateFromFile({Images::Missing,
-            std::size(Images::Missing)}), "MissingImage");
-    UID::i_LightDebug =
-        ResourceDatabase::Register(Image::CreateFromFile({Images::LightDebug,
-            std::size(Images::LightDebug)}), "LightImage");
-    UID::i_COMP04_5 =
-        ResourceDatabase::Register(Image::CreateFromFile({Images::COMP04_5,
-            std::size(Images::COMP04_5)}), "DoomImage");
-    UID::i_LolBit =
-        ResourceDatabase::Register(Image::CreateFromFile({Images::LolBit,
-            std::size(Images::LolBit)}), "LolBitImage");
+    UID::t_Missing =
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
+            {Images::Missing, std::size(Images::Missing)})), "MissingImage");
+    UID::t_LightDebug =
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
+            {Images::LightDebug, std::size(Images::LightDebug)})), "LightImage");
+    UID::t_COMP04_5 =
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
+            {Images::COMP04_5, std::size(Images::COMP04_5)})), "DoomImage");
+    UID::t_LolBit =
+        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
+            {Images::LolBit, std::size(Images::LolBit)})), "LolBitImage");
     UID::t_ShittySkybox =
         ResourceDatabase::Register(Cubemap::CreateFromImages({
             Image::CreateFromFile({Images::SkyboxXp, std::size(Images::SkyboxXp)}),
