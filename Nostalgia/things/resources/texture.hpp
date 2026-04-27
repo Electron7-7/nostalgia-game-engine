@@ -13,18 +13,15 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    virtual Shared<Image> GetImage() const;
-    virtual Shared<TextureBuffer> GetBuffer() const;
+    virtual Shared<TextureBuffer> Buffer() const { return mBuffer; }
 
-    Farg<TextureFormat> Format() const;
     Farg<SamplerState> Sampler() const;
     void SetSampler(Farg<SamplerState>);
 
 protected:
-    Shared<TextureBuffer> mTextureBuffer{TextureBuffer::Create()};
-    RMutex mTextureBufferMutex{};
-    TextureFormat mFormat{};
-    SamplerState  mSampler{SamplerState::JuliansPreferredDefaults};
+    Shared<TextureBuffer> mBuffer{TextureBuffer::CreateDummy()};
+    RMutex mBufferMutex{};
+    SamplerState mSampler{SamplerState::JuliansPreferredDefaults};
 };
 
 #endif // TEXTURE_H
