@@ -8,7 +8,7 @@ class FrameBuffer;
 
 class RenderBuffer;
 
-class IGraphicsContext;
+class GraphicsContext;
 
 class IBuffer;
 class VertexBuffer;

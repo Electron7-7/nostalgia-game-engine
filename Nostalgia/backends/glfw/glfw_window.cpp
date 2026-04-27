@@ -139,7 +139,7 @@ Error WindowGLFW::Init(const WindowProperties& inProperties)
         static_cast<int>(mData.height),
         mData.title.data(),
         nullptr, nullptr);
-    mGraphicsContext = IGraphicsContext::CreateContext(m_pWindow);
+    mGraphicsContext = GraphicsContext::CreateContext(m_pWindow);
     glfwSetWindowUserPointer(m_pWindow, this);
     if(!print_error_enum(mGraphicsContext->Init()))
     {
@@ -315,5 +315,5 @@ Position2D WindowGLFW::GetMousePosition()
 Position2D WindowGLFW::GetLastMousePosition()
 { return mMouseLast; }
 
-Unique<IGraphicsContext>& WindowGLFW::GetContext()
+Unique<GraphicsContext>& WindowGLFW::GetContext()
 { return mGraphicsContext; }

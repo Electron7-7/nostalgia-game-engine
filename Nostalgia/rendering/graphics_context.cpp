@@ -3,7 +3,7 @@
 // Implementations
 #include "backends/opengl/gl_graphics_context.hpp"
 
-Unique<IGraphicsContext> IGraphicsContext::CreateContext(void* inNativeWindowPointer)
+Unique<GraphicsContext> GraphicsContext::CreateContext(void* inNativeWindowPointer)
 {
     switch(RendererAPI::CurrentAPI())
     {

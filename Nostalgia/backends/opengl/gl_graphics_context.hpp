@@ -5,7 +5,7 @@
 
 struct GLFWwindow;
 
-class OpenGLContext : public IGraphicsContext
+class OpenGLContext : public GraphicsContext
 {
 public:
     OpenGLContext(GLFWwindow* inNativeWindow);

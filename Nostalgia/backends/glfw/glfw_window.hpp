@@ -26,7 +26,7 @@ public:
     Error SetFullscreenMonitor(uint) override;
     Position2D GetMousePosition() override;
     Position2D GetLastMousePosition() override;
-    Unique<IGraphicsContext>& GetContext() override;
+    Unique<GraphicsContext>& GetContext() override;
 
     WINDOW_SET_POSITION_DECLARATION
     WINDOW_SET_SCALE_DECLARATION
@@ -52,7 +52,7 @@ private:
     friend struct CallbackHandler;
 
     GLFWwindow* m_pWindow{nullptr};
-    Unique<IGraphicsContext> mGraphicsContext{nullptr};
+    Unique<GraphicsContext> mGraphicsContext{nullptr};
     Position2D mMouseCurrent{};
     Position2D mMouseLast{};
     Position2D mScrollCurrent{};

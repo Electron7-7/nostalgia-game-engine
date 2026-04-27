@@ -1,14 +1,14 @@
 #ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
-class IGraphicsContext
+class GraphicsContext
 {
 public:
-    virtual ~IGraphicsContext() = default;
+    virtual ~GraphicsContext() = default;
 
     virtual Error Init() = 0;
 
-    static Unique<IGraphicsContext> CreateContext(void* inNativeWindowPointer);
+    static Unique<GraphicsContext> CreateContext(void* inNativeWindowPointer);
 };
 
 #endif // GRAPHICS_CONTEXT_H
