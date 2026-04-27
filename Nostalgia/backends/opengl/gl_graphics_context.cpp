@@ -4,14 +4,20 @@
 
 OpenGLContext::OpenGLContext(GLFWwindow* inNativeWindow):
     mWindow{inNativeWindow}
-{ if(not mWindow) { print_error("mWindow is nullptr!"); } }
+{
+    if(not inNativeWindow)
+        { print_error("Native window pointer is nullptr or of invalid type (required: GLFWwindow*)"); }
+}
 
 #pragma message("TODO: if GLFW is the only windowing solution, this is fine; otherwise, make this agnostic!")
 Error OpenGLContext::Init()
 {
     glfwMakeContextCurrent(mWindow);
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        { print_error("Failed to initialize GLAD!"); return ERR_INIT_FAILED; }
+    if(not gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    {
+        print_error("Failed to initialize GLAD");
+        return ERR_INIT_FAILED;
+    }
     print_debug("Using OpenGL Graphics API\n\tVendor: {}\n\tRenderer: {}\n\tVersion: {}",
         (const char*)glGetString(GL_VENDOR),
         (const char*)glGetString(GL_RENDERER),
