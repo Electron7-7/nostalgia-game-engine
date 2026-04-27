@@ -1,7 +1,6 @@
 #include "./material.hpp"
 #include "./texture.hpp"
 #include "things/thing_data.hpp"
-#include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
 
@@ -16,6 +15,9 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
     data.get_variable(mSpecularStrength, "SpecularStrength");
     data.get_variable(mFullBright, "FullBright");
+    mSamplerState.SetVariables(data);
+    m_pDiffuseTexture->Buffer()->SetSamplerState(mSamplerState);
+    m_pSpecularTexture->Buffer()->SetSamplerState(mSamplerState);
 }
 
 Shared<ThingData> Material::GetVariables() const
@@ -29,6 +31,7 @@ Shared<ThingData> Material::GetVariables() const
     data->set_variable(mSpecularSharpness, "SpecularSharpness");
     data->set_variable(mSpecularStrength, "SpecularStrength");
     data->set_variable(mFullBright, "FullBright");
+    mSamplerState.GetVariables(data);
 
     return data;
 }
@@ -37,13 +40,19 @@ Shared<Texture> Material::DiffuseTexture() const
 { return m_pDiffuseTexture; }
 
 void Material::DiffuseTexture(Shared<Texture> inTexture)
-{ m_pDiffuseTexture = inTexture; }
+{
+    m_pDiffuseTexture = inTexture;
+    m_pDiffuseTexture->Buffer()->SetSamplerState(mSamplerState);
+}
 
 Shared<Texture> Material::SpecularTexture() const
 { return m_pSpecularTexture; }
 
 void Material::SpecularTexture(Shared<Texture> inTexture)
-{ m_pSpecularTexture = inTexture; }
+{
+    m_pSpecularTexture = inTexture;
+    m_pSpecularTexture->Buffer()->SetSamplerState(mSamplerState);
+}
 
 float Material::SpecularStrength() const
 { return mSpecularStrength; }
