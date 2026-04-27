@@ -2,7 +2,7 @@
 #define SPRITE_2D
 
 #include <Nostalgia/things/thinkers/2d/visual_2d.hpp>
-#include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 
 class Sprite2D : public Visual2D
 {
@@ -16,7 +16,8 @@ public:
     virtual void SetTexture(Shared<Texture>);
 
 protected:
-    Shared<Texture> mTexture{nullptr};
+    Shared<Texture> mTexture{MakeShared<ImageTexture>()};
+    std::string mTextureImagePath{};
 };
 
 #endif // SPRITE_2D

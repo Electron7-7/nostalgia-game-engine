@@ -2,7 +2,7 @@
 #define SPRITE_3D_H
 
 #include <Nostalgia/things/thinkers/3d/visual_3d.hpp>
-#include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/resources/image_texture.hpp>
 
 class Sprite3D : public Visual3D
 {
@@ -16,7 +16,8 @@ public:
     virtual void SetTexture(Shared<Texture>);
 
 protected:
-    Shared<Texture> mTexture{nullptr};
+    Shared<Texture> mTexture{MakeShared<ImageTexture>()};
+    std::string mTextureImagePath{};
 };
 
 #endif // SPRITE_3D_H

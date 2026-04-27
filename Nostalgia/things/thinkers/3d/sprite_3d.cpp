@@ -7,7 +7,11 @@ void Sprite3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(mTexture, "Texture", "Sprite");
+    if(not data.get_variable(mTexture, "Texture", "Sprite"))
+    {
+        if(data.get_variable(mTextureImagePath, "Texture", "Sprite") == OK)
+            { mTexture = ImageTexture::CreateFromImage(Image::CreateFromFile({mTextureImagePath})); }
+    }
 }
 
 Shared<ThingData> Sprite3D::GetVariables() const
@@ -15,6 +19,7 @@ Shared<ThingData> Sprite3D::GetVariables() const
     auto data{Super::GetVariables()};
 
     data->set_variable(mTexture, "Texture");
+    data->set_variable(mTextureImagePath, "Texture");
 
     return data;
 }
