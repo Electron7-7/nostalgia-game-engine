@@ -3,8 +3,6 @@
 // Implementations
 #include "backends/opengl/gl_mesh_buffers.hpp"
 
-const IBuffer::Layout IndexBuffer::s_cIndexBufferLayout{{Element::Type::Int, "FaceIndex"}};
-
 uint IBuffer::Element::GetComponentCount(Type inType)
 {
     switch(inType)

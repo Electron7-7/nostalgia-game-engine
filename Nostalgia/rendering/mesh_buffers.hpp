@@ -61,7 +61,7 @@ public:
     virtual void Unbind() const = 0;
     virtual void SetData(const void* inData, size_t inSize) = 0;
     virtual uint GetID() const = 0;
-    virtual Farg<Layout> GetLayout() const = 0;
+    virtual void GetLayout(Layout& outLayout) const = 0;
     virtual void SetLayout(Farg<Layout> inLayout) = 0;
 
     virtual void QuerySize(int*) const {}
@@ -89,8 +89,7 @@ public:
     static Shared<IndexBuffer> Create(const uint* inIndices, size_t inSize);
 
 private:
-    static const Layout s_cIndexBufferLayout;
-    Farg<Layout> GetLayout() const final { return s_cIndexBufferLayout; }
+    void GetLayout(Layout&) const final {}
     void SetLayout(Farg<Layout>) final {}
     void SetData(const void*, size_t) final {}
 };

@@ -15,7 +15,7 @@ public:
     void SetData(const void*, size_t) final;
     int GetSize() const final;
     uint GetID() const final;
-    Farg<Layout> GetLayout() const final;
+    void GetLayout(Layout&) const final;
     void SetLayout(Farg<Layout>) final;
 
     void QueryData(void*& outData, int* outSize) const final;

@@ -47,8 +47,8 @@ int OpenGLVertexBuffer::GetSize() const
 uint OpenGLVertexBuffer::GetID() const
 { return mBufferID; }
 
-Farg<IBuffer::Layout> OpenGLVertexBuffer::GetLayout() const
-{ return mLayout; }
+void OpenGLVertexBuffer::GetLayout(Layout& outLayout) const
+{ outLayout = mLayout; }
 
 void OpenGLVertexBuffer::SetLayout(Farg<Layout> inLayout)
 { mLayout = inLayout; }
