@@ -2,6 +2,7 @@
 #include "models.hpp"
 #include "images.hpp"
 #include "fonts.hpp"
+#include "rendering/environment.hpp"
 #include "things/thing_factory.hpp"
 #include "things/resource_database.hpp"
 #include "things/resources/cubemap.hpp"
@@ -19,25 +20,47 @@ bool ResourceManager::Init()
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
 
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,    "Position");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,    "Color");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS,   "Normal");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,        "UV");
-    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,    "Triangles");
-    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,       "Points");
-    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,        "Lines");
-    EnumRegistry::Assign(IBuffer::Element::Type::None,   "IBuffer::Element::Type::None");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float,  "Float");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float2, "Float2");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float3, "Float3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Float4, "Float4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int,    "Int");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int2,   "Int2");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int3,   "Int3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Int4,   "Int4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Mat3,   "Mat3");
-    EnumRegistry::Assign(IBuffer::Element::Type::Mat4,   "Mat4");
-    EnumRegistry::Assign(IBuffer::Element::Type::Bool,   "Bool");
+    EnumRegistry::Register(TEXTURE_TYPE_1D,       "TEXTURE_TYPE_1D");
+    EnumRegistry::Register(TEXTURE_TYPE_2D,       "TEXTURE_TYPE_2D");
+    EnumRegistry::Register(TEXTURE_TYPE_3D,       "TEXTURE_TYPE_3D");
+    EnumRegistry::Register(TEXTURE_TYPE_1D_ARRAY, "TEXTURE_TYPE_1D_ARRAY");
+    EnumRegistry::Register(TEXTURE_TYPE_2D_ARRAY, "TEXTURE_TYPE_2D_ARRAY");
+    EnumRegistry::Register(TEXTURE_TYPE_CUBE,     "TEXTURE_TYPE_CUBE");
+
+    EnumRegistry::Register(SAMPLER_FILTER_NEAREST, "SamplerFilterNearest");
+    EnumRegistry::Register(SAMPLER_FILTER_LINEAR,  "SamplerFilterLinear");
+    EnumRegistry::Register(SAMPLER_FILTER_NONE,    "SamplerNoFilter");
+
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_REPEAT,               "SamplerRepeat");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SamplerRepeatMirrored");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SamplerClampEdge");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SamplerClampBorder");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SamplerMirrorClampEdge");
+
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,  "Position");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,  "Color");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS, "Normal");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,      "UV");
+    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,  "Triangles");
+    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,     "Points");
+    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,      "Lines");
+
+    EnumRegistry::Assign(Environment::BG_CUSTOM_COLOR, "CustomColor");
+    EnumRegistry::Assign(Environment::BG_CLEAR_COLOR,  "ClearColor");
+    EnumRegistry::Assign(Environment::BG_SKYBOX,       "Skybox");
+
+    EnumRegistry::Register(IBuffer::Element::Type::None,   "IBuffer::Element::Type::None");
+    EnumRegistry::Register(IBuffer::Element::Type::Float,  "Float");
+    EnumRegistry::Register(IBuffer::Element::Type::Float2, "Float2");
+    EnumRegistry::Register(IBuffer::Element::Type::Float3, "Float3");
+    EnumRegistry::Register(IBuffer::Element::Type::Float4, "Float4");
+    EnumRegistry::Register(IBuffer::Element::Type::Int,    "Int");
+    EnumRegistry::Register(IBuffer::Element::Type::Int2,   "Int2");
+    EnumRegistry::Register(IBuffer::Element::Type::Int3,   "Int3");
+    EnumRegistry::Register(IBuffer::Element::Type::Int4,   "Int4");
+    EnumRegistry::Register(IBuffer::Element::Type::Mat3,   "Mat3");
+    EnumRegistry::Register(IBuffer::Element::Type::Mat4,   "Mat4");
+    EnumRegistry::Register(IBuffer::Element::Type::Bool,   "Bool");
 
     UID::f_Audiowide =
         ResourceDatabase::Register(Font::CreateFromMemory(Fonts::Audiowide,

@@ -75,23 +75,6 @@ void OpenGLRendererAPI::Init()
     glVertexArrayAttribBinding(mTextVAO, 0, 0);
     glVertexArrayAttribBinding(mTextVAO, 1, 1);
 
-    EnumRegistry::Assign(TEXTURE_TYPE_1D,         "TEXTURE_TYPE_1D");
-    EnumRegistry::Assign(TEXTURE_TYPE_2D,         "TEXTURE_TYPE_2D");
-    EnumRegistry::Assign(TEXTURE_TYPE_3D,         "TEXTURE_TYPE_3D");
-    EnumRegistry::Assign(TEXTURE_TYPE_1D_ARRAY,   "TEXTURE_TYPE_1D_ARRAY");
-    EnumRegistry::Assign(TEXTURE_TYPE_2D_ARRAY,   "TEXTURE_TYPE_2D_ARRAY");
-    EnumRegistry::Assign(TEXTURE_TYPE_CUBE,       "TEXTURE_TYPE_CUBE");
-
-    EnumRegistry::Assign(SAMPLER_FILTER_NEAREST, "SAMPLER_FILTER_NEAREST");
-    EnumRegistry::Assign(SAMPLER_FILTER_LINEAR,  "SAMPLER_FILTER_LINEAR");
-    EnumRegistry::Assign(SAMPLER_FILTER_NONE,    "SAMPLER_FILTER_NONE");
-
-    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_REPEAT,               "SAMPLER_REPEAT_MODE_REPEAT");
-    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SAMPLER_REPEAT_MODE_MIRRORED_REPEAT");
-    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE");
-    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
-    EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
-
     mInitialized = true;
 }
 

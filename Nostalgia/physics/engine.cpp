@@ -298,16 +298,6 @@ PhysicsEngine::PhysicsEngine() noexcept
 
     m_pTempAllocator = new TempAllocatorImpl{10 * 1024 * 1024};
     m_pJobSystem     = new JobSystemThreadPool{cMaxPhysicsJobs, cMaxPhysicsBarriers};
-
-#ifdef NOSTALGIA_DEBUGGING
-    EnumRegistry::Register(ShapeType::Box,        "ShapeType::Box");
-    EnumRegistry::Register(ShapeType::Sphere,     "ShapeType::Sphere");
-    EnumRegistry::Register(ShapeType::Capsule,    "ShapeType::Capsule");
-    EnumRegistry::Register(ShapeType::Cylinder,   "ShapeType::Cylinder");
-    EnumRegistry::Register(MotionType::Dynamic,   "MotionType::Dynamic");
-    EnumRegistry::Register(MotionType::Kinematic, "MotionType::Kinematic");
-    EnumRegistry::Register(MotionType::Static,    "MotionType::Static");
-#endif // NOSTALGIA_DEBUGGING
 }
 
 PhysicsEngine::~PhysicsEngine() noexcept
