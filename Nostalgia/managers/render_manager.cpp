@@ -14,8 +14,7 @@ RenderManager* g_pRenderManager{&sRenderManager};
 bool RenderManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    if(not RendererAPI::HasActiveInstance())
-        { RendererAPI::ActivateInstance(); }
+    RendererAPI::Get()->Init();
     EnumRegistry::Assign(TextureType::TEXTURE_TYPE_2D,             "2DTexture");
     EnumRegistry::Assign(TextureType::TEXTURE_TYPE_CUBE,           "CubeMapTexture");
     EnumRegistry::Assign(Environment::BG_CUSTOM_COLOR,             "CustomColor");

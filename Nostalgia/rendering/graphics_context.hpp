@@ -11,4 +11,13 @@ public:
     static Unique<GraphicsContext> CreateContext(void* inNativeWindowPointer);
 };
 
+class DummyGraphicsContext final : public GraphicsContext
+{
+public:
+    DummyGraphicsContext() = default;
+    virtual ~DummyGraphicsContext() = default;
+
+    virtual Error Init() { return FAILED; }
+};
+
 #endif // GRAPHICS_CONTEXT_H

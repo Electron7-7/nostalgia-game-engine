@@ -9,8 +9,8 @@ Unique<GraphicsContext> GraphicsContext::CreateContext(void* inNativeWindowPoint
     {
     default:
     case RendererAPI::NONE:
-        print_debug(RendererAPI::s_cAPIWarningMessage);
-        [[fallthrough]];
+        print_error(RendererAPI::s_cAPIWarningMessage);
+        return MakeUnique<DummyGraphicsContext>();
     case RendererAPI::OPENGL:
         return MakeUnique<OpenGLContext>(static_cast<GLFWwindow*>(inNativeWindowPointer));
     }

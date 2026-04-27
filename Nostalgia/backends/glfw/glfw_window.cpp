@@ -139,6 +139,7 @@ Error WindowGLFW::Init(const WindowProperties& inProperties)
         static_cast<int>(mData.height),
         mData.title.data(),
         nullptr, nullptr);
+    RendererAPI::ActivateInstance(RendererAPI::OPENGL);
     mGraphicsContext = GraphicsContext::CreateContext(m_pWindow);
     glfwSetWindowUserPointer(m_pWindow, this);
     if(!print_error_enum(mGraphicsContext->Init()))
