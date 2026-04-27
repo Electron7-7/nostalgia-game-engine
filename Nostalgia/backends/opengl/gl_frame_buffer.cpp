@@ -113,6 +113,8 @@ void OpenGLFrameBuffer::DetachTextureBuffer(BufferAttachment inAttachment)
 void OpenGLFrameBuffer::AttachRenderBuffer(Shared<RenderBuffer> inBuffer, BufferAttachment inAttachment)
 {
     DetachRenderBuffer();
+    if(not inBuffer->ID())
+        { return; }
     glNamedFramebufferRenderbuffer(mBufferID,
         Convert::GL_BufferAttachment(inAttachment),
         GL_RENDERBUFFER,

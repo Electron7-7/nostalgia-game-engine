@@ -23,5 +23,7 @@ uint OpenGLRenderBuffer::ID()
 void OpenGLRenderBuffer::SetStorage(Farg<Size2D> inSize, DataFormat inComponent)
 {
     ASSERT_API
+    if(not mBufferID)
+        { glCreateRenderbuffers(1, &mBufferID); }
     glNamedRenderbufferStorage(mBufferID, Convert::GL_DataFormat(inComponent, true), inSize.w(), inSize.h());
 }
