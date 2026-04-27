@@ -75,6 +75,7 @@ public:
 
     virtual int GetSize() const = 0;
 
+    static Shared<VertexBuffer> CreateDummy();
     static Shared<VertexBuffer> Create(size_t inSize);
     static Shared<VertexBuffer> Create(const float* inVertices, size_t inSize);
 };
@@ -86,12 +87,40 @@ public:
 
     virtual uint GetCount() const = 0;
 
+    static Shared<IndexBuffer> CreateDummy();
     static Shared<IndexBuffer> Create(const uint* inIndices, size_t inSize);
 
 private:
     void GetLayout(Layout&) const final {}
     void SetLayout(Farg<Layout>) final {}
     void SetData(const void*, size_t) final {}
+};
+
+class DummyVertexBuffer final : public VertexBuffer
+{
+public:
+    DummyVertexBuffer() = default;
+
+    void Bind() const final {}
+    void Unbind() const final {}
+    void SetData(const void*, size_t) final {}
+    int GetSize() const final { return 0; }
+    uint GetID() const final { return 0; }
+    void GetLayout(Layout&) const final {}
+    void SetLayout(Farg<Layout>) final {}
+    void QueryData(void*&, int*) const final {}
+};
+
+class DummyIndexBuffer final : public IndexBuffer
+{
+public:
+    DummyIndexBuffer() = default;
+
+    void Bind() const final {}
+    void Unbind() const final {}
+    uint GetCount() const final { return 0; }
+    uint GetID() const final { return 0; }
+    void QueryData(void*&, int*) const final {}
 };
 
 #endif // MESH_BUFFERS_H
