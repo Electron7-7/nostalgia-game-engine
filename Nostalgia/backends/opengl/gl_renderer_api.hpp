@@ -6,9 +6,9 @@
 class OpenGLRendererAPI final : public RendererAPI
 {
 public:
-    bool Init() final;
+    void Init() final;
     void Shutdown() final;
-    bool IsRunning() final;
+
 
     void SetViewport(Farg<Position2D>, Farg<Size2D>) final;
     void SetViewport(int, int, int, int) final;
@@ -42,9 +42,8 @@ public:
     void Clear() final;
 
 private:
-    mutable RMutex mTextMutex{}, mShadersMutex{};
     std::unordered_map<ID, Shared<Shader>> mShaders{};
-    bool mIsRunning{false};
+    bool mInitialized{false};
     uint mTextVAO{0};
     uint mTextVBOs[2]{0, 0};
 };

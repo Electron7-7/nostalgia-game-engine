@@ -4,25 +4,38 @@
 #include <Nostalgia/fwd/rendering.hpp>
 #include <Nostalgia/fwd/things.hpp>
 
-enum class GraphicsAPI
-{
-    None,
-    OpenGL,
-};
-
 class RendererAPI
 {
 public:
+    enum GraphicsAPI : int
+    {
+        NONE = 0,
+        OPENGL,
+    };
+
+    enum class ShaderDebugOutput : ushort
+    {
+        All = 0,
+        VertexColors = 1,
+        VertexNormals = 2,
+        VertexUVs = 3,
+    };
+
+    inline static ushort sShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
+
     using texture_units = std::initializer_list<uint>;
 
-    static GraphicsAPI GetAPI() { return sAPI; }
-    static Unique<RendererAPI> Activate();
+    static bool ActivateInstance(GraphicsAPI = OPENGL);
+    static void DeactivateInstance();
+    static bool HasActiveInstance();
+    static RendererAPI* Get();
+    static GraphicsAPI CurrentAPI();
+    static LockGuard<RMutex> GetLock();
 
     virtual ~RendererAPI() = default;
 
-    virtual bool Init() = 0;
+    virtual void Init() = 0;
     virtual void Shutdown() = 0;
-    virtual bool IsRunning() = 0;
 
     virtual void SetViewport(Farg<Position2D> inPosition, Farg<Size2D> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
@@ -57,7 +70,10 @@ public:
     virtual void Clear() = 0;
 
 private:
-    inline static GraphicsAPI sAPI{GraphicsAPI::OpenGL};
+    static Unique<RendererAPI> ms_pInstance;
+    inline static RMutex m_sInstanceMutex{};
+    inline static GraphicsAPI m_sType{NONE};
+    inline static bool m_sInstanceActive{false};
 };
 
 #endif // RENDERER_API_H

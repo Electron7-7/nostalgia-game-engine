@@ -19,17 +19,18 @@ bool gPrintDrawLogs{false};
 bool gOpenGLEnableNotificationMesssages{false};
 DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
-static bool sWireframe{};
 static constinit const float TEXT_UVS[12]{0,1, 0,0, 1,0, 0,1, 1,0, 1,1};
+static bool sWireframe{};
+static RMutex sShadersMutex{}, sTextMutex{};
 
 #ifdef NOSTALGIA_DEBUGGING
 static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
 #endif // NOSTALGIA_DEBUGGING
 
-bool OpenGLRendererAPI::Init()
+void OpenGLRendererAPI::Init()
 {
-    if(mIsRunning)
-        { return true; }
+    if(mInitialized)
+        { return; }
 
     PRINT_PRETTY_FUNCTION;
     glEnable(GL_DEPTH_TEST);
@@ -94,21 +95,19 @@ bool OpenGLRendererAPI::Init()
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER");
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE");
 
-    return mIsRunning = true;
+    mInitialized = true;
 }
 
 void OpenGLRendererAPI::Shutdown()
 {
-    LOCK_MUTEX(mShadersMutex)
-    LOCK_MUTEX(mTextMutex)
-    mIsRunning = false;
+    LOCK_MUTEX(sShadersMutex)
+    LOCK_MUTEX(sTextMutex)
+    mInitialized = false;
     mShaders.clear();
     glDeleteBuffers(2, mTextVBOs);
     glDeleteVertexArrays(1, &mTextVAO);
 }
 
-bool OpenGLRendererAPI::IsRunning()
-{ return mIsRunning; }
 
 void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
 { SetViewport({XPosition, YPosition}, {Width, Height}); }
@@ -127,7 +126,7 @@ void OpenGLRendererAPI::SetLineWidth(float Width)
 
 ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 {
-    LOCK_MUTEX(mShadersMutex)
+    LOCK_MUTEX(sShadersMutex)
     while(inID.invalid() or mShaders.contains(inID))
         { inID = inID() + 1; }
     mShaders[inID] = inShader;
@@ -136,7 +135,7 @@ ID OpenGLRendererAPI::AddShader(Shared<Shader> inShader, ID inID)
 
 Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
 {
-    LOCK_MUTEX(mShadersMutex)
+    LOCK_MUTEX(sShadersMutex)
     if(auto found_it{mShaders.find(inID())}; found_it != mShaders.end())
         { return found_it->second; }
     return mShaders.at(Shaders::BlinnPhong);
@@ -144,7 +143,7 @@ Shared<Shader> OpenGLRendererAPI::GetShader(ID inID)
 
 Error OpenGLRendererAPI::RemoveShader(ID inID)
 {
-    LOCK_MUTEX(mShadersMutex)
+    LOCK_MUTEX(sShadersMutex)
     return (mShaders.erase(inID))
         ? OK
         : (mShaders.empty())
@@ -167,7 +166,7 @@ void OpenGLRendererAPI::SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight)
     else
         { return; }
 
-    LOCK_MUTEX(mShadersMutex)
+    LOCK_MUTEX(sShadersMutex)
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "color",             inLight->mColor);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "energy",            inLight->mEnergy);
     GetShader(Shaders::BlinnPhong)->SetUniform(l_Light + "specular_strength", inLight->mSpecularStrength);
@@ -278,7 +277,7 @@ void OpenGLRendererAPI::DrawText(Sarg inText,
     if(not inFont or not mTextVAO)
         { return; }
 
-    LOCK_MUTEX(mTextMutex)
+    LOCK_MUTEX(sTextMutex)
 
     glBindVertexArray(mTextVAO);
 
