@@ -13,7 +13,7 @@ Shared<RenderBuffer> RenderBuffer::Create()
     case RendererAPI::NONE:
     default:
         print_warning(RendererAPI::s_cAPIWarningMessage);
-        [[fallthrough]];
+        return RenderBuffer::CreateDummy();
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLRenderBuffer>();
     }
