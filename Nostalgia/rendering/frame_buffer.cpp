@@ -3,6 +3,9 @@
 // Implementations
 #include "backends/opengl/gl_frame_buffer.hpp"
 
+Shared<FrameBuffer> FrameBuffer::CreateDummy()
+{ return MakeShared<DummyFrameBuffer>(); }
+
 Shared<FrameBuffer> FrameBuffer::Create()
 {
     switch(RendererAPI::CurrentAPI())
@@ -10,7 +13,7 @@ Shared<FrameBuffer> FrameBuffer::Create()
     case RendererAPI::NONE:
     default:
         print_warning(RendererAPI::s_cAPIWarningMessage);
-        [[fallthrough]];
+        return FrameBuffer::CreateDummy();
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLFrameBuffer>();
     }
