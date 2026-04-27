@@ -34,10 +34,7 @@ Shared<ThingData> Texture::GetVariables() const
 }
 
 Farg<SamplerState> Texture::Sampler() const
-{
-    LOCK
-    return mSampler;
-}
+{ return mSampler; }
 
 void Texture::SetSampler(Farg<SamplerState> inSampler)
 {
