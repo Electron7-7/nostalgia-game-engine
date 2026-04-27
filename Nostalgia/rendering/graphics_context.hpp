@@ -8,7 +8,8 @@ public:
 
     virtual Error Init() = 0;
 
-    static Unique<GraphicsContext> CreateContext(void* inNativeWindowPointer);
+    static Unique<GraphicsContext> CreateDummy();
+    static Unique<GraphicsContext> Create(void* inNativeWindowPointer);
 };
 
 class DummyGraphicsContext final : public GraphicsContext
