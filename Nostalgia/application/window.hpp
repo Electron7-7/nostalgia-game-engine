@@ -3,7 +3,6 @@
 
 #include <Nostalgia/fwd/rendering.hpp>
 #include <Nostalgia/application/monitor.hpp>
-#include <Nostalgia/components/game_loop.hpp>
 
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION
@@ -22,7 +21,7 @@ enum NativeWindowType : int
     NATIVE_GLFW_WINDOW,
 };
 
-class IWindow : public OnUpdate
+class IWindow
 {
 public:
     enum Vsync
@@ -77,14 +76,17 @@ public:
                 vsync{VSYNC_OFF}, window_mode{WINDOW_MODE_WINDOWED}, mouse_mode{MOUSE_MODE_VISIBLE}
             {}
     };
+
     typedef WindowProperties Properties;
+
+    static Unique<IWindow> CreateNewWindow(Farg<WindowProperties> inProperties = {});
+    static std::vector<Monitor> GetMonitors();
 
     virtual ~IWindow() = default;
 
-    virtual void Update() override = 0;
-
+    virtual void Update() = 0;
     virtual Error SetPosition(Farg<Position2D>) { return UNIMPLEMENTED; }
-    virtual Error SetScale(Farg<Size2D>)       { return UNIMPLEMENTED; }
+    virtual Error SetScale(Farg<Size2D>)        { return UNIMPLEMENTED; }
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;
@@ -113,10 +115,6 @@ public:
     bool IsFullscreen()        const { return GetWindowMode() == WINDOW_MODE_FULLSCREEN; }
     Error GetInitStatus()      const { return mInitStatus; }
     Farg<WindowProperties> GetProperties() const { return mData; }
-
-    static Unique<IWindow> CreateNewWindow(Farg<WindowProperties> inProperties = {});
-
-    static std::vector<Monitor> GetMonitors();
 
 protected:
     Error mInitStatus{FAILED};
