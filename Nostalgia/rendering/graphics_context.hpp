@@ -7,7 +7,6 @@ public:
     virtual ~IGraphicsContext() = default;
 
     virtual Error Init() = 0;
-    virtual void SwapBuffers() = 0;
 
     static Unique<IGraphicsContext> CreateContext(void* inNativeWindowPointer);
 };

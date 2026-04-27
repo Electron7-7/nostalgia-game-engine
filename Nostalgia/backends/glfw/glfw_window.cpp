@@ -182,7 +182,7 @@ void WindowGLFW::Shutdown()
 
 void WindowGLFW::Update()
 {
-    mGraphicsContext->SwapBuffers();
+    glfwSwapBuffers(m_pWindow);
     glfwPollEvents();
     mMouseLast = mMouseCurrent;
     glfwGetCursorPos(m_pWindow, &mMouseCurrent[0], &mMouseCurrent[1]);

@@ -18,6 +18,3 @@ Error OpenGLContext::Init()
         (const char*)glGetString(GL_VERSION));
     return OK;
 }
-
-void OpenGLContext::SwapBuffers()
-{ glfwSwapBuffers(mWindow); }

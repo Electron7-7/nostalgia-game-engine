@@ -11,7 +11,6 @@ public:
     OpenGLContext(GLFWwindow* inNativeWindow);
 
     virtual Error Init() override;
-    virtual void SwapBuffers() override;
 
 private:
     GLFWwindow* mWindow{nullptr};
