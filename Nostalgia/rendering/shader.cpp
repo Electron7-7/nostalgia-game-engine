@@ -3,6 +3,9 @@
 // Implementations
 #include "backends/opengl/gl_shader.hpp"
 
+Shared<Shader> Shader::CreateDummy()
+{ return MakeShared<DummyShader>(); }
+
 Shared<Shader> Shader::Create()
 {
     switch(RendererAPI::CurrentAPI())
@@ -10,7 +13,7 @@ Shared<Shader> Shader::Create()
     case RendererAPI::NONE:
     default:
         print_warning(RendererAPI::s_cAPIWarningMessage);
-        [[fallthrough]];
+        return CreateDummy();
     case RendererAPI::OPENGL:
         return MakeShared<GLShader>();
     }
