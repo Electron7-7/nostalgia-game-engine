@@ -12,6 +12,7 @@ bool RendererAPI::ActivateInstance(GraphicsAPI inAPI)
     LockGuard<RMutex> _lock{m_sInstanceMutex};
     switch(inAPI)
     {
+    default:
     case NONE:
         print_debug("Deactivating current instance");
         DeactivateInstance();
@@ -23,7 +24,6 @@ bool RendererAPI::ActivateInstance(GraphicsAPI inAPI)
             { return false; }
         print_debug("Activating OpenGLRendererAPI");
         ms_pInstance = MakeUnique<OpenGLRendererAPI>();
-        ms_pInstance->Init();
         m_sInstanceActive = true;
         break;
     }
