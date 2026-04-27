@@ -47,25 +47,25 @@ void GLShader::Bind() const
 void GLShader::Unbind() const
 { glUseProgram(0); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<int> value) const
+void GLShader::SetUniform(Sarg name, int value) const
 { glProgramUniform1i(mID(), glGetUniformLocation(mID(), name.data()), value); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<float> value) const
+void GLShader::SetUniform(Sarg name, float value) const
 { glProgramUniform1f(mID(), glGetUniformLocation(mID(), name.data()), value); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec2> value) const
+void GLShader::SetUniform(Sarg name, Farg<glm::vec2> value) const
 { glProgramUniform2fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec3> value) const
+void GLShader::SetUniform(Sarg name, Farg<glm::vec3> value) const
 { glProgramUniform3fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<glm::vec4> value) const
+void GLShader::SetUniform(Sarg name, Farg<glm::vec4> value) const
 { glProgramUniform4fv(mID(), glGetUniformLocation(mID(), name.data()), 1, glm::value_ptr(value)); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<glm::mat3> value) const
+void GLShader::SetUniform(Sarg name, Farg<glm::mat3> value) const
 { glProgramUniformMatrix3fv(mID(), glGetUniformLocation(mID(), name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
 
-void GLShader::SetUniform(Farg<std::string> name, Farg<glm::mat4> value) const
+void GLShader::SetUniform(Sarg name, Farg<glm::mat4> value) const
 { glProgramUniformMatrix4fv(mID(), glGetUniformLocation(mID(), name.data()), 1, GL_FALSE, glm::value_ptr(value)); }
 
 #pragma message("NOTE: I did a lot of 'optimization' here, so make sure it isn't broken")

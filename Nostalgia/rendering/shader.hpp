@@ -21,8 +21,8 @@ public:
     virtual void Bind()   const = 0;
     virtual void Unbind() const = 0;
 
-    virtual void SetUniform(Sarg inName, Farg<int> inValue)       const = 0;
-    virtual void SetUniform(Sarg inName, Farg<float> inValue)     const = 0;
+    virtual void SetUniform(Sarg inName, int inValue)             const = 0;
+    virtual void SetUniform(Sarg inName, float inValue)           const = 0;
     virtual void SetUniform(Sarg inName, Farg<glm::vec2> inValue) const = 0;
     virtual void SetUniform(Sarg inName, Farg<glm::vec3> inValue) const = 0;
     virtual void SetUniform(Sarg inName, Farg<glm::vec4> inValue) const = 0;
@@ -50,8 +50,9 @@ public:
     virtual void Bind()   const final {}
     virtual void Unbind() const final {}
 
-    virtual void SetUniform(Sarg, Farg<int>)       const final {}
-    virtual void SetUniform(Sarg, Farg<float>)     const final {}
+    virtual void SetUniform(Sarg, int)             const final {}
+    virtual void SetUniform(Sarg, uint)            const final {}
+    virtual void SetUniform(Sarg, float)           const final {}
     virtual void SetUniform(Sarg, Farg<glm::vec2>) const final {}
     virtual void SetUniform(Sarg, Farg<glm::vec3>) const final {}
     virtual void SetUniform(Sarg, Farg<glm::vec4>) const final {}
