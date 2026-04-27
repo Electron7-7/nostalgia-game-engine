@@ -14,8 +14,8 @@ class IBuffer;
 class VertexBuffer;
 class IndexBuffer;
 
-enum class GraphicsAPI;
 class RendererAPI;
+class RenderCommand;
 
 class Shader;
 namespace Shaders
