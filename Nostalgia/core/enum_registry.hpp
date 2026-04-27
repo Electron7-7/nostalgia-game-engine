@@ -2,15 +2,8 @@
 #define ENUM_REGISTRY_H
 
 #define LOCK_MUTEX LockGuard<RMutex> lock{m_sMutex}
-#define FIND_BY_NAME(NAME) \
-    std::find_if(m_sEnums.begin(), m_sEnums.end(), \
-        [NAME](Farg<Enum_t> enum_it) { return not enum_it.name.compare(NAME); } )
-#define FIND_BY_ENUM(ENUM) \
-    std::find_if(m_sEnums.begin(), m_sEnums.end(), \
-        [ENUM](Farg<Enum_t> enum_it) \
-            { return enum_it.type == typeid(T).hash_code() and enum_it.value == static_cast<long>(ENUM); } )
-#define FOUND_BY_NAME(NAME) const auto found_it{FIND_BY_NAME(NAME)}; found_it != m_sEnums.end()
-#define FOUND_BY_ENUM(ENUM) const auto found_it{FIND_BY_ENUM(ENUM)}; found_it != m_sEnums.end()
+#define FOUND_BY_NAME(NAME) auto found_it{FindByName(NAME)}; found_it != m_sEnums.end()
+#define FOUND_BY_ENUM(ENUM) auto found_it{FindByEnum(ENUM)}; found_it != m_sEnums.end()
 
 struct Enum_t
 {
@@ -33,6 +26,35 @@ class EnumRegistry
 {
 public:
     using Enums_t = std::unordered_set<Enum_t>;
+
+    static std::string get_debug_log() noexcept
+    {
+        LOCK_MUTEX;
+        std::string _output{"<EnumRegistry>\n"};
+        for(FAUTO _enum : m_sEnums)
+        {
+            _output += std::format("\tType: {:020}, Value: {: 019}, Name: {}\n",
+                _enum.type, _enum.value, _enum.name);
+        }
+        return _output;
+    }
+
+    template<IsEnum T>
+        static auto FindByEnum(T inEnum) noexcept
+        {
+            return std::find_if(m_sEnums.begin(), m_sEnums.end(),
+                [inEnum](Farg<Enum_t> enum_it)
+                {
+                    return enum_it.type == typeid(T).hash_code()
+                        and enum_it.value == static_cast<long>(inEnum);
+                });
+        }
+
+    static auto FindByName(Sarg inName) noexcept
+    {
+        return std::find_if(m_sEnums.begin(), m_sEnums.end(),
+            [inName](Farg<Enum_t> enum_it) { return not enum_it.name.compare(inName); });
+    }
 
     // Register an enum with a string name. Will not overwrite a previously registered enum
     template<IsEnum T>
@@ -77,13 +99,13 @@ public:
         static bool Contains(T inEnum) noexcept
         {
             LOCK_MUTEX;
-            return FIND_BY_ENUM(inEnum) != m_sEnums.end();
+            return FindByEnum(inEnum) != m_sEnums.end();
         }
 
     static bool Contains(Sarg inName) noexcept
     {
         LOCK_MUTEX;
-        return FIND_BY_NAME(inName) != m_sEnums.end();
+        return FindByName(inName) != m_sEnums.end();
     }
 
     // Searches for the enum via the given name and, if found, assigns its value to `ioEnum`
@@ -116,6 +138,7 @@ public:
     {
         LOCK_MUTEX;
         Enums_t _output{};
+
         if(FOUND_BY_NAME(inName))
         {
             size_t _type{found_it->type};
