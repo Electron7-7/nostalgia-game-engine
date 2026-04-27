@@ -21,6 +21,8 @@ public:
         VertexUVs = 3,
     };
 
+    inline static constexpr char
+        s_cAPIWarningMessage[]{"RendererAPI::CurrentAPI() == NONE (Defaulting to OpenGL)"};
     inline static ushort sShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
 
     using texture_units = std::initializer_list<uint>;
