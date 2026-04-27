@@ -1,24 +1,61 @@
-#include "renderer_api.hpp"
-
+#include "./renderer_api.hpp"
 // Implementations
+#include "backends/dummy_renderer_api.hpp"
 #include "backends/opengl/gl_renderer_api.hpp"
 
-Unique<RendererAPI> RendererAPI::Activate()
+#define LOCK_API LockGuard<RMutex> _lock{m_sInstanceMutex};
+
+Unique<RendererAPI> RendererAPI::ms_pInstance{MakeUnique<DummyRendererAPI>()};
+
+bool RendererAPI::ActivateInstance(GraphicsAPI inAPI)
 {
-#pragma message("TODO: When I implement different APIs, also implement a way to switch them")
-    sAPI = GraphicsAPI::OpenGL;
-    std::string warning_api_name{"GraphicsAPI::None"};
-    switch(sAPI)
+    LockGuard<RMutex> _lock{m_sInstanceMutex};
+    switch(inAPI)
     {
-    default:
-        warning_api_name = "Invalid";
-        [[fallthrough]];
-    case GraphicsAPI::None:
-        print_warning("Current API is {}. The default will be used (OpenGL).", warning_api_name);
-        sAPI = GraphicsAPI::OpenGL;
-        [[fallthrough]];
-    case GraphicsAPI::OpenGL:
-        return MakeUnique<OpenGLRendererAPI>();
+    case NONE:
+        print_debug("Deactivating current instance");
+        DeactivateInstance();
+        ms_pInstance = MakeUnique<DummyRendererAPI>();
+        m_sInstanceActive = false;
+        break;
+    case OPENGL:
+        if(m_sInstanceActive)
+            { return false; }
+        print_debug("Activating OpenGLRendererAPI");
+        ms_pInstance = MakeUnique<OpenGLRendererAPI>();
+        ms_pInstance->Init();
+        m_sInstanceActive = true;
         break;
     }
+    m_sType = inAPI;
+    return true;
 }
+
+void RendererAPI::DeactivateInstance()
+{
+    LOCK_API
+    ms_pInstance->Shutdown();
+    ms_pInstance = MakeUnique<DummyRendererAPI>();
+    m_sInstanceActive = false;
+}
+
+bool RendererAPI::HasActiveInstance()
+{
+    LOCK_API
+    return m_sInstanceActive;
+}
+
+RendererAPI* RendererAPI::Get()
+{
+    LOCK_API
+    return ms_pInstance.get();
+}
+
+RendererAPI::GraphicsAPI RendererAPI::CurrentAPI()
+{
+    LOCK_API
+    return m_sType;
+}
+
+LockGuard<RMutex> RendererAPI::GetLock()
+{ return LockGuard<RMutex>{m_sInstanceMutex}; }
