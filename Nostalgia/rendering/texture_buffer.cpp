@@ -13,7 +13,7 @@ Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat)
     case RendererAPI::NONE:
     default:
         print_warning(RendererAPI::s_cAPIWarningMessage);
-        [[fallthrough]];
+        return TextureBuffer::CreateDummy();
     case RendererAPI::OPENGL:
         return MakeShared<OpenGLTextureBuffer>(inFormat);
     }
