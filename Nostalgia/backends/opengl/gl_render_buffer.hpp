@@ -7,7 +7,6 @@ class OpenGLRenderBuffer : public RenderBuffer
 {
 public:
     OpenGLRenderBuffer();
-    OpenGLRenderBuffer(Farg<Size2D>, DataFormat = DATA_FORMAT_DEPTH);
     ~OpenGLRenderBuffer();
 
     uint ID() final;

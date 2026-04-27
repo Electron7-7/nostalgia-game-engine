@@ -11,13 +11,6 @@ OpenGLRenderBuffer::OpenGLRenderBuffer()
     glCreateRenderbuffers(1, &mBufferID);
 }
 
-OpenGLRenderBuffer::OpenGLRenderBuffer(Farg<Size2D> inSize, DataFormat inComponent)
-{
-    ASSERT_API
-    glCreateRenderbuffers(1, &mBufferID);
-    SetStorage(inSize, inComponent);
-}
-
 OpenGLRenderBuffer::~OpenGLRenderBuffer()
 {
     ASSERT_API

@@ -21,3 +21,10 @@ Shared<RenderBuffer> RenderBuffer::Create(Farg<Size2D> inSize, DataFormat inComp
         return MakeShared<OpenGLRenderBuffer>(inSize, inComponent);
     }
 }
+
+Shared<RenderBuffer> RenderBuffer::Create(Farg<Size2D> inSize, DataFormat inComponent)
+{
+    auto _output{Create()};
+    _output->SetStorage(inSize, inComponent);
+    return _output;
+}
