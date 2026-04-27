@@ -13,6 +13,9 @@ void Sprite3D::SetVariables(Farg<ThingData> data)
         if(data.get_variable(mTextureImagePath, "Texture", "Sprite") == OK)
             { mTexture = ImageTexture::CreateFromImage(Image::CreateFromFile({mTextureImagePath})); }
     }
+
+    mSampler.SetVariables(data);
+    mTexture->Buffer()->SetSamplerState(mSampler);
 }
 
 Shared<ThingData> Sprite3D::GetVariables() const
@@ -21,6 +24,7 @@ Shared<ThingData> Sprite3D::GetVariables() const
 
     data->set_variable(mTexture, "Texture");
     data->set_variable(mTextureImagePath, "Texture");
+    mSampler.GetVariables(data);
 
     return data;
 }

@@ -17,6 +17,7 @@ public:
 
 protected:
     Shared<Texture> mTexture{MakeShared<Texture>()};
+    SamplerState mSampler{};
     std::string mTextureImagePath{};
 };
 
