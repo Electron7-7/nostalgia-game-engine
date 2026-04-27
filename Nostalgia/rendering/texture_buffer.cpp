@@ -3,15 +3,18 @@
 // Implementations
 #include "backends/opengl/gl_texture_buffer.hpp"
 
-Shared<TextureBuffer> TextureBuffer::Create(TextureType inType)
+Shared<TextureBuffer> TextureBuffer::CreateDummy()
+{ return MakeShared<DummyTextureBuffer>(); }
+
+Shared<TextureBuffer> TextureBuffer::Create(Farg<TextureFormat> inFormat)
 {
     switch(RendererAPI::CurrentAPI())
     {
     case RendererAPI::NONE:
     default:
-        print_warning("RendererAPI is dummy; defaulting to OpenGL");
+        print_warning(RendererAPI::s_cAPIWarningMessage);
         [[fallthrough]];
     case RendererAPI::OPENGL:
-        return MakeShared<OpenGLTextureBuffer>(inType);
+        return MakeShared<OpenGLTextureBuffer>(inFormat);
     }
 }

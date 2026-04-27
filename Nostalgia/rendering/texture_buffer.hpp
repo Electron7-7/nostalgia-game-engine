@@ -6,10 +6,9 @@
 
 enum TextureType : int
 {
-    TEXTURE_TYPE_1D,       TEXTURE_TYPE_2D,         TEXTURE_TYPE_3D,
-    TEXTURE_TYPE_1D_ARRAY, TEXTURE_TYPE_2D_ARRAY,   TEXTURE_TYPE_3D_ARRAY,
-    TEXTURE_TYPE_CUBE,     TEXTURE_TYPE_CUBE_ARRAY,
-    TEXTURE_TYPE_NONE
+    TEXTURE_TYPE_1D,
+    TEXTURE_TYPE_2D, TEXTURE_TYPE_CUBE, TEXTURE_TYPE_1D_ARRAY,
+    TEXTURE_TYPE_3D, TEXTURE_TYPE_2D_ARRAY
 };
 
 enum SamplerFilter : int
@@ -49,17 +48,14 @@ inline constinit const SamplerState SamplerState::JuliansPreferredDefaults{
 struct TextureFormat
 {
     constexpr TextureFormat() noexcept = default;
-    constexpr TextureFormat(int inWidth,
-        int inHeight,
-        DataFormat inDataFormat = DATA_FORMAT_SRGB):
-            data_format{inDataFormat},
-            width{inWidth},
-            height{inHeight} {}
+    constexpr TextureFormat(int inWidth, int inHeight, DataFormat inFormat = DATA_FORMAT_SRGB):
+        data_format{inFormat}, width{inWidth}, height{inHeight} {}
+    constexpr TextureFormat(TextureType inType, int inWidth, int inHeight, DataFormat inFmt = DATA_FORMAT_SRGB):
+        type{inType}, data_format{inFmt}, width{inWidth}, height{inHeight} {}
 
     TextureType type{TEXTURE_TYPE_2D};
     DataFormat data_format{DATA_FORMAT_SRGB};
-    int  width{1}, height{1}, channels{4};
-    uint depth{1}, array_layers{1}, mipmaps{0};
+    int width{1}, height{1}, depth{1}, array_layers{1}, mipmaps{0};
 
     constexpr bool operator==(Farg<TextureFormat> tf) const
     {
@@ -73,19 +69,43 @@ struct TextureFormat
     }
 };
 
+struct TextureDataFormat
+{
+    const uchar* data{nullptr};
+    int layer{0}, width{-1}, height{-1}, depth{-1}, xoffset{0}, yoffset{0}, zoffset{0}, lod{0};
+};
+
 class TextureBuffer
 {
 public:
     virtual ~TextureBuffer() = default;
 
-    virtual void GenerateMipMaps() = 0;
-    virtual void SetSamplerState(Farg<SamplerState>) const = 0;
-    virtual void Load(const uchar* inData, Farg<TextureFormat> inFormat, int inLayer = 0) = 0;
-    virtual TextureType Type() const = 0;
-    virtual uint ID() const = 0;
-    virtual Shared<Image> GetImage(int inMipmapLevel = 0) const = 0;
+    virtual void GenerateMipmaps() = 0;
+    virtual void SetSamplerState(Farg<SamplerState>) = 0;
+    virtual void SetData(Farg<TextureDataFormat>) = 0;
+    virtual uint GetID() = 0;
+    virtual Farg<TextureFormat> GetFormat() = 0;
+    virtual Shared<Image> GetImage(int inLayer = 0, int inMipmapLevel = 0) = 0;
 
-    static Shared<TextureBuffer> Create(TextureType inType = TEXTURE_TYPE_2D);
+    static Shared<TextureBuffer> CreateDummy();
+    static Shared<TextureBuffer> Create(Farg<TextureFormat>);
+};
+
+class DummyTextureBuffer final : public TextureBuffer
+{
+public:
+    DummyTextureBuffer() = default;
+    virtual ~DummyTextureBuffer() = default;
+
+    virtual void GenerateMipmaps() {}
+    virtual void SetSamplerState(Farg<SamplerState>) {}
+    virtual void SetData(Farg<TextureDataFormat>) {}
+    virtual uint GetID() { return 0; }
+    virtual Farg<TextureFormat> GetFormat() { return _fmt; }
+    virtual Shared<Image> GetImage(int = 0, int = 0) { return Image::CreateEmpty(1, 1); }
+
+private:
+    inline static constinit const TextureFormat _fmt{};
 };
 
 #endif // TEXTURE_BUFFER_H
