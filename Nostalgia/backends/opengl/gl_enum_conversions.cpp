@@ -137,3 +137,62 @@ uint Convert::GL_SamplerFilter(SamplerFilter inFilter, SamplerFilter inMipFilter
         }
     }
 }
+
+void Convert::GL_SamplerFilterMin(uint inGLFilter, SamplerFilter& outFilter, SamplerFilter& outMipFilter)
+{
+    switch(inGLFilter)
+    {
+    case GL_NEAREST:
+        outFilter = SAMPLER_FILTER_NEAREST;
+        outMipFilter = SAMPLER_FILTER_NONE;
+        break;
+    case GL_LINEAR:
+        outFilter = SAMPLER_FILTER_LINEAR;
+        outMipFilter = SAMPLER_FILTER_NONE;
+        break;
+    case GL_NEAREST_MIPMAP_LINEAR:
+        outFilter    = SAMPLER_FILTER_NEAREST;
+        outMipFilter = SAMPLER_FILTER_LINEAR;
+        break;
+    case GL_NEAREST_MIPMAP_NEAREST:
+        outFilter    = SAMPLER_FILTER_NEAREST;
+        outMipFilter = SAMPLER_FILTER_NEAREST;
+        break;
+    case GL_LINEAR_MIPMAP_LINEAR:
+        outFilter    = SAMPLER_FILTER_LINEAR;
+        outMipFilter = SAMPLER_FILTER_LINEAR;
+        break;
+    case GL_LINEAR_MIPMAP_NEAREST:
+        outFilter    = SAMPLER_FILTER_LINEAR;
+        outMipFilter = SAMPLER_FILTER_NEAREST;
+        break;
+    }
+}
+
+void Convert::GL_SamplerFilterMag(uint inGLFilter, SamplerFilter& outFilter)
+{
+    SamplerFilter _foo{};
+    Convert::GL_SamplerFilterMin(inGLFilter, outFilter, _foo);
+}
+
+void Convert::GL_SamplerRepeat(uint inGLRepeat, SamplerRepeat& outRepeat)
+{
+    switch(inGLRepeat)
+    {
+    case GL_REPEAT:
+        outRepeat = SAMPLER_REPEAT_MODE_REPEAT;
+        break;
+    case GL_MIRRORED_REPEAT:
+        outRepeat = SAMPLER_REPEAT_MODE_MIRRORED_REPEAT;
+        break;
+    case GL_CLAMP_TO_EDGE:
+        outRepeat = SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE;
+        break;
+    case GL_CLAMP_TO_BORDER:
+        outRepeat = SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER;
+        break;
+    case GL_MIRROR_CLAMP_TO_EDGE:
+        outRepeat = SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE;
+        break;
+    }
+}

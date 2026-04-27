@@ -14,6 +14,7 @@ public:
     void SetData(Farg<TextureDataFormat>) final;
     uint GetID() final;
     Farg<TextureFormat> GetFormat() final;
+    void GetSamplerState(SamplerState&) final;
     Shared<Image> GetImage(int = 0, int = 0) final;
 
 private:

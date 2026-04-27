@@ -88,6 +88,7 @@ public:
     virtual void SetData(Farg<TextureDataFormat>) = 0;
     virtual uint GetID() = 0;
     virtual Farg<TextureFormat> GetFormat() = 0;
+    virtual void GetSamplerState(SamplerState&) = 0;
     virtual Shared<Image> GetImage(int inLayer = 0, int inMipmapLevel = 0) = 0;
 
     static Shared<TextureBuffer> CreateDummy();

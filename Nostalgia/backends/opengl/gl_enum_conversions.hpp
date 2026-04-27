@@ -11,6 +11,9 @@ namespace Convert
     uint GL_TextureType(TextureType);
     uint GL_SamplerRepeat(SamplerRepeat);
     uint GL_SamplerFilter(SamplerFilter, SamplerFilter);
+    void GL_SamplerFilterMin(uint, SamplerFilter&, SamplerFilter&);
+    void GL_SamplerFilterMag(uint, SamplerFilter&);
+    void GL_SamplerRepeat(uint, SamplerRepeat&);
 }
 
 #endif // OPENGL_ENUM_CONVERSIONS_H

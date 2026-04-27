@@ -144,6 +144,26 @@ uint OpenGLTextureBuffer::GetID()
 Farg<TextureFormat> OpenGLTextureBuffer::GetFormat()
 { return mFormat; }
 
+void OpenGLTextureBuffer::GetSamplerState(SamplerState& outSamplerState)
+{
+    ASSERT_API
+    GLint _max_anisotropy, _min_filter, _mag_filter, _texture_wrap_s, _texture_wrap_t, _texture_wrap_r;
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_MAX_ANISOTROPY, &_max_anisotropy);
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_MIN_FILTER, &_min_filter);
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_MAG_FILTER, &_mag_filter);
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_WRAP_S, &_texture_wrap_s);
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_WRAP_T, &_texture_wrap_t);
+    glGetTextureParameteriv(mBufferID, GL_TEXTURE_WRAP_R, &_texture_wrap_r);
+
+    outSamplerState.anisotropy_max = _max_anisotropy;
+    outSamplerState.use_anisotropy = _max_anisotropy != 0;
+    Convert::GL_SamplerFilterMin(_min_filter, outSamplerState.min_filter, outSamplerState.mip_filter_min);
+    Convert::GL_SamplerFilterMag(_mag_filter, outSamplerState.mag_filter);
+    Convert::GL_SamplerRepeat(_texture_wrap_s, outSamplerState.repeat_u);
+    Convert::GL_SamplerRepeat(_texture_wrap_t, outSamplerState.repeat_v);
+    Convert::GL_SamplerRepeat(_texture_wrap_r, outSamplerState.repeat_w);
+}
+
 Shared<Image> OpenGLTextureBuffer::GetImage(int inLayer, int inMipmapLevel)
 {
     ASSERT_API_RETURN(Image::CreateEmpty(mFormat.width, mFormat.height, mFormat.data_format));
