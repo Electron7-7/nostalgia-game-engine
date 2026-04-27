@@ -116,8 +116,5 @@ void OpenGLVertexArray::SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer)
     mIndexBuffer = inIndexBuffer;
 }
 
-Farg<std::vector<Shared<VertexBuffer>>> OpenGLVertexArray::GetVertexBuffers() const
-{ return mVertexBuffers; }
-
 Shared<IndexBuffer> OpenGLVertexArray::GetIndexBuffer() const
 { return mIndexBuffer; }

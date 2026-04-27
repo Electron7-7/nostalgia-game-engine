@@ -15,7 +15,6 @@ public:
 
     void AddVertexBuffer(Shared<VertexBuffer>) final;
     void SetIndexBuffer(Shared<IndexBuffer>) final;
-    Farg<std::vector<Shared<VertexBuffer>>> GetVertexBuffers() const final;
     Shared<IndexBuffer> GetIndexBuffer() const final;
 
 private:

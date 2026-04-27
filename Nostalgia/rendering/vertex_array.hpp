@@ -16,7 +16,6 @@ public:
 
     virtual void AddVertexBuffer(Shared<VertexBuffer> inVertexBuffer) = 0;
     virtual void SetIndexBuffer(Shared<IndexBuffer> inIndexBuffer) = 0;
-    virtual Farg<std::vector<Shared<VertexBuffer>>> GetVertexBuffers() const = 0;
     virtual Shared<IndexBuffer> GetIndexBuffer() const = 0;
 
     static Shared<VertexArray> Create();
