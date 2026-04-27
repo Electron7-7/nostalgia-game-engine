@@ -21,13 +21,12 @@ public:
         VertexUVs = 3,
     };
 
-    inline static constexpr char
-        s_cAPIWarningMessage[]{"RendererAPI::CurrentAPI() == NONE (Defaulting to OpenGL)"};
+    inline static constexpr char s_cAPIWarningMessage[]{"RendererAPI::CurrentAPI() == NONE"};
     inline static ushort sShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
 
     using texture_units = std::initializer_list<uint>;
 
-    static bool ActivateInstance(GraphicsAPI = OPENGL);
+    static bool ActivateInstance(GraphicsAPI);
     static void DeactivateInstance();
     static bool HasActiveInstance();
     static RendererAPI* Get();
