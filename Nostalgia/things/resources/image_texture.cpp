@@ -7,21 +7,20 @@
 
 using namespace TheatreFile;
 
-Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage)
+Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage, SamplerState* inSampler)
 {
     auto output{DCast<ImageTexture>(ThingFactory::MakeThing(ThingType::ImageTexture, "Untitled_ImageTexture"))};
-    output->SetImage(inImage);
+    output->SetImage(inImage, inSampler);
     return output;
 }
 
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
+    Super::SetVariables(data);
     if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
     else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }
-    // Since `Texture::SetVariables` only sets the sampler, it should come after the buffer is created
-    Super::SetVariables(data);
 }
 
 Shared<ThingData> ImageTexture::GetVariables() const
@@ -32,7 +31,7 @@ Shared<ThingData> ImageTexture::GetVariables() const
     return data;
 }
 
-void ImageTexture::SetImage(Shared<Image> inImage)
+void ImageTexture::SetImage(Shared<Image> inImage, SamplerState* inSampler)
 {
     LOCK
     if(not inImage or not inImage->data())
@@ -41,9 +40,15 @@ void ImageTexture::SetImage(Shared<Image> inImage)
         return;
     }
 
+    SamplerState _sampler{};
+    if(inSampler)
+        { _sampler = *inSampler; }
+    else
+        { mBuffer->GetSamplerState(_sampler); }
+
     mBuffer = TextureBuffer::Create({TEXTURE_TYPE_2D, inImage->Width(), inImage->Height(), inImage->Format()});
     mBuffer->SetData({inImage->data()});
-    mBuffer->SetSamplerState(mSampler);
+    mBuffer->SetSamplerState(_sampler);
 }
 
 void ImageTexture::UpdateImage(Shared<Image> inImage)

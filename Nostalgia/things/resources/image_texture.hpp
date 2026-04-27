@@ -7,14 +7,14 @@
 class ImageTexture : public Texture
 {
 public:
-    static Shared<ImageTexture> CreateFromImage(Farg<Shared<Image>>);
+    static Shared<ImageTexture> CreateFromImage(Farg<Shared<Image>>, SamplerState* inSampler = nullptr);
 
     SET_SUPER(Texture)
     SET_TYPEID(ThingType::ImageTexture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    void SetImage(Shared<Image>);
+    void SetImage(Shared<Image>, SamplerState* inSampler = nullptr);
     void UpdateImage(Shared<Image>);
 
 protected:
