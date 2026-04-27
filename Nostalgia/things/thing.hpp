@@ -26,9 +26,9 @@ namespace TheatreFile { struct ThingData; }
 /// Helper macro for getting the signature of `Thing::Tick`
 #define SIG_TICK void Tick()
 /// Helper macro for getting the signature of `Thing::Input`
-#define SIG_INPUT void Input(InputEvent* inEvent)
+#define SIG_INPUT void Input(InputEvent*)
 /// Helper macro for getting the signature of `Thing::SetVariables`
-#define SIG_SET_VARIABLES void SetVariables(Farg<TheatreFile::ThingData> inData)
+#define SIG_SET_VARIABLES void SetVariables(Farg<TheatreFile::ThingData>)
 /// Helper macro for getting the signature of `Thing::GetVariables`
 #define SIG_GET_VARIABLES Shared<TheatreFile::ThingData> GetVariables() const
 
