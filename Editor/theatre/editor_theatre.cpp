@@ -63,6 +63,10 @@ void EditorTheatre::Draw()
                 { _camera2d->Draw(GetThinker<Visual2D>(_uid)); }
         }
 
+        bool _wireframe{RendererAPI::Get()->GetWireframe()};
+
+        RendererAPI::Get()->SetWireframe(false);
+
         for(auto& [uid, thing] : mThings)
         {
             if(uid == _camera3d->uid() or uid == _camera2d->uid())
@@ -84,6 +88,8 @@ void EditorTheatre::Draw()
                     { DrawLight3DHelper(_camera3d, DCast<Light3D>(thing)); }
             }
         }
+
+        RendererAPI::Get()->SetWireframe(_wireframe);
 
         viewport->Detach();
     }
