@@ -4,16 +4,6 @@
 #include <Nostalgia/managers/manager.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
 
-enum class ShaderDebugOutput : ushort
-{
-    All = 0,
-    VertexColors = 1,
-    VertexNormals = 2,
-    VertexUVs = 3,
-};
-
-inline ushort gShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
-
 class RenderManager : public Manager
 {
 public:
@@ -25,16 +15,13 @@ public:
     ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) final;
     void Shutdown() final;
 
-    bool IsAPIActive() const;
     void CalculateFrameTime(bool);
     bool CalculatingFrameTime() const;
     double GetTheatreFrameTime() const;
     double GetUIFrameTime() const;
     void SetAutomaticWindowClear(bool);
-    const Unique<RendererAPI>& GetAPI() const;
 
 private:
-    Unique<RendererAPI> mRendererAPI{RendererAPI::Activate()};
     bool mCanClearWindow{true}, mCanCalculateFrametime{false};
     double mTheatreFrametime{0.0}, mUIFrametime{0.0};
 };

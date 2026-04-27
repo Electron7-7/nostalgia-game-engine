@@ -14,7 +14,8 @@ RenderManager* g_pRenderManager{&sRenderManager};
 bool RenderManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    mRendererAPI = RendererAPI::Activate();
+    if(not RendererAPI::HasActiveInstance())
+        { RendererAPI::ActivateInstance(); }
     EnumRegistry::Assign(TextureType::TEXTURE_TYPE_2D,             "2DTexture");
     EnumRegistry::Assign(TextureType::TEXTURE_TYPE_CUBE,           "CubeMapTexture");
     EnumRegistry::Assign(Environment::BG_CUSTOM_COLOR,             "CustomColor");
@@ -28,13 +29,13 @@ bool RenderManager::Init()
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SamplerClampEdge");
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SamplerClampBorder");
     EnumRegistry::Assign(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SamplerMirrorClampEdge");
-    return mRendererAPI->Init();
+    return true;
 }
 
 void RenderManager::Shutdown()
 {
     ResourceDatabase::DestroyAll();
-    mRendererAPI->Shutdown();
+    RendererAPI::Get()->Shutdown();
 }
 
 ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
@@ -46,10 +47,10 @@ ManagerEnums::TheatreReturnValue_t RenderManager::TheatreShutdown(bool is_first_
 void RenderManager::Update()
 {
     auto _start_time{Runtime::Current()};
-    if(mCanClearWindow and mRendererAPI)
+    if(mCanClearWindow)
     {
-        mRendererAPI->SetClearColor(Settings::Graphics::ClearColor);
-        mRendererAPI->Clear();
+        RendererAPI::Get()->SetClearColor(Settings::Graphics::ClearColor);
+        RendererAPI::Get()->Clear();
     }
     g_pTheatreManager->DrawCurrentTheatre();
     if(mCanCalculateFrametime)
@@ -58,9 +59,6 @@ void RenderManager::Update()
     if(mCanCalculateFrametime)
         { mUIFrametime = Runtime::Current() - _start_time; }
 }
-
-bool RenderManager::IsAPIActive() const
-{ return (mRendererAPI and mRendererAPI->IsRunning()); }
 
 void RenderManager::CalculateFrameTime(bool inCalculate)
 { mCanCalculateFrametime = inCalculate; }
@@ -76,6 +74,3 @@ double RenderManager::GetUIFrameTime() const
 
 void RenderManager::SetAutomaticWindowClear(bool inEnableClear)
 { mCanClearWindow = inEnableClear; }
-
-Farg<Unique<RendererAPI>> RenderManager::GetAPI() const
-{ return mRendererAPI; }
