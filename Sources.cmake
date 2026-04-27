@@ -70,7 +70,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/resources/array_mesh.cpp
     ${NOSTALGIA_ROOT}/things/resources/cubemap.cpp
     ${NOSTALGIA_ROOT}/things/resources/viewport_texture.cpp
-    ${NOSTALGIA_ROOT}/things/resources/texture.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/ramiel.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/light_3d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/visual_3d.cpp
