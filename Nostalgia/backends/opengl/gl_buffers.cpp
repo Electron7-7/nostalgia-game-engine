@@ -1,4 +1,4 @@
-#include "gl_mesh_buffers.hpp"
+#include "gl_buffers.hpp"
 #include "thirdparty/glad/glad.h"
 #include "rendering/renderer_api.hpp"
 

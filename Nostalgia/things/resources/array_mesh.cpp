@@ -1,7 +1,7 @@
 #include "./array_mesh.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thing_data.hpp"
-#include "rendering/mesh_buffers.hpp"
+#include "rendering/buffers.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
 #include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"

@@ -19,7 +19,7 @@
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
-#include <Nostalgia/rendering/mesh_buffers.hpp>
+#include <Nostalgia/rendering/buffers.hpp>
 
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};

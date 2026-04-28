@@ -1,7 +1,7 @@
 #ifndef GL_MESH_DATA_H
 #define GL_MESH_DATA_H
 
-#include "rendering/mesh_buffers.hpp"
+#include "rendering/buffers.hpp"
 
 class OpenGLVertexBuffer final : public VertexBuffer
 {

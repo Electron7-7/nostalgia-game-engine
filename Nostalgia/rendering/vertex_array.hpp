@@ -3,7 +3,7 @@
 
 // Stolen from Hazel [https://github.com/TheCherno/Hazel]
 
-#include <Nostalgia/rendering/mesh_buffers.hpp>
+#include <Nostalgia/rendering/buffers.hpp>
 
 class VertexArray
 {
