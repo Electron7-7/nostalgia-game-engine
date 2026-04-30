@@ -1,11 +1,12 @@
 #include "./editor_theatre.hpp"
-#include "assets/editor_uids.hpp"
+#include "editor_models.hpp"
 #include "things/editor_player_3d.hpp"
 #include <Nostalgia/rendering/shader.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/things/resources/material.hpp>
+#include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/light_3d.hpp>
@@ -15,10 +16,18 @@ using namespace TheatreFile;
 
 bool EditorTheatre::Startup()
 {
-    m_spCamera3DMesh = ResourceDatabase::GetResource<Mesh>(UID::m_Camera3D);
-    m_spPointLight3DMesh = ResourceDatabase::GetResource<Mesh>(UID::m_PointLight3D);
-    m_spSpotLight3DMesh = ResourceDatabase::GetResource<Mesh>(UID::m_SpotLight3D);
-    m_spPlayerAxis3DMesh = ResourceDatabase::GetResource<Mesh>(UID::m_DebugAxis);
+    m_spCamera3DMesh =
+        ArrayMesh::CreateFromMemory(_EditorModels::Camera,
+            std::size(_EditorModels::Camera), ArrayMesh::MODEL_OBJ);
+    m_spPointLight3DMesh =
+        ArrayMesh::CreateFromMemory(_EditorModels::PointLight,
+            std::size(_EditorModels::PointLight), ArrayMesh::MODEL_OBJ);
+    m_spSpotLight3DMesh  =
+        ArrayMesh::CreateFromMemory(_EditorModels::SpotLight,
+            std::size(_EditorModels::SpotLight), ArrayMesh::MODEL_OBJ);
+    m_spPlayerAxis3DMesh =
+        ArrayMesh::CreateFromMemory(_EditorModels::DebugAxis,
+            std::size(_EditorModels::DebugAxis), ArrayMesh::MODEL_OBJ);
 
     return Theatre::Startup();
 }
