@@ -12,7 +12,7 @@ public:
     void Stop() final;
     const char* Name() final { return "Nostalgia Goggles"; }
     void Input(InputEvent*) final;
-    void Event(AppEvent*) final;
+    void Event(IEvent*) final;
 };
 
 extern std::string gToggleFullscreen;

@@ -74,9 +74,9 @@ int NostalgiaGoggles::Main()
     return 0;
 }
 
-void NostalgiaGoggles::Event(AppEvent* inEvent)
+void NostalgiaGoggles::Event(IEvent* inEvent)
 {
-    if(inEvent->IsEvent(AppEvent::WindowClose))
+    if(inEvent->IsEvent(WindowEvent::WindowClose))
         { Application()->Stop(); }
 }
 
@@ -90,5 +90,5 @@ void NostalgiaGoggles::Input(InputEvent* event)
     }
     else if((event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
         or event->IsJustPressed(Key::F8))
-        { EventManager::Queue()->add<AppEvent>(AppEvent::WindowClose); }
+        { EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose); }
 }
