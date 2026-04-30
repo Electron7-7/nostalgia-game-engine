@@ -30,7 +30,7 @@ protected:
     Shared<Texture> m_pDiffuseTexture{MakeShared<Texture>()},
         m_pSpecularTexture{MakeShared<Texture>()};
     float mSpecularStrength{0.0f};
-    SamplerState mSamplerState{SamplerState::JuliansPreferredDefaults};
+    SamplerState mSamplerState{};
 };
 
 #endif // MATERIAL_H
