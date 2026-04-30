@@ -193,7 +193,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/rendering/graphics_context.hpp
     ${NOSTALGIA_ROOT}/rendering/renderer_api.hpp
     ${NOSTALGIA_ROOT}/rendering/common.hpp
-    ${NOSTALGIA_ROOT}/rendering/debugging.hpp
     ${NOSTALGIA_ROOT}/rendering/vertex_array.hpp
     ${NOSTALGIA_ROOT}/rendering/environment.hpp
     ${NOSTALGIA_ROOT}/rendering/frame_buffer.hpp
