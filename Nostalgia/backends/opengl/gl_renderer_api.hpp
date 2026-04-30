@@ -9,7 +9,6 @@ public:
     void Init() final;
     void Shutdown() final;
 
-
     void SetViewport(Farg<Position2D>, Farg<Size2D>) final;
     void SetViewport(int, int, int, int) final;
     void SetClearColor(Farg<ColorRGBA>) final;

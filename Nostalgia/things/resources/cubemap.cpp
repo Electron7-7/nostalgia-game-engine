@@ -29,6 +29,7 @@ Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> i
 
 void Cubemap::SetVariables(Farg<ThingData> data)
 {
+    Super::SetVariables(data);
     Shared<Image> image{nullptr};
     for(uint i{0}; i < 6; ++i)
     {
@@ -52,8 +53,6 @@ void Cubemap::SetVariables(Farg<ThingData> data)
         }
         UpdateLayer(image, i);
     }
-    // Since `Texture::SetVariables` only sets the sampler, it should come after the buffer is created
-    Super::SetVariables(data);
 }
 
 Shared<ThingData> Cubemap::GetVariables() const
