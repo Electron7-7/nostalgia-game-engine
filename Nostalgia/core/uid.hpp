@@ -13,7 +13,6 @@ namespace UID
     inline ID
     // Textures
         t_Missing,
-        t_LightDebug,
         t_COMP04_5,
         t_LolBit,
         t_ShittySkybox,

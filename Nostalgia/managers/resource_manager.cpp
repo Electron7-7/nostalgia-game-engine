@@ -86,9 +86,6 @@ bool ResourceManager::Init()
     UID::t_Missing =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
             {Images::Missing, std::size(Images::Missing)})), "MissingImage");
-    UID::t_LightDebug =
-        ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
-            {Images::LightDebug, std::size(Images::LightDebug)})), "LightImage");
     UID::t_COMP04_5 =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
             {Images::COMP04_5, std::size(Images::COMP04_5)})), "DoomImage");

@@ -3,7 +3,7 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 
-namespace Icons
+namespace UID
 {
     inline ID actor_2d,
         actor_3d,
