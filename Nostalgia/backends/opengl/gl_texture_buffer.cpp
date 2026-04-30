@@ -85,6 +85,9 @@ void OpenGLTextureBuffer::SetData(Farg<TextureDataFormat> inFormat)
 {
     ASSERT_API
 
+    if(not inFormat.data)
+        { return; }
+
     GLint _yoffset{inFormat.yoffset}, _zoffset{inFormat.zoffset},
         _width{(inFormat.width   == -1) ? mFormat.width  : inFormat.width},
         _height{(inFormat.height == -1) ? mFormat.height : inFormat.height},
