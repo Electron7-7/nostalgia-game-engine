@@ -63,7 +63,13 @@ bool IManager::InvokeMethod(ManagerInitFunc_t function)
     return true;
 }
 
-void IManager::InvokeEvent(EngineEvent* inEvent)
+void IManager::InvokeInput(InputEvent* inEvent)
+{
+    for(size_t i{0}; i < m_sGameManagers.size(); ++i)
+        { m_sGameManagers.at(i)->Input(inEvent); }
+}
+
+void IManager::InvokeEvent(IEvent* inEvent)
 {
     for(size_t i{0}; i < m_sGameManagers.size(); ++i)
         { m_sGameManagers.at(i)->Event(inEvent); }

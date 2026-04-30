@@ -9,16 +9,10 @@ public:
     virtual void Input(InputEvent*) = 0;
 };
 
-class OnAppEvent
+class OnEvent
 {
 public:
-    virtual void Event(AppEvent*) = 0;
-};
-
-class OnEngineEvent
-{
-public:
-    virtual void Event(EngineEvent*) = 0;
+    virtual void Event(IEvent*) = 0;
 };
 
 #endif // EVENT_HANDLING_COMPONENTS_H

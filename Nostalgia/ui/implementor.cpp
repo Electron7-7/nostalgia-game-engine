@@ -74,3 +74,17 @@ void UI_Implementor::InvokeInput(InputEvent* inEvent)
     }
 }
 
+void UI_Implementor::InvokeEvent(IEvent* inEvent)
+{
+    const std::lock_guard<std::recursive_mutex> lock{m_sInstancesMutex};
+    for(auto& [index, instance] : m_sInstances)
+    {
+        if(!instance->mAttached)
+            { continue; }
+        for(auto& [index, object] : instance->mObjects)
+        {
+            if(object)
+                { object->Event(inEvent); }
+        }
+    }
+}

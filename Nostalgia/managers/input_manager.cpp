@@ -1,6 +1,4 @@
 #include "input_manager.hpp"
-#include "ui_manager.hpp"
-#include "theatre_manager.hpp"
 #include "application/application.hpp"
 #include "events/event_queue.hpp"
 #include "events/action.hpp"
@@ -37,9 +35,8 @@ void InputManager::Update()
     {
         if(Shared<InputEvent> input_event{DCast<InputEvent>(event)})
         {
-            g_pUIManager->Input(input_event.get());
             Application()->Input(input_event.get());
-            g_pTheatreManager->Input(input_event.get());
+            Manager::InvokeInput(input_event.get());
             for(auto callback : mCallbacks)
                 { callback(input_event.get()); }
             if(gPrintInputLogs)

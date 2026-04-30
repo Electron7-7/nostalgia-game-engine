@@ -39,6 +39,7 @@ public:
     static void InvokeMethod(ImplementorFunctionPtr);
     static void InvokeMethod(SolutionFunction_ptr);
     static void InvokeInput(InputEvent*);
+    static void InvokeEvent(IEvent*);
 
     static void AttachAll();
     static void DetachAll();

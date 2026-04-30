@@ -26,6 +26,9 @@ ManagerEnums::TheatreReturnValue_t UIManager::TheatreInit(bool first_call)
 void UIManager::Input(InputEvent* inInput)
 { UI_Implementor::InvokeInput(inInput); }
 
+void UIManager::Event(IEvent* inEvent)
+{ UI_Implementor::InvokeEvent(inEvent); }
+
 void UIManager::DrawUI()
 {
     UI_Implementor::InvokeMethod(&UI_Implementor::Begin);

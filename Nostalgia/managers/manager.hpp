@@ -23,7 +23,7 @@ namespace ManagerEnums
 }
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
-class IManager : public OnUpdate, public OnTick, public OnInput, public OnEngineEvent
+class IManager : public OnUpdate, public OnTick, public OnInput, public OnEvent
 {
 public:
     virtual constexpr const char* DebugName() = 0;
@@ -33,11 +33,6 @@ public:
     virtual void Shutdown() = 0;
     virtual void OnSave() = 0;
     virtual void OnRestore() = 0;
-
-    virtual void Update() override = 0;
-    virtual void Tick()   override = 0;
-    virtual void Input(InputEvent*)  override = 0;
-    virtual void Event(EngineEvent*) override = 0;
 
     // Add/Remove managers
     static void Add(IManager* ManagerToAdd);
@@ -83,12 +78,15 @@ protected:
     typedef void (IManager::*ManagerFunc_t)();
 
     // Go through every added manager and invoke the supplied method, in specific order (forwards or backwards)
-    static void InvokeEvent(EngineEvent*);
+    static void InvokeInput(InputEvent*);
+    static void InvokeEvent(IEvent*);
     static void InvokeMethod(ManagerFunc_t Function);
     static void InvokeMethodReverseOrder(ManagerFunc_t Function);
     static bool InvokeMethod(ManagerInitFunc_t Function);
-    static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethod(ManagerTheatreFunction_t Function, bool IsFirstCall);
-    static ManagerEnums::TheatreReturnValue_t InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
+    static ManagerEnums::TheatreReturnValue_t
+        InvokeTheatreMethod(ManagerTheatreFunction_t Function, bool IsFirstCall);
+    static ManagerEnums::TheatreReturnValue_t
+        InvokeTheatreMethodReverseOrder(ManagerTheatreFunction_t Function, bool IsFirstCall);
 
     static std::vector<IManager*> m_sGameManagers;
     static bool m_sTheatreShutdownRequested,
@@ -114,13 +112,17 @@ public:
     virtual void OnSave()    override {}
     virtual void OnRestore() override {}
 
-    virtual void Update()    override {}
-    virtual void Tick()      override {}
-    virtual void Input(InputEvent*)  override {}
-    virtual void Event(EngineEvent*) override {}
+    virtual void Update() override {}
+    virtual void Tick() override {}
+    virtual void Input(InputEvent*) override {}
+    virtual void Event(IEvent*) override {}
 
-    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall)     override { return ManagerEnums::FINISHED; }
-    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) override { return ManagerEnums::FINISHED; }
+    virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) override
+    { return ManagerEnums::FINISHED; }
+
+    virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) override
+    { return ManagerEnums::FINISHED; }
+
 };
 
 // Automatically remove the game manager if it gets deleted

@@ -25,7 +25,7 @@ void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonito
 }
 
 void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow*)
-{ EventManager::Queue()->add<AppEvent>(AppEvent::WindowClose); }
+{ EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose); }
 
 void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWindow, int inWidth, int inHeight)
 {
@@ -33,7 +33,7 @@ void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWind
     pWindow->mData.width  = inWidth;
     pWindow->mData.height = inHeight;
     RendererAPI::Get()->SetViewport({0, 0}, pWindow->GetScale());
-    EventManager::Queue()->add<AppEvent>(AppEvent::WindowResize);
+    EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowResize);
 }
 
 void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindow, int inX, int inY)
@@ -41,7 +41,7 @@ void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindo
     auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
     pWindow->mData.x_pos = inX;
     pWindow->mData.y_pos = inY;
-    EventManager::Queue()->add<AppEvent>(AppEvent::WindowMoved);
+    EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowMoved);
 }
 
 void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindow, double inX, double inY)

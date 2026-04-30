@@ -12,13 +12,10 @@ bool EventManager::Init()
 
 void EventManager::Update()
 {
-    event_queue_t events{sEventQueue.get()};
-    for(auto event : events)
+    for(auto iter{sEventQueue.get().begin()}; iter != sEventQueue.get().end();)
     {
-        if(auto app_event{DCast<AppEvent>(event)})
-            { Application()->Event(app_event.get()); }
-        else if(auto engine_event{DCast<EngineEvent>(event)})
-            { IManager::InvokeEvent(engine_event.get()); }
+        Application()->Event(iter->get());
+        Manager::InvokeEvent(iter->get());
         if(Console::GetVariable("print_event_logs").int_value)
         {
             __print_verbose(true,
@@ -26,8 +23,9 @@ void EventManager::Update()
                 "{}",
                 std::source_location::current(),
                 {"<EVENT>",{ANSI::cyan,true,true}},
-                event->DebugLog());
+                iter->get()->DebugLog());
         }
+        iter = sEventQueue.get().erase(iter);
     }
 }
 

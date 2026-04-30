@@ -6,8 +6,7 @@ enum class EventType : uint;
 class IEvent;
 template<EventPriority _Priority>
     class CEvent;
-class AppEvent;
-class EngineEvent;
+class WindowEvent;
 class InputEvent;
 class InputEventMouseMotion;
 class InputEventAction;

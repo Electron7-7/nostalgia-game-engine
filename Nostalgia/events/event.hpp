@@ -4,7 +4,7 @@
 #include <Nostalgia/fwd/events.hpp>
 #include <Nostalgia/events/bindings.hpp>
 
-#define APP_EVENT(NAME) inline static constinit const char* NAME{#NAME};
+#define NEW_EVENT(NAME) inline static constinit const char* NAME{#NAME};
 #define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }
 #define EVENT_LOG std::string DebugLog() const noexcept
 
@@ -23,8 +23,7 @@ enum class EventPriority : unsigned int
 enum class EventType : unsigned int
 {
     InputEvent,
-    AppEvent,
-    EngineEvent,
+    WindowEvent,
 };
 
 class IEvent
@@ -34,6 +33,7 @@ public:
 
     static constexpr EventPriority Priority() noexcept { return EventPriority::Lowest; }
     virtual constexpr EventType Type() const noexcept = 0;
+    virtual constexpr bool IsEvent(Sarg inEventName) const noexcept { return false; }
     virtual std::string DebugLog() const noexcept { return "[NO LOG]"; }
 };
 
@@ -44,32 +44,27 @@ template<EventPriority _Priority = EventPriority::Lowest>
         static constexpr EventPriority Priority() noexcept { return _Priority; }
     };
 
-class AppEvent : public CEvent<EventPriority::Highest>
+class WindowEvent : public CEvent<EventPriority::Highest>
 {
 public:
-    APP_EVENT(WindowClose)
-    APP_EVENT(WindowResize)
-    APP_EVENT(WindowMoved)
+    NEW_EVENT(WindowClose)
+    NEW_EVENT(WindowResize)
+    NEW_EVENT(WindowMoved)
 
-    constexpr AppEvent(Sarg inName): mName{inName} {}
+    EVENT_TYPE(EventType::WindowEvent)
+    EVENT_LOG final { return "WindowEvent: " + mName; }
 
-    EVENT_TYPE(EventType::AppEvent)
-    EVENT_LOG final { return "AppEvent: " + mName; }
+    constexpr WindowEvent(Sarg inName):
+        mName{inName} {}
 
-    constexpr Farg<std::string> Name() const noexcept
+    constexpr bool IsEvent(Sarg inEventName) const noexcept final
+    { return mName == inEventName; }
+
+    constexpr Sarg Name() const noexcept
     { return mName; }
 
-    constexpr bool IsEvent(Farg<std::string> inEventName) const noexcept
-    { return !mName.compare(inEventName); }
-
 protected:
-    std::string mName{"Untitled AppEvent"};
-};
-
-class EngineEvent : public CEvent<EventPriority::P1>
-{
-public:
-    EVENT_TYPE(EventType::EngineEvent)
+    std::string mName{};
 };
 
 class InputEvent : public CEvent<EventPriority::P0>
@@ -197,7 +192,7 @@ private:
 template<typename T>
     concept is_event = std::derived_from<T,IEvent> && !(std::is_same_v<T,IEvent>);
 
-#undef APP_EVENT
+#undef NEW_EVENT
 #undef EVENT_TYPE
 #undef EVENT_LOG
 #endif // INPUT_EVENT_H
