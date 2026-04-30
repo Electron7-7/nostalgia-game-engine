@@ -222,7 +222,7 @@ TestAnimatedSprite2D TestSprite
 {
     Texture0 = <TestTexture1>
     Texture1 = <TestTexture2>
-    Texture2 = <DoomTexture>
+    Texture2 = <DoomImage>
     Position = [250, -250]
     Size = [2, 2]
     Interval = [50]
