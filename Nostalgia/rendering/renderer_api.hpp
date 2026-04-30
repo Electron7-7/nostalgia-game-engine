@@ -13,16 +13,24 @@ public:
         OPENGL,
     };
 
-    enum class ShaderDebugOutput : ushort
+    enum BlinnPhongDebugVisual : int
     {
-        All = 0,
-        VertexColors = 1,
-        VertexNormals = 2,
-        VertexUVs = 3,
+        BP_VISUAL_DEFAULT        = 0,
+        BP_VISUAL_VERTEX_COLORS  = 1,
+        BP_VISUAL_VERTEX_NORMALS = 2,
+        BP_VISUAL_VERTEX_UVS     = 3
+    };
+
+    enum DebugMessageSeverityFilter : int
+    {
+        NO_MESSAGES     = 0,
+        NOTIFICATIONS   = 1,
+        LOW_SEVERITY    = 2,
+        MEDIUM_SEVERITY = 3,
+        HIGH_SEVERITY   = 4
     };
 
     inline static constexpr char s_cAPIWarningMessage[]{"RendererAPI::CurrentAPI() == NONE"};
-    inline static ushort sShaderDebugOutput{static_cast<ushort>(ShaderDebugOutput::All)};
 
     using texture_units = std::initializer_list<uint>;
 

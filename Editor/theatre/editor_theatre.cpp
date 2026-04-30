@@ -33,8 +33,8 @@ bool EditorTheatre::Shutdown()
 
 void EditorTheatre::Draw()
 {
-    bool _enable_3d_rendering = Console::GetVariable("Theatre.draw_3d")->int_value,
-        _enable_2d_rendering = Console::GetVariable("Theatre.draw_2d")->int_value;
+    bool _enable_3d_rendering = Console::GetVariable("Theatre.draw_3d").int_value,
+        _enable_2d_rendering = Console::GetVariable("Theatre.draw_2d").int_value;
 
     LockGuard<RMutex> _things_lock{mThingsMutex};
 
@@ -112,12 +112,16 @@ void EditorTheatre::SetEditorViewports(ID in3DViewportUID, ID in2DViewportUID)
 
 void EditorTheatre::DrawCamera2DHelper(Shared<Camera2D> inCamera, Shared<Actor2D> inOtherCamera)
 {
+    if(Console::GetVariable("Editor.nodraw_2d_helpers").int_value)
+        { return; }
     // LockGuard<RMutex> _things_lock{mThingsMutex};
     return;
 }
 
 void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D> inOtherCamera)
 {
+    if(Console::GetVariable("Editor.nodraw_3d_helpers").int_value)
+        { return; }
     LockGuard<RMutex> _things_lock{mThingsMutex};
     FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
@@ -127,7 +131,7 @@ void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", inOtherCamera->GlobalTransform().model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
+    shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inOtherCamera->DebugHighlight());
@@ -138,6 +142,8 @@ void EditorTheatre::DrawCamera3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
 
 void EditorTheatre::DrawPlayer3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D> inPlayer)
 {
+    if(Console::GetVariable("Editor.nodraw_3d_helpers").int_value)
+        { return; }
     LockGuard<RMutex> _things_lock{mThingsMutex};
     FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
@@ -147,7 +153,7 @@ void EditorTheatre::DrawPlayer3DHelper(Shared<Camera3D> inCamera, Shared<Actor3D
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", inPlayer->GlobalTransform().model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
+    shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inPlayer->DebugHighlight());
@@ -169,7 +175,7 @@ void EditorTheatre::DrawLight3DHelper(Shared<Camera3D> inCamera, Shared<Light3D>
     shader->SetUniform("current_material.alpha", 1.0f);
     shader->SetUniform("model_matrix", _transform.model_matrix());
     shader->SetUniform("projection_matrix", inCamera->ProjectionMatrix());
-    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
+    shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
     shader->SetUniform("view_matrix", inCamera->ViewMatrix());
     shader->SetUniform("view_position", inCamera->GlobalPosition());
     shader->SetUniform("debug_highlight", inLight->DebugHighlight());

@@ -54,14 +54,14 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
 
     s_SetupNamesAndTypes(inTokens, *outData);
 
-    if(Console::GetVariable("TheatreFile.Parser.print_declarations")->int_value)
+    if(Console::GetVariable("TheatreFile.Parser.print_declarations").int_value)
     {
         print_debug("Parser Forward Declarations:");
         for(FAUTO [name, type] : outData->type_declarations)
             { debug_print("\t[ {} == {} ]", name, type); }
     }
 
-    if(Console::GetVariable("TheatreFile.Parser.print_name_type_map")->int_value)
+    if(Console::GetVariable("TheatreFile.Parser.print_name_type_map").int_value)
     {
         print_debug("Parser Name to TypeID Map:");
         for(FAUTO [name, type] : s_ThingNameToTypeID)

@@ -90,7 +90,7 @@ std::string Theatre::GetSaveData()
     std::string _output{std::format("@{}#{}\n", mName, mIndex)};
     for(FAUTO [id, thing] : mThings)
     {
-        if(Console::GetVariable("Theatre.debug_save_msgs")->int_value)
+        if(Console::GetVariable("Theatre.debug_save_msgs").int_value)
             { print_debug("Saving [{}, {}]", thing->name(), id()); }
         _output += thing->GetVariables()->get_parsable_string();
     }
@@ -137,7 +137,7 @@ bool Theatre::Startup()
         thing->SetNameChangeCallback(&Theatre::SetThingName);
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
         mCallSheet.Add(thing->uid());
-        if(Console::GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+        if(Console::GetVariable("Theatre.debug_create_thing_msgs").int_value)
             { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
         ++iter;
     }
@@ -176,7 +176,7 @@ bool Theatre::Startup()
     for(FAUTO thing_data : *m_pInitialState)
         { mThings.at(mNames.at(thing_data.name))->Ready(); }
 
-    if(Console::GetVariable("Theatre.debug_callsheet_msgs")->int_value)
+    if(Console::GetVariable("Theatre.debug_callsheet_msgs").int_value)
         { print_debug("{}", mCallSheet.debug_log(mThings)); }
 
     mIsStarted = true;
@@ -200,8 +200,8 @@ bool Theatre::Shutdown()
 
 void Theatre::Draw()
 {
-    bool _enable_3d_rendering = Console::GetVariable("Theatre.draw_3d")->int_value,
-        _enable_2d_rendering = Console::GetVariable("Theatre.draw_2d")->int_value;
+    bool _enable_3d_rendering = Console::GetVariable("Theatre.draw_3d").int_value,
+        _enable_2d_rendering = Console::GetVariable("Theatre.draw_2d").int_value;
 
     LOCK_THINGS;
 
@@ -422,7 +422,7 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
     thing->SetVariables(inData);
     if(inDoReadyThing)
         { thing->Ready(); }
-    if(Console::GetVariable("Theatre.debug_create_thing_msgs")->int_value)
+    if(Console::GetVariable("Theatre.debug_create_thing_msgs").int_value)
         { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
     return thing->uid();
 }

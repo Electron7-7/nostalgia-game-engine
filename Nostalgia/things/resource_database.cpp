@@ -43,7 +43,7 @@ ID ResourceDatabase::Register(Shared<Resource> inResource, Sarg inNameOverride)
     sResources[uid] = inResource;
     inResource->SetNameChangeCallback(&ResourceDatabase::SetName);
 
-    if(Console::GetVariable("ResourceDatabase.debug_register_msgs")->int_value)
+    if(Console::GetVariable("ResourceDatabase.debug_register_msgs").int_value)
         { print_debug("Registered {} [{}, {}]", inResource->Type().name(), name, uid()); }
 
     return uid;

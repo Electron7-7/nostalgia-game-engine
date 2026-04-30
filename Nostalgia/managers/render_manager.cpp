@@ -13,6 +13,7 @@ bool RenderManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     RendererAPI::Get()->Init();
+    Console::SetVariable("BlinnPhong.debug_visual", static_cast<int>(RendererAPI::BP_VISUAL_DEFAULT));
     return true;
 }
 

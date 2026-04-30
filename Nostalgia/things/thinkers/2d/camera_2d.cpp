@@ -70,6 +70,8 @@ Shared<ThingData> Camera2D::GetVariables() const
 
 void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
 {
+    if(Console::GetVariable("nodraw_2d").int_value)
+        { return; }
     FAUTO renderer_api{RendererAPI::Get()};
 
     auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::t_Missing)};
@@ -133,7 +135,7 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
         shader->SetUniform("glyph", 0);
         shader->Bind();
 
-        if(not Console::GetVariable("Theatre.draw_text_new")->int_value)
+        if(not Console::GetVariable("Theatre.draw_text_new").int_value)
         {
             if(text2d->mDebugOutline)
             {

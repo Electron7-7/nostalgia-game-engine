@@ -19,7 +19,7 @@ void EventManager::Update()
             { Application()->Event(app_event.get()); }
         else if(auto engine_event{DCast<EngineEvent>(event)})
             { IManager::InvokeEvent(engine_event.get()); }
-        if(gPrintEventLogs)
+        if(Console::GetVariable("print_event_logs").int_value)
         {
             __print_verbose(true,
                 VERBOSE0,

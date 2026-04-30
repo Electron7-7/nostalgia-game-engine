@@ -261,11 +261,11 @@ static void s_GeneralDebuggingWindow()
             if(Checkbox("Print TheatreFile Save Progress", &save_msgs_b))
                 { Console::SetVariable("Theatre.debug_save_msgs", save_msgs_b); }
             static bool _print_fwd{static_cast<bool>(
-                Console::GetVariable("TheatreFile.Parser.print_declarations")->int_value)};
+                Console::GetVariable("TheatreFile.Parser.print_declarations").int_value)};
             if(Checkbox("Print Parsed Forward Declarations", &_print_fwd))
                 { Console::SetVariable("TheatreFile.Parser.print_declarations", _print_fwd); }
             static bool _print_name_type_map{static_cast<bool>(
-                Console::GetVariable("TheatreFile.Parser.print_name_type_map")->int_value)};
+                Console::GetVariable("TheatreFile.Parser.print_name_type_map").int_value)};
             if(Checkbox("Print Parsed Name/Type Map", &_print_name_type_map))
                 { Console::SetVariable("TheatreFile.Parser.print_name_type_map", _print_name_type_map); }
             Checkbox("Print TheatreFile Lexer Logs", &TheatreFile::gDebugPrintLexerLogs);
@@ -273,15 +273,13 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Disable Whitespace In Lexer Logs", &TheatreFile::gDebugDontPrintWhitespaceInLexerLogs);
             Checkbox("Disable Comments In Lexer Logs", &TheatreFile::gDebugDontPrintCommentsInLexerLogs);
         SeparatorText("Rendering");
-            Checkbox("Draw Command", &gPrintDrawLogs);
         if(RendererAPI::CurrentAPI() == RendererAPI::OPENGL)
         {
             SeparatorText("OpenGL");
-            Checkbox("Enable Notification Messages", &gOpenGLEnableNotificationMesssages);
-            const char* gl_debug_severities{"None\0Low\0Medium\0High\0"};
-            static int gl_debug_selection{(int)gOpenGLMessageFilter};
+            const char* gl_debug_severities{"None\0Notifcations\0Low\0Medium\0High\0"};
+            static int gl_debug_selection{Console::GetVariable("OpenGLMessageFilter").int_value};
             if(Combo("Minimum Message Severity Filter", &gl_debug_selection, gl_debug_severities))
-                { gOpenGLMessageFilter = static_cast<DebugMessageSeverityFilter>(gl_debug_selection); }
+                { Console::SetVariable("OpenGLMessageFilter", gl_debug_selection); }
         }
         SeparatorText("Jolt Physics");
             Checkbox("Contact Validate",  &gJoltDebugMessageAllow_ContactValidate);  SameLine();
@@ -297,9 +295,9 @@ static void s_GeneralDebuggingWindow()
         static auto text_rendering{Console::GetVariable("Theatre.draw_text_new")},
             enable3d{Console::GetVariable("Theatre.draw_3d")},
             enable2d{Console::GetVariable("Theatre.draw_2d")};
-        bool text_rendering_b{(bool)text_rendering->int_value},
-            enable3d_b{(bool)enable3d->int_value},
-            enable2d_b{(bool)enable2d->int_value};
+        bool text_rendering_b{(bool)text_rendering.int_value},
+            enable3d_b{(bool)enable3d.int_value},
+            enable2d_b{(bool)enable2d.int_value};
         if(Checkbox("Use New WIP Text Rendering Method", &text_rendering_b))
             { Console::SetVariable("Theatre.draw_text_new", text_rendering_b); }
         if(Checkbox("Render 3D Thinkers", &enable3d_b))
@@ -310,7 +308,7 @@ static void s_GeneralDebuggingWindow()
         static int sSelected{0};
         static const char* sSelectableNames{"Default\0Vertex Colors\0Vertex Normals\0Vertex UVs\0"};
         if(Combo("Shader Output", &sSelected, sSelectableNames))
-            { RendererAPI::sShaderDebugOutput = static_cast<ushort>(sSelected); }
+            { Console::SetVariable("BlinnPhong.debug_visual", sSelected); }
     }
     if(CollapsingHeader("Engine"))
     {

@@ -6,7 +6,6 @@
 #include "things/resources/font.hpp"
 #include "things/thinkers/3d/light_3d.hpp"
 #include "application/application.hpp"
-#include "rendering/debugging.hpp"
 #include "rendering/texture_buffer.hpp" // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/vertex_array.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
 #include "rendering/frame_buffer.hpp"   // IWYU pragma: keep // idk why clangd says these are unused
@@ -14,10 +13,6 @@
 #include "thirdparty/glad/glad.h"
 
 #define LOCK_MUTEX(MUTEX) LockGuard<RMutex> MUTEX##_lock{MUTEX};
-
-bool gPrintDrawLogs{false};
-bool gOpenGLEnableNotificationMesssages{false};
-DebugMessageSeverityFilter gOpenGLMessageFilter{DebugMessageSeverityFilter::High};
 
 static constinit const float TEXT_UVS[12]{0,1, 0,0, 1,0, 0,1, 1,0, 1,1};
 static bool sWireframe{};
@@ -74,6 +69,8 @@ void OpenGLRendererAPI::Init()
     glVertexArrayAttribFormat(mTextVAO, 1, 2, GL_FLOAT, GL_FALSE, 0);
     glVertexArrayAttribBinding(mTextVAO, 0, 0);
     glVertexArrayAttribBinding(mTextVAO, 1, 1);
+
+    Console::SetVariable("OpenGLMessageFilter", static_cast<int>(HIGH_SEVERITY));
 
     mInitialized = true;
 }
@@ -378,27 +375,27 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
     switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
-        if(gOpenGLMessageFilter < DebugMessageSeverityFilter::High)
+        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::HIGH_SEVERITY)
             { return; }
         _severity = "HIGH";
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-        if(gOpenGLMessageFilter < DebugMessageSeverityFilter::Medium)
+        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::MEDIUM_SEVERITY)
             { return; }
         _severity = "MEDIUM";
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        if(gOpenGLMessageFilter < DebugMessageSeverityFilter::Low)
+        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::LOW_SEVERITY)
             { return; }
         _severity = "LOW";
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        if(!gOpenGLEnableNotificationMesssages)
+        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::NOTIFICATIONS)
             { return; }
         _severity = "NOTIFICATION";
         break;
     default:
-        if(gOpenGLMessageFilter == DebugMessageSeverityFilter::None)
+        if(Console::GetVariable("OpenGLMessageFilter").int_value == OpenGLRendererAPI::NO_MESSAGES)
             { return; }
         _severity = "UNKNOWN";
         break;

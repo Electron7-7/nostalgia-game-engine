@@ -92,6 +92,10 @@ Shared<ThingData> Camera3D::GetVariables() const
 
 void Camera3D::DrawBackground() const
 {
+    bool _nodraw(Console::GetVariable("nodraw_3d").int_value);
+    bool _drawbg(Console::GetVariable("debug.draw_3d_bg").int_value);
+    if(_nodraw and not _drawbg)
+        { return; }
     FAUTO renderer_api{RendererAPI::Get()};
     if(mEnvironment.mType == Environment::BG_SKYBOX)
     {
@@ -118,6 +122,8 @@ void Camera3D::DrawBackground() const
 
 void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
 {
+    if(Console::GetVariable("nodraw_3d").int_value)
+        { return; }
     FAUTO renderer_api{RendererAPI::Get()};
     auto shader{renderer_api->GetShader(Shaders::Fullbright)};
     auto view_matrix{ViewMatrix()};
@@ -206,7 +212,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     shader->SetUniform("model_matrix", model_matrix);
     shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
     shader->SetUniform("projection_matrix", projection_matrix);
-    shader->SetUniform("debug_output", static_cast<int>(RendererAPI::sShaderDebugOutput));
+    shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
     shader->SetUniform("point_lights_count", PointLight3D::GetCount());
     shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
     shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());

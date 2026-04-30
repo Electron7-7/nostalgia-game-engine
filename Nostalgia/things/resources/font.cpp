@@ -77,8 +77,6 @@ void Font::LoadFont()
         }
         else if(not g->bitmap.width or not g->bitmap.rows)
         {
-            if(Console::GetVariable("Font.debug_empty_glyph")->int_value)
-                { print_debug("Ignoring glyph #{} ('{}') as either its width or height are 0", c, (char)c); }
             continue;
         }
 
