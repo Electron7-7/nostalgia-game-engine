@@ -85,13 +85,13 @@ bool ResourceManager::Init()
             std::size(Models::Ramiel), ArrayMesh::MODEL_OBJ), "RamielModel");
     UID::t_Missing =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
-            {Images::Missing, std::size(Images::Missing)})), "MissingImage");
+            {Images::Missing, std::size(Images::Missing)})), "MissingTexture");
     UID::t_COMP04_5 =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
-            {Images::COMP04_5, std::size(Images::COMP04_5)})), "DoomImage");
+            {Images::COMP04_5, std::size(Images::COMP04_5)})), "DoomTexture");
     UID::t_LolBit =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
-            {Images::LolBit, std::size(Images::LolBit)})), "LolBitImage");
+            {Images::LolBit, std::size(Images::LolBit)})), "LolBitTexture");
     UID::t_ShittySkybox =
         ResourceDatabase::Register(Cubemap::CreateFromImages({
             Image::CreateFromFile({Images::SkyboxXp, std::size(Images::SkyboxXp)}),

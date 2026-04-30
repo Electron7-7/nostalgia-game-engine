@@ -39,7 +39,7 @@ ArrayMesh IcoSphere
     using '=' to visually separate the name and value. ///
 Material LolBitMaterial
 {
-    DiffuseTexture <LolBitImage>
+    DiffuseTexture <LolBitTexture>
     /// This is an "Enum" variable. It references enums that are registered to the
         VariableRegistry's global enum registry. The string name used to register an enum is
         what is used when defining an enum variable. ///
@@ -110,7 +110,7 @@ Material StupidMaterial
 }
 
 Material DoomMaterial
-{ DiffuseTexture = <DoomImage> }
+{ DiffuseTexture = <DoomTexture> }
 
 Ramiel Ramiel
 {
@@ -222,7 +222,7 @@ TestAnimatedSprite2D TestSprite
 {
     Texture0 = <TestTexture1>
     Texture1 = <TestTexture2>
-    Texture2 = <DoomImage>
+    Texture2 = <DoomTexture>
     Position = [250, -250]
     Size = [2, 2]
     Interval = [50]
