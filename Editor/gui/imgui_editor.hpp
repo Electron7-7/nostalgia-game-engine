@@ -27,11 +27,11 @@ private:
         m_sLastAttemptedTheatreFilePath;
     static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
-    static bool m_sTheatreRunning, m_sInspectingNewThinker, m_sInspectingNewResource, m_sAddThing;
+    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing;
     static std::unordered_map<PID, Shared<ImageTexture>> m_sEditorIcons;
     static std::unordered_set<ID> m_sEditorIconUIDs;
 
-    ID mInspectingResourceUID{}, mInspectingThinkerUID{};
+    ID mInspectingThingUID{};
     TheatreFile::TheatreData mEditorTheatreData{};
 
     void Viewport3DWindow();
@@ -42,9 +42,8 @@ private:
     void ThingAdder();
     void TheatreViewport();
     void TheatreInspector();
-    void InspectThinker();
-    void InspectResource();
     void SelectThing(const char* inLabel, ID& ioUID, bool& outChanged);
+    void InspectThing();
     bool InspectThing(ID inUID, Farg<Shared<TheatreFile::ThingData>> inData, TheatreFile::ThingData& outData);
     bool _select_thing(ID);
     void _thinker_tree_branch(ID);

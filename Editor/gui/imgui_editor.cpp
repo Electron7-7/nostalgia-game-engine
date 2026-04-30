@@ -40,8 +40,7 @@ std::string ImGui_Editor::m_sScreenshotFilePath{"NostalgiaGoggles_Screenshot.jpg
     ImGui_Editor::m_sTheatreFileSavePath{"theatres/SavedTheatre.nt"},
     ImGui_Editor::m_sLastAttemptedTheatreFilePath{m_sTheatreFilePath};
 bool ImGui_Editor::m_sTheatreRunning{false},
-    ImGui_Editor::m_sInspectingNewThinker{false},
-    ImGui_Editor::m_sInspectingNewResource{false},
+    ImGui_Editor::m_sInspectingNewThing{false},
     ImGui_Editor::m_sAddThing{false};
 std::unordered_map<PID, Shared<ImageTexture>> ImGui_Editor::m_sEditorIcons{};
 std::unordered_set<ID> ImGui_Editor::m_sEditorIconUIDs{};
@@ -142,10 +141,7 @@ void ImGui_Editor::TheatreEntered()
 }
 
 void ImGui_Editor::TheatreExited()
-{
-    mInspectingResourceUID = {};
-    mInspectingThinkerUID = {};
-}
+{ mInspectingThingUID = {}; }
 
 void ImGui_Editor::Input(InputEvent* event)
 {
@@ -328,7 +324,7 @@ void ImGui_Editor::TheatreViewport()
 void ImGui_Editor::TheatreInspector()
 {
     if(not Theatre::Current()->IsStarted())
-        { mInspectingResourceUID = mInspectingThinkerUID = ID::Invalid; }
+        { mInspectingThingUID = ID::Invalid; }
     else
     {
         BeginChild("TheatreInspector");
@@ -338,8 +334,8 @@ void ImGui_Editor::TheatreInspector()
                 {
                     if(_select_thing(uid))
                     {
-                        mInspectingResourceUID   = uid;
-                        m_sInspectingNewResource = true;
+                        mInspectingThingUID   = uid;
+                        m_sInspectingNewThing = true;
                     }
                 }
             }
@@ -353,10 +349,8 @@ void ImGui_Editor::TheatreInspector()
                     _thinker_tree_branch(uid);
                 }
             }
-            if(not mInspectingThinkerUID.invalid())
-                { InspectThinker(); }
-            if(not mInspectingResourceUID.invalid())
-                { InspectResource(); }
+            if(not mInspectingThingUID .invalid())
+                { InspectThing(); }
         EndChild();
     }
 }
@@ -390,8 +384,8 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
         SameLine();
         if(_select_thing(inUID))
         {
-            mInspectingThinkerUID   = inUID;
-            m_sInspectingNewThinker = true;
+            mInspectingThingUID   = inUID;
+            m_sInspectingNewThing = true;
         }
         for(ID child : children)
             { _thinker_tree_branch(child); }
@@ -402,8 +396,8 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
         SameLine();
         if(_select_thing(inUID))
         {
-            mInspectingThinkerUID   = inUID;
-            m_sInspectingNewThinker = true;
+            mInspectingThingUID   = inUID;
+            m_sInspectingNewThing = true;
         }
     }
 }
