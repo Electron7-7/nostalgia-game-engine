@@ -68,15 +68,11 @@ void Font::LoadFont()
     FT_Set_Pixel_Sizes(face, 0, mFontSize);
 
     FT_GlyphSlot g = face->glyph;
-    for(u_char c{33}; c < 128; ++c)
+    for(u_char c{0}; c < 128; ++c)
     {
         if(FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             print_warning("FreeType failed to load Glyph for character '{}'", (char)c);
-            continue;
-        }
-        else if(not g->bitmap.width or not g->bitmap.rows)
-        {
             continue;
         }
 
@@ -86,8 +82,8 @@ void Font::LoadFont()
             TextureBuffer::Create(
                 {
                     TEXTURE_TYPE_2D,
-                    static_cast<int>(g->bitmap.width),
-                    static_cast<int>(g->bitmap.rows),
+                    static_cast<int>((g->bitmap.width) ? g->bitmap.width : 1),
+                    static_cast<int>((g->bitmap.rows)  ? g->bitmap.rows  : 1),
                     DATA_FORMAT_RED
                 }),
             c
