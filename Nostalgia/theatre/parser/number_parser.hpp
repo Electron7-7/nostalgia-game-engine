@@ -1,6 +1,35 @@
 #ifndef NUMBER_PARSER_H
 #define NUMBER_PARSER_H
 
+inline bool IsFloat(Sarg inString)
+{
+    char* _ptr{};
+    strtof(inString.data(), &_ptr);
+    return (*_ptr) == '\0';
+}
+
+inline bool IsInt(Sarg inString)
+{
+    char* _ptr{};
+    strtol(inString.data(), &_ptr, 10);
+    return (*_ptr) == '\0';
+}
+
+inline std::string GetLowercase(Sarg inString)
+{
+    std::string _val{inString};
+    // https://stackoverflow.com/a/313990
+    std::transform(_val.begin(), _val.end(), _val.begin(),
+        [](unsigned char character){ return std::tolower(character); });
+    return _val;
+}
+
+inline bool IsBool(Sarg inString)
+{
+    std::string _val{GetLowercase(inString)};
+    return _val == "false" or _val == "true";
+}
+
 template<GLMContainer T>
     consteval ushort gGlmSize()
     {
