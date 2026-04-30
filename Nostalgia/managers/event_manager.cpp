@@ -2,17 +2,24 @@
 #include "events/event_queue.hpp"
 #include "application/application.hpp"
 
-static EventQueue sEventQueue{};
+#define LOCK_ACTIVE  LockGuard<RMutex> _lock{m_sActiveQueueMutex};
+#define LOCK_PASSIVE LockGuard<RMutex> _lock{m_sPassiveQueueMutex};
+
+static EventQueue sActiveQueue{}, sPassiveQueue{};
 static EventManager sEventManager{};
 EventManager* g_pEventManager{&sEventManager};
 bool gPrintEventLogs{false};
 
-bool EventManager::Init()
-{ return true; }
-
 void EventManager::Update()
 {
-    for(auto iter{sEventQueue.get().begin()}; iter != sEventQueue.get().end();)
+    LOCK_PASSIVE
+    {
+        LOCK_ACTIVE
+        sPassiveQueue = sActiveQueue;
+        sActiveQueue.clear();
+    }
+
+    for(auto iter{sPassiveQueue.get().begin()}; iter != sPassiveQueue.get().end();)
     {
         Application()->Event(iter->get());
         Manager::InvokeEvent(iter->get());
@@ -25,9 +32,12 @@ void EventManager::Update()
                 {"<EVENT>",{ANSI::cyan,true,true}},
                 iter->get()->DebugLog());
         }
-        iter = sEventQueue.get().erase(iter);
+        iter = sPassiveQueue.get().erase(iter);
     }
 }
 
 EventQueue* EventManager::Queue()
-{ return &sEventQueue; }
+{
+    LOCK_ACTIVE
+    return &sActiveQueue;
+}

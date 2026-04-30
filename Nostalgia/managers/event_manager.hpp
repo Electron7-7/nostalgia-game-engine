@@ -8,10 +8,12 @@ class EventManager : public Manager
 {
 public:
     constexpr const char* DebugName() final { return "EventManager"; }
-    bool Init()   override;
     void Update() override;
 
     static EventQueue* Queue();
+
+private:
+    inline static RMutex m_sActiveQueueMutex{}, m_sPassiveQueueMutex{};
 };
 
 extern bool gPrintEventLogs;

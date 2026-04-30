@@ -8,6 +8,12 @@ using event_queue_t = std::vector<Shared<IEvent>>;
 class EventQueue
 {
 public:
+    constexpr EventQueue& operator=(Farg<EventQueue> inCopy) noexcept
+    {
+        mEvents = inCopy.mEvents;
+        return *this;
+    }
+
     event_queue_t& get() noexcept;
     std::recursive_mutex& get_mutex() noexcept;
     bool empty() noexcept;
