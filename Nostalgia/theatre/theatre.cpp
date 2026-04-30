@@ -49,8 +49,12 @@ Shared<Image> Theatre::TakeScreenshot(ID inViewportUID)
 {
     LOCK_THINGS;
     LOCK_CALLSHEET;
-    if(inViewportUID.invalid())
-        { return RendererAPI::Get()->GetFullScreenshot(); }
+    if(auto found_it{mThings.find(inViewportUID)}; found_it != mThings.end())
+    {
+        if(auto _viewport{DCast<Viewport>(found_it->second)})
+            { return _viewport->GetImage(); }
+    }
+    return RendererAPI::Get()->GetFullScreenshot();
 }
 
 void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
