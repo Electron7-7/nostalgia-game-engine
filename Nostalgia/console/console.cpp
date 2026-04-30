@@ -1,200 +1,238 @@
 #include "./console.hpp"
 #include "thirdparty/frozen/set.h"
 
+#define LOCK_CMDS LockGuard<RMutex> _cmds_lock{sCommandsMutex};
+#define LOCK_HIST LockGuard<RMutex> _hist_lock{sHistoryMutex };
+
 using namespace Console;
 
-static ConsoleCommandCallback_f sCommandCallback{nullptr};
-static Shared<Variable> sEmptyVariable{MakeShared<Variable>()};
+struct ConsoleToken
+{
+    enum Type : int
+    { VARIABLE, INT_DEF, BOOL_DEF, FLOAT_DEF, STR_DEF, NONE };
+
+    std::string token{""};
+    Type type{NONE};
+};
+
+static RMutex sCommandsMutex{}, sHistoryMutex{};
+static bool sInitialized{false};
+static const Variable sEmptyVariable{""};
 static constexpr frozen::set<char, 4> sWhitespace{' ', '\t', '\n', '\r'};
-static Commands
-sCommands{
-    "noclip",
-};
-static std::set<std::string>
-sVariableNames{
-    "Theatre.draw_3d",
-    "Theatre.draw_2d",
-    "Theatre.debug_save_msgs",
-    "Theatre.debug_create_thing_msgs",
-    "Theatre.debug_callsheet_msgs",
-    "Theatre.draw_text_new",
-    "TheatreFile.Parser.print_declarations",
-    "TheatreFile.Parser.print_name_type_map",
-    "ThingFactory.debug_register_msgs",
-    "ResourceDatabase.debug_register_msgs",
-    "Collider3D.debug_collision_msgs",
-    "Collider3D.debug_collision_persisted_msgs",
-    "Font.debug_empty_glyph",
-};
-static Variables
-sVariables{
-    MakeShared<Variable>("Theatre.draw_3d", true),
-    MakeShared<Variable>("Theatre.draw_2d", true),
-    MakeShared<Variable>("Theatre.draw_text_new", false),
-    MakeShared<Variable>("Theatre.debug_save_msgs", false),
-    MakeShared<Variable>("Theatre.debug_create_thing_msgs", false),
-    MakeShared<Variable>("TheatreFile.Parser.print_declarations", false),
-    MakeShared<Variable>("TheatreFile.Parser.print_name_type_map", false),
-    MakeShared<Variable>("Theatre.debug_callsheet_msgs", false),
-    MakeShared<Variable>("ThingFactory.debug_register_msgs", false),
-    MakeShared<Variable>("ResourceDatabase.debug_register_msgs", false),
-    MakeShared<Variable>("Collider3D.debug_collision_msgs", false),
-    MakeShared<Variable>("Collider3D.debug_collision_persisted_msgs", false),
-    MakeShared<Variable>("Font.debug_empty_glyph", false),
-};
 
-static Error sProcessEngineCommand(Sarg);
+static uint        sHistoryMaxSize{4815}; // 162342
+static History_t   sHistory{};
+static Commands_t  sCommands{};
+static Variables_t sVariables{};
+static Callbacks_t sCallbacks{};
 
-void Console::SetCommandCallback(ConsoleCommandCallback_f inCallback)
-{ sCommandCallback = inCallback; }
+void Console::Init()
+{
+    if(sInitialized)
+        { return; }
+
+    SetVariable("Theatre.draw_3d", true);
+    SetVariable("Theatre.draw_2d", true);
+    SetVariable("Theatre.draw_text_new", false);
+    SetVariable("Theatre.debug_save_msgs", false);
+    SetVariable("Theatre.debug_create_thing_msgs", false);
+    SetVariable("TheatreFile.Parser.print_declarations", false);
+    SetVariable("TheatreFile.Parser.print_name_type_map", false);
+    SetVariable("Theatre.debug_callsheet_msgs", false);
+    SetVariable("ThingFactory.debug_register_msgs", false);
+    SetVariable("ResourceDatabase.debug_register_msgs", false);
+    SetVariable("Collider3D.debug_collision_msgs", false);
+    SetVariable("Collider3D.debug_collision_persisted_msgs", false);
+    SetVariable("nodraw_3d", false);
+    SetVariable("nodraw_3d_foreground", false);
+    SetVariable("nodraw_3d_background", false);
+    AddCommand("noclip");
+
+    sInitialized = true;
+}
+
+void Console::AddCallback(ConsoleCommandCallback_f inCallback)
+{
+    LOCK_CMDS
+    sCallbacks.push_back(inCallback);
+}
+
+void Console::RemoveCallback(ConsoleCommandCallback_f inCallback)
+{
+    LOCK_CMDS
+    if(auto found_it{std::find(sCallbacks.begin(), sCallbacks.end(), inCallback)}; found_it != sCallbacks.end())
+        { sCallbacks.erase(found_it); }
+}
 
 Error Console::ProcessLine(Sarg inInput)
 {
-    std::string buffer{};
-    std::vector<std::string> shitty_tokens{};
+    {
+        LOCK_HIST
+        if(sHistory.size() == sHistoryMaxSize)
+            { sHistory.pop_back(); }
+        sHistory.push_back(inInput);
+    }
+
+    std::string buffer{}, variable_name{};
+    std::vector<ConsoleToken> shitty_tokens{};
+    bool _in_string{false};
     for(char character : inInput)
     {
-        if(sWhitespace.contains(character))
+        if(character == '"' or character == '\'')
         {
-            shitty_tokens.push_back(buffer);
+            _in_string = not _in_string;
+            if(not _in_string)
+            {
+                shitty_tokens.emplace_back(buffer, ConsoleToken::STR_DEF);
+                buffer.clear();
+            }
+            continue;
+        }
+        else if(character == '=' and not _in_string)
+        {
+            shitty_tokens.emplace_back(buffer, ConsoleToken::VARIABLE);
+            variable_name = buffer;
             buffer.clear();
+            continue;
+        }
+        else if((sWhitespace.contains(character) and not _in_string) or character == inInput.back())
+        {
+            if(buffer.empty() and character == inInput.back() and not sWhitespace.contains(character))
+                { buffer += character; }
+            if(not variable_name.empty() and not buffer.empty())
+            {
+                if(IsInt(buffer))
+                    { shitty_tokens.emplace_back(buffer, ConsoleToken::INT_DEF); }
+                else if(IsFloat(buffer))
+                    { shitty_tokens.emplace_back(buffer, ConsoleToken::FLOAT_DEF); }
+                else if(IsBool(buffer))
+                    { shitty_tokens.emplace_back(GetLowercase(buffer), ConsoleToken::BOOL_DEF); }
+                else
+                    { shitty_tokens.emplace_back(buffer, ConsoleToken::STR_DEF); }
+                buffer.clear();
+                variable_name.clear();
+            }
             continue;
         }
         buffer += character;
     }
-    shitty_tokens.push_back(buffer);
-    for(int i{0}; i < shitty_tokens.size(); ++i)
+    std::string _variable_name{};
+    float _f_value{};
+    int   _i_value{};
+    for(FAUTO token : shitty_tokens)
     {
-        if(sVariableNames.contains(shitty_tokens[i]))
+        if(sCommands.contains(token.token))
         {
-            auto variable{GetVariable(shitty_tokens[i])};
-            while(i < shitty_tokens.size() and shitty_tokens[i].compare("=")) { ++i; }
-            if(++i < shitty_tokens.size())
-            {
-                std::string value{shitty_tokens[i]};
-                switch(variable->type)
-                {
-                case Variable::STRING_TYPE:
-                    variable->string_value = value;
-                    break;
-                case Variable::FLOAT_TYPE:
-                    StringToNum(variable->float_value, value);
-                    break;
-                case Variable::INTEGER_TYPE:
-                    StringToNum(variable->int_value, value);
-                    break;
-                }
-            }
+            LOCK_CMDS
+            for(FAUTO callback : sCallbacks)
+                { callback(token.token); }
+            continue;
         }
-        else if(sCommands.contains(shitty_tokens[i]))
+        switch(token.type)
         {
-            sProcessEngineCommand(shitty_tokens[i]);
-            if(sCommandCallback) { sCommandCallback(shitty_tokens[i]); }
-            return OK;
+        case ConsoleToken::VARIABLE:
+            _variable_name = token.token;
+            [[fallthrough]];
+        case ConsoleToken::NONE:
+            continue;
+        case ConsoleToken::FLOAT_DEF:
+            if(StringToNum(_f_value, token.token))
+                { SetVariable(_variable_name, _f_value); }
+            break;
+        case ConsoleToken::INT_DEF:
+            if(StringToNum(_i_value, token.token))
+                { SetVariable(_variable_name, _i_value); }
+            break;
+        case ConsoleToken::BOOL_DEF:
+            SetVariable(_variable_name, static_cast<int>(token.token == "true"));
+            break;
+        case ConsoleToken::STR_DEF:
+            SetVariable(_variable_name, token.token);
+            break;
         }
+        _variable_name.clear();
     }
     return FAILED;
 }
 
-Shared<Variable> Console::GetVariable(Sarg inName)
+History_t Console::GetHistory(uint inFrom)
 {
-    if(sVariables.empty() or !sVariableNames.contains(inName))
-        { return sEmptyVariable; }
-    for(FAUTO var : sVariables)
-        { if(!var->name.compare(inName)) { return var; } }
+    LOCK_HIST
+    if(inFrom > sHistory.size() or inFrom > sHistoryMaxSize)
+        { inFrom = sHistoryMaxSize - 1; }
+    return {sHistory.begin() + inFrom, sHistory.end()};
+}
+
+void Console::ClearHistory(uint inFrom)
+{
+    LOCK_HIST
+    if(inFrom > sHistory.size() or inFrom > sHistoryMaxSize)
+        { inFrom = sHistory.size() - 1; }
+    sHistory.erase(sHistory.begin() + inFrom, sHistory.end());
+}
+
+std::string Console::GetLine(uint inAt)
+{
+    LOCK_HIST
+    if(inAt > sHistory.size() or inAt > sHistoryMaxSize)
+        { inAt = sHistory.size() - 1; }
+    return sHistory[inAt];
+}
+
+void Console::SetHistoryMaxSize(uint inSize)
+{
+    LOCK_HIST
+    sHistory.resize(sHistoryMaxSize = inSize);
+}
+
+uint Console::GetHistoryMaxSize()
+{
+    LOCK_HIST
+    return sHistoryMaxSize;
+}
+
+Farg<Variable> Console::GetVariable(Sarg inName)
+{
+    if(auto found_it{sVariables.find(inName)}; found_it != sVariables.end())
+        { return *found_it; }
     return sEmptyVariable;
 }
 
-Error Console::GetVariable(Sarg inName, Shared<Variable>& outVariable)
+void Console::SetVariable(Sarg inVariableName, Farg<int> inValue)
 {
-    if(sVariables.empty())
-        { return ERR_EMPTY; }
-    else if(!sVariableNames.contains(inName))
-        { return ERR_NOT_FOUND; }
-    for(FAUTO var : sVariables)
-    {
-        if(!var->name.compare(inName))
-        {
-            outVariable = var;
-            return OK;
-        }
-    }
-    return ERR_NOT_FOUND;
+    sVariables.erase(inVariableName);
+    sVariables.emplace(inVariableName, inValue);
 }
 
-Error Console::SetVariable(Sarg inName, Sarg inValue)
+void Console::SetVariable(Sarg inVariableName, Farg<bool> inValue)
 {
-    if(sVariables.empty())
-        { return ERR_EMPTY; }
-    else if(!sVariableNames.contains(inName))
-        { return ERR_NOT_FOUND; }
-    for(FAUTO var : sVariables)
-        { if(!var->name.compare(inName)) { var->string_value = inValue; } }
-    return OK;
+    sVariables.erase(inVariableName);
+    sVariables.emplace(inVariableName, inValue);
 }
 
-Error Console::SetVariable(Sarg inName, int inValue)
+void Console::SetVariable(Sarg inVariableName, Farg<float> inValue)
 {
-    if(sVariables.empty())
-        { return ERR_EMPTY; }
-    else if(!sVariableNames.contains(inName))
-        { return ERR_NOT_FOUND; }
-    for(FAUTO var : sVariables)
-        { if(!var->name.compare(inName)) { var->int_value = inValue; } }
-    return OK;
+    sVariables.erase(inVariableName);
+    sVariables.emplace(inVariableName, inValue);
 }
 
-Error Console::SetVariable(Sarg inName, float inValue)
+void Console::SetVariable(Sarg inVariableName, Sarg inValue)
 {
-    if(sVariables.empty())
-        { return ERR_EMPTY; }
-    else if(!sVariableNames.contains(inName))
-        { return ERR_NOT_FOUND; }
-    for(FAUTO var : sVariables)
-        { if(!var->name.compare(inName)) { var->float_value = inValue; } }
-    return OK;
-}
-
-Error Console::AddVariable(Sarg inName, Sarg inInitialValue)
-{
-    if(sVariableNames.contains(inName))
-        { return ERR_ALREADY_EXISTS; }
-    sVariableNames.insert(inName);
-    sVariables.push_back(MakeShared<Variable>(inName, inInitialValue));
-    return OK;
-}
-
-Error Console::AddVariable(Sarg inName, int inInitialValue)
-{
-    if(sVariableNames.contains(inName))
-        { return ERR_ALREADY_EXISTS; }
-    sVariableNames.insert(inName);
-    sVariables.push_back(MakeShared<Variable>(inName, inInitialValue));
-    return OK;
-}
-
-Error Console::AddVariable(Sarg inName, float inInitialValue)
-{
-    if(sVariableNames.contains(inName))
-        { return ERR_ALREADY_EXISTS; }
-    sVariableNames.insert(inName);
-    sVariables.push_back(MakeShared<Variable>(inName, inInitialValue));
-    return OK;
+    sVariables.erase(inVariableName);
+    sVariables.emplace(inVariableName, inValue);
 }
 
 Error Console::RemoveVariable(Sarg inName)
 {
-    if(sVariables.empty())
-        { return ERR_EMPTY; }
-    else if(!sVariableNames.contains(inName))
-        { return ERR_NOT_FOUND; }
-    for(auto iter{sVariables.begin()}; iter != sVariables.end(); ++iter)
-        { if(!iter->get()->name.compare(inName)) { sVariables.erase(iter); } }
-    sVariableNames.erase(inName);
-    return OK;
+    if(auto found_it{sVariables.find(inName)}; found_it != sVariables.end())
+    {
+        sVariables.erase(inName);
+        return OK;
+    }
+    return ERR_NOT_FOUND;
 }
 
-Farg<Variables> Console::GetVariables()
+Farg<Variables_t> Console::GetAllVariables()
 { return sVariables; }
 
 Error Console::AddCommand(Sarg inCommand)
@@ -213,10 +251,5 @@ Error Console::RemoveCommand(Sarg inCommand)
             : ERR_NOT_FOUND;
 }
 
-Farg<Commands> Console::GetCommands()
+Farg<Commands_t> Console::GetAllCommands()
 { return sCommands; }
-
-Error sProcessEngineCommand(Sarg inCommand)
-{
-    return OK;
-}
