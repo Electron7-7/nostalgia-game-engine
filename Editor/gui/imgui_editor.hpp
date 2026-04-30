@@ -32,7 +32,6 @@ private:
     static std::unordered_set<ID> m_sEditorIconUIDs;
 
     ID mInspectingResourceUID{}, mInspectingThinkerUID{};
-    std::string mInspectingThinkerName{}, mInspectingResourceName{};
     TheatreFile::TheatreData mEditorTheatreData{};
 
     void Viewport3DWindow();
@@ -47,7 +46,7 @@ private:
     void InspectResource();
     void SelectThing(const char* inLabel, ID& ioUID, bool& outChanged);
     bool InspectThing(ID inUID, Farg<Shared<TheatreFile::ThingData>> inData, TheatreFile::ThingData& outData);
-    void _select_thing(ID, ID&);
+    bool _select_thing(ID);
     void _thinker_tree_branch(ID);
 };
 

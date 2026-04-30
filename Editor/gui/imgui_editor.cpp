@@ -144,7 +144,10 @@ void ImGui_Editor::TheatreEntered()
 }
 
 void ImGui_Editor::TheatreExited()
-{}
+{
+    mInspectingResourceUID = {};
+    mInspectingThinkerUID = {};
+}
 
 void ImGui_Editor::Input(InputEvent* event)
 {
@@ -285,7 +288,7 @@ void ImGui_Editor::Update()
 
 void ImGui_Editor::LoadEditorTheatre(bool inContinue)
 {
-    sEditorJustLoaded = Settings::Engine::IsEditorHint = true;
+    sEditorJustLoaded = Settings::Engine::IsEditorHint;
     g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
     if(inContinue)
         { g_pTheatreManager->LoadFromData(mEditorTheatreData); }
@@ -334,7 +337,13 @@ void ImGui_Editor::TheatreInspector()
             if(CollapsingHeader("Resources"))
             {
                 for(FAUTO uid : Theatre::Current()->ResourceUIDs())
-                    { _select_thing(uid, mInspectingResourceUID); }
+                {
+                    if(_select_thing(uid))
+                    {
+                        mInspectingResourceUID   = uid;
+                        m_sInspectingNewResource = true;
+                    }
+                }
             }
             SetNextItemOpen(true, ImGuiCond_Once);
             if(CollapsingHeader("Thinkers"))
@@ -354,7 +363,7 @@ void ImGui_Editor::TheatreInspector()
     }
 }
 
-void ImGui_Editor::_select_thing(ID inUID, ID& outUID)
+bool ImGui_Editor::_select_thing(ID inUID)
 {
     auto _thing{Theatre::Current()->GetThing(inUID)};
     ImGui::Image((ImTextureRef)GetIconTextureBufferID(Theatre::Current()->TypeOf(inUID)),
@@ -364,10 +373,14 @@ void ImGui_Editor::_select_thing(ID inUID, ID& outUID)
     SameLine();
     PushID(inUID());
     if(Button(_thing->c_name(), {0, 30}))
-        { outUID = inUID; }
+    {
+        PopID();
+        return true;
+    }
     PopID();
     if(auto _thinker{DCast<Thinker>(_thing)})
         { _thinker->IsHighlighted(IsItemHovered()); }
+    return false;
 }
 
 void ImGui_Editor::_thinker_tree_branch(ID inUID)
@@ -377,7 +390,11 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
         (children.empty()) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None))
     {
         SameLine();
-        _select_thing(inUID, mInspectingThinkerUID);
+        if(_select_thing(inUID))
+        {
+            mInspectingThinkerUID   = inUID;
+            m_sInspectingNewThinker = true;
+        }
         for(ID child : children)
             { _thinker_tree_branch(child); }
         TreePop();
@@ -385,7 +402,11 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
     else
     {
         SameLine();
-        _select_thing(inUID, mInspectingThinkerUID);
+        if(_select_thing(inUID))
+        {
+            mInspectingThinkerUID   = inUID;
+            m_sInspectingNewThinker = true;
+        }
     }
 }
 
@@ -559,43 +580,41 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
 {
     static const int _max_per_row{3};
     static std::string _name_input{};
-    PushID(ioUID());
-        if(Button(inLabel))
-            { OpenPopup("Thing Selection"); }
-        if(BeginPopup("Thing Selection"))
-        {
-            InputText("Search", &_name_input);
+    auto _label{std::format("Thing Selection##{}", ioUID())};
+    if(Button(inLabel))
+        { OpenPopup(_label.data()); }
+    if(BeginPopup(_label.data()))
+    {
+        InputText("Search", &_name_input);
 
-            auto _theatre_uids{Theatre::Current()->ThingUIDs()};
-            size_t _back_of_theatre{_theatre_uids.size()};
-            auto _resource_uids{ResourceDatabase::GetUIDs()};
-            _theatre_uids.insert(_theatre_uids.cend(), _resource_uids.cbegin(), _resource_uids.cend());
-            int _counter{0};
-            for(size_t i{0}; i < _theatre_uids.size(); ++i)
+        auto _theatre_uids{Theatre::Current()->ThingUIDs()};
+        size_t _back_of_theatre{_theatre_uids.size()};
+        auto _resource_uids{ResourceDatabase::GetUIDs()};
+        _theatre_uids.insert(_theatre_uids.cend(), _resource_uids.cbegin(), _resource_uids.cend());
+        int _counter{0};
+        for(size_t i{0}; i < _theatre_uids.size(); ++i)
+        {
+            ID uid{_theatre_uids.at(i)};
+            if(uid == _theatre_uids.front())
+                { SeparatorText("Theatre"); }
+            else if(i == _back_of_theatre)
+                { SeparatorText("ResourceDatabase"); }
+            std::string _name{Theatre::Current()->GetName(uid)};
+            if(_name.empty() or
+                (not _name_input.empty() and not GetLowercase(_name).contains(GetLowercase(_name_input))))
+                { continue; }
+            if(Button(_name.data(), {(700.0f / _max_per_row) - 5.0f, 0.0f}))
             {
-                ID uid{_theatre_uids.at(i)};
-                if(uid == _theatre_uids.front())
-                    { SeparatorText("Theatre"); }
-                else if(i == _back_of_theatre)
-                    { SeparatorText("ResourceDatabase"); }
-                std::string _name{Theatre::Current()->GetName(uid)};
-                if(_name.empty() or
-                    (not _name_input.empty() and not JPH::ToLower(_name).contains(JPH::ToLower(_name_input))))
-                    { continue; }
-                if(Button(_name.data(), {(700.0f / _max_per_row) - 5.0f, 0.0f}))
-                {
-                    EndPopup();
-                    PopID();
-                    ioUID = uid;
-                    outChanged = true;
-                    _name_input.clear();
-                    return;
-                }
-                Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
-                if(++_counter < _max_per_row and i+1 != _back_of_theatre) { SameLine(); }
-                else { _counter = 0; }
+                EndPopup();
+                ioUID = uid;
+                outChanged = true;
+                _name_input.clear();
+                return;
             }
-            EndPopup();
+            Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
+            if(++_counter < _max_per_row and i+1 != _back_of_theatre) { SameLine(); }
+            else { _counter = 0; }
         }
-    PopID();
+        EndPopup();
+    }
 }
