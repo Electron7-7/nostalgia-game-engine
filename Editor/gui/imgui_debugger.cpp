@@ -71,6 +71,7 @@ static std::vector<StopwatchLog> sManualStopwatchLogs{};
 static std::vector<StopwatchLog> sStopwatchLogs{};
 static std::set<int>             sStopwatchLogIds{};
 
+static void s_ConsoleVariableCheckbox(Sarg inVariableName, Sarg inCheckboxTitle, bool inInverseValue = false);
 static void s_GeneralDebuggingWindow();
 static void s_FPSCounter();
 
@@ -266,30 +267,32 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Event Logs", &gPrintEventLogs);
             Checkbox("Print Input Logs", &gPrintInputLogs);
         SeparatorText("Theatre");
-            static auto save_msgs{Console::GetVariable("Theatre.debug_save_msgs")};
-            bool save_msgs_b{(bool)save_msgs.int_value};
-            if(Checkbox("Print TheatreFile Save Progress", &save_msgs_b))
-                { Console::SetVariable("Theatre.debug_save_msgs", save_msgs_b); }
-            static bool _print_fwd{static_cast<bool>(
-                Console::GetVariable("TheatreFile.Parser.print_declarations").int_value)};
-            if(Checkbox("Print Parsed Forward Declarations", &_print_fwd))
-                { Console::SetVariable("TheatreFile.Parser.print_declarations", _print_fwd); }
-            static bool _print_name_type_map{static_cast<bool>(
-                Console::GetVariable("TheatreFile.Parser.print_name_type_map").int_value)};
-            if(Checkbox("Print Parsed Name/Type Map", &_print_name_type_map))
-                { Console::SetVariable("TheatreFile.Parser.print_name_type_map", _print_name_type_map); }
+            s_ConsoleVariableCheckbox("Print TheatreFile Save Progress",
+                "Theatre.debug_save_msgs");
+            s_ConsoleVariableCheckbox("Print Parsed Forward Declarations",
+                "TheatreFile.Parser.print_declarations");
+            s_ConsoleVariableCheckbox("Print Parsed Name/Type Map",
+                "TheatreFile.Parser.print_name_type_map");
             Checkbox("Print TheatreFile Lexer Logs", &TheatreFile::gDebugPrintLexerLogs);
             Checkbox("Print TheatreFile Parser Logs", &TheatreFile::gDebugPrintParserLogs);
             Checkbox("Disable Whitespace In Lexer Logs", &TheatreFile::gDebugDontPrintWhitespaceInLexerLogs);
             Checkbox("Disable Comments In Lexer Logs", &TheatreFile::gDebugDontPrintCommentsInLexerLogs);
-        SeparatorText("Rendering");
         if(RendererAPI::CurrentAPI() == RendererAPI::OPENGL)
         {
             SeparatorText("OpenGL");
             const char* gl_debug_severities{"None\0Notifcations\0Low\0Medium\0High\0"};
-            static int gl_debug_selection{Console::GetVariable("OpenGLMessageFilter").int_value};
+            static int gl_debug_selection{Console::GetVariable("OpenGLDebugMessage.SeverityFilter").int_value};
             if(Combo("Minimum Message Severity Filter", &gl_debug_selection, gl_debug_severities))
-                { Console::SetVariable("OpenGLMessageFilter", gl_debug_selection); }
+                { Console::SetVariable("OpenGLDebugMessage.SeverityFilter", gl_debug_selection); }
+            Text("Enable/Disable Message Types:");
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Error", "Error", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Deprecated", "Deprecated", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Undefined", "Undefined", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Portability", "Portability", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Performance", "Performance", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Other", "Other", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Marker", "Marker", true);
+            s_ConsoleVariableCheckbox("OpenGLDebugMessage.Disable.Unknown", "Unknown", true);
         }
         SeparatorText("Jolt Physics");
             Checkbox("Contact Validate",  &gJoltDebugMessageAllow_ContactValidate);  SameLine();
@@ -724,4 +727,13 @@ void ImGui_Debugger::DebugConsoleWindow()
     }
     EndChild();
     End();
+}
+
+void s_ConsoleVariableCheckbox(Sarg inVariableName, Sarg inTitle, bool inInverse)
+{
+    bool _value = Console::GetVariable(inVariableName).int_value;
+    if(inInverse)
+        { _value = not _value; }
+    if(Checkbox(inTitle.data(), &_value))
+        { Console::SetVariable(inVariableName, static_cast<int>((inInverse) ? not _value : _value)); }
 }
