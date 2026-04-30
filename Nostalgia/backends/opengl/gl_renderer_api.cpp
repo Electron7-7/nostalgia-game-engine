@@ -71,6 +71,7 @@ void OpenGLRendererAPI::Init()
     glVertexArrayAttribBinding(mTextVAO, 1, 1);
 
     Console::SetVariable("OpenGLMessageFilter", static_cast<int>(HIGH_SEVERITY));
+    Console::SetVariable("OpenGLEnableAnnoyingGL_STATICNotifs", 0);
 
     mInitialized = true;
 }
@@ -319,6 +320,9 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
     std::string _source;
     std::string _type;
     std::string _severity;
+
+    if(id == 131185 and not Console::GetVariable("OpenGLEnableAnnoyingGL_STATICNotifs").int_value)
+        { return; }
 
     switch (source)
     {
