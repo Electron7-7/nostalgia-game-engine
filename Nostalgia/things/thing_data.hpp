@@ -30,6 +30,8 @@ namespace TheatreFile
         PID thing_type{ThingType::Invalid};
         // If the variable is a number, this is the type of number it is.
         NumberType number_type{NIL};
+        // Whether this variable should be ignored by the editor or not
+        bool editor_ignored{false};
 
         void clear()
         { *this = ThingVariable{}; }
@@ -74,15 +76,15 @@ namespace TheatreFile
         Error remove_variable(Sarg inName);
         Error remove_child(Sarg inName);
 
-        void  set_variable(Sarg inValue, Sarg inName, bool inAcceptEmptyString = false);
-        Error set_variable(ID inValue, Sarg inName);
-        void  set_variable(bool inValue, Sarg inName);
-        Error set_variable(Shared<FileData> inValue, Sarg inName);
-        void  set_variable(BitMask inValue, Sarg inName);
-        Error set_enum_variable(Sarg inEnumName, Sarg inName);
+        void  set_variable(Sarg inValue, Sarg inName, bool inIsIgnoredByEditor = false);
+        Error set_variable(ID inValue, Sarg inName, bool inIsIgnoredByEditor = false);
+        void  set_variable(bool inValue, Sarg inName, bool inIsIgnoredByEditor = false);
+        Error set_variable(Shared<FileData> inValue, Sarg inName, bool inIsIgnoredByEditor = false);
+        void  set_variable(BitMask inValue, Sarg inName, bool inIsIgnoredByEditor = false);
+        Error set_enum_variable(Sarg inEnumName, Sarg inName, bool inIsIgnoredByEditor = false);
 
         template<NumberOrGLM T>
-            void set_variable(Farg<T> inValue, Sarg inName)
+            void set_variable(Farg<T> inValue, Sarg inName, bool inIsIgnoredByEditor = false)
             {
                 ThingVariable::NumberType _number_type{ThingVariable::NIL};
                 if constexpr(std::same_as<T, float> or std::same_as<T, double>)
@@ -104,6 +106,7 @@ namespace TheatreFile
                 {
                     found_it->value = NumToString(inValue);
                     found_it->number_type = _number_type;
+                    found_it->editor_ignored = inIsIgnoredByEditor;
                     return;
                 }
 
@@ -111,31 +114,32 @@ namespace TheatreFile
                     NumToString(inValue),
                     ThingVarType::Number,
                     ThingType::Invalid,
-                    _number_type);
+                    _number_type,
+                    inIsIgnoredByEditor);
             }
 
         template<IsEnum T>
-            Error set_variable(T inValue, Sarg inName)
+            Error set_variable(T inValue, Sarg inName, bool inIsIgnoredByEditor = false)
             {
                 if(auto enum_name{EnumRegistry::GetEnumName(inValue)}; not enum_name.empty())
-                    { return set_enum_variable(enum_name, inName); }
+                    { return set_enum_variable(enum_name, inName, inIsIgnoredByEditor); }
                 return ERR_INVALID;
             }
 
         template<Resource_t T>
-            Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName, bool inIsIgnoredByEditor = false)
             {
                 if(not inValue)
                     { return ERR_NULLPTR; }
-                return set_variable(inValue->uid(), inName);
+                return set_variable(inValue->uid(), inName, inIsIgnoredByEditor);
             }
 
         template<Thinker_t T>
-            Error set_variable(Farg<Shared<T>> inValue, Sarg inName)
+            Error set_variable(Farg<Shared<T>> inValue, Sarg inName, bool inIsIgnoredByEditor = false)
             {
                 if(not inValue)
                     { return ERR_NULLPTR; }
-                return set_variable(inValue->uid(), inName);
+                return set_variable(inValue->uid(), inName, inIsIgnoredByEditor);
             }
 
         template<Resource_t T, StringType... Names>

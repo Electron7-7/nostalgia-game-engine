@@ -89,7 +89,7 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 if(InputText(_name.data(), &_value))
                 {
                     std::string _output{_value};
-                    outData.set_variable(_output, _name, true);
+                    outData.set_variable(_output, _name);
                     _changed = true;
                 }
                 break;

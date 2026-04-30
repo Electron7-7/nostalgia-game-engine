@@ -87,17 +87,6 @@ std::string ThingData::get_parsable_string() const noexcept
     return std::format("{}\n}}\n", output);
 }
 
-void ThingData::set_variable(Sarg inValue, Sarg inName, bool inAcceptEmptyString)
-{
-    if(inAcceptEmptyString or not inValue.empty())
-    {
-        if(FOUND_VAR(inName))
-            { found_it->value = inValue; }
-        else
-            { variables.emplace_back(inName, inValue, ThingVarType::String); }
-    }
-}
-
 void ThingData::clear()
 {
     type = {};
@@ -151,9 +140,24 @@ Error ThingData::remove_child(Sarg inName)
     return ERR_NOT_FOUND;
 }
 
-Error ThingData::set_variable(ID inValue, Sarg inName)
+void ThingData::set_variable(Sarg inValue, Sarg inName, bool inIsIgnoredByEditor)
+{
+    if(FOUND_VAR(inName))
+    {
+        found_it->value = inValue;
+        found_it->editor_ignored = inIsIgnoredByEditor;
+    }
+    else
+    {
+        variables.emplace_back(inName, inValue, ThingVarType::String, ThingType::Invalid, ThingVariable::NIL,
+            inIsIgnoredByEditor);
+    }
+}
+
+Error ThingData::set_variable(ID inValue, Sarg inName, bool inIsIgnoredByEditor)
 {
     ThingVariable temp{inName, "", ThingVarType::ID};
+    temp.editor_ignored = inIsIgnoredByEditor;
 
     if(FAUTO name{Theatre::Current()->GetName(inValue)}; not name.empty())
     {
@@ -184,47 +188,71 @@ Error ThingData::set_variable(ID inValue, Sarg inName)
     return OK;
 }
 
-void ThingData::set_variable(bool inValue, Sarg inName)
+void ThingData::set_variable(bool inValue, Sarg inName, bool inIsIgnoredByEditor)
 {
     std::string _value{std::format("{}", inValue)};
     if(FOUND_VAR(inName))
-        { found_it->value = _value; }
+    {
+        found_it->value = _value;
+        found_it->editor_ignored = inIsIgnoredByEditor;
+    }
     else
-        { variables.emplace_back(inName, _value, ThingVarType::Bool); }
+    {
+        variables.emplace_back(inName, _value, ThingVarType::Bool, ThingType::Invalid, ThingVariable::NIL,
+            inIsIgnoredByEditor);
+    }
 }
 
-Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName)
+Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName, bool inIsIgnoredByEditor)
 {
     if(not inValue->has_filepath())
         { return ERR_INVALID_PATH; }
     std::string _value{inValue->filepath()};
     if(FOUND_VAR(inName))
-        { found_it->value = _value; }
+    {
+        found_it->value = _value;
+        found_it->editor_ignored = inIsIgnoredByEditor;
+    }
     else
-        { variables.emplace_back(inName, _value, ThingVarType::String);}
+    {
+        variables.emplace_back(inName, _value, ThingVarType::String, ThingType::Invalid, ThingVariable::NIL,
+            inIsIgnoredByEditor);
+    }
     return OK;
 }
 
-void ThingData::set_variable(BitMask inValue, Sarg inName)
+void ThingData::set_variable(BitMask inValue, Sarg inName, bool inIsIgnoredByEditor)
 {
     BitMask::StatusArray _status_arr{inValue.status()};
     std::string _value{};
     for(bool _status : _status_arr)
         { _value.push_back((_status) ? '1' : '0'); }
     if(FOUND_VAR(inName))
-        { found_it->value = _value; }
+    {
+        found_it->value = _value;
+        found_it->editor_ignored = inIsIgnoredByEditor;
+    }
     else
-        { variables.emplace_back(inName, _value, ThingVarType::BitMask);}
+    {
+        variables.emplace_back(inName, _value, ThingVarType::BitMask, ThingType::Invalid, ThingVariable::NIL,
+            inIsIgnoredByEditor);
+    }
 }
 
-Error ThingData::set_enum_variable(Sarg inEnumName, Sarg inName)
+Error ThingData::set_enum_variable(Sarg inEnumName, Sarg inName, bool inIsIgnoredByEditor)
 {
     if(EnumRegistry::Contains(inEnumName))
     {
         if(FOUND_VAR(inName))
-            { found_it->value = inEnumName; }
+        {
+            found_it->value = inEnumName;
+            found_it->editor_ignored = inIsIgnoredByEditor;
+        }
         else
-            { variables.emplace_back(inName, inEnumName, ThingVarType::Enum); }
+        {
+            variables.emplace_back(inName, inEnumName, ThingVarType::Enum, ThingType::Invalid, ThingVariable::NIL,
+                inIsIgnoredByEditor);
+        }
         return OK;
     }
     return ERR_INVALID;
