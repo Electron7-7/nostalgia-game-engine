@@ -14,13 +14,13 @@
 
 #define LOCK_MUTEX(MUTEX) LockGuard<RMutex> MUTEX##_lock{MUTEX};
 
+#ifdef NOSTALGIA_DEBUGGING
+static void APIENTRY s_DebugMessageCallback(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);
+#endif // NOSTALGIA_DEBUGGING
+
 static constinit const float TEXT_UVS[12]{0,1, 0,0, 1,0, 0,1, 1,0, 1,1};
 static bool sWireframe{};
 static RMutex sShadersMutex{}, sTextMutex{};
-
-#ifdef NOSTALGIA_DEBUGGING
-static void APIENTRY OpenGL_DebugMessageCallback(GLenum,GLenum,GLuint,GLenum,GLsizei,const GLchar*,const void*);
-#endif // NOSTALGIA_DEBUGGING
 
 void OpenGLRendererAPI::Init()
 {
@@ -36,7 +36,7 @@ void OpenGLRendererAPI::Init()
 #ifdef NOSTALGIA_DEBUGGING
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(OpenGL_DebugMessageCallback, nullptr);
+    glDebugMessageCallback(s_DebugMessageCallback, nullptr);
 #endif
 
     mShaders[Shaders::BlinnPhong] = Shader::Create();
@@ -70,8 +70,10 @@ void OpenGLRendererAPI::Init()
     glVertexArrayAttribBinding(mTextVAO, 0, 0);
     glVertexArrayAttribBinding(mTextVAO, 1, 1);
 
-    Console::SetVariable("OpenGLMessageFilter", static_cast<int>(HIGH_SEVERITY));
-    Console::SetVariable("OpenGLEnableAnnoyingGL_STATICNotifs", 0);
+    Console::SetVariable("OpenGLDebugMessage.SeverityFilter", static_cast<int>(HIGH_SEVERITY));
+    Console::SetVariable("OpenGLDebugMessage.Disable.Portability", 1);
+    Console::SetVariable("OpenGLDebugMessage.Disable.Performance", 1);
+    Console::SetVariable("OpenGLDebugMessage.Enable.AnnoyingGL_STATIC", 0);
 
     mInitialized = true;
 }
@@ -315,13 +317,19 @@ void OpenGLRendererAPI::DrawIndexed(Shared<VertexArray> inVAO, uint inIndexCount
 // https://gist.github.com/liam-middlebrook/c52b069e4be2d87a6d2f (with minor tweaks)
 //----------------------------------------------------------------------------------
 #ifdef NOSTALGIA_DEBUGGING
-void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* data)
+void APIENTRY s_DebugMessageCallback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* data)
 {
     std::string _source;
     std::string _type;
     std::string _severity;
 
-    if(id == 131185 and not Console::GetVariable("OpenGLEnableAnnoyingGL_STATICNotifs").int_value)
+    if(id == 131185 and not Console::GetVariable("OpenGLDebugMessage.Enable.AnnoyingGL_STATIC").int_value)
         { return; }
 
     switch (source)
@@ -342,8 +350,6 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
         _source = "APPLICATION";
         break;
     case GL_DEBUG_SOURCE_OTHER:
-        _source = "UNKNOWN";
-        break;
     default:
         _source = "UNKNOWN";
         break;
@@ -352,59 +358,79 @@ void APIENTRY OpenGL_DebugMessageCallback(GLenum source, GLenum type, GLuint id,
     switch (type)
     {
     case GL_DEBUG_TYPE_ERROR:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Error").int_value)
+            { return; }
         _type = "ERROR";
         break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Deprecated").int_value)
+            { return; }
         _type = "DEPRECATED BEHAVIOR";
         break;
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Undefined").int_value)
+            { return; }
         _type = "UDEFINED BEHAVIOR";
         break;
     case GL_DEBUG_TYPE_PORTABILITY:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Portability").int_value)
+            { return; }
         _type = "PORTABILITY";
         break;
     case GL_DEBUG_TYPE_PERFORMANCE:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Performance").int_value)
+            { return; }
         _type = "PERFORMANCE";
         break;
     case GL_DEBUG_TYPE_OTHER:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Other").int_value)
+            { return; }
         _type = "OTHER";
         break;
     case GL_DEBUG_TYPE_MARKER:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Marker").int_value)
+            { return; }
         _type = "MARKER";
         break;
     default:
+        if(Console::GetVariable("OpenGLDebugMessage.Disable.Unknown").int_value)
+            { return; }
         _type = "UNKNOWN";
         break;
     }
     switch (severity)
     {
     case GL_DEBUG_SEVERITY_HIGH:
-        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::HIGH_SEVERITY)
+        if(Console::GetVariable("OpenGLDebugMessage.SeverityFilter")
+            .int_value < OpenGLRendererAPI::HIGH_SEVERITY)
             { return; }
         _severity = "HIGH";
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::MEDIUM_SEVERITY)
+        if(Console::GetVariable("OpenGLDebugMessage.SeverityFilter")
+            .int_value < OpenGLRendererAPI::MEDIUM_SEVERITY)
             { return; }
         _severity = "MEDIUM";
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::LOW_SEVERITY)
+        if(Console::GetVariable("OpenGLDebugMessage.SeverityFilter")
+            .int_value < OpenGLRendererAPI::LOW_SEVERITY)
             { return; }
         _severity = "LOW";
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        if(Console::GetVariable("OpenGLMessageFilter").int_value < OpenGLRendererAPI::NOTIFICATIONS)
+        if(Console::GetVariable("OpenGLDebugMessage.SeverityFilter")
+            .int_value < OpenGLRendererAPI::NOTIFICATIONS)
             { return; }
         _severity = "NOTIFICATION";
         break;
     default:
-        if(Console::GetVariable("OpenGLMessageFilter").int_value == OpenGLRendererAPI::NO_MESSAGES)
+        if(Console::GetVariable("OpenGLDebugMessage.SeverityFilter")
+            .int_value == OpenGLRendererAPI::NO_MESSAGES)
             { return; }
         _severity = "UNKNOWN";
         break;
     }
     print_debug("{}: {} of {} severity, raised from {}: {}", id, _type, _severity, _source, message);
 }
-
 #endif // NOSTALGIA_DEBUGGING
