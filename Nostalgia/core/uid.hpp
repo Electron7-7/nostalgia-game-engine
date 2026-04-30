@@ -22,10 +22,6 @@ namespace UID
         m_Cube,
         m_Quad,
         m_Ramiel,
-        m_Camera3D,
-        m_PointLight3D,
-        m_SpotLight3D,
-        m_DebugAxis,
     // Fonts
         f_Verdana,
         f_DejaVuSans,

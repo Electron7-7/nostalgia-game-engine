@@ -83,18 +83,6 @@ bool ResourceManager::Init()
     UID::m_Ramiel =
         ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Ramiel,
             std::size(Models::Ramiel), ArrayMesh::MODEL_OBJ), "RamielModel");
-    UID::m_Camera3D =
-        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::Camera,
-            std::size(Models::Camera), ArrayMesh::MODEL_OBJ), "CameraModel");
-    UID::m_PointLight3D =
-        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::PointLight,
-            std::size(Models::PointLight), ArrayMesh::MODEL_OBJ), "PointLightModel");
-    UID::m_SpotLight3D =
-        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::SpotLight,
-            std::size(Models::SpotLight), ArrayMesh::MODEL_OBJ), "SpotLightModel");
-    UID::m_DebugAxis =
-        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(Models::DebugAxis,
-            std::size(Models::DebugAxis), ArrayMesh::MODEL_OBJ), "3DAxisModel");
     UID::t_Missing =
         ResourceDatabase::Register(ImageTexture::CreateFromImage(Image::CreateFromFile(
             {Images::Missing, std::size(Images::Missing)})), "MissingImage");

@@ -1,4 +1,5 @@
 #include "./editor_theatre.hpp"
+#include "assets/editor_uids.hpp"
 #include "things/editor_player_3d.hpp"
 #include <Nostalgia/rendering/shader.hpp>
 #include <Nostalgia/things/thing_factory.hpp>

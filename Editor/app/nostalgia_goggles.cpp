@@ -1,4 +1,6 @@
 #include "./nostalgia_goggles.hpp"
+#include "editor_models.hpp"
+#include "assets/editor_uids.hpp"
 #include "gui/imgui_implementor.hpp"
 #include "gui/imgui_editor.hpp"
 #include "gui/imgui_debugger.hpp"
@@ -19,6 +21,7 @@
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
+#include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 
 static ImGui_Editor sImGui_Editor{};
@@ -60,6 +63,19 @@ int NostalgiaGoggles::Main()
 
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
     ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
+
+    UID::m_Camera3D =
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(_EditorModels::Camera,
+            std::size(_EditorModels::Camera), ArrayMesh::MODEL_OBJ), "CameraModel");
+    UID::m_PointLight3D =
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(_EditorModels::PointLight,
+            std::size(_EditorModels::PointLight), ArrayMesh::MODEL_OBJ), "PointLightModel");
+    UID::m_SpotLight3D =
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(_EditorModels::SpotLight,
+            std::size(_EditorModels::SpotLight), ArrayMesh::MODEL_OBJ), "SpotLightModel");
+    UID::m_DebugAxis =
+        ResourceDatabase::Register(ArrayMesh::CreateFromMemory(_EditorModels::DebugAxis,
+            std::size(_EditorModels::DebugAxis), ArrayMesh::MODEL_OBJ), "3DAxisModel");
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
