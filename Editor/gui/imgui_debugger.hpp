@@ -14,8 +14,9 @@ public:
     void Shutdown()         final;
     void Update()           final;
     void Input(InputEvent*) final;
-    void TheatreEntered() final;
-    void TheatreExited()  final;
+    void Event(IEvent*)     final;
+    void TheatreEntered()   final;
+    void TheatreExited()    final;
 
     StopwatchLog& StartStopwatch(Sarg Message = "No Message");
     bool StopStopwatch(StopwatchLog& Stopwatch);

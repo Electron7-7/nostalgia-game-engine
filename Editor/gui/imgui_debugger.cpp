@@ -1,4 +1,5 @@
 #include "imgui_debugger.hpp"
+#include "DearImGui/imgui_internal.h"
 #include "tools/stopwatch_log.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
@@ -14,7 +15,7 @@
 #include <Nostalgia/settings/graphics.hpp>
 #include <Nostalgia/settings/player.hpp>
 #include <Nostalgia/events/event.hpp>
-#include <Nostalgia/rendering/debugging.hpp>
+// #include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/vertex_array.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 #include <Nostalgia/things/thinkers/2d/text_2d.hpp>
@@ -55,12 +56,14 @@ static ImGui_Debugger sImGuiDebugger;
 ImGui_Debugger* g_pImGuiDebugger{&sImGuiDebugger};
 
 static bool sAutoStopwatchEnabled{true},
+    sWindowResized{false},
     sEnableFrameCounter{true},
     sEnableFps{true},
     sEnableFrametime{true},
     sEnableTickRate{false},
     sEnableTickInterval{false},
-    sEnableRenderManagerFrametime{true};
+    sEnableRenderManagerFrametime{true},
+    sDebugConsoleFirstOpen{true};
 
 static std::string               sDemoFileOut{"demo"};
 static std::string               sDemoFileIn{std::format("{}.dem", sDemoFileOut)};
@@ -79,9 +82,12 @@ void ImGui_Debugger::Shutdown()
 { PRINT_PRETTY_FUNCTION; }
 
 void ImGui_Debugger::Input(InputEvent* event)
+{}
+
+void ImGui_Debugger::Event(IEvent* event)
 {
-    if(event->IsJustPressed(Key::Tilde))
-        { m_sDebugConsoleOpened = !m_sDebugConsoleOpened; }
+    if(event->IsEvent(WindowEvent::WindowResize))
+        { sWindowResized = true; }
 }
 
 void ImGui_Debugger::TheatreEntered()
@@ -95,6 +101,11 @@ void ImGui_Debugger::Update()
     s_FPSCounter();
     static bool sPopOutStopwatches{false};
     SetNextWindowSize({840,530}, ImGuiCond_FirstUseEver);
+    if(InputManager::IsKeyJustDown(Key::Tilde))
+    {
+        m_sDebugConsoleOpened = not m_sDebugConsoleOpened;
+        sDebugConsoleFirstOpen = true;
+    }
     if(m_sDebugConsoleOpened)
         { DebugConsoleWindow(); }
     if(m_sDebugWindowOpened)
@@ -257,7 +268,7 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Input Logs", &gPrintInputLogs);
         SeparatorText("Theatre");
             static auto save_msgs{Console::GetVariable("Theatre.debug_save_msgs")};
-            bool save_msgs_b{(bool)save_msgs->int_value};
+            bool save_msgs_b{(bool)save_msgs.int_value};
             if(Checkbox("Print TheatreFile Save Progress", &save_msgs_b))
                 { Console::SetVariable("Theatre.debug_save_msgs", save_msgs_b); }
             static bool _print_fwd{static_cast<bool>(
@@ -416,12 +427,34 @@ static const std::map<_fps_counter_position_enum, const char*> _counter_pos_map
     {FPS_COUNTER_NA, "N/A"},
 };
 
+static void s_SetFPSCounterPosition(ImVec2& outPos, _fps_counter_position_enum inEnum, Farg<ImVec2> inWindowSize)
+{
+    switch(inEnum)
+    {
+    case FPS_COUNTER_UL:
+        outPos = {0, 0};
+        break;
+    case FPS_COUNTER_BL:
+        outPos = {0, static_cast<float>(MainWindow()->GetHeight() - inWindowSize[1])};
+        break;
+    case FPS_COUNTER_UR:
+        outPos = {static_cast<float>(MainWindow()->GetWidth() - inWindowSize[0]), 0};
+        break;
+    case FPS_COUNTER_BR:
+        outPos = {static_cast<float>(MainWindow()->GetWidth() - inWindowSize[0]),
+            static_cast<float>(MainWindow()->GetHeight() - inWindowSize[1])};
+        break;
+    default:
+        break;
+    }
+}
+
 static void s_FPSCounter()
 {
     static int _first_run{0};
     static ImVec2 _fps_counter_pos{0,0};
     static _fps_counter_position_enum _fps_counter_position{FPS_COUNTER_UR};
-    static bool _fps_position_changed{true};
+    static bool _fps_position_changed{true}, _opened_header{false};
     static uint _graph_max_size{60};
     static uint _current_graph_index{0};
     static std::vector<float> _fps_values(_graph_max_size),
@@ -430,6 +463,11 @@ static void s_FPSCounter()
         _tickint_values(_graph_max_size),
         _theatre_frametime_values(_graph_max_size),
         _ui_frametime_values(_graph_max_size);
+    if(sWindowResized and _fps_counter_position != FPS_COUNTER_NA)
+    {
+        _first_run = 0;
+        sWindowResized = false;
+    }
     if(sEnableFrameCounter)
     {
         if(_fps_position_changed)
@@ -440,6 +478,9 @@ static void s_FPSCounter()
         Begin("Frame Profiler",
             nullptr,
             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            Farg<ImGuiContext> _context{*GetCurrentContext()};
+            if(_context.MovingWindow == _context.CurrentWindow)
+                { _fps_counter_position = FPS_COUNTER_NA; }
             if(++_current_graph_index >= _graph_max_size)
             {
                 _current_graph_index = 0;
@@ -485,8 +526,15 @@ static void s_FPSCounter()
             }
             if(CollapsingHeader("Graphs"))
             {
-                if(DragUInt("Max Plot Points", &_graph_max_size))
+                if(not _opened_header)
                 {
+                    _opened_header = true;
+                    sWindowResized = true;
+                }
+                uint _temp{_graph_max_size};
+                if(DragUInt("Max Plot Points", &_temp) and _temp)
+                {
+                    _graph_max_size = _temp;
                     _current_graph_index = 0;
                     _fps_values = std::vector<float>(_graph_max_size);
                     _frametime_values = std::vector<float>(_graph_max_size);
@@ -509,12 +557,17 @@ static void s_FPSCounter()
                     PlotLines("UI Render Frametime", _ui_frametime_values.data(), _graph_max_size, 0, nullptr, FLT_MAX, FLT_MAX, {0, 50});
                 }
             }
+            else if(_opened_header)
+            {
+                _opened_header = false;
+                sWindowResized = true;
+            }
             ImVec2 _window_size{GetWindowSize()};
             if(_first_run == 2)
             {
                 ++_first_run;
-                _fps_counter_position = FPS_COUNTER_UR;
-                SetWindowPos(_fps_counter_pos = {static_cast<float>(MainWindow()->GetWidth() - _window_size[0]), 0});
+                s_SetFPSCounterPosition(_fps_counter_pos, _fps_counter_position, _window_size);
+                SetWindowPos(_fps_counter_pos);
             }
             else if(_first_run < 2) // don't just keep incrementing the counter, since it can eventually overflow
                 { ++_first_run; }
@@ -527,23 +580,7 @@ static void s_FPSCounter()
                     const bool is_selected{value == _fps_counter_position};
                     if(Selectable(name))
                     {
-                        switch(value)
-                        {
-                        case FPS_COUNTER_UL:
-                            _fps_counter_pos = {0, 0};
-                            break;
-                        case FPS_COUNTER_BL:
-                            _fps_counter_pos = {0, static_cast<float>(MainWindow()->GetHeight() - _window_size[1])};
-                            break;
-                        case FPS_COUNTER_UR:
-                            _fps_counter_pos = {static_cast<float>(MainWindow()->GetWidth() - _window_size[0]), 0};
-                            break;
-                        case FPS_COUNTER_BR:
-                            _fps_counter_pos = {static_cast<float>(MainWindow()->GetWidth() - _window_size[0]), static_cast<float>(MainWindow()->GetHeight() - _window_size[1])};
-                            break;
-                        default:
-                            break;
-                        }
+                        s_SetFPSCounterPosition(_fps_counter_pos, value, _window_size);
                         _fps_counter_position = value;
                         _fps_position_changed = true;
                     }
@@ -552,10 +589,6 @@ static void s_FPSCounter()
                 }
                 EndCombo();
             }
-            if(not _fps_position_changed and
-                _fps_counter_position != FPS_COUNTER_NA and
-                _fps_counter_pos != GetWindowPos())
-                    { _fps_counter_position = FPS_COUNTER_NA; }
             if(Button("Close"))
                 { sEnableFrameCounter = false; }
         End();
@@ -661,33 +694,35 @@ void ImGui_Debugger::m_ManualStopwatchWindow(float width)
 
 void ImGui_Debugger::DebugConsoleWindow()
 {
-    static std::vector<std::string> history{};
     static std::string buffer{};
-    if(buffer.ends_with('`'))
-        { buffer.clear(); }
-    if(!m_sDebugConsoleOpened)
+    if(not m_sDebugConsoleOpened)
         { return; }
-    if(Begin("Debug Console"))
+    SetNextWindowSize({850, 500}, ImGuiCond_Once);
+    if(not Begin("Debug Console"))
+        { End(); }
+    InputText("##InputLine", &buffer);
+    if(sDebugConsoleFirstOpen)
     {
-        InputText("##InputLine", &buffer);
-        if(IsItemDeactivatedAfterEdit())
-        {
-            Console::ProcessLine(buffer);
-            history.push_back(buffer);
-            buffer.clear();
-            SetKeyboardFocusHere(-1);
-        }
-        Separator();
-        const float footer_height_to_reserve{GetStyle().ItemSpacing.y + GetFrameHeightWithSpacing()};
-        auto width{GetWindowSize().x};
-        if(BeginChild("##History", {0, -footer_height_to_reserve}, ImGuiChildFlags_NavFlattened))
-        {
-            PushTextWrapPos(GetCursorPosX() + width - 10);
-            for(FAUTO line : history)
-                { Text("%s", line.data()); }
-            PopTextWrapPos();
-        }
-        EndChild();
+        SetKeyboardFocusHere(-1);
+        sDebugConsoleFirstOpen = false;
     }
+    else if(IsItemDeactivatedAfterEdit())
+    {
+        Console::ProcessLine(buffer);
+        buffer.clear();
+        SetKeyboardFocusHere(-1);
+    }
+    Separator();
+    const float footer_height_to_reserve{GetStyle().ItemSpacing.y + GetFrameHeightWithSpacing()};
+    auto width{GetWindowSize().x};
+    if(BeginChild("##History", {0, -footer_height_to_reserve}, ImGuiChildFlags_NavFlattened))
+    {
+        PushTextWrapPos(GetCursorPosX() + width - 10);
+        auto _history{Console::GetHistory()};
+        for(auto r_iter{_history.rbegin()}; r_iter != _history.rend(); ++r_iter)
+            { Text("%s", r_iter->data()); }
+        PopTextWrapPos();
+    }
+    EndChild();
     End();
 }
