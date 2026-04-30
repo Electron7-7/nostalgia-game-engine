@@ -14,17 +14,22 @@ void TestAnimatedSprite2D::SetVariables(Farg<ThingData> data)
     Shared<Texture> _tex{nullptr};
     while(data.get_variable(_tex, std::format("Texture{}", i)) == OK)
     {
-        mTextures.push_back(_tex);
+        if(i >= mTextures.size())
+            { mTextures.push_back(_tex); }
+        else
+            { mTextures[i] = _tex; }
         ++i;
     }
     if(not mTextures.empty())
         { mTexture = mTextures.front(); }
+    mTexture->Buffer()->SetSamplerState(mSampler);
 }
 
 Shared<ThingData> TestAnimatedSprite2D::GetVariables() const
 {
     auto data{Sprite2D::GetVariables()};
 
+    data->set_variable(mTexture, "Texture", true);
     data->set_variable(mInterval, "Interval");
 
     int i{0};
@@ -42,5 +47,6 @@ void TestAnimatedSprite2D::Tick()
             ? 0
             : mIndex;
         mTexture = mTextures[mIndex];
+        mTexture->Buffer()->SetSamplerState(mSampler);
     }
 }
