@@ -45,13 +45,12 @@ bool ImGui_Editor::m_sTheatreRunning{false},
 std::unordered_map<PID, Shared<ImageTexture>> ImGui_Editor::m_sEditorIcons{};
 std::unordered_set<ID> ImGui_Editor::m_sEditorIconUIDs{};
 
-static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders |
-    ImGuiChildFlags_ResizeY |
-    ImGuiChildFlags_ResizeX};
+static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
 static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
 static bool sEditorJustLoaded{false};
 
 static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
+static bool s_ChangeName(ID, std::string&);
 
 void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
 { RendererAPI::Get()->SetFramebufferSRGB(true); }
@@ -265,6 +264,8 @@ void ImGui_Editor::Update()
         if(m_sTheatreRunning and Settings::Engine::IsEditorHint
             and BeginTabItem("Editor", nullptr, _editor_flags))
         {
+            TheatreTree();
+            SameLine();
             TheatreViewport();
             SameLine();
             TheatreInspector();
@@ -301,33 +302,81 @@ void ImGui_Editor::LoadTheatre(bool inLoadFile)
         { g_pTheatreManager->LoadFromData(mEditorTheatreData); }
 }
 
+void ImGui_Editor::TheatreInspector()
+{
+    static std::string _name{};
+    static TheatreFile::ThingData _data{};
+    if(not Settings::Engine::IsEditorHint)
+        { return; }
+    auto _variables{Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables()};
+    if(m_sInspectingNewThing)
+    {
+        m_sInspectingNewThing = false;
+        _data = *_variables;
+        _name = _data.name;
+    }
+
+    BeginChild("Theatre Inspector", {}, ImGuiChildFlags_Borders);
+        if(s_ChangeName(mInspectingThingUID, _name))
+        {
+            Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
+            _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
+            _data = *_variables;
+        }
+        if(InspectThing(mInspectingThingUID, _variables, _data))
+            { Theatre::Current()->GetThing(mInspectingThingUID)->SetVariables(_data); }
+    EndChild();
+}
+
 void ImGui_Editor::TheatreViewport()
 {
-    BeginChild("LeftSide", {784, 965}, sResizableChildWithBorder);
+    static ImVec2 _viewport_window_size{}, _viewport_size{};
+    bool _is_3d{true};
+    Shared<Viewport> _viewport{};
+    BeginChild("Editor Viewport",
+        {768, 0},
+        sResizableChildWithBorder,
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         if(BeginTabBar("Viewports"))
         {
             if(BeginTabItem("3D"))
             {
-                Viewport3DWindow();
+                _is_3d = true;
+                _viewport = m_spEditorTheatre->m_pEditor3DViewport;
                 EndTabItem();
             }
             if(BeginTabItem("2D"))
             {
-                Viewport2DWindow();
+                _is_3d = false;
+                _viewport = m_spEditorTheatre->m_pEditor2DViewport;
                 EndTabItem();
             }
             EndTabBar();
         }
+        _viewport_size = {(float)_viewport->Size().w(), (float)_viewport->Size().h()};
+        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
+        ImGui::Image((ImTextureRef)_viewport->GetTextureBufferID(),
+            _viewport_size,
+            {0, 1},
+            {1, 0});
+        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
+        _viewport_window_size = GetWindowSize();
+        if(_viewport_size != _viewport_window_size)
+            { _viewport->SetSize({_viewport_window_size[0], _viewport_window_size[1]}); }
+        if(_is_3d)
+            { Viewport3DWindow(); }
+        else
+            { Viewport2DWindow(); }
     EndChild();
 }
 
-void ImGui_Editor::TheatreInspector()
+void ImGui_Editor::TheatreTree()
 {
     if(not Theatre::Current()->IsStarted())
         { mInspectingThingUID = ID::Invalid; }
     else
     {
-        BeginChild("TheatreInspector");
+        BeginChild("Theatre Tree", {}, sResizableChildWithBorder);
             if(CollapsingHeader("Resources"))
             {
                 for(FAUTO uid : Theatre::Current()->ResourceUIDs())
@@ -349,8 +398,6 @@ void ImGui_Editor::TheatreInspector()
                     _thinker_tree_branch(uid);
                 }
             }
-            if(not mInspectingThingUID .invalid())
-                { InspectThing(); }
         EndChild();
     }
 }
@@ -404,27 +451,6 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
 
 void ImGui_Editor::Viewport3DWindow()
 {
-    static ImVec2 _viewport_window_size{}, _viewport_size{};
-    BeginChild("Editor-3D-Viewport",
-        {768, 519},
-        sResizableChildWithBorder,
-        ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoScrollWithMouse);
-        _viewport_size = {(float)m_spEditorTheatre->m_pEditor3DViewport->Size().w(),
-                (float)m_spEditorTheatre->m_pEditor3DViewport->Size().h()};
-        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-        ImGui::Image((ImTextureRef)m_spEditorTheatre->m_pEditor3DViewport->GetTextureBufferID(),
-            _viewport_size,
-            {0, 1},
-            {1, 0});
-        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-        _viewport_window_size = GetWindowSize();
-        if(_viewport_size != _viewport_window_size)
-        {
-            m_spEditorTheatre->m_pEditor3DViewport
-                ->SetSize({_viewport_window_size[0], _viewport_window_size[1]});
-        }
-    EndChild();
     static bool camera_moving{false};
     if((IsItemHovered() or camera_moving))
     {
@@ -464,27 +490,6 @@ void ImGui_Editor::Viewport3DWindow()
 
 void ImGui_Editor::Viewport2DWindow()
 {
-    static ImVec2 _viewport_window_size{}, _viewport_size{};
-    BeginChild("Editor-2D-Viewport",
-        {768, 519},
-        sResizableChildWithBorder,
-        ImGuiWindowFlags_NoScrollbar |
-            ImGuiWindowFlags_NoScrollWithMouse);
-        _viewport_size = {(float)m_spEditorTheatre->m_pEditor2DViewport->Size().w(),
-                (float)m_spEditorTheatre->m_pEditor2DViewport->Size().h()};
-        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
-        ImGui::Image((ImTextureRef)m_spEditorTheatre->m_pEditor2DViewport->GetTextureBufferID(),
-            _viewport_size,
-            {0, 1},
-            {1, 0});
-        GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-        _viewport_window_size = GetWindowSize();
-        if(_viewport_size != _viewport_window_size)
-        {
-            m_spEditorTheatre->m_pEditor2DViewport
-                ->SetSize({_viewport_window_size[0], _viewport_window_size[1]});
-        }
-    EndChild();
     static bool camera_moving{false};
     if((IsItemHovered() or camera_moving))
     {
@@ -520,6 +525,32 @@ void ImGui_Editor::Viewport2DWindow()
         camera_moving = false;
         MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
     }
+}
+
+bool s_ChangeName(ID inUID, std::string& ioName)
+{
+    std::string _popup_name{std::format("Change Name##{}", inUID())};
+    PushID(inUID());
+        if(Button(std::format("Name: {}", ioName).data()))
+            { OpenPopup(_popup_name.data()); }
+        if(BeginPopup(_popup_name.data()))
+        {
+            bool _invalid{Theatre::Current()->ThingExists(ioName)};
+            InputText("Name##2", &ioName);
+            BeginDisabled(_invalid);
+                if(Button("Change"))
+                {
+                    CloseCurrentPopup();
+                    EndDisabled();
+                    EndPopup();
+                    PopID();
+                    return true;
+                }
+            EndDisabled();
+            EndPopup();
+        }
+    PopID();
+    return false;
 }
 
 // https://github.com/ocornut/imgui/issues/282#issuecomment-1964859909

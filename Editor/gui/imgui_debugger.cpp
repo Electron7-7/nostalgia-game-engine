@@ -15,7 +15,6 @@
 #include <Nostalgia/settings/graphics.hpp>
 #include <Nostalgia/settings/player.hpp>
 #include <Nostalgia/events/event.hpp>
-// #include <Nostalgia/rendering/debugging.hpp>
 #include <Nostalgia/rendering/vertex_array.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 #include <Nostalgia/things/thinkers/2d/text_2d.hpp>
@@ -453,7 +452,7 @@ static void s_FPSCounter()
 {
     static int _first_run{0};
     static ImVec2 _fps_counter_pos{0,0};
-    static _fps_counter_position_enum _fps_counter_position{FPS_COUNTER_UR};
+    static _fps_counter_position_enum _fps_counter_position{FPS_COUNTER_BR};
     static bool _fps_position_changed{true}, _opened_header{false};
     static uint _graph_max_size{60};
     static uint _current_graph_index{0};

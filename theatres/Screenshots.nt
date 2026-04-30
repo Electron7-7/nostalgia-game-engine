@@ -1,9 +1,7 @@
 @Screenshots#1
 
-Texture StupidTex
-{
-    File = 'theatres/testing_resources/Stupid.png'
-}
+ImageTexture StupidTex
+{ File = 'theatres/testing_resources/Stupid.png' }
 
 Mesh IcoSphere
 {

@@ -41,6 +41,7 @@ private:
     void LoadEditorTheatre(bool inContinue);
     void ThingAdder();
     void TheatreViewport();
+    void TheatreTree();
     void TheatreInspector();
     void SelectThing(const char* inLabel, ID& ioUID, bool& outChanged);
     void InspectThing();

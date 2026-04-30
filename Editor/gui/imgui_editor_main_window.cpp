@@ -7,66 +7,6 @@
 using namespace ImGui;
 using namespace TheatreFile;
 
-bool s_ChangeName(ID inUID, std::string& ioName)
-{
-    std::string _popup_name{std::format("Change Name##{}", inUID())};
-    PushID(inUID());
-        if(Button(std::format("Name: {}", ioName).data()))
-            { OpenPopup(_popup_name.data()); }
-        if(BeginPopup(_popup_name.data()))
-        {
-            bool _invalid{Theatre::Current()->ThingExists(ioName)};
-            InputText("Name##2", &ioName);
-            BeginDisabled(_invalid);
-                if(Button("Change"))
-                {
-                    CloseCurrentPopup();
-                    EndDisabled();
-                    EndPopup();
-                    PopID();
-                    return true;
-                }
-            EndDisabled();
-            EndPopup();
-        }
-    PopID();
-    return false;
-}
-
-void ImGui_Editor::InspectThing()
-{
-    static std::string _name{};
-    static ThingData _data{};
-    if(not Settings::Engine::IsEditorHint)
-        { return; }
-    auto _variables{Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables()};
-    if(m_sInspectingNewThing)
-    {
-        m_sInspectingNewThing = false;
-        _data = *_variables;
-        _name = _data.name;
-    }
-
-    if(not Begin("Resource Inspector", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-        { End(); return; }
-    else if(Button("Exit"))
-    {
-        mInspectingThingUID = ID::Invalid;
-        _data.clear();
-        End();
-        return;
-    }
-    if(s_ChangeName(mInspectingThingUID, _name))
-    {
-        Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
-        _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
-        _data = *_variables;
-    }
-    if(InspectThing(mInspectingThingUID, _variables, _data))
-        { Theatre::Current()->GetThing(mInspectingThingUID)->SetVariables(_data); }
-    End();
-}
-
 bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData)
 {
     bool _changed{false};
