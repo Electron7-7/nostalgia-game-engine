@@ -20,7 +20,7 @@ public:
 
 protected:
     BitMask mVisualLayers{};
-    ID mViewportID{UID::o_RootViewport};
+    ID mViewportID{};
 
     virtual void OnAncestorRemoved(Relative) override;
     virtual void OnAncestorAdded(Relative) override;

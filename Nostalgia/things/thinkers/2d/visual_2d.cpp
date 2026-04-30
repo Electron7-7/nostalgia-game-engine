@@ -55,7 +55,7 @@ void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::o_RootViewport; }
+        { mViewportID = ID::Invalid; }
 }
 
 void Visual2D::OnAncestorAdded(Relative inAncestor)

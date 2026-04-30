@@ -25,9 +25,7 @@ namespace UID
     // Fonts
         f_Verdana,
         f_DejaVuSans,
-        f_Audiowide,
-    // Other
-        o_RootViewport;
+        f_Audiowide;
 
     uint GetRandom();
 };

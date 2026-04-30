@@ -228,7 +228,7 @@ void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
     if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
-        { mViewportID = UID::o_RootViewport; }
+        { mViewportID = ID::Invalid; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
@@ -266,7 +266,7 @@ glm::mat4 Camera2D::ProjectionMatrix() const
         : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
     float left{0.0f}, right{(float)viewport_size[0]}, up{0.0f}, down{(float)viewport_size[1]},
         _aspect_ratio{static_cast<float>(viewport_size.AspectRatio())};
-    if(mViewportID == UID::o_RootViewport
+    if(mViewportID.invalid()
         and Settings::Graphics::Stretch::Mode == Settings::Graphics::StretchMode::Viewport)
     {
 
