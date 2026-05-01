@@ -116,7 +116,7 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 BitMask _value{};
                 inData->get_variable(_value, _name);
                 BitMask::StatusArray _status_arr{_value.status()};
-                Text("%s", _name.data());
+                SeparatorText(_name.data());
                 if(Button("Disable All"))
                 {
                     _value.set(BitMask::all_disabled);
@@ -130,16 +130,25 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                     outData.set_variable(_value, _name);
                     _changed = true;
                 }
+                auto& _style{GetStyle()};
+                static float _checkbox_width{GetFrameHeight() + _style.ItemInnerSpacing[0]
+                    + CalcTextSize("00")[0]};
+                float _window_width{GetWindowSize()[0] - _style.WindowBorderSize - _style.FramePadding[0]};
+                float _current_width{_style.FramePadding[0] + _checkbox_width};
+
                 for(uint i{0}; i < BitMask::max; ++i)
                 {
-                    if(i > 0 and i != BitMask::max / 2)
-                        { SameLine(); }
                     if(Checkbox(std::format("{:2}", i+1).data(), &_status_arr[i]))
                     {
                         _value.set(_status_arr);
                         outData.set_variable(_value, _name);
                         _changed = true;
                     }
+                    _current_width += _style.ItemSpacing[0] + _checkbox_width;
+                    if(_current_width >= _window_width)
+                        { _current_width = _style.FramePadding[0] + _checkbox_width; }
+                    else if(i != BitMask::max - 1)
+                        { SameLine(); }
                 }
                 break;
             }
