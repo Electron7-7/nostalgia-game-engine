@@ -55,8 +55,13 @@ void Camera3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mViewCutoffFar, "Far", "CutoffFar");
     if(bool use_default_skybox{false}; data.get_variable(use_default_skybox, "UseDefaultSkybox") == OK)
     {
-        mEnvironment.mType = Environment::BG_SKYBOX;
-        mEnvironment.mSkyboxTextureID = UID::t_ShittySkybox;
+        if(use_default_skybox)
+        {
+            mEnvironment.mType = Environment::BG_SKYBOX;
+            mEnvironment.mSkyboxTextureID = UID::t_ShittySkybox;
+        }
+        else
+        { mEnvironment.mType = Environment::BG_CLEAR_COLOR; }
     }
     data.get_variable(mInitCurrent, "Current", "CurrentCamera", "IsCurrent");
     if(data.get_variable(mEnvironment.mSkyboxTextureID, "EnvironmentSkybox") == OK)
@@ -67,8 +72,7 @@ void Camera3D::SetVariables(Farg<ThingData> data)
         mEnvironment.mType = Environment::BG_CUSTOM_COLOR;
         mEnvironment.mCustomColor = color;
     }
-    data.get_variable(mEnvironment.mCustomColorAlpha,
-        "EnvironmentColorAlpha", "EnvironmentAlpha");
+    data.get_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha", "EnvironmentAlpha");
 }
 
 Shared<ThingData> Camera3D::GetVariables() const
@@ -80,9 +84,8 @@ Shared<ThingData> Camera3D::GetVariables() const
     data->set_variable(mViewCutoffNear, "Near");
     data->set_variable(mViewCutoffFar, "Far");
     data->set_variable(mInitCurrent, "Current");
-    if(mEnvironment.mType == Environment::BG_SKYBOX
-        and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox)
-        { data->set_variable(true, "UseDefaultSkybox"); }
+    data->set_variable((mEnvironment.mType == Environment::BG_SKYBOX
+        and mEnvironment.mSkyboxTextureID == UID::t_ShittySkybox), "UseDefaultSkybox");
     if(mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
         { data->set_variable(mEnvironment.mCustomColor.glm(), "EnvironmentColor"); }
     data->set_variable(mEnvironment.mCustomColorAlpha, "EnvironmentColorAlpha");
