@@ -27,11 +27,11 @@ public:
         int inPriority = cDefaultPriority);
 
     static Farg<std::map<PID, PID>> GetThingDeclarations();
-    static std::set<ThingType_t> GetAllTypes();
+    static std::set<ThingType> GetAllTypes();
     static IdVec_t GetAllTypeIDs();
 
     static Error RemoveThing(FPID inType) noexcept;
-    static Farg<ThingType_t> GetType(FPID inType) noexcept;
+    static Farg<ThingType> GetType(FPID inType) noexcept;
     static PID GetClosestType(FPID inType) noexcept;
 
     static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty);
@@ -48,7 +48,7 @@ private:
     static bool m_sIsInitialized;
     static std::map<ID, pThingMakerTemplate_t> m_sThingMakers;
     static std::map<ID, int>                   m_sTypePriorities;
-    static std::set<ThingType_t>               m_sAllTypes;
+    static std::set<ThingType>               m_sAllTypes;
 };
 
 #endif // THING_FACTORY_H

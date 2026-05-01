@@ -3,10 +3,36 @@
 
 #define TYPE_ID(CLASS) CLASS{#CLASS}
 
-// These PIDs only exist to avoid passing string literals to functions like `ThingFactory::IsDerivedFrom`
-namespace ThingType
+struct ThingType
 {
-    inline const PID Invalid{ID::Invalid, "Invalid"},
+private:
+    PID _type_id{};
+    PID _base_type_id{};
+    std::unordered_set<PID> _all_base_types{};
+
+    friend class ThingFactory;
+    ThingType(FPID) noexcept;
+
+public:
+    using typeids_t = std::unordered_set<PID>;
+
+    ThingType() noexcept;
+
+    Farg<typeids_t> base_types() const noexcept;
+    Farg<typeids_t> derived_types() const noexcept;
+    PID base_type() const noexcept;
+    PID type() const noexcept;
+    PID operator()() const noexcept;
+    bool is_derived_from(FPID inTypeID) const noexcept;
+    std::string log() const noexcept;
+
+    bool operator<(Farg<ThingType> inOther) const noexcept
+    { return _type_id < inOther._type_id; }
+
+    bool operator==(Farg<ThingType> inOther) const noexcept
+    { return _type_id == inOther._type_id; }
+
+    inline static const PID Invalid{ID::Invalid, "Invalid"},
         TYPE_ID(Thing),
             TYPE_ID(Resource),
                 TYPE_ID(Font),
@@ -36,37 +62,7 @@ namespace ThingType
                     TYPE_ID(Visual2D),
                         TYPE_ID(Sprite2D),
                         TYPE_ID(Text2D);
-}
-
-#undef TYPE_ID
-
-struct ThingType_t
-{
-private:
-    PID _type_id{};
-    PID _base_type_id{};
-    std::unordered_set<PID> _all_base_types{};
-
-    friend class ThingFactory;
-    ThingType_t(FPID) noexcept;
-
-public:
-    using typeids_t = std::unordered_set<PID>;
-
-    ThingType_t() noexcept;
-
-    Farg<typeids_t> base_types() const noexcept;
-    PID base_type() const noexcept;
-    PID type() const noexcept;
-    PID operator()() const noexcept;
-    bool is_derived_from(FPID inTypeID) const noexcept;
-    std::string log() const noexcept;
-
-    bool operator<(Farg<ThingType_t> inOther) const noexcept
-    { return _type_id < inOther._type_id; }
-
-    bool operator==(Farg<ThingType_t> inOther) const noexcept
-    { return _type_id == inOther._type_id; }
 };
 
+#undef TYPE_ID
 #endif // THING_TYPE_H

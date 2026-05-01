@@ -33,7 +33,7 @@ static std::map<PID, PID> sTypeDeclarations{};
 bool ThingFactory::m_sIsInitialized{false};
 std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
 std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
-std::set<ThingType_t>               ThingFactory::m_sAllTypes{};
+std::set<ThingType>                 ThingFactory::m_sAllTypes{};
 
 bool ThingFactory::Init()
 {
@@ -92,7 +92,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     FPID inBaseType,
     int inPriority)
 {
-    ThingType_t type{inType};
+    ThingType type{inType};
     if(type.type() == ThingType::Thing)
     {
         type._all_base_types.emplace(type._base_type_id = ThingType::Thing);
@@ -100,17 +100,17 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
         m_sThingMakers[inType]    = inPtr;
         m_sTypePriorities[inType] = inPriority;
         if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
-            { print_debug("Registered New ThingType_t: {}", type.log()); }
+            { print_debug("Registered New ThingType: {}", type.log()); }
         return OK;
     }
     else if(m_sAllTypes.contains(type))
     {
-        print_error("ThingType_t '{}' already exists!", inType);
+        print_error("ThingType '{}' already exists!", inType);
         return ERR_ALREADY_EXISTS;
     }
     else if(!m_sAllTypes.contains(inBaseType))
     {
-        print_error("Base ThingType_t '{}' is invalid!", inBaseType.name());
+        print_error("Base ThingType '{}' is invalid!", inBaseType.name());
         return ERR_INVALID_TYPE;
     }
     int _priority{inPriority};
@@ -143,7 +143,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     }
     type._all_base_types.emplace(next_base);
     if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
-        { print_debug("Registered New ThingType_t w/ priority {: }: {}", _priority, type.log()); }
+        { print_debug("Registered New ThingType w/ priority {: }: {}", _priority, type.log()); }
     m_sAllTypes.emplace(type);
 
     m_sThingMakers[inType]    = inPtr;
@@ -154,7 +154,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
 Farg<std::map<PID, PID>> ThingFactory::GetThingDeclarations()
 { return sTypeDeclarations; }
 
-std::set<ThingType_t> ThingFactory::GetAllTypes()
+std::set<ThingType> ThingFactory::GetAllTypes()
 { return m_sAllTypes; }
 
 IdVec_t ThingFactory::GetAllTypeIDs()
@@ -173,9 +173,9 @@ Error ThingFactory::RemoveThing(FPID inType) noexcept
     return OK;
 }
 
-Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
+Farg<ThingType> ThingFactory::GetType(FPID inType) noexcept
 {
-    static ThingType_t sBadType{ThingType::Invalid};
+    static ThingType sBadType{ThingType::Invalid};
     if(auto found_it{m_sAllTypes.find(inType)}; found_it != m_sAllTypes.end())
         { return *found_it; }
     return sBadType;
@@ -197,7 +197,7 @@ Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
     if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
         { return found_it->second(inName); }
-    print_warning("ThingType_t '{}' is an invalid type! An empty Thing will be returned",
+    print_warning("ThingType '{}' is an invalid type! An empty Thing will be returned",
         inType.name());
     return ThingMakerTemplate<Thing>(inName);
 }
