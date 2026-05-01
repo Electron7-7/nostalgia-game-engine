@@ -52,6 +52,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/core/bitmask.cpp
     ${NOSTALGIA_ROOT}/core/ansi_sequence.cpp
     ${NOSTALGIA_ROOT}/core/log.cpp
+    ${NOSTALGIA_ROOT}/core/tree.cpp
     ${NOSTALGIA_ROOT}/core/id.cpp
     ${NOSTALGIA_ROOT}/application/application.cpp
     ${NOSTALGIA_ROOT}/application/window.cpp
@@ -92,9 +93,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/thing_variable.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/parser.cpp
     ${NOSTALGIA_ROOT}/theatre/parser/lexer.cpp
-    ${NOSTALGIA_ROOT}/theatre/call_sheet.cpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.cpp
-    ${NOSTALGIA_ROOT}/theatre/tree.cpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.cpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.cpp
     ${NOSTALGIA_ROOT}/physics/engine.cpp
@@ -142,6 +141,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/macros.hpp
     ${NOSTALGIA_ROOT}/core/constexpr_string_hash.hpp
     ${NOSTALGIA_ROOT}/core/log.hpp
+    ${NOSTALGIA_ROOT}/core/tree.hpp
     ${NOSTALGIA_ROOT}/core/time.hpp
     ${NOSTALGIA_ROOT}/application/window.hpp
     ${NOSTALGIA_ROOT}/application/monitor.hpp
@@ -183,9 +183,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/thing_type.hpp
     ${NOSTALGIA_ROOT}/things/thing_factory.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.hpp
-    ${NOSTALGIA_ROOT}/theatre/tree.hpp
     ${NOSTALGIA_ROOT}/things/thing_data.hpp
-    ${NOSTALGIA_ROOT}/theatre/call_sheet.hpp
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
