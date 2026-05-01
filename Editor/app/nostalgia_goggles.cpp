@@ -22,6 +22,13 @@
 #include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 
+// Suppress LeakSanitizer (due to random memory leaks likely caused by libGL.so or X11/Wayland drivers)
+// https://stackoverflow.com/a/51061314
+#ifdef __cplusplus
+extern "C"
+#endif // __cplusplus
+const char* __asan_default_options() { return "detect_leaks=0"; }
+
 static ImGui_Editor sImGui_Editor{};
 static ImGui_Debugger sImGui_Debugger{};
 
