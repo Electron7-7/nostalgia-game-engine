@@ -172,9 +172,14 @@ Farg<ThingType_t> ThingFactory::GetType(FPID inType) noexcept
 
 PID ThingFactory::GetClosestType(FPID inType) noexcept
 {
-    if(auto found_it{sTypeDeclarations.find(inType)}; found_it != sTypeDeclarations.end())
-        { return found_it->second; }
-    return GetType(inType).type();
+    if(auto found_it{m_sAllTypes.find(inType)}; found_it != m_sAllTypes.end())
+        { return found_it->type(); }
+    else if(auto found_it_again{sTypeDeclarations.find(inType)}; found_it_again != sTypeDeclarations.end())
+    {
+        if(m_sAllTypes.contains(found_it_again->second))
+            { return found_it_again->second; }
+    }
+    return GetType(inType).base_type();
 }
 
 Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
