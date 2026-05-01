@@ -154,6 +154,17 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
 Farg<std::map<PID, PID>> ThingFactory::GetThingDeclarations()
 { return sTypeDeclarations; }
 
+std::set<ThingType_t> ThingFactory::GetAllTypes()
+{ return m_sAllTypes; }
+
+IdVec_t ThingFactory::GetAllTypeIDs()
+{
+    IdVec_t _types{};
+    for(auto iter{m_sAllTypes.rbegin()}; iter != m_sAllTypes.rend(); ++iter)
+        { _types.push_back(iter->type()); }
+    return _types;
+}
+
 Error ThingFactory::RemoveThing(FPID inType) noexcept
 {
     m_sAllTypes.erase(inType);

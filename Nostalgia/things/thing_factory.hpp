@@ -27,6 +27,8 @@ public:
         int inPriority = cDefaultPriority);
 
     static Farg<std::map<PID, PID>> GetThingDeclarations();
+    static std::set<ThingType_t> GetAllTypes();
+    static IdVec_t GetAllTypeIDs();
 
     static Error RemoveThing(FPID inType) noexcept;
     static Farg<ThingType_t> GetType(FPID inType) noexcept;
