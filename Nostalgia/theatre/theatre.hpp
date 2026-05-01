@@ -152,7 +152,7 @@ protected:
         mVisual2DIDs{},
         mViewportIDs{};
     // CallSheet mCallSheet{};
-    Tree mCallSheet{};
+    Tree<ID> mCallSheet{};
 
     Shared<Thinker> m_pPlayer{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{MakeShared<TheatreFile::TheatreData>()};
