@@ -26,7 +26,7 @@ private:
         m_sLastAttemptedTheatreFilePath;
     static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
-    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing;
+    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing, m_sThingAdderOpened;
     std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
 
     ID mInspectingThingUID{};

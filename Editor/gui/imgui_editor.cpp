@@ -49,6 +49,7 @@ std::string ImGui_Editor::m_sScreenshotFilePath{"NostalgiaGoggles_Screenshot.jpg
 bool ImGui_Editor::m_sTheatreRunning{false},
     ImGui_Editor::m_sInspectingNewThing{false},
     ImGui_Editor::m_sAddThing{false},
+    ImGui_Editor::m_sThingAdderOpened{false},
     sUseNewIcons{false};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
@@ -321,6 +322,46 @@ void ImGui_Editor::LoadTheatre(bool inLoadFile)
         { g_pTheatreManager->LoadFromData(mEditorTheatreData); }
 }
 
+void ImGui_Editor::TheatreTree()
+{
+    if(not Theatre::Current()->IsStarted())
+    {
+        mInspectingThingUID = ID::Invalid;
+        return;
+    }
+    BeginChild("Theatre Tree", {}, sResizableChildWithBorder);
+        BeginDisabled(m_sThingAdderOpened);
+            if(Button("Add Thing"))
+                { m_sAddThing = true; }
+        EndDisabled();
+        if(CollapsingHeader("Resources"))
+        {
+            auto& g{*ImGui::GetCurrentContext()};
+            float _indent{g.CurrentWindow->DC.CursorPos[0] + g.FontSize};
+            Indent(_indent);
+            for(FAUTO uid : Theatre::Current()->ResourceUIDs())
+            {
+                if(_select_thing(uid))
+                {
+                    mInspectingThingUID   = uid;
+                    m_sInspectingNewThing = true;
+                }
+            }
+            Unindent(_indent);
+        }
+        SetNextItemOpen(true, ImGuiCond_Once);
+        if(CollapsingHeader("Thinkers"))
+        {
+            for(FAUTO uid : Theatre::Current()->ThinkerUIDs())
+            {
+                if(not Theatre::Current()->GetParent(uid).invalid())
+                    { continue; }
+                _thinker_tree_branch(uid);
+            }
+        }
+    EndChild();
+}
+
 void ImGui_Editor::TheatreInspector()
 {
     static std::string _name{};
@@ -415,42 +456,6 @@ void ImGui_Editor::TheatreViewport()
         else
             { Viewport2DWindow(); }
     EndChild();
-}
-
-void ImGui_Editor::TheatreTree()
-{
-    if(not Theatre::Current()->IsStarted())
-        { mInspectingThingUID = ID::Invalid; }
-    else
-    {
-        BeginChild("Theatre Tree", {}, sResizableChildWithBorder);
-            if(CollapsingHeader("Resources"))
-            {
-                auto& g{*ImGui::GetCurrentContext()};
-                float _indent{g.CurrentWindow->DC.CursorPos[0] + g.FontSize};
-                Indent(_indent);
-                for(FAUTO uid : Theatre::Current()->ResourceUIDs())
-                {
-                    if(_select_thing(uid))
-                    {
-                        mInspectingThingUID   = uid;
-                        m_sInspectingNewThing = true;
-                    }
-                }
-                Unindent(_indent);
-            }
-            SetNextItemOpen(true, ImGuiCond_Once);
-            if(CollapsingHeader("Thinkers"))
-            {
-                for(FAUTO uid : Theatre::Current()->ThinkerUIDs())
-                {
-                    if(not Theatre::Current()->GetParent(uid).invalid())
-                        { continue; }
-                    _thinker_tree_branch(uid);
-                }
-            }
-        EndChild();
-    }
 }
 
 bool ImGui_Editor::_select_thing(ID inUID)
