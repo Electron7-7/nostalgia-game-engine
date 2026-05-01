@@ -377,7 +377,7 @@ void ImGui_Editor::TheatreViewport()
 {
     static ImVec2 _viewport_window_size{}, _viewport_size{};
     bool _is_3d{true};
-    Shared<Viewport> _viewport{};
+    static Shared<Viewport> _viewport{m_spEditorTheatre->m_pEditor3DViewport};
     BeginChild("Editor Viewport",
         {768, 0},
         sResizableChildWithBorder,
@@ -398,6 +398,8 @@ void ImGui_Editor::TheatreViewport()
             }
             EndTabBar();
         }
+        if(not _viewport)
+            { return; }
         _viewport_size = {(float)_viewport->Size().w(), (float)_viewport->Size().h()};
         GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
         ImGui::Image((ImTextureRef)_viewport->GetTextureBufferID(),
