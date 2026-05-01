@@ -52,7 +52,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/core/bitmask.cpp
     ${NOSTALGIA_ROOT}/core/ansi_sequence.cpp
     ${NOSTALGIA_ROOT}/core/log.cpp
-    ${NOSTALGIA_ROOT}/core/tree.cpp
     ${NOSTALGIA_ROOT}/core/id.cpp
     ${NOSTALGIA_ROOT}/application/application.cpp
     ${NOSTALGIA_ROOT}/application/window.cpp
