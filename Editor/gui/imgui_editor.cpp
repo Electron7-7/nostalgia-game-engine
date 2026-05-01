@@ -19,14 +19,14 @@
 #include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
+#include <Nostalgia/things/thinkers/3d/ramiel.hpp>
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 #include <Nostalgia/thirdparty/Jolt/Jolt.h>
 #include <Nostalgia/thirdparty/Jolt/Core/StringTools.h>
 
-#define REGISTER_ICON(TYPE, VAR_NAME, UID_OUT) \
+#define REGISTER_ICON(TYPE, VAR_NAME) \
     m_sEditorIcons[TYPE] = ImageTexture::CreateFromImage(Image::CreateFromFile({VAR_NAME,std::size(VAR_NAME)}));\
-    m_sEditorIcons[TYPE]->rename(#TYPE); \
-    m_sEditorIconUIDs.emplace(UID_OUT = m_sEditorIcons[TYPE]->uid()); \
+    m_sEditorIcons[TYPE]->rename(#TYPE);
 
 using namespace ImGui;
 
@@ -43,7 +43,6 @@ bool ImGui_Editor::m_sTheatreRunning{false},
     ImGui_Editor::m_sInspectingNewThing{false},
     ImGui_Editor::m_sAddThing{false};
 std::unordered_map<PID, Shared<ImageTexture>> ImGui_Editor::m_sEditorIcons{};
-std::unordered_set<ID> ImGui_Editor::m_sEditorIconUIDs{};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
 static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
@@ -60,42 +59,42 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    REGISTER_ICON(ThingType::Actor2D, _EditorIcons::actor_2d, UID::actor_2d)
-    REGISTER_ICON(ThingType::Actor3D, _EditorIcons::actor_3d, UID::actor_3d)
-    REGISTER_ICON(ThingType::ArrayMesh, _EditorIcons::array_mesh, UID::array_mesh)
-    REGISTER_ICON(ThingType::Camera2D, _EditorIcons::camera_2d, UID::camera_2d)
-    REGISTER_ICON(ThingType::Camera3D, _EditorIcons::camera_3d, UID::camera_3d)
-    REGISTER_ICON(ThingType::Collider3D, _EditorIcons::collider_3d, UID::collider_3d)
-    REGISTER_ICON(ThingType::Cubemap, _EditorIcons::cubemap, UID::cubemap)
-    REGISTER_ICON(ThingType::DirectionalLight3D, _EditorIcons::directional_light_3d, UID::directional_light_3d)
-    REGISTER_ICON(ThingType::Font, _EditorIcons::font, UID::font)
-    REGISTER_ICON(ThingType::Image, _EditorIcons::image, UID::image)
-    REGISTER_ICON(ThingType::ImageTexture, _EditorIcons::image_texture, UID::image_texture)
-    REGISTER_ICON(ThingType::Light3D, _EditorIcons::light_3d, UID::light_3d)
-    REGISTER_ICON(ThingType::Material, _EditorIcons::material, UID::material)
-    REGISTER_ICON(ThingType::Mesh, _EditorIcons::mesh, UID::mesh)
-    REGISTER_ICON(ThingType::MeshInstance3D, _EditorIcons::mesh_instance_3d, UID::mesh_instance_3d)
-    REGISTER_ICON(ThingType::NostalgiaPlayer, _EditorIcons::nostalgia_player_3d, UID::nostalgia_player_3d)
-    REGISTER_ICON(ThingType::PointLight3D, _EditorIcons::point_light_3d, UID::point_light_3d)
-    REGISTER_ICON(ThingType::Resource, _EditorIcons::resource, UID::resource)
-    REGISTER_ICON(ThingType::SpotLight3D, _EditorIcons::spot_light_3d, UID::spot_light_3d)
-    REGISTER_ICON(ThingType::Sprite2D, _EditorIcons::sprite_2d, UID::sprite_2d)
-    REGISTER_ICON(ThingType::Sprite3D, _EditorIcons::sprite_3d, UID::sprite_3d)
-    REGISTER_ICON(ThingType::Text2D, _EditorIcons::text_2d, UID::text_2d)
-    REGISTER_ICON(ThingType::Texture, _EditorIcons::texture, UID::texture)
-    REGISTER_ICON(ThingType::Thing, _EditorIcons::thing, UID::thing)
-    REGISTER_ICON(ThingType::Thinker, _EditorIcons::thinker, UID::thinker)
-    REGISTER_ICON(ThingType::Viewport, _EditorIcons::viewport, UID::viewport)
-    REGISTER_ICON(ThingType::ViewportTexture, _EditorIcons::viewport_texture, UID::viewport_texture)
-    REGISTER_ICON(ThingType::Visual2D, _EditorIcons::visual_2d, UID::visual_2d)
-    REGISTER_ICON(ThingType::Visual3D, _EditorIcons::visual_3d, UID::visual_3d)
+    REGISTER_ICON(ThingType::Actor2D, _EditorIcons::actor_2d)
+    REGISTER_ICON(ThingType::Actor3D, _EditorIcons::actor_3d)
+    REGISTER_ICON(ThingType::ArrayMesh, _EditorIcons::array_mesh)
+    REGISTER_ICON(ThingType::Camera2D, _EditorIcons::camera_2d)
+    REGISTER_ICON(ThingType::Camera3D, _EditorIcons::camera_3d)
+    REGISTER_ICON(ThingType::Collider3D, _EditorIcons::collider_3d)
+    REGISTER_ICON(ThingType::Cubemap, _EditorIcons::cubemap)
+    REGISTER_ICON(ThingType::DirectionalLight3D, _EditorIcons::directional_light_3d)
+    REGISTER_ICON(ThingType::Font, _EditorIcons::font)
+    REGISTER_ICON(ThingType::Image, _EditorIcons::image)
+    REGISTER_ICON(ThingType::ImageTexture, _EditorIcons::image_texture)
+    REGISTER_ICON(ThingType::Light3D, _EditorIcons::light_3d)
+    REGISTER_ICON(ThingType::Material, _EditorIcons::material)
+    REGISTER_ICON(ThingType::Mesh, _EditorIcons::mesh)
+    REGISTER_ICON(ThingType::MeshInstance3D, _EditorIcons::mesh_instance_3d)
+    REGISTER_ICON(ThingType::NostalgiaPlayer, _EditorIcons::nostalgia_player_3d)
+    REGISTER_ICON(ThingType::PointLight3D, _EditorIcons::point_light_3d)
+    REGISTER_ICON(ThingType::Resource, _EditorIcons::resource)
+    REGISTER_ICON(ThingType::SpotLight3D, _EditorIcons::spot_light_3d)
+    REGISTER_ICON(ThingType::Sprite2D, _EditorIcons::sprite_2d)
+    REGISTER_ICON(ThingType::Sprite3D, _EditorIcons::sprite_3d)
+    REGISTER_ICON(ThingType::Text2D, _EditorIcons::text_2d)
+    REGISTER_ICON(ThingType::Texture, _EditorIcons::texture)
+    REGISTER_ICON(ThingType::Thing, _EditorIcons::thing)
+    REGISTER_ICON(ThingType::Thinker, _EditorIcons::thinker)
+    REGISTER_ICON(ThingType::Viewport, _EditorIcons::viewport)
+    REGISTER_ICON(ThingType::ViewportTexture, _EditorIcons::viewport_texture)
+    REGISTER_ICON(ThingType::Visual2D, _EditorIcons::visual_2d)
+    REGISTER_ICON(ThingType::Visual3D, _EditorIcons::visual_3d)
+    REGISTER_ICON(Ramiel::RamielType, _EditorIcons::ramiel)
 }
 
 void ImGui_Editor::Shutdown()
 {
     PRINT_PRETTY_FUNCTION;
     m_sEditorIcons.clear();
-    m_sEditorIconUIDs.clear();
 }
 
 void ImGui_Editor::TheatreEntered()
@@ -598,7 +597,7 @@ bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
 uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
 {
     if(not m_sEditorIcons.contains(inType))
-        { return 0; }
+        { return m_sEditorIcons.at(ThingFactory::GetClosestType(inType))->Buffer()->GetID(); }
     return m_sEditorIcons.at(inType)->Buffer()->GetID();
 }
 
