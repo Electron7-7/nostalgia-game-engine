@@ -6,10 +6,15 @@
   </ul>
 </div>
 
-(LolBit texture stolen from [Puppet](https://neonrealm.carrd.co))
-<img width="1920" src="https://github.com/user-attachments/assets/908d4e61-66da-4e3e-820f-74f1ae209cf8"/>
+<p align="center">
+  <img height="350" alt="NostalgiaGoggles_Screenshot_01" src="https://github.com/user-attachments/assets/0a173094-781f-4dc3-954c-e0c039021b16" />
+  <img height="350" alt="NostalgiaGoggles_Screenshot_02" src="https://github.com/user-attachments/assets/5c2f1c80-d0ee-42c2-a6e2-5c7f072fc2d1" />
+  <!-- <img width="1920" src="https://github.com/user-attachments/assets/908d4e61-66da-4e3e-820f-74f1ae209cf8"/> -->
+</p>
 
+<sub>(LolBit texture stolen from [Puppet](https://neonrealm.carrd.co))</sub>
 ### Check out the [wiki](https://github.com/Electron7-7/nostalgia-game-engine/wiki) for more info, guides, and documentation!
+<br>
 
 # A New Old Game Engine
 My goal for creating the Nostalgia game engine is for it to eventually be capable of capturing the feeling of PS2-era video games, albiet with modern sensibilities and quality of life features added on top. This is a very ambitious goal, considering that it's only my second game engine, but it's a goal nonetheless.
