@@ -7,8 +7,8 @@
 </div>
 
 <p align="center">
-  <img height="350" alt="NostalgiaGoggles_Screenshot_01" src="https://github.com/user-attachments/assets/0a173094-781f-4dc3-954c-e0c039021b16" />
-  <img height="350" alt="NostalgiaGoggles_Screenshot_02" src="https://github.com/user-attachments/assets/5c2f1c80-d0ee-42c2-a6e2-5c7f072fc2d1" />
+  <img height="300" alt="NostalgiaGoggles_Screenshot_01" src="https://github.com/user-attachments/assets/0a173094-781f-4dc3-954c-e0c039021b16" />
+  <img height="300" alt="NostalgiaGoggles_Screenshot_02" src="https://github.com/user-attachments/assets/5c2f1c80-d0ee-42c2-a6e2-5c7f072fc2d1" />
   <!-- <img width="1920" src="https://github.com/user-attachments/assets/908d4e61-66da-4e3e-820f-74f1ae209cf8"/> -->
 </p>
 
