@@ -179,7 +179,7 @@ void WindowGLFW::Shutdown()
     glfwDestroyWindow(m_pWindow);
     if(--sShittyWindowTrackerPleaseMakeSomethingBetter <= 0)
     {
-        RendererAPI::Get()->Shutdown();
+        RendererAPI::DeactivateInstance();
         glfwTerminate();
     }
 }
