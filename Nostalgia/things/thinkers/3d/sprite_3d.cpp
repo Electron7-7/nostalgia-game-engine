@@ -23,7 +23,8 @@ Shared<ThingData> Sprite3D::GetVariables() const
     auto data{Super::GetVariables()};
 
     data->set_variable(mTexture, "Texture");
-    data->set_variable(mTextureImagePath, "Texture");
+    if(not mTextureImagePath.empty())
+        { data->set_variable(mTextureImagePath, "Texture"); }
     mSampler.GetVariables(data);
 
     return data;
