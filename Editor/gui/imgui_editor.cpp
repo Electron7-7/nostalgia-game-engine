@@ -50,7 +50,6 @@ static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
 static bool sEditorJustLoaded{false};
 
 static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
-static bool s_ChangeName(ID, std::string&);
 
 void ImDrawCallback_ImplGL_EnableSRGB(const ImDrawList*, const ImDrawCmd*)
 { RendererAPI::Get()->SetFramebufferSRGB(true); }
@@ -317,11 +316,37 @@ void ImGui_Editor::TheatreInspector()
     }
 
     BeginChild("Theatre Inspector", {}, ImGuiChildFlags_Borders);
-        if(s_ChangeName(mInspectingThingUID, _name))
+        if(mInspectingThingUID.invalid())
         {
-            Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
-            _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
-            _data = *_variables;
+            EndChild();
+            return;
+        }
+        if(Button("Destroy Thing"))
+        {
+            Theatre::Current()->DestroyThing(mInspectingThingUID);
+            mInspectingThingUID = {};
+            _name.clear();
+            _data.clear();
+            EndChild();
+            return;
+        }
+        std::string _popup_name{std::format("Change Name")};
+        if(Button(std::format("Name: {}", _name).data()))
+            { OpenPopup(_popup_name.data()); }
+        if(BeginPopup(_popup_name.data()))
+        {
+            bool _invalid{Theatre::Current()->ThingExists(_name)};
+            InputText("Name", &_name);
+            BeginDisabled(_invalid);
+                if(Button("Change"))
+                {
+                    CloseCurrentPopup();
+                    Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
+                    _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
+                    _data = *_variables;
+                }
+            EndDisabled();
+            EndPopup();
         }
         if(InspectThing(mInspectingThingUID, _variables, _data))
             { Theatre::Current()->GetThing(mInspectingThingUID)->SetVariables(_data); }
@@ -337,7 +362,7 @@ void ImGui_Editor::TheatreViewport()
         {768, 0},
         sResizableChildWithBorder,
         ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-        if(BeginTabBar("Viewports"))
+        if(BeginTabBar("Viewports", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
         {
             if(BeginTabItem("3D"))
             {
@@ -379,6 +404,9 @@ void ImGui_Editor::TheatreTree()
         BeginChild("Theatre Tree", {}, sResizableChildWithBorder);
             if(CollapsingHeader("Resources"))
             {
+                auto& g{*ImGui::GetCurrentContext()};
+                float _indent{g.CurrentWindow->DC.CursorPos[0] + g.FontSize};
+                Indent(_indent);
                 for(FAUTO uid : Theatre::Current()->ResourceUIDs())
                 {
                     if(_select_thing(uid))
@@ -387,6 +415,7 @@ void ImGui_Editor::TheatreTree()
                         m_sInspectingNewThing = true;
                     }
                 }
+                Unindent(_indent);
             }
             SetNextItemOpen(true, ImGuiCond_Once);
             if(CollapsingHeader("Thinkers"))
@@ -525,32 +554,6 @@ void ImGui_Editor::Viewport2DWindow()
         camera_moving = false;
         MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
     }
-}
-
-bool s_ChangeName(ID inUID, std::string& ioName)
-{
-    std::string _popup_name{std::format("Change Name##{}", inUID())};
-    PushID(inUID());
-        if(Button(std::format("Name: {}", ioName).data()))
-            { OpenPopup(_popup_name.data()); }
-        if(BeginPopup(_popup_name.data()))
-        {
-            bool _invalid{Theatre::Current()->ThingExists(ioName)};
-            InputText("Name##2", &ioName);
-            BeginDisabled(_invalid);
-                if(Button("Change"))
-                {
-                    CloseCurrentPopup();
-                    EndDisabled();
-                    EndPopup();
-                    PopID();
-                    return true;
-                }
-            EndDisabled();
-            EndPopup();
-        }
-    PopID();
-    return false;
 }
 
 // https://github.com/ocornut/imgui/issues/282#issuecomment-1964859909
