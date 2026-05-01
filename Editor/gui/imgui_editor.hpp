@@ -20,7 +20,6 @@ public:
     void TheatreExited()  final;
 
 private:
-    static uint GetIconTextureBufferID(FPID inType);
     static std::string m_sScreenshotFilePath,
         m_sTheatreFilePath,
         m_sTheatreFileSavePath,
@@ -28,12 +27,12 @@ private:
     static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
     static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing;
-    static std::unordered_map<PID, Shared<ImageTexture>> m_sEditorIcons;
-    static std::unordered_set<ID> m_sEditorIconUIDs;
+    std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
 
     ID mInspectingThingUID{};
     TheatreFile::TheatreData mEditorTheatreData{};
 
+    uint GetIconTextureBufferID(FPID inType);
     void Viewport3DWindow();
     void Viewport2DWindow();
     void TheatreLoadingWindow();

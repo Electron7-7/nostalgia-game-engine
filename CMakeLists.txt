@@ -166,7 +166,7 @@ endif()
 if(BUILD_EDITOR)
     set(_EMBED_EDITOR ON)
     set(_EMBED_NOSTALGIA OFF)
-    set(EDITOR_ASSET_FILES editor_icons.hpp editor_models.hpp)
+    set(EDITOR_ASSET_FILES editor_icons.hpp new_editor_icons.hpp editor_models.hpp)
     add_custom_command(OUTPUT ${EDITOR_ASSET_FILES}
         COMMAND ${CMAKE_COMMAND}
         ARGS -D_EMBED_EDITOR=ON -DSOURCE_DIR=${EDITOR_ROOT}/assets -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
