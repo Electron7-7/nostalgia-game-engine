@@ -5,7 +5,6 @@
 #include <Nostalgia/things/thinkers/thinker.hpp>
 #include <Nostalgia/things/resources/resource.hpp>
 #include <Nostalgia/theatre/theatre_file.hpp>
-#include <Nostalgia/theatre/call_sheet.hpp>
 
 class Theatre
 {
@@ -64,6 +63,7 @@ public:
     Sarg TheatreFilePath() const;
     std::string TheatreFileDirectory() const;
     std::string TheatreFileName() const;
+    std::string InheritanceLog() const;
 
     Error InitStatus() const;
     bool  IsStarted()  const;
@@ -151,7 +151,8 @@ protected:
         mVisual3DIDs{},
         mVisual2DIDs{},
         mViewportIDs{};
-    CallSheet mCallSheet{};
+    // CallSheet mCallSheet{};
+    Tree mCallSheet{};
 
     Shared<Thinker> m_pPlayer{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{MakeShared<TheatreFile::TheatreData>()};

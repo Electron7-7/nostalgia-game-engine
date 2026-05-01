@@ -140,7 +140,7 @@ bool Theatre::Startup()
         mNames[thing->name()] = thing->uid();
         thing->SetNameChangeCallback(&Theatre::SetThingName);
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
-        mCallSheet.Add(thing->uid());
+        mCallSheet.add_node(thing->uid());
         if(Console::GetVariable("Theatre.debug_create_thing_msgs").int_value)
             { print_debug("Created {} [{}, {}]", thing->Type().name(), thing->name(), thing->uid()()); }
         ++iter;
@@ -154,16 +154,16 @@ bool Theatre::Startup()
             {
                 if(ID parent{GetUID(iter->parent_variable.value)}; not parent.invalid())
                 {
-                    if(not mCallSheet.Has(parent))
-                        { mCallSheet.Add(parent); }
-                    if(not mCallSheet.Reparent(found_it->second, parent))
-                        { mCallSheet.Add(found_it->second, parent); }
+                    if(not mCallSheet.has_node(parent))
+                        { mCallSheet.add_node(parent); }
+                    if(not mCallSheet.set_parent(found_it->second, parent))
+                        { mCallSheet.add_node(found_it->second, parent); }
                 }
                 for(FAUTO child_var : iter->children_variables)
                 {
                     ID child{GetUID(child_var.value)};
-                    if(not child.invalid() and not mCallSheet.Reparent(child, found_it->second))
-                        { mCallSheet.Add(child, found_it->second); }
+                    if(not child.invalid() and not mCallSheet.set_parent(child, found_it->second))
+                        { mCallSheet.add_node(child, found_it->second); }
                 }
                 ++iter;
                 continue;
@@ -181,7 +181,7 @@ bool Theatre::Startup()
         { mThings.at(mNames.at(thing_data.name))->Ready(); }
 
     if(Console::GetVariable("Theatre.debug_callsheet_msgs").int_value)
-        { print_debug("{}", mCallSheet.debug_log(mThings)); }
+        { print_debug("{}", InheritanceLog()); }
 
     mIsStarted = true;
     return true;
@@ -197,7 +197,7 @@ bool Theatre::Shutdown()
     for(FAUTO uid : _uids)
         { DestroyThing(uid); }
     mNames.clear();
-    mCallSheet.Clear();
+    mCallSheet.clear();
     mThings.clear();
     return true;
 }
@@ -272,6 +272,25 @@ std::string Theatre::TheatreFileDirectory() const
 
 std::string Theatre::TheatreFileName() const
 { return FileSystem::GetStem(m_pInitialState->file_path, true); }
+
+std::string Theatre::InheritanceLog() const
+{
+    std::string log{"Inheritance Log:\n"};
+    std::string indentation{};
+    for(FAUTO [id, node] : mCallSheet.nodes)
+    {
+        log += std::format("\tNode [{}, {}]\n", id(),
+            (mThings.contains(id)) ? mThings.at(id)->name() : "N/A");
+        for(ID child : node.children)
+        {
+            std::string name{(mThings.contains(child)) ? mThings.at(child)->name() : ""};
+            log += std::format("\t\t[{}, {}]\n",
+                child(),
+                name);
+        }
+    }
+    return log;
+}
 
 Error Theatre::InitStatus() const
 { return mInitStatus; }
@@ -354,7 +373,7 @@ IdVec_t Theatre::ThinkersWithNoParents()
     IdVec_t _thinkers{};
     for(ID uid : mThinkerUIDs)
     {
-        if(FAUTO node{mCallSheet.Get(uid)}; not node.invalid() and node.parent.invalid())
+        if(FAUTO node{mCallSheet.get_node(uid)}; not node.invalid() and node.parent.invalid())
             { _thinkers.push_back(uid); }
     }
     return _thinkers;
@@ -503,25 +522,25 @@ IdSet_arg Theatre::GetViewports()
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
     LOCK_CALLSHEET;
-    return mCallSheet.Get(inParentID).children;
+    return mCallSheet.get_node(inParentID).children;
 }
 
 ID Theatre::GetParent(ID inChildID)
 {
     LOCK_CALLSHEET;
-    return mCallSheet.Get(inChildID).parent;
+    return mCallSheet.get_node(inChildID).parent;
 }
 
 IdSet_t Theatre::GetAllChildren(ID inParentID)
 {
     LOCK_CALLSHEET;
-    return mCallSheet.Descendants(inParentID);
+    return mCallSheet.get_descendants(inParentID);
 }
 
 IdSet_t Theatre::GetAllParents(ID inChildID)
 {
     LOCK_CALLSHEET;
-    return mCallSheet.Ancestors(inChildID);
+    return mCallSheet.get_ancestors(inChildID);
 }
 
 Error Theatre::SetParent(ID inChildID, ID inParentID)
@@ -530,15 +549,15 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
     LOCK_THINGS;
 
     // NOTE: Probably redundant. Too bad!
-    if(not mCallSheet.Has(inChildID))
+    if(not mCallSheet.has_node(inChildID))
         { print_error("CallSheet missing child UID {}", inChildID()); return print_error_enum(ERR_NOT_FOUND); }
-    else if(not inParentID.invalid() and not mCallSheet.Has(inParentID))
+    else if(not inParentID.invalid() and not mCallSheet.has_node(inParentID))
         { print_error("CallSheet missing parent UID {}", inParentID()); return print_error_enum(ERR_NOT_FOUND); }
 
-    auto old_parent_id{mCallSheet.Get(inChildID).parent};
-    auto old_ancestors{mCallSheet.Ancestors(inChildID)};
+    auto old_parent_id{mCallSheet.get_node(inChildID).parent};
+    auto old_ancestors{mCallSheet.get_ancestors(inChildID)};
 
-    if(auto status{mCallSheet.Reparent(inChildID, inParentID)}; not status)
+    if(auto status{mCallSheet.set_parent(inChildID, inParentID)}; not status)
         { return print_error_enum(status); }
 
     auto child{GetThinker(inChildID)};
@@ -549,8 +568,8 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
     old_parent->OnChildRemoved(child);
     child->OnParentChanged(parent, old_parent);
 
-    auto new_ancestors{mCallSheet.Ancestors(inChildID)};
-    auto descendants{mCallSheet.Descendants(inParentID)};
+    auto new_ancestors{mCallSheet.get_ancestors(inChildID)};
+    auto descendants{mCallSheet.get_descendants(inParentID)};
 
     for(ID descendant : descendants)
     {
@@ -577,9 +596,9 @@ Error Theatre::DropParent(ID inChildID)
     LOCK_CALLSHEET;
     LOCK_THINGS;
 
-    auto parent{mCallSheet.Get(mCallSheet.Get(inChildID).parent)};
+    auto parent{mCallSheet.get_node(mCallSheet.get_node(inChildID).parent)};
 
-    if(!mCallSheet.Has(inChildID) or !parent.children.contains(inChildID))
+    if(!mCallSheet.has_node(inChildID) or !parent.children.contains(inChildID))
         { return ERR_NOT_FOUND; }
 
     return SetParent(inChildID, parent.parent);
@@ -636,20 +655,20 @@ void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
 {
     LOCK_CALLSHEET;
 
-    if(not mCallSheet.Has(inUID))
-        { mCallSheet.Add(inUID); }
+    if(not mCallSheet.has_node(inUID))
+        { mCallSheet.add_node(inUID); }
     if(ID parent{GetUID(inData.parent_variable.value)}; not parent.invalid())
     {
-        if(not mCallSheet.Has(parent))
-            { mCallSheet.Add(parent); }
-        if(not mCallSheet.Reparent(inUID, parent))
-            { mCallSheet.Add(inUID, parent); }
+        if(not mCallSheet.has_node(parent))
+            { mCallSheet.add_node(parent); }
+        if(not mCallSheet.set_parent(inUID, parent))
+            { mCallSheet.add_node(inUID, parent); }
     }
     for(FAUTO child_var : inData.children_variables)
     {
         ID child{GetUID(child_var.value)};
-        if(not child.invalid() and not mCallSheet.Reparent(child, inUID))
-            { mCallSheet.Add(child, inUID); }
+        if(not child.invalid() and not mCallSheet.set_parent(child, inUID))
+            { mCallSheet.add_node(child, inUID); }
     }
 }
 
@@ -702,7 +721,7 @@ Error Theatre::DestroyThingOnly(ID inID)
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
     mLightIDs.erase(inID);
-    mCallSheet.Remove(inID);
+    mCallSheet.remove_node(inID);
     mThings.erase(inID);
     return OK;
 }
