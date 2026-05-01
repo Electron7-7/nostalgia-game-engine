@@ -277,12 +277,18 @@ void ImGui_Editor::Update()
         if(m_sTheatreRunning and Settings::Engine::IsEditorHint
             and BeginTabItem("Editor", nullptr, _editor_flags))
         {
+            static ImVec2 _window_size{GetCurrentWindow()->Size};
+            static bool _first{true};
+            SetNextWindowSize({_window_size[0] * 0.2f, 0.0f}, (_first) ? ImGuiCond_Always : ImGuiCond_Once);
             TheatreTree();
             SameLine();
+            SetNextWindowSize({_window_size[0] * 0.55f, 0.0f}, (_first) ? ImGuiCond_Always : ImGuiCond_Once);
             TheatreViewport();
             SameLine();
             TheatreInspector();
             EndTabItem();
+            if(_first)
+                { _first = false; }
         }
         if(BeginTabItem("Theatre Loading"))
         {
