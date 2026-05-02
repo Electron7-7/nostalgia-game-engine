@@ -30,25 +30,25 @@
 
 static std::map<PID, PID> sTypeDeclarations{};
 
-bool ThingFactory::m_sIsInitialized{false};
-std::map<ID, pThingMakerTemplate_t> ThingFactory::m_sThingMakers{};
-std::map<ID, int>                   ThingFactory::m_sTypePriorities{};
-std::set<ThingType>                 ThingFactory::m_sAllTypes{};
+static bool sIsInitialized{false};
+static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
+static std::map<ID, int> sTypePriorities{};
+static Tree<PID> sTypes{};
 
 bool ThingFactory::Init()
 {
-    if(m_sIsInitialized)
+    if(sIsInitialized)
         { return true; }
 
-    ADD_THING(Thing, Thing)
+    AddThing(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, cDefaultPriority);
         ADD_THING(Resource, Thing, +1)
             ADD_THING(Image, Resource, +2)
             ADD_THING(Font, Resource, +2)
             ADD_THING(Mesh, Resource)
-                ADD_THING(ArrayMesh, Resource)
+                ADD_THING(ArrayMesh, Mesh)
             ADD_THING(Texture, Resource)
-                ADD_THING(Cubemap, Resource)
-                ADD_THING(ViewportTexture, Resource)
+                ADD_THING(Cubemap, Texture)
+                ADD_THING(ViewportTexture, Texture)
                 ADD_THING(ImageTexture, Texture)
             ADD_THING(Material, Resource)
         ADD_THING(Thinker, Thing)
@@ -71,11 +71,19 @@ bool ThingFactory::Init()
                 ADD_THING(Text2D, Visual2D)
                 ADD_THING(Sprite2D, Visual2D)
 
-    return m_sIsInitialized = true;
+    return sIsInitialized = true;
 }
 
 bool ThingFactory::IsInitialized()
-{ return m_sIsInitialized; }
+{ return sIsInitialized; }
+
+Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
+{
+    if(auto found_it{sThingMakers.find(inType)}; found_it != sThingMakers.end())
+        { return found_it->second(inName); }
+    print_warning("'{}' is an invalid type! An empty Thing will be returned", inType.name());
+    return ThingMakerTemplate<Thing>(inName);
+}
 
 Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
 {
@@ -92,133 +100,67 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     FPID inBaseType,
     int inPriority)
 {
-    ThingType type{inType};
-    if(type.type() == ThingType::Thing)
+    if(Error _status{sTypes.add_node({inType}, inBaseType)}; not _status)
+        { return _status; }
+    else if(inPriority == cDefaultPriority)
     {
-        type._all_base_types.emplace(type._base_type_id = ThingType::Thing);
-        m_sAllTypes.emplace(type);
-        m_sThingMakers[inType]    = inPtr;
-        m_sTypePriorities[inType] = inPriority;
-        if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
-            { print_debug("Registered New ThingType: {}", type.log()); }
-        return OK;
-    }
-    else if(m_sAllTypes.contains(type))
-    {
-        print_error("ThingType '{}' already exists!", inType);
-        return ERR_ALREADY_EXISTS;
-    }
-    else if(!m_sAllTypes.contains(inBaseType))
-    {
-        print_error("Base ThingType '{}' is invalid!", inBaseType.name());
-        return ERR_INVALID_TYPE;
-    }
-    int _priority{inPriority};
-    type._all_base_types.emplace(type._base_type_id = inBaseType);
-    PID next_base{type._base_type_id};
-    while(next_base != ThingType::Thing)
-    {
-        if(auto found_it{m_sAllTypes.find(next_base)};
-            found_it != m_sAllTypes.end())
+        auto _ancestors{sTypes.get_ancestors(inType)};
+        for(auto iter{_ancestors.begin()}; iter != _ancestors.end(); ++iter)
         {
-            type._all_base_types.emplace(next_base);
-            if(_priority == cDefaultPriority)
+            if(auto found_it{sTypePriorities.find(*iter)}; found_it != sTypePriorities.end()
+                and found_it->second != inPriority)
             {
-                PID _next_base{next_base};
-                while(_next_base != ThingType::Thing)
-                {
-                    if(auto found_it_again{m_sTypePriorities.find(_next_base)};
-                        found_it_again != m_sTypePriorities.end() and found_it_again->second != cDefaultPriority)
-                    {
-                        _priority = found_it_again->second;
-                        break;
-                    }
-                    _next_base = m_sAllTypes.find(_next_base)->_base_type_id;
-                }
+                inPriority = found_it->second;
+                break;
             }
-            next_base = found_it->_base_type_id;
         }
-        else
-            { next_base = ThingType::Thing; }
     }
-    type._all_base_types.emplace(next_base);
+    sTypePriorities[inType] = inPriority;
+    sThingMakers[inType]    = inPtr;
     if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
-        { print_debug("Registered New ThingType w/ priority {: }: {}", _priority, type.log()); }
-    m_sAllTypes.emplace(type);
-
-    m_sThingMakers[inType]    = inPtr;
-    m_sTypePriorities[inType] = _priority;
-    return OK;
-}
-
-Farg<std::map<PID, PID>> ThingFactory::GetThingDeclarations()
-{ return sTypeDeclarations; }
-
-std::set<ThingType> ThingFactory::GetAllTypes()
-{ return m_sAllTypes; }
-
-IdVec_t ThingFactory::GetAllTypeIDs()
-{
-    IdVec_t _types{};
-    for(auto iter{m_sAllTypes.rbegin()}; iter != m_sAllTypes.rend(); ++iter)
-        { _types.push_back(iter->type()); }
-    return _types;
-}
-
-Error ThingFactory::RemoveThing(FPID inType) noexcept
-{
-    m_sAllTypes.erase(inType);
-    m_sThingMakers.erase(inType);
-    m_sTypePriorities.erase(inType);
-    return OK;
-}
-
-Farg<ThingType> ThingFactory::GetType(FPID inType) noexcept
-{
-    static ThingType sBadType{ThingType::Invalid};
-    if(auto found_it{m_sAllTypes.find(inType)}; found_it != m_sAllTypes.end())
-        { return *found_it; }
-    return sBadType;
-}
-
-PID ThingFactory::GetClosestType(FPID inType) noexcept
-{
-    if(auto found_it{m_sAllTypes.find(inType)}; found_it != m_sAllTypes.end())
-        { return found_it->type(); }
-    else if(auto found_it_again{sTypeDeclarations.find(inType)}; found_it_again != sTypeDeclarations.end())
     {
-        if(m_sAllTypes.contains(found_it_again->second))
-            { return found_it_again->second; }
+        if(inType == ThingType::Thing.name())
+        {
+            print_debug("Registered Thing (priority: {})", cDefaultPriority);
+            return OK;
+        }
+        std::string _log{std::format("{} (priority {: }) derives: ", inType, inPriority)};
+        auto _ancestors{sTypes.get_ancestors(inType)};
+        std::vector<PID> _ancestors_v{_ancestors.begin(), _ancestors.end()};
+        for(auto iter{_ancestors_v.rbegin()}; iter != _ancestors_v.rend(); ++iter)
+        {
+            if(iter != _ancestors_v.rbegin())
+                { _log += " > "; }
+            _log += iter->name();
+        }
+        print_debug("Registered {}", _log);
     }
-    return GetType(inType).base_type();
-}
-
-Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
-{
-    if(auto found_it{m_sThingMakers.find(inType)}; found_it != m_sThingMakers.end())
-        { return found_it->second(inName); }
-    print_warning("ThingType '{}' is an invalid type! An empty Thing will be returned",
-        inType.name());
-    return ThingMakerTemplate<Thing>(inName);
+    return OK;
 }
 
 bool ThingFactory::SetPriority(FPID type, int priority)
 {
     if(!IsThing(type))
         { return false; }
-    m_sTypePriorities[type] = priority;
+    sTypePriorities[type] = priority;
     return true;
 }
 
 int ThingFactory::GetPriority(FPID type)
 {
-    if(auto found_it{m_sTypePriorities.find(type)}; found_it != m_sTypePriorities.end())
-        { return m_sTypePriorities.at(type); }
+    if(auto found_it{sTypePriorities.find(type)}; found_it != sTypePriorities.end())
+        { return sTypePriorities.at(type); }
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
+std::set<PID> ThingFactory::DerivedFrom(FPID inType) noexcept
+{ return sTypes.get_node(inType).children; }
+
+PID ThingFactory::BaseOf(FPID inType) noexcept
+{ return sTypes.get_node(inType).parent; }
+
 bool ThingFactory::IsThing(FPID inTypeID)
-{ return m_sAllTypes.contains(inTypeID) or sTypeDeclarations.contains(inTypeID); }
+{ return sTypes.has_node(inTypeID) or sTypeDeclarations.contains(inTypeID); }
 
 bool ThingFactory::IsThinker(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Thinker); }
@@ -227,12 +169,4 @@ bool ThingFactory::IsResource(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Resource); }
 
 bool ThingFactory::IsDerivedFrom(FPID inTypeID1, FPID inTypeID2)
-{
-    if(auto found_it{m_sAllTypes.find(inTypeID1)}; found_it != m_sAllTypes.end())
-        { return (found_it->type() == inTypeID2 or found_it->is_derived_from(inTypeID2)); }
-    else if(auto found_it{sTypeDeclarations.find(inTypeID1)}; found_it != sTypeDeclarations.end())
-        { return IsDerivedFrom(found_it->second, inTypeID2); }
-    return false;
-}
-
-#undef ADD_THING
+{ return inTypeID1 == inTypeID2 or sTypes.get_descendants(inTypeID2).contains(inTypeID1); }
