@@ -629,9 +629,7 @@ uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
     auto& _icons{(sUseNewIcons) ? mNewEditorIcons : mEditorIcons};
     if(auto found_it{_icons.find(inType)}; found_it != _icons.end())
         { return found_it->second->Buffer()->GetID(); }
-    else if(auto _type{ThingFactory::GetClosestType(inType)}; not _type.invalid() and _type != inType)
-        { return GetIconTextureBufferID(_type); }
-    else if(auto _base{ThingFactory::GetType(inType).base_type()}; _base != inType)
+    else if(auto _base{ThingFactory::BaseOf(inType)}; not _base.invalid())
         { return GetIconTextureBufferID(_base); }
     return GetIconTextureBufferID(ThingType::Thing);
 }
