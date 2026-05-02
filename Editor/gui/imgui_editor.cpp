@@ -2,7 +2,6 @@
 #include "./imgui_debugger.hpp"
 #include "editor_icons.hpp"
 #include "new_editor_icons.hpp"
-#include "assets/icon_uids.hpp"
 #include "theatre/editor_theatre.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
