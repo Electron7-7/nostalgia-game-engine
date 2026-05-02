@@ -75,8 +75,6 @@ protected:
     void SetNameChangeCallback(pNameChangeCallback_f = nullptr);
 
 private:
-    friend class ThingFactory;
-
     inline static RMutex m_sUIDMutex{};
     inline static std::set<uint> m_sActiveUIDs{};
     inline static std::uniform_int_distribution<uint> m_sDistribution{UID::front, UID::back};

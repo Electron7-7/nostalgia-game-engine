@@ -10,10 +10,9 @@ private:
     PID _base_type_id{};
     std::unordered_set<PID> _all_base_types{};
 
-    friend class ThingFactory;
+public:
     ThingType(FPID) noexcept;
 
-public:
     using typeids_t = std::unordered_set<PID>;
 
     ThingType() noexcept;
