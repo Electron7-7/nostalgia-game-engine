@@ -95,8 +95,8 @@ public:
 
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
-    IdSet_t GetAllChildren(ID inParentID);
-    IdSet_t GetAllParents(ID inChildID);
+    std::unordered_set<ID> GetAllChildren(ID inParentID);
+    std::unordered_set<ID> GetAllParents(ID inChildID);
 
     Error SetParent(ID inChildID, ID inParentID);
     Error DropParent(ID inChildID);

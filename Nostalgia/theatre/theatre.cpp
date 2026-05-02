@@ -331,7 +331,7 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     LOCK_CALLSHEET;
 
     bool is_3d{DerivedFrom(inCameraID, ThingType::Camera3D)};
-    IdSet_t ancestors{GetAllParents(inCameraID)};
+    auto ancestors{GetAllParents(inCameraID)};
 
     if(not is_3d and not DerivedFrom(inCameraID, ThingType::Camera2D))
         { return ERR_INVALID_ID; }
@@ -531,13 +531,13 @@ ID Theatre::GetParent(ID inChildID)
     return mCallSheet.get_node(inChildID).parent;
 }
 
-IdSet_t Theatre::GetAllChildren(ID inParentID)
+std::unordered_set<ID> Theatre::GetAllChildren(ID inParentID)
 {
     LOCK_CALLSHEET;
     return mCallSheet.get_descendants(inParentID);
 }
 
-IdSet_t Theatre::GetAllParents(ID inChildID)
+std::unordered_set<ID> Theatre::GetAllParents(ID inChildID)
 {
     LOCK_CALLSHEET;
     return mCallSheet.get_ancestors(inChildID);
