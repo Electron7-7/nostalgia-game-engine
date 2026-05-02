@@ -33,6 +33,7 @@ static std::map<PID, PID> sTypeDeclarations{};
 static bool sIsInitialized{false};
 static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
 static std::map<ID, int> sTypePriorities{};
+static std::map<ID, std::unordered_set<PID>> sTypeAncestors{};
 static Tree<PID> sTypes{};
 
 bool ThingFactory::Init()
@@ -117,6 +118,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
     }
     sTypePriorities[inType] = inPriority;
     sThingMakers[inType]    = inPtr;
+    sTypeAncestors[inType]  = sTypes.get_ancestors(inType);
     if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
     {
         if(inType == ThingType::Thing.name())
@@ -160,7 +162,7 @@ PID ThingFactory::BaseOf(FPID inType) noexcept
 { return sTypes.get_node(inType).parent; }
 
 bool ThingFactory::IsThing(FPID inTypeID)
-{ return sTypes.has_node(inTypeID) or sTypeDeclarations.contains(inTypeID); }
+{ return sTypeAncestors.contains(inTypeID) or sTypeDeclarations.contains(inTypeID); }
 
 bool ThingFactory::IsThinker(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Thinker); }
@@ -169,4 +171,7 @@ bool ThingFactory::IsResource(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Resource); }
 
 bool ThingFactory::IsDerivedFrom(FPID inTypeID1, FPID inTypeID2)
-{ return inTypeID1 == inTypeID2 or sTypes.get_descendants(inTypeID2).contains(inTypeID1); }
+{
+    return inTypeID1 == inTypeID2
+        or (sTypeAncestors.contains(inTypeID1) and sTypeAncestors.at(inTypeID1).contains(inTypeID2));
+}
