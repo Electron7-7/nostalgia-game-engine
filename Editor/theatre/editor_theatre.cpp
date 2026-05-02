@@ -122,8 +122,8 @@ void EditorTheatre::SetEditorViewports(ID in3DViewportUID, ID in2DViewportUID)
 
 void EditorTheatre::DrawCamera2DHelper(Shared<Camera2D> inCamera, Shared<Actor2D> inOtherCamera)
 {
-    if(Console::GetVariable("Editor.nodraw_2d_helpers").int_value)
-        { return; }
+    // if(Console::GetVariable("Editor.nodraw_2d_helpers").int_value)
+        // { return; }
     // LockGuard<RMutex> _things_lock{mThingsMutex};
     return;
 }
