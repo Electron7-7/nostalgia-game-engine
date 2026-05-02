@@ -1,6 +1,8 @@
 #ifndef TREE_H
 #define TREE_H
 
+#define LOCK LockGuard<RMutex> _lock{_mutex};
+
 template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
     struct Node
     {
@@ -15,10 +17,14 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
     struct Tree
     {
+    private:
+        mutable RMutex _mutex{};
+    public:
         std::unordered_map<T, Node<T>> nodes{};
 
         Error add_node(Farg<T> inNodeID, Farg<T> inParentID = T{}) noexcept
         {
+            LOCK
             if(nodes.contains(inNodeID))
                 { return ERR_ALREADY_EXISTS; }
             else if(!inParentID.invalid())
@@ -33,6 +39,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         Error remove_node(Farg<T> inNodeID) noexcept
         {
+            LOCK
             if(auto found_it{nodes.find(inNodeID)}; found_it != nodes.end())
             {
                 if(auto found_parent{nodes.find(found_it->second.parent)};
@@ -51,10 +58,10 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         Error set_parent(Farg<T> inNodeID, Farg<T> inParentID) noexcept
         {
+            LOCK
             if(!nodes.contains(inNodeID)
                 or (!inParentID.invalid() and !nodes.contains(inParentID)))
                     { return ERR_NOT_FOUND; }
-
             auto& child{nodes.at(inNodeID)};
             if(auto found_it{nodes.find(child.parent)}; found_it != nodes.end())
                 { found_it->second.children.erase(inNodeID); }
@@ -66,6 +73,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         std::set<T> get_descendants(Farg<T> inNodeID) const noexcept
         {
+            LOCK
 // TODO: I should implement an actual root node instead of doing this
             if(inNodeID.invalid())
             {
@@ -87,6 +95,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         std::set<T> get_ancestors(Farg<T> inNodeID) const noexcept
         {
+            LOCK
             if(!nodes.contains(inNodeID))
                 { return {}; }
             std::set<T> output{};
@@ -106,12 +115,14 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         std::vector<T> get_all_nodes() const noexcept
         {
+            LOCK
             auto keys{std::views::keys(nodes)};
             return {keys.begin(), keys.end()};
         }
 
         Farg<Node<T>> get_node(Farg<T> inNodeID) const noexcept
         {
+            LOCK
             static Node<T> error_node{};
 // TODO: I should implement an actual root node instead of doing this
             static Node<T> root_node{};
@@ -130,10 +141,17 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
         }
 
         bool has_node(Farg<T> inNodeID) const noexcept
-        { return nodes.contains(inNodeID); }
+        {
+            LOCK
+            return nodes.contains(inNodeID);
+        }
 
         void clear() noexcept
-        { nodes.clear(); }
+        {
+            LOCK
+            nodes.clear();
+        }
     };
 
+#undef LOCK
 #endif // TREE_H
