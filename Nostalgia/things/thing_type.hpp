@@ -3,35 +3,9 @@
 
 #define TYPE_ID(CLASS) CLASS{#CLASS}
 
-struct ThingType
+namespace ThingType
 {
-private:
-    PID _type_id{};
-    PID _base_type_id{};
-    std::unordered_set<PID> _all_base_types{};
-
-public:
-    ThingType(FPID) noexcept;
-
-    using typeids_t = std::unordered_set<PID>;
-
-    ThingType() noexcept;
-
-    Farg<typeids_t> base_types() const noexcept;
-    Farg<typeids_t> derived_types() const noexcept;
-    PID base_type() const noexcept;
-    PID type() const noexcept;
-    PID operator()() const noexcept;
-    bool is_derived_from(FPID inTypeID) const noexcept;
-    std::string log() const noexcept;
-
-    bool operator<(Farg<ThingType> inOther) const noexcept
-    { return _type_id < inOther._type_id; }
-
-    bool operator==(Farg<ThingType> inOther) const noexcept
-    { return _type_id == inOther._type_id; }
-
-    inline static const PID Invalid{ID::Invalid, "Invalid"},
+    inline const PID Invalid{ID::Invalid, "Invalid"},
         TYPE_ID(Thing),
             TYPE_ID(Resource),
                 TYPE_ID(Font),
@@ -61,7 +35,7 @@ public:
                     TYPE_ID(Visual2D),
                         TYPE_ID(Sprite2D),
                         TYPE_ID(Text2D);
-};
+}
 
 #undef TYPE_ID
 #endif // THING_TYPE_H

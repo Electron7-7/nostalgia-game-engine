@@ -86,7 +86,6 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/things/thinkers/2d/visual_2d.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/viewport.cpp
     ${NOSTALGIA_ROOT}/things/thinkers/thinker.cpp
-    ${NOSTALGIA_ROOT}/things/thing_type.cpp
     ${NOSTALGIA_ROOT}/things/thing_factory.cpp
     ${NOSTALGIA_ROOT}/things/thing_data.cpp
     ${NOSTALGIA_ROOT}/things/thing_variable.cpp
