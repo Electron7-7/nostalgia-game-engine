@@ -106,6 +106,7 @@ void ImGui_Editor::Init()
     REGISTER_ICON(ThingType::Visual3D, visual_3d)
         REGISTER_NEW_ICON(ThingType::Visual3D, visual_3d)
     REGISTER_ICON(Ramiel::RamielType, ramiel)
+        REGISTER_NEW_ICON(Ramiel::RamielType, ramiel)
 }
 
 void ImGui_Editor::Shutdown()
