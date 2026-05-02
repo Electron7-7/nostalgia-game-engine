@@ -120,7 +120,11 @@ void ImGui_Editor::TheatreEntered()
     ID _viewport_uid_3d{}, _viewport_uid_2d{};
     if(not Settings::Engine::IsEditorHint or not (
             m_spEditorTheatre = dynamic_cast<EditorTheatre*>(Theatre::Current())))
-        { return; }
+    {
+        if(mEditorTheatreData.data.empty())
+            { mEditorTheatreData = Theatre::Current()->InitialState(); }
+        return;
+    }
 
     if(not Theatre::Current()->ThingExists("Editor-3DViewport"))
         { _viewport_uid_3d = Theatre::Current()->CreateThing({ThingType::Viewport, "Editor-3DViewport"}); }
@@ -301,7 +305,7 @@ void ImGui_Editor::Update()
 
 void ImGui_Editor::LoadEditorTheatre(bool inContinue)
 {
-    sEditorJustLoaded = Settings::Engine::IsEditorHint;
+    sEditorJustLoaded = Settings::Engine::IsEditorHint = true;
     g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
     if(inContinue)
         { g_pTheatreManager->LoadFromData(mEditorTheatreData); }
