@@ -14,7 +14,11 @@
 
 int DedicatedMain(int argc, char** argv)
 {
-    getargs::set_valid_args("--help", "-h", "--version", "-v", "--no-colors", "--no-editor-hint");
+    getargs::set_valid_args("--help", "-h",
+        "--version", "-v",
+        "--no-colors",
+        "--no-editor-hint",
+        "--debug-thing-factory", "-d");
 
     if(getargs::get_args(argc, argv))
         { return 1; }
@@ -31,11 +35,13 @@ int DedicatedMain(int argc, char** argv)
         std::println("{}", GetVersionMessage(program_name.data()));
         return 0;
     }
-    else if(getargs::get_flag("no-colors"))
+    if(getargs::get_flag("no-colors"))
     {
         for(int i{0}; i < 7; ++i)
             { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
     }
+    NostalgiaGoggles::m_sEnableThingFactoryDebugMsgs =
+        getargs::get_flag("debug-thing-factory") or getargs::get_flag("d");
 
     Settings::Engine::IsEditorHint = not getargs::get_flag("no-editor-hint");
 

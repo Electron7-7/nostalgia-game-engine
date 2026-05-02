@@ -46,6 +46,7 @@ int NostalgiaGoggles::Main()
             : "(Settings::Engine::IsEditorHint == false)")});
 
     Console::Init();
+    Console::SetVariable("ThingFactory.debug_register_msgs", static_cast<int>(m_sEnableThingFactoryDebugMsgs));
 
     auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};
     imgui_impl->CreateSolution<ImGui_Editor>();

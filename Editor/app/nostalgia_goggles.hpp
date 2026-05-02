@@ -13,6 +13,8 @@ public:
     const char* Name() final { return "Nostalgia Goggles"; }
     void Input(InputEvent*) final;
     void Event(IEvent*) final;
+
+    inline static bool m_sEnableThingFactoryDebugMsgs{false};
 };
 
 extern std::string gToggleFullscreen;
