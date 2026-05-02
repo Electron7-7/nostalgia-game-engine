@@ -71,7 +71,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
             return OK;
         }
 
-        std::set<T> get_descendants(Farg<T> inNodeID) const noexcept
+        std::unordered_set<T> get_descendants(Farg<T> inNodeID) const noexcept
         {
             LOCK
 // TODO: I should implement an actual root node instead of doing this
@@ -82,33 +82,36 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
             }
             else if(!nodes.contains(inNodeID))
                 { return {}; }
-            std::set<T> output{};
+            std::unordered_set<T> output{};
+            auto iter{output.begin()};
             FAUTO children{nodes.at(inNodeID).children};
             for(FAUTO child : children)
             {
-                output.insert(child);
-                auto sub_children{get_descendants(child)};
-                output.insert(sub_children.cbegin(), sub_children.cend());
+                iter = output.emplace_hint(iter, child);
+                std::unordered_set<T> sub_children{get_descendants(child)};
+                for(auto second_iter{sub_children.begin()}; second_iter != sub_children.end(); ++second_iter)
+                    { iter = output.emplace_hint(iter, *second_iter); }
             }
             return output;
         }
 
-        std::set<T> get_ancestors(Farg<T> inNodeID) const noexcept
+        std::unordered_set<T> get_ancestors(Farg<T> inNodeID) const noexcept
         {
             LOCK
             if(!nodes.contains(inNodeID))
                 { return {}; }
-            std::set<T> output{};
+            std::unordered_set<T> output{};
+            auto iter{output.begin()};
             T parent{nodes.at(inNodeID).parent};
             while(not parent.invalid())
             {
                 if(nodes.contains(parent))
                 {
-                    output.insert(parent);
+                    iter = output.emplace_hint(iter, parent);
                     parent = nodes.at(parent).parent;
+                    continue;
                 }
-                else
-                    { parent = {}; }
+                parent = {};
             }
             return output;
         }
