@@ -367,14 +367,13 @@ void ImGui_Editor::TheatreTree()
 void ImGui_Editor::TheatreInspector()
 {
     static std::string _name{};
-    static TheatreFile::ThingData _data{};
     if(not Settings::Engine::IsEditorHint)
         { return; }
     auto _variables{Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables()};
+    TheatreFile::ThingData _data{_variables->type};
     if(m_sInspectingNewThing)
     {
         m_sInspectingNewThing = false;
-        _data = *_variables;
         _name = _data.name;
     }
 
@@ -389,7 +388,6 @@ void ImGui_Editor::TheatreInspector()
             Theatre::Current()->DestroyThing(mInspectingThingUID);
             mInspectingThingUID = {};
             _name.clear();
-            _data.clear();
             EndChild();
             return;
         }
@@ -406,7 +404,6 @@ void ImGui_Editor::TheatreInspector()
                     CloseCurrentPopup();
                     Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
                     _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
-                    _data = *_variables;
                 }
             EndDisabled();
             EndPopup();
