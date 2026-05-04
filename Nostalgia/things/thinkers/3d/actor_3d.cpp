@@ -89,35 +89,35 @@ Farg<glm::vec3> Actor3D::Scale() const
     return mLocalTrans.scale;
 }
 
-Farg<Transform3D> Actor3D::GlobalTransform() const
-{ return mGlobalTrans; }
-
-Farg<Transform3D> Actor3D::LocalTransform() const
+Farg<Transform3D> Actor3D::Transform() const
 { return mLocalTrans; }
 
-glm::vec3 Actor3D::GlobalPosition() const
+Farg<glm::vec3> Actor3D::GlobalPosition() const
 {
     LOCK_TRANSFORM;
     return mGlobalTrans.position;
 }
 
-glm::vec3 Actor3D::GlobalRotation() const
+Farg<glm::vec3> Actor3D::GlobalRotation() const
 {
     LOCK_TRANSFORM;
     return mGlobalTrans.rotation;
 }
 
-glm::vec3 Actor3D::GlobalRotationDegrees() const
+Farg<glm::vec3> Actor3D::GlobalRotationDegrees() const
 {
     LOCK_TRANSFORM;
     return mGlobalTrans.rotation_degrees;
 }
 
-glm::vec3 Actor3D::GlobalScale() const
+Farg<glm::vec3> Actor3D::GlobalScale() const
 {
     LOCK_TRANSFORM;
     return mGlobalTrans.scale;
 }
+
+Farg<Transform3D> Actor3D::GlobalTransform() const
+{ return mGlobalTrans; }
 
 void Actor3D::SetPosition(Farg<glm::vec3> inPosition)
 {
@@ -160,8 +160,58 @@ void Actor3D::SetScale(Farg<glm::vec3> inScale)
     _update_global_transform();
 }
 
+void Actor3D::SetTransform(Farg<Transform3D> inTransform)
+{
+    LOCK_TRANSFORM;
+    mLocalTrans = inTransform;
+    _update_global_transform();
+}
+
+void Actor3D::SetGlobalPosition(Farg<glm::vec3> inPosition)
+{
+    LOCK_TRANSFORM;
+    SetPosition(inPosition - mParentGlobalTrans.position);
+}
+
+void Actor3D::SetGlobalRotation(Farg<glm::vec3> inRotation)
+{
+    LOCK_TRANSFORM;
+    SetRotation(inRotation - mParentGlobalTrans.rotation);
+}
+
+void Actor3D::SetGlobalRotationDegrees(Farg<glm::vec3> inRotationDegrees)
+{
+    LOCK_TRANSFORM;
+    SetRotationDegrees(inRotationDegrees - mParentGlobalTrans.rotation_degrees);
+}
+
+void Actor3D::SetGlobalScale(Farg<glm::vec3> inScale)
+{
+    LOCK_TRANSFORM;
+    SetScale(inScale / mParentGlobalTrans.scale);
+}
+
+void Actor3D::SetGlobalTransform(Farg<Transform3D> inTransform)
+{
+    LOCK_TRANSFORM;
+    SetGlobalScale(inTransform.scale);
+    SetGlobalRotation(inTransform.rotation);
+    SetGlobalPosition(inTransform.position);
+}
+
 void Actor3D::OnChildAdded(Relative inChild)
 { _update_child_global_transform(inChild.uid); }
+
+void Actor3D::OnParentChanged(Relative inNew, Relative inOld)
+{
+    LOCK_TRANSFORM;
+    if(inNew.invalid() or not Theatre::Current()->DerivedFrom(inNew.uid, ThingType::Actor3D))
+    {
+        mLocalTrans = mGlobalTrans;
+        mParentGlobalTrans = Transform3D{};
+        _update_global_transform();
+    }
+}
 
 void Actor3D::_set_parent_global_transform(Farg<Transform3D> inTransform)
 {
