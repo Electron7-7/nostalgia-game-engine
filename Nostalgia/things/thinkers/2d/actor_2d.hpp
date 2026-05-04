@@ -18,29 +18,41 @@ public:
     virtual void SetRotation(float);
     virtual void SetRotationDegrees(float);
     virtual void SetScale(Farg<glm::vec2>);
+    virtual void SetTransform(Farg<Transform2D>);
+
+    void SetGlobalPosition(Farg<glm::vec2>);
+    void SetGlobalRotation(float);
+    void SetGlobalRotationDegrees(float);
+    void SetGlobalScale(Farg<glm::vec2>);
+    void SetGlobalTransform(Farg<Transform2D>);
 
     Farg<glm::vec2> Position() const;
     float           Rotation() const;
     float           RotationDegrees() const;
     Farg<glm::vec2> Scale() const;
 
-    glm::vec2 GlobalPosition() const;
+    Farg<glm::vec2> GlobalPosition() const;
     float GlobalRotation() const;
     float GlobalRotationDegrees() const;
-    glm::vec2 GlobalScale() const;
+    Farg<glm::vec2> GlobalScale() const;
+    Farg<Transform2D> GlobalTransform() const;
 
 protected:
     Transform2D mLocalTransform{};
-    void _update_global_transform();
 
     virtual void OnChildAdded(Relative) override;
+    virtual void OnParentChanged(Relative, Relative) override;
 
 private:
-    Transform2D mGlobalTransform{mLocalTransform};
-    Transform2D mParentGlobalTransform{};
+    mutable RMutex mTransformMutex{}; // Evil Mutable
 
-    void _update_global_transform(Farg<Transform2D> inParentGlobalTransform);
-    void _update_children_global_transform(bool isCalledFromReady = false);
+    Transform2D mParentGlobalTransform{};
+    Transform2D mGlobalTransform{mLocalTransform};
+
+    void _set_parent_global_transform(Farg<Transform2D>);
+    void _update_global_transform();
+    void _update_children_global_transform();
+    void _update_child_global_transform(ID);
 };
 
 #endif // ACTOR_2D_H
