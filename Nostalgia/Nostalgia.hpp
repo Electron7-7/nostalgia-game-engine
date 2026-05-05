@@ -57,6 +57,7 @@
 #include <Nostalgia/thirdparty/glm/ext/matrix_clip_space.hpp>
 
 // Nostalgia
+#include <Nostalgia/core/typedefs.hpp>                // IWYU pragma: keep
 #include <Nostalgia/core/types.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
