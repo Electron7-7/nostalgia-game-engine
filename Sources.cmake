@@ -46,6 +46,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/managers/manager.cpp
     ${NOSTALGIA_ROOT}/managers/ui_manager.cpp
     ${NOSTALGIA_ROOT}/settings/world.cpp
+    ${NOSTALGIA_ROOT}/core/variant.cpp
     ${NOSTALGIA_ROOT}/core/uid.cpp
     ${NOSTALGIA_ROOT}/core/time.cpp
     ${NOSTALGIA_ROOT}/core/message_labels.cpp
@@ -137,6 +138,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/concepts.hpp
     ${NOSTALGIA_ROOT}/core/types.hpp
     ${NOSTALGIA_ROOT}/core/macros.hpp
+    ${NOSTALGIA_ROOT}/core/variant.hpp
     ${NOSTALGIA_ROOT}/core/constexpr_string_hash.hpp
     ${NOSTALGIA_ROOT}/core/log.hpp
     ${NOSTALGIA_ROOT}/core/tree.hpp
