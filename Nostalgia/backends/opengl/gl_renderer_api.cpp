@@ -240,7 +240,7 @@ bool OpenGLRendererAPI::BindTexture(Shared<TextureBuffer> inBuffer, uint inUnit)
 
 bool OpenGLRendererAPI::BindTexture(Shared<Texture> inTexture, uint inUnit) const
 {
-    if(not inTexture or inTexture->Invalid())
+    if(not inTexture or inTexture->invalid())
         { return false; }
     return BindTexture(inTexture->Buffer(), inUnit);
 }

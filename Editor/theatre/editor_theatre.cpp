@@ -61,13 +61,13 @@ void EditorTheatre::Draw()
         auto _camera3d{GetThinker<Camera3D>(viewport->CurrentCamera3D())};
         auto _camera2d{GetThinker<Camera2D>(viewport->CurrentCamera2D())};
 
-        if(_enable_3d_rendering and not _camera3d->Invalid())
+        if(_enable_3d_rendering and not _camera3d->invalid())
         {
             _camera3d->DrawBackground();
             for(ID _uid : mVisual3DIDs)
                 { _camera3d->Draw(GetThinker<Visual3D>(_uid)); }
         }
-        if(_enable_2d_rendering and not _camera2d->Invalid())
+        if(_enable_2d_rendering and not _camera2d->invalid())
         {
             for(ID _uid : mVisual2DIDs)
                 { _camera2d->Draw(GetThinker<Visual2D>(_uid)); }
@@ -82,12 +82,12 @@ void EditorTheatre::Draw()
             if(uid == _camera3d->uid() or uid == _camera2d->uid())
                 { continue; }
             FPID _type{thing->Type()};
-            if(_enable_2d_rendering and not _camera2d->Invalid())
+            if(_enable_2d_rendering and not _camera2d->invalid())
             {
                 if(ThingFactory::IsDerivedFrom(_type, ThingType::Camera2D))
                     { DrawCamera2DHelper(_camera2d, DCast<Camera2D>(thing)); }
             }
-            if(_enable_3d_rendering and not _camera3d->Invalid())
+            if(_enable_3d_rendering and not _camera3d->invalid())
             {
                 if(ThingFactory::IsDerivedFrom(_type, ThingType::Camera3D))
                     { DrawCamera3DHelper(_camera3d, DCast<Camera3D>(thing)); }

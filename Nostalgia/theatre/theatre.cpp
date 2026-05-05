@@ -348,7 +348,7 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
             { mRootViewportCurrentCamera2D = inCameraID; }
         return OK;
     }
-    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->Invalid() and ancestors.contains(inViewportID))
+    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->invalid() and ancestors.contains(inViewportID))
     {
         if(is_3d)
             { viewport->SetCurrentCamera3D(inCameraID); }

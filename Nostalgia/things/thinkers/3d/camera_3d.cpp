@@ -155,10 +155,10 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         auto diffuse_texture{material->DiffuseTexture()};
         auto specular_texture{material->SpecularTexture()};
 
-        if(not material->DiffuseTexture()->Invalid() and not diffuse_texture->Buffer())
+        if(not material->DiffuseTexture()->invalid() and not diffuse_texture->Buffer())
             { diffuse_texture = missing_texture; }
 
-        if(not material->SpecularTexture()->Invalid() and not specular_texture->Buffer())
+        if(not material->SpecularTexture()->invalid() and not specular_texture->Buffer())
             { specular_texture = missing_texture; }
 
         shader = renderer_api->GetShader((material->mFullBright)
