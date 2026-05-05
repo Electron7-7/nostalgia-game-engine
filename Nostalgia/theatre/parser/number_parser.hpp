@@ -52,7 +52,7 @@ template<GLMContainer T, uint size = gGlmSize<T>()>
     {
         std::string buffer{};
         for(uint i{0}; i < size; ++i)
-            { buffer += std::to_string(inVec[i]) + ","; }
+            { buffer += std::format("{:f}", inVec[i]) + ","; }
         buffer.pop_back();
         return buffer;
     }
