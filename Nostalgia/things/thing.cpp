@@ -71,8 +71,11 @@ Error Thing::rename(Sarg inNewName)
     return status;
 }
 
-bool Thing::Invalid() const
+bool Thing::invalid() const
 { return mUID.invalid() or mName.empty(); }
+
+std::string Thing::to_string() const
+{ return std::format("<{}#{}>", Type().name(), uid()()); }
 
 void Thing::SetNameChangeCallback(pNameChangeCallback_f inCallback)
 {
