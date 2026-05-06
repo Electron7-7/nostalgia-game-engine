@@ -26,11 +26,7 @@ if(NOT NOSTALGIA_DISABLE_PIC)
 endif()
 
 # Testapp Options
-# option(BUILD_ALL_TESTS "Build all test apps (overrides individual testapp building options" ON)
-
-# if(BUILD_ALL_TESTS)
-    # set(BUILD_TEST_APP ON)
-# endif()
+option(BUILD_VARIANT_TESTS "Build the Variant testing app" ON)
 
 if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
@@ -200,8 +196,7 @@ endif()
 set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Tests)
 set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 
-function(add_test_target TARGET_NAME TARGET_SOURCES)
-    add_executable(${TARGET_NAME} ${TESTAPP_MAIN} ${TARGET_SOURCES})
+function(add_test_target TARGET_NAME)
     add_dependencies(${TARGET_NAME} Nostalgia)
     target_link_libraries(${TARGET_NAME} PUBLIC
         $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_FILE:Nostalgia>>)
@@ -212,8 +207,10 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_link_options(${TARGET_NAME}
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
+    target_include_directories(${TARGET_NAME}
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+        PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
     if(MSVC)
-        target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
         target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
         target_compile_options(${TARGET_NAME} PUBLIC -EHsc)
         set_property(TARGET ${TARGET_NAME} PROPERTY
@@ -223,6 +220,9 @@ function(add_test_target TARGET_NAME TARGET_SOURCES)
     endif()
 endfunction()
 
-# if(BUILD_TEST_APP)
-    # add_test_target(TestApp ${TESTAPP_DIR}/TestApp/app.cpp)
-# endif()
+if(BUILD_VARIANT_TESTS)
+    add_executable(VariantTests ${TESTAPP_MAIN}
+        ${TESTAPP_DIR}/variant_tests.cpp
+        ${TESTAPP_DIR}/new_data_test_parser.cpp)
+    add_test_target(VariantTests ${VARIANT_TESTS_SOURCES})
+endif()
