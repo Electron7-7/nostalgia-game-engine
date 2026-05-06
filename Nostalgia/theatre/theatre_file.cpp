@@ -2,16 +2,14 @@
 #include "things/thing_data.hpp"
 #include "things/thing_factory.hpp"
 
-using namespace TheatreFile;
-
 bool TheatreFile::gDebugPrintLexerLogs{false},
     TheatreFile::gDebugPrintParserLogs{false},
     TheatreFile::gDebugDontPrintWhitespaceInLexerLogs{false},
     TheatreFile::gDebugDontPrintCommentsInLexerLogs{false};
 
-static void sDebugPrintLexerLogs(Farg<TokenArray>);
+static void sDebugPrintLexerLogs(Farg<TheatreFile::TokenArray>);
 
-void TheatreData::sort_by_priority()
+void TheatreFile::TheatreData::sort_by_priority()
 {
     std::sort(begin(),
         end(),
@@ -19,7 +17,13 @@ void TheatreData::sort_by_priority()
         { return ThingFactory::GetPriority(lhs.type) > ThingFactory::GetPriority(rhs.type); });
 }
 
-std::string TheatreData::get_log() const
+void TheatreFile::TheatreData::push_back(Farg<ThingData> inData) noexcept
+{ data.push_back(inData); }
+
+void TheatreFile::TheatreData::clear() noexcept
+{ data.clear(); }
+
+std::string TheatreFile::TheatreData::get_log() const
 {
     std::string _out{std::format("TheatreData [{}, {}]\n", name, index)};
     for(FAUTO _data : data)
@@ -27,7 +31,7 @@ std::string TheatreData::get_log() const
     return _out;
 }
 
-std::string TheatreData::get_parsable_string() const
+std::string TheatreFile::TheatreData::get_parsable_string() const
 {
     std::string _out{std::format("@{}#{}\n\n", name, index)};
     for(FAUTO [type, super] : type_declarations)
@@ -37,7 +41,7 @@ std::string TheatreData::get_parsable_string() const
     return _out;
 }
 
-Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreData> outData)
+Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreFile::TheatreData> outData)
 {
     FileData theatre_file{};
     if(not theatre_file.ReadFile(inFilePath))
@@ -45,7 +49,7 @@ Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreData> outData)
     return Load(theatre_file, outData);
 }
 
-Error TheatreFile::Load(Farg<FileData> inFileData, Shared<TheatreData> outData)
+Error TheatreFile::Load(Farg<FileData> inFileData, Shared<TheatreFile::TheatreData> outData)
 {
     TokenArray tokens{};
     Error lexer_code{Lex(inFileData, tokens)};
@@ -64,7 +68,7 @@ Error TheatreFile::Load(Farg<FileData> inFileData, Shared<TheatreData> outData)
     return OK;
 }
 
-void sDebugPrintLexerLogs(Farg<TokenArray> inTokens)
+void sDebugPrintLexerLogs(Farg<TheatreFile::TokenArray> inTokens)
 {
     enum class Comment : int { SINGLE, MULTI, NO_COMMENT };
     Comment comment{Comment::NO_COMMENT};
@@ -76,14 +80,14 @@ void sDebugPrintLexerLogs(Farg<TokenArray> inTokens)
         {
             if(token.token[0] == '\n' and comment == Comment::SINGLE)
                 { comment = Comment::NO_COMMENT; }
-            if(gDebugDontPrintWhitespaceInLexerLogs)
+            if(TheatreFile::gDebugDontPrintWhitespaceInLexerLogs)
                 { continue; }
         }
         if(token.category == TheatreFile::TokenName::SinglelineComment)
         {
             if(comment == Comment::NO_COMMENT)
                 { comment = Comment::SINGLE; }
-            if(gDebugDontPrintCommentsInLexerLogs)
+            if(TheatreFile::gDebugDontPrintCommentsInLexerLogs)
                 { continue; }
         }
         if(token.category == TheatreFile::TokenName::MultilineComment)
@@ -92,10 +96,10 @@ void sDebugPrintLexerLogs(Farg<TokenArray> inTokens)
                 { comment = Comment::MULTI; }
             else if(comment == Comment::MULTI)
                 { comment = Comment::NO_COMMENT; }
-            if(gDebugDontPrintCommentsInLexerLogs)
+            if(TheatreFile::gDebugDontPrintCommentsInLexerLogs)
                 { continue; }
         }
-        if(gDebugDontPrintCommentsInLexerLogs and comment != Comment::NO_COMMENT)
+        if(TheatreFile::gDebugDontPrintCommentsInLexerLogs and comment != Comment::NO_COMMENT)
             { continue; }
         debug_print("\tToken [{}, '{}']",
             EnumRegistry::GetEnumName(token.category),

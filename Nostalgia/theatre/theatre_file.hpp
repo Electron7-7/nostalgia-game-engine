@@ -42,8 +42,9 @@ namespace TheatreFile
             { return data.emplace_back(std::forward<_Args>(__args)...); }
 
         void sort_by_priority();
-        void push_back(Farg<ThingData> inData) noexcept { data.push_back(inData); }
-        void clear() noexcept { data.clear(); }
+        void push_back(Farg<ThingData> inData) noexcept;
+        void clear() noexcept;
+
         std::string get_log() const;
         std::string get_parsable_string() const;
 
