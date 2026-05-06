@@ -126,4 +126,13 @@ template<>
 inline bool StringToNum(glm::quat& output, const std::string& string)
 { return InterpretGLM<4>(output, string); }
 
+template<NumberOrGLM T>
+    T StringToNum(Sarg inString)
+    {
+        T _output{};
+        if(not StringToNum(_output, inString))
+            { print_warning("Failed to convert '{}' to a valid number", inString); }
+        return _output;
+    }
+
 #endif // NUMBER_PARSER_H
