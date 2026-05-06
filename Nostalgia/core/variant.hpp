@@ -48,7 +48,25 @@ public:
     operator Shared<Thing>() const;
 
     template<IsEnum T>
-        operator T() const { return static_cast<T>(operator int()); }
+        operator T() const
+        {
+            switch(_type)
+            {
+            case STRING:
+                {
+                    long _value{};
+                    if(EnumRegistry::GetEnum(operator std::string(), _value) == OK)
+                        { return static_cast<T>(_value); }
+                }
+                [[fallthrough]];
+            case NIL:
+            default:
+                return T{};
+            case INT:
+            case FLOAT:
+                return static_cast<T>(_to_int<long>());
+            }
+        }
 
     Variant(bool);
     Variant(int);
