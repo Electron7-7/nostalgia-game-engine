@@ -136,4 +136,7 @@ private:
     Variant(const Variant **) {}
 };
 
+template<typename T>
+    concept Variant_t = std::constructible_from<Variant, T> and std::convertible_to<Variant, T>;
+
 #endif // VARIANT_H
