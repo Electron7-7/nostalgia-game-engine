@@ -1,9 +1,9 @@
 #ifndef TESTAPP_H
 #define TESTAPP_H
 
-#include <Nostalgia/Nostalgia.hpp>
-#include <Nostalgia/application/application.hpp>
-#include <Nostalgia/components/event_handling.hpp>
+#include "../Nostalgia/Nostalgia.hpp"
+#include "../Nostalgia/application/application.hpp"
+#include "../Nostalgia/components/event_handling.hpp"
 
 class TestApplication final : public IApplication
 {
@@ -12,7 +12,7 @@ public:
     void Stop() final;
     const char* Name() final;
     void Input(InputEvent*) final;
-    void Event(AppEvent*) final;
+    void Event(IEvent*) final;
 };
 
 extern std::string gToggleFullscreen;
