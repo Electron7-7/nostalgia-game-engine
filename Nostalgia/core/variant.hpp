@@ -31,6 +31,8 @@ public:
     static bool is_convertible(Variant::Type inFrom, Variant::Type inTo);
     static bool is_convertible_strict(Variant::Type inFrom, Variant::Type inTo);
 
+    std::string get_theatre_file_string() const;
+
     bool is_null() const;
     bool is_zero() const;
 

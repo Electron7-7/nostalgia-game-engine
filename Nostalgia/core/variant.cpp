@@ -127,6 +127,30 @@ bool Variant::is_convertible(Variant::Type inFrom, Variant::Type inTo)
 bool Variant::is_convertible_strict(Variant::Type inFrom, Variant::Type inTo)
 { return _are_variant_types_convertible(inFrom, inTo, true); }
 
+std::string Variant::get_theatre_file_string() const
+{
+    switch(_type)
+    {
+    case STRING:
+        return std::format("'{}'", _to_string());
+    case BOOL:
+    case INT:
+    case FLOAT:
+    case VECTOR2:
+    case VECTOR3:
+    case VECTOR4:
+    case QUATERNION:
+        return std::format("[{}]", _to_string());
+    case THING:
+        if(auto _thing_data{std::get_if<ThingData>(&_data)}; _thing_data and not _thing_data->uid.invalid())
+            { return std::format("<{}>", _thing_data->thing->name()); }
+        [[fallthrough]];
+    case NIL:
+    default:
+        return GlobalConstants::str_empty;
+    }
+}
+
 bool Variant::is_null() const
 { return _type != THING or not std::get_if<ThingData>(&_data)->thing; }
 
