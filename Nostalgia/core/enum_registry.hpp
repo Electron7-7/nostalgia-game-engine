@@ -133,6 +133,19 @@ public:
         return ERR_NOT_FOUND;
     }
 
+    template<typename T>
+        static std::string GetEnumsList() noexcept
+        {
+            LOCK_MUTEX;
+            std::string _output{};
+            for(FAUTO _enum : m_sEnums)
+            {
+                if(typeid(T).hash_code() == _enum.type)
+                    { _output += (_output.empty()) ? _enum.name : "," + _enum.name; }
+            }
+            return _output;
+        }
+
     // Searches for the enum via the given name and, if found, returns an unordered set containing all enums of the same type
     static Enums_t GetEnumsOfSameType(Sarg inName) noexcept
     {
