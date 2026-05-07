@@ -374,7 +374,7 @@ void ImGui_Editor::TheatreInspector()
     if(m_sInspectingNewThing)
     {
         m_sInspectingNewThing = false;
-        _name = _data.name;
+        _name = _variables->name;
     }
 
     BeginChild("Theatre Inspector", {}, ImGuiChildFlags_Borders);
