@@ -167,7 +167,6 @@ protected:
         mVisual3DIDs{},
         mVisual2DIDs{},
         mViewportIDs{};
-    // CallSheet mCallSheet{};
     Tree<ID> mCallSheet{};
 
     Shared<Thinker> m_pPlayer{nullptr};

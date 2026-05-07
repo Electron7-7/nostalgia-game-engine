@@ -3,15 +3,12 @@
 
 class Theatre;
 
-class VariableRegistry;
-
 namespace TheatreFile
 {
     enum class TokenName;
 
     struct Token;
     struct TheatreData;
-    enum class ThingVarType;
     struct ThingVariable;
     struct ThingData;
 }

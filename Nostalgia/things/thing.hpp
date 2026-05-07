@@ -39,13 +39,16 @@ public:
     virtual constexpr FPID Type() const { return ThingType::Thing; }
 
     Thing(Sarg inName) noexcept;
-    // Used by the Theatre & ResourceDatabase when a '::GetThing' function fails to return a `Thing` with an invalid UID.
+    // Used by the Theatre & ResourceDatabase when a `::GetThing` function fails, in order to return
+    // a `Thing` with an invalid UID. This lets `Thing::invalid` return `true`.
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
-    // Derived classes must call `Super::SetVariables` at the start of their own implementation.
+    // Derived classes must call `Super::SetVariables` with the given `Farg<TheatreFile::ThingData>` argument
+    // at the start of their own implementation.
     virtual void SetVariables(Farg<TheatreFile::ThingData>);
-    // Derived classes must call `Super::GetVariables` at the start of their own implementation.
+    // Derived classes must call `Super::GetVariables` at the start of their own implementation and use the
+    // returned `Shared<TheatreFile::ThingData>` variable as their return value.
     virtual Shared<TheatreFile::ThingData> GetVariables() const;
 
     bool DerivedFrom(FPID inType) const;

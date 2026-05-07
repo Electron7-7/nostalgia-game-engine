@@ -1,7 +1,6 @@
 #include "./theatre.hpp"
 #include "application/application.hpp"
 #include "managers/theatre_manager.hpp"
-#include "things/thing_data.hpp"
 #include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
