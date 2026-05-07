@@ -29,7 +29,7 @@ Shared<ThingData> TestAnimatedSprite2D::GetVariables() const
 {
     auto data{Sprite2D::GetVariables()};
 
-    data->set_variable(mTexture, "Texture", true);
+    data->hide_from_editor("Texture");
     data->set_variable(mInterval, "Interval");
 
     int i{0};

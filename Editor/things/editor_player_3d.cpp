@@ -56,7 +56,7 @@ void EditorPlayer3D::Ready()
         TheatreFile::ThingData coll_dat{ThingType::Collider3D, "EditorPlayer3D_Collider"};
         coll_dat.set_variable(glm::vec3{1.0f, 3.0f, 1.0f}, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
-        coll_dat.parent_variable = ThingVariable{"Parent", name(), ThingVarType::Parent, Type()};
+        coll_dat.set_variable(name(), "Parent");
         m_pCollider = Theatre::Current()->GetThinker<Collider3D>(Theatre::Current()->CreateThing(coll_dat));
     }
     if(not _has_camera)
@@ -65,7 +65,7 @@ void EditorPlayer3D::Ready()
         cam_dat.set_variable(glm::vec3{0.0f, 1.5f, 0.0f}, "Position");
         cam_dat.set_variable(true, "UseDefaultSkybox");
         cam_dat.set_variable(false, "Layer2");
-        cam_dat.parent_variable = ThingVariable{"Parent", name(), ThingVarType::Parent, Type()};
+        cam_dat.set_variable(name(), "Parent");
         m_pCamera = Theatre::Current()->GetThinker<Camera3D>(Theatre::Current()->CreateThing(cam_dat));
     }
 
