@@ -41,15 +41,13 @@ void NostalgiaPlayer::Ready()
     if(not m_pActor3D)
     {
         m_pActor3D = Theatre::Current()->GetThinker<Actor3D>(
-            Theatre::Current()->CreateThing(
-                {ThingType::Actor3D, "Player_Actor3D", {}, {"Parent", name(), ThingVarType::Parent, Type()}}));
+            Theatre::Current()->CreateThing({ThingType::Actor3D, "Player_Actor3D", {}, {name(), "Parent"}}));
     }
 
     if(not m_pActor2D)
     {
         m_pActor2D = Theatre::Current()->GetThinker<Actor2D>(
-            Theatre::Current()->CreateThing(
-                {ThingType::Actor2D, "Player_Actor2D", {}, {"Parent", name(), ThingVarType::Parent, Type()}}));
+            Theatre::Current()->CreateThing({ThingType::Actor2D, "Player_Actor2D", {}, {name(), "Parent"}}));
     }
 }
 
