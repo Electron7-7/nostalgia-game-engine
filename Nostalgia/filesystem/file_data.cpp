@@ -1,6 +1,5 @@
 #include "frozen/map.h"
 #include "frozen/string.h"
-#include "theatre/theatre.hpp"
 #include <fstream> // IWYU pragma: keep
 
 static constinit const frozen::map<frozen::string, FileType, 9>
@@ -50,25 +49,15 @@ void FileData::SetData(const uchar* inData, size_t inSize, FileType inType)
 
 Error FileData::ReadFile(Sarg inPath)
 {
-    std::string file_path{inPath};
-    if(not FileSystem::IsFile(inPath))
-    {
-        if(not FileSystem::IsFile(file_path = FileSystem::GetAbsolute(inPath)))
-        {
-            if(not FileSystem::IsFile(file_path = FileSystem::GetProgramDirectory() + inPath))
-            {
-                if(FAUTO theatre_dir{Theatre::Current()->TheatreFileDirectory()};
-                    not FileSystem::IsFile(file_path = theatre_dir + "/" + inPath))
-                        { return ERR_INVALID_PATH; }
-            }
-        }
-    }
-
-    std::ifstream file_stream{file_path, std::ios::binary};
-    mData = std::vector<unsigned char>{std::istreambuf_iterator<char>(file_stream), {}};
-    mType = sDetectFileType(inPath);
-    mPath = file_path;
-    file_stream.close();
+    mPath = inPath;
+    if(not FileSystem::ResolveFilePath(mPath))
+        { return mStatus = ERR_INVALID_PATH; }
+    std::ifstream _file_stream{mPath, std::ios::binary};
+    if(not _file_stream)
+        { return ERR_FILE_READ; }
+    mData = std::vector<unsigned char>{std::istreambuf_iterator<char>(_file_stream), {}};
+    mType = sDetectFileType(mPath);
+    _file_stream.close();
     return mStatus = OK;
 }
 
