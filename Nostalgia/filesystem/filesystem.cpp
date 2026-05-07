@@ -109,10 +109,10 @@ Error FileSystem::Write(Sarg inPath, Sarg inData)
 
 bool FileSystem::Read(Sarg inPath, std::vector<uchar>& outData)
 {
-    std::basic_ifstream<uchar> file(inPath);
+    std::ifstream file(inPath, std::ios::binary);
     if(not file.is_open())
         { return false; }
-    outData = std::vector<uchar>(std::istreambuf_iterator<uchar>(file), std::istreambuf_iterator<uchar>());
+    outData = std::vector<uchar>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
     file.close();
     return not file.bad() and not file.fail();
 }
