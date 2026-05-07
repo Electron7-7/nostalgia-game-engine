@@ -109,6 +109,22 @@ public:
     const LockGuard<RMutex> GetThingsLock();
     const LockGuard<RMutex> GetCallSheetLock();
 
+    template<Thing_t T>
+        Shared<T> GetThing(Sarg inName)
+        {
+            if(auto _thing{DCast<T>(GetThing(inName))})
+                { return _thing; }
+            return MakeShared<T>();
+        }
+
+    template<Thing_t T>
+        Shared<T> GetThing(ID inUID)
+        {
+            if(auto _thing{DCast<T>(GetThing(inUID))})
+                { return _thing; }
+            return MakeShared<T>();
+        }
+
     template<typename T> requires std::derived_from<T, NostalgiaPlayer>
         Shared<T> GetPlayer()
         {
