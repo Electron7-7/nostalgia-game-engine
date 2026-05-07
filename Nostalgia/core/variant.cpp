@@ -1,4 +1,5 @@
 #include "./variant.hpp"
+#include "theatre/theatre.hpp"
 
 using TypeNames_t = std::unordered_map<std::string, Variant::Type>;
 
@@ -206,6 +207,8 @@ Variant::operator ID() const
         { return {_to_int<uint>()}; }
     else if(_type == THING)
         { return std::get_if<ThingData>(&_data)->uid; }
+    else if(_type == STRING)
+        { return Theatre::Current()->GetUID(*std::get_if<std::string>(&_data)); }
     return {ID::Invalid};
 }
 
@@ -297,11 +300,25 @@ Variant::operator glm::quat() const
     }
 }
 
+Variant::operator BitMask() const
+{ return BitMask{_to_int<int>()}; }
+
+Variant::operator FileData() const
+{
+    if(_type == STRING)
+        { return FileData{*std::get_if<std::string>(&_data)}; }
+    return FileData{};
+}
+
 Variant::operator Shared<Thing>() const
 {
     if(_type == THING)
         { return std::get_if<ThingData>(&_data)->thing; }
-    return nullptr;
+    else if(_type == STRING)
+        { return Theatre::Current()->GetThing(operator std::string()); }
+    else if(_type == INT)
+        { return Theatre::Current()->GetThing(operator ID()); }
+    return MakeShared<Thing>();
 }
 
 Variant::Variant(bool inValue):
@@ -337,5 +354,11 @@ Variant::Variant(Farg<glm::vec4> inValue):
 Variant::Variant(Farg<glm::quat> inValue):
     _type{QUATERNION}, _data{inValue} {}
 
+Variant::Variant(BitMask inValue):
+    _type{INT}, _data{inValue.get()} {}
+
+Variant::Variant(Farg<FileData> inValue):
+    _type{STRING}, _data{inValue.filepath()} {}
+
 Variant::Variant(Farg<Shared<Thing>> inValue):
-    _type{THING}, _data{ThingData{inValue->uid(), inValue}} {}
+    _type{THING}, _data{(inValue) ? ThingData{inValue->uid(), inValue} : ThingData{}} {}

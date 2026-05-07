@@ -47,6 +47,8 @@ public:
     operator glm::vec3() const;
     operator glm::vec4() const;
     operator glm::quat() const;
+    operator BitMask() const;
+    operator FileData() const;
     operator Shared<Thing>() const;
 
     template<IsEnum T>
@@ -61,12 +63,11 @@ public:
                         { return static_cast<T>(_value); }
                 }
                 [[fallthrough]];
-            case NIL:
             default:
                 return T{};
             case INT:
             case FLOAT:
-                return static_cast<T>(_to_int<long>());
+                return static_cast<T>(_to_int<int>());
             }
         }
 
@@ -81,6 +82,8 @@ public:
     Variant(Farg<glm::vec3>);
     Variant(Farg<glm::vec4>);
     Variant(Farg<glm::quat>);
+    Variant(BitMask);
+    Variant(Farg<FileData>);
     Variant(Farg<Shared<Thing>>);
 
     template<IsEnum T>
@@ -108,7 +111,6 @@ private:
         {
             switch(_type)
             {
-            case NIL:
             default:
                 return 0;
             case BOOL:
@@ -129,7 +131,6 @@ private:
         {
             switch(_type)
             {
-            case NIL:
             default:
                 return 0;
             case BOOL:
@@ -148,12 +149,12 @@ private:
     bool _to_bool() const;
     std::string _to_string() const;
 
-    // This code is stolen directly from Godot because I feel like it'll help avoid some headaches down the line.
+    // This code is (mostly) stolen from Godot because I feel like it'll help avoid some headaches down the line.
     // Original Comment in 'godot/core/variant/variant.h:398':
     //      Avoid accidental conversion. If you reached this point, it's because you most likely forgot to
     //      dereference a Variant pointer (so add * like this: *variant_pointer).
-    Variant(const Variant *)  {}
-    Variant(const Variant **) {}
+    Variant(const Variant *)  = delete;
+    Variant(const Variant **) = delete;
 };
 
 template<typename T>
