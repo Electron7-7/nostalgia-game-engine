@@ -1,259 +1,129 @@
 #include "./thing_data.hpp"
-#include "theatre/theatre.hpp"
-#include "things/thing_factory.hpp"
 
-#define FIND_VAR(VAR_NAME, VECTOR) \
-    std::find_if(VECTOR.begin(), VECTOR.end(), \
-        [VAR_NAME](Farg<ThingVariable> var_it) \
-            { return not var_it.name.compare(VAR_NAME); } )
-
-#define FOUND_VAR(VAR_NAME) \
-    auto found_it{FIND_VAR(VAR_NAME, variables)}; found_it != variables.end()
-
-#define FOUND_CHILD(CHILD_NAME) \
-    auto found_it{FIND_VAR(CHILD_NAME, children_variables)}; found_it != children_variables.end()
-
-using namespace TheatreFile;
-
-Farg<ThingVariable> ThingData::_get_variable(std::initializer_list<std::string> inNames) const
-{
-    static ThingVariable invalid_variable{};
-    for(FAUTO name : inNames)
-    {
-        for(FAUTO var : variables)
-        {
-            if(var.name.compare(name))
-                { continue; }
-            return var;
-        }
-    }
-    return invalid_variable;
-}
-
-Error ThingData::_get_id_variable(ID& outValue,
-    Farg<ThingVariable> inVariable,
-    ThingVarType inType) const
-{
-    if(inVariable.type != inType)
-        { return ERR_MISMATCHED_TYPES; }
-    else if(ID out{Theatre::Current()->GetUID(inVariable.value)}; not out.invalid())
-        { outValue = out; return OK; }
-    return ERR_INVALID;
-}
-
-Shared<Resource> ThingData::_try_get_resource(Sarg inName) const
-{ return Theatre::Current()->GetResource(Theatre::Current()->GetUID(inName)); }
-
-Shared<Thinker> ThingData::_try_get_thinker(Sarg inName) const
-{ return Theatre::Current()->GetThinker(Theatre::Current()->GetUID(inName)); }
-
-bool ThingData::invalid() const
-{ return name.empty() or not ThingFactory::IsThing(type); }
-
-std::string ThingData::get_log() const noexcept
+std::string TheatreFile::ThingData::get_log() const noexcept
 {
     std::string output{std::format("<ThingData>\n\ttype: {}\n\tname: {}\n\tvariables:",
         type.name(), name)};
     for(FAUTO var : variables)
-        { output += std::format("\n\t\t{}", var.get_log()); }
-    if(!children_variables.empty())
+        { output += std::format("\n\t\t{}: {}", var.name, var.value.operator std::string()); }
+    if(not children_variables.empty())
     {
         output += "\n\tchildren:";
         for(FAUTO var : children_variables)
-            { output += std::format("\n\t\t{}", var.get_log()); }
+            { output += std::format("\n\t\t{}: {}", var.name, var.value.operator std::string()); }
     }
-    if(!parent_variable.invalid())
-        { output += std::format("\n\t\n\tparent: {}", parent_variable.get_log()); }
+    if(not parent_variable.invalid())
+    {
+        output += std::format("\n\t\t{}: {}",
+            parent_variable.name,
+            parent_variable.value.operator std::string());
+    }
     return output + "\n";
 }
 
-std::string ThingData::get_parsable_string() const noexcept
+std::string TheatreFile::ThingData::get_parsable_string() const noexcept
 {
     std::string output{std::format("\n{} {}\n{{", type.name(), name)};
     for(FAUTO var : variables)
     {
         if(var.invalid())
             { continue; }
-        output += std::format("\n{}", var.get_parsable_string());
+        output += std::format("\n{} = {}", var.name, var.value.get_theatre_file_string());
     }
     for(FAUTO var : children_variables)
     {
         if(var.invalid())
             { continue; }
-        output += std::format("\n{}", var.get_parsable_string());
+        output += std::format("\nChild = {}", var.value.get_theatre_file_string());
     }
-    if(!parent_variable.invalid())
-        { output += std::format("\n{}", parent_variable.get_parsable_string()); }
+    if(not parent_variable.invalid())
+        { output += std::format("\nParent = {}", parent_variable.value.get_theatre_file_string()); }
     return std::format("{}\n}}\n", output);
 }
 
-void ThingData::clear()
+bool TheatreFile::ThingData::invalid() const
+{ return type == ThingType::Invalid; }
+
+ID TheatreFile::ThingData::get_parent() const
+{ return parent_variable.value.operator ID(); }
+
+IdSet_t TheatreFile::ThingData::get_children() const
 {
-    type = {};
-    name.clear();
-    variables.clear();
-    parent_variable.clear();
-    children_variables.clear();
+    IdSet_t _output{};
+    for(FAUTO _child : children_variables)
+        { _output.insert(_child.value.operator ID()); }
+    return _output;
 }
 
-ID ThingData::get_parent() const
-{
-    ID out{};
-    _get_id_variable(out, parent_variable, ThingVarType::Parent);
-    return out;
-}
+void TheatreFile::ThingData::remove_parent()
+{ parent_variable = {}; }
 
-IdSet_t ThingData::get_children() const
+void TheatreFile::ThingData::set_parent(Sarg inName)
+{ parent_variable = {inName, "Parent", VARIABLE_HINT_THING_NAME}; }
+
+Error TheatreFile::ThingData::remove_child(Sarg inName)
 {
-    IdSet_t children{};
-    for(FAUTO child : children_variables)
+    if(auto found_it{_find_child(inName)}; found_it != children_variables.end())
     {
-        if(ID uid{}; _get_id_variable(uid, child, ThingVarType::Child) == OK)
-            { children.insert(uid); }
+        children_variables.erase(found_it);
+        return OK;
     }
-    return children;
+    return ERR_NOT_FOUND;
 }
 
-Error ThingData::remove_variable(Sarg inName)
+void TheatreFile::ThingData::add_child(Sarg inName)
+{
+    if(auto found_it{_find_child(inName)}; found_it != children_variables.end())
+        { return; }
+    children_variables.emplace_back(inName, "Child", VARIABLE_HINT_THING_NAME);
+}
+
+Error TheatreFile::ThingData::remove_variable(Sarg inName)
+{
+    if(auto found_it{_find_variable(inName)}; found_it != variables.end())
+    {
+        variables.erase(found_it);
+        return OK;
+    }
+    return ERR_NOT_FOUND;
+}
+
+TheatreFile::ThingVarArray::const_iterator TheatreFile::ThingData::_find_variable(Sarg inName) const
+{
+    for(auto iter{variables.cbegin()}; iter != variables.cend(); ++iter)
+    {
+        if(unlikely(iter->name == inName))
+            { return iter; }
+    }
+    return variables.cend();
+}
+
+TheatreFile::ThingVarArray::iterator TheatreFile::ThingData::_find_variable(Sarg inName)
 {
     for(auto iter{variables.begin()}; iter != variables.end(); ++iter)
     {
-        if(!iter->name.compare(inName))
-        {
-            variables.erase(iter);
-            return OK;
-        }
+        if(unlikely(iter->name == inName))
+            { return iter; }
     }
-    return ERR_NOT_FOUND;
+    return variables.end();
 }
 
-Error ThingData::remove_child(Sarg inName)
+TheatreFile::ThingVarArray::const_iterator TheatreFile::ThingData::_find_child(Sarg inName) const
+{
+    for(auto iter{children_variables.cbegin()}; iter != children_variables.cend(); ++iter)
+    {
+        if(unlikely(static_cast<std::string>(iter->value) == inName))
+            { return iter; }
+    }
+    return children_variables.cend();
+}
+
+TheatreFile::ThingVarArray::iterator TheatreFile::ThingData::_find_child(Sarg inName)
 {
     for(auto iter{children_variables.begin()}; iter != children_variables.end(); ++iter)
     {
-        if(iter->name.compare(inName))
-        {
-            children_variables.erase(iter);
-            return OK;
-        }
+        if(unlikely(static_cast<std::string>(iter->value) == inName))
+            { return iter; }
     }
-    return ERR_NOT_FOUND;
-}
-
-void ThingData::set_variable(Sarg inValue, Sarg inName, bool inIsIgnoredByEditor)
-{
-    if(FOUND_VAR(inName))
-    {
-        found_it->value = inValue;
-        found_it->editor_ignored = inIsIgnoredByEditor;
-    }
-    else
-    {
-        variables.emplace_back(inName, inValue, ThingVarType::String, ThingType::Invalid, ThingVariable::NIL,
-            inIsIgnoredByEditor);
-    }
-}
-
-Error ThingData::set_variable(ID inValue, Sarg inName, bool inIsIgnoredByEditor)
-{
-    ThingVariable temp{inName, "", ThingVarType::ID};
-    temp.editor_ignored = inIsIgnoredByEditor;
-
-    if(FAUTO name{Theatre::Current()->GetName(inValue)}; not name.empty())
-    {
-        temp.value = name;
-        temp.thing_type = Theatre::Current()->TypeOf(inValue);
-    }
-    else
-        { return ERR_INVALID_ID; }
-
-    if(not inName.compare("Parent"))
-    {
-        temp.type = ThingVarType::Parent;
-        parent_variable = temp;
-    }
-    else if(not inName.compare("Child"))
-    {
-        temp.type = ThingVarType::Child;
-        Sarg _name{};
-        if(FOUND_CHILD(_name))
-            { *found_it = temp; }
-        else
-            { children_variables.push_back(temp); }
-    }
-    else if(FOUND_VAR(inName))
-        { *found_it = temp; }
-    else
-        { variables.push_back(temp); }
-    return OK;
-}
-
-void ThingData::set_variable(bool inValue, Sarg inName, bool inIsIgnoredByEditor)
-{
-    std::string _value{std::format("{}", inValue)};
-    if(FOUND_VAR(inName))
-    {
-        found_it->value = _value;
-        found_it->editor_ignored = inIsIgnoredByEditor;
-    }
-    else
-    {
-        variables.emplace_back(inName, _value, ThingVarType::Bool, ThingType::Invalid, ThingVariable::NIL,
-            inIsIgnoredByEditor);
-    }
-}
-
-Error ThingData::set_variable(Shared<FileData> inValue, Sarg inName, bool inIsIgnoredByEditor)
-{
-    if(not inValue->has_filepath())
-        { return ERR_INVALID_PATH; }
-    std::string _value{inValue->filepath()};
-    if(FOUND_VAR(inName))
-    {
-        found_it->value = _value;
-        found_it->editor_ignored = inIsIgnoredByEditor;
-    }
-    else
-    {
-        variables.emplace_back(inName, _value, ThingVarType::String, ThingType::Invalid, ThingVariable::NIL,
-            inIsIgnoredByEditor);
-    }
-    return OK;
-}
-
-void ThingData::set_variable(BitMask inValue, Sarg inName, bool inIsIgnoredByEditor)
-{
-    BitMask::StatusArray _status_arr{inValue.status()};
-    std::string _value{};
-    for(bool _status : _status_arr)
-        { _value.push_back((_status) ? '1' : '0'); }
-    if(FOUND_VAR(inName))
-    {
-        found_it->value = _value;
-        found_it->editor_ignored = inIsIgnoredByEditor;
-    }
-    else
-    {
-        variables.emplace_back(inName, _value, ThingVarType::BitMask, ThingType::Invalid, ThingVariable::NIL,
-            inIsIgnoredByEditor);
-    }
-}
-
-Error ThingData::set_enum_variable(Sarg inEnumName, Sarg inName, bool inIsIgnoredByEditor)
-{
-    if(EnumRegistry::Contains(inEnumName))
-    {
-        if(FOUND_VAR(inName))
-        {
-            found_it->value = inEnumName;
-            found_it->editor_ignored = inIsIgnoredByEditor;
-        }
-        else
-        {
-            variables.emplace_back(inName, inEnumName, ThingVarType::Enum, ThingType::Invalid, ThingVariable::NIL,
-                inIsIgnoredByEditor);
-        }
-        return OK;
-    }
-    return ERR_INVALID;
+    return children_variables.end();
 }
