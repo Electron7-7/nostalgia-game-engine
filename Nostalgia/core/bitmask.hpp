@@ -14,6 +14,7 @@ public:
 
     BitMask(bool inAllLayersEnabled = true) noexcept;
     BitMask(const StatusArray& inStatusArray) noexcept;
+    BitMask(int inRawValue) noexcept;
 
     int get() const noexcept;
     void set(int inBits) noexcept;

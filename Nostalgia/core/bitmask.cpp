@@ -1,6 +1,9 @@
 BitMask::BitMask(bool inState) noexcept:
     layers_{(inState) ? all_enabled : all_disabled} {}
 
+BitMask::BitMask(int inRawValue) noexcept:
+    layers_{inRawValue} {}
+
 BitMask::BitMask(const StatusArray& inStatusArray) noexcept:
     BitMask()
 { set(inStatusArray); }
