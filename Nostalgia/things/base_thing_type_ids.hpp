@@ -1,11 +1,11 @@
-#ifndef THING_TYPE_H
-#define THING_TYPE_H
+#ifndef BASE_THING_TYPE_IDS_H
+#define BASE_THING_TYPE_IDS_H
 
-#define TYPE_ID(CLASS) CLASS{#CLASS}
+#define TYPE_ID(TYPE) TYPE{#TYPE}
 
 namespace ThingType
 {
-    inline const PID Invalid{ID::Invalid, "Invalid"},
+    inline const PID Invalid{},
         TYPE_ID(Thing),
             TYPE_ID(Resource),
                 TYPE_ID(Font),
@@ -38,4 +38,4 @@ namespace ThingType
 }
 
 #undef TYPE_ID
-#endif // THING_TYPE_H
+#endif // BASE_THING_TYPE_IDS_H

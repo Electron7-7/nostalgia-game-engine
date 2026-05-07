@@ -143,6 +143,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/log.hpp
     ${NOSTALGIA_ROOT}/core/tree.hpp
     ${NOSTALGIA_ROOT}/core/time.hpp
+    ${NOSTALGIA_ROOT}/things/base_thing_type_ids.hpp
     ${NOSTALGIA_ROOT}/application/window.hpp
     ${NOSTALGIA_ROOT}/application/monitor.hpp
     ${NOSTALGIA_ROOT}/application/application.hpp
@@ -180,7 +181,6 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/thinkers/2d/text_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/2d/camera_2d.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/thinker.hpp
-    ${NOSTALGIA_ROOT}/things/thing_type.hpp
     ${NOSTALGIA_ROOT}/things/thing_factory.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.hpp
     ${NOSTALGIA_ROOT}/things/thing_data.hpp

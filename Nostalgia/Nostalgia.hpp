@@ -86,6 +86,6 @@
 #include <Nostalgia/filesystem/filesystem.hpp>        // IWYU pragma: keep
 #include <Nostalgia/filesystem/file_data.hpp>         // IWYU pragma: keep
 #include <Nostalgia/theatre/parser/number_parser.hpp> // IWYU pragma: keep
-#include <Nostalgia/things/thing_type.hpp>            // IWYU pragma: keep
+#include <Nostalgia/things/base_thing_type_ids.hpp>   // IWYU pragma: keep
 
 #endif // NOSTALGIA_PRE_COMPILED_HEADER_H
