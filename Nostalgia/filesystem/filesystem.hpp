@@ -21,6 +21,12 @@ namespace FileSystem
     std::string MakeUniquePath(Sarg inPath);
     Error Write(Sarg inPath, uchar* inData, int inSize);
     Error Write(Sarg inPath, Sarg inData);
+    /*
+    * If the given path is invalid, `ResolveFilePath` runs down a list of common starting directories and checks
+    * if appending the path to the directories results in a valid filepath. If it does, the given path is updated
+    * to the new path; if it doesn't, `ERR_INVALID_PATH` is returned and the given path remains untouched.
+    */
+    Error ResolveFilePath(std::string& ioPath);
     bool Read(Sarg inPath, std::vector<uchar>& outData);
     bool Read(Sarg inPath, std::string& outData);
     bool SizeOf(Sarg inPath, size_t& outSize);

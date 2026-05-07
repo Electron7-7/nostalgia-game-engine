@@ -1,3 +1,4 @@
+#include "theatre/theatre.hpp"
 #include <fstream>
 #include <filesystem>
 
@@ -104,6 +105,18 @@ Error FileSystem::Write(Sarg inPath, Sarg inData)
         { return ERR_FILE_WRITE; }
     file.write(inData.data(), inData.size());
     file.close();
+    return OK;
+}
+
+Error FileSystem::ResolveFilePath(std::string& ioPath)
+{
+    std::string file_path{ioPath};
+    if(not IsFile(file_path) and
+        not IsFile(file_path = GetAbsolute(ioPath)) and
+            not IsFile(file_path = GetProgramDirectory() + ioPath) and
+            not IsFile(file_path = Theatre::Current()->TheatreFileDirectory() + "/" + ioPath))
+        { return ERR_INVALID_PATH; }
+    ioPath = file_path;
     return OK;
 }
 
