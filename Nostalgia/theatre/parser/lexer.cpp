@@ -138,15 +138,17 @@ void debug_PrettifyEnums()
     static bool already_prettified{false};
     if(already_prettified)
         { return; }
-    EnumRegistry::Register(ThingVarType::String,   "String");
-    EnumRegistry::Register(ThingVarType::Bool,     "Bool");
-    EnumRegistry::Register(ThingVarType::Number,   "Number");
-    EnumRegistry::Register(ThingVarType::BitMask,  "BitMask");
-    EnumRegistry::Register(ThingVarType::Enum,     "Enum");
-    EnumRegistry::Register(ThingVarType::Child,    "Child");
-    EnumRegistry::Register(ThingVarType::Parent,   "Parent");
-    EnumRegistry::Register(ThingVarType::ID,       "ID");
-    EnumRegistry::Register(ThingVarType::None,     "None");
+    EnumRegistry::Register(Variant::NIL,        "Nil");
+    EnumRegistry::Register(Variant::BOOL,       "Bool");
+    EnumRegistry::Register(Variant::INT,        "Int");
+    EnumRegistry::Register(Variant::FLOAT,      "Float");
+    EnumRegistry::Register(Variant::STRING,     "String");
+    EnumRegistry::Register(Variant::VECTOR2,    "Vector2");
+    EnumRegistry::Register(Variant::VECTOR3,    "Vector3");
+    EnumRegistry::Register(Variant::VECTOR4,    "Vector4");
+    EnumRegistry::Register(Variant::QUATERNION, "Quaternion");
+    EnumRegistry::Register(Variant::THING,      "Thing");
+    EnumRegistry::Register(Variant::TYPE_MAX,   "Invalid Variant Type");
     EnumRegistry::Register(TokenName::Identifier,  "Identifier");
     EnumRegistry::Register(TokenName::Keyword,     "Keyword");
     EnumRegistry::Register(TokenName::Separator,   "Separator");
