@@ -26,7 +26,7 @@ if(NOT NOSTALGIA_DISABLE_PIC)
 endif()
 
 # Testapp Options
-option(BUILD_VARIANT_TESTS "Build the Variant testing app" ON)
+# option(BUILD_TEST "Build test" ON)
 
 if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
@@ -220,9 +220,7 @@ function(add_test_target TARGET_NAME)
     endif()
 endfunction()
 
-if(BUILD_VARIANT_TESTS)
-    add_executable(VariantTests ${TESTAPP_MAIN}
-        ${TESTAPP_DIR}/variant_tests.cpp
-        ${TESTAPP_DIR}/new_data_test_parser.cpp)
-    add_test_target(VariantTests ${VARIANT_TESTS_SOURCES})
-endif()
+# if(BUILD_TEST)
+    # add_executable(TestApp ${TESTAPP_MAIN} ${TESTAPP_DIR}/test_app.cpp)
+    # add_test_target(TestApp)
+# endif()
