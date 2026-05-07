@@ -1428,3 +1428,11 @@ Fixed! The root viewport issue was just that `Camera3D::ProjectionMatrix` wasn't
 Okay, I need to separate `glTextureStorage2D` from the `Load` function. Honestly, I should just redesign `TextureBuffer` to probably be more like `Texture`.
 
 Oh yeah, also, I added some screenshots to the repo :)
+
+[05/04/26]
+Okay, I want to redesign `ThingData` and `ThingVariable` to be more flexible and similar to Godot's variant system.
+
+[05/06/26]
+Idea: `Thing` has two `ThingData` variables; one for its initial/default state and one that gets updated every time `Thing::SetVariables` is called. Might not actually be a good idea bc of desync when variables are directly set as opposed to using `Thing::SetVariables`.
+
+Idea: find a way to check for "desync" so `Thing::GetVariables` doesn't return every single variable and just returns the ones that are changed from their default value. Maybe having a "default" `ThingData` variable?
