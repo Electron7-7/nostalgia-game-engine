@@ -1,5 +1,4 @@
 #include "../theatre_file.hpp"
-#include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "console/console.hpp"
 #include "thirdparty/frozen/map.h"
@@ -26,10 +25,11 @@ static constexpr char
     cDelimiterEnterNumber      {'['},
     cDelimiterExitNumber       {']'},
     cDelimiterEnterExitBitMask {'|'},
-    cDelimiterEnterEnum        {'('},
+    cDelimiterExitEnum         {')'},
     cDelimiterEnterReference   {'<'},
     cDelimiterExitReference    {'>'},
     cDelimiterWeakString       {'"'},
+    cDelimiterVectorComponent  {','},
     cDelimiterStrongString     {'\''};
 
 using namespace TheatreFile;
@@ -193,13 +193,17 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
     Farg<TokenArray> inTokens,
     TheatreFile::TheatreData& outData)
 {
-    TheatreFile::ThingData thing_data{};
+    ThingData thing_data{};
     ThingVariable thing_var{};
+    std::string _string_variable{};
 
     Comment in_comment{NO_COMMENT};
 
+    int vector_size{1};
     bool in_literal{false},
-        in_string{false};
+        in_string{false},
+        is_parent{false},
+        is_child{false};
 
     for(; ioIndex < inTokens.size(); ++ioIndex)
     {
@@ -207,11 +211,13 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
         if(s_CheckIfComment(in_comment, token))
             { continue; }
         else if((in_literal
-                and token.token[0] != cDelimiterExitNumber and token.token[0] != cDelimiterEnterExitBitMask)
+                and token.token[0] != cDelimiterExitNumber
+                and token.token[0] != cDelimiterEnterExitBitMask
+                and token.token[0] != cDelimiterVectorComponent)
             or (in_string
                 and token.token[0] != cDelimiterStrongString
                 and token.token[0] != cDelimiterWeakString))
-            { thing_var.value += token.token; continue; }
+            { _string_variable += token.token; continue; }
         switch(token.category)
         {
         case TokenName::SinglelineComment:
@@ -223,11 +229,11 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
         case TokenName::Literal:
             if(!in_literal)
             {
-                thing_var.type = ThingVarType::String;
-                thing_var.value = token.token.substr(1, token.token.size() - 2);
+                _string_variable = token.token.substr(1, token.token.size() - 2);
+                thing_var.value  = _string_variable;
             }
             else
-                { thing_var.value += token.token; }
+                { _string_variable += token.token; }
             break;
         case TokenName::Operator:
             if(token.token[0] == cDelimiterStartSandwich)
@@ -235,44 +241,48 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 Token next_token{};
                 bool exit_for{false};
 #pragma message("TODO: make this less shit")
-                ++ioIndex;
-                for(; ioIndex < inTokens.size() and !exit_for; ++ioIndex)
+                size_t _index{++ioIndex};
+                for(; _index < inTokens.size() and !exit_for; ++_index)
                 {
-                    next_token = inTokens.at(ioIndex);
+                    next_token = inTokens.at(_index);
                     if(next_token.category != TokenName::Keyword and
                         next_token.category != TokenName::Identifier)
                             { continue; }
-                    thing_var.name = next_token.token;
-                    for(size_t i{ioIndex+1}; i < inTokens.size() and !exit_for; ++i)
+                    ++_index;
+                    for(; _index < inTokens.size() and !exit_for; ++_index)
                     {
-                        next_token = inTokens.at(i);
+                        next_token = inTokens.at(_index);
                         if(next_token.category != TokenName::Identifier)
                             { continue; }
                         thing_var.value = next_token.token;
-                        thing_var.thing_type = thing_var.name;
                         exit_for = true;
                     }
-                    --ioIndex;
                 }
                 thing_data.children_variables.push_back(thing_var);
-                thing_var.clear();
+                thing_var = {};
+                _string_variable.clear();
+                is_parent = false;
+                is_child = false;
                 s_ParseThing(ioIndex, inTokens, outData);
                 continue;
             }
             break;
         case TokenName::Whitespace:
-            if(!thing_var.value.empty()
+            if(!_string_variable.empty()
                 and !in_string
                 and !in_literal
                 and token.token[0] == '\n')
             {
-                if(thing_var.type == ThingVarType::Child)
+                if(is_child)
                     { thing_data.children_variables.push_back(thing_var); }
-                else if(thing_var.type == ThingVarType::Parent)
+                else if(is_parent)
                     { thing_data.parent_variable = thing_var; }
                 else
                     { thing_data.variables.push_back(thing_var); }
-                thing_var.clear();
+                thing_var = {};
+                _string_variable.clear();
+                is_parent = false;
+                is_child = false;
             }
             break;
         case TokenName::Separator:
@@ -280,51 +290,50 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             {
             case cDelimiterExitReference:
             {
-                std::string _name{thing_var.value};
-                if(thing_var.type != ThingVarType::ID and thing_var.name.compare("Child"))
-                    { _name = thing_var.name; }
-                if(auto found_it{s_ThingNameToTypeID.find(_name)}; found_it != s_ThingNameToTypeID.end())
-                    { thing_var.thing_type = found_it->second; }
-                else
-                    { thing_var.thing_type = ResourceDatabase::TypeOf(_name); }
+                thing_var.value = _string_variable;
                 break;
             }
             case cDelimiterEnterReference:
-                if(thing_var.type == ThingVarType::None)
-                    { thing_var.type = ThingVarType::ID; }
                 break;
-            case cDelimiterEnterEnum:
-                thing_var.type = ThingVarType::Enum;
+            case cDelimiterExitEnum:
+                thing_var.value = _string_variable;
                 break;
             case cDelimiterEnterExitBitMask:
-                if(not in_literal and thing_var.value.empty())
                 {
-#pragma message("TODO: merge duplicate code")
-                    thing_var.type = ThingVarType::BitMask;
-                    if(ioIndex + 2 < inTokens.size())
+                    if(not in_literal and _string_variable.empty())
                     {
-                        FAUTO _first_token{inTokens.at(ioIndex + 1)};
-                        FAUTO _second_token{inTokens.at(ioIndex + 2)};
-                        if(_first_token.category == TokenName::Separator
-                            and _first_token.token[0] == cDelimiterNamedNumber)
+#pragma message("TODO: merge duplicate code")
+                        if(ioIndex + 2 < inTokens.size())
                         {
-                            ++ioIndex;
-                            if(auto found_it{sNamedNumbers.find(frozen::string{_second_token.token})};
-                                found_it != sNamedNumbers.end())
+                            FAUTO _first_token{inTokens.at(ioIndex + 1)};
+                            FAUTO _second_token{inTokens.at(ioIndex + 2)};
+                            if(_first_token.category == TokenName::Separator
+                                and _first_token.token[0] == cDelimiterNamedNumber)
                             {
                                 ++ioIndex;
-                                thing_var.value = found_it->second.data();
+                                if(auto found_it{sNamedNumbers.find(frozen::string{_second_token.token})};
+                                    found_it != sNamedNumbers.end())
+                                {
+                                    ++ioIndex;
+                                    _string_variable = found_it->second.data();
+                                }
+                                break;
                             }
-                            break;
                         }
+                        in_literal = true;
+                        break;
                     }
-                    in_literal = true;
+                    in_literal = false;
+                    int _value{};
+                    StringToNum(_value, _string_variable);
+                    thing_var.value = _value;
                     break;
                 }
-                in_literal = false;
+            case cDelimiterVectorComponent:
+                ++vector_size;
+                _string_variable += token.token;
                 break;
             case cDelimiterEnterNumber:
-                thing_var.type = ThingVarType::Number;
                 if(ioIndex + 2 < inTokens.size())
                 {
                     FAUTO _first_token{inTokens.at(ioIndex + 1)};
@@ -337,7 +346,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                             found_it != sNamedNumbers.end())
                         {
                             ++ioIndex;
-                            thing_var.value = found_it->second.data();
+                            _string_variable = found_it->second.data();
                         }
                         break;
                     }
@@ -346,16 +355,40 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 break;
             case cDelimiterExitNumber:
                 in_literal = false;
-                if(!thing_var.value.empty())
+                if(!_string_variable.empty())
                 {
-                    auto _val{thing_var.value};
+                    auto _val{_string_variable};
                     // https://stackoverflow.com/a/313990
                     std::transform(_val.begin(), _val.end(), _val.begin(),
                         [](unsigned char character){ return std::tolower(character); });
                     if(!_val.compare("false") || !_val.compare("true"))
                     {
-                        thing_var.type = ThingVarType::Bool;
-                        thing_var.value = _val;
+                        thing_var.value = bool{_val == "true"};
+                    }
+                    else
+                    {
+                        switch(vector_size)
+                        {
+                        case 1:
+                            if(IsInt(_string_variable))
+                                { thing_var.value = StringToNum<int>(_string_variable); }
+                            else if(IsFloat(_string_variable))
+                                { thing_var.value = StringToNum<float>(_string_variable); }
+                            break;
+                        case 2:
+                            thing_var.value = StringToNum<glm::vec2>(_string_variable);
+                            break;
+                        case 3:
+                            thing_var.value = StringToNum<glm::vec3>(_string_variable);
+                            break;
+                        case 4:
+                            if(GetLowercase(thing_var.name) == "quaternion")
+                                { thing_var.value = StringToNum<glm::quat>(_string_variable); }
+                            else
+                                { thing_var.value = StringToNum<glm::vec4>(_string_variable); }
+                            break;
+                        }
+                        vector_size = 1;
                     }
                 }
                 break;
@@ -366,9 +399,9 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             case cDelimiterExitDefinition:
                 if(not thing_var.invalid())
                 {
-                    if(thing_var.type == ThingVarType::Child)
+                    if(is_child)
                         { thing_data.children_variables.push_back(thing_var); }
-                    else if(thing_var.type == ThingVarType::Parent)
+                    else if(is_parent)
                         { thing_data.parent_variable = thing_var; }
                     else
                         { thing_data.variables.push_back(thing_var); }
@@ -405,9 +438,15 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             break;
         case TokenName::Keyword:
             if(!token.token.compare("Child"))
-                { thing_var.type = ThingVarType::Child; thing_var.name = token.token; }
+            {
+                is_child = true;
+                thing_var.name = token.token;
+            }
             else if(!token.token.compare("Parent"))
-                { thing_var.type = ThingVarType::Parent; thing_var.name = token.token; }
+            {
+                is_parent = true;
+                thing_var.name = token.token;
+            }
             break;
         case TokenName::Identifier:
             if(thing_data.type.invalid())
@@ -431,8 +470,8 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             }
             else if(thing_var.name.empty())
                 { thing_var.name = token.token; }
-            else if(thing_var.value.empty())
-                { thing_var.value = token.token; }
+            else if(_string_variable.empty())
+                { _string_variable = token.token; }
             break;
         default:
             break;
