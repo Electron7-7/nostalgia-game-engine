@@ -17,7 +17,8 @@ Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage, 
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
-    if(data.get_variable(mInitialImageID, "Image", "Data") == OK)
+    data.get_variable(mInitialImageID, "Image", "Data");
+    if(not mInitialImageID.invalid())
         { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
     else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }

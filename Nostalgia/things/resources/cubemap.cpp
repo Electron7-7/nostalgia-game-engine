@@ -61,8 +61,10 @@ Shared<ThingData> Cubemap::GetVariables() const
     for(uint i{0}; i < 6; ++i)
     {
         std::string _name{"Image" + std::to_string(i)};
-        if(not data->set_variable(mInitialImageUIDs->at(i), _name))
+        if(not mInitialImagePaths->at(i).empty())
             { data->set_variable(mInitialImagePaths->at(i), _name); }
+        else if(not mInitialImageUIDs->at(i).invalid())
+            { data->set_variable(mInitialImageUIDs->at(i), _name); }
     }
     return data;
 }
