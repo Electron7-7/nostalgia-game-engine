@@ -10,7 +10,7 @@ using namespace TheatreFile;
 Shared<Font> Font::CreateFromMemory(const uchar* inData, size_t inSize)
 {
     Shared<Font> output{DCast<Font>(ThingFactory::MakeThing(ThingType::Font, "Untitled_Font"))};
-    output->m_pFont = MakeShared<FileData>(inData, inSize);
+    output->mFontData = {inData, inData + inSize};
     output->LoadFont();
     return output;
 }
@@ -19,9 +19,16 @@ void Font::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(m_pFont, "Font", "File");
     data.get_variable(mFontSize, "Height", "Size");
-
+    if(data.get_variable(mFilepath, "Font", "File") == OK)
+    {
+        if(not FileSystem::ResolveFilePath(mFilepath))
+        {
+            print_warning("Failed to read font file at '{}'", mFilepath);
+            return;
+        }
+        FileSystem::Read(mFilepath, mFontData);
+    }
     LoadFont();
 }
 
@@ -29,7 +36,7 @@ Shared<ThingData> Font::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(m_pFont, "File");
+    data->set_variable(mFilepath, "File");
     data->set_variable(mFontSize, "Height");
 
     return data;
@@ -51,6 +58,12 @@ float Font::GetSize() const
 
 void Font::LoadFont()
 {
+    if(mFontData.empty())
+    {
+        print_warning("No font data found in '{}'", name());
+        return;
+    }
+
     FT_Library ft;
     if(FT_Init_FreeType(&ft))
     {
@@ -59,7 +72,7 @@ void Font::LoadFont()
     }
 
     FT_Face face;
-    if(FT_New_Memory_Face(ft, m_pFont->raw_data(), m_pFont->size(), 0, &face))
+    if(FT_New_Memory_Face(ft, mFontData.data(), mFontData.size(), 0, &face))
     {
         print_error("FreeType failed to load font");
         return;
