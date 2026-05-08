@@ -6,15 +6,20 @@ using TypeNames_t = std::unordered_map<std::string, Variant::Type>;
 bool Variant::_to_bool() const
 { return not is_zero(); }
 
-static std::string s_GetFormattedString(Farg<glm::vec4> inVal, int inSize)
+static std::string s_GetFormattedString(const glm::vec4* inVal, int inSize)
 {
+    if(not inVal)
+        { return ""; }
     inSize = (inSize > 4) ? 4 : inSize;
     std::string _output{};
     for(int i{0}; i < inSize; ++i)
     {
+        float _value{0.0f};
+        if(not glm::isnan(inVal->operator[](i)))
+            { _value = inVal->operator[](i); }
         if(i)
             { _output += ", "; }
-        _output += std::format("{}", inVal[i]);
+        _output += std::format("{}", _value);
     }
     return _output;
 }
@@ -34,13 +39,13 @@ std::string Variant::_to_string() const
     case FLOAT:
         return std::format("{}", static_cast<float>(*std::get_if<double>(&_data)));
     case VECTOR2:
-        return s_GetFormattedString(*std::get_if<glm::vec4>(&_data), 2);
+        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 2);
     case VECTOR3:
-        return s_GetFormattedString(*std::get_if<glm::vec4>(&_data), 3);
+        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 3);
     case VECTOR4:
-        return s_GetFormattedString(*std::get_if<glm::vec4>(&_data), 4);
+        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 4);
     case QUATERNION:
-        return s_GetFormattedString(*std::get_if<glm::vec4>(&_data), 4);
+        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 4);
     case THING:
         return std::get_if<ThingData>(&_data)->thing->to_string();
     default:

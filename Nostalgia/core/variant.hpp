@@ -1,8 +1,7 @@
 #ifndef VARIANT_H
 #define VARIANT_H
 
-// Forward Declaration
-class Thing;
+#include <Nostalgia/things/thing.hpp>
 
 class Variant
 {
@@ -100,7 +99,7 @@ private:
     struct ThingData
     {
         ID uid{ID::Invalid};
-        Shared<Thing> thing{nullptr};
+        Shared<Thing> thing{MakeShared<Thing>()};
     };
 
     Type _type{NIL};
