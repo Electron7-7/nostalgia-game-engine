@@ -11,7 +11,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         T id{};
         T parent{};
-        std::set<T> children{};
+        IdSet_t children{};
     };
 
 template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>

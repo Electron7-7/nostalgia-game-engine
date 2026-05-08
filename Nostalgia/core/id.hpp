@@ -108,9 +108,9 @@ template<ID_t T>
     };
 
 using FPID      = const PID&;
-using IdSet_t   = std::set<ID>;
+using IdSet_t   = std::unordered_set<ID>;
 using IdSet_arg = const IdSet_t&;
-using IdSetRev_t   = std::set<ID, std::greater<ID>>;
+using IdSetRev_t   = std::unordered_set<ID, std::greater<ID>>;
 using IdSetRev_arg = const IdSetRev_t&;
 using IdVec_t   = std::vector<ID>;
 using IdVec_arg = const IdVec_t&;
