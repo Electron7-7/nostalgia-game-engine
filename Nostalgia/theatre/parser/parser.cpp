@@ -412,6 +412,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 // is an error, anyways, I only really focus on a few more "important" types.
                 if(not ThingFactory::IsThing(thing_data.type))
                 {
+                    print_warning("Invalid Thing discovered w/ type '{}'", thing_data.type.name());
                     thing_data.type = (thing_data.children_variables.empty() and
                         thing_data.parent_variable.invalid())
                             ? ThingType::Invalid
@@ -429,6 +430,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                     else if(std::string resource_test{};
                         thing_data.get_variable(resource_test, RESOURCE_VAR_NAMES) == OK)
                             { thing_data.type = ThingType::Resource; }
+                    print_warning("Setting invalid type to '{}'", thing_data.type.name());
                 }
                 outData.push_back(thing_data);
                 return thing_data;
