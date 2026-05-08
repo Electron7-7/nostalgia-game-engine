@@ -7,8 +7,7 @@
 class Mesh : public Resource
 {
 public:
-    SET_SUPER(Resource)
-    SET_TYPEID(ThingType::Mesh)
+    THING_CLASS(Mesh, Resource)
 
     using Indices_t = std::vector<uint>;
     using VertexAttributes_t = std::vector<float>;
@@ -41,5 +40,11 @@ public:
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const { return nullptr; }
     virtual Shared<Material> SurfaceGetMaterial(int inIndex) const { return nullptr; }
 };
+
+
+inline void Mesh::InitVariables()
+{
+    Super::InitVariables();
+}
 
 #endif // MESH_H

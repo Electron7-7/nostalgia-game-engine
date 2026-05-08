@@ -8,8 +8,7 @@
 class EditorPlayer3D : public Actor3D
 {
 public:
-    SET_SUPER(Actor3D)
-    DEFINE_TYPEID(EditorPlayer3D, __editorplayer3d)
+    THING_CLASS(EditorPlayer3D, Actor3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

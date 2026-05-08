@@ -7,8 +7,7 @@
 class NostalgiaPlayer : public Thinker
 {
 public:
-    SET_SUPER(Thinker)
-    SET_TYPEID(ThingType::NostalgiaPlayer)
+    THING_CLASS(NostalgiaPlayer, Thinker)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

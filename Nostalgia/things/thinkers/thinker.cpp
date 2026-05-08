@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Thinker::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Thinker::SetVariables(Farg<ThingData> inData)
 {
     Super::SetVariables(inData);

@@ -20,8 +20,7 @@ struct ColliderMaterial
 class Collider3D : public Actor3D
 {
 public:
-	SET_SUPER(Actor3D)
-	SET_TYPEID(ThingType::Collider3D)
+	THING_CLASS(Collider3D, Actor3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

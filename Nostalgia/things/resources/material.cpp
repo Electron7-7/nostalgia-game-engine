@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Material::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Material::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

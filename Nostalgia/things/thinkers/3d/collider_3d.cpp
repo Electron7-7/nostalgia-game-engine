@@ -58,6 +58,11 @@ Farg<JPH::BodyID> Collider3D::id() const
 Shared<JPH::BodyCreationSettings> Collider3D::CreationSettings()
 { return m_pBodyCreationSettings; }
 
+void Collider3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Collider3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

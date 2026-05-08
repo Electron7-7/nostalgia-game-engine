@@ -7,8 +7,7 @@
 class TestAnimatedSprite2D : public Sprite2D
 {
 public:
-    SET_SUPER(Sprite2D)
-    DEFINE_TYPEID(TestAnimatedSprite2D, __testanimatedsprite2d)
+    THING_CLASS(TestAnimatedSprite2D, Sprite2D)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
     TICK_OVERRIDE

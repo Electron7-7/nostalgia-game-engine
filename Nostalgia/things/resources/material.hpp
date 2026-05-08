@@ -7,8 +7,7 @@
 class Material : public Resource
 {
 public:
-	SET_SUPER(Resource)
-	SET_TYPEID(ThingType::Material)
+	THING_CLASS(Material, Resource)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

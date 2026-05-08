@@ -8,8 +8,7 @@
 class MeshInstance3D : public Visual3D
 {
 public:
-	SET_SUPER(Visual3D)
-	SET_TYPEID(ThingType::MeshInstance3D)
+	THING_CLASS(MeshInstance3D, Visual3D)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

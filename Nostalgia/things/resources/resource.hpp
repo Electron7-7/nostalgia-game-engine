@@ -7,14 +7,15 @@
 class Resource : public Thing
 {
 public:
-    SET_SUPER(Thing)
-    SET_TYPEID(ThingType::Resource)
+    THING_CLASS(Resource, Thing)
 
 private:
     void Update() final {}
     void Tick() final {}
     void Input(InputEvent*) final {}
 };
+
+inline void Resource::InitVariables() { Super::InitVariables(); }
 
 template<typename T>
     concept Resource_t = std::derived_from<T, Resource>;

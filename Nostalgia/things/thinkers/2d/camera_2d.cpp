@@ -16,6 +16,11 @@
 
 using namespace TheatreFile;
 
+void Camera2D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Camera2D::Ready()
 {
     Super::Ready();

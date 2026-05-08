@@ -3,6 +3,11 @@
 
 using namespace TheatreFile;
 
+void Text2D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Text2D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

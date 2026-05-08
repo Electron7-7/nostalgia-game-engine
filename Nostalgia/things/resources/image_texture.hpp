@@ -9,8 +9,7 @@ class ImageTexture : public Texture
 public:
     static Shared<ImageTexture> CreateFromImage(Farg<Shared<Image>>, SamplerState* inSampler = nullptr);
 
-    SET_SUPER(Texture)
-    SET_TYPEID(ThingType::ImageTexture)
+    THING_CLASS(ImageTexture, Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

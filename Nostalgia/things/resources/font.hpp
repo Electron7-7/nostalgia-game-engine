@@ -28,8 +28,7 @@ public:
 
     static Shared<Font> CreateFromMemory(const uchar* inData, size_t inSize);
 
-    SET_SUPER(Resource)
-    SET_TYPEID(ThingType::Font)
+    THING_CLASS(Font, Resource)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

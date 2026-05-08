@@ -6,8 +6,7 @@
 class Thinker : public Thing
 {
 public:
-    SET_SUPER(Thing)
-	SET_TYPEID(ThingType::Thinker)
+    THING_CLASS(Thinker, Thing);
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

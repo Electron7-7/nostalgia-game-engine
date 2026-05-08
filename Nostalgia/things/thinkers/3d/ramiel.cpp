@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Ramiel::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Ramiel::Ready()
 {
     Super::Ready();

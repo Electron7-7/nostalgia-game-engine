@@ -8,6 +8,11 @@
 
 using namespace TheatreFile;
 
+void Viewport::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Viewport::Ready()
 {
     Super::Ready();

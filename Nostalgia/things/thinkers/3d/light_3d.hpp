@@ -6,8 +6,7 @@
 class Light3D : public Visual3D
 {
 public:
-	SET_SUPER(Visual3D)
-	SET_TYPEID(ThingType::Light3D)
+	THING_CLASS(Light3D, Visual3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
@@ -43,8 +42,7 @@ protected:
 class PointLight3D : public Light3D
 {
 public:
-	SET_SUPER(Light3D)
-	SET_TYPEID(ThingType::PointLight3D)
+	THING_CLASS(PointLight3D, Light3D)
 
     static int GetCount();
 
@@ -54,8 +52,7 @@ public:
 class SpotLight3D : public Light3D
 {
 public:
-	SET_SUPER(Light3D)
-	SET_TYPEID(ThingType::SpotLight3D)
+	THING_CLASS(SpotLight3D, Light3D)
 
     static int GetCount();
     SET_VARIABLES_OVERRIDE
@@ -67,8 +64,7 @@ public:
 class DirectionalLight3D : public Light3D
 {
 public:
-	SET_SUPER(Light3D)
-	SET_TYPEID(ThingType::DirectionalLight3D)
+	THING_CLASS(DirectionalLight3D, Light3D)
 
     static int GetCount();
     SET_VARIABLES_OVERRIDE

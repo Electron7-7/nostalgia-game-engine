@@ -8,8 +8,7 @@
 class Texture : public Resource
 {
 public:
-	SET_SUPER(Resource)
-	SET_TYPEID(ThingType::Texture)
+	THING_CLASS(Texture, Resource)
 
     virtual Shared<TextureBuffer> Buffer() const { return mBuffer; }
 
@@ -17,5 +16,10 @@ protected:
     Shared<TextureBuffer> mBuffer{TextureBuffer::CreateDummy()};
     RMutex mBufferMutex{};
 };
+
+inline void Texture::InitVariables()
+{
+    Super::InitVariables();
+}
 
 #endif // TEXTURE_H

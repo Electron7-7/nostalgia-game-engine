@@ -8,8 +8,7 @@
 class Actor3D : public Thinker
 {
 public:
-	SET_SUPER(Thinker)
-	SET_TYPEID(ThingType::Actor3D)
+	THING_CLASS(Actor3D, Thinker)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

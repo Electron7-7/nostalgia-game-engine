@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Visual2D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Visual2D::Ready()
 {
     Super::Ready();

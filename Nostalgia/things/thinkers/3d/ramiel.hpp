@@ -6,8 +6,7 @@
 class Ramiel : public Actor3D
 {
 public:
-    SET_SUPER(Actor3D)
-    DEFINE_TYPEID(Ramiel, RamielType)
+    THING_CLASS(Ramiel, Actor3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

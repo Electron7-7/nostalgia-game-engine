@@ -7,8 +7,7 @@
 class ArrayMesh : public Mesh
 {
 public:
-    SET_SUPER(Mesh)
-    SET_TYPEID(ThingType::ArrayMesh)
+    THING_CLASS(ArrayMesh, Mesh)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

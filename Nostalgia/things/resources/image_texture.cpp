@@ -14,6 +14,11 @@ Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage, 
     return output;
 }
 
+void ImageTexture::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

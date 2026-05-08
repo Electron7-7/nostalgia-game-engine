@@ -14,6 +14,11 @@
 
 using namespace TheatreFile;
 
+void EditorPlayer3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void EditorPlayer3D::SetVariables(Farg<ThingData> data)
 {
     Actor3D::SetVariables(data);

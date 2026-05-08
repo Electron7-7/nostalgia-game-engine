@@ -5,6 +5,11 @@
 
 using namespace TheatreFile;
 
+void ViewportTexture::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void ViewportTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

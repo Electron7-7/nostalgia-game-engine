@@ -3,6 +3,11 @@
 
 using namespace TheatreFile;
 
+void MeshInstance3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void MeshInstance3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

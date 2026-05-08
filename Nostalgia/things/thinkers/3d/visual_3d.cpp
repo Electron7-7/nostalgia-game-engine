@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Visual3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Visual3D::Ready()
 {
     Super::Ready();

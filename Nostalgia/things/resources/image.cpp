@@ -57,6 +57,11 @@ Shared<Image> Image::CreateFromData(uchar* inData, int inSize, int inWidth, int 
 void Image::GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels)
 { stbi_info_from_memory(inFile->raw_data(), inFile->size(), outWidth, outHeight, outChannels); }
 
+void Image::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Image::SetVariables(Farg<TheatreFile::ThingData> data)
 {
     Super::SetVariables(data);

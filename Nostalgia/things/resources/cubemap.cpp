@@ -27,6 +27,11 @@ Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> i
     return output;
 }
 
+void Cubemap::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Cubemap::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

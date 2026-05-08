@@ -15,6 +15,11 @@ Shared<Font> Font::CreateFromMemory(const uchar* inData, size_t inSize)
     return output;
 }
 
+void Font::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Font::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

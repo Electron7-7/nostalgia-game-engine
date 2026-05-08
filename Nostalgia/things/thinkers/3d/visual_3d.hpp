@@ -6,8 +6,7 @@
 class Visual3D : public Actor3D
 {
 public:
-	SET_SUPER(Actor3D)
-	SET_TYPEID(ThingType::Visual3D)
+	THING_CLASS(Visual3D, Actor3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE

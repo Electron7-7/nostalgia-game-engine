@@ -13,8 +13,7 @@ public:
         bool inUseMipmaps = true, DataFormat inFormat = DATA_FORMAT_SRGB_ALPHA);
     static void GetInfo(Farg<Shared<FileData>> inFile, int* outWidth, int* outHeight, int* outChannels);
 
-	SET_SUPER(Resource)
-	SET_TYPEID(ThingType::Image)
+	THING_CLASS(Image, Resource)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
     SHUTDOWN_OVERRIDE

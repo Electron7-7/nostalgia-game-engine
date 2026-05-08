@@ -5,6 +5,11 @@
 
 using namespace TheatreFile;
 
+void Actor3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Actor3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

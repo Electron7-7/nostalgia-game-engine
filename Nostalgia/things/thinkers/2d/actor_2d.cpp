@@ -6,6 +6,11 @@
 
 using namespace TheatreFile;
 
+void Actor2D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Actor2D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

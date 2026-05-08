@@ -4,6 +4,11 @@
 
 using namespace TheatreFile;
 
+void Sprite2D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Sprite2D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

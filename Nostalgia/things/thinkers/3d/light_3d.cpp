@@ -27,6 +27,11 @@ void Light3D::Ready()
     Super::Ready();
 }
 
+void Light3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Light3D::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
@@ -63,6 +68,11 @@ Shared<ThingData> Light3D::GetVariables() const
 int Light3D::Index() const
 { return mIndex; }
 
+void PointLight3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 int PointLight3D::GetCount()
 { return Super::sPointCount;}
 
@@ -76,6 +86,11 @@ bool PointLight3D::IncrementIndex()
 
 int SpotLight3D::GetCount()
 { return Super::sSpotCount;}
+
+void SpotLight3D::InitVariables()
+{
+    Super::InitVariables();
+}
 
 void SpotLight3D::SetVariables(Farg<ThingData> data)
 {
@@ -102,6 +117,11 @@ bool SpotLight3D::IncrementIndex()
 
 int DirectionalLight3D::GetCount()
 { return Super::sDirectionalCount;}
+
+void DirectionalLight3D::InitVariables()
+{
+    Super::InitVariables();
+}
 
 void DirectionalLight3D::SetVariables(Farg<ThingData> data)
 {

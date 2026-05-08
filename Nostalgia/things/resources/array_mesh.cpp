@@ -11,6 +11,11 @@
 
 using namespace TheatreFile;
 
+void ArrayMesh::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void ArrayMesh::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);

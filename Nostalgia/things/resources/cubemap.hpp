@@ -7,8 +7,7 @@
 class Cubemap : public Texture
 {
 public:
-	SET_SUPER(Texture)
-	SET_TYPEID(ThingType::Cubemap)
+	THING_CLASS(Cubemap, Texture)
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 

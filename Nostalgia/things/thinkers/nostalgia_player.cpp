@@ -6,6 +6,11 @@
 
 using namespace TheatreFile;
 
+void NostalgiaPlayer::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void NostalgiaPlayer::Ready()
 {
     if(m_pActor3D and m_pActor2D)

@@ -15,6 +15,11 @@
 
 using namespace TheatreFile;
 
+void Camera3D::InitVariables()
+{
+    Super::InitVariables();
+}
+
 void Camera3D::Ready()
 {
     Super::Ready();
