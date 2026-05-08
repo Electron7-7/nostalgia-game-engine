@@ -16,13 +16,19 @@ Thing::~Thing() noexcept
     m_sActiveUIDs.erase(mUID());
 }
 
+void Thing::InitVariables()
+{
+    if(s_pDefaultVariables)
+        { return; }
+    s_pDefaultVariables = MakeShared<ThingData>();
+    s_pDefaultVariables->type = Type();
+}
+
 void Thing::SetVariables(Farg<ThingData> data)
 {
     LOCK(mMutex);
     if(mName.empty())
         { mName = data.name; }
-    if(not m_pStartingData)
-        { m_pStartingData = MakeShared<ThingData>(data); }
 }
 
 Shared<ThingData> Thing::GetVariables() const
@@ -35,30 +41,46 @@ Shared<ThingData> Thing::GetVariables() const
 }
 
 bool Thing::DerivedFrom(FPID inType) const
-{ LOCK(mMutex); return ThingFactory::IsDerivedFrom(Type(), inType); }
-
-bool Thing::IsThinker() const
-{ LOCK(mMutex); return ThingFactory::IsThinker(Type()); }
-
-bool Thing::IsResource() const
-{ LOCK(mMutex); return ThingFactory::IsResource(Type()); }
-
-ThingData Thing::GetStartingVariables() const
 {
     LOCK(mMutex);
-    return (m_pStartingData)
-        ? *m_pStartingData
-        : ThingData{};
+    return (inType == Type()) or ThingFactory::IsDerivedFrom(Type(), inType);
+}
+
+bool Thing::IsThinker() const
+{
+    LOCK(mMutex);
+    return ThingFactory::IsThinker(Type());
+}
+
+bool Thing::IsResource() const
+{
+    LOCK(mMutex);
+    return ThingFactory::IsResource(Type());
+}
+
+ThingData Thing::GetDefaultVariables() const
+{
+    LOCK(mMutex);
+    return *s_pDefaultVariables;
 }
 
 ID Thing::uid() const
-{ LOCK(mMutex); return mUID; }
+{
+    LOCK(mMutex);
+    return mUID;
+}
 
 Farg<std::string> Thing::name() const
-{ LOCK(mMutex); return mName; }
+{
+    LOCK(mMutex);
+    return mName;
+}
 
 const char* const Thing::c_name() const
-{ LOCK(mMutex); return mName.data(); }
+{
+    LOCK(mMutex);
+    return mName.data();
+}
 
 Error Thing::rename(Sarg inNewName)
 {
@@ -101,4 +123,11 @@ uint Thing::_get_random()
 {
     m_sIdEngine.seed(m_sRandomSeed());
     return m_sDistribution(m_sIdEngine);
+}
+
+void Thing::_initialize_variables()
+{
+    if(s_pDefaultVariables)
+        { return; }
+    this->InitVariables();
 }

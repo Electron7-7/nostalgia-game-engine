@@ -6,16 +6,19 @@
 /// Forward Declaration
 namespace TheatreFile { struct ThingData; }
 
-/// Macro for defining the `Super` keyword and base-class constructor inheritance.
-/// See other Thing-derived classes like `Thinker` for example use cases.
-#define SET_SUPER(SUPER) using Super = SUPER; using SUPER::SUPER;
-/// Macro for defining the `Type` function override.
-/// See other Thing-derived classes like `Thinker` for example use cases.
-#define SET_TYPEID(TYPE_PID) virtual constexpr FPID Type() const override { return TYPE_PID; }
-/// Macro for quickly creating a custom, hidden `PID` variable, defining the `Type` function override, and using
-/// the previously created variable as the return value for `Type`.
-/// See 'Editor/things/player.hpp' for an example use case.
-#define DEFINE_TYPEID(CLASS, VAR_NAME) inline static const PID VAR_NAME{#CLASS}; SET_TYPEID(VAR_NAME)
+#define THING_CLASS(CLASS, INHERITS) \
+private: \
+    inline static const PID TypeID{#CLASS}; \
+    inline static const PID BaseTypeID{#INHERITS}; \
+public: \
+    using SelfType = CLASS; \
+    using Super = INHERITS; \
+    using INHERITS::INHERITS; \
+    inline virtual FPID Type() const override { return TypeID; } \
+    inline virtual FPID BaseType() const override { return BaseTypeID; } \
+    inline static constexpr PID sClassType() { return {#CLASS}; } \
+    inline static constexpr PID sClassBaseType() { return {#INHERITS}; } \
+    virtual void InitVariables() override;
 
 /// Helper macro for declaring an override for `Ready`
 #define READY_OVERRIDE virtual void Ready() override;
@@ -34,9 +37,17 @@ namespace TheatreFile { struct ThingData; }
 
 class Thing
 {
+private:
+    inline static const PID TypeID{"Thing"};
+    inline static const PID BaseTypeID{TypeID};
+
 public:
+    using SelfType = Thing;
     using Super = Thing;
-    virtual constexpr FPID Type() const { return ThingType::Thing; }
+    inline virtual FPID Type() const { return TypeID; }
+    inline virtual FPID BaseType() const { return BaseTypeID; }
+    inline static constexpr PID sClassType() { return "Thing"; }
+    inline static constexpr PID sClassBaseType() { return sClassType(); }
 
     Thing(Sarg inName) noexcept;
     // Used by the Theatre & ResourceDatabase when a `::GetThing` function fails, in order to return
@@ -44,6 +55,7 @@ public:
     Thing() noexcept;
     virtual ~Thing() noexcept;
 
+    virtual void InitVariables();
     // Derived classes must call `Super::SetVariables` with the given `Farg<TheatreFile::ThingData>` argument
     // at the start of their own implementation.
     virtual void SetVariables(Farg<TheatreFile::ThingData>);
@@ -54,7 +66,7 @@ public:
     bool DerivedFrom(FPID inType) const;
     bool IsThinker() const;
     bool IsResource() const;
-    TheatreFile::ThingData GetStartingVariables() const;
+    TheatreFile::ThingData GetDefaultVariables() const;
     ID uid() const;
     Sarg name() const;
     const char* const c_name() const;
@@ -62,13 +74,15 @@ public:
     bool invalid() const;
     std::string to_string() const;
 
+    void _initialize_variables();
+
 protected:
     friend class Theatre;
     friend class ResourceDatabase;
 
-    typedef Error (*pNameChangeCallback_f)(Sarg inOldName, Sarg inNewName);
+    inline static Shared<TheatreFile::ThingData> s_pDefaultVariables{nullptr};
 
-    Shared<TheatreFile::ThingData> m_pStartingData{nullptr};
+    typedef Error (*pNameChangeCallback_f)(Sarg inOldName, Sarg inNewName);
 
     virtual void Ready() {}
     virtual void Shutdown() {}
