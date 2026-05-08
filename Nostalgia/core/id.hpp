@@ -47,13 +47,15 @@ public:
     static constexpr uint back    {Invalid - 1};
 
 protected:
-    uint id_{Invalid};
+    uint id_{ID::Invalid};
 };
 
 // Pretty-ID: stores a string name that can be accessed via functions.
 struct PID : public ID
 {
 public:
+    static const PID Invalid;
+
     PID() noexcept;
     PID(uint inID, Sarg inName) noexcept;
     PID(Sarg inHashable) noexcept;

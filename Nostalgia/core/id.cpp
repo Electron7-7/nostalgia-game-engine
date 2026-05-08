@@ -1,7 +1,7 @@
-// uint ID::Generate() -> Defined in 'uid.cpp' so it can use that file's static random number generator
+const PID PID::Invalid{};
 
 PID::PID() noexcept:
-    ID{Invalid}, name_{"N/A"} {}
+    ID{ID::Invalid}, name_{"N/A"} {}
 
 PID::PID(uint inID, Sarg inName) noexcept:
     ID{inID}, name_{inName} {}
