@@ -112,7 +112,7 @@ FPID ResourceDatabase::TypeOf(ID inUID)
     LOCK_MUTEX;
     if(FOUND_IT(sResources, inUID))
         { return found_it->second->Type(); }
-    return ThingType::Invalid;
+    return PID::Invalid;
 }
 
 FPID ResourceDatabase::TypeOf(Sarg inName)
@@ -120,7 +120,7 @@ FPID ResourceDatabase::TypeOf(Sarg inName)
     LOCK_MUTEX;
     if(FOUND_IT(sNames, inName))
         { return TypeOf(found_it->second); }
-    return ThingType::Invalid;
+    return PID::Invalid;
 }
 
 Error ResourceDatabase::Destroy(ID inUID)

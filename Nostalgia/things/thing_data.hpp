@@ -9,7 +9,7 @@ namespace TheatreFile
     struct ThingData
     {
     public:
-        PID           type{ThingType::Invalid};
+        PID           type{};
         std::string   name{};
         ThingVarArray variables{};
         ThingVariable parent_variable{};
