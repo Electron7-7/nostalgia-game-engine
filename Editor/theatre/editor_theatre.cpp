@@ -91,7 +91,7 @@ void EditorTheatre::Draw()
             {
                 if(ThingFactory::IsDerivedFrom(_type, ThingType::Camera3D))
                     { DrawCamera3DHelper(_camera3d, DCast<Camera3D>(thing)); }
-                else if(ThingFactory::IsDerivedFrom(_type, EditorPlayer3D::__editorplayer3d))
+                else if(ThingFactory::IsDerivedFrom(_type, EditorPlayer3D::sClassType()))
                     { DrawPlayer3DHelper(_camera3d, DCast<Actor3D>(thing)); }
                 else if(ThingFactory::IsDerivedFrom(_type, ThingType::Light3D)
                         and not ThingFactory::IsDerivedFrom(_type, ThingType::DirectionalLight3D))
