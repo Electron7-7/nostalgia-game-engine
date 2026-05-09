@@ -8,6 +8,7 @@ class ResourceManager : public Manager
 public:
     constexpr const char* DebugName() override { return "ResourceManager"; }
     bool Init() override;
+    void Shutdown() override;
 };
 
 extern ResourceManager* g_pResourceManager;

@@ -104,3 +104,6 @@ bool ResourceManager::Init()
 
     return true;
 }
+
+void ResourceManager::Shutdown()
+{ ThingFactory::Shutdown(); }
