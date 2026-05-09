@@ -610,7 +610,7 @@ Shared<Thing> Theatre::GetThing(Sarg inName)
     LockGuard<RMutex> lock{mThingsMutex};
     for(FAUTO [id, thing] : mThings)
         { if(!thing->name().compare(inName)) { return thing; } }
-    return MakeShared<Thing>();
+    return Thing::Invalid();
 }
 
 Shared<Thing> Theatre::GetThing(ID inID)
@@ -621,7 +621,7 @@ Shared<Thing> Theatre::GetThing(ID inID)
     if(auto found_it{mThings.find(inID)};
         found_it != mThings.end())
     { return found_it->second; }
-    return MakeShared<Thing>();
+    return Thing::Invalid();
 }
 
 Shared<Resource> Theatre::GetResource(ID inID)

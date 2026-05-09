@@ -323,7 +323,7 @@ Variant::operator Shared<Thing>() const
         { return Theatre::Current()->GetThing(operator std::string()); }
     else if(_type == INT)
         { return Theatre::Current()->GetThing(operator ID()); }
-    return MakeShared<Thing>();
+    return Thing::Invalid();
 }
 
 Variant::Variant(bool inValue):

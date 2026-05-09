@@ -99,7 +99,7 @@ private:
     struct ThingData
     {
         ID uid{ID::Invalid};
-        Shared<Thing> thing{MakeShared<Thing>()};
+        Shared<Thing> thing{Thing::Invalid()};
     };
 
     Type _type{NIL};
