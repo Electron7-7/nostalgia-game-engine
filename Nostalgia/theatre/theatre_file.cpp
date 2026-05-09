@@ -11,10 +11,10 @@ static void sDebugPrintLexerLogs(Farg<TheatreFile::TokenArray>);
 
 void TheatreFile::TheatreData::sort_by_priority()
 {
-    std::sort(begin(),
+    std::stable_sort(begin(),
         end(),
         [](Farg<ThingData> lhs, Farg<ThingData> rhs)
-        { return ThingFactory::GetPriority(lhs.type) > ThingFactory::GetPriority(rhs.type); });
+            { return ThingFactory::GetPriority(lhs.type) > ThingFactory::GetPriority(rhs.type); });
 }
 
 void TheatreFile::TheatreData::push_back(Farg<ThingData> inData) noexcept
