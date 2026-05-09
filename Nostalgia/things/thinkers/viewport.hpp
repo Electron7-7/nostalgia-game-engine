@@ -1,7 +1,9 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-#include <Nostalgia/things/thinkers/thinker.hpp>
+
+#include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
+#include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
 #include <Nostalgia/things/resources/image.hpp>
 #include <Nostalgia/rendering/frame_buffer.hpp>
 #include <Nostalgia/rendering/render_buffer.hpp>
@@ -38,8 +40,8 @@ protected:
     Shared<RenderBuffer>  mRenderbuffer{RenderBuffer::CreateDummy()};
     Shared<TextureBuffer> mTexturebuffer{TextureBuffer::CreateDummy()};
     Size2D mSize{512, 512};
-    ID mCurrentCamera3D{},
-        mCurrentCamera2D{};
+    Shared<Camera3D> m_pCurrentCamera3D{MakeShared<Camera3D>()};
+    Shared<Camera2D> m_pCurrentCamera2D{MakeShared<Camera2D>()};
 
     virtual void OnDescendantRemoved(Relative) override;
     virtual void OnDescendantAdded(Relative) override;

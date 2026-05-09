@@ -16,7 +16,7 @@ void Viewport::InitVariables()
 void Viewport::Ready()
 {
     Super::Ready();
-    if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
+    if(m_pCurrentCamera2D->invalid() or m_pCurrentCamera3D->invalid())
         { UpdateCurrentCameras(); }
     mFramebuffer  = FrameBuffer::Create();
     mRenderbuffer = RenderBuffer::Create();
@@ -27,8 +27,8 @@ void Viewport::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
 
-    data.get_variable(mCurrentCamera3D, "CurrentCamera3D");
-    data.get_variable(mCurrentCamera2D, "CurrentCamera2D");
+    data.get_variable(m_pCurrentCamera3D, "CurrentCamera3D");
+    data.get_variable(m_pCurrentCamera2D, "CurrentCamera2D");
     if(glm::vec2 size{}; data.get_variable(size, "ViewportSize", "ContentSize") == OK)
         { SetSize(size); }
 }
@@ -37,8 +37,8 @@ Shared<ThingData> Viewport::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(mCurrentCamera3D, "CurrentCamera3D");
-    data->set_variable(mCurrentCamera2D, "CurrentCamera2D");
+    data->set_variable(m_pCurrentCamera3D, "CurrentCamera3D");
+    data->set_variable(m_pCurrentCamera2D, "CurrentCamera2D");
     data->set_variable(mSize.glm(), "ViewportSize");
 
     return data;
@@ -69,23 +69,29 @@ uint Viewport::GetTextureBufferID() const
 { return mTexturebuffer->GetID(); }
 
 ID Viewport::CurrentCamera3D()
-{ return mCurrentCamera3D; }
+{ return m_pCurrentCamera3D->uid(); }
 
 ID Viewport::CurrentCamera2D()
-{ return mCurrentCamera2D; }
+{ return m_pCurrentCamera2D->uid(); }
 
 void Viewport::SetCurrentCamera3D(ID inUID)
 {
-    mCurrentCamera3D = inUID;
     if(inUID.invalid())
-        { UpdateCurrentCameras(); }
+    {
+        m_pCurrentCamera3D = MakeShared<Camera3D>();
+        return UpdateCurrentCameras();
+    }
+    m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(inUID);
 }
 
 void Viewport::SetCurrentCamera2D(ID inUID)
 {
-    mCurrentCamera2D = inUID;
     if(inUID.invalid())
-        { UpdateCurrentCameras(); }
+    {
+        m_pCurrentCamera2D = MakeShared<Camera2D>();
+        return UpdateCurrentCameras();
+    }
+    m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(inUID);
 }
 
 void Viewport::UpdateCurrentCameras()
@@ -93,10 +99,10 @@ void Viewport::UpdateCurrentCameras()
     auto descendants{Theatre::Current()->GetAllChildren(uid())};
     for(FAUTO descendant : descendants)
     {
-        if(mCurrentCamera3D.invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera3D))
-            { mCurrentCamera3D = descendant; }
-        else if(mCurrentCamera2D.invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera2D))
-            { mCurrentCamera2D = descendant; }
+        if(m_pCurrentCamera3D->invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera3D))
+            { m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(descendant); }
+        else if(m_pCurrentCamera2D->invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera2D))
+            { m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(descendant); }
     }
 }
 
@@ -121,20 +127,20 @@ void Viewport::SetSize(Farg<Size2D> inSize)
 
 void Viewport::OnDescendantRemoved(Relative inRelative)
 {
-    if(inRelative.uid == mCurrentCamera3D)
-        { mCurrentCamera3D = {}; }
-    else if(inRelative.uid == mCurrentCamera2D)
-        { mCurrentCamera2D = {}; }
-    if(mCurrentCamera2D.invalid() or mCurrentCamera3D.invalid())
+    if(inRelative.uid == m_pCurrentCamera3D->uid())
+        { m_pCurrentCamera3D = MakeShared<Camera3D>(); }
+    else if(inRelative.uid == m_pCurrentCamera2D->uid())
+        { m_pCurrentCamera2D = MakeShared<Camera2D>(); }
+    if(m_pCurrentCamera2D->invalid() or m_pCurrentCamera3D->invalid())
         { UpdateCurrentCameras(); }
 }
 
 void Viewport::OnDescendantAdded(Relative inRelative)
 {
-    if(mCurrentCamera3D.invalid()
+    if(m_pCurrentCamera3D->invalid()
         and ThingFactory::IsDerivedFrom(inRelative.type, ThingType::Camera3D))
-            { mCurrentCamera3D = inRelative.uid; }
-    else if(mCurrentCamera2D.invalid()
+            { m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(inRelative.uid); }
+    else if(m_pCurrentCamera2D->invalid()
         and ThingFactory::IsDerivedFrom(inRelative.type, ThingType::Camera2D))
-            { mCurrentCamera2D = inRelative.uid; }
+            { m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(inRelative.uid); }
 }

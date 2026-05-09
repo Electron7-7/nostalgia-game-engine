@@ -1,8 +1,8 @@
 #ifndef VIEWPORT_TEXTURE_H
 #define VIEWPORT_TEXTURE_H
 
+#include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/resources/texture.hpp>
-#include <Nostalgia/rendering/render_buffer.hpp>
 
 class ViewportTexture : public Texture
 {
@@ -18,7 +18,7 @@ public:
     virtual Farg<Size2D> Size() const;
 
 protected:
-    ID mViewportID{};
+    Shared<Viewport> m_pViewport{MakeShared<Viewport>()};
 };
 
 #endif // VIEWPORT_TEXTURE_H
