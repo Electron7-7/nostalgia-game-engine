@@ -21,10 +21,10 @@ Shared<ThingData> Thinker::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mVisible, "Visible");
-    data->set_variable(Theatre::Current()->GetParent(uid()), "Parent");
+    data->set_variable(Theatre::Current()->GetName(Theatre::Current()->GetParent(uid())), "Parent");
     auto children{Theatre::Current()->GetChildren(uid())};
     for(FAUTO child_id : children)
-        { data->set_variable(child_id, "Child"); }
+        { data->set_variable(Theatre::Current()->GetName(child_id), "Child"); }
 
     data->set_variable(mDebugHighlight, "DebugHighlight");
     return data;
