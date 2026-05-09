@@ -63,7 +63,11 @@ namespace TheatreFile
 
         template<Thing_t T> requires (not std::same_as<T, Thing>)
             void set_variable(Farg<Shared<T>> inValue, Sarg inName)
-            { set_variable(DCast<Thing>(inValue), inName); }
+            {
+                if(not inValue or inValue->invalid())
+                    { return; }
+                set_variable(inValue->name(), inName);
+            }
 
         template<Variant_t T, StringType... VariableNames>
             Error get_variable(T& outVariable, VariableNames... inNames) const
