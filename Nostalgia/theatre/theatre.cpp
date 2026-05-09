@@ -73,9 +73,11 @@ void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
 
 Error Theatre::LoadFile(std::string inFilePath)
 {
+    Shared<TheatreFile::TheatreData> _new_state{MakeShared<TheatreFile::TheatreData>()};
+    if(not print_error_enum(TheatreFile::Load(inFilePath, _new_state)))
+        { return ERR_FILE_LOAD; }
     Shutdown();
-    if(not print_error_enum(TheatreFile::Load(inFilePath, m_pInitialState)))
-        { return mInitStatus = ERR_INIT_FAILED; }
+    m_pInitialState = _new_state;
     mWasLoadedFromFile = true;
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
