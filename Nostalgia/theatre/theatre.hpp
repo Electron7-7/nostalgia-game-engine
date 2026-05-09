@@ -10,7 +10,7 @@ class Theatre
 {
 public:
     using Things_t = std::unordered_map<ID, Shared<Thing>>;
-    using Names_t = std::map<std::string, ID>;
+    using Names_t  = std::unordered_map<std::string, ID>;
 
     static Theatre* Current();
 
