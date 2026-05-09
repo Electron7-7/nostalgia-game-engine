@@ -25,16 +25,47 @@
 #include "things/thinkers/3d/mesh_instance_3d.hpp"
 #include <cassert>
 
+#define LOCK(MUTEX) LockGuard<RMutex> _##MUTEX##_lock{MUTEX};
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
     AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
 
 static std::map<PID, PID> sTypeDeclarations{};
-
 static bool sIsInitialized{false};
 static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
 static std::map<ID, int> sTypePriorities{};
 static std::map<ID, std::unordered_set<PID>> sTypeAncestors{};
 static Tree<PID> sTypes{};
+
+static RMutex sUIDMutex{};
+static std::unordered_set<uint> sReleasedUIDs{};
+static uint sCurrentUID{0};
+
+void ThingFactory::FreeUID(ID inUID)
+{
+    LOCK(sUIDMutex);
+    if(inUID.invalid())
+        { return; }
+    sReleasedUIDs.emplace(inUID());
+}
+
+ID ThingFactory::GetUID()
+{
+    LOCK(sUIDMutex);
+    ID _uid{};
+    if(not sReleasedUIDs.empty())
+    {
+        _uid = *sReleasedUIDs.begin();
+        sReleasedUIDs.erase(sReleasedUIDs.begin());
+    }
+    else if(sCurrentUID == ID::Invalid)
+    {
+        print_warning("You have hit the maximum number of UIDs: {}. Please consider not doing that. Please.",
+            UID::max_size);
+    }
+    else
+        { _uid = sCurrentUID++; } // Because I actually *do* want the value before incrementation
+    return _uid;
+}
 
 bool ThingFactory::Init()
 {
@@ -78,12 +109,20 @@ bool ThingFactory::Init()
 bool ThingFactory::IsInitialized()
 { return sIsInitialized; }
 
+void ThingFactory::Shutdown()
+{ sIsInitialized = false; }
+
 Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
     if(auto found_it{sThingMakers.find(inType)}; found_it != sThingMakers.end())
-        { return found_it->second(inName); }
+    {
+        auto _output{found_it->second()};
+        _output->mName = inName;
+        _output->mUID  = GetUID();
+        return _output;
+    }
     print_warning("'{}' is an invalid type! An empty Thing will be returned", inType.name());
-    return ThingMakerTemplate<Thing>(inName);
+    return ThingMakerTemplate<Thing>();
 }
 
 Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
@@ -96,10 +135,7 @@ Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool 
     return OK;
 }
 
-Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr,
-    Sarg inType,
-    FPID inBaseType,
-    int inPriority)
+Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBaseType, int inPriority)
 {
     if(Error _status{sTypes.add_node({inType}, inBaseType)}; not _status)
         { return _status; }
@@ -155,7 +191,7 @@ int ThingFactory::GetPriority(FPID type)
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
-std::set<PID> ThingFactory::DerivedFrom(FPID inType) noexcept
+IdSet_t ThingFactory::DerivedFrom(FPID inType) noexcept
 { return sTypes.get_node(inType).children; }
 
 PID ThingFactory::BaseOf(FPID inType) noexcept

@@ -6,14 +6,18 @@
 
 using namespace TheatreFile;
 
-Thing::Thing() noexcept: mUID{ID::Invalid} {}
-Thing::Thing(Sarg inName) noexcept: mUID{_generate()}, mName{inName} {}
+Shared<Thing> Thing::Invalid()
+{
+    Shared<Thing> _output{MakeShared<Thing>()};
+    _output->mUID = ID::Invalid;
+    return _output;
+}
 
 Thing::~Thing() noexcept
 {
-    this->Shutdown();
-    LOCK(mMutex);
-    m_sActiveUIDs.erase(mUID());
+    Shutdown();
+    if(ThingFactory::IsInitialized())
+        { ThingFactory::FreeUID(mUID); }
 }
 
 void Thing::InitVariables()
@@ -103,26 +107,6 @@ void Thing::SetNameChangeCallback(pNameChangeCallback_f inCallback)
 {
     LOCK(mMutex);
     m_pNameChangeCallback = inCallback;
-}
-
-ID Thing::_generate()
-{
-    LOCK(m_sUIDMutex);
-    if(m_sActiveUIDs.size() == UID::max_size)
-    {
-        print_warning("Somehow, you have hit the maximum number of UIDs for this set ({}). Please consider removing a few. Please.", UID::max_size);
-        return ID::Invalid;
-    }
-    uint new_id{_get_random()};
-    while(not m_sActiveUIDs.insert(new_id).second)
-        { new_id = _get_random(); }
-    return new_id;
-}
-
-uint Thing::_get_random()
-{
-    m_sIdEngine.seed(m_sRandomSeed());
-    return m_sDistribution(m_sIdEngine);
 }
 
 void Thing::_initialize_variables()

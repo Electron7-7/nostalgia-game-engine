@@ -13,7 +13,6 @@ private: \
 public: \
     using SelfType = CLASS; \
     using Super = INHERITS; \
-    using INHERITS::INHERITS; \
     inline virtual FPID Type() const override { return TypeID; } \
     inline virtual FPID BaseType() const override { return BaseTypeID; } \
     inline static constexpr PID sClassType() { return {#CLASS}; } \
@@ -49,10 +48,8 @@ public:
     inline static constexpr PID sClassType() { return "Thing"; }
     inline static constexpr PID sClassBaseType() { return sClassType(); }
 
-    Thing(Sarg inName) noexcept;
-    // Used by the Theatre & ResourceDatabase when a `::GetThing` function fails, in order to return
-    // a `Thing` with an invalid UID. This lets `Thing::invalid` return `true`.
-    Thing() noexcept;
+    static Shared<Thing> Invalid();
+
     virtual ~Thing() noexcept;
 
     virtual void InitVariables();
@@ -93,19 +90,12 @@ protected:
     void SetNameChangeCallback(pNameChangeCallback_f = nullptr);
 
 private:
-    inline static RMutex m_sUIDMutex{};
-    inline static std::set<uint> m_sActiveUIDs{};
-    inline static std::uniform_int_distribution<uint> m_sDistribution{UID::front, UID::back};
-    inline static std::random_device m_sRandomSeed{};
-    inline static std::mt19937 m_sIdEngine{m_sRandomSeed()};
+    friend struct ThingFactory;
 
     mutable RMutex mMutex{};
     ID mUID{};
     std::string mName{GlobalConstants::Init::cstr_empty};
     pNameChangeCallback_f m_pNameChangeCallback{nullptr};
-
-    ID _generate();
-    uint _get_random();
 };
 
 template<typename T>
