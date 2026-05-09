@@ -36,7 +36,7 @@ public:
             mLightIDs = inTheatre.mLightIDs;
             mVisual3DIDs = inTheatre.mVisual3DIDs;
             mVisual2DIDs = inTheatre.mVisual2DIDs;
-            mViewportIDs = inTheatre.mViewportIDs;
+            mViewports = inTheatre.mViewports;
             mCallSheet = inTheatre.mCallSheet;
             m_pPlayer = inTheatre.m_pPlayer;
             m_pInitialState = inTheatre.m_pInitialState;
@@ -91,7 +91,6 @@ public:
     Error   SetName(Sarg inOldName, Sarg inNewName);
 
     Shared<Thinker> GetPlayer();
-    IdSet_arg GetViewports();
 
     IdSet_t GetChildren(ID inParentID);
     ID GetParent(ID inChildID);
@@ -165,8 +164,8 @@ protected:
     IdSet_t mThinkerUIDs{}, mResourceUIDs{},
         mLightIDs{},
         mVisual3DIDs{},
-        mVisual2DIDs{},
-        mViewportIDs{};
+        mVisual2DIDs{};
+    std::unordered_set<Shared<Viewport>> mViewports{};
     Tree<ID> mCallSheet{};
 
     Shared<Thinker> m_pPlayer{nullptr};

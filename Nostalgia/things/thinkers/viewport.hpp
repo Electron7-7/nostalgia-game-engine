@@ -25,8 +25,8 @@ public:
 
     Shared<TextureBuffer> GetTextureBuffer();
     uint GetTextureBufferID() const;
-    ID CurrentCamera3D();
-    ID CurrentCamera2D();
+    Shared<Camera3D> CurrentCamera3D();
+    Shared<Camera2D> CurrentCamera2D();
     void SetCurrentCamera3D(Shared<Thing> = nullptr);
     void SetCurrentCamera2D(Shared<Thing> = nullptr);
     void UpdateCurrentCameras();

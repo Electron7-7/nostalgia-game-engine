@@ -245,22 +245,19 @@ void Theatre::Draw()
     }
 
     // Render other viewports
-    for(ID viewport_id : mViewportIDs)
+    for(auto& viewport : mViewports)
     {
-        auto viewport{GetThinker<Viewport>(viewport_id)};
         viewport->Attach();
-        if(_enable_3d_rendering and not viewport->CurrentCamera3D().invalid())
+        if(_enable_3d_rendering and not viewport->CurrentCamera3D()->invalid())
         {
-            auto _camera{GetThinker<Camera3D>(viewport->CurrentCamera3D())};
-            _camera->DrawBackground();
+            viewport->CurrentCamera3D()->DrawBackground();
             for(ID _uid : mVisual3DIDs)
-                { _camera->Draw(GetThinker<Visual3D>(_uid)); }
+                { viewport->CurrentCamera3D()->Draw(GetThinker<Visual3D>(_uid)); }
         }
-        if(_enable_2d_rendering and not viewport->CurrentCamera2D().invalid())
+        if(_enable_2d_rendering and not viewport->CurrentCamera2D()->invalid())
         {
-            auto _camera{GetThinker<Camera2D>(viewport->CurrentCamera2D())};
             for(ID _uid : mVisual2DIDs)
-                { _camera->Draw(GetThinker<Visual2D>(_uid)); }
+                { viewport->CurrentCamera2D()->Draw(GetThinker<Visual2D>(_uid)); }
         }
         viewport->Detach();
     }
@@ -326,14 +323,14 @@ ID Theatre::GetCurrentCamera2D(ID inViewportID)
 {
     if(inViewportID.invalid())
         { return mRootViewportCurrentCamera2D; }
-    return GetThinker<Viewport>(inViewportID)->CurrentCamera2D();
+    return GetThinker<Viewport>(inViewportID)->CurrentCamera2D()->uid();
 }
 
 ID Theatre::GetCurrentCamera3D(ID inViewportID)
 {
     if(inViewportID.invalid())
         { return mRootViewportCurrentCamera3D; }
-    return GetThinker<Viewport>(inViewportID)->CurrentCamera3D();
+    return GetThinker<Viewport>(inViewportID)->CurrentCamera3D()->uid();
 }
 
 Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
@@ -529,9 +526,6 @@ Shared<Thinker> Theatre::GetPlayer()
         : MakeShared<Thinker>();
 }
 
-IdSet_arg Theatre::GetViewports()
-{ return mViewportIDs; }
-
 IdSet_t Theatre::GetChildren(ID inParentID)
 {
     LOCK_CALLSHEET;
@@ -693,7 +687,7 @@ void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
         if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer) and not m_pPlayer)
             { m_pPlayer = GetThinker(inUID); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
-            { mViewportIDs.insert(inUID); }
+            { mViewports.insert(GetThinker<Viewport>(inUID)); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))
         {
             mVisual3DIDs.insert(inUID);
@@ -728,9 +722,17 @@ Error Theatre::DestroyThingOnly(ID inID)
         }
     }
 
+    for(auto iter{mViewports.begin()}; iter != mViewports.end(); ++iter)
+    {
+        if(iter->get()->uid() == inID)
+        {
+            mViewports.erase(iter);
+            break;
+        }
+    }
+
     mThinkerUIDs.erase(inID);
     mResourceUIDs.erase(inID);
-    mViewportIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
     mLightIDs.erase(inID);

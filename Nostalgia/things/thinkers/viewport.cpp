@@ -68,11 +68,11 @@ Shared<TextureBuffer> Viewport::GetTextureBuffer()
 uint Viewport::GetTextureBufferID() const
 { return mTexturebuffer->GetID(); }
 
-ID Viewport::CurrentCamera3D()
-{ return m_pCurrentCamera3D->uid(); }
+Shared<Camera3D> Viewport::CurrentCamera3D()
+{ return m_pCurrentCamera3D; }
 
-ID Viewport::CurrentCamera2D()
-{ return m_pCurrentCamera2D->uid(); }
+Shared<Camera2D> Viewport::CurrentCamera2D()
+{ return m_pCurrentCamera2D; }
 
 void Viewport::SetCurrentCamera3D(Shared<Thing> inCamera)
 {
