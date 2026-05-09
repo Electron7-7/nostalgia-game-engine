@@ -58,6 +58,11 @@ Shared<Image> Theatre::TakeScreenshot(ID inViewportUID)
 
 void Theatre::LoadTheatreData(Farg<TheatreFile::TheatreData> inData)
 {
+    if(Console::GetVariable("Theatre.debug_load_data_log").int_value)
+    {
+        print_debug("Old Theatre Data:\n{}", m_pInitialState->get_log());
+        print_debug("New Theatre Data:\n{}", inData.get_log());
+    }
     Shutdown();
     *m_pInitialState = inData;
     mWasLoadedFromFile = false;
@@ -181,6 +186,13 @@ bool Theatre::Startup()
 
     if(Console::GetVariable("Theatre.debug_callsheet_msgs").int_value)
         { print_debug("{}", InheritanceLog()); }
+
+    if(Console::GetVariable("Theatre.debug_startup_things_list").int_value)
+    {
+        print_debug("Theatre::mThings");
+        for(FAUTO [uid, thing] : mThings)
+            { debug_print("[{}, {}]", uid(), thing->name()); }
+    }
 
     mIsStarted = true;
     return true;
@@ -452,7 +464,9 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
 Error Theatre::DestroyThing(ID inID)
 {
     LOCK_THINGS;
-    if(not mThings.contains(inID))
+    if(inID.invalid())
+        { return ERR_INVALID_ID; }
+    else if(not mThings.contains(inID))
         { return ERR_NOT_FOUND; }
     auto children{GetChildren(inID)};
     for(ID child : children)
