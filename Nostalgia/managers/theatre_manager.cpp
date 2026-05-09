@@ -43,6 +43,8 @@ void TheatreManager::LoadFromFileData(Farg<FileData> inTheatreFileData)
 void TheatreManager::LoadFromFile(Sarg inTheatreFilePath)
 {
     LOCK_MUTEX;
+    if(inTheatreFilePath.empty())
+        { return; }
     s_pTheatreData = nullptr;
     s_pTheatreFileData = nullptr;
     sTheatreFilePath = MakeUnique<std::string>(inTheatreFilePath);

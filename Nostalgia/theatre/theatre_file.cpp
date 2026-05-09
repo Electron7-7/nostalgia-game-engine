@@ -43,6 +43,8 @@ std::string TheatreFile::TheatreData::get_parsable_string() const
 
 Error TheatreFile::Load(Sarg inFilePath, Shared<TheatreFile::TheatreData> outData)
 {
+    if(inFilePath.empty())
+        { return ERR_INVALID_PATH; }
     FileData theatre_file{};
     if(not theatre_file.ReadFile(inFilePath))
         { return ERR_FILE_LOAD; }
