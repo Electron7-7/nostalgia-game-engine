@@ -74,24 +74,26 @@ ID Viewport::CurrentCamera3D()
 ID Viewport::CurrentCamera2D()
 { return m_pCurrentCamera2D->uid(); }
 
-void Viewport::SetCurrentCamera3D(ID inUID)
+void Viewport::SetCurrentCamera3D(Shared<Thing> inCamera)
 {
-    if(inUID.invalid())
+    if(auto _camera{DCast<Camera3D>(inCamera)})
     {
-        m_pCurrentCamera3D = MakeShared<Camera3D>();
-        return UpdateCurrentCameras();
+        m_pCurrentCamera3D = _camera;
+        return;
     }
-    m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(inUID);
+    m_pCurrentCamera3D = MakeShared<Camera3D>();
+    UpdateCurrentCameras();
 }
 
-void Viewport::SetCurrentCamera2D(ID inUID)
+void Viewport::SetCurrentCamera2D(Shared<Thing> inCamera)
 {
-    if(inUID.invalid())
+    if(auto _camera{DCast<Camera2D>(inCamera)})
     {
-        m_pCurrentCamera2D = MakeShared<Camera2D>();
-        return UpdateCurrentCameras();
+        m_pCurrentCamera2D = _camera;
+        return;
     }
-    m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(inUID);
+    m_pCurrentCamera2D = MakeShared<Camera2D>();
+    UpdateCurrentCameras();
 }
 
 void Viewport::UpdateCurrentCameras()

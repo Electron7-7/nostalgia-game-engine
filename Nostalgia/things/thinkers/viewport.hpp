@@ -27,8 +27,8 @@ public:
     uint GetTextureBufferID() const;
     ID CurrentCamera3D();
     ID CurrentCamera2D();
-    void SetCurrentCamera3D(ID = ID::Invalid);
-    void SetCurrentCamera2D(ID = ID::Invalid);
+    void SetCurrentCamera3D(Shared<Thing> = nullptr);
+    void SetCurrentCamera2D(Shared<Thing> = nullptr);
     void UpdateCurrentCameras();
 
     Farg<Size2D> Size() const;
