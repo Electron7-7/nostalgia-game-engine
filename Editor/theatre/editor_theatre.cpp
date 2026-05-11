@@ -101,6 +101,7 @@ void EditorTheatre::Draw()
         _fullbright_shader->Bind();
         _fullbright_shader->SetUniform("current_material.use_diffuse", 0);
         _fullbright_shader->SetUniform("current_material.use_specular", 0);
+        _fullbright_shader->SetUniform("current_material.diffuse_color", glm::vec3{1.0f});
         _fullbright_shader->SetUniform("current_material.alpha", 1.0f);
         _fullbright_shader->SetUniform("projection_matrix", viewport->CurrentCamera3D()->ProjectionMatrix());
         _fullbright_shader->SetUniform("debug_output",Console::GetVariable("BlinnPhong.debug_visual").int_value);
