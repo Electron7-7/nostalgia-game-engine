@@ -18,19 +18,12 @@ void ImGui_Editor::TheatreLoadingWindow()
 {
     BeginChild("Theatre Debugging");
         InputText("Theatre Load", &m_sTheatreFilePath, ImGuiInputTextFlags_CharsNoBlank);
-        InputText("Theatre Save", &m_sTheatreFileSavePath, ImGuiInputTextFlags_CharsNoBlank);
 
         if(Button("Edit Theatre"))
-        {
-            m_sLastAttemptedTheatreFilePath = m_sTheatreFilePath;
-            LoadEditorTheatre(false);
-        }
+            { LoadEditorTheatre(false); }
 
         if(Button("Run Theatre"))
-        {
-            m_sLastAttemptedTheatreFilePath = m_sTheatreFilePath;
-            LoadTheatre(true);
-        }
+            { LoadTheatre(true); }
 
         BeginDisabled(not Settings::Engine::IsEditorHint);
             if(Button("Run Editor Theatre"))
@@ -57,11 +50,10 @@ void ImGui_Editor::TheatreLoadingWindow()
 
             if(Button("Save Editor Theatre"))
             {
-                m_sLastAttemptedTheatreFilePath = m_sTheatreFileSavePath;
                 if(Settings::Engine::IsEditorHint)
                 {
                     mEditorTheatreData = m_spEditorTheatre->CurrentState();
-                    m_spEditorTheatre->SaveToFile(m_sTheatreFileSavePath, m_sCurrentOverwriteAction);
+                    m_spEditorTheatre->SaveToFile(m_sTheatreFilePath, m_sCurrentOverwriteAction);
                 }
                 else
                     { Theatre::Current()->SaveToFile(m_sTheatreFilePath, m_sCurrentOverwriteAction); }

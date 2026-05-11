@@ -20,18 +20,20 @@ public:
     void TheatreExited()  final;
 
 private:
-    static std::string m_sScreenshotFilePath,
-        m_sTheatreFilePath,
-        m_sTheatreFileSavePath,
-        m_sLastAttemptedTheatreFilePath;
+    static std::string m_sScreenshotFilePath, m_sTheatreFilePath;
     static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
     static EditorTheatre* m_spEditorTheatre;
-    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing, m_sThingAdderOpened;
+    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing, m_sThingAdderOpened,
+        m_sCurrentEditorTheatreSaved, m_sWantNewTheatre, m_sSavingTheatre,
+        m_sOpenSaveBeforeExitingPopup, m_sOpenSavePopup;
     std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
 
     ID mInspectingThingUID{};
     TheatreFile::TheatreData mEditorTheatreData{};
 
+    void SaveTheatrePopup();
+    void AreYouSurePopup();
+    void CloseEditorTheatre();
     uint GetIconTextureBufferID(FPID inType);
     void Viewport3DWindow();
     void Viewport2DWindow();
