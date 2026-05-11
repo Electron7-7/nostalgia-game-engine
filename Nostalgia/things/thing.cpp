@@ -47,7 +47,7 @@ Shared<ThingData> Thing::GetVariables() const
 bool Thing::DerivedFrom(FPID inType) const
 {
     LOCK(mMutex);
-    return (inType == Type()) or ThingFactory::IsDerivedFrom(Type(), inType);
+    return ThingFactory::IsDerivedFrom(Type(), inType);
 }
 
 bool Thing::IsThinker() const
