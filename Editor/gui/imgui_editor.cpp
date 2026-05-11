@@ -447,8 +447,7 @@ void ImGui_Editor::TheatreViewport()
         { return; }
     BeginChild("Editor Viewport",
         {768, 0},
-        sResizableChildWithBorder,
-        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        sResizableChildWithBorder);
         if(BeginTabBar("Viewports", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton))
         {
             if(BeginTabItem("3D"))
@@ -471,14 +470,14 @@ void ImGui_Editor::TheatreViewport()
         }
         if(not _viewport)
             { return; }
-        _viewport_size = {(float)_viewport->Size().w(), (float)_viewport->Size().h()};
+        _viewport_size = ImVec2(_viewport->Size().w(), _viewport->Size().h());
+        _viewport_window_size = GetContentRegionAvail();
         GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_EnableSRGB, nullptr);
         ImGui::Image((ImTextureRef)_viewport->GetTextureBufferID(),
-            _viewport_size,
+            _viewport_window_size,
             {0, 1},
             {1, 0});
         GetWindowDrawList()->AddCallback(ImDrawCallback_ImplGL_DisableSRGB, nullptr);
-        _viewport_window_size = GetWindowSize();
         if(_viewport_size != _viewport_window_size)
             { _viewport->SetSize({_viewport_window_size[0], _viewport_window_size[1]}); }
         if(_is_3d)
