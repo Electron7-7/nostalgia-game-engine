@@ -173,7 +173,7 @@ if(BUILD_EDITOR)
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_include_directories(NostalgiaGoggles
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype ${EDITOR_ROOT}/thirdparty/DearImGui
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
     target_link_libraries(NostalgiaGoggles PUBLIC
         $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_FILE:Nostalgia>>)
