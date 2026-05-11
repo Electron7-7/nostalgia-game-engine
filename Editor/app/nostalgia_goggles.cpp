@@ -97,7 +97,6 @@ void NostalgiaGoggles::Input(InputEvent* event)
             ? IWindow::WINDOW_MODE_FULLSCREEN
             : IWindow::WINDOW_MODE_WINDOWED);
     }
-    else if((event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
-        or event->IsJustPressed(Key::F8))
+    else if(event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
         { EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose); }
 }
