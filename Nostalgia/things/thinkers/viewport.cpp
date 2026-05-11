@@ -79,6 +79,7 @@ void Viewport::SetCurrentCamera3D(Shared<Thing> inCamera)
     if(auto _camera{DCast<Camera3D>(inCamera)})
     {
         m_pCurrentCamera3D = _camera;
+        _camera->SetViewportID(uid());
         return;
     }
     m_pCurrentCamera3D = MakeShared<Camera3D>();
@@ -90,6 +91,7 @@ void Viewport::SetCurrentCamera2D(Shared<Thing> inCamera)
     if(auto _camera{DCast<Camera2D>(inCamera)})
     {
         m_pCurrentCamera2D = _camera;
+        _camera->SetViewportID(uid());
         return;
     }
     m_pCurrentCamera2D = MakeShared<Camera2D>();
