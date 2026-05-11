@@ -14,6 +14,7 @@ public:
     virtual void Draw(Shared<Visual2D>) const;
 
     virtual ID ViewportID() const;
+    virtual void SetViewportID(ID);
 
     virtual bool Current() const;
     virtual Error SetCurrent(bool);

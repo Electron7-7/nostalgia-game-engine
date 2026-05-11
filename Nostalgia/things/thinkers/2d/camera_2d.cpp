@@ -213,6 +213,9 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
 ID Camera2D::ViewportID() const
 { return mViewportID; }
 
+void Camera2D::SetViewportID(ID inUID)
+{ mViewportID = inUID; }
+
 bool Camera2D::Current() const
 { return Theatre::Current()->GetCurrentCamera2D(mViewportID) == uid(); }
 

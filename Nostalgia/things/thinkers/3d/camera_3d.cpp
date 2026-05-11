@@ -237,6 +237,9 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
 ID Camera3D::ViewportID() const
 { return mViewportID; }
 
+void Camera3D::SetViewportID(ID inUID)
+{ mViewportID = inUID; }
+
 bool Camera3D::Current() const
 { return Theatre::Current()->GetCurrentCamera3D(mViewportID) == uid(); }
 
