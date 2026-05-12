@@ -14,6 +14,33 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
     {
         if(not (var.usage_flags & VARIABLE_USAGE_EDITOR))
             { continue; }
+        else if(var.hint == TheatreFile::VARIABLE_HINT_THING_REFERENCE)
+        {
+            ID _uid{};
+            std::string _name{};
+            switch(var.value.type())
+            {
+            default:
+                return false;
+            case Variant::FLOAT:
+            case Variant::INT:
+                inData->get_variable(_uid, var.name);
+                _name = Theatre::Current()->GetName(_uid);
+                break;
+            case Variant::THING:
+            case Variant::STRING:
+                inData->get_variable(_name, var.name);
+                _uid = Theatre::Current()->GetUID(_name);
+                break;
+            }
+            SelectThing(std::format("{}: {}",
+                var.name,
+                (_name.empty()) ? GlobalConstants::str_NA : _name).data(),
+                _uid,
+                _changed);
+            outData.set_variable(_uid, var.name);
+            continue;
+        }
         std::string _name{var.name};
         switch(var.value.type())
         {
@@ -84,18 +111,6 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                         else if(i != BitMask::max - 1)
                             { SameLine(); }
                     }
-                }
-                else if(var.hint == VARIABLE_HINT_THING_UID)
-                {
-                    ID _uid{};
-                    inData->get_variable(_uid, var.name);
-                    std::string _name{Theatre::Current()->GetName(_uid)};
-                    SelectThing(std::format("{}: {}",
-                        var.name,
-                        (_name.empty()) ? GlobalConstants::str_NA : _name).data(),
-                        _uid,
-                        _changed);
-                    outData.set_variable(_uid, var.name);
                 }
                 else if(var.hint == VARIABLE_HINT_ENUM)
                 {
