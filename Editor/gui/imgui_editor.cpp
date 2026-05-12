@@ -730,11 +730,19 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
 {
     static const int _max_per_row{3};
     static std::string _name_input{};
-    auto _label{std::format("Thing Selection##{}", ioUID())};
+    auto _label{std::format("Thing Selection##{}##{}", ioUID(), inLabel)};
     if(Button(inLabel))
         { OpenPopup(_label.data()); }
     if(BeginPopup(_label.data()))
     {
+        if(Button("Clear"))
+        {
+            ioUID = ID::Invalid;
+            outChanged = true;
+            CloseCurrentPopup();
+            EndPopup();
+            return;
+        }
         InputText("Search", &_name_input);
 
         auto _theatre_uids{Theatre::Current()->ThingUIDs()};
@@ -755,6 +763,7 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
                 { continue; }
             if(Button(_name.data(), {(700.0f / _max_per_row) - 5.0f, 0.0f}))
             {
+                CloseCurrentPopup();
                 EndPopup();
                 ioUID = uid;
                 outChanged = true;
