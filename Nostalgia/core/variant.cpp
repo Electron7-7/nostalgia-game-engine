@@ -322,7 +322,7 @@ Variant::operator Shared<Thing>() const
         { return std::get_if<ThingData>(&_data)->thing; }
     else if(_type == STRING)
         { return Theatre::Current()->GetThing(operator std::string()); }
-    else if(_type == INT)
+    else if(_type == INT or _type == FLOAT)
         { return Theatre::Current()->GetThing(operator ID()); }
     return Thing::Invalid();
 }
