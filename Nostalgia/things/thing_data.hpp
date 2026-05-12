@@ -56,18 +56,14 @@ namespace TheatreFile
                 else if constexpr(std::same_as<T, BitMask>)
                     { variables.emplace_back(inValue, inName, VARIABLE_HINT_FLAGS); }
                 else if constexpr(std::same_as<T, ID>)
-                    { variables.emplace_back(inValue, inName, VARIABLE_HINT_THING_UID); }
+                    { variables.emplace_back(inValue, inName, VARIABLE_HINT_THING_REFERENCE); }
                 else
-                    { variables.emplace_back(inValue, inName); }
+                    { variables.emplace_back(inValue, inName, inHint, inHintString, inUsageFlags); }
             }
 
         template<Thing_t T> requires (not std::same_as<T, Thing>)
             void set_variable(Farg<Shared<T>> inValue, Sarg inName)
-            {
-                if(not inValue or inValue->invalid())
-                    { return; }
-                set_variable(inValue->name(), inName);
-            }
+            { set_variable((inValue) ? inValue->name() : "", inName, VARIABLE_HINT_THING_REFERENCE); }
 
         template<Variant_t T, StringType... VariableNames>
             Error get_variable(T& outVariable, VariableNames... inNames) const
@@ -92,6 +88,7 @@ namespace TheatreFile
                     outVariable = _thing;
                     return OK;
                 }
+                outVariable = MakeShared<T>();
                 return ERR_INVALID;
             }
 

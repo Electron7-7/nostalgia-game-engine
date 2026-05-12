@@ -59,7 +59,7 @@ void TheatreFile::ThingData::remove_parent()
 { parent_variable = {}; }
 
 void TheatreFile::ThingData::set_parent(Sarg inName)
-{ parent_variable = {inName, "Parent", VARIABLE_HINT_THING_NAME}; }
+{ parent_variable = {inName, "Parent", VARIABLE_HINT_THING_REFERENCE}; }
 
 Error TheatreFile::ThingData::remove_child(Sarg inName)
 {
@@ -75,7 +75,7 @@ void TheatreFile::ThingData::add_child(Sarg inName)
 {
     if(auto found_it{_find_child(inName)}; found_it != children_variables.end())
         { return; }
-    children_variables.emplace_back(inName, "Child", VARIABLE_HINT_THING_NAME);
+    children_variables.emplace_back(inName, "Child", VARIABLE_HINT_THING_REFERENCE);
 }
 
 Error TheatreFile::ThingData::remove_variable(Sarg inName)
