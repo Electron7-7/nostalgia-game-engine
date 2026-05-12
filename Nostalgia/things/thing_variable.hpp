@@ -15,8 +15,7 @@ namespace TheatreFile
         VARIABLE_HINT_FILE,
         VARIABLE_HINT_RESOURCE_TYPE,
         VARIABLE_HINT_PLACEHOLDER_TEXT,
-        VARIABLE_HINT_THING_UID,
-        VARIABLE_HINT_THING_NAME
+        VARIABLE_HINT_THING_REFERENCE
     };
 
     enum VariableUsageFlags_ : VariableUsageFlags
