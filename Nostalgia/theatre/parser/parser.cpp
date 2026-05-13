@@ -25,6 +25,7 @@ static constexpr char
     cDelimiterEnterNumber      {'['},
     cDelimiterExitNumber       {']'},
     cDelimiterEnterExitBitMask {'|'},
+    cDelimiterEnterEnum        {'('},
     cDelimiterExitEnum         {')'},
     cDelimiterEnterReference   {'<'},
     cDelimiterExitReference    {'>'},
@@ -103,14 +104,18 @@ void s_SetupNamesAndTypes(Farg<TokenArray> inTokens, TheatreFile::TheatreData& o
 {
     std::string _type{};
     Comment in_comment{NO_COMMENT};
-    bool _skip_definition{false}, _in_sandwich{false};
+    bool _skip_definition{false}, _in_sandwich{false}, _in_enum{false};
 
     for(size_t i{0}; i < inTokens.size(); ++i)
     {
         Token _token{inTokens.at(i)};
         if(s_CheckIfComment(in_comment, _token))
             { continue; }
-        else if(_token.token[0] == cDelimiterStartSandwich)
+        else if(_token.token[0] == cDelimiterEnterEnum)
+            { _in_enum = true; }
+        else if(_token.token[0] == cDelimiterExitEnum)
+            { _in_enum = false; }
+        else if(_token.token[0] == cDelimiterStartSandwich and not _in_enum)
             { _in_sandwich = true; }
         else if(_token.token[0] == cDelimiterEnterDefinition)
             { _skip_definition = true; }
@@ -202,6 +207,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
     int vector_size{1};
     bool in_literal{false},
         in_string{false},
+        in_enum{false},
         is_parent{false},
         is_child{false};
 
@@ -216,7 +222,8 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
                 and token.token[0] != cDelimiterVectorComponent)
             or (in_string
                 and token.token[0] != cDelimiterStrongString
-                and token.token[0] != cDelimiterWeakString))
+                and token.token[0] != cDelimiterWeakString)
+            or (in_enum and token.token[0] != cDelimiterExitEnum))
             { _string_variable += token.token; continue; }
         switch(token.category)
         {
@@ -295,8 +302,13 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             }
             case cDelimiterEnterReference:
                 break;
+            case cDelimiterEnterEnum:
+                in_enum = true;
+                break;
             case cDelimiterExitEnum:
+                in_enum = false;
                 thing_var.value = _string_variable;
+                thing_var.hint  = TheatreFile::VARIABLE_HINT_ENUM;
                 break;
             case cDelimiterEnterExitBitMask:
                 {
