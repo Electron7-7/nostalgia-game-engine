@@ -50,10 +50,17 @@ template<NumberOrBool T>
 template<GLMContainer T, uint size = gGlmSize<T>()>
     std::string NumToString(const T& inVec) noexcept
     {
-        std::string buffer{};
+        std::string _buffer{};
         for(uint i{0}; i < size; ++i)
-            { buffer += std::format("{}{}", (i) ? ", " : GlobalConstants::str_empty, inVec[i]); }
-        return buffer;
+        {
+            float _value{0.0f};
+            if(not glm::isnan(inVec[i]))
+                { _value = inVec[i]; }
+            if(i)
+                { _buffer += GlobalConstants::Constexpr::cstr_CommaSpace; }
+            _buffer += std::format("{}", _value);
+        }
+        return _buffer;
     }
 
 template<NumberOrGLM T>
