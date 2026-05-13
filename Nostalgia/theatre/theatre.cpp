@@ -367,22 +367,16 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     return ERR_NOT_FOUND;
 }
 
-IdVec_t Theatre::ThingUIDs(bool inIncludeEmbedded)
+IdVec_t Theatre::ThingUIDs()
 {
     LOCK_THINGS;
-    IdVec_t _return{mThingUIDs.begin(), mThingUIDs.end()};
-    if(inIncludeEmbedded)
-    {
-        auto _assets{UID::GetEmbeddedUIDs()};
-        _return.insert(_return.end(), _assets.begin(), _assets.end());
-    }
-    return _return;
+    return {mThingUIDs.begin(), mThingUIDs.end()};
 }
 
-IdVec_t Theatre::SortedThingUIDs(int& outIndex, bool inIncludeEmbedded)
+IdVec_t Theatre::SortedThingUIDs(int& outIndex)
 {
     LOCK_THINGS;
-    auto _return{ThingUIDs(inIncludeEmbedded)};
+    auto _return{ThingUIDs()};
     std::stable_sort(_return.begin(), _return.end(),
         [](ID lhs, ID rhs)
         {
