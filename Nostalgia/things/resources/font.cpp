@@ -86,7 +86,7 @@ void Font::LoadFont()
     FT_Set_Pixel_Sizes(face, 0, mFontSize);
 
     FT_GlyphSlot g = face->glyph;
-    for(u_char c{0}; c < 128; ++c)
+    for(uchar c{0}; c < 128; ++c)
     {
         if(FT_Load_Char(face, c, FT_LOAD_RENDER))
         {

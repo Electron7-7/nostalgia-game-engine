@@ -140,7 +140,6 @@ void IManager::UpdateTheatreStateMachine()
     // Perform theatre shutdown
     if(theatre_state == SHUTTING_DOWN_LEVEL)
     {
-        print_debug("Shutting Down Theatre");
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethodReverseOrder(&IManager::TheatreShutdown, first_theatre_shutdown_frame);
         if(return_value != MORE_WORK)
             { theatre_state = NOT_IN_LEVEL; }
@@ -163,7 +162,6 @@ void IManager::UpdateTheatreStateMachine()
     // Perform theatre load
     if(theatre_state == LOADING_LEVEL)
     {
-        print_debug("Starting Up Theatre");
         ManagerEnums::TheatreReturnValue_t return_value = InvokeTheatreMethod(&IManager::TheatreInit, first_theatre_startup_frame);
         if(return_value == FUCKED)
             { theatre_state = NOT_IN_LEVEL; }

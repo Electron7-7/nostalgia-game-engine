@@ -111,7 +111,6 @@ ManagerEnums::TheatreReturnValue_t TheatreManager::TheatreShutdown(bool is_first
     else if(!m_pCurrentTheatre)
         { return FUCKED; }
     m_pCurrentTheatre->Shutdown();
-    m_pCurrentTheatre = MakeUnique<Theatre>();
     return FINISHED;
 }
 

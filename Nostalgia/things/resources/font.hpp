@@ -10,7 +10,7 @@ public:
 	struct Glyph
     {
         Shared<TextureBuffer> texture{nullptr};
-        u_char character{'\0'};
+        uchar character{'\0'};
         int bitmap_width{0},
             bitmap_height{0},
             bitmap_left{0},

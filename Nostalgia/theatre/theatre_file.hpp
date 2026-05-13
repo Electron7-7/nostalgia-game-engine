@@ -33,7 +33,7 @@ namespace TheatreFile
     struct TheatreData
     {
         uint index{ID::Invalid};
-        std::string name{"Untitled Theatre"}, file_path{""};
+        std::string name{"Untitled_Theatre"}, file_path{""};
         std::vector<ThingData> data{};
         std::map<std::string, std::string> type_declarations{};
 

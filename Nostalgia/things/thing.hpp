@@ -43,10 +43,10 @@ private:
 public:
     using SelfType = Thing;
     using Super = Thing;
-    inline virtual FPID Type() const { return TypeID; }
-    inline virtual FPID BaseType() const { return BaseTypeID; }
-    inline static constexpr PID sClassType() { return "Thing"; }
-    inline static constexpr PID sClassBaseType() { return sClassType(); }
+    inline virtual FPID Type() const { return Thing::TypeID; }
+    inline virtual FPID BaseType() const { return Thing::BaseTypeID; }
+    inline static constexpr PID sClassType() { return Thing::TypeID; }
+    inline static constexpr PID sClassBaseType() { return Thing::sClassType(); }
 
     static Shared<Thing> Invalid();
 
