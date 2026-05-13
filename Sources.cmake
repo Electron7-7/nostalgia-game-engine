@@ -136,8 +136,8 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/farg.hpp
     ${NOSTALGIA_ROOT}/core/bitmask.hpp
     ${NOSTALGIA_ROOT}/core/concepts.hpp
-    ${NOSTALGIA_ROOT}/core/types.hpp
     ${NOSTALGIA_ROOT}/core/macros.hpp
+    ${NOSTALGIA_ROOT}/core/typedefs.hpp
     ${NOSTALGIA_ROOT}/core/variant.hpp
     ${NOSTALGIA_ROOT}/core/constexpr_string_hash.hpp
     ${NOSTALGIA_ROOT}/core/log.hpp
