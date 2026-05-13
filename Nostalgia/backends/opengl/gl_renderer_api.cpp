@@ -71,9 +71,9 @@ void OpenGLRendererAPI::Init()
     glVertexArrayAttribBinding(mTextVAO, 1, 1);
 
     Console::SetVariable("OpenGLDebugMessage.SeverityFilter", static_cast<int>(HIGH_SEVERITY));
-    Console::SetVariable("OpenGLDebugMessage.Disable.Portability", 1);
-    Console::SetVariable("OpenGLDebugMessage.Disable.Performance", 1);
-    Console::SetVariable("OpenGLDebugMessage.Enable.AnnoyingGL_STATIC", 0);
+    Console::SetVariable("OpenGLDebugMessage.Disable.Portability", true);
+    Console::SetVariable("OpenGLDebugMessage.Disable.Performance", true);
+    Console::SetVariable("OpenGLDebugMessage.Enable.AnnoyingGL_STATIC", false);
 
     mInitialized = true;
 }
