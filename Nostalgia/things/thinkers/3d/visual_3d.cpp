@@ -1,5 +1,6 @@
 #include "./visual_3d.hpp"
 #include "things/thing_data.hpp"
+#include "things/thing_factory.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
@@ -15,7 +16,7 @@ void Visual3D::Ready()
     auto ancestors{Theatre::Current()->GetAllParents(uid())};
     for(ID parent : ancestors)
     {
-        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+        if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; break; }
     }
 }
@@ -51,13 +52,13 @@ void Visual3D::Viewport(ID inID)
 void Visual3D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = ID::Invalid; }
 }
 
 void Visual3D::OnAncestorAdded(Relative inAncestor)
 {
     Super::OnAncestorAdded(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

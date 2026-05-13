@@ -1,13 +1,13 @@
 #include "./collider_3d.hpp"
-#include "things/thing_data.hpp"
+#include "../../thing_data.hpp"
+#include "../../thing_factory.hpp"
 #include "physics/engine.hpp"
+#include "thirdparty/frozen/map.h"
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
-#include "theatre/theatre.hpp"
-#include "thirdparty/frozen/map.h"
 
 using namespace Math;
 using namespace TheatreFile;
@@ -327,7 +327,7 @@ void Collider3D::OnContactAdded(ID inOtherColliderID,
             uid()(),
             name(),
             inOtherColliderID(),
-            Theatre::Current()->GetThing(inOtherColliderID)->name());
+            ThingFactory::GetThing(inOtherColliderID)->name());
     }
 }
 

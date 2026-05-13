@@ -75,11 +75,9 @@ public:
 
 protected:
     friend class Theatre;
-    friend class ResourceDatabase;
 
     inline static Shared<TheatreFile::ThingData> s_pDefaultVariables{nullptr};
 
-    typedef Error (*pNameChangeCallback_f)(Sarg inOldName, Sarg inNewName);
 
     virtual void Ready() {}
     virtual void Shutdown() {}
@@ -87,15 +85,12 @@ protected:
     virtual void Update() {}
     virtual void Input(InputEvent*) {}
 
-    void SetNameChangeCallback(pNameChangeCallback_f = nullptr);
-
 private:
     friend struct ThingFactory;
 
     mutable RMutex mMutex{};
     ID mUID{};
-    std::string mName{GlobalConstants::Init::cstr_empty};
-    pNameChangeCallback_f m_pNameChangeCallback{nullptr};
+    std::string mName{};
 };
 
 template<typename T>

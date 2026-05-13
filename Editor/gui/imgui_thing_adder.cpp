@@ -36,7 +36,7 @@ void ImGui_Editor::ThingAdder()
             }
             EndCombo();
         }
-        BeginDisabled(_name.empty() or Theatre::Current()->ThingExists(_name));
+        BeginDisabled(_name.empty() or Theatre::Current()->Contains(_name));
             if(Button("Spawn Thing"))
             {
                 Theatre::Current()->CreateThing({Types[sSelectedType], _name});

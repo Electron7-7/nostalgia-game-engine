@@ -89,12 +89,10 @@ const char* const Thing::c_name() const
 Error Thing::rename(Sarg inNewName)
 {
     LOCK(mMutex);
-    Error status{OK};
-    if(m_pNameChangeCallback)
-        { status = m_pNameChangeCallback(mName, inNewName); }
-    if(status == OK)
-        { mName = inNewName; }
-    return status;
+    if(auto _out{ThingFactory::SetName(mName, inNewName)}; not _out)
+        { return _out; }
+    mName = inNewName;
+    return OK;
 }
 
 bool Thing::invalid() const
@@ -102,12 +100,6 @@ bool Thing::invalid() const
 
 std::string Thing::to_string() const
 { return std::format("<{}#{}>", Type().name(), uid()()); }
-
-void Thing::SetNameChangeCallback(pNameChangeCallback_f inCallback)
-{
-    LOCK(mMutex);
-    m_pNameChangeCallback = inCallback;
-}
 
 void Thing::_initialize_variables()
 {

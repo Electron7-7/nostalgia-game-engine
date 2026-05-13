@@ -1,5 +1,6 @@
 #include "./visual_2d.hpp"
 #include "things/thing_data.hpp"
+#include "things/thing_factory.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
@@ -15,7 +16,7 @@ void Visual2D::Ready()
     auto ancestors{Theatre::Current()->GetAllParents(uid())};
     for(ID parent : ancestors)
     {
-        if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+        if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
             { mViewportID = parent; break; }
     }
 }
@@ -59,13 +60,13 @@ void Visual2D::SetWireframe(bool inWireframe)
 void Visual2D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = ID::Invalid; }
 }
 
 void Visual2D::OnAncestorAdded(Relative inAncestor)
 {
     Super::OnAncestorAdded(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

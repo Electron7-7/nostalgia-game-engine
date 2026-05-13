@@ -34,7 +34,7 @@ Image::~Image() noexcept
 
 Shared<Image> Image::CreateEmpty(int inWidth, int inHeight, DataFormat inFormat)
 {
-    auto output{DCast<Image>(ThingFactory::MakeThing(ThingType::Image, "Untitled_Image"))};
+    auto output{DCast<Image>(ThingFactory::MakeThing<Image>("Image"))};
     output->SetData(nullptr, 0, inWidth, inHeight, 1, true, inFormat);
     return output;
 }

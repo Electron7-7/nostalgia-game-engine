@@ -1,18 +1,17 @@
 #include "./camera_2d.hpp"
+#include "./sprite_2d.hpp"
+#include "./text_2d.hpp"
 #include "../viewport.hpp"
+#include "../../thing_data.hpp"
+#include "../../resources/font.hpp"
+#include "../../resources/array_mesh.hpp"
+#include "../../thing_factory.hpp"
 #include "application/application.hpp"
-#include "things/thing_data.hpp"
 #include "settings/graphics.hpp"
 #include "theatre/theatre.hpp"
 #include "settings/engine.hpp"
-#include "things/resources/texture.hpp"
-#include "things/resources/font.hpp"
 #include "rendering/renderer_api.hpp"
-#include "things/resources/array_mesh.hpp"
 #include "rendering/shader.hpp"
-#include "things/resource_database.hpp"
-#include "things/thinkers/2d/sprite_2d.hpp"
-#include "things/thinkers/2d/text_2d.hpp"
 
 using namespace TheatreFile;
 
@@ -30,16 +29,16 @@ void Camera2D::Ready()
     {
         if(not parent.invalid())
         {
-            if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+            if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
                 { mViewportID = parent; }
             else
             {
                 auto ancestors{Theatre::Current()->GetAllParents(uid())};
                 for(ID parent : ancestors)
                 {
-                    if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+                    if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
                         { mViewportID = parent; break; }
-                    else if(Theatre::Current()->DerivedFrom(parent, ThingType::NostalgiaPlayer))
+                    else if(ThingFactory::DerivedFrom(parent, ThingType::NostalgiaPlayer))
                         { mInitCurrent = true; }
                 }
             }
@@ -79,8 +78,8 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
         { return; }
     FAUTO renderer_api{RendererAPI::Get()};
 
-    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::t_Missing)};
-    auto quad_mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad)};
+    auto missing_texture{ThingFactory::GetThing<Texture>(UID::t_Missing)};
+    auto quad_mesh{ThingFactory::GetThing<ArrayMesh>(UID::m_Quad)};
 
     auto shader{renderer_api->GetShader(Shaders::Fast2D)};
     if(not inVisual2D->Visible()
@@ -124,7 +123,7 @@ void Camera2D::Draw(Shared<Visual2D> inVisual2D) const
     else if(inVisual2D->DerivedFrom(ThingType::Text2D))
     {
         auto text2d{DCast<Text2D>(inVisual2D)};
-        auto font{ResourceDatabase::GetResource<Font>(text2d->Font())};
+        auto font{ThingFactory::GetThing<Font>(text2d->Font())};
         auto shader{renderer_api->GetShader(Shaders::Fonts)};
 
         glm::mat4 default_model{1.0f};
@@ -235,14 +234,14 @@ void Camera2D::SetLayersMask(BitMask inLayersMask)
 void Camera2D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = ID::Invalid; }
 }
 
 void Camera2D::OnAncestorAdded(Relative inAncestor)
 {
     Super::OnAncestorAdded(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }
 
@@ -250,7 +249,7 @@ glm::mat4 Camera2D::ViewMatrix() const
 {
     Size2D viewport_size{(mViewportID.invalid())
         ? MainWindow()->GetScale()
-        : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
+        : ThingFactory::GetThing<Viewport>(mViewportID)->Size()};
     viewport_size[1] *= -1.0f;
 
     glm::vec3 _position{GlobalPosition(), 0.0f};
@@ -271,7 +270,7 @@ glm::mat4 Camera2D::ProjectionMatrix() const
 {
     Size2D viewport_size{(mViewportID.invalid())
         ? MainWindow()->GetScale()
-        : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size()};
+        : ThingFactory::GetThing<Viewport>(mViewportID)->Size()};
     float left{0.0f}, right{(float)viewport_size[0]}, up{0.0f}, down{(float)viewport_size[1]},
         _aspect_ratio{static_cast<float>(viewport_size.AspectRatio())};
     if(mViewportID.invalid()

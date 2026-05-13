@@ -17,7 +17,6 @@
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
-#include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/thinkers/3d/ramiel.hpp>
@@ -391,7 +390,7 @@ void ImGui_Editor::TheatreInspector()
     static std::string _name{};
     if(not Settings::Engine::IsEditorHint)
         { return; }
-    auto _variables{Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables()};
+    auto _variables{ThingFactory::GetThing(mInspectingThingUID)->GetVariables()};
     TheatreFile::ThingData _data{_variables->type};
     if(m_sInspectingNewThing)
     {
@@ -424,8 +423,8 @@ void ImGui_Editor::TheatreInspector()
                 if(Button("Change"))
                 {
                     CloseCurrentPopup();
-                    Theatre::Current()->GetThing(mInspectingThingUID)->rename(_name);
-                    _variables = Theatre::Current()->GetThing(mInspectingThingUID)->GetVariables();
+                    ThingFactory::GetThing(mInspectingThingUID)->rename(_name);
+                    _variables = ThingFactory::GetThing(mInspectingThingUID)->GetVariables();
                 }
             EndDisabled();
             EndPopup();
@@ -433,7 +432,7 @@ void ImGui_Editor::TheatreInspector()
         if(InspectThing(mInspectingThingUID, _variables, _data))
         {
             m_sCurrentEditorTheatreSaved = false;
-            Theatre::Current()->GetThing(mInspectingThingUID)->SetVariables(_data);
+            ThingFactory::GetThing(mInspectingThingUID)->SetVariables(_data);
         }
     EndChild();
 }
@@ -489,8 +488,8 @@ void ImGui_Editor::TheatreViewport()
 
 bool ImGui_Editor::_select_thing(ID inUID)
 {
-    auto _thing{Theatre::Current()->GetThing(inUID)};
-    ImGui::Image((ImTextureRef)GetIconTextureBufferID(Theatre::Current()->TypeOf(inUID)),
+    auto _thing{ThingFactory::GetThing(inUID)};
+    ImGui::Image((ImTextureRef)GetIconTextureBufferID(ThingFactory::TypeOf(inUID)),
         {30, 30},
         {0, 1},
         {1, 0});
@@ -511,7 +510,7 @@ bool ImGui_Editor::_select_thing(ID inUID)
 void ImGui_Editor::_thinker_tree_branch(ID inUID)
 {
     auto children{Theatre::Current()->GetChildren(inUID)};
-    if(s_TreeNodeEx(Theatre::Current()->GetThing(inUID)->c_name(),
+    if(s_TreeNodeEx(ThingFactory::GetThing(inUID)->c_name(),
         (children.empty()) ? ImGuiTreeNodeFlags_Leaf : ImGuiTreeNodeFlags_None))
     {
         SameLine();
@@ -745,19 +744,21 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
         }
         InputText("Search", &_name_input);
 
-        auto _theatre_uids{Theatre::Current()->ThingUIDs()};
-        size_t _back_of_theatre{_theatre_uids.size()};
-        auto _resource_uids{ResourceDatabase::GetUIDs()};
-        _theatre_uids.insert(_theatre_uids.cend(), _resource_uids.cbegin(), _resource_uids.cend());
+        int _back_of_theatre{0};
+        auto _theatre_uids{Theatre::Current()->SortedThingUIDs(_back_of_theatre)};
+        static auto _embedded_uids{UID::GetEmbeddedUIDs()};
+        _theatre_uids.insert(_theatre_uids.begin() + _back_of_theatre,
+            _embedded_uids.begin(),
+            _embedded_uids.end());
         int _counter{0};
         for(size_t i{0}; i < _theatre_uids.size(); ++i)
         {
             ID uid{_theatre_uids.at(i)};
             if(uid == _theatre_uids.front())
-                { SeparatorText("Theatre"); }
+                { SeparatorText("Thinkers"); }
             else if(i == _back_of_theatre)
-                { SeparatorText("ResourceDatabase"); }
-            std::string _name{Theatre::Current()->GetName(uid)};
+                { SeparatorText("Resources"); }
+            std::string _name{ThingFactory::GetName(uid)};
             if(_name.empty() or
                 (not _name_input.empty() and not GetLowercase(_name).contains(GetLowercase(_name_input))))
                 { continue; }
@@ -768,9 +769,10 @@ void ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID, bool& outChanged)
                 ioUID = uid;
                 outChanged = true;
                 _name_input.clear();
+                ThingFactory::GetThinker(uid)->IsHighlighted(false);
                 return;
             }
-            Theatre::Current()->GetThinker(uid)->IsHighlighted(IsItemHovered());
+            ThingFactory::GetThinker(uid)->IsHighlighted(IsItemHovered());
             if(++_counter < _max_per_row and i+1 != _back_of_theatre) { SameLine(); }
             else { _counter = 0; }
         }

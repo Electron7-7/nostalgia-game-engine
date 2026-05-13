@@ -17,7 +17,6 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
-#include <Nostalgia/things/resource_database.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/rendering/buffers.hpp>

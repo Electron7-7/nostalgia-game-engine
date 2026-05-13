@@ -1,17 +1,17 @@
 #include "./camera_3d.hpp"
+#include "./light_3d.hpp"
+#include "./mesh_instance_3d.hpp"
+#include "./sprite_3d.hpp"
 #include "../viewport.hpp"
-#include "things/thing_data.hpp"
-#include "things/resources/texture.hpp"
-#include "things/resources/array_mesh.hpp"
-#include "settings/world.hpp"
-#include "rendering/renderer_api.hpp"
-#include "application/application.hpp"
-#include "rendering/shader.hpp"
+#include "../../thing_data.hpp"
+#include "../../resources/texture.hpp"
+#include "../../resources/array_mesh.hpp"
+#include "../../thing_factory.hpp"
 #include "theatre/theatre.hpp"
-#include "things/resource_database.hpp"
-#include "things/thinkers/3d/light_3d.hpp"
-#include "things/thinkers/3d/mesh_instance_3d.hpp"
-#include "things/thinkers/3d/sprite_3d.hpp"
+#include "rendering/renderer_api.hpp"
+#include "rendering/shader.hpp"
+#include "settings/world.hpp"
+#include "application/application.hpp"
 
 using namespace TheatreFile;
 
@@ -30,16 +30,16 @@ void Camera3D::Ready()
     {
         if(not parent.invalid())
         {
-            if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+            if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
                 { mViewportID = parent; }
             else
             {
                 auto ancestors{Theatre::Current()->GetAllParents(uid())};
                 for(ID parent : ancestors)
                 {
-                    if(Theatre::Current()->DerivedFrom(parent, ThingType::Viewport))
+                    if(ThingFactory::DerivedFrom(parent, ThingType::Viewport))
                         { mViewportID = parent; break; }
-                    else if(Theatre::Current()->DerivedFrom(parent, ThingType::NostalgiaPlayer))
+                    else if(ThingFactory::DerivedFrom(parent, ThingType::NostalgiaPlayer))
                         { mInitCurrent = true; }
                 }
             }
@@ -108,8 +108,7 @@ void Camera3D::DrawBackground() const
     if(mEnvironment.mType == Environment::BG_SKYBOX)
     {
 #pragma message("TODO: move all Resource creation to the ResourceDatabase, even the ones made by a Theatre")
-        renderer_api->BindTexture(Theatre::Current()
-            ->GetResource<Texture>(mEnvironment.mSkyboxTextureID), 0);
+        renderer_api->BindTexture(ThingFactory::GetThing<Texture>(mEnvironment.mSkyboxTextureID), 0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
         renderer_api->GetShader(Shaders::SkyBox)
             ->SetUniform("view_matrix", glm::mat4{glm::mat3{ViewMatrix()}});
@@ -117,7 +116,7 @@ void Camera3D::DrawBackground() const
         renderer_api->GetShader(Shaders::SkyBox)->SetUniform("skybox", 0);
         renderer_api->SetWireframe(false);
         renderer_api->SetDepthMask(false);
-        auto _cube{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Cube)};
+        auto _cube{ThingFactory::GetThing<ArrayMesh>(UID::m_Cube)};
         for(int i{0}; i < _cube->SurfaceCount(); ++i)
             { renderer_api->DrawIndexed(_cube->SurfaceGetVertexArray(i)); }
         renderer_api->SetDepthMask(true);
@@ -137,8 +136,8 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     auto view_matrix{ViewMatrix()};
     auto projection_matrix{ProjectionMatrix()};
 
-    auto missing_texture{ResourceDatabase::GetResource<Texture>(UID::t_Missing)};
-    auto mesh{ResourceDatabase::GetResource<ArrayMesh>(UID::m_Error)};
+    auto missing_texture{ThingFactory::GetThing<Texture>(UID::t_Missing)};
+    auto mesh{ThingFactory::GetThing<ArrayMesh>(UID::m_Error)};
 
     if(not inVisual3D->Visible()
         or inVisual3D->DerivedFrom(ThingType::Light3D)
@@ -154,7 +153,8 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
             { mesh = DCast<ArrayMesh>(mesh_instance->GetMesh()); }
         auto material{mesh->mMaterial};
 
-        if(mesh_instance->GetMaterialOverride())
+        if(auto _mat{mesh_instance->GetMaterialOverride()}; _mat
+            and not _mat->invalid())
             { material = mesh_instance->GetMaterialOverride(); }
 
         auto diffuse_texture{material->DiffuseTexture()};
@@ -188,7 +188,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     else if(inVisual3D->DerivedFrom(ThingType::Sprite3D))
     {
         auto sprite{DCast<Sprite3D>(inVisual3D)};
-        mesh = ResourceDatabase::GetResource<ArrayMesh>(UID::m_Quad);
+        mesh = ThingFactory::GetThing<ArrayMesh>(UID::m_Quad);
 
         auto texture{(not sprite->GetTexture())
             ? missing_texture
@@ -213,7 +213,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     }
 
     if(not mesh->SurfaceCount())
-        { mesh = ResourceDatabase::GetResource<ArrayMesh>(UID::m_Error); }
+        { mesh = ThingFactory::GetThing<ArrayMesh>(UID::m_Error); }
 
     glm::mat4 model_matrix{inVisual3D->GlobalTransform().model_matrix()};
 
@@ -269,7 +269,7 @@ glm::mat4 Camera3D::ProjectionMatrix() const
     return glm::perspective(glm::radians(mFOV),
         static_cast<float>((mViewportID.invalid())
             ? MainWindow()->GetScale().AspectRatio()
-            : Theatre::Current()->GetThinker<Viewport>(mViewportID)->Size().AspectRatio()),
+            : ThingFactory::GetThing<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar
     );
@@ -278,13 +278,13 @@ glm::mat4 Camera3D::ProjectionMatrix() const
 void Camera3D::OnAncestorRemoved(Relative inAncestor)
 {
     Super::OnAncestorRemoved(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = {}; }
 }
 
 void Camera3D::OnAncestorAdded(Relative inAncestor)
 {
     Super::OnAncestorAdded(inAncestor);
-    if(Theatre::Current()->DerivedFrom(inAncestor.uid, ThingType::Viewport))
+    if(ThingFactory::DerivedFrom(inAncestor.uid, ThingType::Viewport))
         { mViewportID = inAncestor.uid; }
 }

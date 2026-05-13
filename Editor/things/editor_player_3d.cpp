@@ -44,15 +44,15 @@ void EditorPlayer3D::Ready()
     {
         if(_has_collider and _has_camera)
             { break; }
-        if(Theatre::Current()->DerivedFrom(child, ThingType::Collider3D))
+        if(ThingFactory::DerivedFrom(child, ThingType::Collider3D))
         {
             _has_collider = true;
-            m_pCollider = Theatre::Current()->GetThinker<Collider3D>(child);
+            m_pCollider = ThingFactory::GetThing<Collider3D>(child);
         }
-        else if(Theatre::Current()->DerivedFrom(child, ThingType::Camera3D))
+        else if(ThingFactory::DerivedFrom(child, ThingType::Camera3D))
         {
             _has_camera = true;
-            m_pCamera = Theatre::Current()->GetThinker<Camera3D>(child);
+            m_pCamera = ThingFactory::GetThing<Camera3D>(child);
         }
     }
 
@@ -62,7 +62,7 @@ void EditorPlayer3D::Ready()
         coll_dat.set_variable(glm::vec3{1.0f, 3.0f, 1.0f}, "Scale");
         coll_dat.set_variable(MotionType::Kinematic, "Motion");
         coll_dat.set_variable(name(), "Parent");
-        m_pCollider = Theatre::Current()->GetThinker<Collider3D>(Theatre::Current()->CreateThing(coll_dat));
+        m_pCollider = ThingFactory::GetThing<Collider3D>(Theatre::Current()->CreateThing(coll_dat));
     }
     if(not _has_camera)
     {
@@ -71,7 +71,7 @@ void EditorPlayer3D::Ready()
         cam_dat.set_variable(true, "UseDefaultSkybox");
         cam_dat.set_variable(false, "Layer2");
         cam_dat.set_variable(name(), "Parent");
-        m_pCamera = Theatre::Current()->GetThinker<Camera3D>(Theatre::Current()->CreateThing(cam_dat));
+        m_pCamera = ThingFactory::GetThing<Camera3D>(Theatre::Current()->CreateThing(cam_dat));
     }
 
     Theatre::Current()->SetCurrentCamera(m_pCamera->uid());

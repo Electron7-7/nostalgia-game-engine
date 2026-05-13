@@ -2,6 +2,7 @@
 #include "./3d/actor_3d.hpp"
 #include "./2d/actor_2d.hpp"
 #include "../thing_data.hpp"
+#include "../thing_factory.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
@@ -19,7 +20,7 @@ void NostalgiaPlayer::Ready()
     FAUTO _children{Theatre::Current()->GetChildren(uid())};
     for(ID uid : _children)
     {
-        if(Theatre::Current()->DerivedFrom(uid, ThingType::Actor3D))
+        if(ThingFactory::DerivedFrom(uid, ThingType::Actor3D))
         {
             if(m_pActor3D and m_pActor3D->uid() != uid)
             {
@@ -28,9 +29,9 @@ void NostalgiaPlayer::Ready()
                     m_pActor3D->name());
                 continue;
             }
-            m_pActor3D = Theatre::Current()->GetThinker<Actor3D>(uid);
+            m_pActor3D = ThingFactory::GetThing<Actor3D>(uid);
         }
-        else if(Theatre::Current()->DerivedFrom(uid, ThingType::Actor2D))
+        else if(ThingFactory::DerivedFrom(uid, ThingType::Actor2D))
         {
             if(m_pActor2D and m_pActor2D->uid() != uid)
             {
@@ -39,19 +40,19 @@ void NostalgiaPlayer::Ready()
                     m_pActor2D->name());
                 continue;
             }
-            m_pActor2D = Theatre::Current()->GetThinker<Actor2D>(uid);
+            m_pActor2D = ThingFactory::GetThing<Actor2D>(uid);
         }
     }
 
     if(not m_pActor3D)
     {
-        m_pActor3D = Theatre::Current()->GetThinker<Actor3D>(
+        m_pActor3D = ThingFactory::GetThing<Actor3D>(
             Theatre::Current()->CreateThing({ThingType::Actor3D, "Player_Actor3D", {}, {name(), "Parent"}}));
     }
 
     if(not m_pActor2D)
     {
-        m_pActor2D = Theatre::Current()->GetThinker<Actor2D>(
+        m_pActor2D = ThingFactory::GetThing<Actor2D>(
             Theatre::Current()->CreateThing({ThingType::Actor2D, "Player_Actor2D", {}, {name(), "Parent"}}));
     }
 }

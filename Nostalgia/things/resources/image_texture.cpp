@@ -1,7 +1,6 @@
 #include "./image_texture.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thing_data.hpp"
-#include "theatre/theatre.hpp"
 
 #define LOCK LockGuard<RMutex> _lock{mBufferMutex};
 
@@ -9,7 +8,7 @@ using namespace TheatreFile;
 
 Shared<ImageTexture> ImageTexture::CreateFromImage(Farg<Shared<Image>> inImage, SamplerState* inSampler)
 {
-    auto output{DCast<ImageTexture>(ThingFactory::MakeThing(ThingType::ImageTexture, "Untitled_ImageTexture"))};
+    auto output{ThingFactory::MakeThing<ImageTexture>("ImageTexture")};
     output->SetImage(inImage, inSampler);
     return output;
 }
@@ -24,7 +23,7 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
     Super::SetVariables(data);
     data.get_variable(mInitialImageID, "Image", "Data");
     if(not mInitialImageID.invalid())
-        { SetImage(Theatre::Current()->GetResource<Image>(mInitialImageID)); }
+        { SetImage(ThingFactory::GetThing<Image>(mInitialImageID)); }
     else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }
 }

@@ -1,4 +1,5 @@
 #include "./actor_3d.hpp"
+#include "../../thing_factory.hpp"
 #include "theatre/theatre.hpp"
 
 #define LOCK_TRANSFORM LockGuard<RMutex> trans_lock{mTransformMutex}
@@ -57,7 +58,7 @@ void Actor3D::Ready()
     Super::Ready();
     // Only update top-level Actors, since this will recurse through their children
     if(auto parent_id{Theatre::Current()->GetParent(uid())};
-        parent_id.invalid() or not Theatre::Current()->DerivedFrom(parent_id, ThingType::Actor3D))
+        parent_id.invalid() or not ThingFactory::DerivedFrom(parent_id, ThingType::Actor3D))
     {
         mGlobalTrans = mLocalTrans;
         _update_children_global_transform();
@@ -210,7 +211,7 @@ void Actor3D::OnChildAdded(Relative inChild)
 void Actor3D::OnParentChanged(Relative inNew, Relative inOld)
 {
     LOCK_TRANSFORM;
-    if(inNew.invalid() or not Theatre::Current()->DerivedFrom(inNew.uid, ThingType::Actor3D))
+    if(inNew.invalid() or not ThingFactory::DerivedFrom(inNew.uid, ThingType::Actor3D))
     {
         mLocalTrans = mGlobalTrans;
         mParentGlobalTrans = Transform3D{};
@@ -245,6 +246,6 @@ void Actor3D::_update_children_global_transform()
 
 void Actor3D::_update_child_global_transform(ID inUID)
 {
-    if(Theatre::Current()->DerivedFrom(inUID, ThingType::Actor3D))
-        { Theatre::Current()->GetThinker<Actor3D>(inUID)->_set_parent_global_transform(mGlobalTrans); }
+    if(ThingFactory::DerivedFrom(inUID, ThingType::Actor3D))
+        { ThingFactory::GetThing<Actor3D>(inUID)->_set_parent_global_transform(mGlobalTrans); }
 }

@@ -1,5 +1,6 @@
 #include "./thinker.hpp"
-#include "things/thing_data.hpp"
+#include "../thing_data.hpp"
+#include "../thing_factory.hpp"
 #include "theatre/theatre.hpp"
 
 using namespace TheatreFile;
@@ -21,10 +22,10 @@ Shared<ThingData> Thinker::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mVisible, "Visible");
-    data->set_variable(Theatre::Current()->GetName(Theatre::Current()->GetParent(uid())), "Parent");
+    data->set_variable(ThingFactory::GetName(Theatre::Current()->GetParent(uid())), "Parent");
     auto children{Theatre::Current()->GetChildren(uid())};
     for(FAUTO child_id : children)
-        { data->set_variable(Theatre::Current()->GetName(child_id), "Child"); }
+        { data->set_variable(ThingFactory::GetName(child_id), "Child"); }
 
     data->set_variable(mDebugHighlight, "DebugHighlight");
     return data;
@@ -32,7 +33,7 @@ Shared<ThingData> Thinker::GetVariables() const
 
 bool Thinker::Visible() const
 {
-    if(auto _parent{Parent()}; _parent.invalid() or Theatre::Current()->GetThinker(_parent)->Visible())
+    if(auto _parent{Parent()}; _parent.invalid() or ThingFactory::GetThinker(_parent)->Visible())
         { return mVisible; }
     return false;
 }
@@ -81,5 +82,5 @@ void Thinker::IsHighlighted(bool inHighlighted)
 bool Thinker::IsHighlighted() const
 {
     auto _parent{Parent()};
-    return mIsHighlighted or (not _parent.invalid() and Theatre::Current()->GetThinker(_parent)->IsHighlighted());
+    return mIsHighlighted or (not _parent.invalid() and ThingFactory::GetThinker(_parent)->IsHighlighted());
 }

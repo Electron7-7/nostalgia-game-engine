@@ -1,8 +1,8 @@
 #include "./viewport.hpp"
-#include "rendering/renderer_api.hpp"
-#include "things/thing_data.hpp"
+#include "../thing_data.hpp"
+#include "../thing_factory.hpp"
 #include "theatre/theatre.hpp"
-#include "things/thing_factory.hpp"
+#include "rendering/renderer_api.hpp"
 
 #define LOCK LockGuard<RMutex> _lock{mFramebufferMutex};
 
@@ -103,10 +103,10 @@ void Viewport::UpdateCurrentCameras()
     auto descendants{Theatre::Current()->GetAllChildren(uid())};
     for(FAUTO descendant : descendants)
     {
-        if(m_pCurrentCamera3D->invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera3D))
-            { m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(descendant); }
-        else if(m_pCurrentCamera2D->invalid() and Theatre::Current()->DerivedFrom(descendant, ThingType::Camera2D))
-            { m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(descendant); }
+        if(m_pCurrentCamera3D->invalid() and ThingFactory::DerivedFrom(descendant, ThingType::Camera3D))
+            { m_pCurrentCamera3D = ThingFactory::GetThing<Camera3D>(descendant); }
+        else if(m_pCurrentCamera2D->invalid() and ThingFactory::DerivedFrom(descendant, ThingType::Camera2D))
+            { m_pCurrentCamera2D = ThingFactory::GetThing<Camera2D>(descendant); }
     }
 }
 
@@ -143,8 +143,8 @@ void Viewport::OnDescendantAdded(Relative inRelative)
 {
     if(m_pCurrentCamera3D->invalid()
         and ThingFactory::IsDerivedFrom(inRelative.type, ThingType::Camera3D))
-            { m_pCurrentCamera3D = Theatre::Current()->GetThinker<Camera3D>(inRelative.uid); }
+            { m_pCurrentCamera3D = ThingFactory::GetThing<Camera3D>(inRelative.uid); }
     else if(m_pCurrentCamera2D->invalid()
         and ThingFactory::IsDerivedFrom(inRelative.type, ThingType::Camera2D))
-            { m_pCurrentCamera2D = Theatre::Current()->GetThinker<Camera2D>(inRelative.uid); }
+            { m_pCurrentCamera2D = ThingFactory::GetThing<Camera2D>(inRelative.uid); }
 }

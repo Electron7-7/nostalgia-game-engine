@@ -35,14 +35,14 @@ Shared<ThingData> ArrayMesh::GetVariables() const
 
 Shared<ArrayMesh> ArrayMesh::CreateFromMemory(const uchar* inData, size_t inSize, ModelFileType inType)
 {
-    auto output{DCast<ArrayMesh>(ThingFactory::MakeThing(ThingType::ArrayMesh, "Untitled_ArrayMesh"))};
+    auto output{DCast<ArrayMesh>(ThingFactory::MakeThing<ArrayMesh>("ArrayMesh"))};
     print_error_enum(output->LoadModelData(inData, inSize, inType));
     return output;
 }
 
 Shared<ArrayMesh> ArrayMesh::CreateFromFile(Sarg inFilePath)
 {
-    auto output{DCast<ArrayMesh>(ThingFactory::MakeThing(ThingType::ArrayMesh, "Untitled_ArrayMesh"))};
+    auto output{DCast<ArrayMesh>(ThingFactory::MakeThing<ArrayMesh>("ArrayMesh"))};
     print_error_enum(output->LoadModelFile(inFilePath));
     return output;
 }

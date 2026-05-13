@@ -1,7 +1,7 @@
 #include "./imgui_editor.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
-#include <Nostalgia/theatre/theatre.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/settings/engine.hpp>
 
 using namespace ImGui;
@@ -25,12 +25,12 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
             case Variant::FLOAT:
             case Variant::INT:
                 inData->get_variable(_uid, var.name);
-                _name = Theatre::Current()->GetName(_uid);
+                _name = ThingFactory::GetName(_uid);
                 break;
             case Variant::THING:
             case Variant::STRING:
                 inData->get_variable(_name, var.name);
-                _uid = Theatre::Current()->GetUID(_name);
+                _uid = ThingFactory::GetUID(_name);
                 break;
             }
             SelectThing(std::format("{}: {}",
@@ -215,7 +215,7 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
             {
                 ID _uid{};
                 inData->get_variable(_uid, var.name);
-                std::string _name{Theatre::Current()->GetName(_uid)};
+                std::string _name{ThingFactory::GetName(_uid)};
                 SelectThing(std::format("{}: {}",
                     var.name,
                     (_name.empty()) ? GlobalConstants::str_NA : _name).data(),

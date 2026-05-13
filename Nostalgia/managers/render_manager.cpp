@@ -2,7 +2,6 @@
 #include "settings/graphics.hpp"
 #include "theatre_manager.hpp"
 #include "ui_manager.hpp"
-#include "things/resource_database.hpp"
 
 using namespace ManagerEnums;
 
@@ -18,10 +17,7 @@ bool RenderManager::Init()
 }
 
 void RenderManager::Shutdown()
-{
-    ResourceDatabase::DestroyAll();
-    RendererAPI::Get()->Shutdown();
-}
+{ RendererAPI::Get()->Shutdown(); }
 
 ManagerEnums::TheatreReturnValue_t RenderManager::TheatreInit(bool is_first_call)
 { return FINISHED; }

@@ -1,6 +1,6 @@
 #include "./viewport_texture.hpp"
 #include "things/thing_data.hpp"
-#include "theatre/theatre.hpp"
+#include "things/thing_factory.hpp"
 
 using namespace TheatreFile;
 
@@ -32,7 +32,7 @@ ID ViewportTexture::ViewportID() const
 { return m_pViewport->uid(); }
 
 void ViewportTexture::SetViewportID(ID inID)
-{ m_pViewport = Theatre::Current()->GetThinker<Viewport>(inID); }
+{ m_pViewport = ThingFactory::GetThing<Viewport>(inID); }
 
 Farg<Size2D> ViewportTexture::Size() const
 { return m_pViewport->Size(); }

@@ -7,7 +7,7 @@ using namespace TheatreFile;
 
 Shared<Cubemap> Cubemap::CreateFromImages(std::initializer_list<Shared<Image>> inImages)
 {
-    auto output{DCast<Cubemap>(ThingFactory::MakeThing(ThingType::Cubemap, "Untitled_Cubemap"))};
+    auto output{DCast<Cubemap>(ThingFactory::MakeThing<Cubemap>("Cubemap"))};
     FAUTO first{inImages.begin()->get()};
     output->mBuffer =
         TextureBuffer::Create({TEXTURE_TYPE_CUBE, first->Width(), first->Height(), first->Format()});
@@ -40,9 +40,9 @@ void Cubemap::SetVariables(Farg<ThingData> data)
     {
         std::string variable_name{"Image" + std::to_string(i)};
         if(data.get_variable(mInitialImageUIDs->at(i), variable_name) == OK
-            and Theatre::Current()->DerivedFrom(mInitialImageUIDs->at(i), ThingType::Image))
+            and ThingFactory::DerivedFrom(mInitialImageUIDs->at(i), ThingType::Image))
         {
-            image = Theatre::Current()->GetResource<Image>(mInitialImageUIDs->at(i));
+            image = ThingFactory::GetThing<Image>(mInitialImageUIDs->at(i));
         }
         else if(data.get_variable(mInitialImagePaths->at(i), variable_name) == OK)
         {
