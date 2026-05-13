@@ -54,16 +54,10 @@ public:
     IdSet_arg ThinkerUIDs();
     IdSet_arg ResourceUIDs();
 
-    bool    ThingExists(ID);
-    bool    ThingExists(Sarg inName);
-    FPID    TypeOf(ID);
-    bool    DerivedFrom(ID, FPID);
+    bool    Contains(ID);
+    bool    Contains(Sarg inName);
     ID      CreateThing(Farg<TheatreFile::ThingData>, bool inDoReadyThing = true);
     Error   DestroyThing(ID);
-    ID      GetUID(Sarg inName);
-    Sarg    GetName(ID);
-    Error   SetName(ID inUID, Sarg inNewName);
-    Error   SetName(Sarg inOldName, Sarg inNewName);
 
     Shared<Thinker> GetPlayer();
 
@@ -75,29 +69,8 @@ public:
     Error SetParent(ID inChildID, ID inParentID);
     Error DropParent(ID inChildID);
 
-    Shared<Thing>    GetThing(Sarg ThingName);
-    Shared<Thing>    GetThing(ID ObjectID);
-    Shared<Resource> GetResource(ID ObjectID);
-    Shared<Thinker>  GetThinker(ID ObjectID);
-
     const LockGuard<RMutex> GetThingsLock();
     const LockGuard<RMutex> GetCallSheetLock();
-
-    template<Thing_t T>
-        Shared<T> GetThing(Sarg inName)
-        {
-            if(auto _thing{DCast<T>(GetThing(inName))})
-                { return _thing; }
-            return MakeShared<T>();
-        }
-
-    template<Thing_t T>
-        Shared<T> GetThing(ID inUID)
-        {
-            if(auto _thing{DCast<T>(GetThing(inUID))})
-                { return _thing; }
-            return MakeShared<T>();
-        }
 
     template<typename T> requires std::derived_from<T, NostalgiaPlayer>
         Shared<T> GetPlayer()
@@ -107,24 +80,10 @@ public:
             return MakeShared<T>();
         }
 
-    template<typename T> requires std::derived_from<T,Resource>
-        Shared<T> GetResource(ID ObjectID)
-        {
-            if(auto resource{DCast<T>(GetResource(ObjectID))})
-                { return resource; }
-            return MakeShared<T>();
-        }
-
-    template<typename T> requires std::derived_from<T,Thinker>
-        Shared<T> GetThinker(ID ObjectID)
-        {
-            if(auto thinker{DCast<T>(GetThinker(ObjectID))})
-                { return thinker; }
-            return MakeShared<T>();
-        }
-
 protected:
-    std::string mName{"Untitled Theatre"};
+    friend struct ThingFactory;
+
+    std::string mName{"Untitled_Theatre"};
     uint mIndex{ID::Invalid};
     bool mIsStarted{false},
         mWasLoadedFromFile{false};
@@ -132,11 +91,9 @@ protected:
 
     RMutex mThingsMutex{},
         mCallSheetMutex{};
-    Things_t mThings{};
-    Names_t mNames{};
     ID mRootViewportCurrentCamera3D{},
         mRootViewportCurrentCamera2D{};
-    IdSet_t mThinkerUIDs{}, mResourceUIDs{},
+    IdSet_t mThingUIDs{}, mThinkerUIDs{}, mResourceUIDs{},
         mLightIDs{},
         mVisual3DIDs{},
         mVisual2DIDs{};
@@ -145,8 +102,6 @@ protected:
 
     Shared<Thinker> m_pPlayer{nullptr};
     Shared<TheatreFile::TheatreData> m_pInitialState{MakeShared<TheatreFile::TheatreData>()};
-
-    static Error SetThingName(Sarg,Sarg);
 
     virtual void  UpdateCallsheet(ID, Farg<TheatreFile::ThingData>);
     virtual void  UpdateIdSetsAndSpecialThings(FPID, ID);

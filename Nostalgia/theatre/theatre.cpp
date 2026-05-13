@@ -1,7 +1,6 @@
 #include "./theatre.hpp"
 #include "application/application.hpp"
 #include "managers/theatre_manager.hpp"
-#include "things/resource_database.hpp"
 #include "things/thing_factory.hpp"
 #include "things/thinkers/2d/camera_2d.hpp"
 #include "things/thinkers/3d/camera_3d.hpp"
@@ -25,34 +24,30 @@ Theatre* Theatre::Current()
 
 void Theatre::Update()
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    for(auto& [id, thing] : mThings)
-        { thing->Update(); }
+    LOCK_THINGS;
+    for(ID uid : mThingUIDs)
+        { ThingFactory::GetThing(uid)->Update(); }
 }
 
 void Theatre::Tick()
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    for(auto& [id, thing] : mThings)
-        { thing->Tick(); }
+    LOCK_THINGS;
+    for(ID uid : mThingUIDs)
+        { ThingFactory::GetThing(uid)->Tick(); }
 }
 
 void Theatre::Input(InputEvent* inInput)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    for(auto& [id, thing] : mThings)
-        { thing->Input(inInput); }
+    LOCK_THINGS;
+    for(ID uid : mThingUIDs)
+        { ThingFactory::GetThing(uid)->Input(inInput); }
 }
 
 Shared<Image> Theatre::TakeScreenshot(ID inViewportUID)
 {
     LOCK_THINGS;
-    LOCK_CALLSHEET;
-    if(auto found_it{mThings.find(inViewportUID)}; found_it != mThings.end())
-    {
-        if(auto _viewport{DCast<Viewport>(found_it->second)})
-            { return _viewport->GetImage(); }
-    }
+    if(auto _viewport{ThingFactory::GetThing<Viewport>(inViewportUID)}; not _viewport->invalid())
+        { return _viewport->GetImage(); }
     return RendererAPI::Get()->GetFullScreenshot();
 }
 
@@ -98,11 +93,12 @@ std::string Theatre::GetSaveData()
 {
     LOCK_THINGS;
     std::string _output{std::format("@{}#{}\n", mName, mIndex)};
-    for(FAUTO [id, thing] : mThings)
+    for(ID uid : mThingUIDs)
     {
+        auto _thing{ThingFactory::GetThing(uid)};
         if(Console::GetVariable("Theatre.debug_save_msgs").int_value)
-            { print_debug("Saving [{}, {}]", thing->name(), id()); }
-        _output += thing->GetVariables()->get_parsable_string();
+            { print_debug("Saving [{}, {}]", _thing->name(), uid()); }
+        _output += _thing->GetVariables()->get_parsable_string();
     }
     return _output;
 }
@@ -142,9 +138,8 @@ bool Theatre::Startup()
             continue;
         }
         auto thing{ThingFactory::MakeThing(iter->type, iter->name)};
-        mThings[thing->uid()] = thing;
-        mNames[thing->name()] = thing->uid();
-        thing->SetNameChangeCallback(&Theatre::SetThingName);
+        iter->name = thing->name();
+        mThingUIDs.insert(thing->uid());
         UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
         mCallSheet.add_node(thing->uid());
         if(Console::GetVariable("Theatre.debug_create_thing_msgs").int_value)
@@ -154,37 +149,35 @@ bool Theatre::Startup()
 
     for(auto iter{m_pInitialState->begin()}; iter != m_pInitialState->end();)
     {
-        if(auto found_it{mNames.find(iter->name)}; found_it != mNames.end())
+        if(ID _uid{ThingFactory::GetUID(iter->name)};
+            not _uid.invalid()
+            and mThingUIDs.contains(_uid))
         {
-            if(mThings.contains(found_it->second))
+            if(ID parent{ThingFactory::GetUID(iter->parent_variable.value)}; not parent.invalid())
             {
-                if(ID parent{GetUID(iter->parent_variable.value)}; not parent.invalid())
-                {
-                    if(not mCallSheet.has_node(parent))
-                        { mCallSheet.add_node(parent); }
-                    if(not mCallSheet.set_parent(found_it->second, parent))
-                        { mCallSheet.add_node(found_it->second, parent); }
-                }
-                for(FAUTO child_var : iter->children_variables)
-                {
-                    ID child{GetUID(child_var.value)};
-                    if(not child.invalid() and not mCallSheet.set_parent(child, found_it->second))
-                        { mCallSheet.add_node(child, found_it->second); }
-                }
-                ++iter;
-                continue;
+                if(not mCallSheet.has_node(parent))
+                    { mCallSheet.add_node(parent); }
+                if(not mCallSheet.set_parent(_uid, parent))
+                    { mCallSheet.add_node(_uid, parent); }
             }
+            for(FAUTO child_var : iter->children_variables)
+            {
+                ID child{ThingFactory::GetUID(child_var.value)};
+                if(not child.invalid() and not mCallSheet.set_parent(child, _uid))
+                    { mCallSheet.add_node(child, _uid); }
+            }
+            ++iter;
+            continue;
         }
-        mNames.erase(iter->name);
         print_warning("Removing broken ThingData with name '{}'", iter->name);
         iter = m_pInitialState->erase(iter);
     }
 
     for(FAUTO thing_data : *m_pInitialState)
-        { mThings.at(mNames.at(thing_data.name))->SetVariables(thing_data); }
+        { ThingFactory::GetThing(thing_data.name)->SetVariables(thing_data); }
 
     for(FAUTO thing_data : *m_pInitialState)
-        { mThings.at(mNames.at(thing_data.name))->Ready(); }
+        { ThingFactory::GetThing(thing_data.name)->Ready(); }
 
     if(Console::GetVariable("Theatre.debug_callsheet_msgs").int_value)
         { print_debug("{}", InheritanceLog()); }
@@ -206,12 +199,11 @@ bool Theatre::Shutdown()
         { return true; }
     mIsStarted = false;
     LOCK_THINGS;
-    IdVec_t _uids{ThingUIDs()};
-    for(FAUTO uid : _uids)
+    IdVec_t _uids{mThingUIDs.begin(), mThingUIDs.end()};
+    for(ID uid : _uids)
         { DestroyThing(uid); }
-    mNames.clear();
     mCallSheet.clear();
-    mThings.clear();
+    mThingUIDs.clear();
     return true;
 }
 
@@ -224,7 +216,7 @@ void Theatre::Draw()
 
     Light3D::ClearCounts();
     for(ID id : mLightIDs)
-        { RendererAPI::Get()->SetLight_TempBlinnPhongSolution(GetThinker<Light3D>(id)); }
+        { RendererAPI::Get()->SetLight_TempBlinnPhongSolution(ThingFactory::GetThing<Light3D>(id)); }
 
     // Render the root viewport
     RendererAPI::Get()->BindFramebuffer();
@@ -234,16 +226,16 @@ void Theatre::Draw()
 
     if(_enable_3d_rendering and not mRootViewportCurrentCamera3D.invalid())
     {
-        auto _camera{GetThinker<Camera3D>(mRootViewportCurrentCamera3D)};
+        auto _camera{ThingFactory::GetThing<Camera3D>(mRootViewportCurrentCamera3D)};
         _camera->DrawBackground();
         for(ID _uid : mVisual3DIDs)
-            { _camera->Draw(GetThinker<Visual3D>(_uid)); }
+            { _camera->Draw(ThingFactory::GetThing<Visual3D>(_uid)); }
     }
     if(_enable_2d_rendering and not mRootViewportCurrentCamera3D.invalid())
     {
-        auto _camera{GetThinker<Camera2D>(mRootViewportCurrentCamera2D)};
+        auto _camera{ThingFactory::GetThing<Camera2D>(mRootViewportCurrentCamera2D)};
         for(ID _uid : mVisual2DIDs)
-            { _camera->Draw(GetThinker<Visual2D>(_uid)); }
+            { _camera->Draw(ThingFactory::GetThing<Visual2D>(_uid)); }
     }
 
     // Render other viewports
@@ -254,12 +246,12 @@ void Theatre::Draw()
         {
             viewport->CurrentCamera3D()->DrawBackground();
             for(ID _uid : mVisual3DIDs)
-                { viewport->CurrentCamera3D()->Draw(GetThinker<Visual3D>(_uid)); }
+                { viewport->CurrentCamera3D()->Draw(ThingFactory::GetThing<Visual3D>(_uid)); }
         }
         if(_enable_2d_rendering and not viewport->CurrentCamera2D()->invalid())
         {
             for(ID _uid : mVisual2DIDs)
-                { viewport->CurrentCamera2D()->Draw(GetThinker<Visual2D>(_uid)); }
+                { viewport->CurrentCamera2D()->Draw(ThingFactory::GetThing<Visual2D>(_uid)); }
         }
         viewport->Detach();
     }
@@ -286,17 +278,18 @@ std::string Theatre::TheatreFileName() const
 std::string Theatre::InheritanceLog() const
 {
     std::string log{"Inheritance Log:\n"};
-    std::string indentation{};
-    for(FAUTO [id, node] : mCallSheet.nodes)
+    for(FAUTO [uid, node] : mCallSheet.nodes)
     {
-        log += std::format("\tNode [{}, {}]\n", id(),
-            (mThings.contains(id)) ? mThings.at(id)->name() : "N/A");
+        auto _name{ThingFactory::GetName(uid)};
+        log += std::format("\tNode [{}, {}]\n",
+            uid(),
+            (_name.empty()) ? GlobalConstants::str_NA : _name);
         for(ID child : node.children)
         {
-            std::string name{(mThings.contains(child)) ? mThings.at(child)->name() : ""};
+            _name = ThingFactory::GetName(child);
             log += std::format("\t\t[{}, {}]\n",
                 child(),
-                name);
+                (_name.empty()) ? GlobalConstants::str_NA : _name);
         }
     }
     return log;
@@ -316,8 +309,8 @@ TheatreData Theatre::CurrentState()
     LockGuard<RMutex> lock{mThingsMutex};
     TheatreData data{*m_pInitialState};
     data.clear();
-    for(FAUTO [id, thing] : mThings)
-        { data.push_back(*thing->GetVariables()); }
+    for(ID uid : mThingUIDs)
+        { data.push_back(*ThingFactory::GetThing(uid)->GetVariables()); }
     return data;
 }
 
@@ -325,14 +318,14 @@ ID Theatre::GetCurrentCamera2D(ID inViewportID)
 {
     if(inViewportID.invalid())
         { return mRootViewportCurrentCamera2D; }
-    return GetThinker<Viewport>(inViewportID)->CurrentCamera2D()->uid();
+    return ThingFactory::GetThing<Viewport>(inViewportID)->CurrentCamera2D()->uid();
 }
 
 ID Theatre::GetCurrentCamera3D(ID inViewportID)
 {
     if(inViewportID.invalid())
         { return mRootViewportCurrentCamera3D; }
-    return GetThinker<Viewport>(inViewportID)->CurrentCamera3D()->uid();
+    return ThingFactory::GetThing<Viewport>(inViewportID)->CurrentCamera3D()->uid();
 }
 
 Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
@@ -340,16 +333,16 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     LOCK_THINGS;
     LOCK_CALLSHEET;
 
-    bool is_3d{DerivedFrom(inCameraID, ThingType::Camera3D)};
+    bool is_3d{ThingFactory::DerivedFrom(inCameraID, ThingType::Camera3D)};
     auto ancestors{GetAllParents(inCameraID)};
 
-    if(not is_3d and not DerivedFrom(inCameraID, ThingType::Camera2D))
+    if(not is_3d and not ThingFactory::DerivedFrom(inCameraID, ThingType::Camera2D))
         { return ERR_INVALID_ID; }
     else if(inViewportID.invalid())
     {
         for(FAUTO ancestor : ancestors)
         {
-            if(DerivedFrom(ancestor, ThingType::Viewport))
+            if(ThingFactory::DerivedFrom(ancestor, ThingType::Viewport))
                 { return ERR_INVALID; }
         }
         if(is_3d)
@@ -358,12 +351,14 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
             { mRootViewportCurrentCamera2D = inCameraID; }
         return OK;
     }
-    else if(auto viewport{GetThinker<Viewport>(inViewportID)}; not viewport->invalid() and ancestors.contains(inViewportID))
+    else if(auto viewport{ThingFactory::GetThing<Viewport>(inViewportID)};
+        not viewport->invalid()
+        and ancestors.contains(inViewportID))
     {
         if(is_3d)
-            { viewport->SetCurrentCamera3D(GetThinker<Camera3D>(inCameraID)); }
+            { viewport->SetCurrentCamera3D(ThingFactory::GetThing<Camera3D>(inCameraID)); }
         else
-            { viewport->SetCurrentCamera2D(GetThinker<Camera2D>(inCameraID)); }
+            { viewport->SetCurrentCamera2D(ThingFactory::GetThing<Camera2D>(inCameraID)); }
         return OK;
     }
     return ERR_NOT_FOUND;
@@ -401,39 +396,16 @@ IdSet_arg Theatre::ResourceUIDs()
     return mResourceUIDs;
 }
 
-bool Theatre::ThingExists(ID inUID)
+bool Theatre::Contains(ID inUID)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    return mThings.contains(inUID) or ResourceDatabase::Contains(inUID);
+    LOCK_THINGS;
+    return mThingUIDs.contains(inUID);
 }
 
-bool Theatre::ThingExists(Sarg inName)
+bool Theatre::Contains(Sarg inName)
 {
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(mNames.contains(inName) or ResourceDatabase::Contains(inName))
-        { return true; }
-    for(FAUTO [id, thing] : mThings)
-    {
-        if(not thing->name().compare(inName))
-            { return true; }
-    }
-    return false;
-}
-
-FPID Theatre::TypeOf(ID inID)
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
-        { return found_it->second->Type(); }
-    return ResourceDatabase::TypeOf(inID);
-}
-
-bool Theatre::DerivedFrom(ID inID, FPID inType)
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(auto found_it{mThings.find(inID)}; found_it != mThings.end())
-        { return found_it->second->DerivedFrom(inType); }
-    return ResourceDatabase::DerivedFrom(inID, inType);
+    LOCK_THINGS;
+    return mThingUIDs.contains(ThingFactory::GetUID(inName));
 }
 
 ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing)
@@ -443,13 +415,11 @@ ID Theatre::CreateThing(Farg<TheatreFile::ThingData> inData, bool inDoReadyThing
         { print_warning("ThingData::name cannot be empty"); return ID::Invalid; }
     else if(ThingFactory::IsDerivedFrom(inData.type, ThingType::NostalgiaPlayer) and m_pPlayer)
         { print_warning("Only one player at a time, please!"); return m_pPlayer->uid(); }
-    else if(ThingExists(inData.name))
-        { return GetUID(inData.name); }
+    else if(Contains(inData.name))
+        { return ThingFactory::GetUID(inData.name); }
 
     auto thing{ThingFactory::MakeThing(inData.type, inData.name)};
-    mThings[thing->uid()] = thing;
-    mNames[thing->name()] = thing->uid();
-    thing->SetNameChangeCallback(&Theatre::SetThingName);
+    mThingUIDs.insert(thing->uid());
     UpdateCallsheet(thing->uid(), inData);
     UpdateIdSetsAndSpecialThings(thing->Type(), thing->uid());
     thing->SetVariables(inData);
@@ -465,60 +435,13 @@ Error Theatre::DestroyThing(ID inID)
     LOCK_THINGS;
     if(inID.invalid())
         { return ERR_INVALID_ID; }
-    else if(not mThings.contains(inID))
+    else if(not mThingUIDs.contains(inID))
         { return ERR_NOT_FOUND; }
     auto children{GetChildren(inID)};
     for(ID child : children)
         { DestroyThing(child); }
     auto status{DestroyThingOnly(inID)};
     return status;
-}
-
-ID Theatre::GetUID(Sarg inName)
-{
-    LOCK_THINGS;
-    if(ID uid{ResourceDatabase::GetUID(inName)}; not uid.invalid())
-        { return uid; }
-    else if(auto found_it{mNames.find(inName)}; found_it != mNames.end())
-        { return found_it->second; }
-    return ID::Invalid;
-}
-
-Sarg Theatre::GetName(ID inUID)
-{
-    static std::string empty{};
-    LOCK_THINGS;
-    if(Sarg name{ResourceDatabase::GetName(inUID)}; not name.empty())
-        { return name; }
-    else if(auto found_it{mThings.find(inUID)}; found_it != mThings.end())
-        { return found_it->second->name(); }
-    for(FAUTO [name, uid] : mNames)
-    {
-        if(inUID == uid)
-            { return name; }
-    }
-    return empty;
-}
-
-Error Theatre::SetName(ID inUID, Sarg inName)
-{
-    if(ThingExists(inName))
-        { return ERR_ALREADY_EXISTS; }
-    else if(not ThingExists(inUID))
-        { return ERR_NOT_FOUND; }
-    LOCK_THINGS;
-    auto thing{mThings.at(inUID)};
-    mNames.erase(thing->mName);
-    mNames[inName] = inUID;
-    thing->mName = inName;
-    return OK;
-}
-
-Error Theatre::SetName(Sarg inOldName, Sarg inNewName)
-{
-    if(not ThingExists(inOldName))
-        { return ERR_NOT_FOUND; }
-    return SetName(GetUID(inOldName), inNewName);
 }
 
 Shared<Thinker> Theatre::GetPlayer()
@@ -569,9 +492,9 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
     if(auto status{mCallSheet.set_parent(inChildID, inParentID)}; not status)
         { return print_error_enum(status); }
 
-    auto child{GetThinker(inChildID)};
-    auto parent{GetThinker(inParentID)};
-    auto old_parent{GetThinker(old_parent_id)};
+    auto child{ThingFactory::GetThinker(inChildID)};
+    auto parent{ThingFactory::GetThinker(inParentID)};
+    auto old_parent{ThingFactory::GetThinker(old_parent_id)};
 
     parent->OnChildAdded(child);
     old_parent->OnChildRemoved(child);
@@ -582,16 +505,16 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 
     for(ID descendant : descendants)
     {
-        auto descendant_thinker{GetThinker(descendant)};
+        auto descendant_thinker{ThingFactory::GetThinker(descendant)};
         for(ID old_ancestor : old_ancestors)
         {
-            auto old_ancestor_thinker{GetThinker(old_ancestor)};
+            auto old_ancestor_thinker{ThingFactory::GetThinker(old_ancestor)};
             old_ancestor_thinker->OnDescendantRemoved(descendant_thinker);
             descendant_thinker->OnAncestorRemoved(old_ancestor_thinker);
         }
         for(ID new_ancestor : new_ancestors)
         {
-            auto new_ancestor_thinker{GetThinker(new_ancestor)};
+            auto new_ancestor_thinker{ThingFactory::GetThinker(new_ancestor)};
             new_ancestor_thinker->OnDescendantAdded(descendant_thinker);
             descendant_thinker->OnAncestorAdded(new_ancestor_thinker);
         }
@@ -613,60 +536,13 @@ Error Theatre::DropParent(ID inChildID)
     return SetParent(inChildID, parent.parent);
 }
 
-Shared<Thing> Theatre::GetThing(Sarg inName)
-{
-    if(ResourceDatabase::Contains(inName))
-        { return ResourceDatabase::GetResource(inName); }
-    LockGuard<RMutex> lock{mThingsMutex};
-    for(FAUTO [id, thing] : mThings)
-        { if(!thing->name().compare(inName)) { return thing; } }
-    return Thing::Invalid();
-}
-
-Shared<Thing> Theatre::GetThing(ID inID)
-{
-    if(ResourceDatabase::Contains(inID))
-        { return ResourceDatabase::GetResource(inID); }
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(auto found_it{mThings.find(inID)};
-        found_it != mThings.end())
-    { return found_it->second; }
-    return Thing::Invalid();
-}
-
-Shared<Resource> Theatre::GetResource(ID inID)
-{
-    if(ResourceDatabase::Contains(inID))
-        { return ResourceDatabase::GetResource(inID); }
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(auto found_it{mThings.find(inID)};
-        found_it != mThings.end())
-    {
-        if(found_it->second->IsResource())
-            { return DCast<Resource>(found_it->second); }
-    }
-    return MakeShared<Resource>();
-}
-
-Shared<Thinker> Theatre::GetThinker(ID inID)
-{
-    LockGuard<RMutex> lock{mThingsMutex};
-    if(auto found_it{mThings.find(inID)};
-        found_it != mThings.end())
-    {
-        if(found_it->second->IsThinker())
-            { return DCast<Thinker>(found_it->second); }
-    }
-    return MakeShared<Thinker>();
-}
-
 void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
 {
     LOCK_CALLSHEET;
 
     if(not mCallSheet.has_node(inUID))
         { mCallSheet.add_node(inUID); }
-    if(ID parent{GetUID(inData.parent_variable.value)}; not parent.invalid())
+    if(ID parent{ThingFactory::GetUID(inData.parent_variable.value)}; not parent.invalid())
     {
         if(not mCallSheet.has_node(parent))
             { mCallSheet.add_node(parent); }
@@ -675,7 +551,7 @@ void Theatre::UpdateCallsheet(ID inUID, Farg<ThingData> inData)
     }
     for(FAUTO child_var : inData.children_variables)
     {
-        ID child{GetUID(child_var.value)};
+        ID child{ThingFactory::GetUID(child_var.value)};
         if(not child.invalid() and not mCallSheet.set_parent(child, inUID))
             { mCallSheet.add_node(child, inUID); }
     }
@@ -687,9 +563,9 @@ void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
     {
         mThinkerUIDs.insert(inUID);
         if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer) and not m_pPlayer)
-            { m_pPlayer = GetThinker(inUID); }
+            { m_pPlayer = ThingFactory::GetThinker(inUID); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
-            { mViewports.insert(GetThinker<Viewport>(inUID)); }
+            { mViewports.insert(ThingFactory::GetThing<Viewport>(inUID)); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))
         {
             mVisual3DIDs.insert(inUID);
@@ -708,21 +584,10 @@ Error Theatre::DestroyThingOnly(ID inID)
     LockGuard<RMutex> lock{mThingsMutex};
     LOCK_CALLSHEET;
 
-    if(!mThings.contains(inID))
-    {
-        return (mThings.empty())
-            ? ERR_EMPTY
-            : ERR_NOT_FOUND;
-    }
-
-    for(auto iter{mNames.begin()}; iter != mNames.end(); ++iter)
-    {
-        if(iter->second == inID)
-        {
-            mNames.erase(iter);
-            break;
-        }
-    }
+    if(not mThingUIDs.contains(inID))
+        { return (mThingUIDs.empty()) ? ERR_EMPTY : ERR_NOT_FOUND; }
+    else if(Console::GetVariable("Theatre.debug_shutdown_things_list").int_value)
+        { print_debug("Destroyed Thing: [{}, {}]", ThingFactory::GetName(inID), inID()); }
 
     for(auto iter{mViewports.begin()}; iter != mViewports.end(); ++iter)
     {
@@ -733,21 +598,14 @@ Error Theatre::DestroyThingOnly(ID inID)
         }
     }
 
+    mThingUIDs.erase(inID);
     mThinkerUIDs.erase(inID);
     mResourceUIDs.erase(inID);
     mVisual2DIDs.erase(inID);
     mVisual3DIDs.erase(inID);
     mLightIDs.erase(inID);
     mCallSheet.remove_node(inID);
-    mThings.erase(inID);
-    return OK;
-}
-
-Error Theatre::SetThingName(Sarg inOldName, Sarg inNewName)
-{
-    if(not Theatre::Current())
-        { return ERR_NULLPTR; }
-    return Theatre::Current()->SetName(inOldName, inNewName);
+    return ThingFactory::Destroy(inID);
 }
 
 const LockGuard<RMutex> Theatre::GetThingsLock()
