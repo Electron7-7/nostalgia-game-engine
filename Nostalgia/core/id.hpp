@@ -7,7 +7,7 @@
 
 #define ID_UINT_OPERATOR(OP) __id_operator(OP, uint)
 #define ID_ID_OPERATOR(OP)   __id_operator(OP, Farg<ID>, .id_)
-#define PID_PID_OPERATOR(OP) __id_operator(OP, Farg<PID>, ())
+#define PID_PID_OPERATOR(OP) __id_operator(OP, const PID&, ())
 
 struct ID
 {
@@ -17,20 +17,23 @@ public:
     constexpr ID(Farg<ID> inID) noexcept:
         id_{inID.id_} {}
 
-    constexpr ID(uint inID, Farg<std::string> inName = "") noexcept:
+    constexpr ID(uint inID, Sarg inName = "") noexcept:
         id_{inID} {}
 
-    constexpr ID(Farg<std::string> inHashable) noexcept:
+    // Used by the physics engine when converting between a Body's UserData and a Collider's UID
+    explicit constexpr ID(uint64 inID) noexcept:
+        id_{(inID > static_cast<uint64>(UINT32_MAX)) ? ID::Invalid : static_cast<uint32>(inID)} {}
+
+    constexpr ID(Sarg inHashable) noexcept:
         id_{ConstexprHash(inHashable)} {}
 
     constexpr ~ID() noexcept = default;
 
-    constexpr explicit operator uint() const { return id_; }
+    constexpr explicit operator uint32() const { return id_; }
 
     constexpr uint operator()() const    { return id_;            }
     constexpr bool    invalid() const    { return id_ == Invalid; }
     constexpr uint         id() const    { return id_;            }
-    constexpr void         id(uint inID) { id_ = inID;            }
 
     ID_ID_OPERATOR(==)
     ID_ID_OPERATOR(!=)
@@ -63,14 +66,14 @@ public:
 
     virtual ~PID() noexcept;
 
-    virtual Farg<std::string> name() const;
-    virtual const char*     c_name() const;
-    virtual std::string        log() const;
+    virtual Sarg          name() const;
+    virtual const char* c_name() const;
+    virtual std::string    log() const;
 
-    bool operator==(Farg<PID> inOther) const noexcept
+    bool operator==(const PID& inOther) const noexcept
     { return id_ == inOther.id_ and not name_.compare(inOther.name_); }
 
-    bool operator!=(Farg<PID> inOther) const noexcept
+    bool operator!=(const PID& inOther) const noexcept
     { return not (*this == inOther); }
 
     PID_PID_OPERATOR(<)
@@ -107,13 +110,13 @@ template<ID_t T>
         { return static_cast<size_t>(inID()); }
     };
 
-using FPID      = const PID&;
-using IdSet_t   = std::unordered_set<ID>;
-using IdSet_arg = const IdSet_t&;
+using FPID         = const PID&;
+using IdSet_t      = std::unordered_set<ID>;
+using IdSet_arg    = const IdSet_t&;
 using IdSetRev_t   = std::unordered_set<ID, std::greater<ID>>;
 using IdSetRev_arg = const IdSetRev_t&;
-using IdVec_t   = std::vector<ID>;
-using IdVec_arg = const IdVec_t&;
+using IdVec_t      = std::vector<ID>;
+using IdVec_arg    = const IdVec_t&;
 
 #undef __id_operator
 #undef ID_UINT_OPERATOR
