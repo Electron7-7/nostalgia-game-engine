@@ -78,6 +78,8 @@ protected:
 
     inline static Shared<TheatreFile::ThingData> s_pDefaultVariables{nullptr};
 
+    static Shared<Thing> InvalidThinker();
+    static Shared<Thing> InvalidResource();
 
     virtual void Ready() {}
     virtual void Shutdown() {}

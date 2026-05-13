@@ -5,6 +5,9 @@
 
 using namespace TheatreFile;
 
+Shared<Thinker> Thinker::Invalid()
+{ return DCast<Thinker>(InvalidThinker()); }
+
 void Thinker::InitVariables()
 {
     Super::InitVariables();

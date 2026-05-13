@@ -1,6 +1,8 @@
 #include "./thing.hpp"
 #include "./thing_data.hpp"
 #include "./thing_factory.hpp"
+#include "./thinkers/thinker.hpp"
+#include "./resources/resource.hpp"
 
 #define LOCK(MUTEX) LockGuard<RMutex> lock{MUTEX}
 
@@ -9,6 +11,20 @@ using namespace TheatreFile;
 Shared<Thing> Thing::Invalid()
 {
     Shared<Thing> _output{MakeShared<Thing>()};
+    _output->mUID = ID::Invalid;
+    return _output;
+}
+
+Shared<Thing> Thing::InvalidThinker()
+{
+    Shared<Thinker> _output{MakeShared<Thinker>()};
+    _output->mUID = ID::Invalid;
+    return _output;
+}
+
+Shared<Thing> Thing::InvalidResource()
+{
+    Shared<Resource> _output{MakeShared<Resource>()};
     _output->mUID = ID::Invalid;
     return _output;
 }

@@ -9,6 +9,9 @@ class Resource : public Thing
 public:
     THING_CLASS(Resource, Thing)
 
+    static Shared<Resource> Invalid()
+    { return DCast<Resource>(InvalidResource()); }
+
 private:
     void Update() final {}
     void Tick() final {}
