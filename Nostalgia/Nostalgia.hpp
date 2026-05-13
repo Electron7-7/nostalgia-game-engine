@@ -58,7 +58,6 @@
 
 // Nostalgia
 #include <Nostalgia/core/typedefs.hpp>                // IWYU pragma: keep
-#include <Nostalgia/core/types.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/mutex.hpp>                   // IWYU pragma: keep
