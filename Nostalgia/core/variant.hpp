@@ -105,6 +105,12 @@ private:
     Type _type{NIL};
     std::variant<bool, int, double, glm::vec4, glm::quat, std::string, ThingData> _data;
 
+    Farg<ThingData> _thing_data() const
+    { return *std::get_if<ThingData>(&_data); }
+
+    ThingData& _thing_data()
+    { return *std::get_if<ThingData>(&_data); }
+
     template<typename T> requires std::integral<T>
         T _to_int() const
         {
@@ -135,12 +141,12 @@ private:
             case BOOL:
                 return static_cast<T>(*std::get_if<bool>(&_data));
             case INT:
-                return T(*std::get_if<int>(&_data));
+                return static_cast<T>(*std::get_if<int>(&_data));
             case FLOAT:
-                return T(*std::get_if<double>(&_data));
+                return static_cast<T>(*std::get_if<double>(&_data));
             case STRING:
                 T _out{0.0};
-                StringToNum(_out, *std::get_if<std::string>(&_data));
+                StringToNum(_out, _to_string());
                 return _out;
             }
         }

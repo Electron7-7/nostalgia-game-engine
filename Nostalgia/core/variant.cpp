@@ -1,29 +1,10 @@
 #include "./variant.hpp"
-#include "theatre/theatre.hpp"
+#include "things/thing_factory.hpp"
 
 using TypeNames_t = std::unordered_map<std::string, Variant::Type>;
 
 bool Variant::_to_bool() const
 { return not is_zero(); }
-
-template<typename T> requires std::same_as<T, glm::vec4> or std::same_as<T, glm::quat>
-    static std::string s_GetFormattedString(const T* inVal, int inSize)
-    {
-        if(not inVal)
-            { return ""; }
-        inSize = (inSize > 4) ? 4 : inSize;
-        std::string _output{};
-        for(int i{0}; i < inSize; ++i)
-        {
-            float _value{0.0f};
-            if(not glm::isnan(inVal->operator[](i)))
-                { _value = inVal->operator[](i); }
-            if(i)
-                { _output += ", "; }
-            _output += std::format("{}", _value);
-        }
-        return _output;
-    }
 
 std::string Variant::_to_string() const
 {
@@ -32,23 +13,23 @@ std::string Variant::_to_string() const
     case NIL:
         return "<null>";
     case BOOL:
-        return *std::get_if<bool>(&_data) ? GlobalConstants::str_true : GlobalConstants::str_false;
+        return operator bool() ? GlobalConstants::str_true : GlobalConstants::str_false;
     case STRING:
         return *std::get_if<std::string>(&_data);
     case INT:
-        return std::format("{}", *std::get_if<int>(&_data));
+        return NumToString(operator int());
     case FLOAT:
-        return std::format("{}", static_cast<float>(*std::get_if<double>(&_data)));
+        return NumToString(operator float());
     case VECTOR2:
-        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 2);
+        return NumToString(operator glm::vec2());
     case VECTOR3:
-        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 3);
+        return NumToString(operator glm::vec3());
     case VECTOR4:
-        return s_GetFormattedString(std::get_if<glm::vec4>(&_data), 4);
+        return NumToString(operator glm::vec4());
     case QUATERNION:
-        return s_GetFormattedString(std::get_if<glm::quat>(&_data), 4);
+        return NumToString(operator glm::quat());
     case THING:
-        return std::get_if<ThingData>(&_data)->thing->to_string();
+        return _thing_data().thing->to_string();
     default:
         return std::format("<{}>", type_name(_type));
     }
@@ -171,7 +152,7 @@ std::string Variant::get_theatre_file_string() const
 }
 
 bool Variant::is_null() const
-{ return _type != THING or not std::get_if<ThingData>(&_data)->thing; }
+{ return _type != THING or not _thing_data().thing; }
 
 bool Variant::is_zero() const
 {
@@ -192,7 +173,7 @@ bool Variant::is_zero() const
     case QUATERNION:
         return *std::get_if<glm::quat>(&_data) == glm::quat{};
     case THING:
-        return std::get_if<ThingData>(&_data)->thing->invalid();
+        return _thing_data().thing->invalid();
     default:
         return false;
     }
@@ -212,9 +193,9 @@ Variant::operator ID() const
     if(_type == INT)
         { return {_to_int<uint>()}; }
     else if(_type == THING)
-        { return std::get_if<ThingData>(&_data)->uid; }
+        { return _thing_data().uid; }
     else if(_type == STRING)
-        { return Theatre::Current()->GetUID(*std::get_if<std::string>(&_data)); }
+        { return ThingFactory::GetUID(operator std::string()); }
     return {ID::Invalid};
 }
 
@@ -312,18 +293,18 @@ Variant::operator BitMask() const
 Variant::operator FileData() const
 {
     if(_type == STRING)
-        { return FileData{*std::get_if<std::string>(&_data)}; }
+        { return FileData{operator std::string()}; }
     return FileData{};
 }
 
 Variant::operator Shared<Thing>() const
 {
     if(_type == THING)
-        { return std::get_if<ThingData>(&_data)->thing; }
+        { return _thing_data().thing; }
     else if(_type == STRING)
-        { return Theatre::Current()->GetThing(operator std::string()); }
+        { return ThingFactory::GetThing(operator std::string()); }
     else if(_type == INT or _type == FLOAT)
-        { return Theatre::Current()->GetThing(operator ID()); }
+        { return ThingFactory::GetThing(operator ID()); }
     return Thing::Invalid();
 }
 
