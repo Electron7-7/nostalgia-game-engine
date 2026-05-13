@@ -17,7 +17,6 @@ struct ConsoleToken
 
 static RMutex sCommandsMutex{}, sHistoryMutex{};
 static bool sInitialized{false};
-static const Variable sEmptyVariable{""};
 static constexpr frozen::set<char, 4> sWhitespace{' ', '\t', '\n', '\r'};
 
 static uint        sHistoryMaxSize{4815}; // 162342
@@ -25,6 +24,7 @@ static History_t   sHistory{};
 static Commands_t  sCommands{};
 static Variables_t sVariables{};
 static Callbacks_t sCallbacks{};
+static std::unordered_set<std::string> sVariableNames{}, sCommandNames{};
 
 void Console::Init()
 {
@@ -75,8 +75,9 @@ Error Console::ProcessLine(Sarg inInput)
     std::string buffer{}, variable_name{};
     std::vector<ConsoleToken> shitty_tokens{};
     bool _in_string{false};
-    for(char character : inInput)
+    for(auto iter{inInput.begin()}; iter != inInput.end(); ++iter)
     {
+        char character{*iter};
         if(character == '"' or character == '\'')
         {
             _in_string = not _in_string;
@@ -94,9 +95,9 @@ Error Console::ProcessLine(Sarg inInput)
             buffer.clear();
             continue;
         }
-        else if((sWhitespace.contains(character) and not _in_string) or character == inInput.back())
+        else if((sWhitespace.contains(character) and not _in_string) or iter == inInput.end() - 1)
         {
-            if(buffer.empty() and character == inInput.back() and not sWhitespace.contains(character))
+            if(iter == inInput.end() - 1 and not sWhitespace.contains(character))
                 { buffer += character; }
             if(not variable_name.empty() and not buffer.empty())
             {
@@ -120,7 +121,7 @@ Error Console::ProcessLine(Sarg inInput)
     int   _i_value{};
     for(FAUTO token : shitty_tokens)
     {
-        if(sCommands.contains(token.token))
+        if(sCommandNames.contains(token.token))
         {
             LOCK_CMDS
             for(FAUTO callback : sCallbacks)
@@ -143,7 +144,7 @@ Error Console::ProcessLine(Sarg inInput)
                 { SetVariable(_variable_name, _i_value); }
             break;
         case ConsoleToken::BOOL_DEF:
-            SetVariable(_variable_name, static_cast<int>(token.token == "true"));
+            SetVariable(_variable_name, token.token == "true");
             break;
         case ConsoleToken::STR_DEF:
             SetVariable(_variable_name, token.token);
@@ -190,65 +191,92 @@ uint Console::GetHistoryMaxSize()
     return sHistoryMaxSize;
 }
 
-Farg<Variable> Console::GetVariable(Sarg inName)
+Variable Console::GetVariable(Sarg inName)
 {
-    if(auto found_it{sVariables.find(inName)}; found_it != sVariables.end())
+    if(auto found_it{std::find(sVariables.begin(), sVariables.end(), inName)}; found_it != sVariables.end())
         { return *found_it; }
-    return sEmptyVariable;
+    return {GlobalConstants::str_empty};
 }
 
-void Console::SetVariable(Sarg inVariableName, Farg<int> inValue)
+void Console::SetVariable(Sarg inName, int inValue)
 {
-    sVariables.erase(inVariableName);
-    sVariables.emplace(inVariableName, inValue);
+    if(sVariableNames.insert(inName).second)
+        { sVariables.emplace_back(inName, inValue); }
+    else if(auto _iter{std::find(sVariables.begin(), sVariables.end(), inName)}; _iter != sVariables.end())
+        { *_iter = Variable{inName, inValue}; }
+    std::stable_sort(sVariables.begin(), sVariables.end(),
+        [](Farg<Variable> lhs, Farg<Variable> rhs)
+        { return lhs.name < rhs.name; });
 }
 
-void Console::SetVariable(Sarg inVariableName, Farg<bool> inValue)
+void Console::SetVariable(Sarg inName, bool inValue)
 {
-    sVariables.erase(inVariableName);
-    sVariables.emplace(inVariableName, inValue);
+    if(sVariableNames.insert(inName).second)
+        { sVariables.emplace_back(inName, inValue); }
+    else if(auto _iter{std::find(sVariables.begin(), sVariables.end(), inName)}; _iter != sVariables.end())
+        { *_iter = Variable{inName, inValue}; }
+    std::stable_sort(sVariables.begin(), sVariables.end(),
+        [](Farg<Variable> lhs, Farg<Variable> rhs)
+        { return lhs.name < rhs.name; });
 }
 
-void Console::SetVariable(Sarg inVariableName, Farg<float> inValue)
+void Console::SetVariable(Sarg inName, float inValue)
 {
-    sVariables.erase(inVariableName);
-    sVariables.emplace(inVariableName, inValue);
+    if(sVariableNames.insert(inName).second)
+        { sVariables.emplace_back(inName, inValue); }
+    else if(auto _iter{std::find(sVariables.begin(), sVariables.end(), inName)}; _iter != sVariables.end())
+        { *_iter = Variable{inName, inValue}; }
+    std::stable_sort(sVariables.begin(), sVariables.end(),
+        [](Farg<Variable> lhs, Farg<Variable> rhs)
+        { return lhs.name < rhs.name; });
 }
 
-void Console::SetVariable(Sarg inVariableName, Sarg inValue)
+void Console::SetVariable(Sarg inName, Sarg inValue)
 {
-    sVariables.erase(inVariableName);
-    sVariables.emplace(inVariableName, inValue);
+    if(sVariableNames.insert(inName).second)
+        { sVariables.emplace_back(inName, inValue); }
+    else if(auto _iter{std::find(sVariables.begin(), sVariables.end(), inName)}; _iter != sVariables.end())
+        { *_iter = Variable{inName, inValue}; }
+    std::stable_sort(sVariables.begin(), sVariables.end(),
+        [](Farg<Variable> lhs, Farg<Variable> rhs)
+        { return lhs.name < rhs.name; });
 }
 
 Error Console::RemoveVariable(Sarg inName)
 {
-    if(auto found_it{sVariables.find(inName)}; found_it != sVariables.end())
+    if(sVariableNames.erase(inName))
     {
-        sVariables.erase(inName);
+        if(auto _iter{std::find(sVariables.begin(), sVariables.end(), inName)}; _iter != sVariables.end())
+            { sVariables.erase(_iter); }
         return OK;
     }
-    return ERR_NOT_FOUND;
+    return (sVariableNames.empty()) ? ERR_EMPTY : ERR_NOT_FOUND;
 }
 
-Farg<Variables_t> Console::GetAllVariables()
+Variables_t Console::GetAllVariables()
 { return sVariables; }
 
 Error Console::AddCommand(Sarg inCommand)
 {
-    return (sCommands.insert(inCommand).second)
-        ? OK
-        : ERR_ALREADY_EXISTS;
+    if(sCommandNames.insert(inCommand).second)
+    {
+        sCommands.push_back(inCommand);
+        return OK;
+    }
+    std::stable_sort(sCommands.begin(), sCommands.end());
+    return ERR_ALREADY_EXISTS;
 }
 
 Error Console::RemoveCommand(Sarg inCommand)
 {
-    return (sCommands.erase(inCommand))
-        ? OK
-        : (sCommands.empty())
-            ? ERR_EMPTY
-            : ERR_NOT_FOUND;
+    if(sCommandNames.erase(inCommand))
+    {
+        if(auto _iter{std::find(sCommands.begin(), sCommands.end(), inCommand)}; _iter != sCommands.end())
+            { sCommands.erase(_iter); }
+        return OK;
+    }
+    return (sCommandNames.empty()) ? ERR_EMPTY : ERR_NOT_FOUND;
 }
 
-Farg<Commands_t> Console::GetAllCommands()
+Commands_t Console::GetAllCommands()
 { return sCommands; }
