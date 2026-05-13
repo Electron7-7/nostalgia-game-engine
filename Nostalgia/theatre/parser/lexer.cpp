@@ -2,6 +2,8 @@
 #include "thirdparty/frozen/set.h"
 #include "thirdparty/frozen/string.h"
 
+using namespace TheatreFile;
+
 static constexpr char        cCommentDelimiter{'/'};
 static constexpr const char* cCommentDelimiterSingleLine{"//"};
 static constexpr const char* cCommentDelimiterMultiLine{"///"};
@@ -22,6 +24,25 @@ static constexpr frozen::set<frozen::string, 4>
 enum Comment { SINGLE, MULTI, NO_COMMENT };
 
 static void debug_PrettifyEnums();
+static void s_HandleWordBuffer(std::string& ioBuffer, TokenArray& ioTokens, Comment inComment, char inChar)
+{
+    if(ioBuffer.empty())
+        { return; }
+    TokenName name_buffer{TokenName::Literal};
+    if(cKeywords.contains(frozen::string{ioBuffer}))
+        { name_buffer = TokenName::Keyword; }
+    else
+    {
+        for(char character : ioBuffer)
+        {
+            if(not (character >= '0' and character <= '9')
+                and not cValidLiterals.contains(character))
+                { name_buffer = TokenName::Identifier; }
+        }
+    }
+    ioTokens.emplace_back(name_buffer, ioBuffer);
+    ioBuffer.clear();
+}
 
 using namespace TheatreFile;
 
@@ -76,7 +97,11 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
             }
         }
         else if(cOperators.contains(character))
-            { tokens.emplace_back(TokenName::Operator, std::string{character}); continue; }
+        {
+            s_HandleWordBuffer(value_buffer, tokens, in_comment, character);
+            tokens.emplace_back(TokenName::Operator, std::string{character});
+            continue;
+        }
         else if(cStringDelimiters.contains(character))
         {
             if(in_comment != NO_COMMENT)
@@ -84,11 +109,11 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
                 tokens.emplace_back(TokenName::Identifier, std::string{character});
                 continue;
             }
-            else if(i+1 >= data_string.size()) { continue; }
+            else if(i+1 >= data_string.size())
+                { continue; }
 #pragma message("TODO: clean this up")
             value_buffer += data_string[i++];
-            while(!cStringDelimiters.contains(data_string[i])
-                and data_string[i] != '\n')
+            while(!cStringDelimiters.contains(data_string[i]) and data_string[i] != '\n')
                 { value_buffer += data_string[i++]; }
             value_buffer += data_string[i];
 
@@ -98,32 +123,14 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
         }
         else if(cWhitespace.contains(character) or cSeparators.contains(character))
         {
-            TokenName name_buffer{TokenName::Identifier};
-            if(!value_buffer.empty())
-            {
-                if(cKeywords.contains(frozen::string{value_buffer}))
-                    { name_buffer = TokenName::Keyword; }
-                else
-                {
-                    name_buffer = TokenName::Literal;
-                    for(char character : value_buffer)
-                    {
-                        if(!(character >= '0' and character <= '9')
-                            and !cValidLiterals.contains(character))
-                                { name_buffer = TokenName::Identifier; }
-                    }
-                }
-                tokens.emplace_back(name_buffer, value_buffer);
-                value_buffer.clear();
-            }
+            s_HandleWordBuffer(value_buffer, tokens, in_comment, character);
+            TokenName name_buffer{TokenName::Separator};
             if(cWhitespace.contains(character))
             {
                 name_buffer = TokenName::Whitespace;
                 if(character == '\n' and in_comment == SINGLE)
                     { in_comment = NO_COMMENT; }
             }
-            else
-                { name_buffer = TokenName::Separator; }
             tokens.emplace_back(name_buffer, std::string{character});
             continue;
         }
@@ -138,25 +145,14 @@ void debug_PrettifyEnums()
     static bool already_prettified{false};
     if(already_prettified)
         { return; }
-    EnumRegistry::Register(Variant::NIL,        "Nil");
-    EnumRegistry::Register(Variant::BOOL,       "Bool");
-    EnumRegistry::Register(Variant::INT,        "Int");
-    EnumRegistry::Register(Variant::FLOAT,      "Float");
-    EnumRegistry::Register(Variant::STRING,     "String");
-    EnumRegistry::Register(Variant::VECTOR2,    "Vector2");
-    EnumRegistry::Register(Variant::VECTOR3,    "Vector3");
-    EnumRegistry::Register(Variant::VECTOR4,    "Vector4");
-    EnumRegistry::Register(Variant::QUATERNION, "Quaternion");
-    EnumRegistry::Register(Variant::THING,      "Thing");
-    EnumRegistry::Register(Variant::TYPE_MAX,   "Invalid Variant Type");
-    EnumRegistry::Register(TokenName::Identifier,  "Identifier");
-    EnumRegistry::Register(TokenName::Keyword,     "Keyword");
-    EnumRegistry::Register(TokenName::Separator,   "Separator");
-    EnumRegistry::Register(TokenName::Operator,    "Operator");
-    EnumRegistry::Register(TokenName::Literal,     "Literal");
-    EnumRegistry::Register(TokenName::Whitespace,  "Whitespace");
-    EnumRegistry::Register(TokenName::None,        "None");
-    EnumRegistry::Register(TokenName::SinglelineComment, "SinglelineComment");
-    EnumRegistry::Register(TokenName::MultilineComment,  "MultilineComment");
+    EnumRegistry::Register(TokenName::Identifier,        "Lexer::Token::Identifier");
+    EnumRegistry::Register(TokenName::Keyword,           "Lexer::Token::Keyword");
+    EnumRegistry::Register(TokenName::Separator,         "Lexer::Token::Separator");
+    EnumRegistry::Register(TokenName::Operator,          "Lexer::Token::Operator");
+    EnumRegistry::Register(TokenName::Literal,           "Lexer::Token::Literal");
+    EnumRegistry::Register(TokenName::Whitespace,        "Lexer::Token::Whitespace");
+    EnumRegistry::Register(TokenName::None,              "Lexer::Token::None");
+    EnumRegistry::Register(TokenName::SinglelineComment, "Lexer::Token::SinglelineComment");
+    EnumRegistry::Register(TokenName::MultilineComment,  "Lexer::Token::MultilineComment");
     already_prettified = true;
 }
