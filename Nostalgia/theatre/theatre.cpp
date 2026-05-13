@@ -112,6 +112,8 @@ bool Theatre::Startup()
     if(mIsStarted)
         { return true; }
 
+    PRINT_PRETTY_FUNCTION;
+
     LOCK_THINGS;
     LOCK_CALLSHEET;
 
@@ -184,9 +186,9 @@ bool Theatre::Startup()
 
     if(Console::GetVariable("Theatre.debug_startup_things_list").int_value)
     {
-        print_debug("Theatre::mThings");
-        for(FAUTO [uid, thing] : mThings)
-            { debug_print("[{}, {}]", uid(), thing->name()); }
+        print_debug("Theatre Things Created");
+        for(ID uid : mThingUIDs)
+            { debug_print("[{}, {}]", ThingFactory::GetName(uid), uid()); }
     }
 
     mIsStarted = true;
@@ -197,6 +199,7 @@ bool Theatre::Shutdown()
 {
     if(not mIsStarted)
         { return true; }
+    PRINT_PRETTY_FUNCTION;
     mIsStarted = false;
     LOCK_THINGS;
     IdVec_t _uids{mThingUIDs.begin(), mThingUIDs.end()};
@@ -364,11 +367,37 @@ Error Theatre::SetCurrentCamera(ID inCameraID, ID inViewportID)
     return ERR_NOT_FOUND;
 }
 
-IdVec_t Theatre::ThingUIDs()
+IdVec_t Theatre::ThingUIDs(bool inIncludeEmbedded)
 {
     LOCK_THINGS;
-    auto keys{std::views::keys(mThings)};
-    return {keys.begin(), keys.end()};
+    IdVec_t _return{mThingUIDs.begin(), mThingUIDs.end()};
+    if(inIncludeEmbedded)
+    {
+        auto _assets{UID::GetEmbeddedUIDs()};
+        _return.insert(_return.end(), _assets.begin(), _assets.end());
+    }
+    return _return;
+}
+
+IdVec_t Theatre::SortedThingUIDs(int& outIndex, bool inIncludeEmbedded)
+{
+    LOCK_THINGS;
+    auto _return{ThingUIDs(inIncludeEmbedded)};
+    std::stable_sort(_return.begin(), _return.end(),
+        [](ID lhs, ID rhs)
+        {
+            return ThingFactory::DerivedFrom(lhs, ThingType::Thinker)
+                and ThingFactory::DerivedFrom(rhs, ThingType::Resource);
+        });
+    for(int i{0}; i < _return.size(); ++i)
+    {
+        if(ThingFactory::DerivedFrom(_return[i], ThingType::Resource))
+        {
+            outIndex = i;
+            break;
+        }
+    }
+    return _return;
 }
 
 IdVec_t Theatre::ThinkersWithNoParents()

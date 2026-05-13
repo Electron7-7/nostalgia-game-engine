@@ -49,7 +49,8 @@ public:
     ID    GetCurrentCamera3D(ID inViewportID = {});
     Error SetCurrentCamera(ID inCameraID, ID inViewportID = {});
 
-    IdVec_t   ThingUIDs();
+    IdVec_t   ThingUIDs(bool inIncludeEmbeddedAssets = false);
+    IdVec_t   SortedThingUIDs(int& outBeginResourcesIndex, bool inIncludeEmbeddedAssets = false);
     IdVec_t   ThinkersWithNoParents();
     IdSet_arg ThinkerUIDs();
     IdSet_arg ResourceUIDs();
