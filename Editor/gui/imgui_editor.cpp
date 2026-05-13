@@ -2,57 +2,37 @@
 #include "./imgui_debugger.hpp"
 #include "editor_icons.hpp"
 #include "new_editor_icons.hpp"
-#include "thirdparty/ImGuiFileDialog/ImGuiFileDialog.h"
 #include "theatre/editor_theatre.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "thirdparty/DearImGui/imgui_internal.h"
-#include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
-#include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/world.hpp>
 #include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
-#include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/thinkers/3d/ramiel.hpp>
-#include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
-#include <Nostalgia/thirdparty/Jolt/Jolt.h>
-#include <Nostalgia/thirdparty/Jolt/Core/StringTools.h>
 
-#define REGISTER_ICON(TYPE, VAR_NAME) \
+#define REGISTER_ICON(TYPE, VAR_NAME, THING_NAME) \
     mEditorIcons[TYPE] = ImageTexture::CreateFromImage(\
         Image::CreateFromFile({_EditorIcons::VAR_NAME,std::size(_EditorIcons::VAR_NAME)})); \
-    mEditorIcons[TYPE]->rename(#TYPE); \
+    mEditorIcons[TYPE]->rename(#THING_NAME); \
 
-#define REGISTER_NEW_ICON(TYPE, VAR_NAME) \
+#define REGISTER_NEW_ICON(TYPE, VAR_NAME, THING_NAME) \
     mNewEditorIcons[TYPE] = ImageTexture::CreateFromImage(\
         Image::CreateFromFile({_NewEditorIcons::VAR_NAME,std::size(_NewEditorIcons::VAR_NAME)})); \
-    mNewEditorIcons[TYPE]->rename(#TYPE);
+    mNewEditorIcons[TYPE]->rename(#THING_NAME);
 
 using namespace ImGui;
 
 static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
-EditorTheatre* ImGui_Editor::m_spEditorTheatre{nullptr};
-FileSystem::OverwriteAction ImGui_Editor::m_sCurrentOverwriteAction{FileSystem::RENAME};
-std::string ImGui_Editor::m_sScreenshotFilePath{"NostalgiaGoggles_Screenshot.jpg"},
-    ImGui_Editor::m_sTheatreFilePath{""};
-bool ImGui_Editor::m_sTheatreRunning{false},
-    ImGui_Editor::m_sInspectingNewThing{false},
-    ImGui_Editor::m_sAddThing{false},
-    ImGui_Editor::m_sThingAdderOpened{false},
-    ImGui_Editor::m_sCurrentEditorTheatreSaved{false},
-    ImGui_Editor::m_sWantNewTheatre{false},
-    ImGui_Editor::m_sSavingTheatre{false},
-    ImGui_Editor::m_sOpenSaveBeforeExitingPopup{false},
-    ImGui_Editor::m_sOpenSavePopup{false},
-    sUseNewIcons{false};
+static bool sUseNewIcons{false};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
 static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
@@ -68,48 +48,50 @@ void ImDrawCallback_ImplGL_DisableSRGB(const ImDrawList*, const ImDrawCmd*)
 void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
-    REGISTER_ICON(ThingType::Actor2D, actor_2d)
-        REGISTER_NEW_ICON(ThingType::Actor2D, actor_2d)
-    REGISTER_ICON(ThingType::Actor3D, actor_3d)
-        REGISTER_NEW_ICON(ThingType::Actor3D, actor_3d)
-    REGISTER_ICON(ThingType::ArrayMesh, array_mesh)
-    REGISTER_ICON(ThingType::Camera2D, camera_2d)
-    REGISTER_ICON(ThingType::Camera3D, camera_3d)
-    REGISTER_ICON(ThingType::Collider3D, collider_3d)
-    REGISTER_ICON(ThingType::Cubemap, cubemap)
-    REGISTER_ICON(ThingType::DirectionalLight3D, directional_light_3d)
-    REGISTER_ICON(ThingType::Font, font)
-    REGISTER_ICON(ThingType::Image, image)
-    REGISTER_ICON(ThingType::ImageTexture, image_texture)
-    REGISTER_ICON(ThingType::Light3D, light_3d)
-    REGISTER_ICON(ThingType::Material, material)
-    REGISTER_ICON(ThingType::Mesh, mesh)
-    REGISTER_ICON(ThingType::MeshInstance3D, mesh_instance_3d)
-        REGISTER_NEW_ICON(ThingType::MeshInstance3D, mesh_instance_3d)
-    REGISTER_ICON(ThingType::NostalgiaPlayer, nostalgia_player_3d)
-    REGISTER_ICON(ThingType::PointLight3D, point_light_3d)
-    REGISTER_ICON(ThingType::Resource, resource)
-        REGISTER_NEW_ICON(ThingType::Resource, resource)
-    REGISTER_ICON(ThingType::SpotLight3D, spot_light_3d)
-    REGISTER_ICON(ThingType::Sprite2D, sprite_2d)
-        REGISTER_NEW_ICON(ThingType::Sprite2D, sprite_2d)
-    REGISTER_ICON(ThingType::Sprite3D, sprite_3d)
-    REGISTER_ICON(ThingType::Text2D, text_2d)
-    REGISTER_ICON(ThingType::Texture, texture)
-    REGISTER_ICON(ThingType::Thing, thing)
-        REGISTER_NEW_ICON(ThingType::Thing, thing)
-    REGISTER_ICON(ThingType::Thinker, thinker)
-        REGISTER_NEW_ICON(ThingType::Thinker, thinker)
-    REGISTER_ICON(ThingType::Viewport, viewport)
-    REGISTER_ICON(ThingType::ViewportTexture, viewport_texture)
-    REGISTER_ICON(ThingType::Visual2D, visual_2d)
-        REGISTER_NEW_ICON(ThingType::Visual2D, visual_2d)
-    REGISTER_ICON(ThingType::Visual3D, visual_3d)
-        REGISTER_NEW_ICON(ThingType::Visual3D, visual_3d)
-    REGISTER_ICON(Ramiel::sClassType(), ramiel)
-        REGISTER_NEW_ICON(Ramiel::sClassType(), ramiel)
+    REGISTER_ICON(ThingType::Actor2D, actor_2d, Actor2D)
+        REGISTER_NEW_ICON(ThingType::Actor2D, actor_2d, Actor2D)
+    REGISTER_ICON(ThingType::Actor3D, actor_3d, Actor3D)
+        REGISTER_NEW_ICON(ThingType::Actor3D, actor_3d, Actor3D)
+    REGISTER_ICON(ThingType::ArrayMesh, array_mesh, ArrayMesh)
+    REGISTER_ICON(ThingType::Camera2D, camera_2d, Camera2D)
+    REGISTER_ICON(ThingType::Camera3D, camera_3d, Camera3D)
+    REGISTER_ICON(ThingType::Collider3D, collider_3d, Collider3D)
+    REGISTER_ICON(ThingType::Cubemap, cubemap, Cubemap)
+    REGISTER_ICON(ThingType::DirectionalLight3D, directional_light_3d, DirectionalLight3D)
+    REGISTER_ICON(ThingType::Font, font, Font)
+    REGISTER_ICON(ThingType::Image, image, Image)
+    REGISTER_ICON(ThingType::ImageTexture, image_texture, ImageTexture)
+    REGISTER_ICON(ThingType::Light3D, light_3d, Light3D)
+    REGISTER_ICON(ThingType::Material, material, Material)
+    REGISTER_ICON(ThingType::Mesh, mesh, Mesh)
+    REGISTER_ICON(ThingType::MeshInstance3D, mesh_instance_3d, MeshInstance3D)
+        REGISTER_NEW_ICON(ThingType::MeshInstance3D, mesh_instance_3d, MeshInstance3D)
+    REGISTER_ICON(ThingType::NostalgiaPlayer, nostalgia_player_3d, NostalgiaPlayer)
+    REGISTER_ICON(ThingType::PointLight3D, point_light_3d, PointLight3D)
+    REGISTER_ICON(ThingType::Resource, resource, Resource)
+        REGISTER_NEW_ICON(ThingType::Resource, resource, Resource)
+    REGISTER_ICON(ThingType::SpotLight3D, spot_light_3d, SpotLight3D)
+    REGISTER_ICON(ThingType::Sprite2D, sprite_2d, Sprite2D)
+        REGISTER_NEW_ICON(ThingType::Sprite2D, sprite_2d, Sprite2D)
+    REGISTER_ICON(ThingType::Sprite3D, sprite_3d, Sprite3D)
+    REGISTER_ICON(ThingType::Text2D, text_2d, Text2D)
+    REGISTER_ICON(ThingType::Texture, texture, Texture)
+    REGISTER_ICON(ThingType::Thing, thing, Thing)
+        REGISTER_NEW_ICON(ThingType::Thing, thing, Thing)
+    REGISTER_ICON(ThingType::Thinker, thinker, Thinker)
+        REGISTER_NEW_ICON(ThingType::Thinker, thinker, Thinker)
+    REGISTER_ICON(ThingType::Viewport, viewport, Viewport)
+    REGISTER_ICON(ThingType::ViewportTexture, viewport_texture, ViewportTexture)
+    REGISTER_ICON(ThingType::Visual2D, visual_2d, Visual2D)
+        REGISTER_NEW_ICON(ThingType::Visual2D, visual_2d, Visual2D)
+    REGISTER_ICON(ThingType::Visual3D, visual_3d, Visual3D)
+        REGISTER_NEW_ICON(ThingType::Visual3D, visual_3d, Visual3D)
+    REGISTER_ICON(Ramiel::sClassType(), ramiel, Ramiel)
+        REGISTER_NEW_ICON(Ramiel::sClassType(), ramiel, Ramiel)
 
-    LoadEditorTheatre(true);
+    mAskAreYouSure = false;
+    mIsEditorSaved = true;
+    CreateNewTheatre();
 }
 
 void ImGui_Editor::Shutdown()
@@ -120,17 +102,7 @@ void ImGui_Editor::Shutdown()
 }
 
 void ImGui_Editor::TheatreEntered()
-{
-    if(not Settings::Engine::IsEditorHint
-        or not (m_spEditorTheatre = dynamic_cast<EditorTheatre*>(Theatre::Current())))
-    {
-        if(mEditorTheatreData.data.empty())
-            { mEditorTheatreData = Theatre::Current()->InitialState(); }
-        m_spEditorTheatre = nullptr;
-        return;
-    }
-    mEditorTheatreData = m_spEditorTheatre->InitialState();
-}
+{}
 
 void ImGui_Editor::TheatreExited()
 { mInspectingThingUID = {}; }
@@ -140,52 +112,28 @@ void ImGui_Editor::Input(InputEvent* event)
     if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { ImGui_Debugger::m_sDebugWindowOpened = !ImGui_Debugger::m_sDebugWindowOpened; }
     else if(event->IsJustPressed(Key::N) and event->IsModifierActive(Key::Mod_Control))
-    {
-        CloseEditorTheatre();
-        m_sWantNewTheatre = true;
-    }
-    else if(event->IsJustPressed(Key::F2) and m_sTheatreRunning and not Settings::Engine::IsEditorHint)
-        { Theatre::Current()->TakeScreenshot()->SaveJPG(m_sScreenshotFilePath); }
+        { CreateNewTheatre(); }
+    else if(event->IsJustPressed(Key::F2) and mTheatreRunning and not Settings::Engine::IsEditorHint)
+        { Theatre::Current()->TakeScreenshot()->SaveJPG(mScreenshotFilePath); }
     else if(event->IsJustPressed(Key::F5))
-    {
-        if(not Settings::Engine::IsEditorHint)
-            { return; }
-        if(not m_sTheatreRunning)
-        {
-            LoadTheatre(true);
-            return;
-        }
-        mEditorTheatreData = m_spEditorTheatre->CurrentState();
-        LoadTheatre(false);
-    }
+        { PlayCurrentTheatre(); }
     else if(event->IsJustPressed(Key::F8))
-        { LoadEditorTheatre(true); }
+        { ExitBackToEditor(); }
     else if(event->IsJustPressed(Key::O) and event->IsModifierActive(Key::Mod_Control))
-    {
-        if(m_sTheatreRunning and not Settings::Engine::IsEditorHint)
-            { LoadEditorTheatre(true); }
-        else
-        {
-            IGFD::FileDialogConfig _config{};
-            _config.path = ".";
-            ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey",
-                "Choose Theatre File",
-                ".nt,.theatre,.nostalgiatheatre",
-                _config);
-        }
-    }
+        { LoadNewTheatre(); }
     else if(event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control))
-        { Theatre::Current()->SaveToFile(m_sTheatreFilePath, m_sCurrentOverwriteAction); }
-    else if(event->IsJustPressed(Key::A)
+        { SaveCurrentTheatre(); }
+    else if(Settings::Engine::IsEditorHint
+        and event->IsJustPressed(Key::A)
         and event->IsModifierActive(Key::Mod_Control)
-        and event->IsModifierActive(Key::Mod_Shift)
-        and m_sTheatreRunning and Settings::Engine::IsEditorHint)
-            { m_sAddThing = true; }
+        and event->IsModifierActive(Key::Mod_Shift))
+        { mAddThing = true; }
 }
 
 void ImGui_Editor::Update()
 {
-    m_sTheatreRunning = Manager::GetTheatreState() == ManagerEnums::IN_LEVEL;
+    mTheatreRunning = Manager::GetTheatreState() == ManagerEnums::IN_LEVEL;
+    do_TheatreRelatedPopups();
     if(not Settings::Engine::IsEditorHint and MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_VISIBLE)
         { return; }
     SetNextWindowPos({0,0}, ImGuiCond_Once);
@@ -201,60 +149,24 @@ void ImGui_Editor::Update()
                 ImGuiWindowFlags_NoBringToFrontOnFocus))
         { End(); }
     BringWindowToDisplayBack(GetCurrentWindow());
-    ThingAdder();
-    if(m_sOpenSaveBeforeExitingPopup)
-    {
-        OpenPopup("Are You Sure?");
-        m_sOpenSaveBeforeExitingPopup = false;
-    }
-    if(m_sOpenSavePopup)
-    {
-        OpenPopup("Save Theatre");
-        m_sOpenSavePopup = false;
-    }
-    if(m_sWantNewTheatre)
-    {
-        AreYouSurePopup();
-        SaveTheatrePopup();
-        if(not m_sSavingTheatre and m_sWantNewTheatre)
-        {
-            CloseEditorTheatre();
-            LoadEditorTheatre(true);
-            m_sWantNewTheatre = false;
-        }
-    }
+    do_ThingAdder();
     if(BeginMenuBar())
     {
         if(BeginMenu("File"))
         {
             if(MenuItem("New Theatre", "CTRL+N"))
-            {
-                CloseEditorTheatre();
-                m_sWantNewTheatre = true;
-            }
+                { CreateNewTheatre(); }
             if(MenuItem("Open Theatre File", "CTRL+O"))
-            {
-                IGFD::FileDialogConfig _config{};
-                _config.path = ".";
-                ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey",
-                    "Choose Theatre File",
-                    ".nt,.theatre,.nostalgiatheatre",
-                    _config);
-            }
+                { LoadNewTheatre(); }
             if(MenuItem("Save Theatre to File", "CTRL+S"))
-                { Theatre::Current()->SaveToFile(m_sTheatreFilePath, m_sCurrentOverwriteAction); }
+                { SaveCurrentTheatre(); }
             BeginDisabled(not Settings::Engine::IsEditorHint);
                 if(MenuItem("Run Current Theatre", "F5"))
-                {
-                    if(not m_sTheatreRunning or not Settings::Engine::IsEditorHint)
-                        { return; }
-                    mEditorTheatreData = m_spEditorTheatre->CurrentState();
-                    LoadTheatre(false);
-                }
+                    { PlayCurrentTheatre(); }
             EndDisabled();
-            BeginDisabled(not m_sTheatreRunning or Settings::Engine::IsEditorHint);
+            BeginDisabled(Settings::Engine::IsEditorHint);
                 if(MenuItem("Close Running Theatre", "F8"))
-                    { LoadEditorTheatre(true); }
+                    { ExitBackToEditor(); }
             EndDisabled();
             Separator();
             if(MenuItem("Quit", "CTRL+Q"))
@@ -265,7 +177,7 @@ void ImGui_Editor::Update()
         {
             BeginDisabled(not Settings::Engine::IsEditorHint);
                 if(MenuItem("Add Thing", "CTRL+SHIFT+A"))
-                    { m_sAddThing = true; }
+                    { mAddThing = true; }
             EndDisabled();
             ImGui::EndMenu();
         }
@@ -286,16 +198,7 @@ void ImGui_Editor::Update()
         }
         ImGui::EndMenuBar();
     }
-    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    {
-        if(ImGuiFileDialog::Instance()->IsOk())
-        {
-            m_sTheatreFilePath = ImGuiFileDialog::Instance()->GetFilePathName();
-            LoadEditorTheatre(false);
-        }
-        ImGuiFileDialog::Instance()->Close();
-    }
-    if(Settings::Engine::IsEditorHint)
+    if(Settings::Engine::IsEditorHint and mTheatreRunning)
     {
         static ImVec2 _window_size{GetCurrentWindow()->Size};
         static bool _first{true};
@@ -312,39 +215,6 @@ void ImGui_Editor::Update()
     End();
 }
 
-void ImGui_Editor::LoadEditorTheatre(bool inContinue)
-{
-    Settings::Engine::IsEditorHint = true;
-    g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
-    if(inContinue)
-    {
-        g_pTheatreManager->LoadFromData(mEditorTheatreData);
-        m_sCurrentEditorTheatreSaved = false;
-    }
-    else
-    {
-        g_pTheatreManager->LoadFromFile(m_sTheatreFilePath);
-        m_sCurrentEditorTheatreSaved = true;
-    }
-    MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
-}
-
-void ImGui_Editor::LoadTheatre(bool inLoadFile)
-{
-    Settings::Engine::IsEditorHint = false;
-    g_pTheatreManager->SetNextTheatreType<Theatre>();
-    if(inLoadFile)
-    {
-        g_pTheatreManager->LoadFromFile(m_sTheatreFilePath);
-        m_sCurrentEditorTheatreSaved = true;
-    }
-    else
-    {
-        g_pTheatreManager->LoadFromData(mEditorTheatreData);
-        m_sCurrentEditorTheatreSaved = false;
-    }
-}
-
 void ImGui_Editor::TheatreTree()
 {
     if(not Theatre::Current()->IsStarted())
@@ -353,9 +223,8 @@ void ImGui_Editor::TheatreTree()
         return;
     }
     BeginChild("Theatre Tree", {}, sResizableChildWithBorder);
-        BeginDisabled(m_sThingAdderOpened);
-            if(Button("Add Thing"))
-                { m_sAddThing = true; }
+        BeginDisabled(mThingAdderOpened);
+            mAddThing = Button("Add Thing");
         EndDisabled();
         if(CollapsingHeader("Resources"))
         {
@@ -366,8 +235,8 @@ void ImGui_Editor::TheatreTree()
             {
                 if(_select_thing(uid))
                 {
-                    mInspectingThingUID   = uid;
-                    m_sInspectingNewThing = true;
+                    mInspectingThingUID = uid;
+                    mInspectingNewThing = true;
                 }
             }
             Unindent(_indent);
@@ -392,9 +261,9 @@ void ImGui_Editor::TheatreInspector()
         { return; }
     auto _variables{ThingFactory::GetThing(mInspectingThingUID)->GetVariables()};
     TheatreFile::ThingData _data{_variables->type};
-    if(m_sInspectingNewThing)
+    if(mInspectingNewThing)
     {
-        m_sInspectingNewThing = false;
+        mInspectingNewThing = false;
         _name = _variables->name;
     }
 
@@ -417,7 +286,7 @@ void ImGui_Editor::TheatreInspector()
             { OpenPopup(_popup_name.data()); }
         if(BeginPopup(_popup_name.data()))
         {
-            bool _invalid{Theatre::Current()->ThingExists(_name)};
+            bool _invalid{Theatre::Current()->Contains(_name)};
             InputText("Name", &_name);
             BeginDisabled(_invalid);
                 if(Button("Change"))
@@ -431,7 +300,7 @@ void ImGui_Editor::TheatreInspector()
         }
         if(InspectThing(mInspectingThingUID, _variables, _data))
         {
-            m_sCurrentEditorTheatreSaved = false;
+            mIsEditorSaved = false;
             ThingFactory::GetThing(mInspectingThingUID)->SetVariables(_data);
         }
     EndChild();
@@ -440,9 +309,12 @@ void ImGui_Editor::TheatreInspector()
 void ImGui_Editor::TheatreViewport()
 {
     static ImVec2 _viewport_window_size{}, _viewport_size{};
+    EditorTheatre* _theatre{nullptr};
     bool _is_3d{true};
     Shared<Viewport> _viewport{nullptr};
-    if(Manager::GetTheatreState() != ManagerEnums::IN_LEVEL or not m_spEditorTheatre)
+    if(not Settings::Engine::IsEditorHint
+        or Manager::GetTheatreState() != ManagerEnums::IN_LEVEL
+        or not (_theatre = dynamic_cast<EditorTheatre*>(Theatre::Current())))
         { return; }
     BeginChild("Editor Viewport",
         {768, 0},
@@ -452,17 +324,17 @@ void ImGui_Editor::TheatreViewport()
             if(BeginTabItem("3D"))
             {
                 _is_3d = true;
-                _viewport = m_spEditorTheatre->m_pEditor3DViewport;
+                _viewport = _theatre->m_pEditor3DViewport;
                 if(InputManager::IsKeyJustDown(Key::F2))
-                    { m_spEditorTheatre->m_pEditor3DViewport->GetImage()->SaveJPG(m_sScreenshotFilePath); }
+                    { _theatre->m_pEditor3DViewport->GetImage()->SaveJPG(mScreenshotFilePath); }
                 EndTabItem();
             }
             if(BeginTabItem("2D"))
             {
                 _is_3d = false;
-                _viewport = m_spEditorTheatre->m_pEditor2DViewport;
+                _viewport = _theatre->m_pEditor2DViewport;
                 if(InputManager::IsKeyJustDown(Key::F2))
-                    { m_spEditorTheatre->m_pEditor2DViewport->GetImage()->SaveJPG(m_sScreenshotFilePath); }
+                    { _theatre->m_pEditor2DViewport->GetImage()->SaveJPG(mScreenshotFilePath); }
                 EndTabItem();
             }
             EndTabBar();
@@ -480,9 +352,9 @@ void ImGui_Editor::TheatreViewport()
         if(_viewport_size != _viewport_window_size)
             { _viewport->SetSize({_viewport_window_size[0], _viewport_window_size[1]}); }
         if(_is_3d)
-            { Viewport3DWindow(); }
+            { Viewport3DWindow(_theatre); }
         else
-            { Viewport2DWindow(); }
+            { Viewport2DWindow(_theatre); }
     EndChild();
 }
 
@@ -516,8 +388,8 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
         SameLine();
         if(_select_thing(inUID))
         {
-            mInspectingThingUID   = inUID;
-            m_sInspectingNewThing = true;
+            mInspectingThingUID = inUID;
+            mInspectingNewThing = true;
         }
         for(ID child : children)
             { _thinker_tree_branch(child); }
@@ -528,16 +400,18 @@ void ImGui_Editor::_thinker_tree_branch(ID inUID)
         SameLine();
         if(_select_thing(inUID))
         {
-            mInspectingThingUID   = inUID;
-            m_sInspectingNewThing = true;
+            mInspectingThingUID = inUID;
+            mInspectingNewThing = true;
         }
     }
 }
 
-void ImGui_Editor::Viewport3DWindow()
+void ImGui_Editor::Viewport3DWindow(EditorTheatre* ioTheatre)
 {
     static bool camera_moving{false};
-    if((IsItemHovered() or camera_moving))
+    if(not ioTheatre)
+        { return; }
+    else if((IsItemHovered() or camera_moving))
     {
         if(InputManager::IsKeyDown(Key::MouseLeft) and !camera_moving)
         {
@@ -548,18 +422,18 @@ void ImGui_Editor::Viewport3DWindow()
         if(InputManager::IsKeyDown(Key::MouseLeft))
         {
             auto motion{InputManager::MouseMotion()};
-            m_spEditorTheatre->m_pEditorCamera3D
-                ->SetRotationDegrees(m_spEditorTheatre->m_pEditorCamera3D->RotationDegrees() -
+            ioTheatre->m_pEditorCamera3D
+                ->SetRotationDegrees(ioTheatre->m_pEditorCamera3D->RotationDegrees() -
                     (glm::vec3{motion.y(), motion.x(), 0.0f} * 0.1f));
             glm::vec2 movement_direction{
                 InputManager::IsActionDown("+right") - InputManager::IsActionDown("+left"),
                 InputManager::IsActionDown("+forward") - InputManager::IsActionDown("+backward")};
 
-            m_spEditorTheatre->m_pEditorCamera3D->SetPosition(m_spEditorTheatre->m_pEditorCamera3D->Position() +
+            ioTheatre->m_pEditorCamera3D->SetPosition(ioTheatre->m_pEditorCamera3D->Position() +
                 ((
-                    ((m_spEditorTheatre->m_pEditorCamera3D->Quaternion() * Settings::World::Front()) *
+                    ((ioTheatre->m_pEditorCamera3D->Quaternion() * Settings::World::Front()) *
                         movement_direction[1]) +
-                    ((m_spEditorTheatre->m_pEditorCamera3D->Quaternion() * Settings::World::Right()) *
+                    ((ioTheatre->m_pEditorCamera3D->Quaternion() * Settings::World::Right()) *
                         movement_direction[0])
                 ) * 0.1f)
             );
@@ -573,10 +447,12 @@ void ImGui_Editor::Viewport3DWindow()
     }
 }
 
-void ImGui_Editor::Viewport2DWindow()
+void ImGui_Editor::Viewport2DWindow(EditorTheatre* ioTheatre)
 {
     static bool camera_moving{false};
-    if((IsItemHovered() or camera_moving))
+    if(not ioTheatre)
+        { return; }
+    else if((IsItemHovered() or camera_moving))
     {
         if(InputManager::IsKeyDown(Key::MouseLeft) and not camera_moving)
         {
@@ -587,19 +463,19 @@ void ImGui_Editor::Viewport2DWindow()
         if(InputManager::IsKeyDown(Key::MouseLeft))
         {
             auto _scroll{InputManager::ScrollOffset()[1]};
-            auto _zoom{m_spEditorTheatre->m_pEditorCamera2D->Zoom()};
+            auto _zoom{ioTheatre->m_pEditorCamera2D->Zoom()};
             float _zoom_min{(_zoom[1] > _zoom[0]) ? _zoom[0] : _zoom[1]};
             if(_scroll)
             {
                 float _zoom_factor{static_cast<float>(_scroll) * s2DCameraZoomFactor * abs(_zoom_min)};
                 if(_scroll < 0 and _zoom_min < 1)
                     { _zoom_factor *= 0.5f; }
-                m_spEditorTheatre->m_pEditorCamera2D->SetZoom(_zoom += glm::vec2{_zoom_factor});
+                ioTheatre->m_pEditorCamera2D->SetZoom(_zoom += glm::vec2{_zoom_factor});
             }
             if(auto motion{InputManager::MouseMotion()}; not motion.is_zero())
             {
-                m_spEditorTheatre->m_pEditorCamera2D
-                    ->SetPosition(m_spEditorTheatre->m_pEditorCamera2D->Position() -
+                ioTheatre->m_pEditorCamera2D
+                    ->SetPosition(ioTheatre->m_pEditorCamera2D->Position() -
                         glm::vec2{motion.x(), -motion.y()} * s2DCameraMovementSpeed / _zoom);
             }
         }
@@ -649,70 +525,6 @@ bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
         { TreePush(inLabel); }
 
     return _opened;
-}
-
-void ImGui_Editor::SaveTheatrePopup()
-{
-    if(BeginPopup("Save Theatre"))
-    {
-        m_sSavingTheatre = true;
-        InputText("Save File", &m_sTheatreFilePath);
-        if(Button("Cancel"))
-        {
-            m_sSavingTheatre  = false;
-            m_sWantNewTheatre = false;
-            m_sCurrentEditorTheatreSaved = false;
-            CloseCurrentPopup();
-        }
-        BeginDisabled(m_sTheatreFilePath.empty() or FileSystem::Exists(m_sTheatreFilePath));
-            if(Button("Save"))
-            {
-                m_sSavingTheatre = false;
-                print_error_enum(Theatre::Current()->SaveToFile(m_sTheatreFilePath));
-            }
-        EndDisabled();
-        EndPopup();
-    }
-}
-
-void ImGui_Editor::AreYouSurePopup()
-{
-    if(BeginPopup("Are You Sure?"))
-    {
-        m_sSavingTheatre= true;
-        Text("Save changes made to the current Theatre?");
-        if(Button("Yes"))
-        {
-            m_sOpenSavePopup = true;
-            CloseCurrentPopup();
-        }
-        else if(Button("No"))
-        {
-            m_sSavingTheatre  = false;
-            m_sWantNewTheatre = true;
-            CloseCurrentPopup();
-        }
-        else if(Button("Cancel"))
-        {
-            m_sSavingTheatre  = false;
-            m_sWantNewTheatre = false;
-            CloseCurrentPopup();
-        }
-        EndPopup();
-    }
-}
-
-void ImGui_Editor::CloseEditorTheatre()
-{
-    if(Manager::GetTheatreState() == ManagerEnums::IN_LEVEL and not m_sCurrentEditorTheatreSaved)
-    {
-        m_sOpenSaveBeforeExitingPopup = true;
-        return;
-    }
-    Settings::Engine::IsEditorHint = false;
-    m_spEditorTheatre = nullptr;
-    m_sCurrentEditorTheatreSaved = false;
-    mEditorTheatreData = TheatreFile::TheatreData{0, "UntitledTheatre"};
 }
 
 uint ImGui_Editor::GetIconTextureBufferID(FPID inType)

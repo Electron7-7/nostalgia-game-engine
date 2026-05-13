@@ -14,8 +14,8 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/gui/imgui_debugger.cpp
     ${EDITOR_ROOT}/gui/imgui_editor.cpp
     ${EDITOR_ROOT}/gui/imgui_editor_main_window.cpp
-    ${EDITOR_ROOT}/gui/imgui_theatre_loading_tab.cpp
     ${EDITOR_ROOT}/gui/imgui_thing_adder.cpp
+    ${EDITOR_ROOT}/gui/imgui_editor_theatre_instancing.cpp
     ${EDITOR_ROOT}/thirdparty/ImGuiFileDialog/ImGuiFileDialog.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_impl_opengl3.cpp
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_widgets.cpp

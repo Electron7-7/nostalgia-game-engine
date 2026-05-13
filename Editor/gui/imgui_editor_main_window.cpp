@@ -121,7 +121,10 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                         std::map<long, std::string> _enums{};
                         for(auto iter{var.hint_string.begin()}; iter != var.hint_string.end(); ++iter)
                         {
-                            if(*iter == ',' or iter == var.hint_string.end())
+#pragma message("TODO: maybe add \\0 to the end of the enum hint string and check for ',' or '\\0'")
+                            if(*iter != ',')
+                                { _buffer += *iter; }
+                            if(*iter == ',' or iter == var.hint_string.end() - 1)
                             {
                                 long _value{};
                                 EnumRegistry::GetEnum(_buffer, _value);
@@ -129,10 +132,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                                 _buffer.clear();
                                 continue;
                             }
-                            _buffer += *iter;
                         }
 
-                        if(BeginCombo(var.name.data(), _enums[var.value.operator int()].data()))
+                        if(BeginCombo(var.name.data(),
+                            (_enums.contains(var.value.operator int()))
+                                ? _enums[var.value.operator int()].data() : ""))
                         {
                             for(FAUTO [enum_value, enum_name] : _enums)
                             {

@@ -3,8 +3,8 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/ui/solution.hpp>
-#include <Nostalgia/theatre/theatre.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
+#include <Nostalgia/theatre/theatre_file.hpp>
 
 // Forward Declaration
 class EditorTheatre;
@@ -20,27 +20,48 @@ public:
     void TheatreExited()  final;
 
 private:
-    static std::string m_sScreenshotFilePath, m_sTheatreFilePath;
-    static FileSystem::OverwriteAction m_sCurrentOverwriteAction;
-    static EditorTheatre* m_spEditorTheatre;
-    static bool m_sTheatreRunning, m_sInspectingNewThing, m_sAddThing, m_sThingAdderOpened,
-        m_sCurrentEditorTheatreSaved, m_sWantNewTheatre, m_sSavingTheatre,
-        m_sOpenSaveBeforeExitingPopup, m_sOpenSavePopup;
+    enum TheatreState
+    {
+        WANT_NEW_THEATRE,
+        WANT_LOAD_THEATRE,
+        WANT_SAVE_THEATRE,
+        WANT_PLAY_THEATRE,
+        WANT_EDIT_THEATRE,
+        NO_WANT_AM_SATISFIED
+    };
+
+    enum FileDialogReturnVal
+    {
+        SELECTED,
+        CANCELLED,
+        UNDECIDED
+    };
+
+    TheatreState mTheatreState{NO_WANT_AM_SATISFIED};
+    TheatreState mPreviousTheatreState{NO_WANT_AM_SATISFIED};
+    bool mAskAreYouSure{true},
+        mIsEditorSaved{false},
+        mTheatreRunning{false},
+        mInspectingNewThing{false},
+        mAddThing{false},
+        mThingAdderOpened{false};
+    std::string mCurrentTheatreFilePath{}, mScreenshotFilePath{};
     std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
-
-    ID mInspectingThingUID{};
     TheatreFile::TheatreData mEditorTheatreData{};
+    ID mInspectingThingUID{};
 
-    void SaveTheatrePopup();
-    void AreYouSurePopup();
-    void CloseEditorTheatre();
+    FileDialogReturnVal _assert_filepath(std::string& ioPath);
+    void SaveCurrentTheatre();
+    void CreateNewTheatre();
+    void LoadNewTheatre();
+    void PlayCurrentTheatre();
+    void ExitBackToEditor();
+    void do_TheatreRelatedPopups();
+    void do_ThingAdder();
+
     uint GetIconTextureBufferID(FPID inType);
-    void Viewport3DWindow();
-    void Viewport2DWindow();
-    void TheatreLoadingWindow();
-    void LoadTheatre(bool inLoadFile);
-    void LoadEditorTheatre(bool inContinue);
-    void ThingAdder();
+    void Viewport3DWindow(EditorTheatre*);
+    void Viewport2DWindow(EditorTheatre*);
     void TheatreViewport();
     void TheatreTree();
     void TheatreInspector();

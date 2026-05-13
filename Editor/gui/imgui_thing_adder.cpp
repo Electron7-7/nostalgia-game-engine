@@ -1,6 +1,7 @@
 #include "./imgui_editor.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
+#include <Nostalgia/theatre/theatre.hpp>
 
 using namespace ImGui;
 
@@ -8,11 +9,11 @@ static std::string _name{};
 static int sSelectedType{0};
 extern std::vector<PID> Types;
 
-void ImGui_Editor::ThingAdder()
+void ImGui_Editor::do_ThingAdder()
 {
-    if(m_sAddThing)
+    if(mAddThing)
     {
-        m_sAddThing = false;
+        mAddThing = false;
         OpenPopup("Add Thing");
     }
     if(BeginPopup("Add Thing"))
