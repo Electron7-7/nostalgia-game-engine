@@ -11,13 +11,15 @@ bool PhysicsManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
     PhysicsEngine::Instantiate();
-    EnumRegistry::Assign(MotionType::Static,    "Static");
-    EnumRegistry::Assign(MotionType::Dynamic,   "Dynamic");
-    EnumRegistry::Assign(MotionType::Kinematic, "Kinematic");
-    EnumRegistry::Assign(ShapeType::Box,        "Box");
-    EnumRegistry::Assign(ShapeType::Capsule,    "Capsule");
-    EnumRegistry::Assign(ShapeType::Cylinder,   "Cylinder");
-    EnumRegistry::Assign(ShapeType::Sphere,     "Sphere");
+    EnumRegistry::Register(MotionType::Static,    "Motion::Static");
+    EnumRegistry::Register(MotionType::Dynamic,   "Motion::Dynamic");
+    EnumRegistry::Register(MotionType::Kinematic, "Motion::Kinematic");
+    EnumRegistry::Register(MotionType::None,      "Motion::None");
+    EnumRegistry::Register(ShapeType::Box,        "Shape::Box");
+    EnumRegistry::Register(ShapeType::Capsule,    "Shape::Capsule");
+    EnumRegistry::Register(ShapeType::Cylinder,   "Shape::Cylinder");
+    EnumRegistry::Register(ShapeType::Sphere,     "Shape::Sphere");
+    EnumRegistry::Register(ShapeType::None,       "Shape::None");
     return PhysicsEngine::Instance() != nullptr;
 }
 

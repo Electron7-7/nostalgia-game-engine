@@ -20,47 +20,59 @@ bool ResourceManager::Init()
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
 
-    EnumRegistry::Register(TEXTURE_TYPE_1D,       "TEXTURE_TYPE_1D");
-    EnumRegistry::Register(TEXTURE_TYPE_2D,       "TEXTURE_TYPE_2D");
-    EnumRegistry::Register(TEXTURE_TYPE_3D,       "TEXTURE_TYPE_3D");
-    EnumRegistry::Register(TEXTURE_TYPE_1D_ARRAY, "TEXTURE_TYPE_1D_ARRAY");
-    EnumRegistry::Register(TEXTURE_TYPE_2D_ARRAY, "TEXTURE_TYPE_2D_ARRAY");
-    EnumRegistry::Register(TEXTURE_TYPE_CUBE,     "TEXTURE_TYPE_CUBE");
+    EnumRegistry::Register(Variant::NIL,        "Variant::Nil");
+    EnumRegistry::Register(Variant::BOOL,       "Variant::Bool");
+    EnumRegistry::Register(Variant::INT,        "Variant::Int");
+    EnumRegistry::Register(Variant::FLOAT,      "Variant::Float");
+    EnumRegistry::Register(Variant::STRING,     "Variant::String");
+    EnumRegistry::Register(Variant::VECTOR2,    "Variant::Vector2");
+    EnumRegistry::Register(Variant::VECTOR3,    "Variant::Vector3");
+    EnumRegistry::Register(Variant::VECTOR4,    "Variant::Vector4");
+    EnumRegistry::Register(Variant::QUATERNION, "Variant::Quaternion");
+    EnumRegistry::Register(Variant::THING,      "Variant::Thing");
+    EnumRegistry::Register(Variant::TYPE_MAX,   "Variant::Invalid");
 
-    EnumRegistry::Register(SAMPLER_FILTER_NEAREST, "SamplerFilterNearest");
-    EnumRegistry::Register(SAMPLER_FILTER_LINEAR,  "SamplerFilterLinear");
-    EnumRegistry::Register(SAMPLER_FILTER_NONE,    "SamplerNoFilter");
+    EnumRegistry::Register(TEXTURE_TYPE_1D,       "Texture::1D");
+    EnumRegistry::Register(TEXTURE_TYPE_2D,       "Texture::2D");
+    EnumRegistry::Register(TEXTURE_TYPE_3D,       "Texture::3D");
+    EnumRegistry::Register(TEXTURE_TYPE_1D_ARRAY, "Texture::1DArray");
+    EnumRegistry::Register(TEXTURE_TYPE_2D_ARRAY, "Texture::2DArray");
+    EnumRegistry::Register(TEXTURE_TYPE_CUBE,     "Texture::Cubemap");
 
-    EnumRegistry::Register(SAMPLER_REPEAT_MODE_REPEAT,               "SamplerRepeat");
-    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "SamplerRepeatMirrored");
-    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "SamplerClampEdge");
-    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "SamplerClampBorder");
-    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "SamplerMirrorClampEdge");
+    EnumRegistry::Register(SAMPLER_FILTER_NEAREST, "Sampler::FilterNearest");
+    EnumRegistry::Register(SAMPLER_FILTER_LINEAR,  "Sampler::FilterLinear");
+    EnumRegistry::Register(SAMPLER_FILTER_NONE,    "Sampler::NoFilter");
 
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,  "Position");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,  "Color");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS, "Normal");
-    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,      "UV");
-    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,  "Triangles");
-    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,     "Points");
-    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,      "Lines");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_REPEAT,               "Sampler::Repeat");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRRORED_REPEAT,      "Sampler::RepeatMirrored");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE,        "Sampler::ClampEdge");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_CLAMP_TO_BORDER,      "Sampler::ClampBorder");
+    EnumRegistry::Register(SAMPLER_REPEAT_MODE_MIRROR_CLAMP_TO_EDGE, "Sampler::MirrorClampEdge");
 
-    EnumRegistry::Assign(Environment::BG_CUSTOM_COLOR, "CustomColor");
-    EnumRegistry::Assign(Environment::BG_CLEAR_COLOR,  "ClearColor");
-    EnumRegistry::Assign(Environment::BG_SKYBOX,       "Skybox");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_VERTEX,  "Vertex::Position");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_COLORS,  "Vertex::Color");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_NORMALS, "Vertex::Normal");
+    EnumRegistry::Register(Mesh::ARRAY_FORMAT_UV,      "Vertex::UV");
+    EnumRegistry::Register(Mesh::PRIMITIVE_TRIANGLES,  "Primitive::Triangles");
+    EnumRegistry::Register(Mesh::PRIMITIVE_POINTS,     "Primitive::Points");
+    EnumRegistry::Register(Mesh::PRIMITIVE_LINES,      "Primitive::Lines");
 
-    EnumRegistry::Register(IBuffer::Element::Type::None,   "IBuffer::Element::Type::None");
-    EnumRegistry::Register(IBuffer::Element::Type::Float,  "Float");
-    EnumRegistry::Register(IBuffer::Element::Type::Float2, "Float2");
-    EnumRegistry::Register(IBuffer::Element::Type::Float3, "Float3");
-    EnumRegistry::Register(IBuffer::Element::Type::Float4, "Float4");
-    EnumRegistry::Register(IBuffer::Element::Type::Int,    "Int");
-    EnumRegistry::Register(IBuffer::Element::Type::Int2,   "Int2");
-    EnumRegistry::Register(IBuffer::Element::Type::Int3,   "Int3");
-    EnumRegistry::Register(IBuffer::Element::Type::Int4,   "Int4");
-    EnumRegistry::Register(IBuffer::Element::Type::Mat3,   "Mat3");
-    EnumRegistry::Register(IBuffer::Element::Type::Mat4,   "Mat4");
-    EnumRegistry::Register(IBuffer::Element::Type::Bool,   "Bool");
+    EnumRegistry::Register(Environment::BG_CUSTOM_COLOR, "Environment::CustomColor");
+    EnumRegistry::Register(Environment::BG_CLEAR_COLOR,  "Environment::ClearColor");
+    EnumRegistry::Register(Environment::BG_SKYBOX,       "Environment::Skybox");
+
+    EnumRegistry::Register(IBuffer::Element::Type::None,   "Element::None");
+    EnumRegistry::Register(IBuffer::Element::Type::Float,  "Element::Float");
+    EnumRegistry::Register(IBuffer::Element::Type::Float2, "Element::Float2");
+    EnumRegistry::Register(IBuffer::Element::Type::Float3, "Element::Float3");
+    EnumRegistry::Register(IBuffer::Element::Type::Float4, "Element::Float4");
+    EnumRegistry::Register(IBuffer::Element::Type::Int,    "Element::Int");
+    EnumRegistry::Register(IBuffer::Element::Type::Int2,   "Element::Int2");
+    EnumRegistry::Register(IBuffer::Element::Type::Int3,   "Element::Int3");
+    EnumRegistry::Register(IBuffer::Element::Type::Int4,   "Element::Int4");
+    EnumRegistry::Register(IBuffer::Element::Type::Mat3,   "Element::Mat3");
+    EnumRegistry::Register(IBuffer::Element::Type::Mat4,   "Element::Mat4");
+    EnumRegistry::Register(IBuffer::Element::Type::Bool,   "Element::Bool");
 
     auto _Audiowide{Font::CreateFromMemory(Fonts::Audiowide, std::size(Fonts::Audiowide))};
     auto _DejaVuSans{Font::CreateFromMemory(Fonts::DejaVuSans, std::size(Fonts::DejaVuSans))};
