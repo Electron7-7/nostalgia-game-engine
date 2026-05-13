@@ -3,14 +3,15 @@
 
 namespace GlobalConstants
 {
-    /// Ready at compile time
-    namespace Init
+    // Ready at compile time
+    namespace Constexpr
     {
         constinit const char cstr_empty[]{""},
             cstr_NA[]{"N/A"},
             cstr_Invalid[]{"Invalid"},
             cstr_true[]{"true"},
-            cstr_false[]{"false"};
+            cstr_false[]{"false"},
+            cstr_CommaSpace[]{", "};
 
         namespace VariantType
         {
@@ -27,24 +28,25 @@ namespace GlobalConstants
         }
     }
 
-    const std::string str_empty{Init::cstr_empty},
-        str_NA{Init::cstr_NA},
-        str_Invalid{Init::cstr_Invalid},
-        str_true{Init::cstr_true},
-        str_false{Init::cstr_false};
+    const std::string str_empty{Constexpr::cstr_empty},
+        str_NA{Constexpr::cstr_NA},
+        str_Invalid{Constexpr::cstr_Invalid},
+        str_true{Constexpr::cstr_true},
+        str_false{Constexpr::cstr_false},
+        str_CommaSpace{Constexpr::cstr_CommaSpace};
 
     namespace VariantType
     {
-    const std::string str_Nil{Init::VariantType::cstr_Nil},
-        str_String{Init::VariantType::cstr_String},
-        str_Bool{Init::VariantType::cstr_Bool},
-        str_Int{Init::VariantType::cstr_Int},
-        str_Float{Init::VariantType::cstr_Float},
-        str_Vector2{Init::VariantType::cstr_Vector2},
-        str_Vector3{Init::VariantType::cstr_Vector3},
-        str_Vector4{Init::VariantType::cstr_Vector4},
-        str_Quaternion{Init::VariantType::cstr_Quaternion},
-        str_Thing{Init::VariantType::cstr_Thing};
+        const std::string str_Nil{Constexpr::VariantType::cstr_Nil},
+            str_String{Constexpr::VariantType::cstr_String},
+            str_Bool{Constexpr::VariantType::cstr_Bool},
+            str_Int{Constexpr::VariantType::cstr_Int},
+            str_Float{Constexpr::VariantType::cstr_Float},
+            str_Vector2{Constexpr::VariantType::cstr_Vector2},
+            str_Vector3{Constexpr::VariantType::cstr_Vector3},
+            str_Vector4{Constexpr::VariantType::cstr_Vector4},
+            str_Quaternion{Constexpr::VariantType::cstr_Quaternion},
+            str_Thing{Constexpr::VariantType::cstr_Thing};
     }
 }
 
