@@ -4,6 +4,7 @@
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include <Nostalgia/Nostalgia.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/console/console.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/managers/event_manager.hpp>
@@ -230,6 +231,73 @@ void ImGui_Debugger::StopTheatreTiming(bool loading)
 static void s_GeneralDebuggingWindow()
 {
     BeginChild("General Debugging");
+    if(CollapsingHeader("Console Variables"))
+    {
+        Console::Variables_t _variables{Console::GetAllVariables()};
+        for(FAUTO var : _variables)
+        {
+            std::string _name{var.name};
+            PushID(_name.data());
+                if(Button("Delete"))
+                {
+                    Console::RemoveVariable(_name);
+                    PopID();
+                    continue;
+                }
+            PopID();
+            SameLine();
+            switch(var.type())
+            {
+            case Console::Variable::FLOAT_TYPE:
+                {
+                    float _value{var.float_value};
+                    PushItemWidth(50 + CalcTextSize(std::format("{}", _value).data())[0]);
+                        if(DragFloat(_name.data(), &_value))
+                            { Console::SetVariable(_name, _value); }
+                    PopItemWidth();
+                    break;
+                }
+            case Console::Variable::INT_TYPE:
+                {
+                    if(var.hint() == Console::Variable::HINT_BOOLEAN)
+                    {
+                        bool _value{static_cast<bool>(var.int_value)};
+                        if(Checkbox(_name.data(), &_value))
+                            { Console::SetVariable(_name, _value); }
+                        break;
+                    }
+                    int _value{var.int_value};
+                    PushItemWidth(50 + CalcTextSize(std::format("{}", _value).data())[0]);
+                        if(var.hint() == Console::Variable::HINT_SELECTION)
+                        {
+                            if(InputInt(_name.data(), &_value))
+                                { Console::SetVariable(_name, _value); }
+                        }
+                        else
+                        {
+                            if(DragInt(_name.data(), &_value))
+                                { Console::SetVariable(_name, _value); }
+                        }
+                    PopItemWidth();
+                    break;
+                }
+            case Console::Variable::STRING_TYPE:
+                {
+                    std::string _value{var.string_value};
+                    PushItemWidth(50 + CalcTextSize(_value.data())[0]);
+                        if(InputText(_name.data(), &_value))
+                            { Console::SetVariable(_name, _value); }
+                    PopItemWidth();
+                    break;
+                }
+            case Console::Variable::NONE:
+            default:
+                PopID();
+                PopItemWidth();
+                continue;
+            }
+        }
+    }
     if(CollapsingHeader("Frame Profiler##0"))
     {
         Checkbox("Frame Profiler", &sEnableFrameCounter);
@@ -267,6 +335,13 @@ static void s_GeneralDebuggingWindow()
             Checkbox("Print Event Logs", &gPrintEventLogs);
             Checkbox("Print Input Logs", &gPrintInputLogs);
         SeparatorText("Theatre");
+            if(Button("Print all Things in ThingFactory"))
+            {
+                print_debug("ThingFactory - All Things");
+                auto _uids{ThingFactory::GetUIDs()};
+                for(ID uid : _uids)
+                    { print_debug("[{}, {}]", ThingFactory::GetName(uid), uid()); }
+            }
             s_ConsoleVariableCheckbox("Print TheatreFile Save Progress",
                 "Theatre.debug_save_msgs");
             s_ConsoleVariableCheckbox("Print Parsed Forward Declarations",
@@ -327,6 +402,7 @@ static void s_GeneralDebuggingWindow()
     {
         DragInt("Tick Rate", &Settings::Engine::TickRate);
         Text("Tick Interval: %f", Settings::Engine::TickInterval());
+        Text("Is Editor Open: %b", Settings::Engine::IsEditorHint);
     }
     if(CollapsingHeader("Window"))
     {
@@ -735,5 +811,5 @@ void s_ConsoleVariableCheckbox(Sarg inVariableName, Sarg inTitle, bool inInverse
     if(inInverse)
         { _value = not _value; }
     if(Checkbox(inTitle.data(), &_value))
-        { Console::SetVariable(inVariableName, static_cast<int>((inInverse) ? not _value : _value)); }
+        { Console::SetVariable(inVariableName, (inInverse) ? not _value : _value); }
 }
