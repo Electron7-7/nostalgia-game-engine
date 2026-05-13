@@ -28,6 +28,13 @@
 #define LOCK(MUTEX) LockGuard<RMutex> _##MUTEX##_lock{MUTEX};
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
     AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
+#define LOCK_MUTEX LockGuard<RMutex> lock{sMutex}
+#define FOUND_IT(MAP, KEY) auto found_it{MAP.find(KEY)}; found_it != MAP.end()
+
+static RMutex sMutex{};
+static std::map<ID, Shared<Thing>> sThings{};
+static std::unordered_set<ID> sResourceUIDs{}, sThinkerUIDs{};
+static std::map<std::string, ID> sNames{};
 
 static std::map<PID, PID> sTypeDeclarations{};
 static bool sIsInitialized{false};
@@ -112,17 +119,238 @@ bool ThingFactory::IsInitialized()
 void ThingFactory::Shutdown()
 { sIsInitialized = false; }
 
+std::string ThingFactory::GetUniqueName(Sarg inName)
+{
+    LOCK_MUTEX;
+    std::string _return{inName};
+    size_t _iter{0};
+    while(sNames.contains(_return) and _iter != SIZE_MAX)
+        { _return = inName + std::to_string(++_iter); }
+    if(_iter == SIZE_MAX)
+    {
+        print_error("Holy fucking shit, dude, give a few of your Things a different fucking name");
+        print_error("No, seriously, you literally have {} Things named '{}'", SIZE_MAX, inName);
+    }
+    return _return;
+}
+
 Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
+    LOCK_MUTEX;
     if(auto found_it{sThingMakers.find(inType)}; found_it != sThingMakers.end())
+        { return Register(found_it->second(), inName); }
+    print_warning("'{}' is an invalid type! Thing::Invalid() will be returned", inType.name());
+    return Thing::Invalid();
+}
+
+Shared<Thing> ThingFactory::Register(Shared<Thing> inThing, std::string inName)
+{
+    LOCK_MUTEX;
+    if(not inThing)
+        { return Thing::Invalid(); }
+
+    ID _uid{GetUID()};
+    if(sNames.contains(inName) or inName.empty() or ThingFactory::IsThing(PID{inName}))
+        { inName = std::format("{}#{}", inName, _uid()); }
+
+    inThing->mName = inName;
+    inThing->mUID  = _uid;
+    sNames[inName] = _uid;
+    sThings[_uid]  = inThing;
+
+    if(IsThinker(inThing->Type()))
+        { sThinkerUIDs.insert(_uid); }
+    else if(IsResource(inThing->Type()))
+        { sResourceUIDs.insert(_uid); }
+    if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
+        { print_debug("Registered <{}> [{}, {}]", inThing->Type().name(), inThing->name(), inThing->uid()()); }
+
+    return inThing;
+}
+
+void ThingFactory::DestroyAll()
+{
+    LOCK_MUTEX;
+    sThings.clear();
+    sNames.clear();
+}
+
+void ThingFactory::DestroyAllResources()
+{
+    LOCK_MUTEX;
+    for(ID uid : sResourceUIDs)
+        { print_error_enum(Destroy(uid)); }
+    sResourceUIDs.clear();
+}
+
+IdVec_t ThingFactory::GetUIDs()
+{
+    LOCK_MUTEX;
+    auto keys{std::views::keys(sThings)};
+    return {keys.begin(), keys.end()};
+}
+
+IdVec_t ThingFactory::GetResourceUIDs()
+{
+    LOCK_MUTEX;
+    return {sResourceUIDs.begin(), sResourceUIDs.end()};
+}
+
+IdVec_t ThingFactory::GetThinkerUIDs()
+{
+    LOCK_MUTEX;
+    return {sThinkerUIDs.begin(), sThinkerUIDs.end()};
+}
+
+Sarg ThingFactory::GetName(ID inUID)
+{
+    static std::string empty{};
+    LOCK_MUTEX;
+    if(FOUND_IT(sThings, inUID))
+        { return found_it->second->name(); }
+    return empty;
+}
+
+ID ThingFactory::GetUID(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sNames, inName))
+        { return found_it->second; }
+    return ID::Invalid;
+}
+
+bool ThingFactory::DerivedFrom(ID inUID, FPID inType)
+{ return GetThing(inUID)->DerivedFrom(inType); }
+
+bool ThingFactory::DerivedFrom(Sarg inName, FPID inType)
+{ return GetThing(inName)->DerivedFrom(inType); }
+
+Error ThingFactory::SetName(ID inUID, Sarg inName)
+{
+    if(Contains(inName))
+        { return ERR_ALREADY_EXISTS; }
+    else if(not Contains(inUID))
+        { return ERR_NOT_FOUND; }
+    LOCK_MUTEX;
+    auto Thing{sThings.at(inUID)};
+    sNames.erase(Thing->mName);
+    sNames[inName] = inUID;
+    return OK;
+}
+
+Error ThingFactory::SetName(Sarg inOldName, Sarg inNewName)
+{
+    if(not Contains(inOldName))
+        { return ERR_NOT_FOUND; }
+    return SetName(GetUID(inOldName), inNewName);
+}
+
+FPID ThingFactory::TypeOf(ID inUID)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sThings, inUID))
+        { return found_it->second->Type(); }
+    return PID::Invalid;
+}
+
+FPID ThingFactory::TypeOf(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sNames, inName))
+        { return TypeOf(found_it->second); }
+    return PID::Invalid;
+}
+
+Error ThingFactory::Destroy(ID inUID)
+{
+    LOCK_MUTEX;
+    sThinkerUIDs.erase(inUID);
+    sResourceUIDs.erase(inUID);
+    if(FOUND_IT(sThings, inUID))
     {
-        auto _output{found_it->second()};
-        _output->mName = inName;
-        _output->mUID  = GetUID();
-        return _output;
+        if(not sNames.erase(found_it->second->name()))
+        {
+            for(FAUTO [name, uid] : sNames)
+            {
+                if(uid == inUID)
+                {
+                    sNames.erase(name);
+                    break;
+                }
+            }
+        }
+        sThings.erase(found_it);
+        return OK;
     }
-    print_warning("'{}' is an invalid type! An empty Thing will be returned", inType.name());
-    return ThingMakerTemplate<Thing>();
+    return ERR_NOT_FOUND;
+}
+
+Error ThingFactory::Destroy(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sNames, inName))
+        { return Destroy(found_it->second); }
+    return ERR_NOT_FOUND;
+}
+
+bool ThingFactory::Contains(ID inUID)
+{
+    LOCK_MUTEX;
+    return sThings.contains(inUID);
+}
+
+bool ThingFactory::Contains(Sarg inName)
+{
+    LOCK_MUTEX;
+    return sNames.contains(inName);
+}
+
+Shared<Thing> ThingFactory::GetThing(ID inUID)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sThings, inUID))
+        { return found_it->second; }
+    return Thing::Invalid();
+}
+
+Shared<Thing> ThingFactory::GetThing(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(FOUND_IT(sNames, inName))
+        { return GetThing(found_it->second); }
+    return Thing::Invalid();
+}
+
+Shared<Thinker> ThingFactory::GetThinker(ID inUID)
+{
+    LOCK_MUTEX;
+    if(auto _output{DCast<Thinker>(GetThing(inUID))})
+        { return _output; }
+    return Thinker::Invalid();
+}
+
+Shared<Thinker> ThingFactory::GetThinker(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(auto _output{DCast<Thinker>(GetThing(inName))})
+        { return _output; }
+    return Thinker::Invalid();
+}
+
+Shared<Resource> ThingFactory::GetResource(ID inUID)
+{
+    LOCK_MUTEX;
+    if(auto _output{DCast<Resource>(GetThing(inUID))})
+        { return _output; }
+    return Resource::Invalid();
+}
+
+Shared<Resource> ThingFactory::GetResource(Sarg inName)
+{
+    LOCK_MUTEX;
+    if(auto _output{DCast<Resource>(GetThing(inName))})
+        { return _output; }
+    return Resource::Invalid();
 }
 
 Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
