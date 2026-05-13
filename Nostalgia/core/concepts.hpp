@@ -3,6 +3,12 @@
 
 // Math Concepts
 template<typename T>
+    concept RestrictToFloat = std::same_as<T, float>;
+
+template<typename T>
+    concept RestrictToInt = std::same_as<T, int>;
+
+template<typename T>
     concept NumberOrBool = std::integral<T> || std::floating_point<T>;
 
 template<typename T>
