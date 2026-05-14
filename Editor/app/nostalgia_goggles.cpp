@@ -38,11 +38,8 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    mMainWindow = IWindow::CreateNewWindow(IWindow::Properties{std::format("Nostalgia_Goggles v{} {}",
-        NOSTALGIA_VERSION_STRING,
-        (Settings::Engine::IsEditorHint)
-            ? ""
-            : "(Settings::Engine::IsEditorHint == false)")});
+    mMainWindow = IWindow::CreateNewWindow({"Nostalgia_Goggles v" NOSTALGIA_VERSION_STRING,
+        m_sMainWindowWidth, m_sMainWindowHeight});
 
     Console::Init();
     Console::SetVariable("ThingFactory.debug_type_msgs", m_sEnableThingFactoryDebugMsgs);

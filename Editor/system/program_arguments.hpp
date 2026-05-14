@@ -4,7 +4,7 @@
 #include <Nostalgia/Nostalgia.hpp>
 
 constexpr const char* _Help_Format_String{
-R"(Usage: {} [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
+R"(Usage: {} [<width>] [<height>] [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
     Options:
         -h, --help           print help document
         -v, --version        print program version

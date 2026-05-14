@@ -15,6 +15,7 @@ public:
     void Event(IEvent*) final;
 
     inline static bool m_sEnableThingFactoryDebugMsgs{false};
+    inline static uint m_sMainWindowWidth{1280}, m_sMainWindowHeight{720};
 };
 
 extern std::string gToggleFullscreen;

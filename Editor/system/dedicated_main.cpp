@@ -14,11 +14,16 @@
 
 int DedicatedMain(int argc, char** argv)
 {
-    getargs::set_valid_args("--help", "-h",
+    getargs::set_can_have_positional_arguments(true);
+    getargs::set_valid_args(
+        "--help", "-h",
         "--version", "-v",
         "--no-colors",
         "--no-editor-hint",
-        "--debug-thing-factory", "-d");
+        "--debug-thing-factory", "-d",
+        "--width", "-w",
+        "--height", "-h"
+    );
 
     if(getargs::get_args(argc, argv))
         { return 1; }
@@ -35,15 +40,23 @@ int DedicatedMain(int argc, char** argv)
         std::println("{}", GetVersionMessage(program_name.data()));
         return 0;
     }
+
     if(getargs::get_flag("no-colors"))
     {
         for(int i{0}; i < 7; ++i)
             { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
     }
+
     NostalgiaGoggles::m_sEnableThingFactoryDebugMsgs =
         getargs::get_flag("debug-thing-factory") or getargs::get_flag("d");
 
-    Settings::Engine::IsEditorHint = not getargs::get_flag("no-editor-hint");
+    if(FAUTO _width{getargs::get_positional(0)}; not _width.empty())
+        { StringToNum(NostalgiaGoggles::m_sMainWindowWidth, _width); }
+
+    if(FAUTO _height{getargs::get_positional(1)}; not _height.empty())
+        { StringToNum(NostalgiaGoggles::m_sMainWindowHeight, _height); }
+
+    Settings::Engine::IsEditorHint = true;
 
     NostalgiaGoggles application{};
     return Application()->Main();
