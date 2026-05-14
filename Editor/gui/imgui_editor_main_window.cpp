@@ -7,10 +7,15 @@
 using namespace ImGui;
 using namespace TheatreFile;
 
-bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingData& outData)
+void ImGui_Editor::InspectThing()
 {
-    bool _changed{false};
-    for(FAUTO var : inData->variables)
+    static bool _update_thing{false};
+    if(mInspectingNewThing)
+    {
+        m_pInspectingThingData = ThingFactory::GetThing(mInspectingThingUID)->GetVariables();
+        mInspectingNewThing = false;
+    }
+    for(FAUTO var : m_pInspectingThingData->variables)
     {
         if(not (var.usage_flags & VARIABLE_USAGE_EDITOR))
             { continue; }
@@ -21,24 +26,24 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
             switch(var.value.type())
             {
             default:
-                return false;
+                continue;
             case Variant::FLOAT:
             case Variant::INT:
-                inData->get_variable(_uid, var.name);
+                m_pInspectingThingData->get_variable(_uid, var.name);
                 _name = ThingFactory::GetName(_uid);
                 break;
             case Variant::THING:
             case Variant::STRING:
-                inData->get_variable(_name, var.name);
+                m_pInspectingThingData->get_variable(_name, var.name);
                 _uid = ThingFactory::GetUID(_name);
                 break;
             }
-            SelectThing(std::format("{}: {}",
+            if(SelectThing(std::format("{}: {}",
                 var.name,
                 (_name.empty()) ? GlobalConstants::str_NA : _name).data(),
-                _uid,
-                _changed);
-            outData.set_variable(_uid, var.name);
+                _uid))
+                { _update_thing = true; }
+            m_pInspectingThingData->set_variable(_uid, var.name);
             continue;
         }
         std::string _name{var.name};
@@ -49,11 +54,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::BOOL:
             {
                 bool _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(Checkbox(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
-                    _changed = true;
+                    m_pInspectingThingData->set_variable(_value, _name);
+                    _update_thing = true;
                     break;
                 }
                 break;
@@ -61,13 +66,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::STRING:
             {
                 std::string _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(InputText(_name.data(), &_value))
-                {
-                    std::string _output{_value};
-                    outData.set_variable(_output, _name);
-                    _changed = true;
-                }
+                    { m_pInspectingThingData->set_variable(_value, _name); }
+                if(IsItemDeactivatedAfterEdit())
+                    { _update_thing = true; }
                 break;
             }
         case Variant::INT:
@@ -75,21 +78,21 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 if(var.hint == VARIABLE_HINT_FLAGS)
                 {
                     BitMask _value{};
-                    inData->get_variable(_value, _name);
+                    m_pInspectingThingData->get_variable(_value, _name);
                     BitMask::StatusArray _status_arr{_value.status()};
                     SeparatorText(_name.data());
                     if(Button("Disable All"))
                     {
                         _value.set(BitMask::all_disabled);
-                        outData.set_variable(_value, _name);
-                        _changed = true;
+                        m_pInspectingThingData->set_variable(_value, _name);
+                        _update_thing = true;
                     }
                     SameLine();
                     if(Button("Enable All"))
                     {
                         _value.set(BitMask::all_enabled);
-                        outData.set_variable(_value, _name);
-                        _changed = true;
+                        m_pInspectingThingData->set_variable(_value, _name);
+                        _update_thing = true;
                     }
                     auto& _style{GetStyle()};
                     static float _checkbox_width{GetFrameHeight() + _style.ItemInnerSpacing[0]
@@ -102,8 +105,8 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                         if(Checkbox(std::format("{:2}", i+1).data(), &_status_arr[i]))
                         {
                             _value.set(_status_arr);
-                            outData.set_variable(_value, _name);
-                            _changed = true;
+                            m_pInspectingThingData->set_variable(_value, _name);
+                            _update_thing = true;
                         }
                         _current_width += _style.ItemSpacing[0] + _checkbox_width;
                         if(_current_width >= _window_width)
@@ -143,8 +146,8 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                                 const bool is_selected{enum_value == _value};
                                 if(Selectable(enum_name.data()))
                                 {
-                                    outData.set_variable(static_cast<int>(enum_value), var.name);
-                                    _changed = true;
+                                    m_pInspectingThingData->set_variable(static_cast<int>(enum_value), var.name);
+                                    _update_thing = true;
                                     break;
                                 }
                                 if(is_selected)
@@ -157,11 +160,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
                 else
                 {
                     int _value{};
-                    inData->get_variable(_value, _name);
+                    m_pInspectingThingData->get_variable(_value, _name);
                     if(DragInt(_name.data(), &_value))
                     {
-                        outData.set_variable(_value, _name);
-                        _changed = true;
+                        m_pInspectingThingData->set_variable(_value, _name);
+                        _update_thing = true;
                         break;
                     }
                 }
@@ -170,11 +173,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::FLOAT:
             {
                 float _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(DragFloat(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
-                    _changed = true;
+                    m_pInspectingThingData->set_variable(_value, _name);
+                    _update_thing = true;
                     break;
                 }
                 break;
@@ -182,11 +185,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::VECTOR2:
             {
                 glm::vec2 _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(DragGLMv2(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
-                    _changed = true;
+                    m_pInspectingThingData->set_variable(_value, _name);
+                    _update_thing = true;
                     break;
                 }
                 break;
@@ -194,11 +197,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::VECTOR3:
             {
                 glm::vec3 _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(DragGLMv3(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
-                    _changed = true;
+                    m_pInspectingThingData->set_variable(_value, _name);
+                    _update_thing = true;
                     break;
                 }
                 break;
@@ -206,11 +209,11 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::VECTOR4:
             {
                 glm::vec4 _value{};
-                inData->get_variable(_value, _name);
+                m_pInspectingThingData->get_variable(_value, _name);
                 if(DragGLMv4(_name.data(), &_value))
                 {
-                    outData.set_variable(_value, _name);
-                    _changed = true;
+                    m_pInspectingThingData->set_variable(_value, _name);
+                    _update_thing = true;
                     break;
                 }
                 break;
@@ -218,16 +221,20 @@ bool ImGui_Editor::InspectThing(ID inUID, Farg<Shared<ThingData>> inData, ThingD
         case Variant::THING:
             {
                 ID _uid{};
-                inData->get_variable(_uid, var.name);
+                m_pInspectingThingData->get_variable(_uid, var.name);
                 std::string _name{ThingFactory::GetName(_uid)};
-                SelectThing(std::format("{}: {}",
+                if(SelectThing(std::format("{}: {}",
                     var.name,
                     (_name.empty()) ? GlobalConstants::str_NA : _name).data(),
-                    _uid,
-                    _changed);
-                outData.set_variable(_uid, var.name);
+                    _uid))
+                    { _update_thing = true; }
+                m_pInspectingThingData->set_variable(_uid, var.name);
             }
         }
     }
-    return _changed;
+    if(_update_thing)
+    {
+        ThingFactory::GetThing(mInspectingThingUID)->SetVariables(*m_pInspectingThingData);
+        _update_thing = mIsEditorSaved = false;
+    }
 }

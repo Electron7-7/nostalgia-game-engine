@@ -16,8 +16,9 @@ public:
     void Shutdown()         final;
     void Update()           final;
     void Input(InputEvent*) final;
-    void TheatreEntered() final;
-    void TheatreExited()  final;
+    void Event(IEvent*)     final;
+    void TheatreEntered()   final;
+    void TheatreExited()    final;
 
 private:
     enum TheatreState
@@ -44,11 +45,13 @@ private:
         mTheatreRunning{false},
         mInspectingNewThing{false},
         mAddThing{false},
-        mThingAdderOpened{false};
+        mThingAdderOpened{false},
+        mResizeEditorWindows{true};
     std::string mCurrentTheatreFilePath{}, mScreenshotFilePath{};
     std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
     TheatreFile::TheatreData mEditorTheatreData{};
     ID mInspectingThingUID{};
+    Shared<TheatreFile::ThingData> m_pInspectingThingData{MakeShared<TheatreFile::ThingData>()};
 
     FileDialogReturnVal _assert_filepath(std::string& ioPath);
     void SaveCurrentTheatre();
@@ -65,9 +68,8 @@ private:
     void TheatreViewport();
     void TheatreTree();
     void TheatreInspector();
-    void SelectThing(const char* inLabel, ID& ioUID, bool& outChanged);
+    bool SelectThing(const char* inLabel, ID& ioUID);
     void InspectThing();
-    bool InspectThing(ID inUID, Farg<Shared<TheatreFile::ThingData>> inData, TheatreFile::ThingData& outData);
     bool _select_thing(ID);
     void _thinker_tree_branch(ID);
 };
