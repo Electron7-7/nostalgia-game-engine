@@ -39,7 +39,8 @@ void Console::Init()
     SetVariable("TheatreFile.Parser.print_declarations", false);
     SetVariable("TheatreFile.Parser.print_name_type_map", false);
     SetVariable("Theatre.debug_callsheet_msgs", false);
-    SetVariable("ThingFactory.debug_register_msgs", false);
+    SetVariable("ThingFactory.debug_type_msgs", false);
+    SetVariable("ThingFactory.debug_thing_msgs", false);
     SetVariable("Collider3D.debug_collision_msgs", false);
     SetVariable("Collider3D.debug_collision_persisted_msgs", false);
     SetVariable("nodraw_3d", false);

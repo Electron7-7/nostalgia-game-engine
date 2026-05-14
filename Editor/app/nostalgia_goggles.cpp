@@ -45,7 +45,7 @@ int NostalgiaGoggles::Main()
             : "(Settings::Engine::IsEditorHint == false)")});
 
     Console::Init();
-    Console::SetVariable("ThingFactory.debug_register_msgs", static_cast<int>(m_sEnableThingFactoryDebugMsgs));
+    Console::SetVariable("ThingFactory.debug_type_msgs", m_sEnableThingFactoryDebugMsgs);
 
     auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};
     imgui_impl->CreateSolution<ImGui_Editor>();
@@ -64,10 +64,10 @@ int NostalgiaGoggles::Main()
 
     Manager::InitAllManagers();
 
-    Console::SetVariable("ThingFactory.debug_register_msgs", 1);
+    Console::SetVariable("ThingFactory.debug_type_msgs", true);
 
-    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
-    ThingFactory::AddThing(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
+    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
+    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});

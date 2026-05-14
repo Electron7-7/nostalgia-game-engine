@@ -69,7 +69,10 @@ struct ThingFactory
         }
 
     static Error AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists = false);
-    static Error AddThing(pThingMakerTemplate_t, Sarg inType, FPID inBaseType, int inPriority = cDefaultPriority);
+    static Error AddThingType(pThingMakerTemplate_t,
+        Sarg inType,
+        FPID inBaseType,
+        int inPriority = cDefaultPriority);
 
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);
@@ -87,7 +90,7 @@ private:
 
     static ID GetUID();
     static void FreeUID(ID);
-    static Shared<Thing> Register(Shared<Thing>, std::string);
+    static Shared<Thing> AddThing(Shared<Thing>, std::string);
     static std::string GetUniqueName(Sarg inName);
 };
 

@@ -27,7 +27,7 @@
 
 #define LOCK(MUTEX) LockGuard<RMutex> _##MUTEX##_lock{MUTEX};
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
-    AddThing(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
+    AddThingType(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
 #define LOCK_MUTEX LockGuard<RMutex> lock{sMutex}
 #define FOUND_IT(MAP, KEY) auto found_it{MAP.find(KEY)}; found_it != MAP.end()
 
@@ -79,7 +79,7 @@ bool ThingFactory::Init()
     if(sIsInitialized)
         { return true; }
 
-    AddThing(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, cDefaultPriority);
+    AddThingType(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, cDefaultPriority);
         ADD_THING(Resource, Thing, +1)
             ADD_THING(Image, Resource, +2)
             ADD_THING(Font, Resource, +2)
@@ -138,12 +138,12 @@ Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
     LOCK_MUTEX;
     if(auto found_it{sThingMakers.find(inType)}; found_it != sThingMakers.end())
-        { return Register(found_it->second(), inName); }
+        { return AddThing(found_it->second(), inName); }
     print_warning("'{}' is an invalid type! Thing::Invalid() will be returned", inType.name());
     return Thing::Invalid();
 }
 
-Shared<Thing> ThingFactory::Register(Shared<Thing> inThing, std::string inName)
+Shared<Thing> ThingFactory::AddThing(Shared<Thing> inThing, std::string inName)
 {
     LOCK_MUTEX;
     if(not inThing)
@@ -162,7 +162,7 @@ Shared<Thing> ThingFactory::Register(Shared<Thing> inThing, std::string inName)
         { sThinkerUIDs.insert(_uid); }
     else if(IsResource(inThing->Type()))
         { sResourceUIDs.insert(_uid); }
-    if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
+    if(Console::GetVariable("ThingFactory.debug_thing_msgs").int_value)
         { print_debug("Registered <{}> [{}, {}]", inThing->Type().name(), inThing->name(), inThing->uid()()); }
 
     return inThing;
@@ -363,7 +363,7 @@ Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool 
     return OK;
 }
 
-Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBaseType, int inPriority)
+Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBaseType, int inPriority)
 {
     if(Error _status{sTypes.add_node({inType}, inBaseType)}; not _status)
         { return _status; }
@@ -383,7 +383,7 @@ Error ThingFactory::AddThing(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBa
     sTypePriorities[inType] = inPriority;
     sThingMakers[inType]    = inPtr;
     sTypeAncestors[inType]  = sTypes.get_ancestors(inType);
-    if(Console::GetVariable("ThingFactory.debug_register_msgs").int_value)
+    if(Console::GetVariable("ThingFactory.debug_type_msgs").int_value)
     {
         if(inType == ThingType::Thing.name())
         {
