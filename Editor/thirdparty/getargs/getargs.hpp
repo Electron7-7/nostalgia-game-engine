@@ -4,6 +4,12 @@
 #ifndef GETARGS_HEADER_GUARD
 #define GETARGS_HEADER_GUARD
 
+#define GETARGS_VERSION_MAJOR 3
+#define GETARGS_VERSION_MINOR 0
+#define GETARGS_VERSION_PATCH 0
+
+#define GETARGS_FUNC [[maybe_unused]] static inline
+
 #ifdef GETARGS_IMPLEMENTATION
 
 #ifdef GETARGS_HANDLE_HELP_FLAG
@@ -126,13 +132,21 @@ namespace GETARGS_NAMESPACE
 
         static GETARGS_SET_t(GETARGS_STRING_t)                          flags{};
         static GETARGS_MAP_t(GETARGS_STRING_t, GETARGS_STRING_t)      options{};
+        static GETARGS_VECTOR_t(GETARGS_STRING_t)             positional_args{};
         static const GETARGS_STRING_t                            empty_string{};
 #ifdef GETARGS_HANDLE_INVALID_ARGS
+        static bool                               accept_positional_args{false};
         static GETARGS_SET_t(GETARGS_STRING_t)                     valid_args{};
         static GETARGS_STRING_t                                       bad_arg{};
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
-        static GETARGS_VECTOR_t(GETARGS_STRING_t) get_parsed_args(int const& argc, char** const& argv)
+        GETARGS_FUNC bool is_flag_or_option(const std::string& inArg)
+        { return not inArg.empty() and inArg.starts_with('-'); }
+
+        GETARGS_FUNC bool is_short(const GETARGS_STRING_t& inArg)
+        { return (inArg.size() > 0 and inArg[0] == '-') and (inArg.size() < 2 or inArg[1] != '-'); }
+
+        GETARGS_FUNC GETARGS_VECTOR_t(GETARGS_STRING_t) get_parsed_args(int const& argc, char** const& argv)
         {
             GETARGS_VECTOR_t(GETARGS_STRING_t) parsed_args{};
             for(int i{1}; i < argc; ++i)
@@ -159,18 +173,26 @@ namespace GETARGS_NAMESPACE
             return parsed_args;
         }
 
+        GETARGS_FUNC GETARGS_STRING_t get_raw_flag(const GETARGS_STRING_t& inFlag)
+        {
+            if(inFlag.size() < 2)
+                { return inFlag; }
+            int index{0};
+            for(int i{0}; i < 2; ++i)
+                { if(inFlag[i] == '-') { ++index; } }
+            return inFlag.substr(index);
+        }
+
 #ifdef GETARGS_HANDLE_INVALID_ARGS
-        static bool is_valid(const std::string& inArg)
-        { return __hidden::valid_args.contains(inArg); }
+        GETARGS_FUNC bool is_valid(const std::string& inArg)
+        {
+            if(__hidden::accept_positional_args and not is_flag_or_option(inArg))
+                { return true; }
+            return __hidden::valid_args.contains(inArg);
+        }
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
-        static bool is_flag_or_option(const std::string& inArg)
-        { return not inArg.empty() and inArg.starts_with('-'); }
-
-        static bool is_short(const GETARGS_STRING_t& inArg)
-        { return (inArg.size() > 0 and inArg[0] == '-') and (inArg.size() < 2 or inArg[1] != '-'); }
-
-        static ArgType get_type(int inIndex, const GETARGS_VECTOR_t(GETARGS_STRING_t)& inVector)
+        GETARGS_FUNC ArgType get_type(int inIndex, const GETARGS_VECTOR_t(GETARGS_STRING_t)& inVector)
         {
             GETARGS_STRING_t arg{inVector[inIndex]};
             int next_index{inIndex + 1};
@@ -184,7 +206,7 @@ namespace GETARGS_NAMESPACE
             return ARG_TYPE_LONG_FLAG;
         }
 
-        static GETARGS_STRING_t get_debug_logs()
+        GETARGS_FUNC GETARGS_STRING_t get_debug_logs()
         {
             GETARGS_STRING_t output{""};
 #ifdef GETARGS_HANDLE_INVALID_ARGS
@@ -214,14 +236,17 @@ namespace GETARGS_NAMESPACE
             or GETARGS_CONVERTIBLE_TO_c(T, GETARGS_STRING_t);
 
     template<String_t... Args>
-        static void set_valid_args(Args... inArgs)
+        GETARGS_FUNC void set_valid_args(Args... inArgs)
         {
             for(const auto& arg : {inArgs...})
                 { __hidden::valid_args.insert(arg); }
         }
+
+    GETARGS_FUNC void set_can_have_positional_arguments(bool inValue)
+    { __hidden::accept_positional_args = true; }
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
-    static int get_args(int const& argc, char** const& argv)
+    GETARGS_FUNC int get_args(int const& argc, char** const& argv)
     {
         __hidden::flags.clear();
         __hidden::options.clear();
@@ -271,6 +296,8 @@ namespace GETARGS_NAMESPACE
                     __hidden::options[option_store] = arg;
                     option_store.clear();
                 }
+                else
+                    { __hidden::positional_args.push_back(arg); }
                 break;
             case __hidden::ARG_TYPE_SHORT_FLAG:
             {
@@ -291,14 +318,17 @@ namespace GETARGS_NAMESPACE
     }
 
 #ifdef GETARGS_HANDLE_INVALID_ARGS
-    static const GETARGS_STRING_t get_bad_arg()
+    GETARGS_FUNC const GETARGS_STRING_t get_bad_arg()
     { return __hidden::bad_arg; }
 #endif // GETARGS_HANDLE_INVALID_ARGS
 
-    static bool get_flag(const GETARGS_STRING_t& inFlag)
-    { return __hidden::flags.contains(inFlag); }
+    GETARGS_FUNC bool get_flag(const GETARGS_STRING_t& inFlag, const GETARGS_STRING_t& inFlagAlt = "")
+    {
+        return __hidden::flags.contains(__hidden::get_raw_flag(inFlag)) or
+            __hidden::flags.contains(__hidden::get_raw_flag(inFlagAlt));
+    }
 
-    static bool get_option(const GETARGS_STRING_t& inOption, GETARGS_STRING_t& outValue)
+    GETARGS_FUNC bool get_option(const GETARGS_STRING_t& inOption, GETARGS_STRING_t& outValue)
     {
         if(auto found_it{__hidden::options.find(inOption)}; found_it != __hidden::options.end())
         {
@@ -308,17 +338,27 @@ namespace GETARGS_NAMESPACE
         return false;
     }
 
-    static const GETARGS_STRING_t& get_option(const GETARGS_STRING_t& inOption)
+    GETARGS_FUNC const GETARGS_STRING_t& get_option(const GETARGS_STRING_t& inOption)
     {
         if(auto found_it{__hidden::options.find(inOption)}; found_it != __hidden::options.end())
             { return found_it->second; }
         return __hidden::empty_string;
     }
 
-    static bool argument_exists(const GETARGS_STRING_t& inArg)
+    GETARGS_FUNC const GETARGS_STRING_t& get_positional(int inIndex)
+    {
+        if(inIndex < __hidden::positional_args.size())
+            { return __hidden::positional_args.at(inIndex); }
+        return __hidden::empty_string;
+    }
+
+    GETARGS_FUNC bool has_positional_args()
+    { return not __hidden::positional_args.empty(); }
+
+    GETARGS_FUNC bool argument_exists(const GETARGS_STRING_t& inArg)
     { return __hidden::options.contains(inArg) or __hidden::flags.contains(inArg); }
 
-    static bool option_has_value(const GETARGS_STRING_t& inOption)
+    GETARGS_FUNC bool option_has_value(const GETARGS_STRING_t& inOption)
     {
         auto found_it{__hidden::options.find(inOption)};
         return (found_it != __hidden::options.end() and not found_it->second.empty());
