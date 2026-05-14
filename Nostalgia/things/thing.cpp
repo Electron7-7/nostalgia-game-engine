@@ -105,8 +105,11 @@ const char* const Thing::c_name() const
 Error Thing::rename(Sarg inNewName)
 {
     LOCK(mMutex);
-    if(auto _out{ThingFactory::SetName(mName, inNewName)}; not _out)
-        { return _out; }
+    if(not invalid())
+    {
+        if(auto _out{ThingFactory::SetName(mName, inNewName)}; not _out)
+            { return _out; }
+    }
     mName = inNewName;
     return OK;
 }
