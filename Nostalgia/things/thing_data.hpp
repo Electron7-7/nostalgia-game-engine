@@ -2,6 +2,7 @@
 #define THING_DATA_H
 
 #include <Nostalgia/things/thing_variable.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/thing.hpp>
 
 namespace TheatreFile
@@ -88,7 +89,7 @@ namespace TheatreFile
                     outVariable = _thing;
                     return OK;
                 }
-                outVariable = MakeShared<T>();
+                outVariable = ThingFactory::Invalid<T>();
                 return ERR_INVALID;
             }
 
