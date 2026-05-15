@@ -153,13 +153,13 @@ bool InputManager::IsActionJustUp(const std::string& inName) noexcept
 { return IsActionUp(inName) and sPreviousInputActions.at(inName).State(); }
 
 Position2D InputManager::MousePosition() noexcept
-{ return MainWindow()->GetMousePosition(); }
+{ return Application()->MainWindow()->GetMousePosition(); }
 
 Position2D InputManager::LastMousePosition() noexcept
-{ return MainWindow()->GetLastMousePosition(); }
+{ return Application()->MainWindow()->GetLastMousePosition(); }
 
 Motion2D InputManager::MouseMotion() noexcept
-{ return MainWindow()->GetMousePosition() - MainWindow()->GetLastMousePosition(); }
+{ return Application()->MainWindow()->GetMousePosition() - Application()->MainWindow()->GetLastMousePosition(); }
 
 Position2D InputManager::ScrollOffset() noexcept
 { return m_sScrollOffset; }

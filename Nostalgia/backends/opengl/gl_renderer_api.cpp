@@ -45,7 +45,7 @@ void OpenGLRendererAPI::Init()
     mShaders[Shaders::Fast2D]     = Shader::Create();
     mShaders[Shaders::Fonts]      = Shader::Create();
 
-    SetViewport(0, 0, MainWindow()->GetScale().w(), MainWindow()->GetScale().h());
+    SetViewport(0, 0, Application()->MainWindow()->GetScale().w(), Application()->MainWindow()->GetScale().h());
 
 #ifndef CLANGD_KEEPS_CRASHING_HERE
     mShaders[Shaders::BlinnPhong]->CompileShader(GLSL_BlinnPhong_Vert, GLSL_BlinnPhong_Frag);
@@ -214,7 +214,7 @@ bool OpenGLRendererAPI::GetBlend() const
 Shared<Image> OpenGLRendererAPI::GetFullScreenshot() const
 {
     // https://lencerf.github.io/post/2019-09-21-save-the-opengl-rendering-to-image-file
-    auto _size{MainWindow()->GetScale()};
+    auto _size{Application()->MainWindow()->GetScale()};
     GLsizei _width{_size.w()},
         _height{_size.h()},
         _channels{4};

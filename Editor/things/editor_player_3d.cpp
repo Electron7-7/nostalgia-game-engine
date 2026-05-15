@@ -78,7 +78,7 @@ void EditorPlayer3D::Ready()
 
     if(not Settings::Engine::IsEditorHint)
     {
-        MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
+        Application()->MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_DISABLED);
         mCaptureMouse = mCaptureKeyboard = true;
     }
 }
@@ -132,6 +132,8 @@ void EditorPlayer3D::Input(InputEvent* inInput)
     if(inInput->IsJustPressed(Key::Escape))
     {
         mCaptureMouse = mCaptureKeyboard = not mCaptureMouse;
-        MainWindow()->SetMouseMode((mCaptureMouse) ? IWindow::MOUSE_MODE_DISABLED : IWindow::MOUSE_MODE_VISIBLE);
+        Application()->MainWindow()->SetMouseMode((mCaptureMouse)
+            ? IWindow::MOUSE_MODE_DISABLED
+            : IWindow::MOUSE_MODE_VISIBLE);
     }
 }

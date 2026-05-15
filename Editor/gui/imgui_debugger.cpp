@@ -409,17 +409,17 @@ static void s_GeneralDebuggingWindow()
         if(TreeNode("Window Info"))
         {
             Text("Title: %s\nPosition: [%d, %d]Size: [%d, %d]",
-                MainWindow()->GetTitle(),
-                MainWindow()->GetXPosition(),
-                MainWindow()->GetYPosition(),
-                MainWindow()->GetWidth(),
-                MainWindow()->GetHeight());
+                Application()->MainWindow()->GetTitle(),
+                Application()->MainWindow()->GetXPosition(),
+                Application()->MainWindow()->GetYPosition(),
+                Application()->MainWindow()->GetWidth(),
+                Application()->MainWindow()->GetHeight());
             TreePop();
         }
-        bool fullscreen{MainWindow()->IsFullscreen()};
+        bool fullscreen{Application()->MainWindow()->IsFullscreen()};
         if(Checkbox("Fullscreen", &fullscreen))
         {
-            MainWindow()->SetWindowMode((MainWindow()->IsFullscreen())
+            Application()->MainWindow()->SetWindowMode((Application()->MainWindow()->IsFullscreen())
                 ? IWindow::WINDOW_MODE_WINDOWED
                 : IWindow::WINDOW_MODE_FULLSCREEN);
         }
@@ -461,23 +461,23 @@ static void s_GeneralDebuggingWindow()
         }
 
 #       ifndef WAYLAND_DISPLAY
-            vector<2,int,VectorMembers::XYZ> position{MainWindow()->GetPosition()};
+            vector<2,int,VectorMembers::XYZ> position{Application()->MainWindow()->GetPosition()};
             if(DragInt2("Position", &position.x(), &position.y()))
-                { MainWindow()->SetPosition(position); }
+                { Application()->MainWindow()->SetPosition(position); }
             int scale[2] {
-                static_cast<int>(MainWindow()->GetScale().width()),
-                static_cast<int>(MainWindow()->GetScale().height()),
+                static_cast<int>(Application()->MainWindow()->GetScale().width()),
+                static_cast<int>(Application()->MainWindow()->GetScale().height()),
             };
             if(DragInt2("Size", scale))
-                { MainWindow()->SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
+                { Application()->MainWindow()->SetScale({(uint)scale[0], (uint)scale[1]}); } // Evil c-style cast
             NewLine();
 #       else
             Text("Position: [%d, %d]",
-                MainWindow()->GetXPosition(),
-                MainWindow()->GetYPosition());
+                Application()->MainWindow()->GetXPosition(),
+                Application()->MainWindow()->GetYPosition());
             Text("Size: [%d, %d]",
-                MainWindow()->GetWidth(),
-                MainWindow()->GetHeight());
+                Application()->MainWindow()->GetWidth(),
+                Application()->MainWindow()->GetHeight());
 #       endif // WAYLAND_DISPLAY
     }
     if(CollapsingHeader("Player"))
@@ -513,14 +513,14 @@ static void s_SetFPSCounterPosition(ImVec2& outPos, _fps_counter_position_enum i
         outPos = {0, 0};
         break;
     case FPS_COUNTER_BL:
-        outPos = {0, static_cast<float>(MainWindow()->GetHeight() - inWindowSize[1])};
+        outPos = {0, static_cast<float>(Application()->MainWindow()->GetHeight() - inWindowSize[1])};
         break;
     case FPS_COUNTER_UR:
-        outPos = {static_cast<float>(MainWindow()->GetWidth() - inWindowSize[0]), 0};
+        outPos = {static_cast<float>(Application()->MainWindow()->GetWidth() - inWindowSize[0]), 0};
         break;
     case FPS_COUNTER_BR:
-        outPos = {static_cast<float>(MainWindow()->GetWidth() - inWindowSize[0]),
-            static_cast<float>(MainWindow()->GetHeight() - inWindowSize[1])};
+        outPos = {static_cast<float>(Application()->MainWindow()->GetWidth() - inWindowSize[0]),
+            static_cast<float>(Application()->MainWindow()->GetHeight() - inWindowSize[1])};
         break;
     default:
         break;

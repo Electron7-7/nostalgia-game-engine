@@ -194,7 +194,7 @@ void IManager::Start()
         }
         UpdateTheatreStateMachine();
         InvokeMethod(&IManager::Update);
-        MainWindow()->Update();
+        Application()->MainWindow()->Update();
         ++m_sFrameNumber;
         ++_frame_counter;
 

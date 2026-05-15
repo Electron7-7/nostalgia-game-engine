@@ -268,7 +268,7 @@ glm::mat4 Camera3D::ProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mFOV),
         static_cast<float>((mViewportID.invalid())
-            ? MainWindow()->GetScale().AspectRatio()
+            ? Application()->MainWindow()->GetScale().AspectRatio()
             : ThingFactory::GetThing<Viewport>(mViewportID)->Size().AspectRatio()),
         mViewCutoffNear,
         mViewCutoffFar

@@ -24,10 +24,11 @@ void ImGui_Implementor::Attach()
     switch(RendererAPI::CurrentAPI())
     {
     case RendererAPI::OPENGL:
-        switch(MainWindow()->GetNativeWindowType())
+        switch(Application()->MainWindow()->GetNativeWindowType())
         {
         case NATIVE_GLFW_WINDOW:
-            ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(MainWindow()->GetNativeWindow()), true);
+            ImGui_ImplGlfw_InitForOpenGL(
+                static_cast<GLFWwindow*>(Application()->MainWindow()->GetNativeWindow()), true);
             break;
         default:
             ErrorGraphicsAPI;
@@ -50,7 +51,7 @@ void ImGui_Implementor::Detach()
     {
     case RendererAPI::OPENGL:
         ImGui_ImplOpenGL3_Shutdown();
-        switch(MainWindow()->GetNativeWindowType())
+        switch(Application()->MainWindow()->GetNativeWindowType())
         {
         case NATIVE_GLFW_WINDOW:
             ImGui_ImplGlfw_Shutdown();
@@ -90,7 +91,7 @@ void ImGui_Implementor::Begin()
         ErrorGraphicsAPI;
     }
 
-    switch(MainWindow()->GetNativeWindowType())
+    switch(Application()->MainWindow()->GetNativeWindowType())
     {
     case NATIVE_GLFW_WINDOW:
         ImGui_ImplGlfw_NewFrame();
@@ -109,7 +110,8 @@ void ImGui_Implementor::End()
         { print_error("!mAttached"); }
     mState = STATE_ENDING_FRAME;
     ImGuiIO& io{ImGui::GetIO()};
-    io.DisplaySize = ImVec2{static_cast<float>(MainWindow()->GetWidth()), static_cast<float>(MainWindow()->GetHeight())};
+    io.DisplaySize = ImVec2{static_cast<float>(Application()->MainWindow()->GetWidth()),
+        static_cast<float>(Application()->MainWindow()->GetHeight())};
 
     ImGui::Render();
     switch(RendererAPI::CurrentAPI())
@@ -120,7 +122,7 @@ void ImGui_Implementor::End()
     default:
         ErrorGraphicsAPI;
     }
-#pragma message("TODO: decide if I'm using ImGui's docking branch for multi-viewport support (multiple imgui windows)")
+#pragma message("TODO: decide if I'm using ImGui's docking branch for multi-viewport support")
     /*if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         GLFWwindow* backup_current_context = glfwGetCurrentContext();
