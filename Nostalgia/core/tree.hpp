@@ -3,7 +3,7 @@
 
 #define LOCK LockGuard<RMutex> _lock{_mutex};
 
-template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
+template<ID_or_PID T>
     struct Node
     {
         bool invalid() const noexcept
@@ -11,16 +11,16 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
 
         T id{};
         T parent{};
-        IdSet_t children{};
+        IdSet<T> children{};
     };
 
-template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
+template<ID_or_PID T>
     struct Tree
     {
     private:
         mutable RMutex _mutex{};
     public:
-        std::unordered_map<T, Node<T>> nodes{};
+        IdMap<T, Node<T>> nodes{};
 
         Error add_node(Farg<T> inNodeID, Farg<T> inParentID = T{}) noexcept
         {
@@ -71,7 +71,7 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
             return OK;
         }
 
-        std::unordered_set<T> get_descendants(Farg<T> inNodeID) const noexcept
+        IdSet<T> get_descendants(Farg<T> inNodeID) const noexcept
         {
             LOCK
 // TODO: I should implement an actual root node instead of doing this
@@ -82,25 +82,25 @@ template<typename T> requires std::same_as<T, ID> or std::same_as<T, PID>
             }
             else if(!nodes.contains(inNodeID))
                 { return {}; }
-            std::unordered_set<T> output{};
+            IdSet<T> output{};
             auto iter{output.begin()};
             FAUTO children{nodes.at(inNodeID).children};
             for(FAUTO child : children)
             {
                 iter = output.emplace_hint(iter, child);
-                std::unordered_set<T> sub_children{get_descendants(child)};
+                IdSet<T> sub_children{get_descendants(child)};
                 for(auto second_iter{sub_children.begin()}; second_iter != sub_children.end(); ++second_iter)
                     { iter = output.emplace_hint(iter, *second_iter); }
             }
             return output;
         }
 
-        std::unordered_set<T> get_ancestors(Farg<T> inNodeID) const noexcept
+        IdSet<T> get_ancestors(Farg<T> inNodeID) const noexcept
         {
             LOCK
             if(!nodes.contains(inNodeID))
                 { return {}; }
-            std::unordered_set<T> output{};
+            IdSet<T> output{};
             auto iter{output.begin()};
             T parent{nodes.at(inNodeID).parent};
             while(not parent.invalid())
