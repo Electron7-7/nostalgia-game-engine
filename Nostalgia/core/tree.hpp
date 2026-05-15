@@ -21,6 +21,7 @@ template<ID_or_PID T>
         mutable RMutex _mutex{};
     public:
         IdMap<T, Node<T>> nodes{};
+        IdSet<T>     root_nodes{};
 
         Error add_node(Farg<T> inNodeID, Farg<T> inParentID = T{}) noexcept
         {
@@ -33,6 +34,8 @@ template<ID_or_PID T>
                     { return ERR_NOT_FOUND; }
                 nodes.at(inParentID).children.insert(inNodeID);
             }
+            else
+                { root_nodes.insert(inNodeID); }
             nodes.emplace(inNodeID, Node{inNodeID, inParentID});
             return OK;
         }
@@ -51,6 +54,7 @@ template<ID_or_PID T>
                         { found_child->second.parent = T{}; }
                 }
                 nodes.erase(found_it);
+                root_nodes.erase(inNodeID);
                 return OK;
             }
             return ERR_NOT_FOUND;
@@ -66,7 +70,12 @@ template<ID_or_PID T>
             if(auto found_it{nodes.find(child.parent)}; found_it != nodes.end())
                 { found_it->second.children.erase(inNodeID); }
             if(!inParentID.invalid())
-                { nodes.at(inParentID).children.insert(inNodeID); }
+            {
+                nodes.at(inParentID).children.insert(inNodeID);
+                root_nodes.erase(inNodeID);
+            }
+            else
+                { root_nodes.insert(inNodeID); }
             child.parent = inParentID;
             return OK;
         }
