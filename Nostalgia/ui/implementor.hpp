@@ -69,19 +69,19 @@ public:
     static void SetGlobalCanHandleEvents(bool inCanHandleEvents);
 
     template<typename T> requires std::derived_from<T, UI_Solution>
-        Unique<UI_Solution>& CreateSolution()
+        T* CreateSolution()
         {
             mObjects[typeid(T)] = MakeUnique<T>();
             mObjects[typeid(T)]->mImplementorIndex = mIndex;
-            return mObjects[typeid(T)];
+            return static_cast<T*>(mObjects[typeid(T)].get());
         }
 
     template<typename T> requires std::derived_from<T, UI_Implementor>
-        static Unique<UI_Implementor>& Create() noexcept
+        static UI_Implementor* Create() noexcept
         {
             m_sInstances[typeid(T)] = MakeUnique<T>();
             m_sInstances[typeid(T)]->mIndex = typeid(T);
-            return m_sInstances[typeid(T)];
+            return m_sInstances[typeid(T)].get();
         }
 
 protected:
