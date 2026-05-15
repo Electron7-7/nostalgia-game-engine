@@ -22,9 +22,10 @@ void ImageTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
     data.get_variable(mInitialImageID, "Image", "Data");
+    data.get_variable(mInitialImagePath, "ImagePath", "DataPath");
     if(not mInitialImageID.invalid())
         { SetImage(ThingFactory::GetThing<Image>(mInitialImageID)); }
-    else if(data.get_variable(mInitialImagePath, "Image", "Data") == OK)
+    else if(not mInitialImagePath.empty())
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }
 }
 
@@ -32,7 +33,7 @@ Shared<ThingData> ImageTexture::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mInitialImageID, "Image");
-    data->set_variable(mInitialImagePath, "Image");
+    data->set_variable(mInitialImagePath, "ImagePath");
     return data;
 }
 
