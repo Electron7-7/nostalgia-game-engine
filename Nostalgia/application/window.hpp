@@ -101,26 +101,19 @@ public:
     virtual Error SetFullscreenMonitor(uint MonitorIndex) = 0;
     virtual Unique<GraphicsContext>& GetContext() = 0;
 
-    const char* GetTitle()     const { return mData.title.data(); }
-    Size2D GetScale()          const;
-    Position2D GetPosition()   const;
-    uint GetWidth()            const { return mData.width; }
-    uint GetHeight()           const { return mData.height; }
-    int GetXPosition()         const { return mData.x_pos; }
-    int GetYPosition()         const { return mData.y_pos; }
-    Vsync GetVsync()           const { return mData.vsync; }
-    MouseMode GetMouseMode()   const { return mData.mouse_mode; }
-    WindowMode GetWindowMode() const { return mData.window_mode; }
-    bool IsFullscreen()        const { return GetWindowMode() == WINDOW_MODE_FULLSCREEN; }
-    Error GetInitStatus()      const { return mInitStatus; }
-    Farg<WindowProperties> GetProperties() const { return mData; }
-
-protected:
-    Error mInitStatus{FAILED};
-    WindowProperties mData{};
-    uint mFullscreenMonitorIndex{0};
-
-    virtual Error InitializeCallbacks() = 0;
+    virtual const char* GetTitle()           const = 0;
+    virtual Size2D GetScale()                const = 0;
+    virtual Position2D GetPosition()         const = 0;
+    virtual uint GetWidth()                  const = 0;
+    virtual uint GetHeight()                 const = 0;
+    virtual int GetXPosition()               const = 0;
+    virtual int GetYPosition()               const = 0;
+    virtual Vsync GetVsync()                 const = 0;
+    virtual MouseMode GetMouseMode()         const = 0;
+    virtual WindowMode GetWindowMode()       const = 0;
+    virtual bool IsFullscreen()              const = 0;
+    virtual Error GetInitStatus()            const = 0;
+    virtual Farg<Properties> GetProperties() const = 0;
 };
 
 #endif // WINDOW_H

@@ -35,6 +35,20 @@ public:
     Error SetMouseMode(MouseMode) override;
     Error SetWindowMode(WindowMode) override;
 
+    const char* GetTitle()           const override { return mData.title.data(); }
+    Size2D GetScale()                const override { return {mData.width, mData.height}; }
+    Position2D GetPosition()         const override { return {mData.x_pos, mData.y_pos}; }
+    uint GetWidth()                  const override { return mData.width; }
+    uint GetHeight()                 const override { return mData.height; }
+    int GetXPosition()               const override { return mData.x_pos; }
+    int GetYPosition()               const override { return mData.y_pos; }
+    Vsync GetVsync()                 const override { return mData.vsync; }
+    MouseMode GetMouseMode()         const override { return mData.mouse_mode; }
+    WindowMode GetWindowMode()       const override { return mData.window_mode; }
+    bool IsFullscreen()              const override { return GetWindowMode() == WINDOW_MODE_FULLSCREEN; }
+    Error GetInitStatus()            const override { return mInitStatus; }
+    Farg<Properties> GetProperties() const override { return mData; }
+
 private:
     struct CallbackHandler
     {
@@ -51,6 +65,9 @@ private:
     };
     friend struct CallbackHandler;
 
+    Error mInitStatus{FAILED};
+    WindowProperties mData{};
+    uint mFullscreenMonitorIndex{0};
     GLFWwindow* m_pWindow{nullptr};
     Unique<GraphicsContext> mGraphicsContext{nullptr};
     Position2D mMouseCurrent{};
