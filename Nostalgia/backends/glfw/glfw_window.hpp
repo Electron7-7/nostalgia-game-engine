@@ -15,6 +15,9 @@ public:
     WindowGLFW(const WindowProperties&);
     virtual ~WindowGLFW();
 
+    void Close() override;
+    bool Closed() const override;
+    bool IsMainWindow() const override;
     void Update() override;
 
     void* GetNativeWindow() const override { return static_cast<GLFWwindow*>(m_pWindow); }
@@ -74,11 +77,11 @@ private:
     Position2D mMouseLast{};
     Position2D mScrollCurrent{};
     int mFramesWithNoMouseMovement{0}, mFramesWithNoScrollOffset{0};
+    bool mClosed{false}, mIsMainWindow{false};
 
-    Error InitializeCallbacks() override;
-    Error Init(const WindowProperties&);
-    void Shutdown();
+    Error Initialize();
 
+    inline static bool m_sGLFWInitialized{false};
     static constexpr int mFrameLimitForNoMouseMovement{2};
     static uint GetMonitorIndex(GLFWmonitor*);
     static void AddMonitor(GLFWmonitor*);

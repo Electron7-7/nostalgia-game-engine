@@ -84,6 +84,9 @@ public:
 
     virtual ~IWindow() = default;
 
+    virtual bool Closed() const = 0;
+    virtual bool IsMainWindow() const = 0;
+    virtual void Close() = 0;
     virtual void Update() = 0;
     virtual Error SetPosition(Farg<Position2D>) { return UNIMPLEMENTED; }
     virtual Error SetScale(Farg<Size2D>)        { return UNIMPLEMENTED; }

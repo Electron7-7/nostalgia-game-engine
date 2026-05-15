@@ -6,7 +6,6 @@
 #include "rendering/renderer_api.hpp"
 #include "rendering/graphics_context.hpp"
 
-static int sShittyWindowTrackerPleaseMakeSomethingBetter{0};
 static std::vector<Unique<Monitor>> m_sMonitors{};
 
 bool gDebugPrintStateChanges{false};
@@ -24,28 +23,45 @@ void WindowGLFW::CallbackHandler::sMonitorCallbackFunction(GLFWmonitor* inMonito
     }
 }
 
-void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow*)
-{ EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose); }
+void WindowGLFW::CallbackHandler::sWindowCloseCallbackFunction(GLFWwindow* inWindow)
+{
+    if(auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))})
+    {
+        EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose, pWindow->mIsMainWindow);
+        if(not pWindow->IsMainWindow())
+        {
+            pWindow->Close();
+            return;
+        }
+    }
+}
 
 void WindowGLFW::CallbackHandler::sWindowSizeCallbackFunction(GLFWwindow* inWindow, int inWidth, int inHeight)
 {
-    auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
-    pWindow->mData.width  = inWidth;
-    pWindow->mData.height = inHeight;
-    RendererAPI::Get()->SetViewport({0, 0}, pWindow->GetScale());
-    EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowResize);
+    if(auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))})
+    {
+        pWindow->mData.width  = inWidth;
+        pWindow->mData.height = inHeight;
+        RendererAPI::Get()->SetViewport({0, 0}, pWindow->GetScale());
+        EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowResize, pWindow->mIsMainWindow);
+    }
 }
 
 void WindowGLFW::CallbackHandler::sWindowPosCallbackFunction(GLFWwindow* inWindow, int inX, int inY)
 {
-    auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))};
-    pWindow->mData.x_pos = inX;
-    pWindow->mData.y_pos = inY;
-    EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowMoved);
+    if(auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))})
+    {
+        pWindow->mData.x_pos = inX;
+        pWindow->mData.y_pos = inY;
+        EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowMove, pWindow->mIsMainWindow);
+    }
 }
 
 void WindowGLFW::CallbackHandler::sCursorPosCallbackFunction(GLFWwindow* inWindow, double inX, double inY)
-{ static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))->mFramesWithNoMouseMovement = 0; }
+{
+    if(auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))})
+        { pWindow->mFramesWithNoMouseMovement = 0; }
+}
 
 Key::Modifiers sConvertModifierKeys(int mods)
 {
@@ -74,7 +90,7 @@ void WindowGLFW::CallbackHandler::sKeyCallbackFunction(GLFWwindow* inWindow,
     }
 }
 
-void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow* inWindow, int button, int action, int mods)
+void WindowGLFW::CallbackHandler::sMouseButtonCallbackFunction(GLFWwindow*, int button, int action, int mods)
 {
     if(button == GLFW_KEY_UNKNOWN)
         { return; }
@@ -93,8 +109,11 @@ void WindowGLFW::CallbackHandler::sMouseScrollCallbackFunction(GLFWwindow* inWin
     double inOffsetX,
     double inOffsetY)
 {
-    static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))->mFramesWithNoScrollOffset = 0;
-    static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))->mScrollCurrent = {inOffsetX, inOffsetY};
+    if(auto pWindow{static_cast<WindowGLFW*>(glfwGetWindowUserPointer(inWindow))})
+    {
+        pWindow->mFramesWithNoScrollOffset = 0;
+        pWindow->mScrollCurrent = {inOffsetX, inOffsetY};
+    }
     g_pInputManager->UpdateScrollOffset(inOffsetX, inOffsetY);
 }
 
@@ -113,9 +132,10 @@ void WindowGLFW::AddMonitor(GLFWmonitor* inMonitor)
         &outMonitor->content_scale.x, &outMonitor->content_scale.y);
 }
 
-WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
+WindowGLFW::WindowGLFW(const WindowProperties& inProperties):
+    mData{inProperties}
 {
-    mInitStatus = Init(inProperties);
+    print_error_enum(Initialize());
     EnumRegistry::Register(MOUSE_MODE_VISIBLE,  "MouseMode::Visible");
     EnumRegistry::Register(MOUSE_MODE_CAPTURED, "MouseMode::Captured");
     EnumRegistry::Register(MOUSE_MODE_HIDDEN,   "MouseMode::Hidden");
@@ -125,44 +145,41 @@ WindowGLFW::WindowGLFW(const WindowProperties& inProperties)
 
 WindowGLFW::~WindowGLFW()
 {
-    Shutdown();
+    Close();
     PRINT_PRETTY_DESTRUCTOR;
 }
 
-Error WindowGLFW::Init(const WindowProperties& inProperties)
+Error WindowGLFW::Initialize()
 {
-    mData = inProperties;
-    if(not glfwInit())
-        { return print_error_enum(ERR_INIT_FAILED); }
+    if((mIsMainWindow = not m_sGLFWInitialized))
+    {
+        if(not glfwInit())
+            { return print_error_enum(ERR_INIT_FAILED); }
+        RendererAPI::ActivateInstance(RendererAPI::OPENGL);
+    }
     m_pWindow = glfwCreateWindow(
         static_cast<int>(mData.width),
         static_cast<int>(mData.height),
         mData.title.data(),
         nullptr, nullptr);
-    RendererAPI::ActivateInstance(RendererAPI::OPENGL);
-    mGraphicsContext = GraphicsContext::Create(m_pWindow);
     glfwSetWindowUserPointer(m_pWindow, this);
-    if(not print_error_enum(mGraphicsContext->Init()))
+    mGraphicsContext = GraphicsContext::Create(m_pWindow);
+    if(mIsMainWindow)
     {
-        glfwTerminate();
-        return ERR_INIT_FAILED;
+        if(not print_error_enum(mGraphicsContext->Init()))
+        {
+            glfwTerminate();
+            return ERR_INIT_FAILED;
+        }
+        if(m_sMonitors.empty())
+        {
+            int count{};
+            auto monitors{glfwGetMonitors(&count)};
+            for(int i{0}; i < count; ++i)
+                { AddMonitor(monitors[i]); }
+            mFullscreenMonitorIndex = 0;
+        }
     }
-    print_error_enum(InitializeCallbacks());
-    ++sShittyWindowTrackerPleaseMakeSomethingBetter;
-
-    if(m_sMonitors.empty())
-    {
-        int count{};
-        auto monitors{glfwGetMonitors(&count)};
-        for(int i{0}; i < count; ++i)
-            { AddMonitor(monitors[i]); }
-        mFullscreenMonitorIndex = 0;
-    }
-    return OK;
-}
-
-Error WindowGLFW::InitializeCallbacks()
-{
     glfwSetMonitorCallback(&CallbackHandler::sMonitorCallbackFunction);
     glfwSetWindowCloseCallback(m_pWindow, &CallbackHandler::sWindowCloseCallbackFunction);
     glfwSetWindowSizeCallback(m_pWindow, &CallbackHandler::sWindowSizeCallbackFunction);
@@ -174,14 +191,24 @@ Error WindowGLFW::InitializeCallbacks()
     return OK;
 }
 
-void WindowGLFW::Shutdown()
+bool WindowGLFW::Closed() const
+{ return mClosed; }
+
+bool WindowGLFW::IsMainWindow() const
+{ return mIsMainWindow; }
+
+void WindowGLFW::Close()
 {
+    if(mClosed)
+        { return; }
     glfwDestroyWindow(m_pWindow);
-    if(--sShittyWindowTrackerPleaseMakeSomethingBetter <= 0)
+    if(mIsMainWindow)
     {
         RendererAPI::DeactivateInstance();
         glfwTerminate();
+        m_sGLFWInitialized = false;
     }
+    mClosed = true;
 }
 
 void WindowGLFW::Update()
