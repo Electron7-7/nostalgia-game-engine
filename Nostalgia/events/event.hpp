@@ -49,13 +49,16 @@ class WindowEvent : public CEvent<EventPriority::Highest>
 public:
     NEW_EVENT(WindowClose)
     NEW_EVENT(WindowResize)
-    NEW_EVENT(WindowMoved)
+    NEW_EVENT(WindowMove)
 
     EVENT_TYPE(EventType::WindowEvent)
-    EVENT_LOG final { return "WindowEvent: " + mName; }
+    EVENT_LOG final { return (mIsMainWindow) ? "(MainWindow) <WindowEvent> " : "<WindowEvent> " + mName; }
 
-    constexpr WindowEvent(Sarg inName):
-        mName{inName} {}
+    constexpr WindowEvent(Sarg inName, bool inIsMainWindow = false):
+        mName{inName}, mIsMainWindow{inIsMainWindow} {}
+
+    constexpr bool IsMainWindow() const noexcept
+    { return mIsMainWindow; }
 
     constexpr bool IsEvent(Sarg inEventName) const noexcept final
     { return mName == inEventName; }
@@ -65,6 +68,7 @@ public:
 
 protected:
     std::string mName{};
+    bool mIsMainWindow{false};
 };
 
 class InputEvent : public CEvent<EventPriority::P0>
