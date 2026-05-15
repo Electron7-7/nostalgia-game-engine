@@ -38,6 +38,8 @@ private:
         UNDECIDED
     };
 
+    inline static std::unordered_map<PID, Shared<ImageTexture>> m_sEditorIcons{};
+
     TheatreState mTheatreState{NO_WANT_AM_SATISFIED};
     TheatreState mPreviousTheatreState{NO_WANT_AM_SATISFIED};
     bool mAskAreYouSure{true},
@@ -48,7 +50,6 @@ private:
         mThingAdderOpened{false},
         mResizeEditorWindows{true};
     std::string mCurrentTheatreFilePath{}, mScreenshotFilePath{};
-    std::unordered_map<PID, Shared<ImageTexture>> mEditorIcons{}, mNewEditorIcons{};
     TheatreFile::TheatreData mEditorTheatreData{};
     ID mInspectingThingUID{};
     Shared<TheatreFile::ThingData> m_pInspectingThingData{MakeShared<TheatreFile::ThingData>()};

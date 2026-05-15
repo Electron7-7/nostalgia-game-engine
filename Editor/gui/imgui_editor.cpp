@@ -1,7 +1,6 @@
 #include "./imgui_editor.hpp"
 #include "./imgui_debugger.hpp"
 #include "editor_icons.hpp"
-#include "new_editor_icons.hpp"
 #include "theatre/editor_theatre.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
@@ -18,21 +17,14 @@
 #include <Nostalgia/things/thinkers/3d/ramiel.hpp>
 
 #define REGISTER_ICON(TYPE, VAR_NAME, THING_NAME) \
-    mEditorIcons[TYPE] = ImageTexture::CreateFromImage(\
+    m_sEditorIcons[TYPE] = ImageTexture::CreateFromImage(\
         Image::CreateFromFile({_EditorIcons::VAR_NAME,std::size(_EditorIcons::VAR_NAME)})); \
-    mEditorIcons[TYPE]->rename(#THING_NAME); \
-
-#define REGISTER_NEW_ICON(TYPE, VAR_NAME, THING_NAME) \
-    mNewEditorIcons[TYPE] = ImageTexture::CreateFromImage(\
-        Image::CreateFromFile({_NewEditorIcons::VAR_NAME,std::size(_NewEditorIcons::VAR_NAME)})); \
-    mNewEditorIcons[TYPE]->rename(#THING_NAME);
+    m_sEditorIcons[TYPE]->rename(#THING_NAME);
 
 using namespace ImGui;
 
 static ImGui_Editor sImGuiEditor{};
 ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
-
-static bool sUseNewIcons{false};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
 static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
@@ -49,9 +41,7 @@ void ImGui_Editor::Init()
 {
     PRINT_PRETTY_FUNCTION;
     REGISTER_ICON(ThingType::Actor2D, actor_2d, Actor2D)
-        REGISTER_NEW_ICON(ThingType::Actor2D, actor_2d, Actor2D)
     REGISTER_ICON(ThingType::Actor3D, actor_3d, Actor3D)
-        REGISTER_NEW_ICON(ThingType::Actor3D, actor_3d, Actor3D)
     REGISTER_ICON(ThingType::ArrayMesh, array_mesh, ArrayMesh)
     REGISTER_ICON(ThingType::Camera2D, camera_2d, Camera2D)
     REGISTER_ICON(ThingType::Camera3D, camera_3d, Camera3D)
@@ -65,29 +55,21 @@ void ImGui_Editor::Init()
     REGISTER_ICON(ThingType::Material, material, Material)
     REGISTER_ICON(ThingType::Mesh, mesh, Mesh)
     REGISTER_ICON(ThingType::MeshInstance3D, mesh_instance_3d, MeshInstance3D)
-        REGISTER_NEW_ICON(ThingType::MeshInstance3D, mesh_instance_3d, MeshInstance3D)
-    REGISTER_ICON(ThingType::NostalgiaPlayer, nostalgia_player_3d, NostalgiaPlayer)
+    REGISTER_ICON(ThingType::NostalgiaPlayer, nostalgia_player, NostalgiaPlayer)
     REGISTER_ICON(ThingType::PointLight3D, point_light_3d, PointLight3D)
     REGISTER_ICON(ThingType::Resource, resource, Resource)
-        REGISTER_NEW_ICON(ThingType::Resource, resource, Resource)
     REGISTER_ICON(ThingType::SpotLight3D, spot_light_3d, SpotLight3D)
     REGISTER_ICON(ThingType::Sprite2D, sprite_2d, Sprite2D)
-        REGISTER_NEW_ICON(ThingType::Sprite2D, sprite_2d, Sprite2D)
     REGISTER_ICON(ThingType::Sprite3D, sprite_3d, Sprite3D)
     REGISTER_ICON(ThingType::Text2D, text_2d, Text2D)
     REGISTER_ICON(ThingType::Texture, texture, Texture)
     REGISTER_ICON(ThingType::Thing, thing, Thing)
-        REGISTER_NEW_ICON(ThingType::Thing, thing, Thing)
     REGISTER_ICON(ThingType::Thinker, thinker, Thinker)
-        REGISTER_NEW_ICON(ThingType::Thinker, thinker, Thinker)
     REGISTER_ICON(ThingType::Viewport, viewport, Viewport)
     REGISTER_ICON(ThingType::ViewportTexture, viewport_texture, ViewportTexture)
     REGISTER_ICON(ThingType::Visual2D, visual_2d, Visual2D)
-        REGISTER_NEW_ICON(ThingType::Visual2D, visual_2d, Visual2D)
     REGISTER_ICON(ThingType::Visual3D, visual_3d, Visual3D)
-        REGISTER_NEW_ICON(ThingType::Visual3D, visual_3d, Visual3D)
     REGISTER_ICON(Ramiel::sClassType(), ramiel, Ramiel)
-        REGISTER_NEW_ICON(Ramiel::sClassType(), ramiel, Ramiel)
 
     mAskAreYouSure = false;
     mIsEditorSaved = true;
@@ -97,8 +79,7 @@ void ImGui_Editor::Init()
 void ImGui_Editor::Shutdown()
 {
     PRINT_PRETTY_FUNCTION;
-    mEditorIcons.clear();
-    mNewEditorIcons.clear();
+    m_sEditorIcons.clear();
 }
 
 void ImGui_Editor::TheatreEntered()
@@ -532,8 +513,7 @@ bool s_TreeNodeEx(const char* inLabel, ImGuiTreeNodeFlags inFlags)
 
 uint ImGui_Editor::GetIconTextureBufferID(FPID inType)
 {
-    auto& _icons{(sUseNewIcons) ? mNewEditorIcons : mEditorIcons};
-    if(auto found_it{_icons.find(inType)}; found_it != _icons.end())
+    if(auto found_it{m_sEditorIcons.find(inType)}; found_it != m_sEditorIcons.end())
         { return found_it->second->Buffer()->GetID(); }
     else if(auto _base{ThingFactory::BaseOf(inType)}; not _base.invalid())
         { return GetIconTextureBufferID(_base); }
