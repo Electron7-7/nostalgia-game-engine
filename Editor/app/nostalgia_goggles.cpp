@@ -4,7 +4,6 @@
 #include "gui/imgui_debugger.hpp"
 #include "things/editor_player_3d.hpp"
 #include "things/test_animated_sprite.hpp"
-#include <Nostalgia/application/window.hpp>
 #include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/events/action.hpp>
 #include <Nostalgia/managers/physics_manager.hpp>
@@ -15,7 +14,6 @@
 #include <Nostalgia/managers/event_manager.hpp>
 #include <Nostalgia/managers/ui_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
-#include <Nostalgia/ui/implementor.hpp>
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
 #include <Nostalgia/things/resources/array_mesh.hpp>
@@ -44,9 +42,9 @@ int NostalgiaGoggles::Main()
     Console::Init();
     Console::SetVariable("ThingFactory.debug_type_msgs", m_sEnableThingFactoryDebugMsgs);
 
-    auto& imgui_impl{UI_Implementor::Create<ImGui_Implementor>()};
-    imgui_impl->CreateSolution<ImGui_Editor>();
-    imgui_impl->CreateSolution<ImGui_Debugger>();
+    m_pUII = UI_Implementor::Create<ImGui_Implementor>();
+    m_pEditor = m_pUII->CreateSolution<ImGui_Editor>();
+    m_pUII->CreateSolution<ImGui_Debugger>();
 
     IManager::FPSCounter(true);
     g_pRenderManager->CalculateFrameTime(true);
@@ -81,8 +79,15 @@ int NostalgiaGoggles::Main()
 
 void NostalgiaGoggles::Event(IEvent* inEvent)
 {
-    if(inEvent->IsEvent(WindowEvent::WindowClose))
-        { Application()->Stop(); }
+    if(auto _event{static_cast<WindowEvent*>(inEvent)}; _event
+        and _event->IsEvent(WindowEvent::WindowClose)
+        and _event->IsMainWindow())
+    {
+        if(m_pEditor)
+            { m_pEditor->QuitEditor(); }
+        else
+            { Stop(); }
+    }
 }
 
 void NostalgiaGoggles::Input(InputEvent* event)
@@ -93,6 +98,10 @@ void NostalgiaGoggles::Input(InputEvent* event)
             ? IWindow::WINDOW_MODE_FULLSCREEN
             : IWindow::WINDOW_MODE_WINDOWED);
     }
-    else if(event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
-        { EventManager::Queue()->add<WindowEvent>(WindowEvent::WindowClose); }
 }
+
+const IWindow* NostalgiaGoggles::MainWindow() const
+{ return m_pMainWindow.get(); }
+
+IWindow* NostalgiaGoggles::MainWindow()
+{ return m_pMainWindow.get(); }

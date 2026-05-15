@@ -5,9 +5,6 @@ IApplication* sInstance{nullptr};
 IApplication* Application()
 { return sInstance; }
 
-Unique<IWindow>& MainWindow()
-{ return Application()->GetWindow(); }
-
 IApplication::IApplication()
 {
     assert(!sInstance && "Only one Application instance allowed!");
@@ -16,7 +13,7 @@ IApplication::IApplication()
 }
 
 IApplication::~IApplication()
-{ PRINT_PRETTY_DESTRUCTOR; sInstance = nullptr; }
-
-Unique<IWindow>& IApplication::GetWindow()
-{ return mMainWindow; }
+{
+    PRINT_PRETTY_DESTRUCTOR;
+    sInstance = nullptr;
+}

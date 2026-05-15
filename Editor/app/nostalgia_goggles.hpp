@@ -3,7 +3,10 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/application/application.hpp>
-#include <Nostalgia/components/event_handling.hpp>
+#include <Nostalgia/ui/implementor.hpp>
+
+// Forward Declaration
+class ImGui_Editor;
 
 class NostalgiaGoggles final : public IApplication
 {
@@ -14,8 +17,16 @@ public:
     void Input(InputEvent*) final;
     void Event(IEvent*) final;
 
+    const IWindow* MainWindow() const final;
+    IWindow* MainWindow() final;
+
     inline static bool m_sEnableThingFactoryDebugMsgs{false};
     inline static uint m_sMainWindowWidth{1280}, m_sMainWindowHeight{720};
+
+private:
+    UI_Implementor* m_pUII{nullptr};
+    ImGui_Editor* m_pEditor{nullptr};
+    Unique<IWindow> m_pMainWindow{nullptr};
 };
 
 extern std::string gToggleFullscreen;

@@ -8,8 +8,8 @@
 class IApplication : public OnInput, public OnEvent, public OnUpdate, public OnTick, public OnTheatreChanged
 {
 public:
-    virtual int  Main() { return 1; }
-    virtual void Stop() {}
+    virtual int  Main() = 0;
+    virtual void Stop() = 0;
     virtual const char* Name() { return "IApplication"; }
 
     virtual void Input(InputEvent*) override {}
@@ -19,16 +19,14 @@ public:
     virtual void TheatreEntered() override {}
     virtual void TheatreExited() override {}
 
+    virtual const IWindow* MainWindow() const = 0;
+    virtual IWindow* MainWindow() = 0;
+
+
     IApplication();
     virtual ~IApplication();
-
-    Unique<IWindow>& GetWindow();
-
-protected:
-    Unique<IWindow> mMainWindow{nullptr};
 };
 
 IApplication* Application();
-Unique<IWindow>& MainWindow();
 
 #endif // APPLICATION_H
