@@ -31,17 +31,18 @@
 #define LOCK_MUTEX LockGuard<RMutex> lock{sMutex}
 #define FOUND_IT(MAP, KEY) auto found_it{MAP.find(KEY)}; found_it != MAP.end()
 
-static RMutex sMutex{};
+static RMutex sMutex{}, sExternMutex{};
 static std::map<ID, Shared<Thing>> sThings{};
 static std::unordered_set<ID> sResourceUIDs{}, sThinkerUIDs{};
 static std::map<std::string, ID> sNames{};
 
 static std::map<PID, PID> sTypeDeclarations{};
-static bool sIsInitialized{false};
+static bool sIsInitialized{false}, sImportantTypesRegistered{false};
 static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
 static std::map<ID, int> sTypePriorities{};
 static std::map<ID, std::unordered_set<PID>> sTypeAncestors{};
 static Tree<PID> sTypes{};
+static std::vector<PID> sTypeIDs{ThingType::Resource, ThingType::Thinker};
 
 static RMutex sUIDMutex{};
 static std::unordered_set<uint> sReleasedUIDs{};
@@ -80,30 +81,34 @@ bool ThingFactory::Init()
         { return true; }
 
     AddThingType(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, cDefaultPriority);
-        ADD_THING(Resource, Thing, +1)
-            ADD_THING(Image, Resource, +2)
-            ADD_THING(Font, Resource, +2)
-            ADD_THING(Mesh, Resource)
-                ADD_THING(ArrayMesh, Mesh)
-            ADD_THING(Texture, Resource)
-                ADD_THING(Cubemap, Texture)
-                ADD_THING(ViewportTexture, Texture)
-                ADD_THING(ImageTexture, Texture)
-            ADD_THING(Material, Resource)
-        ADD_THING(Thinker, Thing)
-            ADD_THING(Viewport, Thinker, +1)
-            ADD_THING(NostalgiaPlayer, Thinker)
-            ADD_THING(Actor3D, Thinker)
-                ADD_THING(Ramiel, Actor3D)
-                ADD_THING(Visual3D, Actor3D)
-                    ADD_THING(MeshInstance3D, Visual3D)
-                    ADD_THING(Sprite3D, Visual3D)
-                    ADD_THING(Light3D, Visual3D)
-                        ADD_THING(PointLight3D, Light3D)
-                        ADD_THING(SpotLight3D, Light3D)
-                        ADD_THING(DirectionalLight3D, Light3D)
-                ADD_THING(Camera3D, Actor3D)
-                ADD_THING(Collider3D, Actor3D)
+    AddThingType(&ThingMakerTemplate<Resource>, "Resource", ThingType::Thing, cDefaultPriority + 1);
+    AddThingType(&ThingMakerTemplate<Thinker>, "Thinker", ThingType::Thing, cDefaultPriority);
+    sImportantTypesRegistered = true;
+
+    // RESOURCES
+        ADD_THING(Image, Resource, +2)
+        ADD_THING(Font, Resource, +2)
+        ADD_THING(Mesh, Resource)
+            ADD_THING(ArrayMesh, Mesh)
+        ADD_THING(Texture, Resource)
+            ADD_THING(Cubemap, Texture)
+            ADD_THING(ViewportTexture, Texture)
+            ADD_THING(ImageTexture, Texture)
+        ADD_THING(Material, Resource)
+    // THINKERS
+        ADD_THING(Viewport, Thinker, +1)
+        ADD_THING(NostalgiaPlayer, Thinker)
+        ADD_THING(Actor3D, Thinker)
+            ADD_THING(Ramiel, Actor3D)
+            ADD_THING(Visual3D, Actor3D)
+                ADD_THING(MeshInstance3D, Visual3D)
+                ADD_THING(Sprite3D, Visual3D)
+                ADD_THING(Light3D, Visual3D)
+                    ADD_THING(PointLight3D, Light3D)
+                    ADD_THING(SpotLight3D, Light3D)
+                    ADD_THING(DirectionalLight3D, Light3D)
+            ADD_THING(Camera3D, Actor3D)
+            ADD_THING(Collider3D, Actor3D)
         ADD_THING(Actor2D, Thinker)
             ADD_THING(Camera2D, Actor2D)
             ADD_THING(Visual2D, Actor2D)
@@ -138,12 +143,12 @@ Shared<Thing> ThingFactory::MakeThing(FPID inType, Sarg inName)
 {
     LOCK_MUTEX;
     if(auto found_it{sThingMakers.find(inType)}; found_it != sThingMakers.end())
-        { return AddThing(found_it->second(), inName); }
+        { return MakeThing(found_it->second(), inName); }
     print_warning("'{}' is an invalid type! Thing::Invalid() will be returned", inType.name());
     return Thing::Invalid();
 }
 
-Shared<Thing> ThingFactory::AddThing(Shared<Thing> inThing, std::string inName)
+Shared<Thing> ThingFactory::MakeThing(Shared<Thing> inThing, std::string inName)
 {
     LOCK_MUTEX;
     if(not inThing)
@@ -165,6 +170,7 @@ Shared<Thing> ThingFactory::AddThing(Shared<Thing> inThing, std::string inName)
     if(Console::GetVariable("ThingFactory.debug_thing_msgs").int_value)
         { print_debug("Registered <{}> [{}, {}]", inThing->Type().name(), inThing->name(), inThing->uid()()); }
 
+    inThing->_initialize_variables();
     return inThing;
 }
 
@@ -182,6 +188,15 @@ void ThingFactory::DestroyAllResources()
         { print_error_enum(Destroy(uid)); }
     sResourceUIDs.clear();
 }
+
+LockGuard<RMutex> ThingFactory::LockSortedTypeIDs()
+{ return LockGuard<RMutex>{sExternMutex}; }
+
+Farg<std::vector<PID>> ThingFactory::GetSortedTypeIDs()
+{ return sTypeIDs; }
+
+Farg<Tree<PID>> ThingFactory::GetAllTypes()
+{ return sTypes; }
 
 IdVec_t ThingFactory::GetUIDs()
 {
@@ -365,11 +380,13 @@ Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool 
 
 Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBaseType, int inPriority)
 {
-    if(Error _status{sTypes.add_node({inType}, inBaseType)}; not _status)
+    LOCK(sExternMutex)
+    PID _type{inType};
+    if(Error _status{sTypes.add_node(_type, inBaseType)}; not _status)
         { return _status; }
     else if(inPriority == cDefaultPriority)
     {
-        auto _ancestors{sTypes.get_ancestors(inType)};
+        auto _ancestors{sTypes.get_ancestors(_type)};
         for(auto iter{_ancestors.begin()}; iter != _ancestors.end(); ++iter)
         {
             if(auto found_it{sTypePriorities.find(*iter)}; found_it != sTypePriorities.end()
@@ -380,18 +397,24 @@ Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, Sarg inType, FPID 
             }
         }
     }
-    sTypePriorities[inType] = inPriority;
-    sThingMakers[inType]    = inPtr;
-    sTypeAncestors[inType]  = sTypes.get_ancestors(inType);
+    if(sImportantTypesRegistered)
+    {
+        sTypeIDs.insert(std::find(sTypeIDs.begin(), sTypeIDs.end(),
+            sTypes.get_node(_type).parent) + 1,
+        _type);
+    }
+    sTypePriorities[_type] = inPriority;
+    sThingMakers[_type]    = inPtr;
+    sTypeAncestors[_type]  = sTypes.get_ancestors(_type);
     if(Console::GetVariable("ThingFactory.debug_type_msgs").int_value)
     {
-        if(inType == ThingType::Thing.name())
+        if(_type == ThingType::Thing.name())
         {
             print_debug("Registered Thing (priority: {})", cDefaultPriority);
             return OK;
         }
         std::string _log{std::format("{} (priority {: }) derives: ", inType, inPriority)};
-        auto _ancestors{sTypes.get_ancestors(inType)};
+        auto _ancestors{sTypes.get_ancestors(_type)};
         std::vector<PID> _ancestors_v{_ancestors.begin(), _ancestors.end()};
         for(auto iter{_ancestors_v.rbegin()}; iter != _ancestors_v.rend(); ++iter)
         {
@@ -419,11 +442,17 @@ int ThingFactory::GetPriority(FPID type)
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
-IdSet_t ThingFactory::DerivedFrom(FPID inType) noexcept
-{ return sTypes.get_node(inType).children; }
+PidSet_t ThingFactory::DerivedFrom(FPID inType) noexcept
+{
+    LOCK(sExternMutex)
+    return sTypes.get_node(inType).children;
+}
 
 PID ThingFactory::BaseOf(FPID inType) noexcept
-{ return sTypes.get_node(inType).parent; }
+{
+    LOCK(sExternMutex)
+    return sTypes.get_node(inType).parent;
+}
 
 bool ThingFactory::IsThing(FPID inTypeID)
 { return sTypeAncestors.contains(inTypeID) or sTypeDeclarations.contains(inTypeID); }

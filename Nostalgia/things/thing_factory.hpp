@@ -25,6 +25,10 @@ struct ThingFactory
     static void DestroyAll(); // The nuclear option (should only really be used when shutting down the entire app)
     static void DestroyAllResources(); // The semi-nuclear option (strictly for `ResourceManager::Shutdown`)
 
+    static LockGuard<RMutex> LockSortedTypeIDs();
+    static Farg<std::vector<PID>> GetSortedTypeIDs();
+    static Farg<Tree<PID>> GetAllTypes();
+
     static IdVec_t GetUIDs();
     static IdVec_t GetResourceUIDs();
     static IdVec_t GetThinkerUIDs();
@@ -77,7 +81,7 @@ struct ThingFactory
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);
 
-    static IdSet_t DerivedFrom(FPID inType) noexcept;
+    static PidSet_t DerivedFrom(FPID inType) noexcept;
     static PID BaseOf(FPID inType) noexcept;
 
     static bool IsThing(FPID inTypeID);
@@ -90,7 +94,7 @@ private:
 
     static ID GetUID();
     static void FreeUID(ID);
-    static Shared<Thing> AddThing(Shared<Thing>, std::string);
+    static Shared<Thing> MakeThing(Shared<Thing>, std::string);
     static std::string GetUniqueName(Sarg inName);
 };
 
