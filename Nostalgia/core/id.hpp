@@ -100,6 +100,9 @@ template<typename T>
 template<typename T>
     concept ID_Adjacent = ID_t<T> || std::constructible_from<ID,T>;
 
+template<typename T>
+    concept ID_or_PID = std::same_as<T, ID> or std::same_as<T, PID>;
+
 constexpr bool operator==(unsigned int lhs, ID rhs) noexcept
 { return rhs == lhs; }
 
@@ -110,13 +113,37 @@ template<ID_t T>
         { return static_cast<size_t>(inID()); }
     };
 
-using FPID         = const PID&;
 using IdSet_t      = std::unordered_set<ID>;
 using IdSet_arg    = const IdSet_t&;
 using IdSetRev_t   = std::unordered_set<ID, std::greater<ID>>;
 using IdSetRev_arg = const IdSetRev_t&;
 using IdVec_t      = std::vector<ID>;
 using IdVec_arg    = const IdVec_t&;
+
+using FPID          = const PID&;
+using PidSet_t      = std::unordered_set<PID>;
+using PidSet_arg    = const PidSet_t&;
+using PidSetRev_t   = std::unordered_set<PID, std::greater<PID>>;
+using PidSetRev_arg = const PidSetRev_t&;
+using PidVec_t      = std::vector<PID>;
+using PidVec_arg    = const PidVec_t&;
+
+template<ID_or_PID T>
+    using IdSet       = std::unordered_set<T>;
+template<ID_or_PID T>
+    using FIdSet      = const IdSet<T>&;
+template<ID_or_PID T>
+    using IdSetRev    = std::unordered_set<T, std::greater<T>>;
+template<ID_or_PID T>
+    using FIdSetRev   = const IdSetRev<T>&;
+template<ID_or_PID T>
+    using IdVec       = std::vector<T>;
+template<ID_or_PID T>
+    using FIdVec      = const IdVec<T>&;
+template<ID_or_PID T, typename U>
+    using IdMap       = std::unordered_map<T, U>;
+template<ID_or_PID T, typename U>
+    using FIdMap      = const IdMap<T, U>&;
 
 #undef __id_operator
 #undef ID_UINT_OPERATOR
