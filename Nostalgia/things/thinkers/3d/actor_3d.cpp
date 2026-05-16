@@ -49,6 +49,7 @@ Shared<ThingData> Actor3D::GetVariables() const
     data->set_variable(mLocalTrans.rotation, "Rotation");
     data->set_variable(mLocalTrans.quaternion, "Quaternion");
     data->set_variable(mLocalTrans.scale, "Scale");
+    data->hide_from_editor("Quaternion");
 
     return data;
 }
