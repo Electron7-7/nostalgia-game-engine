@@ -13,7 +13,7 @@ namespace TheatreFile
         PID           type{};
         std::string   name{};
         ThingVarArray variables{};
-        ThingVariable parent_variable{};
+        ThingVariable parent_variable{ID::Invalid};
         ThingVarArray children_variables{};
 
         std::string get_log() const noexcept;
