@@ -81,8 +81,9 @@ Error TheatreFile::Parse(Farg<TokenArray> inTokens, Shared<TheatreData> outData)
                 { outData->name = inTokens.at(++i).token; }
             else if(token.token[0] == cDelimiterTheatreIndex)
             {
-                try { outData->index = std::stoi(inTokens.at(++i).token); }
+                try { outData->index = std::stol(inTokens.at(++i).token); }
                 catch(std::invalid_argument const& e) {}
+                catch(std::out_of_range const& e) {}
             }
         }
         else if(token.category == TokenName::Keyword and not token.token.compare(cKeywordDeclare))
