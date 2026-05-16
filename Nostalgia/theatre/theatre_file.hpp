@@ -28,6 +28,7 @@ namespace TheatreFile
     {
         TokenName category{TokenName::None};
         std::string token{"\0"};
+        bool break_on_me{false};
     };
 
     struct TheatreData
