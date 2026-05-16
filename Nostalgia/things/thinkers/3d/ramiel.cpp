@@ -7,6 +7,7 @@ using namespace TheatreFile;
 void Ramiel::InitVariables()
 {
     Super::InitVariables();
+    mLocalTrans.scale = glm::vec3{120.0f};
 }
 
 void Ramiel::Ready()
@@ -20,7 +21,6 @@ void Ramiel::Ready()
 
 void Ramiel::SetVariables(Farg<ThingData> inData)
 {
-    SetScale(glm::vec3{120.0f});
     Super::SetVariables(inData);
 
     inData.get_variable(mSpeed, "Speed");
