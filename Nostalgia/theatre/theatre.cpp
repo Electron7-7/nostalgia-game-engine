@@ -223,7 +223,7 @@ void Theatre::Draw()
 
     // Render the root viewport
     RendererAPI::Get()->BindFramebuffer();
-    RendererAPI::Get()->SetViewport({0, 0}, MainWindow()->GetScale());
+    RendererAPI::Get()->SetViewport({0, 0}, Application()->MainWindow()->GetScale());
     RendererAPI::Get()->SetClearColor(Settings::Graphics::ClearColor);
     RendererAPI::Get()->Clear();
 
