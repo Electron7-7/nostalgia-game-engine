@@ -122,6 +122,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/settings/engine.hpp
     ${NOSTALGIA_ROOT}/settings/graphics.hpp
     ${NOSTALGIA_ROOT}/settings/world.hpp
+    ${NOSTALGIA_ROOT}/core/debugging.hpp
     ${NOSTALGIA_ROOT}/core/error.hpp
     ${NOSTALGIA_ROOT}/core/safe_return.hpp
     ${NOSTALGIA_ROOT}/core/vector.hpp
