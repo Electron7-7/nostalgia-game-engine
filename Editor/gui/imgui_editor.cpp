@@ -83,23 +83,41 @@ void ImGui_Editor::Shutdown()
 }
 
 void ImGui_Editor::TheatreEntered()
-{}
+{
+    if(Settings::Engine::IsEditorHint)
+    {
+        Console::SetVariable("mat_fullbright", mViewTheatreInFullbright);
+        mAskAreYouSure = not mIsEditorSaved;
+        mEditorTheatreData = Theatre::Current()->CurrentState();
+    }
+}
 
 void ImGui_Editor::TheatreExited()
 { mInspectingThingUID = {}; }
 
+bool ImGui_Editor::ReadyToQuit()
+{ return mReadyToQuit; }
+
 void ImGui_Editor::Input(InputEvent* event)
 {
-    if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
+    if(event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
+        { QuitEditor(); }
+    else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { ImGui_Debugger::m_sDebugWindowOpened = !ImGui_Debugger::m_sDebugWindowOpened; }
     else if(event->IsJustPressed(Key::N) and event->IsModifierActive(Key::Mod_Control))
         { CreateNewTheatre(); }
     else if(event->IsJustPressed(Key::F2) and mTheatreRunning and not Settings::Engine::IsEditorHint)
         { Theatre::Current()->TakeScreenshot()->SaveJPG(mScreenshotFilePath); }
     else if(event->IsJustPressed(Key::F5))
-        { PlayCurrentTheatre(); }
+    {
+        mAskAreYouSure = false;
+        PlayCurrentTheatre();
+    }
     else if(event->IsJustPressed(Key::F8))
-        { ExitBackToEditor(); }
+    {
+        mAskAreYouSure = false;
+        ExitBackToEditor();
+    }
     else if(event->IsJustPressed(Key::O) and event->IsModifierActive(Key::Mod_Control))
         { LoadNewTheatre(); }
     else if(event->IsJustPressed(Key::S) and event->IsModifierActive(Key::Mod_Control))
@@ -121,11 +139,12 @@ void ImGui_Editor::Update()
 {
     mTheatreRunning = Manager::GetTheatreState() == ManagerEnums::IN_LEVEL;
     do_TheatreRelatedPopups();
-    if(not Settings::Engine::IsEditorHint and MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_VISIBLE)
+    if(not Settings::Engine::IsEditorHint
+        and Application()->MainWindow()->GetMouseMode() != IWindow::MOUSE_MODE_VISIBLE)
         { return; }
     SetNextWindowPos({0,0}, ImGuiCond_Once);
-    SetNextWindowSize({static_cast<float>(MainWindow()->GetWidth()),
-        static_cast<float>(MainWindow()->GetHeight())});
+    SetNextWindowSize({static_cast<float>(Application()->MainWindow()->GetWidth()),
+        static_cast<float>(Application()->MainWindow()->GetHeight())});
     if(not Begin("Nostalgia Editor",
             nullptr,
             ImGuiWindowFlags_MenuBar |
@@ -157,7 +176,7 @@ void ImGui_Editor::Update()
             EndDisabled();
             Separator();
             if(MenuItem("Quit", "CTRL+Q"))
-                { Application()->Stop(); }
+                { QuitEditor(); }
             ImGui::EndMenu();
         }
         if(BeginMenu("Edit"))
@@ -178,9 +197,10 @@ void ImGui_Editor::Update()
         }
         if(BeginMenu("Preferences"))
         {
+            if(Checkbox("Render Editor Viewports in Fullbright", &mViewTheatreInFullbright))
+                { Console::SetVariable("mat_fullbright", mViewTheatreInFullbright); }
             SliderFloat("2D Camera Movement Speed", &s2DCameraMovementSpeed, 1.0f, 100.0f);
             SliderFloat("2D Camera Zooming Factor", &s2DCameraZoomFactor, 0.001f, 0.999f);
-            Checkbox("Try out the new editor icons (BETA)", &sUseNewIcons);
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -401,7 +421,7 @@ void ImGui_Editor::Viewport3DWindow(EditorTheatre* ioTheatre)
         {
             UI_Implementor::SetGlobalCanHandleEvents(false);
             camera_moving = true;
-            MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED);
+            Application()->MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED);
         }
         if(InputManager::IsKeyDown(Key::MouseLeft))
         {
@@ -427,7 +447,7 @@ void ImGui_Editor::Viewport3DWindow(EditorTheatre* ioTheatre)
     {
         UI_Implementor::SetGlobalCanHandleEvents(true);
         camera_moving = false;
-        MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
+        Application()->MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
     }
 }
 
@@ -442,7 +462,7 @@ void ImGui_Editor::Viewport2DWindow(EditorTheatre* ioTheatre)
         {
             UI_Implementor::SetGlobalCanHandleEvents(false);
             camera_moving = true;
-            MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED);
+            Application()->MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_DISABLED);
         }
         if(InputManager::IsKeyDown(Key::MouseLeft))
         {
@@ -468,7 +488,7 @@ void ImGui_Editor::Viewport2DWindow(EditorTheatre* ioTheatre)
     {
         UI_Implementor::SetGlobalCanHandleEvents(true);
         camera_moving = false;
-        MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
+        Application()->MainWindow()->SetMouseMode(IWindow::MouseMode::MOUSE_MODE_VISIBLE);
     }
 }
 

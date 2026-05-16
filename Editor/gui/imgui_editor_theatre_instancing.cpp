@@ -4,18 +4,28 @@
 #include "theatre/editor_theatre.hpp"
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/theatre/theatre.hpp>
+#include <Nostalgia/managers/event_manager.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/application/application.hpp>
 
 namespace IG = ImGui;
 
-void ImGui_Editor::SaveCurrentTheatre()
+bool ImGui_Editor::set_TheatreState(TheatreState inState)
 {
-    if(mTheatreState != WANT_SAVE_THEATRE)
+    if(mTheatreState != inState)
     {
         mPreviousTheatreState = mTheatreState;
-        mTheatreState = WANT_SAVE_THEATRE;
+        mTheatreState = inState;
+        return true;
+    }
+    return false;
+}
+
+void ImGui_Editor::SaveCurrentTheatre()
+{
+    if(set_TheatreState(WANT_SAVE_THEATRE))
+    {
         IGFD::FileDialogConfig _config{};
         _config.path = ".";
         ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
@@ -26,20 +36,12 @@ void ImGui_Editor::SaveCurrentTheatre()
 }
 
 void ImGui_Editor::CreateNewTheatre()
-{
-    if(mTheatreState != WANT_NEW_THEATRE)
-    {
-        mPreviousTheatreState = mTheatreState;
-        mTheatreState = WANT_NEW_THEATRE;
-    }
-}
+{ set_TheatreState(WANT_NEW_THEATRE); }
 
 void ImGui_Editor::LoadNewTheatre()
 {
-    if(mTheatreState != WANT_LOAD_THEATRE)
+    if(set_TheatreState(WANT_LOAD_THEATRE))
     {
-        mPreviousTheatreState = mTheatreState;
-        mTheatreState = WANT_LOAD_THEATRE;
         IGFD::FileDialogConfig _config{};
         _config.path = ".";
         ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
@@ -50,22 +52,13 @@ void ImGui_Editor::LoadNewTheatre()
 }
 
 void ImGui_Editor::PlayCurrentTheatre()
-{
-    if(mTheatreState != WANT_PLAY_THEATRE)
-    {
-        mPreviousTheatreState = mTheatreState;
-        mTheatreState = WANT_PLAY_THEATRE;
-    }
-}
+{ set_TheatreState(WANT_PLAY_THEATRE); }
 
 void ImGui_Editor::ExitBackToEditor()
-{
-    if(mTheatreState != WANT_EDIT_THEATRE)
-    {
-        mPreviousTheatreState = mTheatreState;
-        mTheatreState = WANT_EDIT_THEATRE;
-    }
-}
+{ set_TheatreState(WANT_EDIT_THEATRE); }
+
+void ImGui_Editor::QuitEditor()
+{ set_TheatreState(WANT_QUIT_EDITOR); }
 
 ImGui_Editor::FileDialogReturnVal ImGui_Editor::_assert_filepath(std::string& ioPath)
 {
@@ -93,11 +86,15 @@ void ImGui_Editor::do_TheatreRelatedPopups()
     }
     if(mAskAreYouSure)
     {
-        if(not IG::IsPopupOpen("_AreYouSure?"))
-            { IG::OpenPopup("_AreYouSure?"); }
-        if(IG::BeginPopup("_AreYouSure?"))
+        static const char* _are_you_sure{"Save Theatre?"};
+        if(not IG::IsPopupOpen(_are_you_sure))
         {
-            IG::SeparatorText("Save changes made to the current Theatre?");
+            IG::OpenPopup(_are_you_sure);
+            auto _disp_size{IG::GetIO().DisplaySize};
+            IG::SetNextWindowPos({_disp_size[0] * 0.5f, _disp_size[1] * 0.5f}, 0, {0.5f, 0.5f});
+        }
+        if(IG::BeginPopupModal(_are_you_sure, nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+        {
             if(IG::Button("No"))
             {
                 mPreviousTheatreState = mTheatreState;
@@ -147,7 +144,8 @@ void ImGui_Editor::do_TheatreRelatedPopups()
             g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
             g_pTheatreManager->LoadFromData(mEditorTheatreData = {});
             mCurrentTheatreFilePath.clear();
-            mAskAreYouSure = true;
+            mAskAreYouSure = false;
+            mIsEditorSaved = true;
             mPreviousTheatreState = mTheatreState = NO_WANT_AM_SATISFIED;
         }
         break;
@@ -170,6 +168,16 @@ void ImGui_Editor::do_TheatreRelatedPopups()
             break;
         }
         break;
+    case WANT_QUIT_EDITOR:
+        if(not mIsEditorSaved)
+        {
+            mAskAreYouSure = true;
+            return;
+        }
+        mReadyToQuit = true;
+        mTheatreState = mPreviousTheatreState = NO_WANT_AM_SATISFIED;
+        Application()->Stop();
+        break;
     case WANT_SAVE_THEATRE:
         switch(_assert_filepath(mCurrentTheatreFilePath))
         {
@@ -177,7 +185,7 @@ void ImGui_Editor::do_TheatreRelatedPopups()
             Theatre::Current()->SaveToFile(mCurrentTheatreFilePath, FileSystem::OverwriteAction::OVERWRITE);
             mTheatreState = mPreviousTheatreState;
             mIsEditorSaved = true;
-            [[fallthrough]];
+            break;
         case CANCELLED:
             mTheatreState = mPreviousTheatreState = NO_WANT_AM_SATISFIED;
             [[fallthrough]];
@@ -189,10 +197,10 @@ void ImGui_Editor::do_TheatreRelatedPopups()
         if(not Settings::Engine::IsEditorHint)
         {
             g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
-            g_pTheatreManager->LoadFromData(mEditorTheatreData = Theatre::Current()->InitialState());
+            g_pTheatreManager->LoadFromData(mEditorTheatreData);
             Settings::Engine::IsEditorHint = true;
             mPreviousTheatreState = mTheatreState = NO_WANT_AM_SATISFIED;
-            MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
+            Application()->MainWindow()->SetMouseMode(IWindow::MOUSE_MODE_VISIBLE);
         }
         break;
     case WANT_PLAY_THEATRE:

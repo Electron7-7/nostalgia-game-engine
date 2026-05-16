@@ -20,6 +20,9 @@ public:
     void TheatreEntered()   final;
     void TheatreExited()    final;
 
+    void QuitEditor();
+    bool ReadyToQuit();
+
 private:
     enum TheatreState
     {
@@ -28,7 +31,8 @@ private:
         WANT_SAVE_THEATRE,
         WANT_PLAY_THEATRE,
         WANT_EDIT_THEATRE,
-        NO_WANT_AM_SATISFIED
+        WANT_QUIT_EDITOR,
+        NO_WANT_AM_SATISFIED,
     };
 
     enum FileDialogReturnVal
@@ -48,11 +52,15 @@ private:
         mInspectingNewThing{false},
         mAddThing{false},
         mThingAdderOpened{false},
-        mResizeEditorWindows{true};
+        mResizeEditorWindows{true},
+        mViewTheatreInFullbright{false},
+        mReadyToQuit{false};
+
     std::string mCurrentTheatreFilePath{}, mScreenshotFilePath{};
     TheatreFile::TheatreData mEditorTheatreData{};
     ID mInspectingThingUID{};
-    Shared<TheatreFile::ThingData> m_pInspectingThingData{MakeShared<TheatreFile::ThingData>()};
+    Shared<TheatreFile::ThingData> m_pInspectingThingDataIn{MakeShared<TheatreFile::ThingData>()};
+    TheatreFile::ThingData mInspectingThingDataOut{};
 
     FileDialogReturnVal _assert_filepath(std::string& ioPath);
     void SaveCurrentTheatre();
@@ -62,6 +70,7 @@ private:
     void ExitBackToEditor();
     void do_TheatreRelatedPopups();
     void do_ThingAdder();
+    bool set_TheatreState(TheatreState);
 
     uint GetIconTextureBufferID(FPID inType);
     void Viewport3DWindow(EditorTheatre*);

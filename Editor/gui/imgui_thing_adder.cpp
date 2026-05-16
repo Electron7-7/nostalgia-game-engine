@@ -1,13 +1,28 @@
 #include "./imgui_editor.hpp"
 #include "thirdparty/DearImGui/imgui.h"
-#include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "thirdparty/DearImGui/imgui_internal.h"
 #include <Nostalgia/theatre/theatre.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 using namespace ImGui;
 
-static std::string _name{};
-static int sSelectedType{0};
-extern std::vector<PID> Types;
+static bool s_TypeButtons(FPID inType, Farg<Tree<PID>> inTypes, PID& outType)
+{
+    FAUTO _children{inTypes.get_node(inType).children};
+    for(FPID _child : _children)
+    {
+        if(Button(_child.c_name()))
+        {
+            outType = _child;
+            return true;
+        }
+        Indent();
+        if(s_TypeButtons(_child, inTypes, outType))
+            { return true; }
+        Unindent();
+    }
+    return false;
+}
 
 void ImGui_Editor::do_ThingAdder()
 {
@@ -15,68 +30,34 @@ void ImGui_Editor::do_ThingAdder()
     {
         mAddThing = false;
         OpenPopup("Add Thing");
+        SetNextWindowSize({500, 0});
     }
-    if(BeginPopup("Add Thing"))
+    if(BeginPopupEx(GetCurrentWindow()->GetID("Add Thing"),
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings))
     {
-        InputText("Name", &_name);
-        if(BeginCombo("Thing Type",
-            Types[sSelectedType].c_name(),
-            ImGuiComboFlags_HeightRegular | ImGuiComboFlags_WidthFitPreview))
+        auto _lock{ThingFactory::LockSortedTypeIDs()};
+        FAUTO _types{ThingFactory::GetAllTypes()};
+        PID _type{ThingType::Thing};
+        if(TreeNode("Resources"))
         {
-            for(uint i{0}; i < Types.size(); ++i)
+            if(s_TypeButtons(ThingType::Resource, _types, _type))
             {
-                if(Types[i] == ThingType::Resource)
-                    { SeparatorText("Resources"); }
-                else if(Types[i] == ThingType::Thinker)
-                    { SeparatorText("Thinkers"); }
-                const bool is_selected{sSelectedType == i};
-                if(Selectable(Types[i].c_name(), is_selected))
-                    { sSelectedType = i; }
-                if(is_selected)
-                    { SetItemDefaultFocus(); }
+                mIsEditorSaved = false;
+                Theatre::Current()->CreateThing({_type, _type.name()});
+                CloseCurrentPopup();
             }
-            EndCombo();
+            TreePop();
         }
-        BeginDisabled(_name.empty() or Theatre::Current()->Contains(_name));
-            if(Button("Spawn Thing"))
+        if(TreeNodeEx("Thinkers", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            if(s_TypeButtons(ThingType::Thinker, _types, _type))
             {
-                Theatre::Current()->CreateThing({Types[sSelectedType], _name});
-                _name.clear();
+                mIsEditorSaved = false;
+                Theatre::Current()->CreateThing({_type, _type.name()});
+                CloseCurrentPopup();
             }
-        EndDisabled();
+            TreePop();
+        }
         EndPopup();
     }
 }
-
-std::vector<PID> Types{
-//  Resources
-    ThingType::Resource,
-        ThingType::Font,
-        ThingType::Mesh,
-            ThingType::ArrayMesh,
-        ThingType::Texture,
-            ThingType::Cubemap,
-            ThingType::ViewportTexture,
-            ThingType::ImageTexture,
-        ThingType::Material,
-        ThingType::Image,
-//  Thinkers
-    ThingType::Thinker,
-        ThingType::NostalgiaPlayer,
-        ThingType::Viewport,
-        ThingType::Actor3D,
-            ThingType::Camera3D,
-            ThingType::Collider3D,
-            ThingType::Visual3D,
-                ThingType::MeshInstance3D,
-                ThingType::Sprite3D,
-                ThingType::Light3D,
-                    ThingType::PointLight3D,
-                    ThingType::SpotLight3D,
-                    ThingType::DirectionalLight3D,
-        ThingType::Actor2D,
-            ThingType::Camera2D,
-            ThingType::Visual2D,
-                ThingType::Sprite2D,
-                ThingType::Text2D,
-};
