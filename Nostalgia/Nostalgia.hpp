@@ -58,6 +58,7 @@
 
 // Nostalgia
 #include <Nostalgia/core/typedefs.hpp>                // IWYU pragma: keep
+#include <Nostalgia/core/debugging.hpp>               // IWYU pragma: keep
 #include <Nostalgia/core/farg.hpp>                    // IWYU pragma: keep
 #include <Nostalgia/core/error.hpp>                   // IWYU pragma: keep
 #include <Nostalgia/core/mutex.hpp>                   // IWYU pragma: keep
@@ -82,6 +83,7 @@
 #include <Nostalgia/math/conversion.hpp>              // IWYU pragma: keep
 #include <Nostalgia/math/glm_concepts.hpp>            // IWYU pragma: keep
 #include <Nostalgia/math/glm_format.hpp>              // IWYU pragma: keep
+#include <Nostalgia/math/glm_functions.hpp>           // IWYU pragma: keep
 #include <Nostalgia/filesystem/filesystem.hpp>        // IWYU pragma: keep
 #include <Nostalgia/filesystem/file_data.hpp>         // IWYU pragma: keep
 #include <Nostalgia/theatre/parser/number_parser.hpp> // IWYU pragma: keep
