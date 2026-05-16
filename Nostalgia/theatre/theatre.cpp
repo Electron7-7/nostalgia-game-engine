@@ -383,6 +383,7 @@ IdVec_t Theatre::SortedThingUIDs(int& outIndex)
             return ThingFactory::DerivedFrom(lhs, ThingType::Thinker)
                 and ThingFactory::DerivedFrom(rhs, ThingType::Resource);
         });
+    outIndex = _return.size() - 1;
     for(int i{0}; i < _return.size(); ++i)
     {
         if(ThingFactory::DerivedFrom(_return[i], ThingType::Resource))
