@@ -19,6 +19,13 @@
 #include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 
+// Use a separate window title if in debug mode
+#ifdef NOSTALGIA_DEBUGGING
+#   define NOSTALGIA_TITLE_STRING "(DEBUG) NostalgiaGoggles v" NOSTALGIA_VERSION_STRING
+#else
+#   define NOSTALGIA_TITLE_STRING "NostalgiaGoggles v" NOSTALGIA_VERSION_STRING
+#endif // NOSTALGIA_DEBUGGING
+
 // Suppress LeakSanitizer (due to random memory leaks likely caused by libGL.so or X11/Wayland drivers)
 // https://stackoverflow.com/a/51061314
 #ifdef __cplusplus
@@ -36,8 +43,7 @@ void NostalgiaGoggles::Stop()
 
 int NostalgiaGoggles::Main()
 {
-    mMainWindow = IWindow::CreateNewWindow({"Nostalgia_Goggles v" NOSTALGIA_VERSION_STRING,
-        m_sMainWindowWidth, m_sMainWindowHeight});
+    m_pMainWindow = IWindow::CreateNewWindow({NOSTALGIA_TITLE_STRING, m_sMainWindowWidth, m_sMainWindowHeight});
 
     Console::Init();
     Console::SetVariable("ThingFactory.debug_type_msgs", m_sEnableThingFactoryDebugMsgs);
@@ -46,8 +52,8 @@ int NostalgiaGoggles::Main()
     m_pEditor = m_pUII->CreateSolution<ImGui_Editor>();
     m_pUII->CreateSolution<ImGui_Debugger>();
 
-    IManager::FPSCounter(true);
-    g_pRenderManager->CalculateFrameTime(true);
+    IManager::FPSCounter(DEBUG_BUILD);
+    g_pRenderManager->CalculateFrameTime(DEBUG_BUILD);
 
     Manager::Add(g_pRenderManager);
     Manager::Add(g_pResourceManager);
@@ -59,10 +65,14 @@ int NostalgiaGoggles::Main()
 
     Manager::InitAllManagers();
 
-    Console::SetVariable("ThingFactory.debug_type_msgs", true);
+    Console::SetVariable("ThingFactory.debug_type_msgs", DEBUG_BUILD);
 
-    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>, "EditorPlayer3D", ThingType::Actor3D);
-    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>, "TestAnimatedSprite2D", ThingType::Sprite2D);
+    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>,
+        "EditorPlayer3D",
+        ThingType::Actor3D);
+    ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>,
+        "TestAnimatedSprite2D",
+        ThingType::Sprite2D);
 
     g_pInputManager->SetAction({gToggleFullscreen, Key::F10});
     g_pInputManager->SetAction({"+forward",  Key::W});
