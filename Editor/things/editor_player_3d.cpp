@@ -21,23 +21,23 @@ void EditorPlayer3D::InitVariables()
 
 void EditorPlayer3D::SetVariables(Farg<ThingData> data)
 {
-    Actor3D::SetVariables(data);
-
-    data.get_variable(Settings::Player::EnableGravity, "EnableGravity", "Gravity", "Fall");
+    Super::SetVariables(data);
+    data.get_variable(mMouseSensitivity, "MouseSensitivity");
+    data.get_variable(mMouseSensitivityMultiplier, "MouseSensitivityMultiplier", "MouseMultiplier");
 }
 
 Shared<ThingData> EditorPlayer3D::GetVariables() const
 {
-    Shared<ThingData> data{Actor3D::GetVariables()};
-
-    data->set_variable(Settings::Player::EnableGravity, "EnableGravity");
+    Shared<ThingData> data{Super::GetVariables()};
+    data->set_variable(mMouseSensitivity, "MouseSensitivity");
+    data->set_variable(mMouseSensitivityMultiplier, "MouseSensitivityMultiplier");
 
     return data;
 }
 
 void EditorPlayer3D::Ready()
 {
-    Actor3D::Ready();
+    Super::Ready();
 
     bool _has_collider{false}, _has_camera{false};
     for(ID child : Children())
@@ -87,8 +87,7 @@ void EditorPlayer3D::Tick()
 {
     if(mCaptureMouse)
     {
-        mLookWish = InputManager::MouseMotion()
-            * Settings::Player::MouseSensitivity * Settings::Player::MouseSensitivityScale;
+        mLookWish = InputManager::MouseMotion() * mMouseSensitivity * mMouseSensitivityMultiplier;
         m_pCamera->SetRotationDegrees(m_pCamera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
     }
 
