@@ -312,6 +312,15 @@ static void s_GeneralDebuggingWindow()
         EndDisabled();
     }
 #ifdef NOSTALGIA_DEBUGGING
+    if(CollapsingHeader("Theatre Parser"))
+    {
+        s_ConsoleVariableCheckbox("TheatreFile.do_parser_break", "Enable Line Break");
+        BeginDisabled(not Console::GetVariable("TheatreFile.do_parser_break").int_value);
+            int _val{Console::GetVariable("TheatreFile.parser_break_line").int_value};
+            if(InputInt("Line#", &_val))
+                { Console::SetVariable("TheatreFile.parser_break_line", _val); }
+        EndDisabled();
+    }
     if(CollapsingHeader("Message Labels"))
     {
         ushort i{0};
