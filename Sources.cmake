@@ -213,6 +213,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/Nostalgia.hpp
     ${NOSTALGIA_ROOT}/math/transform.hpp
     ${NOSTALGIA_ROOT}/math/glm_format.hpp
+    ${NOSTALGIA_ROOT}/math/glm_functions.hpp
     ${NOSTALGIA_ROOT}/math/conversion.hpp
     ${NOSTALGIA_ROOT}/math/glm_concepts.hpp)
 
