@@ -21,11 +21,9 @@ void ImageTexture::InitVariables()
 void ImageTexture::SetVariables(Farg<ThingData> data)
 {
     Super::SetVariables(data);
-    data.get_variable(mInitialImageID, "Image", "Data");
-    data.get_variable(mInitialImagePath, "ImagePath", "DataPath");
-    if(not mInitialImageID.invalid())
+    if(data.get_variable(mInitialImageID, "Image", "Data") == OK and not mInitialImageID.invalid())
         { SetImage(ThingFactory::GetThing<Image>(mInitialImageID)); }
-    else if(not mInitialImagePath.empty())
+    else if(data.get_variable(mInitialImagePath, "ImagePath", "DataPath") == OK)
         { SetImage(Image::CreateFromFile(mInitialImagePath)); }
 }
 
