@@ -2,7 +2,7 @@
 // index. While it's not a requirement, it *is* a strong recommendation.
 @HelloWorld#0
 
-declare EditorPlayer3D inherits Actor3D
+declare EditorPlayer3D inherits Collider3D
 declare TestAnimatedSprite2D inherits Sprite2D
 
 ///
