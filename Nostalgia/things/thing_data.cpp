@@ -28,16 +28,16 @@ std::string TheatreFile::ThingData::get_parsable_string() const noexcept
     {
         if(var.invalid())
             { continue; }
-        output += std::format("\n{} = {}", var.name, var.value.get_theatre_file_string());
+        output += std::format("\n\t{} = {}", var.name, var.value.get_theatre_file_string());
     }
     for(FAUTO var : children_variables)
     {
         if(var.invalid())
             { continue; }
-        output += std::format("\nChild = {}", var.value.get_theatre_file_string());
+        output += std::format("\n\tChild = {}", var.value.get_theatre_file_string());
     }
     if(not parent_variable.invalid())
-        { output += std::format("\nParent = {}", parent_variable.value.get_theatre_file_string()); }
+        { output += std::format("\n\tParent = {}", parent_variable.value.get_theatre_file_string()); }
     return std::format("{}\n}}\n", output);
 }
 
