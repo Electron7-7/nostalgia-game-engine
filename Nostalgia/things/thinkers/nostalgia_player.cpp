@@ -60,9 +60,19 @@ void NostalgiaPlayer::Ready()
 void NostalgiaPlayer::SetVariables(Farg<ThingData> inData)
 {
     Super::SetVariables(inData);
+    auto _3d_uid{(m_pActor3D) ? m_pActor3D->uid() : ID::Invalid},
+        _2d_uid{(m_pActor2D) ? m_pActor2D->uid() : ID::Invalid};
 
-    inData.get_variable(m_pActor3D, "Actor3D", "3DPlayer", "3DComponent");
-    inData.get_variable(m_pActor2D, "Actor2D", "2DPlayer", "2DComponent");
+    if(inData.get_variable(m_pActor3D, "Actor3D", "3DPlayer", "3DComponent") == OK)
+    {
+        Theatre::Current()->DestroyThing(_3d_uid);
+        Theatre::Current()->SetParent(m_pActor3D->uid(), uid());
+    }
+    if(inData.get_variable(m_pActor2D, "Actor2D", "2DPlayer", "2DComponent") == OK)
+    {
+        Theatre::Current()->DestroyThing(_2d_uid);
+        Theatre::Current()->SetParent(m_pActor2D->uid(), uid());
+    }
 }
 
 Shared<ThingData> NostalgiaPlayer::GetVariables() const
