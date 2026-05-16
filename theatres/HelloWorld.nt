@@ -24,7 +24,7 @@ ImageTexture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
         will capture absolutely everything. Even whitespace. ///
-    Image = 'testing_resources/Stupid.png'
+    ImagePath = 'testing_resources/Stupid.png'
 }
 
 ArrayMesh IcoSphere
@@ -206,10 +206,10 @@ DirectionalLight3D TheSun
 }
 
 ImageTexture TestTexture1
-{ Image = 'testing_resources/TestTexture1.png' }
+{ ImagePath = 'testing_resources/TestTexture1.png' }
 
 ImageTexture TestTexture2
-{ Image = 'testing_resources/TestTexture2.png' }
+{ ImagePath = 'testing_resources/TestTexture2.png' }
 
 Actor2D TestSpriteParent
 {
