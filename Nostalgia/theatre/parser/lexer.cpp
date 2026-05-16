@@ -23,7 +23,7 @@ static constexpr frozen::set<frozen::string, 4>
 
 enum Comment { SINGLE, MULTI, NO_COMMENT };
 
-static void debug_PrettifyEnums();
+static void debug_RegisterEnums();
 static void s_HandleWordBuffer(std::string& ioBuffer, TokenArray& ioTokens, Comment inComment, char inChar)
 {
     if(ioBuffer.empty())
@@ -49,7 +49,7 @@ using namespace TheatreFile;
 Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
 {
 #ifdef NOSTALGIA_DEBUGGING
-    debug_PrettifyEnums();
+    debug_RegisterEnums();
 #endif
     if(not inData.status())
         { return inData.status(); }
@@ -140,7 +140,7 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
     return OK;
 }
 
-void debug_PrettifyEnums()
+void debug_RegisterEnums()
 {
     static bool already_prettified{false};
     if(already_prettified)
