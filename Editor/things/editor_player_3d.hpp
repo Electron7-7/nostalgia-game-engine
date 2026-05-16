@@ -3,12 +3,12 @@
 
 #include <Nostalgia/Nostalgia.hpp>
 #include <Nostalgia/fwd/things.hpp>
-#include <Nostalgia/things/thinkers/3d/actor_3d.hpp>
+#include <Nostalgia/things/thinkers/3d/collider_3d.hpp>
 
-class EditorPlayer3D : public Actor3D
+class EditorPlayer3D : public Collider3D
 {
 public:
-    THING_CLASS(EditorPlayer3D, Actor3D)
+    THING_CLASS(EditorPlayer3D, Collider3D)
     READY_OVERRIDE
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
@@ -19,7 +19,6 @@ public:
         mCaptureKeyboard{false};
 
 protected:
-    Shared<Collider3D> m_pCollider{nullptr};
     Shared<Camera3D> m_pCamera{nullptr};
     bool mEnableCollision{true};
     float mMouseSensitivity{0.15f}, mMouseSensitivityMultiplier{0.5f};
