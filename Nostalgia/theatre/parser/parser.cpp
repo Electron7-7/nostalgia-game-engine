@@ -215,6 +215,10 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
     for(; ioIndex < inTokens.size(); ++ioIndex)
     {
         FAUTO token{inTokens.at(ioIndex)};
+#ifdef NOSTALGIA_DEBUGGING
+        if(token.break_on_me)
+            { BREAK_HERE }
+#endif // NOSTALGIA_DEBUGGING
         if(s_CheckIfComment(in_comment, token))
             { continue; }
         else if((in_literal

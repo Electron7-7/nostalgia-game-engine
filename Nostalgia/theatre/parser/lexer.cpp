@@ -60,9 +60,19 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
 
     Comment in_comment{NO_COMMENT};
 
+#ifdef NOSTALGIA_DEBUGGING
+    size_t _current_row{1};
+#endif // NOSTALGIA_DEBUGGING
+
     for(size_t i{0}; i < file_size; ++i)
     {
         bool _do_break{false};
+#ifdef NOSTALGIA_DEBUGGING
+        if(data_string[i] == '\n')
+            { ++_current_row; }
+        else if(Console::GetVariable("TheatreFile.do_parser_break").int_value)
+            { _do_break = Console::GetVariable("TheatreFile.parser_break_line").int_value == _current_row; }
+#endif // NOSTALGIA_DEBUGGING
         char character{data_string[i]};
         if(character == cCommentDelimiter)
         {
