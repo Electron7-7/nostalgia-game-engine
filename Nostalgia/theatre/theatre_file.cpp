@@ -103,10 +103,6 @@ void sDebugPrintLexerLogs(Farg<TheatreFile::TokenArray> inTokens)
         }
         if(TheatreFile::gDebugDontPrintCommentsInLexerLogs and comment != Comment::NO_COMMENT)
             { continue; }
-        debug_print("\tToken [{}, '{}']",
-            EnumRegistry::GetEnumName(token.category),
-            (token.token[0] == '\n')
-                ? "\\n"
-                : token.token);
+        debug_print("\t<{}>: {:?}", EnumRegistry::GetEnumName(token.category), token.token);
     }
 }
