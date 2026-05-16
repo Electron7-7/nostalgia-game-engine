@@ -4,6 +4,7 @@
 #include "opengl/gl_shader.hpp"
 #include "rendering/renderer_api.hpp"
 #include "things/resources/image.hpp"
+#include "things/thing_factory.hpp"
 
 class DummyRendererAPI final : public RendererAPI
 {
@@ -22,7 +23,7 @@ class DummyRendererAPI final : public RendererAPI
     float GetLineWidth() final { return 0; }
     bool GetWireframe() const final { return false; }
     bool GetBlend() const final { return false; }
-    Shared<Image> GetFullScreenshot() const final { return MakeShared<Image>(); }
+    Shared<Image> GetFullScreenshot() const final { return ThingFactory::Invalid<Image>(); }
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final {}
 

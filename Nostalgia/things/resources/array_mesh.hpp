@@ -3,6 +3,7 @@
 
 #include <Nostalgia/things/resources/mesh.hpp>
 #include <Nostalgia/rendering/vertex_array.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 class ArrayMesh : public Mesh
 {
@@ -32,7 +33,7 @@ public:
     virtual Shared<Material> SurfaceGetMaterial(int inIndex) const override;
 
     // TODO: remove this and replace it with per-surface materials
-    Shared<Material> mMaterial{MakeShared<Material>()};
+    Shared<Material> mMaterial{ThingFactory::Invalid<Material>()};
 
 protected:
     std::string mModelFilepath{""};

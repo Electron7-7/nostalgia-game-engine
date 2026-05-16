@@ -80,7 +80,7 @@ void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<I
         { _mutable_mesh_data = inData; }
 
     Farg<MeshData_t> _mesh_data{(_mutable_mesh_data.empty()) ? inData : _mutable_mesh_data};
-    auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), MakeShared<Material>())};
+    auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), ThingFactory::MakeThing<Material>())};
 
     for(int i{0}; i < ARRAY_FORMAT_MAX; ++i)
     {

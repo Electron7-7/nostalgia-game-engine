@@ -1,6 +1,5 @@
 #include "./viewport.hpp"
 #include "../thing_data.hpp"
-#include "../thing_factory.hpp"
 #include "theatre/theatre.hpp"
 #include "rendering/renderer_api.hpp"
 
@@ -82,7 +81,7 @@ void Viewport::SetCurrentCamera3D(Shared<Thing> inCamera)
         _camera->SetViewportID(uid());
         return;
     }
-    m_pCurrentCamera3D = MakeShared<Camera3D>();
+    m_pCurrentCamera3D = ThingFactory::Invalid<Camera3D>();
     UpdateCurrentCameras();
 }
 
@@ -94,7 +93,7 @@ void Viewport::SetCurrentCamera2D(Shared<Thing> inCamera)
         _camera->SetViewportID(uid());
         return;
     }
-    m_pCurrentCamera2D = MakeShared<Camera2D>();
+    m_pCurrentCamera2D = ThingFactory::Invalid<Camera2D>();
     UpdateCurrentCameras();
 }
 
@@ -132,9 +131,9 @@ void Viewport::SetSize(Farg<Size2D> inSize)
 void Viewport::OnDescendantRemoved(Relative inRelative)
 {
     if(inRelative.uid == m_pCurrentCamera3D->uid())
-        { m_pCurrentCamera3D = MakeShared<Camera3D>(); }
+        { m_pCurrentCamera3D = ThingFactory::Invalid<Camera3D>(); }
     else if(inRelative.uid == m_pCurrentCamera2D->uid())
-        { m_pCurrentCamera2D = MakeShared<Camera2D>(); }
+        { m_pCurrentCamera2D = ThingFactory::Invalid<Camera2D>(); }
     if(m_pCurrentCamera2D->invalid() or m_pCurrentCamera3D->invalid())
         { UpdateCurrentCameras(); }
 }

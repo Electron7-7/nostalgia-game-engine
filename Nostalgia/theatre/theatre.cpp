@@ -468,11 +468,7 @@ Error Theatre::DestroyThing(ID inID)
 }
 
 Shared<Thinker> Theatre::GetPlayer()
-{
-    return (m_pPlayer)
-        ? m_pPlayer
-        : MakeShared<Thinker>();
-}
+{ return (m_pPlayer) ? m_pPlayer : ThingFactory::Invalid<Thinker>(); }
 
 IdSet_t Theatre::GetChildren(ID inParentID)
 {

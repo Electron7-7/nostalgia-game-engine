@@ -78,13 +78,13 @@ Shared<ThingData> NostalgiaPlayer::GetVariables() const
 Shared<Actor3D> NostalgiaPlayer::GetActor3D() const
 {
     if(not m_pActor3D)
-        { return MakeShared<Actor3D>(); }
+        { return ThingFactory::Invalid<Actor3D>(); }
     return m_pActor3D;
 }
 
 Shared<Actor2D> NostalgiaPlayer::GetActor2D() const
 {
     if(not m_pActor2D)
-        { return MakeShared<Actor2D>(); }
+        { return ThingFactory::Invalid<Actor2D>(); }
     return m_pActor2D;
 }

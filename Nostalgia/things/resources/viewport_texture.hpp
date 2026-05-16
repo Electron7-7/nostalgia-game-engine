@@ -3,6 +3,7 @@
 
 #include <Nostalgia/things/thinkers/viewport.hpp>
 #include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 class ViewportTexture : public Texture
 {
@@ -18,7 +19,7 @@ public:
     virtual Farg<Size2D> Size() const;
 
 protected:
-    Shared<Viewport> m_pViewport{MakeShared<Viewport>()};
+    Shared<Viewport> m_pViewport{ThingFactory::Invalid<Viewport>()};
 };
 
 #endif // VIEWPORT_TEXTURE_H

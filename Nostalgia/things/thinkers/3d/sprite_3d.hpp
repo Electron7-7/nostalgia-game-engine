@@ -3,6 +3,7 @@
 
 #include <Nostalgia/things/thinkers/3d/visual_3d.hpp>
 #include <Nostalgia/things/resources/texture.hpp>
+#include <Nostalgia/things/thing_factory.hpp>
 
 class Sprite3D : public Visual3D
 {
@@ -15,7 +16,7 @@ public:
     virtual void SetTexture(Shared<Texture>);
 
 protected:
-    Shared<Texture> mTexture{MakeShared<Texture>()};
+    Shared<Texture> mTexture{ThingFactory::Invalid<Texture>()};
     SamplerState mSampler{};
     std::string mTextureImagePath{};
 };
