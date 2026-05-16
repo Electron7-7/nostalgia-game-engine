@@ -9,15 +9,13 @@ static constexpr const char* cCommentDelimiterSingleLine{"//"};
 static constexpr const char* cCommentDelimiterMultiLine{"///"};
 
 static constexpr frozen::set<char, 2>
-    cStringDelimiters{'\'', '"'};
-static constexpr frozen::set<char, 2>
     cValidLiterals{'.', '-'};
 static constexpr frozen::set<char, 2>
     cOperators{'=', ':'};
 static constexpr frozen::set<char, 4>
     cWhitespace{' ', '\t', '\n', '\r'};
-static constexpr frozen::set<char, 12>
-    cSeparators{',', '[', ']', '|', '{', '}', '<', '>', '(', ')', '@', '#'};
+static constexpr frozen::set<char, 14>
+    cSeparators{',', '[', ']', '|', '{', '}', '<', '>', '(', ')', '@', '#', '\'', '"'};
 static constexpr frozen::set<frozen::string, 4>
     cKeywords{"Child", "Parent", "declare", "inherits"};
 
@@ -54,7 +52,7 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
     if(not inData.status())
         { return inData.status(); }
 
-    Sarg data_string{inData.raw_data_str()};
+    std::string data_string{inData.raw_data_str()};
     size_t file_size{data_string.size()};
 
     TokenArray tokens{};
@@ -64,22 +62,20 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
 
     for(size_t i{0}; i < file_size; ++i)
     {
+        bool _do_break{false};
         char character{data_string[i]};
         if(character == cCommentDelimiter)
         {
             if(i + 1 < file_size)
             {
-                if(auto try_singleline_comment{data_string.substr(i, 2)};
-                    !try_singleline_comment.compare(cCommentDelimiterSingleLine))
+                if(auto _singleline{data_string.substr(i, 2)}; _singleline == cCommentDelimiterSingleLine)
                 {
                     if(i + 2 < file_size)
                     {
-                        if(std::string try_multiline_comment{data_string.substr(i, 3)};
-                            !try_multiline_comment.compare(cCommentDelimiterMultiLine))
+                        if(auto _multiline{data_string.substr(i, 3)}; _multiline == cCommentDelimiterMultiLine)
                         {
                             i+=2;
-                            tokens.emplace_back(TokenName::MultilineComment,
-                                try_multiline_comment);
+                            tokens.emplace_back(TokenName::MultilineComment, _multiline, _do_break);
                             if(in_comment == NO_COMMENT)
                                 { in_comment = MULTI; }
                             else if(in_comment == MULTI)
@@ -88,8 +84,7 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
                         }
                     }
                     ++i;
-                    tokens.emplace_back(TokenName::SinglelineComment,
-                        try_singleline_comment);
+                    tokens.emplace_back(TokenName::SinglelineComment, _singleline, _do_break);
                     if(in_comment == NO_COMMENT)
                         { in_comment = SINGLE; }
                     continue;
@@ -99,26 +94,7 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
         else if(cOperators.contains(character))
         {
             s_HandleWordBuffer(value_buffer, tokens, in_comment, character);
-            tokens.emplace_back(TokenName::Operator, std::string{character});
-            continue;
-        }
-        else if(cStringDelimiters.contains(character))
-        {
-            if(in_comment != NO_COMMENT)
-            {
-                tokens.emplace_back(TokenName::Identifier, std::string{character});
-                continue;
-            }
-            else if(i+1 >= data_string.size())
-                { continue; }
-#pragma message("TODO: clean this up")
-            value_buffer += data_string[i++];
-            while(!cStringDelimiters.contains(data_string[i]) and data_string[i] != '\n')
-                { value_buffer += data_string[i++]; }
-            value_buffer += data_string[i];
-
-            tokens.emplace_back(TokenName::Literal, value_buffer);
-            value_buffer.clear();
+            tokens.emplace_back(TokenName::Operator, std::string{character}, _do_break);
             continue;
         }
         else if(cWhitespace.contains(character) or cSeparators.contains(character))
@@ -131,7 +107,7 @@ Error TheatreFile::Lex(Farg<FileData> inData, TokenArray& outTokens)
                 if(character == '\n' and in_comment == SINGLE)
                     { in_comment = NO_COMMENT; }
             }
-            tokens.emplace_back(name_buffer, std::string{character});
+            tokens.emplace_back(name_buffer, std::string{character}, _do_break);
             continue;
         }
         value_buffer.push_back(character);

@@ -234,15 +234,6 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             [[fallthrough]];
         case TokenName::None:
             break;
-        case TokenName::Literal:
-            if(!in_literal)
-            {
-                _string_variable = token.token.substr(1, token.token.size() - 2);
-                thing_var.value  = _string_variable;
-            }
-            else
-                { _string_variable += token.token; }
-            break;
         case TokenName::Operator:
             if(token.token[0] == cDelimiterStartSandwich)
             {
@@ -408,6 +399,8 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             case cDelimiterWeakString:
             case cDelimiterStrongString:
                 in_string = !in_string;
+                if(not in_string)
+                    { thing_var.value  = _string_variable; }
                 break;
             case cDelimiterExitDefinition:
                 if(not thing_var.invalid())
@@ -481,6 +474,14 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
             else if(thing_data.name.empty())
             {
                 thing_data.name = token.token;
+                while(ioIndex < inTokens.size())
+                {
+                    FAUTO _token{inTokens.at(++ioIndex)};
+                    if(_token.category == TokenName::Whitespace
+                        or _token.token[0] == cDelimiterEnterDefinition)
+                        { break; }
+                    thing_data.name += _token.token;
+                }
                 s_ThingNameToTypeID[thing_data.name] = thing_data.type;
             }
             else if(thing_var.name.empty())
