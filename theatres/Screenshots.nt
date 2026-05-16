@@ -1,152 +1,485 @@
 @Screenshots#1
 
-ImageTexture StupidTex
-{ Image = 'testing_resources/Stupid.png' }
-
-ArrayMesh IcoSphere
+Actor2D Player_Actor2D
 {
-    Model = 'theatres/testing_resources/IcoSphere.obj'
-    Material = <StupidMaterial>
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0]
+	Scale = [1, 1]
+	RotationDegrees = [0]
+	Rotation = [0]
+	Parent = 'Player'
 }
 
-Material LolBitMaterial
-{ DiffuseTexture = <LolBitTexture> }
+Camera3D EditorPlayer3D_Camera
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 1.5, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	RenderLayersMask = [1073741823]
+	FOV = [75]
+	Near = [0.01]
+	Far = [1000]
+	Current = [true]
+	UseDefaultSkybox = [true]
+	EnvironmentColorAlpha = [0]
+	Parent = 'Player_EditorActor3D'
+}
+
+Actor3D Ramiel#140
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [-30, 18.152, -215]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [120, 120, 120]
+	Child = 'RamielMeshInstance3D'
+	Parent = ''
+}
+
+MeshInstance3D RamielMeshInstance3D
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'RamielModel'
+	MaterialOverride = 'RamielMaterial'
+	Wireframe = [false]
+	Parent = 'Ramiel#140'
+}
 
 Actor3D LolBitCube
 {
-    Position = [-0.25, 2, -3.5]
-    RotationDegrees = [25, 0, 1]
-
-    Child : MeshInstance3D LolBitCubeMeshInstance3D
-    {
-        MaterialOverride = <LolBitMaterial>
-        Mesh = <DefaultCube>
-    }
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [-0.25, 2, -3.5]
+	RotationDegrees = [25, 0, 1]
+	Rotation = [0.43633232, 0, 0.017453292]
+	Quaternion = [0.21643141, 0.0018887683, 0.008519683, 0.97625893]
+	Scale = [1, 1, 1]
+	Child = 'LolBitCubeMeshInstance3D'
+	Parent = ''
 }
 
-Actor3D Ramiel
+MeshInstance3D LolBitCubeMeshInstance3D
 {
-    Scale = [120, 120, 120]
-    Position = [-30, 18.152, -215]
-
-    Child : MeshInstance3D RamielMeshInstance3D
-    {
-        Mesh = <RamielModel>
-        MaterialOverride = <RamielMaterial>
-    }
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'DefaultCube'
+	MaterialOverride = 'LolBitMaterial'
+	Wireframe = [false]
+	Parent = 'LolBitCube'
 }
 
-Material RamielMaterial
-{ SpecularStrength = [2.6] }
-
-Material StupidMaterial
+Material ColorMat2
 {
-    Color = [0.9, 1, 1]
-    SpecularStrength = [0.2]
-    DiffuseTexture = <StupidTex>
+	DiffuseTexture = 'TestTex1'
+	SpecularTexture = ''
+	Color = [1, 1, 1]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [0]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
+}
+
+ImageTexture TestTex1
+{
+	Image = [-1]
+	ImagePath = 'testing_resources/TestTexture1.png'
+}
+
+Material ColorMat
+{
+	DiffuseTexture = ''
+	SpecularTexture = ''
+	Color = [1, 0.1, 0.2]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [0]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
 }
 
 Material DoomMaterial
-{ DiffuseTexture = <DoomTexture> }
+{
+	DiffuseTexture = 'DoomTexture'
+	SpecularTexture = ''
+	Color = [1, 1, 1]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [0]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
+}
 
-Material ColorMat
-{ Color = [1, 0.1, 0.2] }
+Material StupidMaterial
+{
+	DiffuseTexture = 'StupidTex'
+	SpecularTexture = ''
+	Color = [0.9, 1, 1]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [0.2]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
+}
 
-ImageTexture TestTex1
-{ Image = "testing_resources/TestTexture1.png" }
+Material RamielMaterial
+{
+	DiffuseTexture = ''
+	SpecularTexture = ''
+	Color = [1, 1, 1]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [2.6]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
+}
 
-Material ColorMat2
-{ DiffuseTexture = <TestTex1> }
+Material LolBitMaterial
+{
+	DiffuseTexture = 'LolBitTexture'
+	SpecularTexture = ''
+	Color = [1, 1, 1]
+	Alpha = [1]
+	SpecularSharpness = [16]
+	SpecularStrength = [0]
+	FullBright = [false]
+	SamplerMinFilter = [1]
+	SamplerMipFilterMin = [1]
+	SamplerMagFilter = [0]
+	SamplerRepeatU = [2]
+	SamplerRepeatV = [2]
+	SamplerRepeatW = [2]
+	UseAnisotropy = [true]
+	AnisotropyMax = [4]
+}
+
+ArrayMesh IcoSphere
+{
+	Model = 'theatres/testing_resources/IcoSphere.obj'
+	Material = 'StupidMaterial'
+}
+
+ImageTexture StupidTex
+{
+	Image = [-1]
+	ImagePath = ''
+}
+
+Collider3D EditorPlayer3D_Collider
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 3, 1]
+	Shape = [0]
+	Motion = [2]
+	Mass = [1]
+	Friction = [1]
+	StartActive = [true]
+	Parent = 'Player_EditorActor3D'
+}
+
+MeshInstance3D DoomCubeMeshInstance3D
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'DefaultCube'
+	MaterialOverride = 'DoomMaterial'
+	Wireframe = [false]
+	Parent = 'DoomCube'
+}
 
 Collider3D DoomCube
 {
-    Position = [3, 0, -3]
-    RotationDegrees = [-20, 20, 50]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [3, 0, -3]
+	RotationDegrees = [-20, 20, 50]
+	Rotation = [-0.34906584, 0.34906584, 0.87266463]
+	Quaternion = [-0.22725976, 0.08271579, 0.43720332, 0.86623585]
+	Scale = [1, 1, 1]
+	Shape = [0]
+	Motion = [0]
+	Mass = [1]
+	Friction = [1]
+	StartActive = [true]
+	Child = 'DoomCubeMeshInstance3D'
+	Parent = ''
+}
 
-    Child : MeshInstance3D DoomCubeMeshInstance3D
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <DoomMaterial>
-    }
+MeshInstance3D DoomCubeMeshInstance3D2
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'DefaultCube'
+	MaterialOverride = 'DoomMaterial'
+	Wireframe = [false]
+	Parent = 'DoomCube2'
 }
 
 Collider3D DoomCube2
 {
-    Position = [2.35, 6.95, -2.95]
-    RotationDegrees = [-36.6, 25, 0.1]
-    Scale = [0.3, 1, 1.7]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [2.35, 6.95, -2.95]
+	RotationDegrees = [-36.6, 25, 0.1]
+	Rotation = [-0.6387905, 0.43633232, 0.0017453292]
+	Quaternion = [-0.3067288, 0.20522572, 0.068769276, 0.92686075]
+	Scale = [0.3, 1, 1.7]
+	Shape = [0]
+	Motion = [0]
+	Mass = [1]
+	Friction = [1]
+	StartActive = [true]
+	Child = 'DoomCubeMeshInstance3D2'
+	Parent = ''
+}
 
-    Child : MeshInstance3D DoomCubeMeshInstance3D2
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <DoomMaterial>
-    }
+MeshInstance3D DoomCubeMeshInstance3D3
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'DefaultCube'
+	MaterialOverride = 'ColorMat2'
+	Wireframe = [false]
+	Parent = 'DoomCube3'
 }
 
 Actor3D DoomCube3
 {
-    Position = [3, 5, -3]
-    RotationDegrees = [20, -20, -50]
-    Scale = [0.5, 1, 0.7]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [3, 5, -3]
+	RotationDegrees = [20, -20, -50]
+	Rotation = [0.34906584, -0.34906584, -0.87266463]
+	Quaternion = [0.08271579, -0.22725976, -0.38254628, 0.8917228]
+	Scale = [0.5, 1, 0.7]
+	Child = 'DoomCubeMeshInstance3D3'
+	Parent = ''
+}
 
-    Child : MeshInstance3D DoomCubeMeshInstance3D3
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <ColorMat2>
-    }
+MeshInstance3D RedCubeMeshInstance3D
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'DefaultCube'
+	MaterialOverride = 'ColorMat'
+	Wireframe = [false]
+	Parent = 'OtherCube'
 }
 
 Actor3D OtherCube
 {
-    Position = [1.35, 1, -4.45]
-    RotationDegrees = [-0.3, -64.6, -17.4]
-    OuuughImSoBigAndRound = [0.48, 0.58, 0.27]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [1.35, 1, -4.45]
+	RotationDegrees = [-0.3, -64.6, -17.4]
+	Rotation = [-0.0052359877, -1.1274827, -0.30368727]
+	Quaternion = [-0.08301372, -0.5278675, -0.1292374, 0.83532184]
+	Scale = [0.48, 0.58, 0.27]
+	Child = 'RedCubeMeshInstance3D'
+	Parent = ''
+}
 
-    Child : MeshInstance3D RedCubeMeshInstance3D
-    {
-        Mesh = <DefaultCube>
-        MaterialOverride = <ColorMat>
-    }
+MeshInstance3D IcoSphereMeshInstance3D
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Mesh = 'IcoSphere'
+	MaterialOverride = ''
+	Wireframe = [false]
+	Parent = 'IcoSphereActor3D'
 }
 
 Actor3D IcoSphereActor3D
 {
-    Position = [-2.55, 0.15, -1.3]
-    RotationDegrees = [15.2, 38.6, 0]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [-2.55, 0.15, -1.3]
+	RotationDegrees = [15.2, 38.6, 0]
+	Rotation = [0.26529005, 0.67369705, 0]
+	Quaternion = [0.12482371, 0.32761097, -0.04371264, 0.9355102]
+	Scale = [1, 1, 1]
+	Child = 'IcoSphereMeshInstance3D'
+	Parent = ''
+}
 
-    Child : MeshInstance3D IcoSphereMeshInstance3D
-    {
-        Mesh = <IcoSphere>
-    }
+EditorPlayer3D Player_EditorActor3D
+{
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	MouseSensitivity = [0.15]
+	MouseSensitivityMultiplier = [0.5]
+	Child = 'EditorPlayer3D_Camera'
+	Child = 'EditorPlayer3D_Collider'
+	Parent = 'Player'
 }
 
 NostalgiaPlayer Player
 {
-    Position = [0.22, -1.43, 3.35]
-    RotationDegrees = [8.48, 0.67, 0]
-    Actor3D = <Player_EditorActor3D>
-    Child : EditorPlayer3D Player_EditorActor3D {}
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Actor3D = 'Player_EditorActor3D'
+	Actor2D = 'Player_Actor2D'
+	Child = 'Player_Actor2D'
+	Child = 'Player_EditorActor3D'
+	Parent = ''
 }
 
 PointLight3D PointLight
 {
-    Position = [1.6, 0.1, -2.1]
-    Color = [1, 0.8, 0.2]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [1.6, 0.1, -2.1]
+	RotationDegrees = [0, 0, 0]
+	Rotation = [0, 0, 0]
+	Quaternion = [0, 0, 0, 1]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Color = [1, 0.8, 0.2]
+	Energy = [0.8]
+	SpecularStrength = [1]
+	AmbientStrength = [0.05]
+	FadeIntensity = [1]
+	Attenuation = [1]
+	Range = [100]
+	LightVisible = [true]
+	Parent = ''
 }
 
 SpotLight3D SpotLight
 {
-    Position = [-0.32, 0.29, -0.45]
-    RotationDegrees = [27.6, 1.10, 10.1]
-    Color = [0.287, 1.0, 0.368]
-    Energy = [0.95]
-    Attenuation = [0.9]
-    Angle = [12.3]
-    AngleFade = [2]
+	Visible = [true]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [-0.32, 0.29, -0.45]
+	RotationDegrees = [27.6, 1.1, 10.1]
+	Rotation = [0.48171088, 0.019198623, 0.17627826]
+	Quaternion = [0.23677604, 0.03028185, 0.08319939, 0.96752167]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Color = [0.287, 1, 0.368]
+	Energy = [0.95]
+	SpecularStrength = [1]
+	AmbientStrength = [0.05]
+	FadeIntensity = [0.9]
+	Attenuation = [0.9]
+	Range = [100]
+	LightVisible = [true]
+	SpotAngle = [17.5]
+	SpotAngleFade = [5]
+	Parent = ''
 }
 
 DirectionalLight3D TheSun
 {
-    RotationDegrees = [180, 100, -25]
-    Energy = [0.6]
+	Visible = [false]
+	DebugHighlight = [1, 0.2, 0.9, 1]
+	Position = [0, 0, 0]
+	RotationDegrees = [180, 100, -25]
+	Rotation = [3.1415927, 1.7453293, -0.43633232]
+	Quaternion = [0.627551, -0.13912474, -0.7478861, -0.16580239]
+	Scale = [1, 1, 1]
+	VisualLayers = [1073741823]
+	Color = [1, 1, 1]
+	Energy = [0.6]
+	SpecularStrength = [1]
+	AmbientStrength = [0.05]
+	FadeIntensity = [1]
+	Attenuation = [1]
+	Range = [100]
+	LightVisible = [true]
+	Parent = ''
 }
