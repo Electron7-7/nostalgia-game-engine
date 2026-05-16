@@ -1,7 +1,6 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-
 #include <Nostalgia/things/thinkers/3d/camera_3d.hpp>
 #include <Nostalgia/things/thinkers/2d/camera_2d.hpp>
 #include <Nostalgia/things/resources/image.hpp>
