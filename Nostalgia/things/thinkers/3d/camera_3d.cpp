@@ -166,9 +166,8 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         if(not material->SpecularTexture()->invalid() and not specular_texture->Buffer())
             { specular_texture = missing_texture; }
 
-        shader = renderer_api->GetShader((material->mFullBright)
-            ? Shaders::Fullbright
-            : Shaders::BlinnPhong);
+        if(not Console::GetVariable("mat_fullbright").int_value and not material->mFullBright)
+            { shader = renderer_api->GetShader(Shaders::BlinnPhong); }
 
         bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
         bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
@@ -193,8 +192,6 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         auto texture{(not sprite->GetTexture())
             ? missing_texture
             : sprite->GetTexture()};
-
-        shader = renderer_api->GetShader(Shaders::Fullbright);
 
         renderer_api->BindTexture(texture, 0);
         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
