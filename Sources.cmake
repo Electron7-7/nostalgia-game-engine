@@ -13,7 +13,7 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/gui/imgui_implementor.cpp
     ${EDITOR_ROOT}/gui/imgui_debugger.cpp
     ${EDITOR_ROOT}/gui/imgui_editor.cpp
-    ${EDITOR_ROOT}/gui/imgui_editor_main_window.cpp
+    ${EDITOR_ROOT}/gui/imgui_editor_inspector.cpp
     ${EDITOR_ROOT}/gui/imgui_thing_adder.cpp
     ${EDITOR_ROOT}/gui/imgui_editor_theatre_instancing.cpp
     ${EDITOR_ROOT}/thirdparty/ImGuiFileDialog/ImGuiFileDialog.cpp
