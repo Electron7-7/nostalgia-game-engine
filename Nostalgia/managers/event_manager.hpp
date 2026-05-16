@@ -1,7 +1,7 @@
 #ifndef EVENT_MANAGER_H
 #define EVENT_MANAGER_H
 
-#include <Nostalgia/fwd/events.hpp>
+#include <Nostalgia/events/event_queue.hpp>
 #include <Nostalgia/managers/manager.hpp>
 
 class EventManager : public Manager
