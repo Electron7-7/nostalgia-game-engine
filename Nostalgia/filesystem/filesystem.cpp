@@ -163,7 +163,7 @@ bool FileSystem::IsAbsolute(Sarg string_path)
 { return fs::path(string_path).is_absolute(); }
 
 std::string FileSystem::GetAbsolute(Sarg string_path)
-{ return fs::absolute({string_path}).string(); }
+{ return (string_path.empty()) ? string_path : fs::absolute({string_path}).string(); }
 
 bool FileSystem::GetAbsolute(Sarg string_path, std::string& output)
 {
@@ -175,7 +175,7 @@ bool FileSystem::IsRelative(Sarg string_path)
 { return fs::path(string_path).is_relative(); }
 
 std::string FileSystem::GetRelative(Sarg string_path)
-{ return fs::relative({string_path}).string(); }
+{ return (string_path.empty()) ? string_path : fs::relative({string_path}).string(); }
 
 bool FileSystem::GetRelative(Sarg string_path, std::string& output)
 {
