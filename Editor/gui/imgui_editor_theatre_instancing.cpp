@@ -26,12 +26,15 @@ void ImGui_Editor::SaveCurrentTheatre()
 {
     if(set_TheatreState(WANT_SAVE_THEATRE))
     {
-        IGFD::FileDialogConfig _config{};
-        _config.path = ".";
-        ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
-            "Choose Theatre File",
-            ".nt,.theatre,.nostalgiatheatre",
-            _config);
+        if(mCurrentTheatreFilePath.empty())
+        {
+            IGFD::FileDialogConfig _config{};
+            _config.path = ".";
+            ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
+                "Choose Theatre File",
+                ".nt,.theatre,.nostalgiatheatre",
+                _config);
+        }
     }
 }
 
@@ -179,20 +182,24 @@ void ImGui_Editor::do_TheatreRelatedPopups()
         Application()->Stop();
         break;
     case WANT_SAVE_THEATRE:
-        switch(_assert_filepath(mCurrentTheatreFilePath))
         {
-        case SELECTED:
-            Theatre::Current()->SaveToFile(mCurrentTheatreFilePath, FileSystem::OverwriteAction::OVERWRITE);
-            mTheatreState = mPreviousTheatreState;
-            mIsEditorSaved = true;
-            break;
-        case CANCELLED:
-            mTheatreState = mPreviousTheatreState = NO_WANT_AM_SATISFIED;
-            [[fallthrough]];
-        default:
+            auto _value{(mCurrentTheatreFilePath.empty())
+                ? _assert_filepath(mCurrentTheatreFilePath) : SELECTED};
+            switch(_value)
+            {
+            case SELECTED:
+                Theatre::Current()->SaveToFile(mCurrentTheatreFilePath, FileSystem::OverwriteAction::OVERWRITE);
+                mTheatreState = mPreviousTheatreState;
+                mIsEditorSaved = true;
+                break;
+            case CANCELLED:
+                mTheatreState = mPreviousTheatreState = NO_WANT_AM_SATISFIED;
+                [[fallthrough]];
+            default:
+                break;
+            }
             break;
         }
-        break;
     case WANT_EDIT_THEATRE:
         if(not Settings::Engine::IsEditorHint)
         {
