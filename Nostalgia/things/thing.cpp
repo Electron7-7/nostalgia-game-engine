@@ -38,10 +38,11 @@ Thing::~Thing() noexcept
 
 void Thing::InitVariables()
 {
-    if(s_pDefaultVariables)
+    if(m_pDefaultVariables)
         { return; }
-    s_pDefaultVariables = MakeShared<ThingData>();
-    s_pDefaultVariables->type = Type();
+    m_pDefaultVariables = MakeShared<ThingData>();
+    m_pDefaultVariables->type = Type();
+    m_pDefaultVariables->name = name();
 }
 
 void Thing::SetVariables(Farg<ThingData> data)
@@ -81,7 +82,7 @@ bool Thing::IsResource() const
 ThingData Thing::GetDefaultVariables() const
 {
     LOCK(mMutex);
-    return *s_pDefaultVariables;
+    return (m_pDefaultVariables) ? *m_pDefaultVariables : ThingData{Type(), name()};
 }
 
 ID Thing::uid() const
@@ -122,7 +123,7 @@ std::string Thing::to_string() const
 
 void Thing::_initialize_variables()
 {
-    if(s_pDefaultVariables)
+    if(m_pDefaultVariables)
         { return; }
     this->InitVariables();
 }

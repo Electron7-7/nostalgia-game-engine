@@ -76,7 +76,7 @@ public:
 protected:
     friend class Theatre;
 
-    inline static Shared<TheatreFile::ThingData> s_pDefaultVariables{nullptr};
+    Shared<TheatreFile::ThingData> m_pDefaultVariables{nullptr};
 
     static Shared<Thing> InvalidThinker();
     static Shared<Thing> InvalidResource();
