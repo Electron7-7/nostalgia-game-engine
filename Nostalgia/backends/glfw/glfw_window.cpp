@@ -135,12 +135,12 @@ void WindowGLFW::AddMonitor(GLFWmonitor* inMonitor)
 WindowGLFW::WindowGLFW(const WindowProperties& inProperties):
     mData{inProperties}
 {
+    PRINT_PRETTY_CONSTRUCTOR;
     print_error_enum(Initialize());
     EnumRegistry::Register(MOUSE_MODE_VISIBLE,  "MouseMode::Visible");
     EnumRegistry::Register(MOUSE_MODE_CAPTURED, "MouseMode::Captured");
     EnumRegistry::Register(MOUSE_MODE_HIDDEN,   "MouseMode::Hidden");
     EnumRegistry::Register(MOUSE_MODE_DISABLED, "MouseMode::Disabled");
-    PRINT_PRETTY_CONSTRUCTOR;
 }
 
 WindowGLFW::~WindowGLFW()
