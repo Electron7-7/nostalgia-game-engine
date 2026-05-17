@@ -25,6 +25,7 @@ bool gEnableMsg_ContactValidate{false},
 using namespace JPH;
 
 typedef const ShapeSettings* (*ShapeSettingsMaker_f)(Vec3Arg);
+typedef const Shape* (*ShapeMaker_f)(Vec3Arg);
 
 template<ShapeType Shape>
     const ShapeSettings* sMakeShapeSettings(Vec3Arg inScale);
@@ -42,6 +43,22 @@ template<>
     const ShapeSettings* sMakeShapeSettings<ShapeType::Capsule>(Vec3Arg inScale)
     { return new CapsuleShapeSettings(inScale.GetZ(), inScale.GetX()); }
 
+template<ShapeType Shape>
+    const JPH::Shape* sMakeShape(Vec3Arg inScale);
+
+template<>
+    const JPH::Shape* sMakeShape<ShapeType::Box>(Vec3Arg inScale)
+    { return new BoxShape(inScale); }
+template<>
+    const JPH::Shape* sMakeShape<ShapeType::Sphere>(Vec3Arg inScale)
+    { return new SphereShape(inScale.GetX()); }
+template<>
+    const JPH::Shape* sMakeShape<ShapeType::Cylinder>(Vec3Arg inScale)
+    { return new CylinderShape(inScale.GetZ(), inScale.GetX()); }
+template<>
+    const JPH::Shape* sMakeShape<ShapeType::Capsule>(Vec3Arg inScale)
+    { return new CapsuleShape(inScale.GetZ(), inScale.GetX()); }
+
 static constexpr frozen::map<ShapeType, ShapeSettingsMaker_f, 5>
 s_ShapeSettingsMakers
 {
@@ -50,6 +67,16 @@ s_ShapeSettingsMakers
     { ShapeType::Sphere,   &sMakeShapeSettings<ShapeType::Sphere>   },
     { ShapeType::Cylinder, &sMakeShapeSettings<ShapeType::Cylinder> },
     { ShapeType::Capsule,  &sMakeShapeSettings<ShapeType::Capsule>  },
+};
+
+static constexpr frozen::map<ShapeType, ShapeMaker_f, 5>
+s_ShapeMakers
+{
+    { ShapeType::None,     &sMakeShape<ShapeType::Box>      },
+    { ShapeType::Box,      &sMakeShape<ShapeType::Box>      },
+    { ShapeType::Sphere,   &sMakeShape<ShapeType::Sphere>   },
+    { ShapeType::Cylinder, &sMakeShape<ShapeType::Cylinder> },
+    { ShapeType::Capsule,  &sMakeShape<ShapeType::Capsule>  },
 };
 
 Farg<JPH::BodyID> Collider3D::id() const
@@ -73,14 +100,27 @@ void Collider3D::SetVariables(Farg<ThingData> data)
     data.get_variable(mMaterial.friction, "Friction", "ColliderFriction", "BodyFriction");
     data.get_variable(mActivateOnStart, "StartActive", "Active");
 
-    if(CreateBody(mActivateOnStart))
+    if(mBodyID.IsInvalid())
     {
-        print_jolt("Physics Body Created [{}, {}]",
-            EnumRegistry::GetEnumName(mShape),
-            EnumRegistry::GetEnumName(mMotion));
+        if(CreateBody(mActivateOnStart))
+        {
+            print_jolt("Physics Body Created [{}, {}]",
+               EnumRegistry::GetEnumName(mShape),
+               EnumRegistry::GetEnumName(mMotion));
+        }
     }
     else
-        { print_error("Failed to create physics body for Collider3D#{}", uid()()); }
+    {
+        auto& _interface{PhysicsEngine::Instance()->BodyInterface()};
+        _interface.SetMotionType(mBodyID,
+            PhysicsEngine::ConvertMotionType(mMotion),
+            PhysicsEngine::GetActivation(mActivateOnStart));
+        _interface.SetFriction(mBodyID, mMaterial.friction);
+        _interface.SetShape(mBodyID,
+            s_ShapeMakers.at(mShape)(Math::Convert<Vec3>(mLocalTrans.scale)),
+            true,
+            PhysicsEngine::GetActivation(mActivateOnStart));
+    }
 }
 
 Shared<ThingData> Collider3D::GetVariables() const
