@@ -81,7 +81,7 @@ void Viewport::SetCurrentCamera3D(Shared<Thing> inCamera)
         _camera->SetViewportID(uid());
         return;
     }
-    m_pCurrentCamera3D = ThingFactory::Invalid<Camera3D>();
+    m_pCurrentCamera3D = Camera3D::Invalid();
     UpdateCurrentCameras();
 }
 
@@ -93,7 +93,7 @@ void Viewport::SetCurrentCamera2D(Shared<Thing> inCamera)
         _camera->SetViewportID(uid());
         return;
     }
-    m_pCurrentCamera2D = ThingFactory::Invalid<Camera2D>();
+    m_pCurrentCamera2D = Camera2D::Invalid();
     UpdateCurrentCameras();
 }
 
@@ -131,9 +131,9 @@ void Viewport::SetSize(Farg<Size2D<int>> inSize)
 void Viewport::OnDescendantRemoved(Relative inRelative)
 {
     if(inRelative.uid == m_pCurrentCamera3D->uid())
-        { m_pCurrentCamera3D = ThingFactory::Invalid<Camera3D>(); }
+        { m_pCurrentCamera3D = Camera3D::Invalid(); }
     else if(inRelative.uid == m_pCurrentCamera2D->uid())
-        { m_pCurrentCamera2D = ThingFactory::Invalid<Camera2D>(); }
+        { m_pCurrentCamera2D = Camera2D::Invalid(); }
     if(m_pCurrentCamera2D->invalid() or m_pCurrentCamera3D->invalid())
         { UpdateCurrentCameras(); }
 }

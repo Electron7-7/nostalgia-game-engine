@@ -23,7 +23,7 @@ class DummyRendererAPI final : public RendererAPI
     float GetLineWidth() final { return 0; }
     bool GetWireframe() const final { return false; }
     bool GetBlend() const final { return false; }
-    Shared<Image> GetFullScreenshot() const final { return ThingFactory::Invalid<Image>(); }
+    Shared<Image> GetFullScreenshot() const final { return Image::Invalid(); }
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final {}
 

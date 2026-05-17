@@ -7,7 +7,6 @@
 #include <Nostalgia/rendering/frame_buffer.hpp>
 #include <Nostalgia/rendering/render_buffer.hpp>
 #include <Nostalgia/rendering/texture_buffer.hpp>
-#include <Nostalgia/things/thing_factory.hpp>
 
 class Viewport : public Thinker
 {
@@ -40,8 +39,8 @@ protected:
     Shared<RenderBuffer>  mRenderbuffer{RenderBuffer::CreateDummy()};
     Shared<TextureBuffer> mTexturebuffer{TextureBuffer::CreateDummy()};
     Size2D<int> mSize{512, 512};
-    Shared<Camera3D> m_pCurrentCamera3D{ThingFactory::Invalid<Camera3D>()};
-    Shared<Camera2D> m_pCurrentCamera2D{ThingFactory::Invalid<Camera2D>()};
+    Shared<Camera3D> m_pCurrentCamera3D{Camera3D::Invalid()};
+    Shared<Camera2D> m_pCurrentCamera2D{Camera2D::Invalid()};
 
     virtual void OnDescendantRemoved(Relative) override;
     virtual void OnDescendantAdded(Relative) override;

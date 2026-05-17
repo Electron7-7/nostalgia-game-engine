@@ -17,7 +17,13 @@ public: \
     inline virtual FPID BaseType() const override { return BaseTypeID; } \
     inline static constexpr PID sClassType() { return {#CLASS}; } \
     inline static constexpr PID sClassBaseType() { return {#INHERITS}; } \
-    virtual void InitVariables() override;
+    virtual void InitVariables() override; \
+    inline static Shared<SelfType> Invalid() \
+    { \
+        auto _output{MakeShared<SelfType>()}; \
+        _output->mUID = ID::Invalid; \
+        return _output; \
+    } \
 
 /// Helper macro for declaring an override for `Ready`
 #define READY_OVERRIDE virtual void Ready() override;
@@ -75,6 +81,7 @@ public:
 
 protected:
     friend class Theatre;
+    friend struct ThingFactory;
 
     Shared<TheatreFile::ThingData> m_pDefaultVariables{nullptr};
 
@@ -86,9 +93,6 @@ protected:
     virtual void Tick() {}
     virtual void Update() {}
     virtual void Input(InputEvent*) {}
-
-private:
-    friend struct ThingFactory;
 
     mutable RMutex mMutex{};
     ID mUID{};

@@ -3,7 +3,6 @@
 
 #include <Nostalgia/things/resources/resource.hpp>
 #include <Nostalgia/things/resources/texture.hpp>
-#include <Nostalgia/things/thing_factory.hpp>
 
 class Material : public Resource
 {
@@ -27,8 +26,8 @@ public:
     bool      mFullBright{false};
 
 protected:
-    Shared<Texture> m_pDiffuseTexture{ThingFactory::Invalid<Texture>()},
-        m_pSpecularTexture{ThingFactory::Invalid<Texture>()};
+    Shared<Texture> m_pDiffuseTexture{Texture::Invalid()},
+        m_pSpecularTexture{Texture::Invalid()};
     float mSpecularStrength{0.0f};
     SamplerState mSamplerState{};
 };

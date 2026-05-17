@@ -10,8 +10,6 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    static Shared<Thinker> Invalid();
-
     bool Visible() const;
     void SetVisible(bool);
 

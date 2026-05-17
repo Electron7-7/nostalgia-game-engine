@@ -51,20 +51,12 @@ struct ThingFactory
     USE_NAME_OR_UID(bool Contains)
     USE_NAME_OR_UID(Shared<Thing> GetThing)
 
-    template<Thing_t T>
-        inline static Shared<T> Invalid()
-        {
-            auto _output{MakeShared<T>()};
-            _output->mUID = ID::Invalid;
-            return _output;
-        }
-
     template<Thing_t T, NameOrUID_t U>
         inline static Shared<T> GetThing(Farg<U> inNameOrUID)
         {
             if(auto _thing{DCast<T>(GetThing(inNameOrUID))})
                 { return _thing; }
-            return ThingFactory::Invalid<T>();
+            return T::Invalid();
         }
 
     static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty);
@@ -74,7 +66,7 @@ struct ThingFactory
         {
             if(auto _output{DCast<T>(MakeThing(T::sClassType(), inName))})
                 { return _output; }
-            return ThingFactory::Invalid<T>();
+            return T::Invalid();
         }
 
     static Error AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists = false);

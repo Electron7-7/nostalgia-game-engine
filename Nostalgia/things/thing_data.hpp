@@ -89,7 +89,7 @@ namespace TheatreFile
                     outVariable = _thing;
                     return OK;
                 }
-                outVariable = ThingFactory::Invalid<T>();
+                outVariable = T::Invalid();
                 return ERR_INVALID;
             }
 
