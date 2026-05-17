@@ -18,7 +18,4 @@ template<typename T>
 template<typename T>
     concept GLMContainer = GLM_Vec2<T> || GLM_Vec3<T> || GLM_Vec4<T> || GLM_Quat<T>;
 
-template<typename T>
-    concept NumberOrGLM = Number<T> || GLMContainer<T>;
-
 #endif // GLM_CONCEPTS_H

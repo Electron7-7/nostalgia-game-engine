@@ -14,6 +14,12 @@ template<typename T>
 template<typename T>
     concept Number = NumberOrBool<T> && !(std::same_as<T, bool>);
 
+template<typename T>
+    concept NumberOrGLM = Number<T> || GLMContainer<T>;
+
+template<typename T>
+    concept NumberOrVector = Number<T> || GLMContainer<T> || Vector_t<T>;
+
 // String Concepts
 template<typename T>
     concept StringContainer = std::same_as<T, std::string>;
