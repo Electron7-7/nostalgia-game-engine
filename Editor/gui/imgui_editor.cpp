@@ -6,6 +6,7 @@
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "thirdparty/DearImGui/imgui_internal.h"
 #include <Nostalgia/application/application.hpp>
+#include <Nostalgia/managers/resource_manager.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
@@ -560,7 +561,7 @@ bool ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID)
 
         int _back_of_theatre{0};
         auto _theatre_uids{Theatre::Current()->SortedThingUIDs(_back_of_theatre)};
-        static auto _embedded_uids{UID::GetEmbeddedUIDs()};
+        static auto _embedded_uids{g_pResourceManager->GetEmbeddedResources()};
         _theatre_uids.insert(_theatre_uids.begin() + _back_of_theatre,
             _embedded_uids.begin(),
             _embedded_uids.end());
