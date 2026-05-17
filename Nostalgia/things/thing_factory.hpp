@@ -69,7 +69,7 @@ struct ThingFactory
 
     static Shared<Thing> MakeThing(FPID inTypeID, Sarg inName = GlobalConstants::str_empty);
 
-    template<Thing_t T>
+    template<Thing_t T> requires (not std::is_abstract_v<T>)
         inline static Shared<T> MakeThing(Sarg inName = GlobalConstants::str_empty)
         {
             if(auto _output{DCast<T>(MakeThing(T::sClassType(), inName))})
