@@ -46,16 +46,16 @@ public:
     virtual void Init() = 0;
     virtual void Shutdown() = 0;
 
-    virtual void SetViewport(Farg<Position2D> inPosition, Farg<Size2D> inSize) = 0;
+    virtual void SetViewport(Farg<Position2D<double>> inPosition, Farg<Size2D<int>> inSize) = 0;
     virtual void SetViewport(int XPosition, int YPosition, int Width, int Height) = 0;
-    virtual void SetClearColor(Farg<ColorRGBA> Color) = 0;
+    virtual void SetClearColor(Farg<ColorRGBA<float>> Color) = 0;
     virtual void SetLineWidth(float Width) = 0;
     virtual void SetFramebufferSRGB(bool inValue) const = 0;
     virtual void SetWireframe(bool inValue) const = 0;
     virtual void SetBlend(bool isEnabled) const = 0;
     virtual void SetDepthMask(bool isEnabled) const = 0;
 
-    virtual ColorRGBA GetClearColor() = 0;
+    virtual ColorRGBA<float> GetClearColor() = 0;
     virtual float GetLineWidth() = 0;
     virtual bool GetWireframe() const = 0;
     virtual bool GetBlend() const = 0;
