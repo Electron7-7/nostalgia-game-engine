@@ -4,7 +4,7 @@
 #ifndef GETARGS_HEADER_GUARD
 #define GETARGS_HEADER_GUARD
 
-#define GETARGS_VERSION_MAJOR 3
+#define GETARGS_VERSION_MAJOR 4
 #define GETARGS_VERSION_MINOR 0
 #define GETARGS_VERSION_PATCH 0
 
@@ -328,19 +328,12 @@ namespace GETARGS_NAMESPACE
             __hidden::flags.contains(__hidden::get_raw_flag(inFlagAlt));
     }
 
-    GETARGS_FUNC bool get_option(const GETARGS_STRING_t& inOption, GETARGS_STRING_t& outValue)
+    GETARGS_FUNC const GETARGS_STRING_t& get_option(const GETARGS_STRING_t& inOption,
+        const GETARGS_STRING_t& inOptionAlt = "")
     {
         if(auto found_it{__hidden::options.find(inOption)}; found_it != __hidden::options.end())
-        {
-            outValue = found_it->second;
-            return true;
-        }
-        return false;
-    }
-
-    GETARGS_FUNC const GETARGS_STRING_t& get_option(const GETARGS_STRING_t& inOption)
-    {
-        if(auto found_it{__hidden::options.find(inOption)}; found_it != __hidden::options.end())
+            { return found_it->second; }
+        else if(auto found_it{__hidden::options.find(inOptionAlt)}; found_it != __hidden::options.end())
             { return found_it->second; }
         return __hidden::empty_string;
     }
