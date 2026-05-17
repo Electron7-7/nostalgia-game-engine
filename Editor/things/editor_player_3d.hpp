@@ -22,8 +22,8 @@ protected:
     Shared<Camera3D> m_pCamera{nullptr};
     bool mEnableCollision{true};
     float mMouseSensitivity{0.15f}, mMouseSensitivityMultiplier{0.5f};
+    glm::vec2 mLookWish{0.0f};
     glm::vec3 mVelocity{0.0f},
-        mLookWish{0.0f},
         mMovementDirection{0.0f};
 };
 

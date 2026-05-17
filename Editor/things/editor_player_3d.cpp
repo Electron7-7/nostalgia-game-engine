@@ -61,6 +61,10 @@ void EditorPlayer3D::Ready()
         cam_dat.set_variable(true, "UseDefaultSkybox");
         cam_dat.set_variable(name(), "Parent");
         m_pCamera = ThingFactory::GetThing<Camera3D>(Theatre::Current()->CreateThing(cam_dat));
+
+        SetPosition(Position());
+        SetRotation(Rotation());
+        SetScale(Scale());
     }
 
     Theatre::Current()->SetCurrentCamera(m_pCamera->uid());
@@ -79,7 +83,7 @@ void EditorPlayer3D::Tick()
 
     if(mCaptureMouse)
     {
-        mLookWish = InputManager::MouseMotion() * mMouseSensitivity * mMouseSensitivityMultiplier;
+        mLookWish = InputManager::MouseMotion().operator glm::vec2() * mMouseSensitivity * mMouseSensitivityMultiplier;
         m_pCamera->SetRotationDegrees(m_pCamera->RotationDegrees() - glm::vec3{mLookWish.y, mLookWish.x, 0.0f});
     }
     if(mCaptureKeyboard)
