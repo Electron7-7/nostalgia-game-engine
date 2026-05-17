@@ -227,3 +227,15 @@ void FileSystem::ReplaceExtension(Sarg extension, std::string& output)
 
 std::string FileSystem::ReplaceExtension(Sarg extension, Sarg string_path)
 { return fs::path{string_path}.replace_extension({extension}).generic_string(); }
+
+std::string FileSystem::CreateFileExtensionFilter(Sarg inFilterName, Sarg inFilterList)
+{
+    std::string _pretty_filter{inFilterList};
+    for(auto iter{_pretty_filter.begin()}; iter != _pretty_filter.end();)
+    {
+        if(*iter == '.')
+            { iter = _pretty_filter.insert(iter, '*') + 1; }
+        ++iter;
+    }
+    return std::format("{} ({}){{{}}}", inFilterName, _pretty_filter, inFilterList);
+}

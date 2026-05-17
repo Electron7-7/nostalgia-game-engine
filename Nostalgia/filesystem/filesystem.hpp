@@ -55,6 +55,8 @@ namespace FileSystem
 
     void ReplaceExtension(Sarg NewExtension, std::string& Output);
     std::string ReplaceExtension(Sarg NewExtension, Sarg Path);
+
+    std::string CreateFileExtensionFilter(Sarg inFilterName, Sarg inFilterList);
 };
 
 #endif // FILESYSTEM_H
