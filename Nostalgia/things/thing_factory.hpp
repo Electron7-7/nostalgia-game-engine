@@ -14,6 +14,14 @@ struct ThingFactory
 {
     inline static constexpr int cDefaultPriority{0};
 
+    struct ThingType_t
+    {
+        PID name{ThingType::Invalid};
+        PID inherits{ThingType::Invalid};
+        bool is_virtual{false};
+        int init_priority{cDefaultPriority};
+    };
+
     template<Thing_t T>
         inline static Shared<Thing> ThingMakerTemplate()
         { return Shared<Thing>(new T{}); }
@@ -74,15 +82,13 @@ struct ThingFactory
 
     static Error AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists = false);
     static Error AddThingType(pThingMakerTemplate_t,
-        Sarg inType,
-        FPID inBaseType,
-        int inPriority = cDefaultPriority);
+        FPID inType, FPID inInherits, bool inIsVirtual = false, int inPriority = cDefaultPriority);
 
     static bool SetPriority(FPID inTypeID, int inPriority);
     static int  GetPriority(FPID inTypeID);
-
     static PidSet_t DerivedFrom(FPID inType) noexcept;
     static PID BaseOf(FPID inType) noexcept;
+    static bool IsVirtual(FPID inType) noexcept;
 
     static bool IsThing(FPID inTypeID);
     static bool IsThinker(FPID inTypeID);

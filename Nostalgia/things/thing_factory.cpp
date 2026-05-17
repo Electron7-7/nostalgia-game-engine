@@ -27,7 +27,9 @@
 
 #define LOCK(MUTEX) LockGuard<RMutex> _##MUTEX##_lock{MUTEX};
 #define ADD_THING(TYPE, BASE_TYPE, PRIORITY...) \
-    AddThingType(&ThingMakerTemplate<TYPE>, #TYPE, {#BASE_TYPE}, cDefaultPriority PRIORITY);
+    AddThingType(&ThingMakerTemplate<TYPE>, #TYPE, #BASE_TYPE, false, cDefaultPriority PRIORITY);
+#define ADD_VIRTUAL_THING(TYPE, BASE_TYPE, PRIORITY...) \
+    AddThingType(&ThingMakerTemplate<TYPE>, #TYPE, #BASE_TYPE, true, cDefaultPriority PRIORITY);
 #define LOCK_MUTEX LockGuard<RMutex> lock{sMutex}
 #define FOUND_IT(MAP, KEY) auto found_it{MAP.find(KEY)}; found_it != MAP.end()
 
@@ -38,8 +40,8 @@ static std::map<std::string, ID> sNames{};
 
 static std::map<PID, PID> sTypeDeclarations{};
 static bool sIsInitialized{false}, sImportantTypesRegistered{false};
+static std::map<ID, ThingFactory::ThingType_t> sThingTypes{};
 static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
-static std::map<ID, int> sTypePriorities{};
 static std::map<ID, std::unordered_set<PID>> sTypeAncestors{};
 static Tree<PID> sTypes{};
 static std::vector<PID> sTypeIDs{ThingType::Resource, ThingType::Thinker};
@@ -80,17 +82,17 @@ bool ThingFactory::Init()
     if(sIsInitialized)
         { return true; }
 
-    AddThingType(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, cDefaultPriority);
-    AddThingType(&ThingMakerTemplate<Resource>, "Resource", ThingType::Thing, cDefaultPriority + 1);
-    AddThingType(&ThingMakerTemplate<Thinker>, "Thinker", ThingType::Thing, cDefaultPriority);
+    AddThingType(&ThingMakerTemplate<Thing>, "Thing", PID{ID::Invalid, ""}, true, cDefaultPriority);
+    AddThingType(&ThingMakerTemplate<Resource>, "Resource", ThingType::Thing, true, cDefaultPriority + 1);
+    AddThingType(&ThingMakerTemplate<Thinker>, "Thinker", ThingType::Thing, true, cDefaultPriority);
     sImportantTypesRegistered = true;
 
     // RESOURCES
         ADD_THING(Image, Resource, +2)
         ADD_THING(Font, Resource, +2)
-        ADD_THING(Mesh, Resource)
+        ADD_VIRTUAL_THING(Mesh, Resource)
             ADD_THING(ArrayMesh, Mesh)
-        ADD_THING(Texture, Resource)
+        ADD_VIRTUAL_THING(Texture, Resource)
             ADD_THING(Cubemap, Texture)
             ADD_THING(ViewportTexture, Texture)
             ADD_THING(ImageTexture, Texture)
@@ -100,10 +102,10 @@ bool ThingFactory::Init()
         ADD_THING(NostalgiaPlayer, Thinker)
         ADD_THING(Actor3D, Thinker)
             ADD_THING(Ramiel, Actor3D)
-            ADD_THING(Visual3D, Actor3D)
+            ADD_VIRTUAL_THING(Visual3D, Actor3D)
                 ADD_THING(MeshInstance3D, Visual3D)
                 ADD_THING(Sprite3D, Visual3D)
-                ADD_THING(Light3D, Visual3D)
+                ADD_VIRTUAL_THING(Light3D, Visual3D)
                     ADD_THING(PointLight3D, Light3D)
                     ADD_THING(SpotLight3D, Light3D)
                     ADD_THING(DirectionalLight3D, Light3D)
@@ -111,7 +113,7 @@ bool ThingFactory::Init()
             ADD_THING(Collider3D, Actor3D)
         ADD_THING(Actor2D, Thinker)
             ADD_THING(Camera2D, Actor2D)
-            ADD_THING(Visual2D, Actor2D)
+            ADD_VIRTUAL_THING(Visual2D, Actor2D)
                 ADD_THING(Text2D, Visual2D)
                 ADD_THING(Sprite2D, Visual2D)
 
@@ -378,21 +380,20 @@ Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool 
     return OK;
 }
 
-Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, Sarg inType, FPID inBaseType, int inPriority)
+Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, FPID inType, FPID inInherits, bool inVirtual, int inPriority)
 {
     LOCK(sExternMutex)
-    PID _type{inType};
-    if(Error _status{sTypes.add_node(_type, inBaseType)}; not _status)
+    if(Error _status{sTypes.add_node(inType, inInherits)}; not _status)
         { return _status; }
     else if(inPriority == cDefaultPriority)
     {
-        auto _ancestors{sTypes.get_ancestors(_type)};
+        auto _ancestors{sTypes.get_ancestors(inType)};
         for(auto iter{_ancestors.begin()}; iter != _ancestors.end(); ++iter)
         {
-            if(auto found_it{sTypePriorities.find(*iter)}; found_it != sTypePriorities.end()
-                and found_it->second != inPriority)
+            if(auto found_it{sThingTypes.find(*iter)}; found_it != sThingTypes.end()
+                and found_it->second.init_priority != inPriority)
             {
-                inPriority = found_it->second;
+                inPriority = found_it->second.init_priority;
                 break;
             }
         }
@@ -400,21 +401,21 @@ Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, Sarg inType, FPID 
     if(sImportantTypesRegistered)
     {
         sTypeIDs.insert(std::find(sTypeIDs.begin(), sTypeIDs.end(),
-            sTypes.get_node(_type).parent) + 1,
-        _type);
+            sTypes.get_node(inType).parent) + 1,
+        inType);
     }
-    sTypePriorities[_type] = inPriority;
-    sThingMakers[_type]    = inPtr;
-    sTypeAncestors[_type]  = sTypes.get_ancestors(_type);
+    sThingTypes[inType]     = {inType, inInherits, inVirtual, inPriority};
+    sThingMakers[inType]    = inPtr;
+    sTypeAncestors[inType]  = sTypes.get_ancestors(inType);
     if(Console::GetVariable("ThingFactory.debug_type_msgs").int_value)
     {
-        if(_type == ThingType::Thing.name())
+        if(inType == ThingType::Thing.name())
         {
             print_debug("Registered Thing (priority: {})", cDefaultPriority);
             return OK;
         }
-        std::string _log{std::format("{} (priority {: }) derives: ", inType, inPriority)};
-        auto _ancestors{sTypes.get_ancestors(_type)};
+        std::string _log{std::format("{} (virtual: {}) (priority {: }) derives: ", inType.name(), inVirtual, inPriority)};
+        auto _ancestors{sTypes.get_ancestors(inType)};
         std::vector<PID> _ancestors_v{_ancestors.begin(), _ancestors.end()};
         for(auto iter{_ancestors_v.rbegin()}; iter != _ancestors_v.rend(); ++iter)
         {
@@ -431,14 +432,14 @@ bool ThingFactory::SetPriority(FPID type, int priority)
 {
     if(!IsThing(type))
         { return false; }
-    sTypePriorities[type] = priority;
+    sThingTypes[type].init_priority = priority;
     return true;
 }
 
 int ThingFactory::GetPriority(FPID type)
 {
-    if(auto found_it{sTypePriorities.find(type)}; found_it != sTypePriorities.end())
-        { return sTypePriorities.at(type); }
+    if(auto found_it{sThingTypes.find(type)}; found_it != sThingTypes.end())
+        { return sThingTypes.at(type).init_priority; }
     return static_cast<int>(static_cast<uint>(-1) / 2); // Same as `INT_MAX`
 }
 
@@ -452,6 +453,14 @@ PID ThingFactory::BaseOf(FPID inType) noexcept
 {
     LOCK(sExternMutex)
     return sTypes.get_node(inType).parent;
+}
+
+bool ThingFactory::IsVirtual(FPID inType) noexcept
+{
+    LOCK(sExternMutex)
+    if(auto found_it{sThingTypes.find(inType)}; found_it != sThingTypes.end())
+        { return found_it->second.is_virtual; }
+    return true;
 }
 
 bool ThingFactory::IsThing(FPID inTypeID)
