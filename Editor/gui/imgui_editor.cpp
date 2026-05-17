@@ -30,6 +30,7 @@ ImGui_Editor* g_pImGuiEditor{&sImGuiEditor};
 
 static ImGuiChildFlags sResizableChildWithBorder{ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX};
 static float s2DCameraZoomFactor{0.2f}, s2DCameraMovementSpeed{1.0f};
+static const std::set<std::string> sTheatreExtensions{"nt", "theatre", "nostalgiatheatre"};
 
 static bool s_TreeNodeEx(const char*, ImGuiTreeNodeFlags);
 
@@ -77,7 +78,9 @@ void ImGui_Editor::Init()
     mIsEditorSaved = true;
 
     g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
-    if(mCurrentTheatreFilePath.empty())
+    if(mCurrentTheatreFilePath.empty()
+        or not FileSystem::IsFile(mCurrentTheatreFilePath)
+        or not sTheatreExtensions.contains(FileSystem::GetExtension(mCurrentTheatreFilePath, true)))
         { g_pTheatreManager->LoadFromData(mEditorTheatreData = {}); }
     else
         { g_pTheatreManager->LoadFromFile(mCurrentTheatreFilePath); }
