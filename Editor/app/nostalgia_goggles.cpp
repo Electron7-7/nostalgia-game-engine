@@ -52,6 +52,8 @@ int NostalgiaGoggles::Main()
     m_pEditor = m_pUII->CreateSolution<ImGui_Editor>();
     m_pUII->CreateSolution<ImGui_Debugger>();
 
+    m_pEditor->SetStartupTheatre(m_sStartupTheatre);
+
     IManager::FPSCounter(DEBUG_BUILD);
     g_pRenderManager->CalculateFrameTime(DEBUG_BUILD);
 

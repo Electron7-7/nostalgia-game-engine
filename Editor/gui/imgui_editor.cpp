@@ -6,6 +6,7 @@
 #include "thirdparty/DearImGui/imgui_stdlib.h"
 #include "thirdparty/DearImGui/imgui_internal.h"
 #include <Nostalgia/application/application.hpp>
+#include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/managers/resource_manager.hpp>
 #include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
@@ -74,7 +75,12 @@ void ImGui_Editor::Init()
 
     mAskAreYouSure = false;
     mIsEditorSaved = true;
-    CreateNewTheatre();
+
+    g_pTheatreManager->SetNextTheatreType<EditorTheatre>();
+    if(mCurrentTheatreFilePath.empty())
+        { g_pTheatreManager->LoadFromData(mEditorTheatreData = {}); }
+    else
+        { g_pTheatreManager->LoadFromFile(mCurrentTheatreFilePath); }
 }
 
 void ImGui_Editor::Shutdown()
@@ -95,6 +101,9 @@ void ImGui_Editor::TheatreEntered()
 
 void ImGui_Editor::TheatreExited()
 { mInspectingThingUID = {}; }
+
+void ImGui_Editor::SetStartupTheatre(Sarg inFilePath)
+{ mCurrentTheatreFilePath = inFilePath; }
 
 bool ImGui_Editor::ReadyToQuit()
 { return mReadyToQuit; }

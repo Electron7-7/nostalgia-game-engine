@@ -22,6 +22,7 @@ public:
 
     inline static bool m_sEnableThingFactoryDebugMsgs{false};
     inline static uint m_sMainWindowWidth{1280}, m_sMainWindowHeight{720};
+    inline static std::string m_sStartupTheatre{};
 
 private:
     UI_Implementor* m_pUII{nullptr};

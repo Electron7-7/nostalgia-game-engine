@@ -20,6 +20,7 @@ public:
     void TheatreEntered()   final;
     void TheatreExited()    final;
 
+    void SetStartupTheatre(Sarg inFilePath);
     void QuitEditor();
     bool ReadyToQuit();
 

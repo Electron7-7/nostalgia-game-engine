@@ -4,12 +4,14 @@
 #include <Nostalgia/Nostalgia.hpp>
 
 constexpr const char* _Help_Format_String{
-R"(Usage: {} [<width>] [<height>] [-h|--help] [-v|--version] [--no-colors] [--no-editor-hint]
+R"(Usage: {} [<Theatre File>] [--help] [--version] [-w|--width=<width>] [-h|--height=<width>]
+             [--no-color]
     Options:
-        -h, --help           print help document
-        -v, --version        print program version
-            --no-colors      disable printout colors
-            --no-editor-hint sets `Engine::IsEditorHint` to false
+            --help           print help document
+            --version        print program version
+        -w, --width=WIDTH    starting width of the main window
+        -h, --height=HEIGHT  starting height of the main window
+            --no-color       disable ANSI colors in terminal output
 )"};
 
 constexpr const char* _Version_Format_String{"{} v{}"};

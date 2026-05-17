@@ -16,8 +16,8 @@ int DedicatedMain(int argc, char** argv)
 {
     getargs::set_can_have_positional_arguments(true);
     getargs::set_valid_args(
-        "--help", "-h",
-        "--version", "-v",
+        "--help",
+        "--version",
         "--no-colors",
         "--no-editor-hint",
         "--debug-thing-factory", "-d",
@@ -47,13 +47,16 @@ int DedicatedMain(int argc, char** argv)
             { __all_labels_for_debugging[i]->enable_ansi_sequence = false; }
     }
 
+
     NostalgiaGoggles::m_sEnableThingFactoryDebugMsgs =
         getargs::get_flag("debug-thing-factory") or getargs::get_flag("d");
 
-    if(FAUTO _width{getargs::get_positional(0)}; not _width.empty())
+    NostalgiaGoggles::m_sStartupTheatre = getargs::get_positional(0);
+
+    if(FAUTO _width{getargs::get_option("width", "w")}; not _width.empty())
         { StringToNum(NostalgiaGoggles::m_sMainWindowWidth, _width); }
 
-    if(FAUTO _height{getargs::get_positional(1)}; not _height.empty())
+    if(FAUTO _height{getargs::get_option("height", "h")}; not _height.empty())
         { StringToNum(NostalgiaGoggles::m_sMainWindowHeight, _height); }
 
     Settings::Engine::IsEditorHint = true;
