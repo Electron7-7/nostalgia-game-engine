@@ -69,7 +69,7 @@ int NostalgiaGoggles::Main()
 
     ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<EditorPlayer3D>,
         "EditorPlayer3D",
-        ThingType::Actor3D);
+        ThingType::Collider3D);
     ThingFactory::AddThingType(&ThingFactory::ThingMakerTemplate<TestAnimatedSprite2D>,
         "TestAnimatedSprite2D",
         ThingType::Sprite2D);
