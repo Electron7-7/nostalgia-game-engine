@@ -20,7 +20,7 @@ OpenGLRenderBuffer::~OpenGLRenderBuffer()
 uint OpenGLRenderBuffer::ID()
 { return mBufferID; }
 
-void OpenGLRenderBuffer::SetStorage(Farg<Size2D> inSize, DataFormat inComponent)
+void OpenGLRenderBuffer::SetStorage(Farg<Size2D<int>> inSize, DataFormat inComponent)
 {
     ASSERT_API
     if(not mBufferID)

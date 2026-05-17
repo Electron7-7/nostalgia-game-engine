@@ -16,7 +16,7 @@ public:
 
     virtual ID ViewportID() const;
     virtual void SetViewportID(ID);
-    virtual Farg<Size2D> Size() const;
+    virtual Farg<Size2D<int>> Size() const;
 
 protected:
     Shared<Viewport> m_pViewport{ThingFactory::Invalid<Viewport>()};

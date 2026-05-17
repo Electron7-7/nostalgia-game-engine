@@ -19,7 +19,7 @@ Shared<RenderBuffer> RenderBuffer::Create()
     }
 }
 
-Shared<RenderBuffer> RenderBuffer::Create(Farg<Size2D> inSize, DataFormat inComponent)
+Shared<RenderBuffer> RenderBuffer::Create(Farg<Size2D<int>> inSize, DataFormat inComponent)
 {
     auto _output{Create()};
     _output->SetStorage(inSize, inComponent);

@@ -10,7 +10,7 @@ public:
     ~OpenGLRenderBuffer();
 
     uint ID() final;
-    void SetStorage(Farg<Size2D> inSize, DataFormat = DATA_FORMAT_DEPTH) final;
+    void SetStorage(Farg<Size2D<int>> inSize, DataFormat = DATA_FORMAT_DEPTH) final;
 
 private:
     uint mBufferID{0};

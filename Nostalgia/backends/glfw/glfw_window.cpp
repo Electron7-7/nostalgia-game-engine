@@ -219,7 +219,7 @@ void WindowGLFW::Update()
     glfwGetCursorPos(m_pWindow, &mMouseCurrent[0], &mMouseCurrent[1]);
     if(mMouseCurrent != mMouseLast or ++mFramesWithNoMouseMovement < mFrameLimitForNoMouseMovement)
         { g_pInputManager->Queue()->add<InputEventMouseMotion>(mMouseCurrent, mMouseLast); }
-    if(mScrollCurrent != Position2D{0.0, 0.0} and ++mFramesWithNoScrollOffset >= mFrameLimitForNoMouseMovement)
+    if(mScrollCurrent != Position2D<double>{0.0, 0.0} and ++mFramesWithNoScrollOffset >= mFrameLimitForNoMouseMovement)
     {
         mScrollCurrent = {0.0, 0.0};
         g_pInputManager->UpdateScrollOffset(0.0, 0.0);
@@ -337,10 +337,10 @@ Error WindowGLFW::SetFullscreenMonitor(uint MonitorIndex)
     return ERR_INDEX_OUT_OF_BOUNDS;
 }
 
-Position2D WindowGLFW::GetMousePosition()
+Position2D<double> WindowGLFW::GetMousePosition()
 { return mMouseCurrent; }
 
-Position2D WindowGLFW::GetLastMousePosition()
+Position2D<double> WindowGLFW::GetLastMousePosition()
 { return mMouseLast; }
 
 Unique<GraphicsContext>& WindowGLFW::GetContext()

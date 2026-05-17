@@ -45,8 +45,8 @@ ID Text2D::Font() const
 void Text2D::SetFont(ID inFontID)
 { mFontID = inFontID; }
 
-Farg<ColorRGB> Text2D::Color() const
+Farg<ColorRGB<float>> Text2D::Color() const
 { return mColor; }
 
-void Text2D::SetColor(Farg<ColorRGB> inColor)
+void Text2D::SetColor(Farg<ColorRGB<float>> inColor)
 { mColor = inColor; }

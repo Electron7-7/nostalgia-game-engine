@@ -9,16 +9,16 @@ public:
     void Init() final;
     void Shutdown() final;
 
-    void SetViewport(Farg<Position2D>, Farg<Size2D>) final;
+    void SetViewport(Farg<Position2D<double>>, Farg<Size2D<int>>) final;
     void SetViewport(int, int, int, int) final;
-    void SetClearColor(Farg<ColorRGBA>) final;
+    void SetClearColor(Farg<ColorRGBA<float>>) final;
     void SetLineWidth(float) override;
     void SetFramebufferSRGB(bool) const final;
     void SetWireframe(bool inValue) const final;
     void SetBlend(bool) const final;
     void SetDepthMask(bool isEnabled) const final;
 
-    ColorRGBA GetClearColor() final;
+    ColorRGBA<float> GetClearColor() final;
     float GetLineWidth() final;
     bool GetWireframe() const final;
     bool GetBlend() const final;

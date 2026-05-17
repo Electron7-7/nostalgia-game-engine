@@ -34,11 +34,11 @@ public:
     static bool IsActionJustDown(Farg<std::string> inName) noexcept;
     static bool IsActionJustUp(Farg<std::string> inName) noexcept;
 
-    static Position2D MousePosition() noexcept;
-    static Position2D LastMousePosition() noexcept;
-    static Motion2D MouseMotion() noexcept;
+    static Position2D<double> MousePosition() noexcept;
+    static Position2D<double> LastMousePosition() noexcept;
+    static Motion2D<double> MouseMotion() noexcept;
 
-    static Position2D ScrollOffset() noexcept;
+    static Position2D<double> ScrollOffset() noexcept;
 
 private:
     struct InputState
@@ -85,7 +85,7 @@ private:
 
     std::vector<pInputCallback_f> mCallbacks{};
     std::recursive_mutex mCallbacksMutex{};
-    static Position2D m_sScrollOffset;
+    static Position2D<double> m_sScrollOffset;
     static std::unordered_map<uint, InputManager::InputState> m_sInputStateBuffer;
     static std::unordered_map<uint, InputManager::InputState> m_sPreviousInputState;
 };

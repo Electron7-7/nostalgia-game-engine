@@ -10,16 +10,16 @@ class DummyRendererAPI final : public RendererAPI
 {
     void Init() final {}
     void Shutdown() final {}
-    void SetViewport(Farg<Position2D>, Farg<Size2D>) final {}
+    void SetViewport(Farg<Position2D<double>>, Farg<Size2D<int>>) final {}
     void SetViewport(int, int, int, int) final {}
-    void SetClearColor(Farg<ColorRGBA>) final {}
+    void SetClearColor(Farg<ColorRGBA<float>>) final {}
     void SetLineWidth(float) final {}
     void SetFramebufferSRGB(bool) const final {}
     void SetWireframe(bool) const final {}
     void SetBlend(bool) const final {}
     void SetDepthMask(bool) const final {}
 
-    ColorRGBA GetClearColor() final { return {}; }
+    ColorRGBA<float> GetClearColor() final { return {}; }
     float GetLineWidth() final { return 0; }
     bool GetWireframe() const final { return false; }
     bool GetBlend() const final { return false; }

@@ -34,5 +34,5 @@ ID ViewportTexture::ViewportID() const
 void ViewportTexture::SetViewportID(ID inID)
 { m_pViewport = ThingFactory::GetThing<Viewport>(inID); }
 
-Farg<Size2D> ViewportTexture::Size() const
+Farg<Size2D<int>> ViewportTexture::Size() const
 { return m_pViewport->Size(); }

@@ -109,10 +109,10 @@ void Viewport::UpdateCurrentCameras()
     }
 }
 
-Farg<Size2D> Viewport::Size() const
+Farg<Size2D<int>> Viewport::Size() const
 { return mSize; }
 
-void Viewport::SetSize(Farg<Size2D> inSize)
+void Viewport::SetSize(Farg<Size2D<int>> inSize)
 {
     if(inSize[0] == 0 or inSize[1] == 0)
         { print_warning("Cannot set Viewport width/height to 0"); }

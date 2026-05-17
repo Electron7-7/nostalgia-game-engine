@@ -19,13 +19,13 @@ public:
     virtual ID Font() const;
     virtual void SetFont(ID);
 
-    virtual Farg<ColorRGB> Color() const;
-    virtual void SetColor(Farg<ColorRGB>);
+    virtual Farg<ColorRGB<float>> Color() const;
+    virtual void SetColor(Farg<ColorRGB<float>>);
 
 protected:
     ID mFontID{UID::f_Audiowide};
     std::string mText{};
-    ColorRGB mColor{0.0, 0.0, 0.0};
+    ColorRGB<float> mColor{0.0, 0.0, 0.0};
 };
 
 #endif // TEXT_2D_H

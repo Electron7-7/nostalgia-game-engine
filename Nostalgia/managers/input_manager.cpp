@@ -9,7 +9,7 @@ static std::unordered_map<std::string, InputAction> sInputActions{};
 static EventQueue sInputEventQueue{};
 static InputManager sInputManager{};
 
-Position2D InputManager::m_sScrollOffset{0.0, 0.0};
+Position2D<double> InputManager::m_sScrollOffset{0.0, 0.0};
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sInputStateBuffer{};
 std::unordered_map<uint, InputManager::InputState> InputManager::m_sPreviousInputState{};
 bool gPrintInputLogs{false};
@@ -68,7 +68,7 @@ void InputManager::UpdateScrollOffset(double inOffsetX, double inOffsetY)
 {
     const std::lock_guard<std::recursive_mutex> lock{sInputEventQueue.get_mutex()};
     m_sScrollOffset = {inOffsetX, inOffsetY};
-    sInputEventQueue.add<InputEventMouseScroll>(Position2D{inOffsetX, inOffsetY});
+    sInputEventQueue.add<InputEventMouseScroll>(Position2D<double>{inOffsetX, inOffsetY});
 }
 
 EventQueue* InputManager::Queue()
@@ -152,14 +152,14 @@ bool InputManager::IsActionJustDown(const std::string& inName) noexcept
 bool InputManager::IsActionJustUp(const std::string& inName) noexcept
 { return IsActionUp(inName) and sPreviousInputActions.at(inName).State(); }
 
-Position2D InputManager::MousePosition() noexcept
+Position2D<double> InputManager::MousePosition() noexcept
 { return Application()->MainWindow()->GetMousePosition(); }
 
-Position2D InputManager::LastMousePosition() noexcept
+Position2D<double> InputManager::LastMousePosition() noexcept
 { return Application()->MainWindow()->GetLastMousePosition(); }
 
-Motion2D InputManager::MouseMotion() noexcept
+Motion2D<double> InputManager::MouseMotion() noexcept
 { return Application()->MainWindow()->GetMousePosition() - Application()->MainWindow()->GetLastMousePosition(); }
 
-Position2D InputManager::ScrollOffset() noexcept
+Position2D<double> InputManager::ScrollOffset() noexcept
 { return m_sScrollOffset; }

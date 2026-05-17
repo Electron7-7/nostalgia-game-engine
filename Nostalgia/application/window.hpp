@@ -7,13 +7,13 @@
 #ifdef WAYLAND_DISPLAY
 #   define WINDOW_SET_POSITION_DECLARATION
 #   define WINDOW_SET_SCALE_DECLARATION
-#   define WINDOW_SET_POSITION_DEFINITION(VAR_NAME) static Error __removed(const Position2D& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Size2D& VAR_NAME)
+#   define WINDOW_SET_POSITION_DEFINITION(VAR_NAME) static Error __removed(const Position2D<double>& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(VAR_NAME)    static Error __removed(const Size2D<int>& VAR_NAME)
 #else  // !WAYLAND_DISPLAY
-#   define WINDOW_SET_POSITION_DECLARATION          Error SetPosition(const Position2D&) override;
-#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Size2D&) override;
-#   define WINDOW_SET_POSITION_DEFINITION(CLASS, VAR_NAME) Error CLASS::SetPosition(const Position2D& VAR_NAME)
-#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Size2D& VAR_NAME)
+#   define WINDOW_SET_POSITION_DECLARATION          Error SetPosition(const Position2D<double>&) override;
+#   define WINDOW_SET_SCALE_DECLARATION             Error SetScale(const Size2D<int>&) override;
+#   define WINDOW_SET_POSITION_DEFINITION(CLASS, VAR_NAME) Error CLASS::SetPosition(const Position2D<double>& VAR_NAME)
+#   define WINDOW_SET_SCALE_DEFINITION(CLASS, VAR_NAME)    Error CLASS::SetScale(const Size2D<int>& VAR_NAME)
 #endif // WAYLAND_DISPLAY
 
 enum NativeWindowType : int
@@ -88,14 +88,14 @@ public:
     virtual bool IsMainWindow() const = 0;
     virtual void Close() = 0;
     virtual void Update() = 0;
-    virtual Error SetPosition(Farg<Position2D>) { return UNIMPLEMENTED; }
-    virtual Error SetScale(Farg<Size2D>)        { return UNIMPLEMENTED; }
+    virtual Error SetPosition(Farg<Position2D<double>>) { return UNIMPLEMENTED; }
+    virtual Error SetScale(Farg<Size2D<int>>)        { return UNIMPLEMENTED; }
     virtual Error SetVsync(Vsync) = 0;
     virtual Error SetMouseMode(MouseMode) = 0;
     virtual Error SetWindowMode(WindowMode) = 0;
 
-    virtual Position2D GetMousePosition() = 0;
-    virtual Position2D GetLastMousePosition() = 0;
+    virtual Position2D<double> GetMousePosition() = 0;
+    virtual Position2D<double> GetLastMousePosition() = 0;
     virtual void* GetNativeWindow() const = 0;
     virtual NativeWindowType GetNativeWindowType() const = 0; // Probably not necessary
     virtual const Unique<Monitor>& GetPrimaryMonitor() const = 0;
@@ -105,8 +105,8 @@ public:
     virtual Unique<GraphicsContext>& GetContext() = 0;
 
     virtual const char* GetTitle()           const = 0;
-    virtual Size2D GetScale()                const = 0;
-    virtual Position2D GetPosition()         const = 0;
+    virtual Size2D<int> GetScale()                const = 0;
+    virtual Position2D<double> GetPosition()         const = 0;
     virtual uint GetWidth()                  const = 0;
     virtual uint GetHeight()                 const = 0;
     virtual int GetXPosition()               const = 0;

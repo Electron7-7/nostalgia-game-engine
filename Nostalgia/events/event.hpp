@@ -83,14 +83,14 @@ public:
 
     // InputEventMouseScroll
     virtual bool IsMouseScroll() const;
-    virtual Farg<Position2D> ScrollOffset() const;
+    virtual Farg<Position2D<double>> ScrollOffset() const;
 
     // InputEventMouseMotion
     virtual bool IsMouseMotion() const;
     virtual bool IsStoppedMouseMotion() const;
-    virtual Farg<Position2D> MousePosition() const;
-    virtual Farg<Position2D> LastMousePosition() const;
-    virtual Farg<Motion2D>   MouseMotion() const;
+    virtual Farg<Position2D<double>> MousePosition() const;
+    virtual Farg<Position2D<double>> LastMousePosition() const;
+    virtual Farg<Motion2D<double>>   MouseMotion() const;
 
     // InputEventAction
     virtual bool IsInputAction() const;
@@ -111,21 +111,21 @@ public:
 
 protected:
     static void sPrintMouseWarning(const char* inFunction);
-    static Position2D empty_position;
-    static Motion2D   empty_motion;
+    static Position2D<double> empty_position;
+    static Motion2D<double>   empty_motion;
 };
 
 class InputEventMouseScroll final : public InputEvent
 {
 public:
     InputEventMouseScroll();
-    InputEventMouseScroll(Farg<Position2D> inScrollOffset);
+    InputEventMouseScroll(Farg<Position2D<double>> inScrollOffset);
 
     std::string GetDebugLog() const final { return std::format("InputEventMouseScroll - scroll offset: [{}, {}]", mScrollOffset.x(), mScrollOffset.y()); }
-    Farg<Position2D> ScrollOffset() const final;
+    Farg<Position2D<double>> ScrollOffset() const final;
 
 private:
-    Position2D mScrollOffset{};
+    Position2D<double> mScrollOffset{};
 };
 
 
@@ -133,20 +133,20 @@ class InputEventMouseMotion final : public InputEvent
 {
 public:
     InputEventMouseMotion();
-    InputEventMouseMotion(Farg<Position2D> inCurrentPos, Farg<Position2D> inLastPos);
+    InputEventMouseMotion(Farg<Position2D<double>> inCurrentPos, Farg<Position2D<double>> inLastPos);
 
     size_t GetHash() const final;
     std::string GetDebugLog() const final { return std::format("InputEventMouseMotion - mouse pos: [{}, {}], last pos: [{}, {}], motion: [{}, {}]", mMousePosition.x(), mMousePosition.y(), mLastMousePosition.x(), mLastMousePosition.y(), mMouseMotion.x(), mMouseMotion.y()); }
     bool IsMouseMotion() const final;
     bool IsStoppedMouseMotion() const final;
-    Farg<Position2D> MousePosition() const final;
-    Farg<Position2D> LastMousePosition() const final;
-    Farg<Motion2D> MouseMotion() const final;
+    Farg<Position2D<double>> MousePosition() const final;
+    Farg<Position2D<double>> LastMousePosition() const final;
+    Farg<Motion2D<double>> MouseMotion() const final;
 
 private:
-    Position2D mMousePosition{};
-    Position2D mLastMousePosition{};
-    Motion2D   mMouseMotion{};
+    Position2D<double> mMousePosition{};
+    Position2D<double> mLastMousePosition{};
+    Motion2D<double>   mMouseMotion{};
 };
 
 class InputEventAction final : public InputEvent

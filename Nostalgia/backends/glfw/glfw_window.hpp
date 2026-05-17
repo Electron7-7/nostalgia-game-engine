@@ -27,8 +27,8 @@ public:
     uint GetFullscreenMonitorIndex() override;
     const Unique<Monitor>& GetFullscreenMonitor() override;
     Error SetFullscreenMonitor(uint) override;
-    Position2D GetMousePosition() override;
-    Position2D GetLastMousePosition() override;
+    Position2D<double> GetMousePosition() override;
+    Position2D<double> GetLastMousePosition() override;
     Unique<GraphicsContext>& GetContext() override;
 
     WINDOW_SET_POSITION_DECLARATION
@@ -39,8 +39,8 @@ public:
     Error SetWindowMode(WindowMode) override;
 
     const char* GetTitle()           const override { return mData.title.data(); }
-    Size2D GetScale()                const override { return {mData.width, mData.height}; }
-    Position2D GetPosition()         const override { return {mData.x_pos, mData.y_pos}; }
+    Size2D<int> GetScale()                const override { return {mData.width, mData.height}; }
+    Position2D<double> GetPosition()         const override { return {mData.x_pos, mData.y_pos}; }
     uint GetWidth()                  const override { return mData.width; }
     uint GetHeight()                 const override { return mData.height; }
     int GetXPosition()               const override { return mData.x_pos; }
@@ -73,9 +73,9 @@ private:
     uint mFullscreenMonitorIndex{0};
     GLFWwindow* m_pWindow{nullptr};
     Unique<GraphicsContext> mGraphicsContext{nullptr};
-    Position2D mMouseCurrent{};
-    Position2D mMouseLast{};
-    Position2D mScrollCurrent{};
+    Position2D<double> mMouseCurrent{};
+    Position2D<double> mMouseLast{};
+    Position2D<double> mScrollCurrent{};
     int mFramesWithNoMouseMovement{0}, mFramesWithNoScrollOffset{0};
     bool mClosed{false}, mIsMainWindow{false};
 

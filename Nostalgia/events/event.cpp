@@ -7,12 +7,12 @@
 size_t           InputEvent::GetHash()                        const { return ID::Invalid;             }
 std::string      InputEvent::GetDebugLog()                    const { return "InputEvent Base Class"; }
 bool             InputEvent::IsMouseScroll()                  const { return false;                   }
-Farg<Position2D> InputEvent::ScrollOffset()                   const { return empty_position;          }
+Farg<Position2D<double>> InputEvent::ScrollOffset()           const { return empty_position;          }
 bool             InputEvent::IsMouseMotion()                  const { return false;                   }
 bool             InputEvent::IsStoppedMouseMotion()           const { return false;                   }
-Farg<Position2D> InputEvent::MousePosition()                  const { return empty_position;          }
-Farg<Position2D> InputEvent::LastMousePosition()              const { return empty_position;          }
-Farg<Motion2D>   InputEvent::MouseMotion()                    const { return empty_motion;            }
+Farg<Position2D<double>> InputEvent::MousePosition()          const { return empty_position;          }
+Farg<Position2D<double>> InputEvent::LastMousePosition()      const { return empty_position;          }
+Farg<Motion2D<double>>   InputEvent::MouseMotion()                    const { return empty_motion;            }
 bool             InputEvent::IsInputAction()                  const { return false;                   }
 bool             InputEvent::IsAction(Farg<std::string>)      const { return false;                   }
 bool             InputEvent::IsActive(Farg<std::string>)      const { return false;                   }
@@ -34,24 +34,24 @@ void InputEvent::sPrintMouseWarning(const char* inFunction)
         inFunction);
 }
 
-Position2D InputEvent::empty_position{};
-Motion2D   InputEvent::empty_motion{};
+Position2D<double> InputEvent::empty_position{};
+Motion2D<double>   InputEvent::empty_motion{};
 
 ///////////////////////////
 // InputEventMouseScroll //
 ///////////////////////////
 InputEventMouseScroll::InputEventMouseScroll() = default;
-InputEventMouseScroll::InputEventMouseScroll(Farg<Position2D> inScrollOffset):
+InputEventMouseScroll::InputEventMouseScroll(Farg<Position2D<double>> inScrollOffset):
     mScrollOffset{inScrollOffset} {}
 
-Farg<Position2D> InputEventMouseScroll::ScrollOffset() const
+Farg<Position2D<double>> InputEventMouseScroll::ScrollOffset() const
 { return mScrollOffset; }
 
 ///////////////////////////
 // InputEventMouseMotion //
 ///////////////////////////
 InputEventMouseMotion::InputEventMouseMotion() = default;
-InputEventMouseMotion::InputEventMouseMotion(Farg<Position2D> inCurrentPos, Farg<Position2D> inLastPos):
+InputEventMouseMotion::InputEventMouseMotion(Farg<Position2D<double>> inCurrentPos, Farg<Position2D<double>> inLastPos):
     mMousePosition{inCurrentPos},
     mLastMousePosition{inLastPos},
     mMouseMotion{mMousePosition - mLastMousePosition} {}
@@ -65,13 +65,13 @@ bool InputEventMouseMotion::IsMouseMotion() const
 bool InputEventMouseMotion::IsStoppedMouseMotion() const
 { return mMouseMotion.is_zero_approx(); }
 
-Farg<Position2D> InputEventMouseMotion::MousePosition() const
+Farg<Position2D<double>> InputEventMouseMotion::MousePosition() const
 { return mMousePosition; }
 
-Farg<Position2D> InputEventMouseMotion::LastMousePosition() const
+Farg<Position2D<double>> InputEventMouseMotion::LastMousePosition() const
 { return mLastMousePosition; }
 
-Farg<Motion2D> InputEventMouseMotion::MouseMotion() const
+Farg<Motion2D<double>> InputEventMouseMotion::MouseMotion() const
 { return mMouseMotion; }
 
 //////////////////////

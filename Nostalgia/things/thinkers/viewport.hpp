@@ -17,7 +17,7 @@ public:
     SET_VARIABLES_OVERRIDE
     GET_VARIABLES_OVERRIDE
 
-    typedef void (*OnSizeChangedCallback_t)(Farg<Size2D>);
+    typedef void (*OnSizeChangedCallback_t)(Farg<Size2D<int>>);
 
     virtual void Attach() const;
     virtual void Detach() const;
@@ -31,15 +31,15 @@ public:
     void SetCurrentCamera2D(Shared<Thing> = nullptr);
     void UpdateCurrentCameras();
 
-    Farg<Size2D> Size() const;
-    void SetSize(Farg<Size2D>);
+    Farg<Size2D<int>> Size() const;
+    void SetSize(Farg<Size2D<int>>);
 
 protected:
     mutable RMutex mFramebufferMutex{}; // evil mutable
     Shared<FrameBuffer>   mFramebuffer{FrameBuffer::CreateDummy()};
     Shared<RenderBuffer>  mRenderbuffer{RenderBuffer::CreateDummy()};
     Shared<TextureBuffer> mTexturebuffer{TextureBuffer::CreateDummy()};
-    Size2D mSize{512, 512};
+    Size2D<int> mSize{512, 512};
     Shared<Camera3D> m_pCurrentCamera3D{ThingFactory::Invalid<Camera3D>()};
     Shared<Camera2D> m_pCurrentCamera2D{ThingFactory::Invalid<Camera2D>()};
 

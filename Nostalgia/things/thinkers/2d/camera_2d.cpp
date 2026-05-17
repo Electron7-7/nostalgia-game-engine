@@ -247,7 +247,7 @@ void Camera2D::OnAncestorAdded(Relative inAncestor)
 
 glm::mat4 Camera2D::ViewMatrix() const
 {
-    Size2D viewport_size{(mViewportID.invalid())
+    Size2D<int> viewport_size{(mViewportID.invalid())
         ? Application()->MainWindow()->GetScale()
         : ThingFactory::GetThing<Viewport>(mViewportID)->Size()};
     viewport_size[1] *= -1.0f;
@@ -268,7 +268,7 @@ glm::mat4 Camera2D::ViewMatrix() const
 
 glm::mat4 Camera2D::ProjectionMatrix() const
 {
-    Size2D viewport_size{(mViewportID.invalid())
+    Size2D<int> viewport_size{(mViewportID.invalid())
         ? Application()->MainWindow()->GetScale()
         : ThingFactory::GetThing<Viewport>(mViewportID)->Size()};
     float left{0.0f}, right{(float)viewport_size[0]}, up{0.0f}, down{(float)viewport_size[1]},

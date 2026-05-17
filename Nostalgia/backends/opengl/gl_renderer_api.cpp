@@ -92,10 +92,10 @@ void OpenGLRendererAPI::Shutdown()
 void OpenGLRendererAPI::SetViewport(int XPosition, int YPosition, int Width, int Height)
 { SetViewport({XPosition, YPosition}, {Width, Height}); }
 
-void OpenGLRendererAPI::SetViewport(Farg<Position2D> inPos, Farg<Size2D> inSize)
+void OpenGLRendererAPI::SetViewport(Farg<Position2D<double>> inPos, Farg<Size2D<int>> inSize)
 { glViewport(inPos.x(), inPos.y(), inSize.w(), inSize.h()); }
 
-void OpenGLRendererAPI::SetClearColor(Farg<ColorRGBA> Color)
+void OpenGLRendererAPI::SetClearColor(Farg<ColorRGBA<float>> Color)
 { glClearColor(Color.r(), Color.g(), Color.b(), Color.a()); }
 
 void OpenGLRendererAPI::Clear()
@@ -185,9 +185,9 @@ void OpenGLRendererAPI::SetBlend(bool isEnabled) const
 void OpenGLRendererAPI::SetDepthMask(bool isEnabled) const
 { glDepthMask((isEnabled) ? GL_TRUE : GL_FALSE); }
 
-ColorRGBA OpenGLRendererAPI::GetClearColor()
+ColorRGBA<float> OpenGLRendererAPI::GetClearColor()
 {
-    ColorRGBA _output{};
+    ColorRGBA<float> _output{};
     glGetFloatv(GL_COLOR_CLEAR_VALUE, _output.data());
     return _output;
 }
