@@ -27,7 +27,6 @@ namespace UID
         f_Audiowide;
 
     uint GetRandom();
-    IdVec_t GetEmbeddedUIDs();
 };
 
 #endif // UID_H

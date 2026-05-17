@@ -13,6 +13,8 @@
 ResourceManager sResourceManager{};
 ResourceManager* g_pResourceManager{&sResourceManager};
 
+static IdSet_t sEmbeddedResources{};
+
 bool ResourceManager::Init()
 {
     PRINT_PRETTY_FUNCTION;
@@ -95,17 +97,17 @@ bool ResourceManager::Init()
         Image::CreateFromFile({Images::SkyboxZp, std::size(Images::SkyboxZp)}),
         Image::CreateFromFile({Images::SkyboxZn, std::size(Images::SkyboxZn)})})};
 
-    UID::f_Audiowide    = _Audiowide->uid();
-    UID::f_DejaVuSans   = _DejaVuSans->uid();
-    UID::f_Verdana      = _Verdana->uid();
-    UID::m_Error        = _Error->uid();
-    UID::m_Cube         = _Cube->uid();
-    UID::m_Quad         = _Quad->uid();
-    UID::m_Ramiel       = _Ramiel->uid();
-    UID::t_Missing      = _Missing->uid();
-    UID::t_COMP04_5     = _COMP04_5->uid();
-    UID::t_LolBit       = _LolBit->uid();
-    UID::t_ShittySkybox = _ShittySkybox->uid();
+    AddEmbeddedResource(UID::f_Audiowide    = _Audiowide->uid());
+    AddEmbeddedResource(UID::f_DejaVuSans   = _DejaVuSans->uid());
+    AddEmbeddedResource(UID::f_Verdana      = _Verdana->uid());
+    AddEmbeddedResource(UID::m_Error        = _Error->uid());
+    AddEmbeddedResource(UID::m_Cube         = _Cube->uid());
+    AddEmbeddedResource(UID::m_Quad         = _Quad->uid());
+    AddEmbeddedResource(UID::m_Ramiel       = _Ramiel->uid());
+    AddEmbeddedResource(UID::t_Missing      = _Missing->uid());
+    AddEmbeddedResource(UID::t_COMP04_5     = _COMP04_5->uid());
+    AddEmbeddedResource(UID::t_LolBit       = _LolBit->uid());
+    AddEmbeddedResource(UID::t_ShittySkybox = _ShittySkybox->uid());
 
     _Audiowide->rename("Audiowide");
     _DejaVuSans->rename("DejaVuSans");
@@ -124,3 +126,20 @@ bool ResourceManager::Init()
 
 void ResourceManager::Shutdown()
 { ThingFactory::Shutdown(); }
+
+bool ResourceManager::AddEmbeddedResource(ID inUID)
+{
+    if(inUID.invalid())
+        { return false; }
+    sEmbeddedResources.insert(inUID);
+    return true;
+}
+
+void ResourceManager::RemoveEmbeddedResource(ID inUID)
+{ sEmbeddedResources.erase(inUID); }
+
+IdVec_t ResourceManager::GetEmbeddedResources() const
+{ return {sEmbeddedResources.begin(), sEmbeddedResources.end()}; }
+
+bool ResourceManager::IsEmbedded(ID inUID) const
+{ return sEmbeddedResources.contains(inUID); }
