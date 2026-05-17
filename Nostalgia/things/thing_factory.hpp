@@ -1,8 +1,7 @@
 #ifndef THING_FACTORY_H
 #define THING_FACTORY_H
 
-#include <Nostalgia/things/thinkers/thinker.hpp>
-#include <Nostalgia/things/resources/resource.hpp>
+#include <Nostalgia/things/thing.hpp>
 
 #define USE_NAME_OR_UID(FUNCTION) \
     static FUNCTION(ID inUID); \
@@ -51,8 +50,6 @@ struct ThingFactory
     USE_NAME_OR_UID(Error Destroy)
     USE_NAME_OR_UID(bool Contains)
     USE_NAME_OR_UID(Shared<Thing> GetThing)
-    USE_NAME_OR_UID(Shared<Resource> GetResource)
-    USE_NAME_OR_UID(Shared<Thinker>  GetThinker)
 
     template<Thing_t T>
         inline static Shared<T> Invalid()

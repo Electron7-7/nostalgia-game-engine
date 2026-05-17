@@ -512,9 +512,9 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
     if(auto status{mCallSheet.set_parent(inChildID, inParentID)}; not status)
         { return print_error_enum(status); }
 
-    auto child{ThingFactory::GetThinker(inChildID)};
-    auto parent{ThingFactory::GetThinker(inParentID)};
-    auto old_parent{ThingFactory::GetThinker(old_parent_id)};
+    auto child{ThingFactory::GetThing<Thinker>(inChildID)};
+    auto parent{ThingFactory::GetThing<Thinker>(inParentID)};
+    auto old_parent{ThingFactory::GetThing<Thinker>(old_parent_id)};
 
     parent->OnChildAdded(child);
     old_parent->OnChildRemoved(child);
@@ -525,16 +525,16 @@ Error Theatre::SetParent(ID inChildID, ID inParentID)
 
     for(ID descendant : descendants)
     {
-        auto descendant_thinker{ThingFactory::GetThinker(descendant)};
+        auto descendant_thinker{ThingFactory::GetThing<Thinker>(descendant)};
         for(ID old_ancestor : old_ancestors)
         {
-            auto old_ancestor_thinker{ThingFactory::GetThinker(old_ancestor)};
+            auto old_ancestor_thinker{ThingFactory::GetThing<Thinker>(old_ancestor)};
             old_ancestor_thinker->OnDescendantRemoved(descendant_thinker);
             descendant_thinker->OnAncestorRemoved(old_ancestor_thinker);
         }
         for(ID new_ancestor : new_ancestors)
         {
-            auto new_ancestor_thinker{ThingFactory::GetThinker(new_ancestor)};
+            auto new_ancestor_thinker{ThingFactory::GetThing<Thinker>(new_ancestor)};
             new_ancestor_thinker->OnDescendantAdded(descendant_thinker);
             descendant_thinker->OnAncestorAdded(new_ancestor_thinker);
         }
@@ -583,7 +583,7 @@ void Theatre::UpdateIdSetsAndSpecialThings(FPID inType, ID inUID)
     {
         mThinkerUIDs.insert(inUID);
         if(ThingFactory::IsDerivedFrom(inType, ThingType::NostalgiaPlayer) and not m_pPlayer)
-            { m_pPlayer = ThingFactory::GetThinker(inUID); }
+            { m_pPlayer = ThingFactory::GetThing<Thinker>(inUID); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Viewport))
             { mViewports.insert(ThingFactory::GetThing<Viewport>(inUID)); }
         else if(ThingFactory::IsDerivedFrom(inType, ThingType::Visual3D))

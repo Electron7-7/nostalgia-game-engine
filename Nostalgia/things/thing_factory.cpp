@@ -338,38 +338,6 @@ Shared<Thing> ThingFactory::GetThing(Sarg inName)
     return Thing::Invalid();
 }
 
-Shared<Thinker> ThingFactory::GetThinker(ID inUID)
-{
-    LOCK_MUTEX;
-    if(auto _output{DCast<Thinker>(GetThing(inUID))})
-        { return _output; }
-    return Thinker::Invalid();
-}
-
-Shared<Thinker> ThingFactory::GetThinker(Sarg inName)
-{
-    LOCK_MUTEX;
-    if(auto _output{DCast<Thinker>(GetThing(inName))})
-        { return _output; }
-    return Thinker::Invalid();
-}
-
-Shared<Resource> ThingFactory::GetResource(ID inUID)
-{
-    LOCK_MUTEX;
-    if(auto _output{DCast<Resource>(GetThing(inUID))})
-        { return _output; }
-    return Resource::Invalid();
-}
-
-Shared<Resource> ThingFactory::GetResource(Sarg inName)
-{
-    LOCK_MUTEX;
-    if(auto _output{DCast<Resource>(GetThing(inName))})
-        { return _output; }
-    return Resource::Invalid();
-}
-
 Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
 {
     if(not doOverrideIfExists and sTypeDeclarations.contains(inTypeName))

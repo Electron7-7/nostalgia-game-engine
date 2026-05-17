@@ -36,7 +36,7 @@ Shared<ThingData> Thinker::GetVariables() const
 
 bool Thinker::Visible() const
 {
-    if(auto _parent{Parent()}; _parent.invalid() or ThingFactory::GetThinker(_parent)->Visible())
+    if(auto _parent{Parent()}; _parent.invalid() or ThingFactory::GetThing<Thinker>(_parent)->Visible())
         { return mVisible; }
     return false;
 }
@@ -85,5 +85,5 @@ void Thinker::IsHighlighted(bool inHighlighted)
 bool Thinker::IsHighlighted() const
 {
     auto _parent{Parent()};
-    return mIsHighlighted or (not _parent.invalid() and ThingFactory::GetThinker(_parent)->IsHighlighted());
+    return mIsHighlighted or (not _parent.invalid() and ThingFactory::GetThing<Thinker>(_parent)->IsHighlighted());
 }
