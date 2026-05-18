@@ -3,7 +3,6 @@
 
 #include <Nostalgia/things/resources/mesh.hpp>
 #include <Nostalgia/rendering/vertex_array.hpp>
-#include <Nostalgia/things/thing_factory.hpp>
 
 class ArrayMesh : public Mesh
 {

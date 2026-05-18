@@ -21,8 +21,8 @@ public:
     virtual void SetWireframe(bool);
 
 protected:
-    Shared<Mesh> mMesh{nullptr};
-    Shared<Material> mMaterialOverride{nullptr};
+    Shared<Mesh> mMesh{Mesh::Invalid()};
+    Shared<Material> mMaterialOverride{Material::Invalid()};
     bool mWireframe{false};
 };
 

@@ -29,7 +29,7 @@ public:
     {
         PrimitiveType primitive{PRIMITIVE_TRIANGLES};
         Shared<VertexArray> vertex_array{nullptr};
-        Shared<Material> material_id{nullptr};
+        Shared<Material> material{Material::Invalid()};
     };
 
     virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) {}
