@@ -71,21 +71,19 @@ bool ArrayMesh::LoadedFromFile() const
 Sarg ArrayMesh::ModelFilePath() const
 { return mModelFilepath; }
 
-void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<Indices_t> inIndices)
+void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData)
 {
-    MeshData_t _mutable_mesh_data{};
-    if(inData.empty() or inData[0].empty())
+    if(inData.vertex_data.empty()
+        or inData.vertex_data[ARRAY_FORMAT_VERTEX].empty())
         { print_error("No vertex positions in ArrayMesh surface data"); return; }
-    else if(inData.size() < ARRAY_FORMAT_MAX)
-        { _mutable_mesh_data = inData; }
+    MeshData_t _mutable_mesh_data{inData};
 
-    Farg<MeshData_t> _mesh_data{(_mutable_mesh_data.empty()) ? inData : _mutable_mesh_data};
     auto& _surface{mSurfaces.emplace_back(inType, VertexArray::Create(), ThingFactory::MakeThing<Material>())};
 
     for(int i{0}; i < ARRAY_FORMAT_MAX; ++i)
     {
         IBuffer::Element::Type _element_type{IBuffer::Element::Type::Float3};
-        size_t _vertices_count{_mesh_data[0].size()};
+        size_t _vertices_count{inData.vertex_data[ARRAY_FORMAT_VERTEX].size()};
         float _fill_value{0.0f};
         switch(i)
         {
@@ -99,17 +97,23 @@ void ArrayMesh::AddSurface(PrimitiveType inType, Farg<MeshData_t> inData, Farg<I
         default:
             break;
         }
-        if(i >= _mesh_data.size())
-            { _mutable_mesh_data[i] = std::vector<float>(_vertices_count, _fill_value); }
-        auto vbo{VertexBuffer::Create(inData[i].data(), inData[i].size())};
+        if(inData.vertex_data[i].size() != _vertices_count)
+            { _mutable_mesh_data.vertex_data[i] = std::vector<float>(_vertices_count, _fill_value); }
+        auto vbo{VertexBuffer::Create(_mutable_mesh_data.vertex_data[i].data(),
+            _mutable_mesh_data.vertex_data[i].size())};
         vbo->SetLayout({{_element_type, EnumRegistry::GetEnumName<ArrayFormat>(i)}});
         _surface.vertex_array->AddVertexBuffer(vbo);
     }
 
-    std::vector<uint> _indices(inData[ARRAY_FORMAT_VERTEX].size() / 3);
-    // https://stackoverflow.com/a/17694667
-    std::iota(_indices.begin(), _indices.end(), 0);
-    _surface.vertex_array->SetIndexBuffer(IndexBuffer::Create(_indices.data(), _indices.size()));
+    if(inData.indices.empty())
+    {
+        std::vector<uint> _indices(inData.vertex_data[ARRAY_FORMAT_VERTEX].size() / 3);
+        // https://stackoverflow.com/a/17694667
+        std::iota(_indices.begin(), _indices.end(), 0);
+        _surface.vertex_array->SetIndexBuffer(IndexBuffer::Create(_indices.data(), _indices.size()));
+    }
+    else
+        { _surface.vertex_array->SetIndexBuffer(IndexBuffer::Create(inData.indices.data(), inData.indices.size())); }
 }
 
 void ArrayMesh::ClearSurfaces()

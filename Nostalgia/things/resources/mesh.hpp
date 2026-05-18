@@ -9,10 +9,6 @@ class Mesh : public Resource
 public:
     THING_CLASS(Mesh, Resource)
 
-    using Indices_t = std::vector<uint>;
-    using VertexAttributes_t = std::vector<float>;
-    using MeshData_t = std::vector<VertexAttributes_t>;
-
     enum ArrayFormat : int
     {
         ARRAY_FORMAT_VERTEX=0,
@@ -20,6 +16,15 @@ public:
         ARRAY_FORMAT_NORMALS=2,
         ARRAY_FORMAT_UV=3,
         ARRAY_FORMAT_MAX=4
+    };
+
+    using Indices_t = std::vector<uint>;
+    using VertexAttributes_t = std::vector<float>;
+
+    struct MeshData_t
+    {
+        std::array<VertexAttributes_t, ARRAY_FORMAT_MAX> vertex_data{};
+        std::vector<uint> indices{};
     };
 
     enum PrimitiveType : int
@@ -32,7 +37,7 @@ public:
         Shared<Material> material{Material::Invalid()};
     };
 
-    virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) {}
+    virtual void AddSurface(PrimitiveType, Farg<MeshData_t>) {}
     virtual void ClearSurfaces() {}
     virtual void RemoveSurface(int inIndex) {}
     virtual int SurfaceCount() const { return 0; }

@@ -22,7 +22,7 @@ public:
     virtual bool LoadedFromFile() const;
     virtual Sarg ModelFilePath() const;
 
-    virtual void AddSurface(PrimitiveType, Farg<MeshData_t>, Farg<Indices_t> = {}) override;
+    virtual void AddSurface(PrimitiveType, Farg<MeshData_t>) override;
     virtual void ClearSurfaces() override;
     virtual void RemoveSurface(int inIndex) override;
     virtual int SurfaceCount() const override;
