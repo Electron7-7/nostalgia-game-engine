@@ -595,10 +595,10 @@ bool ImGui_Editor::SelectThing(const char* inLabel, ID& ioUID)
                 EndPopup();
                 ioUID = uid;
                 _name_input.clear();
-                ThingFactory::GetThinker(uid)->IsHighlighted(false);
+                ThingFactory::GetThing<Thinker>(uid)->IsHighlighted(false);
                 return true;
             }
-            ThingFactory::GetThinker(uid)->IsHighlighted(IsItemHovered());
+            ThingFactory::GetThing<Thinker>(uid)->IsHighlighted(IsItemHovered());
             if(++_counter < _max_per_row and i+1 != _back_of_theatre) { SameLine(); }
             else { _counter = 0; }
         }
