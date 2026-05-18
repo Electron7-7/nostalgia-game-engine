@@ -64,6 +64,7 @@ set(NOSTALGIA_SRC_FILES
     ${NOSTALGIA_ROOT}/ui/solution.cpp
     ${NOSTALGIA_ROOT}/theatre/theatre.cpp
     ${NOSTALGIA_ROOT}/things/thing.cpp
+    ${NOSTALGIA_ROOT}/things/resources/primitive_mesh.cpp
     ${NOSTALGIA_ROOT}/things/resources/image_texture.cpp
     ${NOSTALGIA_ROOT}/things/resources/image.cpp
     ${NOSTALGIA_ROOT}/things/resources/material.cpp
@@ -155,6 +156,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/ui/solution.hpp
     ${NOSTALGIA_ROOT}/ui/implementor.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre.hpp
+    ${NOSTALGIA_ROOT}/things/resources/primitive_mesh.hpp
     ${NOSTALGIA_ROOT}/things/resources/image_texture.hpp
     ${NOSTALGIA_ROOT}/things/resources/image.hpp
     ${NOSTALGIA_ROOT}/things/resources/texture.hpp

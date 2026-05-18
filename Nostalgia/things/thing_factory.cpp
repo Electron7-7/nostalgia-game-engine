@@ -5,8 +5,7 @@
 #include "things/resources/viewport_texture.hpp"
 #include "things/resources/image_texture.hpp"
 #include "things/resources/image.hpp"
-#include "things/resources/mesh.hpp"
-#include "things/resources/array_mesh.hpp"
+#include "things/resources/primitive_mesh.hpp"
 #include "things/resources/font.hpp"
 #include "things/thinkers/viewport.hpp"
 #include "things/thinkers/2d/actor_2d.hpp"
@@ -92,6 +91,10 @@ bool ThingFactory::Init()
         ADD_THING(Font, Resource, +2)
         ADD_VIRTUAL_THING(Mesh, Resource)
             ADD_THING(ArrayMesh, Mesh)
+            ADD_VIRTUAL_THING(PrimitiveMesh, Mesh)
+                ADD_THING(BoxMesh, PrimitiveMesh)
+                ADD_THING(SphereMesh, PrimitiveMesh)
+                ADD_THING(CylinderMesh, PrimitiveMesh)
         ADD_VIRTUAL_THING(Texture, Resource)
             ADD_THING(Cubemap, Texture)
             ADD_THING(ViewportTexture, Texture)
