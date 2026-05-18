@@ -21,9 +21,10 @@ public: \
     inline static Shared<SelfType> Invalid() \
     { \
         auto _output{MakeShared<SelfType>()}; \
+        _output->mName = GlobalConstants::str_NA; \
         _output->mUID = ID::Invalid; \
         return _output; \
-    } \
+    }
 
 /// Helper macro for declaring an override for `Ready`
 #define READY_OVERRIDE virtual void Ready() override;
