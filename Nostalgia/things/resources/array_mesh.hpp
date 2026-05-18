@@ -31,9 +31,6 @@ public:
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const override;
     // TODO: implement per-surface materials
     virtual Shared<Material> SurfaceGetMaterial(int inIndex) const override;
-
-    // TODO: remove this and replace it with per-surface materials
-    Shared<Material> mMaterial{ThingFactory::Invalid<Material>()};
     virtual void SurfaceSetMaterial(int inIndex, Shared<Material> inMaterial) override;
 
 protected:
