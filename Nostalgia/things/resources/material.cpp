@@ -21,6 +21,7 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mSpecularStrength, "SpecularStrength");
     data.get_variable(mFullBright, "FullBright");
     mSamplerState.SetVariables(data);
+
     m_pDiffuseTexture->Buffer()->SetSamplerState(mSamplerState);
     m_pSpecularTexture->Buffer()->SetSamplerState(mSamplerState);
 }
