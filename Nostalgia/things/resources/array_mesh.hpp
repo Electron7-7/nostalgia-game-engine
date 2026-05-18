@@ -13,6 +13,7 @@ public:
 
     enum ModelFileType : int { MODEL_OBJ };
 
+    static Shared<ArrayMesh> CreateFromMeshData(PrimitiveType, Farg<MeshData_t>);
     static Shared<ArrayMesh> CreateFromMemory(const uchar* inData, size_t inSize, ModelFileType inType);
     static Shared<ArrayMesh> CreateFromFile(Sarg inFilePath);
     static FileType ConvertToFileType(ArrayMesh::ModelFileType);

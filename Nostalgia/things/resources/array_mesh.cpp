@@ -35,6 +35,13 @@ Shared<ThingData> ArrayMesh::GetVariables() const
     return data;
 }
 
+Shared<ArrayMesh> ArrayMesh::CreateFromMeshData(PrimitiveType inPrim, Farg<MeshData_t> inDat)
+{
+    auto output{DCast<ArrayMesh>(ThingFactory::MakeThing<ArrayMesh>("ArrayMesh"))};
+    output->AddSurface(inPrim, inDat);
+    return output;
+}
+
 Shared<ArrayMesh> ArrayMesh::CreateFromMemory(const uchar* inData, size_t inSize, ModelFileType inType)
 {
     auto output{DCast<ArrayMesh>(ThingFactory::MakeThing<ArrayMesh>("ArrayMesh"))};
