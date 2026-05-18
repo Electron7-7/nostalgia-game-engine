@@ -30,6 +30,7 @@ void ImGui_Editor::SaveCurrentTheatre()
         {
             IGFD::FileDialogConfig _config{};
             _config.path = ".";
+            _config.flags = ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal;
             ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
                 "Choose Theatre File",
                 ".nt,.theatre,.nostalgiatheatre",
@@ -47,9 +48,10 @@ void ImGui_Editor::LoadNewTheatre()
     {
         IGFD::FileDialogConfig _config{};
         _config.path = ".";
+        _config.flags = ImGuiFileDialogFlags_Modal;
         ImGuiFileDialog::Instance()->OpenDialog("SetFilepathKey",
             "Choose Theatre File",
-            ".nt,.theatre,.nostalgiatheatre",
+            "Theatre Files (*.nt,*.theatre,*.nostalgiatheatre){.nt,.theatre,.nostalgiatheatre}",
             _config);
     }
 }
