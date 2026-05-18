@@ -11,11 +11,14 @@ static bool s_TypeButtons(FPID inType, Farg<Tree<PID>> inTypes, PID& outType)
     FAUTO _children{inTypes.get_node(inType).children};
     for(FPID _child : _children)
     {
-        if(Button(_child.c_name()))
-        {
-            outType = _child;
-            return true;
-        }
+        BeginDisabled(ThingFactory::IsVirtual(_child));
+            if(Button(_child.c_name()))
+            {
+                EndDisabled();
+                outType = _child;
+                return true;
+            }
+        EndDisabled();
         Indent();
         if(s_TypeButtons(_child, inTypes, outType))
             { return true; }
