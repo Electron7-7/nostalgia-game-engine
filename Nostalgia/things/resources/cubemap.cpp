@@ -67,7 +67,10 @@ Shared<ThingData> Cubemap::GetVariables() const
     {
         std::string _name{"Image" + std::to_string(i)};
         if(not mInitialImagePaths->at(i).empty())
-            { data->set_variable(mInitialImagePaths->at(i), _name); }
+        {
+            data->set_variable(mInitialImagePaths->at(i), _name,
+                TheatreFile::VARIABLE_HINT_FILE, FileSystem::CreateFileExtensionFilter("Image Files", ".png,.jpg,.jpeg"));
+        }
         else if(not mInitialImageUIDs->at(i).invalid())
             { data->set_variable(mInitialImageUIDs->at(i), _name); }
     }

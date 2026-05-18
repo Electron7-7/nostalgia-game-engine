@@ -41,7 +41,8 @@ Shared<ThingData> Font::GetVariables() const
 {
     auto data{Super::GetVariables()};
 
-    data->set_variable(mFilepath, "File");
+    data->set_variable(mFilepath, "File",
+        TheatreFile::VARIABLE_HINT_FILE, FileSystem::CreateFileExtensionFilter("Font Files", ".ttf,.otf"));
     data->set_variable(mFontSize, "Height");
 
     return data;

@@ -82,7 +82,8 @@ Shared<TheatreFile::ThingData> Image::GetVariables() const
     data->set_variable(mHeight, "Height");
     data->set_variable(mFormat, "Format");
     data->set_variable(mUseMipmaps, "Mipmaps");
-    data->set_variable(mFilepath, "FilePath");
+    data->set_variable(mFilepath, "FilePath",
+        TheatreFile::VARIABLE_HINT_FILE, FileSystem::CreateFileExtensionFilter("Image Files", ".png,.jpg,.jpeg"));
     return data;
 }
 

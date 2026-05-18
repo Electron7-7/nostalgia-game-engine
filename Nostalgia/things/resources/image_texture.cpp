@@ -31,7 +31,8 @@ Shared<ThingData> ImageTexture::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mInitialImageID, "Image");
-    data->set_variable(mInitialImagePath, "ImagePath");
+    data->set_variable(mInitialImagePath, "ImagePath",
+        TheatreFile::VARIABLE_HINT_FILE, FileSystem::CreateFileExtensionFilter("Image Files", ".png,.jpg,.jpeg"));
     return data;
 }
 

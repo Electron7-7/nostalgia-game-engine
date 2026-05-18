@@ -1,6 +1,7 @@
 #include "./imgui_editor.hpp"
 #include "thirdparty/DearImGui/imgui.h"
 #include "thirdparty/DearImGui/imgui_stdlib.h"
+#include "thirdparty/ImGuiFileDialog/ImGuiFileDialog.h"
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/theatre/theatre.hpp>
@@ -89,6 +90,28 @@ void ImGui_Editor::InspectThing()
                     { mInspectingThingDataOut.set_variable(_value, _name); }
                 if(IsItemDeactivatedAfterEdit())
                     { _update_thing = true; }
+                if(var.hint == VARIABLE_HINT_FILE)
+                {
+                    SameLine();
+                    if(Button("Open") and not ImGuiFileDialog::Instance()->IsOpened("GetFileKey"))
+                    {
+                        IGFD::FileDialogConfig _config{};
+                        _config.path = ".";
+                        _config.flags = ImGuiFileDialogFlags_Modal;
+                        ImGuiFileDialog::Instance()->OpenDialog("GetFileKey",
+                            "Choose File", var.hint_string.data(), _config);
+                    }
+                    if(ImGuiFileDialog::Instance()->Display("GetFileKey"))
+                    {
+                        if(ImGuiFileDialog::Instance()->IsOk())
+                        {
+                            mInspectingThingDataOut.set_variable(_value = ImGuiFileDialog::Instance()->GetFilePathName(),
+                                _name);
+                            _update_thing = true;
+                        }
+                        ImGuiFileDialog::Instance()->Close();
+                    }
+                }
                 break;
             }
         case Variant::INT:

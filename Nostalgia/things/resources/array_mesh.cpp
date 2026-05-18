@@ -29,7 +29,8 @@ void ArrayMesh::SetVariables(Farg<ThingData> data)
 Shared<ThingData> ArrayMesh::GetVariables() const
 {
     auto data{Super::GetVariables()};
-    data->set_variable(mModelFilepath, "Model");
+    data->set_variable(mModelFilepath, "Model",
+        TheatreFile::VARIABLE_HINT_FILE, FileSystem::CreateFileExtensionFilter("Wavefront Object Files", ".obj"));
     for(int i{0}; i < mSurfaces.size(); ++i)
         { data->set_variable(mSurfaces[i].material, std::format("Material{}", i+1)); }
     return data;
