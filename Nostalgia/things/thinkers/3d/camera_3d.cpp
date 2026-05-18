@@ -132,12 +132,12 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     if(Console::GetVariable("nodraw_3d").int_value)
         { return; }
     FAUTO renderer_api{RendererAPI::Get()};
-    auto shader{renderer_api->GetShader(Shaders::Fullbright)};
+    auto shader{renderer_api->GetShader(Shaders::BlinnPhong)};
     auto view_matrix{ViewMatrix()};
     auto projection_matrix{ProjectionMatrix()};
 
     auto missing_texture{ThingFactory::GetThing<Texture>(UID::t_Missing)};
-    auto mesh{ThingFactory::GetThing<ArrayMesh>(UID::m_Error)};
+    auto mesh{ThingFactory::GetThing<Mesh>(UID::m_Error)};
 
     if(not inVisual3D->Visible()
         or inVisual3D->DerivedFrom(ThingType::Light3D)
@@ -149,40 +149,62 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
     if(inVisual3D->DerivedFrom(ThingType::MeshInstance3D))
     {
         auto mesh_instance{DCast<MeshInstance3D>(inVisual3D)};
-        if(DCast<ArrayMesh>(mesh_instance->GetMesh()))
-            { mesh = DCast<ArrayMesh>(mesh_instance->GetMesh()); }
-        auto material{mesh->mMaterial};
+        if(not mesh_instance->GetMesh()->invalid())
+            { mesh = mesh_instance->GetMesh(); }
 
-        if(auto _mat{mesh_instance->GetMaterialOverride()}; _mat
-            and not _mat->invalid())
-            { material = mesh_instance->GetMaterialOverride(); }
+        if(not mesh->SurfaceCount())
+            { mesh = ThingFactory::GetThing<Mesh>(UID::m_Error); }
 
-        auto diffuse_texture{material->DiffuseTexture()};
-        auto specular_texture{material->SpecularTexture()};
+        glm::mat4 model_matrix{inVisual3D->GlobalTransform().model_matrix()};
 
-        if(not material->DiffuseTexture()->invalid() and not diffuse_texture->Buffer())
-            { diffuse_texture = missing_texture; }
+        shader->SetUniform("model_matrix", model_matrix);
+        shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+        shader->SetUniform("projection_matrix", projection_matrix);
+        shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
+        shader->SetUniform("point_lights_count", PointLight3D::GetCount());
+        shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
+        shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
+        shader->SetUniform("view_matrix", view_matrix);
+        shader->SetUniform("view_position", GlobalPosition());
+        shader->SetUniform("debug_highlight", inVisual3D->DebugHighlight());
 
-        if(not material->SpecularTexture()->invalid() and not specular_texture->Buffer())
-            { specular_texture = missing_texture; }
+        auto _mat{mesh_instance->GetMaterialOverride()};
 
-        if(not Console::GetVariable("mat_fullbright").int_value and not material->mFullBright)
-            { shader = renderer_api->GetShader(Shaders::BlinnPhong); }
+        shader->Bind();
+        for(int i{0}; i < mesh->SurfaceCount(); ++i)
+        {
+            auto material{_mat};
+            if(_mat->invalid())
+                { material = mesh->SurfaceGetMaterial(i); }
 
-        bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
-        bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
+            auto diffuse_texture{material->DiffuseTexture()};
+            auto specular_texture{material->SpecularTexture()};
 
-        renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
-        renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
+            if(not material->DiffuseTexture()->invalid() and not diffuse_texture->Buffer())
+                { diffuse_texture = missing_texture; }
 
-        shader->SetUniform("current_material.texture_diffuse",  0);
-        shader->SetUniform("current_material.texture_specular", 1);
-        shader->SetUniform("current_material.use_diffuse",  use_diffuse);
-        shader->SetUniform("current_material.use_specular", use_specular);
-        shader->SetUniform("current_material.diffuse_color", material->mColor);
-        shader->SetUniform("current_material.alpha", material->mAlpha);
-        shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
-        shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
+            if(not material->SpecularTexture()->invalid() and not specular_texture->Buffer())
+                { specular_texture = missing_texture; }
+
+            shader->SetUniform("mat_fullbright", Console::GetVariable("mat_fullbright").int_value or material->mFullBright);
+
+            bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
+            bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
+
+            renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
+            renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
+
+            shader->SetUniform("current_material.texture_diffuse",  0);
+            shader->SetUniform("current_material.texture_specular", 1);
+            shader->SetUniform("current_material.use_diffuse",  use_diffuse);
+            shader->SetUniform("current_material.use_specular", use_specular);
+            shader->SetUniform("current_material.diffuse_color", material->mColor);
+            shader->SetUniform("current_material.alpha", material->mAlpha);
+            shader->SetUniform("current_material.specular_sharpness", material->mSpecularSharpness);
+            shader->SetUniform("current_material.specular_strength", material->SpecularStrength());
+
+            renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i));
+        }
     }
     else if(inVisual3D->DerivedFrom(ThingType::Sprite3D))
     {
@@ -199,6 +221,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
 
         shader->SetUniform("current_material.texture_diffuse", 0);
         shader->SetUniform("current_material.use_diffuse", true);
+        shader->SetUniform("current_material.use_specular", false);
         shader->SetUniform("current_material.diffuse_color", {1.0f,1.0f,1.0f});
 
         auto height{texture->Buffer()->GetFormat().height};
@@ -207,27 +230,25 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
             { scale_vector *= glm::vec3{1.0f / ((float)height / width), 1.0f, 1.0f}; }
         else
             { scale_vector *= glm::vec3{1.0f, 1.0f / ((float)height / width), 1.0f}; }
+
+        glm::mat4 model_matrix{inVisual3D->GlobalTransform().model_matrix()};
+
+        shader->SetUniform("model_matrix", model_matrix);
+        shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
+        shader->SetUniform("projection_matrix", projection_matrix);
+        shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
+        shader->SetUniform("point_lights_count", PointLight3D::GetCount());
+        shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
+        shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
+        shader->SetUniform("view_matrix", view_matrix);
+        shader->SetUniform("view_position", GlobalPosition());
+        shader->SetUniform("debug_highlight", inVisual3D->DebugHighlight());
+
+        shader->Bind();
+        for(int i{0}; i < mesh->SurfaceCount(); ++i)
+            { renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
     }
 
-    if(not mesh->SurfaceCount())
-        { mesh = ThingFactory::GetThing<ArrayMesh>(UID::m_Error); }
-
-    glm::mat4 model_matrix{inVisual3D->GlobalTransform().model_matrix()};
-
-    shader->SetUniform("model_matrix", model_matrix);
-    shader->SetUniform("normal_matrix", glm::mat3{glm::transpose(glm::inverse(model_matrix))});
-    shader->SetUniform("projection_matrix", projection_matrix);
-    shader->SetUniform("debug_output", Console::GetVariable("BlinnPhong.debug_visual").int_value);
-    shader->SetUniform("point_lights_count", PointLight3D::GetCount());
-    shader->SetUniform("spot_lights_count", SpotLight3D::GetCount());
-    shader->SetUniform("directional_lights_count", DirectionalLight3D::GetCount());
-    shader->SetUniform("view_matrix", view_matrix);
-    shader->SetUniform("view_position", GlobalPosition());
-    shader->SetUniform("debug_highlight", inVisual3D->DebugHighlight());
-
-    shader->Bind();
-    for(int i{0}; i < mesh->SurfaceCount(); ++i)
-        { renderer_api->DrawIndexed(mesh->SurfaceGetVertexArray(i)); }
     renderer_api->SetFramebufferSRGB(false);
 }
 
