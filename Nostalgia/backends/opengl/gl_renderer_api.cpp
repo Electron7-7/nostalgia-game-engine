@@ -32,6 +32,8 @@ void OpenGLRendererAPI::Init()
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
 #ifdef NOSTALGIA_DEBUGGING
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
