@@ -92,7 +92,29 @@ void Collider3D::InitVariables()
 
 void Collider3D::SetVariables(Farg<ThingData> data)
 {
-    Super::SetVariables(data);
+    ThingData _data{data};
+    if(glm::vec3 _scale{}; _data.get_variable(_scale, "Scale", "Size", "OuuughImSoBigAndRound") == OK)
+    {
+        bool _replace_var{false};
+        for(int i{0}; i < 3; ++i)
+        {
+            if(_scale[i] <= 0.0f)
+            {
+                print_error("Collider3D cannot have any of its scale properties set to 0");
+                _replace_var = true;
+                _scale[i] = 0.1f;
+            }
+        }
+        if(_replace_var)
+        {
+            _data.remove_variable("Scale");
+            _data.remove_variable("Size");
+            _data.remove_variable("OuuughImSoBigAndRound");
+            _data.set_variable(_scale, "Scale");
+        }
+    }
+
+    Super::SetVariables(_data);
 
     data.get_variable(mShape, "Shape", "ColliderShape", "BodyShape");
     data.get_variable(mMotion, "Motion", "ColliderMotion", "BodyMotion");
@@ -228,7 +250,16 @@ void Collider3D::SetRotationDegrees(Farg<glm::vec3> inRotation)
 
 void Collider3D::SetScale(Farg<glm::vec3> inScale)
 {
-    Super::SetScale(inScale);
+    glm::vec3 _scale{inScale};
+    for(int i{0}; i < 3; ++i)
+    {
+        if(not _scale[i])
+        {
+            print_error("Collider3D cannot have any of its scale properties set to 0");
+            _scale[i] = 0.1f;
+        }
+    }
+    Super::SetScale(_scale);
     PhysicsEngine::Instance()->BodyInterface().SetPositionAndRotationWhenChanged(mBodyID,
         Math::Convert<Vec3>(mLocalTrans.position),
         Math::Convert<Quat>(mLocalTrans.quaternion),
