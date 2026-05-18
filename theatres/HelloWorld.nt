@@ -20,6 +20,8 @@ declare TestAnimatedSprite2D inherits Sprite2D
     Thinkers are, well, everything else. Actors, mesh instances, the player, etc.
 ///
 
+BoxMesh _Cube {} // You can define empty Things, even as sandwiches!
+
 ImageTexture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
@@ -28,17 +30,14 @@ ImageTexture StupidTex
 }
 
 ArrayMesh IcoSphere
-{
-    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
-        also reference embedded Resources, like the default cube mesh or missing texture image. ///
-    Material = <StupidMaterial>
-    Model = 'testing_resources/IcoSphere.obj'
-}
+{ Model = 'testing_resources/IcoSphere.obj' }
 
 /// You don't need to use '=' when defining variables, so use whatever looks best to you. I personally like
     using '=' to visually separate the name and value. ///
 Material LolBitMaterial
 {
+    /// This is a "reference" variable, referencing some other Thing in the Theatre. They can
+        also reference embedded Resources, like the default cube mesh or missing texture image. ///
     DiffuseTexture <LolBitTexture>
     /// This is an "Enum" variable. It references enums that are registered to the
         VariableRegistry's global enum registry. The string name used to register an enum is
@@ -48,8 +47,9 @@ Material LolBitMaterial
 
 MeshInstance3D LolBitCubeMeshInstance3D
 {
+    // These reference variables are referencing other Things created in this Theatre
     MaterialOverride = <LolBitMaterial>
-    Mesh = <DefaultCube>
+    Mesh = <_Cube>
 }
 
 Material RedMaterial
@@ -82,7 +82,7 @@ Collider3D DoomCube
         name, braces, etc). ///
     Child : MeshInstance3D DoomCubeMeshInstance3D
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <DoomMaterial>
     }
     Motion = (Motion::Dynamic) // The enum `PhysicsBodyMotion::Dynamic` is registered to "Dynamic"
@@ -96,7 +96,7 @@ NostalgiaPlayer Player
 {
     Position = [0, 0.3, 6]
     Actor3D = <Player_EditorActor3D>
-    Child : EditorPlayer3D Player_EditorActor3D {} // You can define empty Things, even as sandwiches!
+    Child : EditorPlayer3D Player_EditorActor3D { Position = [0, 0, 6.5] }
 }
 
 /// Thinkers that are referenced by other Thinkers don't need to be defined before being
@@ -125,7 +125,7 @@ Collider3D Floor
     Scale = [20, 2, 20]
     Child : MeshInstance3D FloorMesh
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <RedMaterial>
     }
 }
@@ -134,7 +134,7 @@ Collider3D DoomCube2
 {
     Child : MeshInstance3D DoomCubeMeshInstance3D2
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <DoomMaterial>
     }
     Motion = (Motion::Dynamic)
@@ -154,7 +154,7 @@ Collider3D DoomCube3
 
     Child : MeshInstance3D DoomCubeMeshInstance3D3
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <LolBitMaterial>
     }
 }
@@ -163,7 +163,7 @@ Actor3D RedCube
 {
     Child : MeshInstance3D RedCubeMeshInstance3D
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <RedMaterial>
     }
     Position = [1.35, 1, -4.45]
@@ -172,12 +172,27 @@ Actor3D RedCube
     Visible = [true]
 }
 
-Actor3D IcoSphereActor3D
+Collider3D IcoSphereActor3D
 {
-    Child : MeshInstance3D IcoSphereMeshInstance3D
-    { Mesh = <IcoSphere> }
-    Position = [-2.55, 0.15, -1.3]
+    Position = [-2.55, 5.73, -1.3]
     RotationDegrees = [15.2, 38.6, 0]
+    Mass = [20]
+    Motion = (Motion::Dynamic)
+    Shape = (Shape::Sphere)
+    Child : MeshInstance3D IcoSphereMeshInstance3D
+    {
+        Mesh = <IcoSphere>
+        Material = <StupidMaterial>
+    }
+}
+
+Collider3D RampCollider3D
+{
+    Position = [-2.07, 0.15, -1.54]
+    RotationDegrees = [-6.59, 14.5, -24.14]
+    Scale = [2.5, 0.2, 0.6]
+    Child : MeshInstance3D RampMeshInstance3D
+    { Mesh = <_Cube> }
 }
 
 PointLight3D PointLight
@@ -213,7 +228,8 @@ ImageTexture TestTexture2
 
 Actor2D TestSpriteParent
 {
-    Position = [850, -300]
+    Position = [60, -230]
+    Scale = [0.5, 0.5]
     Child = <TestSprite>
     Child = <TestSpriteCaption>
 }
@@ -300,7 +316,7 @@ Actor3D TestParentActor3D
     Child = <TestChildActor3D>
     Child : MeshInstance3D TestParentMeshInstance3D
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <Test1Mat>
     }
 }
@@ -310,7 +326,7 @@ Actor3D TestChildActor3D
     Position = [4, -2, 0]
     Child : MeshInstance3D TestChildMeshInstance3D
     {
-        Mesh = <DefaultCube>
+        Mesh = <_Cube>
         MaterialOverride = <Test2Mat>
     }
 }
