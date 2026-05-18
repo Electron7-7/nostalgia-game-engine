@@ -67,6 +67,8 @@ uniform int spot_lights_count;
 uniform vec3 view_position;
 uniform vec4 debug_highlight;
 
+uniform bool mat_fullbright;
+
 vec3 diffuse_texture;
 vec3 specular_texture;
 
@@ -104,6 +106,12 @@ void main()
 	vec3 use_specular_vec3 = vec3(1.0f - current_material.use_specular);
 	diffuse_texture  = vec3(texture(current_material.texture_diffuse,  vertex_uv).rgb * current_material.use_diffuse) + use_diffuse_vec3;
 	specular_texture = vec3(texture(current_material.texture_specular, vertex_uv).rgb * current_material.use_specular) + use_specular_vec3;
+
+	if(mat_fullbright)
+	{
+		FragColor = vec4(diffuse_texture * current_material.diffuse_color * vertex_color, 1.0f) + debug_highlight;
+		return;
+	}
 
 	vec3 output_color = vec3(0.0f);
 
