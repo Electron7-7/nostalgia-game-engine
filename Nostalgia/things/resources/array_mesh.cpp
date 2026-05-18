@@ -22,14 +22,16 @@ void ArrayMesh::SetVariables(Farg<ThingData> data)
     if(data.get_variable(mModelFilepath, "File", "Model") == OK)
         { LoadModelFile(mModelFilepath); }
 
-    data.get_variable(mMaterial, "Material");
+    for(int i{0}; i < mSurfaces.size(); ++i)
+        { data.get_variable(mSurfaces[i].material, std::format("Material{}", i+1)); }
 }
 
 Shared<ThingData> ArrayMesh::GetVariables() const
 {
     auto data{Super::GetVariables()};
     data->set_variable(mModelFilepath, "Model");
-    data->set_variable(mMaterial, "Material");
+    for(int i{0}; i < mSurfaces.size(); ++i)
+        { data->set_variable(mSurfaces[i].material, std::format("Material{}", i+1)); }
     return data;
 }
 
@@ -147,7 +149,13 @@ Shared<VertexArray> ArrayMesh::SurfaceGetVertexArray(int inIndex) const
 Shared<Material> ArrayMesh::SurfaceGetMaterial(int inIndex) const
 {
     ASSERT_SURFACE_INDEX(inIndex, nullptr)
-    return mSurfaces.at(inIndex).material_id;
+    return mSurfaces.at(inIndex).material;
+}
+
+void ArrayMesh::SurfaceSetMaterial(int inIndex, Shared<Material> inMaterial)
+{
+    ASSERT_SURFACE_INDEX(inIndex)
+    mSurfaces.at(inIndex).material = inMaterial;
 }
 
 Error ArrayMesh::CreateMeshData(Farg<FileData> inModelFile)
@@ -238,7 +246,7 @@ Error ArrayMesh::CreateMeshFromOBJ(Farg<FileData> inModelFile)
             }
             index_offset += fv;
         }
-        AddSurface(PRIMITIVE_TRIANGLES, {_positions, _colors, _normals, _uvs});
+        AddSurface(PRIMITIVE_TRIANGLES, {{_positions, _colors, _normals, _uvs}});
     }
 
     return OK;

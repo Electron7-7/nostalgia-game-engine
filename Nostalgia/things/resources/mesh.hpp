@@ -44,6 +44,7 @@ public:
     virtual PrimitiveType SurfaceGetPrimitive(int inIndex) const { return PRIMITIVE_TRIANGLES; }
     virtual Shared<VertexArray> SurfaceGetVertexArray(int inIndex) const { return nullptr; }
     virtual Shared<Material> SurfaceGetMaterial(int inIndex) const { return nullptr; }
+    virtual void SurfaceSetMaterial(int inIndex, Shared<Material>) {}
 };
 
 

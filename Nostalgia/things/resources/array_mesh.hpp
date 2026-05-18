@@ -33,6 +33,7 @@ public:
 
     // TODO: remove this and replace it with per-surface materials
     Shared<Material> mMaterial{ThingFactory::Invalid<Material>()};
+    virtual void SurfaceSetMaterial(int inIndex, Shared<Material> inMaterial) override;
 
 protected:
     std::string mModelFilepath{""};
