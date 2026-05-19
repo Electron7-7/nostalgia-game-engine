@@ -18,12 +18,14 @@ class DummyRendererAPI final : public RendererAPI
     void SetWireframe(bool) const final {}
     void SetBlend(bool) const final {}
     void SetDepthMask(bool) const final {}
+    void SetFaceCulling(FaceCulling) const final {}
 
     ColorRGBA<float> GetClearColor() final { return {}; }
     float GetLineWidth() final { return 0; }
     bool GetWireframe() const final { return false; }
     bool GetBlend() const final { return false; }
     Shared<Image> GetFullScreenshot() const final { return Image::Invalid(); }
+    FaceCulling GetFaceCulling() const final { return RendererAPI::NO_CULLING; }
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final {}
 

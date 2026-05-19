@@ -17,12 +17,14 @@ public:
     void SetWireframe(bool inValue) const final;
     void SetBlend(bool) const final;
     void SetDepthMask(bool isEnabled) const final;
+    void SetFaceCulling(FaceCulling) const final;
 
     ColorRGBA<float> GetClearColor() final;
     float GetLineWidth() final;
     bool GetWireframe() const final;
     bool GetBlend() const final;
     Shared<Image> GetFullScreenshot() const final;
+    FaceCulling GetFaceCulling() const final;
 
     void SetLight_TempBlinnPhongSolution(Shared<Light3D>) final;
 

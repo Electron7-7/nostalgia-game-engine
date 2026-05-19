@@ -32,8 +32,6 @@ void OpenGLRendererAPI::Init()
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
 
 #ifdef NOSTALGIA_DEBUGGING
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -187,6 +185,19 @@ void OpenGLRendererAPI::SetBlend(bool isEnabled) const
 void OpenGLRendererAPI::SetDepthMask(bool isEnabled) const
 { glDepthMask((isEnabled) ? GL_TRUE : GL_FALSE); }
 
+void OpenGLRendererAPI::SetFaceCulling(FaceCulling inCulling) const
+{
+    if(inCulling == NO_CULLING)
+        { glDisable(GL_CULL_FACE); }
+    else
+    { glEnable(GL_CULL_FACE); }
+
+    if(inCulling == BACK_FACE_CULLING)
+        { glCullFace(GL_BACK); }
+    else if(inCulling == FRONT_FACE_CULLING)
+        { glCullFace(GL_FRONT); }
+}
+
 ColorRGBA<float> OpenGLRendererAPI::GetClearColor()
 {
     ColorRGBA<float> _output{};
@@ -225,6 +236,17 @@ Shared<Image> OpenGLRendererAPI::GetFullScreenshot() const
     glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, _buffer.data());
     return Image::CreateFromData(_buffer.data(), _buffer.size(), _width, _height, _channels, true,
         DATA_FORMAT_RGBA);
+}
+
+RendererAPI::FaceCulling OpenGLRendererAPI::GetFaceCulling() const
+{
+    GLint _mode{};
+    if(not glIsEnabled(GL_CULL_FACE))
+        { return NO_CULLING; }
+    glGetIntegerv(GL_CULL_FACE_MODE, &_mode);
+    if(_mode == GL_FRONT)
+        { return FRONT_FACE_CULLING; }
+    return BACK_FACE_CULLING;
 }
 
 void OpenGLRendererAPI::BindFramebuffer(Shared<FrameBuffer> inBuffer) const
