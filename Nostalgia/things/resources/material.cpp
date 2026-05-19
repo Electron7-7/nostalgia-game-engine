@@ -20,6 +20,7 @@ void Material::SetVariables(Farg<ThingData> data)
     data.get_variable(mSpecularSharpness, "SpecularSharpness");
     data.get_variable(mSpecularStrength, "SpecularStrength");
     data.get_variable(mFullBright, "FullBright");
+    data.get_variable(mCullMode, "CullMode", "CullingMode");
     mSamplerState.SetVariables(data);
 
     m_pDiffuseTexture->Buffer()->SetSamplerState(mSamplerState);
@@ -37,6 +38,7 @@ Shared<ThingData> Material::GetVariables() const
     data->set_variable(mSpecularSharpness, "SpecularSharpness");
     data->set_variable(mSpecularStrength, "SpecularStrength");
     data->set_variable(mFullBright, "FullBright");
+    data->set_variable(mCullMode, "CullMode");
     mSamplerState.GetVariables(data);
 
     return data;

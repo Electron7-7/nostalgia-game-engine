@@ -1,7 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include <Nostalgia/things/resources/resource.hpp>
+#include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/things/resources/texture.hpp>
 
 class Material : public Resource
@@ -24,6 +24,7 @@ public:
     float     mAlpha{1.0f};
     int       mSpecularSharpness{16};
     bool      mFullBright{false};
+    RendererAPI::FaceCulling mCullMode{RendererAPI::BACK_FACE_CULLING};
 
 protected:
     Shared<Texture> m_pDiffuseTexture{Texture::Invalid()},
