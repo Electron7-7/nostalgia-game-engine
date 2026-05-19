@@ -30,6 +30,13 @@ public:
         HIGH_SEVERITY   = 4
     };
 
+    enum FaceCulling : int
+    {
+        BACK_FACE_CULLING,
+        FRONT_FACE_CULLING,
+        NO_CULLING
+    };
+
     inline static constexpr char s_cAPIWarningMessage[]{"RendererAPI::CurrentAPI() == NONE"};
 
     using texture_units = std::initializer_list<uint>;
@@ -54,12 +61,14 @@ public:
     virtual void SetWireframe(bool inValue) const = 0;
     virtual void SetBlend(bool isEnabled) const = 0;
     virtual void SetDepthMask(bool isEnabled) const = 0;
+    virtual void SetFaceCulling(FaceCulling) const = 0;
 
     virtual ColorRGBA<float> GetClearColor() = 0;
     virtual float GetLineWidth() = 0;
     virtual bool GetWireframe() const = 0;
     virtual bool GetBlend() const = 0;
     virtual Shared<Image> GetFullScreenshot() const = 0;
+    virtual FaceCulling GetFaceCulling() const = 0;
 
     virtual void SetLight_TempBlinnPhongSolution(Shared<Light3D> inLight) = 0;
 
