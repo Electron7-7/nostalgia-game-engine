@@ -108,6 +108,8 @@ void Camera3D::DrawBackground() const
     if(mEnvironment.mType == Environment::BG_SKYBOX)
     {
 #pragma message("TODO: move all Resource creation to the ResourceDatabase, even the ones made by a Theatre")
+        auto _culling{renderer_api->GetFaceCulling()};
+        renderer_api->SetFaceCulling(RendererAPI::NO_CULLING);
         renderer_api->BindTexture(ThingFactory::GetThing<Texture>(mEnvironment.mSkyboxTextureID), 0);
         renderer_api->GetShader(Shaders::SkyBox)->Bind();
         renderer_api->GetShader(Shaders::SkyBox)
@@ -120,6 +122,7 @@ void Camera3D::DrawBackground() const
         for(int i{0}; i < _cube->SurfaceCount(); ++i)
             { renderer_api->DrawIndexed(_cube->SurfaceGetVertexArray(i)); }
         renderer_api->SetDepthMask(true);
+        renderer_api->SetFaceCulling(_culling);
         return;
     }
     renderer_api->SetClearColor((mEnvironment.mType == Environment::BG_CUSTOM_COLOR)
@@ -219,6 +222,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
         renderer_api->SetFramebufferSRGB(true);
 
+        shader->SetUniform("mat_fullbright", true);
         shader->SetUniform("current_material.texture_diffuse", 0);
         shader->SetUniform("current_material.use_diffuse", true);
         shader->SetUniform("current_material.use_specular", false);
