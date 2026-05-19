@@ -225,9 +225,11 @@ void SphereMesh::SetVariables(Farg<TheatreFile::ThingData> inData)
 {
     Super::SetVariables(inData);
 
-    if(inData.get_variable(mHeight, "Height") == OK
-        or inData.get_variable(mRadius, "Radius") == OK
-        or inData.get_variable(mInvertNormals, "InvertNormals") == OK)
+    if(inData.get_variable(mHeight, "Height") == OK)
+        { UpdateMesh(); }
+    if(inData.get_variable(mRadius, "Radius") == OK)
+        { UpdateMesh(); }
+    if(inData.get_variable(mInvertNormals, "InvertNormals") == OK)
         { UpdateMesh(); }
 }
 
