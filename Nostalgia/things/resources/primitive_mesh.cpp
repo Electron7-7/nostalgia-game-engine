@@ -494,12 +494,12 @@ Mesh::MeshData_t CylinderMesh::CreateMeshData() const
             float ux{_unit_circle_verts[k]};
             float uy{_unit_circle_verts[k+1]};
             float uz{_unit_circle_verts[k+2]};
-            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(ux * ((not i) ? mBottomRadius : mTopRadius));
-            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(h);
             _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(uy * ((not i) ? mBottomRadius : mTopRadius));
-            _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(ux);
-            _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(uz);
+            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(h);
+            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(ux * ((not i) ? mBottomRadius : mTopRadius));
             _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(uy);
+            _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(uz);
+            _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(ux);
             _data.vertex_data[ARRAY_FORMAT_UV].push_back(t);
             _data.vertex_data[ARRAY_FORMAT_UV].push_back(static_cast<float>(j) / mResolution);
         }
@@ -527,9 +527,9 @@ Mesh::MeshData_t CylinderMesh::CreateMeshData() const
         {
             float ux{_unit_circle_verts[k]};
             float uy{_unit_circle_verts[k+1]};
-            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(ux * ((not i) ? mBottomRadius : mTopRadius));
-            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(h);
             _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(uy * ((not i) ? mBottomRadius : mTopRadius));
+            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(h);
+            _data.vertex_data[ARRAY_FORMAT_VERTEX].push_back(ux * ((not i) ? mBottomRadius : mTopRadius));
             _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(0.0f);
             _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(nz);
             _data.vertex_data[ARRAY_FORMAT_NORMALS].push_back(0.0f);
