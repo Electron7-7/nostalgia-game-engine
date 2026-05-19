@@ -14,7 +14,15 @@ void Ramiel::Ready()
 {
     Super::Ready();
 
+    auto _children{Theatre::Current()->GetChildren(uid())};
+    for(ID _child : _children)
+    {
+        if(ThingFactory::DerivedFrom(_child, ThingType::MeshInstance3D))
+            { return; }
+    }
+
     ThingData _mesh_data{ThingType::MeshInstance3D, "Ramiel-MeshInstance3D-" + name()};
+    _mesh_data.set_parent(name());
     _mesh_data.set_variable(UID::m_Ramiel, "Mesh");
     Theatre::Current()->SetParent(Theatre::Current()->CreateThing(_mesh_data), uid());
 }
