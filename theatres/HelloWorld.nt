@@ -22,6 +22,15 @@ declare TestAnimatedSprite2D inherits Sprite2D
 
 BoxMesh _Cube {} // You can define empty Things, even as sandwiches!
 
+SphereMesh _Sphere
+{
+    /// These are all "number" variables, which can be either a single number, a vector of
+        up to four numbers (separated by commas), or a boolean value. ///
+    Height = [3]
+    Radius = [1.5] // Numbers can be positive, negative, real, or whole
+    InvertNormals = [fAlse] // Booleans are not case-sensitive.
+}
+
 ImageTexture StupidTex
 {
     /// This is a string variable. Strings are delimited by quotes (single or double) and
@@ -45,31 +54,29 @@ Material LolBitMaterial
     SamplerMipFilterMin = (Sampler::FilterNearest)
 }
 
-MeshInstance3D LolBitCubeMeshInstance3D
+MeshInstance3D LolBitSphereMeshInstance3D
 {
     // These reference variables are referencing other Things created in this Theatre
     MaterialOverride = <LolBitMaterial>
-    Mesh = <_Cube>
+    Mesh = <_Sphere>
 }
 
 Material RedMaterial
 {
-    /// These are all "number" variables, which can be either a single number, a vector of
-        up to four numbers (separated by commas), or a boolean value. ///
-    NoTexture = [trUe] // Booleans are not case-sensitive.
+    NoTexture = [trUe]
     Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
     SpecularStrength = [0.6]
 }
 
-Actor3D LolBitCube
+Actor3D LolBitSphere
 {
     /// This is a "Child" variable, which parents another Thinker defined within the Theatre
         file to this Thinker. Child variables only work with other Thinkers, not Resources.
         Child variables always start with "Child", followed by the type of the child Thing;
         after that, it's just like a reference variable. ///
-    Child = <LolBitCubeMeshInstance3D>
-    Position = [-0.25, 2, -3.5] // Another example of various number types working together!
-    RotationDegrees = [25, 0, 1]
+    Child = <LolBitSphereMeshInstance3D>
+    Position = [-0.25, 2, -7.5] // Another example of various number types working together!
+    RotationDegrees = [95, 98, 4]
 }
 
 Collider3D DoomCube
@@ -149,7 +156,7 @@ Collider3D DoomCube3
     Motion = (Motion::Dynamic)
     Position = [3, 5, -3]
     RotationDegrees = [20, -20, -50]
-    Scale = [0.5, 1, 0.7]
+    OuuughImSoBigAndRound = [0.5, 1, 0.7] // funny alias for "Scale"
     Visible = [true]
 
     Child : MeshInstance3D DoomCubeMeshInstance3D3
@@ -157,19 +164,6 @@ Collider3D DoomCube3
         Mesh = <_Cube>
         MaterialOverride = <LolBitMaterial>
     }
-}
-
-Actor3D RedCube
-{
-    Child : MeshInstance3D RedCubeMeshInstance3D
-    {
-        Mesh = <_Cube>
-        MaterialOverride = <RedMaterial>
-    }
-    Position = [1.35, 1, -4.45]
-    RotationDegrees = [-0.3, -64.6, -17.4]
-    OuuughImSoBigAndRound = [0.48, 0.58, 0.27] // funny alias for "Scale"
-    Visible = [true]
 }
 
 Collider3D IcoSphereActor3D
