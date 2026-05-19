@@ -136,15 +136,19 @@ void s_SetupNamesAndTypes(Farg<TokenArray> inTokens, TheatreFile::TheatreData& o
             else
                 { continue; }
 
+            std::string _name{};
+
             while(++i < inTokens.size())
             {
                 _token = inTokens.at(i);
-                if(_token.category == TokenName::Identifier)
+                if(_token.token[0] == '\n' or _token.token[0] == cDelimiterEnterDefinition)
                 {
-                    s_ThingNameToTypeID[_token.token] = _type;
+                    s_ThingNameToTypeID[_name] = _type;
                     _type.clear();
                     break;
                 }
+                else if(_token.category != TokenName::Whitespace)
+                    { _name += _token.token;}
             }
             _in_sandwich = false;
             _skip_definition = true;
@@ -219,7 +223,7 @@ TheatreFile::ThingData s_ParseThing(size_t& ioIndex,
         if(token.break_on_me)
             { BREAK_HERE }
 #endif // NOSTALGIA_DEBUGGING
-        if(s_CheckIfComment(in_comment, token))
+        if(not in_string and s_CheckIfComment(in_comment, token))
             { continue; }
         else if((in_literal
                 and token.token[0] != cDelimiterExitNumber
