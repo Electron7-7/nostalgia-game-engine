@@ -22,6 +22,10 @@ bool ResourceManager::Init()
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
 
+    EnumRegistry::Register(RendererAPI::BACK_FACE_CULLING, "Culling::BackFace");
+    EnumRegistry::Register(RendererAPI::FRONT_FACE_CULLING, "Culling::FrontFace");
+    EnumRegistry::Register(RendererAPI::NO_CULLING, "Culling::None");
+
     EnumRegistry::Register(Variant::NIL,        "Variant::Nil");
     EnumRegistry::Register(Variant::BOOL,       "Variant::Bool");
     EnumRegistry::Register(Variant::INT,        "Variant::Int");
