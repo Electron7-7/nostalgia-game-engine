@@ -65,7 +65,7 @@ void EditorTheatre::Draw()
 
     LockGuard<RMutex> _things_lock{mThingsMutex};
     auto* _renderer_api{RendererAPI::Get()};
-    auto _fullbright_shader{_renderer_api->GetShader(Shaders::Fullbright)};
+    auto _shader{_renderer_api->GetShader(Shaders::BlinnPhong)};
     auto _helper_mesh{m_sp3DAxisMesh};
 
     Light3D::ClearCounts();
@@ -94,15 +94,18 @@ void EditorTheatre::Draw()
         }
 
         bool _wireframe{RendererAPI::Get()->GetWireframe()};
+        auto _culling{RendererAPI::Get()->GetFaceCulling()};
         RendererAPI::Get()->SetWireframe(false);
-        _fullbright_shader->Bind();
-        _fullbright_shader->SetUniform("current_material.use_diffuse", 0);
-        _fullbright_shader->SetUniform("current_material.use_specular", 0);
-        _fullbright_shader->SetUniform("current_material.alpha", 1.0f);
-        _fullbright_shader->SetUniform("projection_matrix", viewport->CurrentCamera3D()->ProjectionMatrix());
-        _fullbright_shader->SetUniform("debug_output",Console::GetVariable("BlinnPhong.debug_visual").int_value);
-        _fullbright_shader->SetUniform("view_matrix", viewport->CurrentCamera3D()->ViewMatrix());
-        _fullbright_shader->SetUniform("view_position", viewport->CurrentCamera3D()->GlobalPosition());
+        RendererAPI::Get()->SetFaceCulling(RendererAPI::NO_CULLING);
+        _shader->Bind();
+        _shader->SetUniform("mat_fullbright", true);
+        _shader->SetUniform("current_material.use_diffuse", false);
+        _shader->SetUniform("current_material.use_specular", false);
+        _shader->SetUniform("current_material.alpha", 1.0f);
+        _shader->SetUniform("projection_matrix", viewport->CurrentCamera3D()->ProjectionMatrix());
+        _shader->SetUniform("debug_output",Console::GetVariable("BlinnPhong.debug_visual").int_value);
+        _shader->SetUniform("view_matrix", viewport->CurrentCamera3D()->ViewMatrix());
+        _shader->SetUniform("view_position", viewport->CurrentCamera3D()->GlobalPosition());
 
         for(ID uid : mThingUIDs)
         {
@@ -112,9 +115,9 @@ void EditorTheatre::Draw()
                 or _thing3d->invalid()
                 or viewport->CurrentCamera3D()->invalid())
                 { continue; }
-            _fullbright_shader->SetUniform("model_matrix", _thing3d->GlobalTransform().model_matrix());
-            _fullbright_shader->SetUniform("debug_highlight", _thing3d->DebugHighlight());
-            _fullbright_shader->SetUniform("current_material.diffuse_color", glm::vec3{1.0f});
+            _shader->SetUniform("model_matrix", _thing3d->GlobalTransform().model_matrix());
+            _shader->SetUniform("debug_highlight", _thing3d->DebugHighlight());
+            _shader->SetUniform("current_material.diffuse_color", glm::vec3{1.0f});
             if(_thing3d->DerivedFrom(ThingType::Camera3D))
                 { _helper_mesh = m_spCamera3DMesh; }
             else if(_thing3d->DerivedFrom(EditorPlayer3D::sClassType()))
@@ -127,8 +130,8 @@ void EditorTheatre::Draw()
                 auto _light{DCast<Light3D>(_thing3d)};
                 auto _transform{_light->GlobalTransform()};
                 _transform.scale *= glm::vec3{0.4f};
-                _fullbright_shader->SetUniform("model_matrix", _transform.model_matrix());
-                _fullbright_shader->SetUniform("current_material.diffuse_color", _light->mColor);
+                _shader->SetUniform("model_matrix", _transform.model_matrix());
+                _shader->SetUniform("current_material.diffuse_color", _light->mColor);
             }
             else
                 { continue; }
@@ -136,8 +139,9 @@ void EditorTheatre::Draw()
                 { _renderer_api->DrawIndexed(_helper_mesh->SurfaceGetVertexArray(i)); }
         }
 
-        _fullbright_shader->Unbind();
+        _shader->Unbind();
         RendererAPI::Get()->SetWireframe(_wireframe);
+        RendererAPI::Get()->SetFaceCulling(_culling);
         viewport->Detach();
     }
 }
