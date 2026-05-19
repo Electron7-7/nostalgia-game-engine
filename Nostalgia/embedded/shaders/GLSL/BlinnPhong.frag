@@ -175,7 +175,7 @@ mat3x3 calculateLuminosity(Light light, vec3 light_direction)
 
 	vec3 this_ambient  = light.ambient_strength * light.color * diffuse_texture * current_material.diffuse_color * vertex_color;
 	vec3 this_diffuse  = light.energy * light.color * diffuse_texture * current_material.diffuse_color * vertex_color * diffuse;
-	vec3 this_specular = light.specular_strength * light.color * specular_texture * current_material.specular_strength * specular;
+	vec3 this_specular = current_material.use_specular * light.specular_strength * light.color * specular_texture * current_material.specular_strength * specular;
 
 	return mat3x3(this_ambient, this_diffuse, this_specular);
 }
