@@ -194,6 +194,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
             bool use_diffuse  {renderer_api->BindTexture(diffuse_texture,  0)};
             bool use_specular {renderer_api->BindTexture(specular_texture, 1)};
 
+            renderer_api->SetFaceCulling(material->mCullMode);
             renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe or mesh_instance->Wireframe());
             renderer_api->SetFramebufferSRGB(use_diffuse or use_specular);
 
@@ -218,6 +219,7 @@ void Camera3D::Draw(Shared<Visual3D> inVisual3D) const
             ? missing_texture
             : sprite->GetTexture()};
 
+        renderer_api->SetFaceCulling(RendererAPI::NO_CULLING);
         renderer_api->BindTexture(texture, 0);
         renderer_api->SetWireframe(Settings::Graphics::GlobalWireframe);
         renderer_api->SetFramebufferSRGB(true);
