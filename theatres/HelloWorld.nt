@@ -28,7 +28,6 @@ SphereMesh _Sphere
         up to four numbers (separated by commas), or a boolean value. ///
     Height = [3]
     Radius = [1.5] // Numbers can be positive, negative, real, or whole
-    InvertNormals = [fAlse] // Booleans are not case-sensitive.
 }
 
 ImageTexture StupidTex
@@ -63,8 +62,8 @@ MeshInstance3D LolBitSphereMeshInstance3D
 
 Material RedMaterial
 {
-    NoTexture = [trUe]
-    Color = [1, 0.2, 0.1] // Numbers can be positive, negative, real, or whole
+    NoTexture = [trUe] // Booleans are not case-sensitive.
+    Color = [1, 0.2, 0.1] // A vector of 3 numbers!
     SpecularStrength = [0.6]
 }
 
