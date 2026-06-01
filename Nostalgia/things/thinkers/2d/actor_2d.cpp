@@ -10,6 +10,7 @@ using namespace TheatreFile;
 void Actor2D::InitVariables()
 {
     Super::InitVariables();
+    m_pDefaultVariables->set_variable(mLocalTransform.scale, "Scale", VARIABLE_HINT_LINK_VALUES, "ON");
 }
 
 void Actor2D::SetVariables(Farg<ThingData> data)
@@ -34,7 +35,7 @@ Shared<ThingData> Actor2D::GetVariables() const
     LOCK_TRANSFORM
 
     data->set_variable(mLocalTransform.position, "Position");
-    data->set_variable(mLocalTransform.scale, "Scale");
+    data->set_variable(mLocalTransform.scale, "Scale", VARIABLE_HINT_LINK_VALUES);
     data->set_variable(mLocalTransform.rotation_degrees, "RotationDegrees");
     data->set_variable(mLocalTransform.rotation_radians, "Rotation");
     data->set_variable(mVisible, "Visible");

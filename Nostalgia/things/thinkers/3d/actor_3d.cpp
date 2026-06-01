@@ -9,6 +9,12 @@ using namespace TheatreFile;
 void Actor3D::InitVariables()
 {
     Super::InitVariables();
+    m_pDefaultVariables->set_variable(mLocalTrans.position, "Position");
+    m_pDefaultVariables->set_variable(mLocalTrans.rotation_degrees, "RotationDegrees");
+    m_pDefaultVariables->set_variable(mLocalTrans.rotation, "Rotation");
+    m_pDefaultVariables->set_variable(mLocalTrans.quaternion, "Quaternion");
+    m_pDefaultVariables->set_variable(mLocalTrans.scale, "Scale", VARIABLE_HINT_LINK_VALUES, "ON");
+    m_pDefaultVariables->hide_from_editor("Quaternion");
 }
 
 void Actor3D::SetVariables(Farg<ThingData> data)
@@ -48,7 +54,7 @@ Shared<ThingData> Actor3D::GetVariables() const
     data->set_variable(mLocalTrans.rotation_degrees, "RotationDegrees");
     data->set_variable(mLocalTrans.rotation, "Rotation");
     data->set_variable(mLocalTrans.quaternion, "Quaternion");
-    data->set_variable(mLocalTrans.scale, "Scale");
+    data->set_variable(mLocalTrans.scale, "Scale", VARIABLE_HINT_LINK_VALUES);
     data->hide_from_editor("Quaternion");
 
     return data;
