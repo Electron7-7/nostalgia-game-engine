@@ -9,6 +9,59 @@
 using namespace ImGui;
 using namespace TheatreFile;
 
+template<GLMContainer T, int Size = GLMContainerSize<T>()>
+    static void s_DoLinkedValuesUpdate(Farg<T> originalVector, T& ioChangedVector)
+    {
+        for(int i{0}; i < Size; ++i)
+        {
+            if(originalVector[i] == ioChangedVector[i])
+                { continue; }
+            ioChangedVector = T{ioChangedVector[i]};
+            return;
+        }
+    }
+
+template<GLMContainer T, int Size = GLMContainerSize<T>()>
+    static bool s_InspectVector(Sarg inName, Farg<ThingVariable> inVar,
+        Farg<ThingData> inThingData, ThingData& ioThingData,
+        bool (*inFuncPtr)(const char*, T*, float, float, float, const char*, ImGuiSliderFlags))
+    {
+        T _value{}, _value_copied{};
+        std::string _hint_string{inVar.hint_string};
+        inThingData.get_variable(_value, inName);
+        _value_copied = _value;
+        if(inVar.hint == TheatreFile::VARIABLE_HINT_LINK_VALUES)
+        {
+            bool _linked{_hint_string == "ON"};
+            PushID(inVar.name.data());
+            if(Checkbox("Linked", &_linked))
+            {
+                _hint_string = (_linked) ? "ON" : "OFF";
+                ioThingData.set_variable(_value, inName, inVar.hint, _hint_string);
+                PopID();
+                return true;
+            }
+            PopID();
+            SameLine();
+        }
+        if(inFuncPtr(inName.data(), &_value, 1.0f, 0.0f, 0.0f, "%.3f", 0))
+        {
+            if(inVar.hint == TheatreFile::VARIABLE_HINT_LINK_VALUES and inVar.hint_string == "ON")
+            {
+                for(int i{0}; i < Size; ++i)
+                {
+                    if(_value_copied[i] == _value[i])
+                        { continue; }
+                    _value = T{_value[i]};
+                    break;
+                }
+            }
+            ioThingData.set_variable(_value, inName, inVar.hint, _hint_string);
+            return true;
+        }
+        return false;
+    }
+
 void ImGui_Editor::InspectThing()
 {
     static bool _update_thing{false};
@@ -19,6 +72,33 @@ void ImGui_Editor::InspectThing()
         mInspectingThingDataOut  = {m_pInspectingThingDataIn->type, m_pInspectingThingDataIn->name};
         _parent = m_pInspectingThingDataIn->get_parent();
         mInspectingNewThing = false;
+    }
+
+    if(TreeNode("ThingData Raw View"))
+    {
+        for(FAUTO var : m_pInspectingThingDataIn->variables)
+        {
+            if(TreeNode(var.name.data(), "Name: %s", var.name.data()))
+            {
+                Text("Value: %s", var.value.operator std::string().data());
+                Text("Hint:  %s", EnumRegistry::GetEnumName(var.hint).data());
+                Text("Hint String: %s", var.hint_string.data());
+                std::string _usage_flags{};
+                if(var.usage_flags & TheatreFile::VARIABLE_USAGE_EDITOR)
+                    { _usage_flags += " | " + EnumRegistry::GetEnumName(TheatreFile::VARIABLE_USAGE_EDITOR); }
+                if(var.usage_flags & TheatreFile::VARIABLE_USAGE_GROUP)
+                    { _usage_flags += " | " + EnumRegistry::GetEnumName(TheatreFile::VARIABLE_USAGE_GROUP); }
+                if(var.usage_flags & TheatreFile::VARIABLE_USAGE_CATEGORY)
+                    { _usage_flags += " | " + EnumRegistry::GetEnumName(TheatreFile::VARIABLE_USAGE_CATEGORY); }
+                if(var.usage_flags & TheatreFile::VARIABLE_USAGE_SUBGROUP)
+                    { _usage_flags += " | " + EnumRegistry::GetEnumName(TheatreFile::VARIABLE_USAGE_SUBGROUP); }
+                if(_usage_flags.size() > 3)
+                    { _usage_flags = _usage_flags.substr(3); }
+                Text("Usage Flags: %s", _usage_flags.data());
+                TreePop();
+            }
+        }
+        TreePop();
     }
 
     if(ThingFactory::IsThinker(m_pInspectingThingDataIn->type)
@@ -223,37 +303,21 @@ void ImGui_Editor::InspectThing()
             }
         case Variant::VECTOR2:
             {
-                glm::vec2 _value{};
-                m_pInspectingThingDataIn->get_variable(_value, _name);
-                if(DragGLMv2(_name.data(), &_value))
-                {
-                    mInspectingThingDataOut.set_variable(_value, _name);
-                    _update_thing = true;
-                }
+                if(s_InspectVector<glm::vec2>(_name, var, *m_pInspectingThingDataIn, mInspectingThingDataOut, &DragGLMv2))
+                    { _update_thing = true; }
                 break;
             }
         case Variant::VECTOR3:
             {
-                glm::vec3 _value{};
-                m_pInspectingThingDataIn->get_variable(_value, _name);
-                if(DragGLMv3(_name.data(), &_value))
-                {
-                    mInspectingThingDataOut.set_variable(_value, _name);
-                    _update_thing = true;
-                }
+                if(s_InspectVector<glm::vec3>(_name, var, *m_pInspectingThingDataIn, mInspectingThingDataOut, &DragGLMv3))
+                    { _update_thing = true; }
                 break;
             }
         case Variant::VECTOR4:
         case Variant::QUATERNION:
             {
-                glm::vec4 _value{};
-                m_pInspectingThingDataIn->get_variable(_value, _name);
-                if(DragGLMv4(_name.data(), &_value))
-                {
-                    mInspectingThingDataOut.set_variable(_value, _name);
-                    _update_thing = true;
-                    break;
-                }
+                if(s_InspectVector<glm::vec4>(_name, var, *m_pInspectingThingDataIn, mInspectingThingDataOut, &DragGLMv4))
+                    { _update_thing = true; }
                 break;
             }
         case Variant::THING:
