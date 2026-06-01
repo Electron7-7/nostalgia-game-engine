@@ -4,6 +4,7 @@
 #include "fonts.hpp"
 #include "core/variant.hpp"
 #include "things/thing_factory.hpp"
+#include "things/thing_variable.hpp"
 #include "things/resources/cubemap.hpp"
 #include "things/resources/image_texture.hpp"
 #include "things/resources/array_mesh.hpp"
@@ -21,6 +22,22 @@ bool ResourceManager::Init()
 
     if(not ThingFactory::Init())
         { return print_error("ThingFactory::Init failed"); }
+
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_NONE, "VariableHint::None");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_ENUM, "VariableHint::Enum");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_FLAGS, "VariableHint::Flags");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_FILE, "VariableHint::File");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_RESOURCE_TYPE, "VariableHint::ResourceType");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_PLACEHOLDER_TEXT, "VariableHint::PlaceholderText");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_THING_REFERENCE, "VariableHint::ThingReference");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_LINK_VALUES, "VariableHint::LinkValues");
+    EnumRegistry::Register(TheatreFile::VARIABLE_HINT_MAX, "Invalid VariableHint Enum");
+
+    EnumRegistry::Register(TheatreFile::VARIABLE_USAGE_INVALID, "Invalid VariableUsage Enum");
+    EnumRegistry::Register(TheatreFile::VARIABLE_USAGE_EDITOR, "VariableUsage::Editor");
+    EnumRegistry::Register(TheatreFile::VARIABLE_USAGE_GROUP, "VariableUsage::Group");
+    EnumRegistry::Register(TheatreFile::VARIABLE_USAGE_CATEGORY, "VariableUsage::Category");
+    EnumRegistry::Register(TheatreFile::VARIABLE_USAGE_SUBGROUP, "VariableUsage::Subgroup");
 
     EnumRegistry::Register(RendererAPI::BACK_FACE_CULLING, "Culling::BackFace");
     EnumRegistry::Register(RendererAPI::FRONT_FACE_CULLING, "Culling::FrontFace");
