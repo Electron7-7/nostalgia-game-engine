@@ -45,6 +45,14 @@ namespace TheatreFile
                 {
                     found_it->value = inValue;
                     found_it->name  = inName;
+                    if(inHint != VARIABLE_HINT_MAX)
+                    {
+                        found_it->hint = inHint;
+                        if(not inHintString.empty())
+                            { found_it->hint_string = inHintString; }
+                    }
+                    if(inUsageFlags != VARIABLE_USAGE_INVALID)
+                        { found_it->usage_flags = inUsageFlags; }
                     return;
                 }
                 else if constexpr(IsEnum<T>)
@@ -59,7 +67,17 @@ namespace TheatreFile
                 else if constexpr(std::same_as<T, ID>)
                     { variables.emplace_back(inValue, inName, VARIABLE_HINT_THING_REFERENCE); }
                 else
-                    { variables.emplace_back(inValue, inName, inHint, inHintString, inUsageFlags); }
+                {
+                    VariableHint _hint{inHint};
+                    VariableUsageFlags _usage_flags{(inUsageFlags == VARIABLE_USAGE_INVALID)
+                        ? VARIABLE_USAGE_EDITOR : inUsageFlags};
+                    std::string _hint_string{inHintString};
+                    if(_hint == VARIABLE_HINT_MAX)
+                        { _hint = VARIABLE_HINT_NONE; }
+                    else if(_hint == VARIABLE_HINT_LINK_VALUES and _hint_string.empty())
+                        { _hint_string = "ON"; }
+                    variables.emplace_back(inValue, inName, _hint, _hint_string, _usage_flags);
+                }
             }
 
         template<Thing_t T> requires (not std::same_as<T, Thing>)

@@ -15,12 +15,14 @@ namespace TheatreFile
         VARIABLE_HINT_FILE,
         VARIABLE_HINT_RESOURCE_TYPE,
         VARIABLE_HINT_PLACEHOLDER_TEXT,
-        VARIABLE_HINT_THING_REFERENCE
+        VARIABLE_HINT_THING_REFERENCE,
+        VARIABLE_HINT_LINK_VALUES,
+        VARIABLE_HINT_MAX,
     };
 
     enum VariableUsageFlags_ : VariableUsageFlags
     {
-        VARIABLE_USAGE_NONE     = 0,
+        VARIABLE_USAGE_INVALID  = 0,
         VARIABLE_USAGE_EDITOR   = 1 << 1,
         VARIABLE_USAGE_GROUP    = 1 << 2,
         VARIABLE_USAGE_CATEGORY = 1 << 3,
