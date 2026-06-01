@@ -30,12 +30,13 @@ namespace TheatreFile
         IdSet_t get_children() const;
 
         Error remove_variable(Sarg inName);
+        void set_hint(Sarg inVariableName, VariableHint inHint, Sarg inHintString = GlobalConstants::str_empty);
 
         template<Variant_t T>
             void set_variable(Farg<T> inValue, Sarg inName,
-                VariableHint inHint = VARIABLE_HINT_NONE,
+                VariableHint inHint = VARIABLE_HINT_MAX,
                 Sarg inHintString = GlobalConstants::str_empty,
-                VariableUsageFlags inUsageFlags = VARIABLE_USAGE_EDITOR)
+                VariableUsageFlags inUsageFlags = VARIABLE_USAGE_INVALID)
             {
                 if(unlikely(inName == "Child"))
                     { return add_child(Variant{inValue}); }
