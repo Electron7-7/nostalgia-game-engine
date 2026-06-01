@@ -48,6 +48,8 @@ void Thing::InitVariables()
 void Thing::SetVariables(Farg<ThingData> data)
 {
     LOCK(mMutex);
+    for(FAUTO _var : data.variables)
+        { m_pDefaultVariables->set_variable(_var.value, _var.name, _var.hint, _var.hint_string, _var.usage_flags); }
     if(mName.empty())
         { mName = data.name; }
 }
@@ -55,7 +57,7 @@ void Thing::SetVariables(Farg<ThingData> data)
 Shared<ThingData> Thing::GetVariables() const
 {
     LOCK(mMutex);
-    auto data{MakeShared<ThingData>()};
+    auto data{MakeShared<ThingData>(*m_pDefaultVariables)};
     data->name = mName;
     data->type = Type();
     return data;
