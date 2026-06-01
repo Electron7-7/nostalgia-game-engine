@@ -88,6 +88,18 @@ Error TheatreFile::ThingData::remove_variable(Sarg inName)
     return ERR_NOT_FOUND;
 }
 
+void TheatreFile::ThingData::set_hint(Sarg inVariableName, VariableHint inHint, Sarg inHintString)
+{
+    if(inHint == VARIABLE_HINT_MAX)
+        { return; }
+    if(auto found_it{_find_variable(inVariableName)}; found_it != variables.end())
+    {
+        found_it->hint = inHint;
+        if(not inHintString.empty())
+            { found_it->hint_string = inHintString; }
+    }
+}
+
 TheatreFile::ThingVarArray::const_iterator TheatreFile::ThingData::_find_variable(Sarg inName) const
 {
     for(auto iter{variables.cbegin()}; iter != variables.cend(); ++iter)
