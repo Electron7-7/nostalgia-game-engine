@@ -22,6 +22,8 @@ public:
     virtual const IWindow* MainWindow() const = 0;
     virtual IWindow* MainWindow() = 0;
 
+    // virtual const IWindow* GetWindow(ID inWindowUID) const;
+    // virtual IWindow* GetWindow(ID inWindowUID);
 
     IApplication();
     virtual ~IApplication();
