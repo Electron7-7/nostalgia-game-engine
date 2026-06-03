@@ -136,6 +136,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/core/message_labels.hpp
     ${NOSTALGIA_ROOT}/core/enum_registry.hpp
     ${NOSTALGIA_ROOT}/core/farg.hpp
+    ${NOSTALGIA_ROOT}/core/global_constants.hpp
     ${NOSTALGIA_ROOT}/core/bitmask.hpp
     ${NOSTALGIA_ROOT}/core/concepts.hpp
     ${NOSTALGIA_ROOT}/core/macros.hpp
