@@ -188,6 +188,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/thing_factory.hpp
     ${NOSTALGIA_ROOT}/theatre/theatre_file.hpp
     ${NOSTALGIA_ROOT}/things/thing_data.hpp
+    ${NOSTALGIA_ROOT}/things/thing_variable.hpp
     ${NOSTALGIA_ROOT}/theatre/parser/number_parser.hpp
     ${NOSTALGIA_ROOT}/filesystem/file_data.hpp
     ${NOSTALGIA_ROOT}/filesystem/filesystem.hpp
