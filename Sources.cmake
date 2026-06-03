@@ -167,6 +167,7 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/things/resources/resource.hpp
     ${NOSTALGIA_ROOT}/things/resources/array_mesh.hpp
     ${NOSTALGIA_ROOT}/things/resources/material.hpp
+    ${NOSTALGIA_ROOT}/things/resources/mesh.hpp
     ${NOSTALGIA_ROOT}/things/thing.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/nostalgia_player.hpp
     ${NOSTALGIA_ROOT}/things/thinkers/3d/ramiel.hpp
