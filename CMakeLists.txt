@@ -174,7 +174,8 @@ if(BUILD_EDITOR)
     target_include_directories(NostalgiaGoggles
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype ${EDITOR_ROOT}/thirdparty/DearImGui
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
-    target_link_libraries(NostalgiaGoggles PUBLIC ${NOSTALGIA_LIB})
+    target_link_libraries(NostalgiaGoggles PUBLIC
+        $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_LINKER_FILE:Nostalgia>>)
     target_link_options(NostalgiaGoggles
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
 
@@ -196,7 +197,8 @@ set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 
 function(add_test_target TARGET_NAME)
     add_dependencies(${TARGET_NAME} Nostalgia)
-    target_link_libraries(${TARGET_NAME} PUBLIC ${NOSTALGIA_LIB})
+    target_link_libraries(${TARGET_NAME} PUBLIC
+        $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_LINKER_FILE:Nostalgia>>)
     target_compile_definitions(${TARGET_NAME}
         PUBLIC $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
     target_compile_options(${TARGET_NAME}
