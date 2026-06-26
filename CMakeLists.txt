@@ -26,7 +26,7 @@ if(NOT NOSTALGIA_DISABLE_PIC)
 endif()
 
 # Testapp Options
-# option(BUILD_TEST "Build test" ON)
+option(BUILD_TEST_APPS "Build test applications" ON)
 
 if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
@@ -220,7 +220,7 @@ function(add_test_target TARGET_NAME)
     endif()
 endfunction()
 
-# if(BUILD_TEST)
-    # add_executable(TestApp ${TESTAPP_MAIN} ${TESTAPP_DIR}/test_app.cpp)
-    # add_test_target(TestApp)
-# endif()
+if(BUILD_TEST_APPS)
+    add_executable(TestApp ${TESTAPP_MAIN} ${TESTAPP_DIR}/app_and_window_test.cpp)
+    add_test_target(TestApp)
+endif()

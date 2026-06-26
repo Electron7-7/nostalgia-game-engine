@@ -2,9 +2,6 @@
 *.sublime-project
 *.sublime-workspace
 
-# tests directory
-Testing/
-
 # build system
 Linux_Debug/
 Linux_Release/
