@@ -1439,3 +1439,6 @@ Idea: find a way to check for "desync" so `Thing::GetVariables` doesn't return e
 
 [06/02/26]
 Use `std::is_abstract` in `ThingFactory::MakeThing` to automatically label abstract classes as 'virtual' classes.
+
+[06/26/26]
+I am going to attempt a total overhaul of the entire engine, starting with the basics (e.g. windowing, application layer, etc) and implementing better practices (e.g. rendering engine separate from the game engine, Vulcan perhaps, etc).
