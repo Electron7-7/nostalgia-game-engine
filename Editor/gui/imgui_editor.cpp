@@ -114,7 +114,7 @@ bool ImGui_Editor::ReadyToQuit()
 void ImGui_Editor::Input(InputEvent* event)
 {
     if(event->IsJustPressed(Key::Q) and event->IsModifierActive(Key::Mod_Control))
-        { QuitEditor(); }
+        { Application()->Stop(); }
     else if(event->IsJustPressed(Key::D) and event->IsModifierActive(Key::Mod_Control))
         { ImGui_Debugger::m_sDebugWindowOpened = !ImGui_Debugger::m_sDebugWindowOpened; }
     else if(event->IsJustPressed(Key::N) and event->IsModifierActive(Key::Mod_Control))

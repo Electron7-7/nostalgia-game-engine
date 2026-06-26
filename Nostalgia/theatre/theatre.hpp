@@ -55,10 +55,10 @@ public:
     IdSet_arg ThinkerUIDs();
     IdSet_arg ResourceUIDs();
 
-    bool    Contains(ID);
-    bool    Contains(Sarg inName);
-    ID      CreateThing(Farg<TheatreFile::ThingData>, bool inDoReadyThing = true);
-    Error   DestroyThing(ID);
+    bool  Contains(ID);
+    bool  Contains(Sarg inName);
+    ID    CreateThing(Farg<TheatreFile::ThingData>, bool inDoReadyThing = true);
+    Error DestroyThing(ID);
 
     Shared<Thinker> GetPlayer();
 
