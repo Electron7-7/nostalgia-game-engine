@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.30.0..4.3.0)
-project(Nostalgia
-    VERSION 0.20.0
-    LANGUAGES CXX C)
+project(Nostalgia VERSION 0.20.0 LANGUAGES CXX C)
 
 option(BUILD_SHARED_LIBS "Build the shared version of Nostalgia (Linux only)" OFF)
 option(NOSTALGIA_GENERATE_COMPILE_COMMANDS "Generate a compile_commands.json file, fix it, and export it to the source directory" OFF)
@@ -33,10 +31,6 @@ if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 endif()
 
 if(MSVC)
-    if(BUILD_SHARED_LIBS)
-        message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
-    endif()
-
     set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_DX12)
     set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
     set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_CURRENT_BINARY_DIR}/NostalgiaHeaderFiles)
@@ -64,30 +58,31 @@ endif()
 
 set(NOSTALGIA_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia)
 set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
-set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
+# set(NOSTALGIA_EMBED_FILES fonts.hpp images.hpp models.hpp shaders.hpp)
 
-add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
-    COMMAND ${CMAKE_COMMAND}
-    ARGS -D_EMBED_NOSTALGIA=ON -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
+# add_custom_command(OUTPUT ${NOSTALGIA_EMBED_FILES}
+#     COMMAND ${CMAKE_COMMAND}
+#     ARGS -D_EMBED_NOSTALGIA=ON -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
 
 include(Sources.cmake)
-include(Thirdparty.cmake)
+# include(Thirdparty.cmake)
 
-add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_OBJ_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
-add_dependencies(Nostalgia
-    freetype-object
-    zlib-object
-    bz2-object
-    brotlicommon-object
-    brotlidec-object
-    brotlienc-object
-    png-object
-    glfw-object
-    Jolt-object)
+add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
+# add_dependencies(Nostalgia
+#     freetype-object
+#     zlib-object
+#     bz2-object
+#     brotlicommon-object
+#     brotlidec-object
+#     brotlienc-object
+#     png-object
+#     glfw-object
+#     Jolt-object)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS}
-    $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
+    $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>
+    $<$<BOOL:${BUILD_SHARED_LIBS}>:-DNOSTALGIA_DLL_EXPORT>)
 target_compile_options(Nostalgia
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
     PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)

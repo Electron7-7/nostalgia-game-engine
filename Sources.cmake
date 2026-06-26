@@ -28,6 +28,7 @@ set(EDITOR_SRC_FILES
     ${EDITOR_ROOT}/thirdparty/DearImGui/imgui_draw.cpp)
 
 set(NOSTALGIA_SRC_FILES
+    ${NOSTALGIA_ROOT}/test.cpp
 )
 
 set(NOSTALGIA_HEADERS

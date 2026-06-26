@@ -1,7 +1,10 @@
-#include "./test_app.hpp"
+// #include "./test_app.hpp"
+#include "../Nostalgia/Nostalgia.hpp"
 
 int main(int argc, char** argv)
 {
-    TestApplication application{};
-    return application.Main();
+    NGE::say_hello_world();
+    std::println("This is the test app!");
+    // TestApplication application{};
+    // return application.Main();
 }
