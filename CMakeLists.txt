@@ -193,7 +193,6 @@ endif()
 ## TESTAPPS ##
 ##############
 set(TESTAPP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Testing)
-set(TESTAPP_MAIN ${TESTAPP_DIR}/shared_main.cpp)
 
 function(add_test_target TARGET_NAME)
     add_dependencies(${TARGET_NAME} Nostalgia)
@@ -220,6 +219,6 @@ function(add_test_target TARGET_NAME)
 endfunction()
 
 if(BUILD_TEST_APPS)
-    add_executable(TestApp ${TESTAPP_MAIN} ${TESTAPP_DIR}/app_and_window_test.cpp)
-    add_test_target(TestApp)
+    add_executable(TestApp_WindowTest ${TESTAPP_DIR}/app_and_window_test.cpp)
+    add_test_target(TestApp_WindowTest)
 endif()
