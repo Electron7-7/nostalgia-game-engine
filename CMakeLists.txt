@@ -86,16 +86,16 @@ target_compile_definitions(Nostalgia PUBLIC
 target_compile_options(Nostalgia
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
     PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
-target_link_libraries(Nostalgia PRIVATE
-    freetype-object
-    zlib-object
-    bz2-object
-    brotlicommon-object
-    brotlidec-object
-    brotlienc-object
-    png-object
-    glfw-object
-    Jolt-object)
+# target_link_libraries(Nostalgia PRIVATE
+#     freetype-object
+#     zlib-object
+#     bz2-object
+#     brotlicommon-object
+#     brotlidec-object
+#     brotlienc-object
+#     png-object
+#     glfw-object
+#     Jolt-object)
 target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
