@@ -112,8 +112,6 @@ if(MSVC)
     target_compile_options(Nostalgia PUBLIC -EHsc)
     set_property(TARGET Nostalgia PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET Jolt PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 else()
     target_compile_features(Nostalgia PUBLIC cxx_std_26)
 endif()
