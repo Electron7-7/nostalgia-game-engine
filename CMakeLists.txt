@@ -82,7 +82,7 @@ target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS}
     $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>
-    $<$<BOOL:${BUILD_SHARED_LIBS}>:-DNOSTALGIA_DLL_EXPORT>)
+    $<$<BOOL:${BUILD_SHARED_LIBS}>:NOSTALGIA_DLL_EXPORT>)
 target_compile_options(Nostalgia
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
     PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
