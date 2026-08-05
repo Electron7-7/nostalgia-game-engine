@@ -28,7 +28,8 @@ private:
         m_spPointLight3DMesh{nullptr},
         m_spSpotLight3DMesh{nullptr},
         m_sp3DAxisMesh{nullptr},
-        m_spPlayer3DMesh{nullptr};
+        m_spPlayer3DMesh{nullptr},
+        m_spBoxCollider3DMesh{nullptr};
 };
 
 #endif // EDITOR_THEATRE_H

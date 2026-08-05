@@ -6,6 +6,7 @@
 #include <Nostalgia/things/thing_factory.hpp>
 #include <Nostalgia/things/resources/array_mesh.hpp>
 #include <Nostalgia/things/resources/image_texture.hpp>
+#include <Nostalgia/things/resources/primitive_mesh.hpp>
 #include <Nostalgia/things/thinkers/3d/mesh_instance_3d.hpp>
 #include <Nostalgia/things/thinkers/3d/light_3d.hpp>
 #include <Nostalgia/settings/graphics.hpp>
@@ -29,6 +30,7 @@ bool EditorTheatre::Startup()
     m_spPlayer3DMesh =
         ArrayMesh::CreateFromMemory(_EditorModels::Player3D,
             std::size(_EditorModels::Player3D), ArrayMesh::MODEL_OBJ);
+    m_spBoxCollider3DMesh = ThingFactory::MakeThing<BoxMesh>("BoxCollider3DMesh");
 
     TheatreFile::ThingData cam_dat{ThingType::Camera3D, "EditorCamera3D"};
     cam_dat.set_variable(glm::vec3{1.2f, 6.3f, 5.6f}, "Position");
@@ -133,10 +135,23 @@ void EditorTheatre::Draw()
                 _shader->SetUniform("model_matrix", _transform.model_matrix());
                 _shader->SetUniform("current_material.diffuse_color", _light->mColor);
             }
+            else if(_thing3d->DerivedFrom(ThingType::Collider3D))
+            {
+                auto _collider{DCast<Collider3D>(_thing3d)};
+                if(_collider->Shape() != ShapeType::Box)
+                    { continue; }
+                auto _transform{_collider->GlobalTransform()};
+                _transform.scale += glm::vec3{0.001f};
+                _shader->SetUniform("model_matrix", _transform.model_matrix());
+                _shader->SetUniform("current_material.diffuse_color", glm::vec3{0.1f, 0.8f, 1.0f});
+                _helper_mesh = m_spBoxCollider3DMesh;
+                RendererAPI::Get()->SetWireframe(true);
+            }
             else
                 { continue; }
             for(int i{0}; i < _helper_mesh->SurfaceCount(); ++i)
                 { _renderer_api->DrawIndexed(_helper_mesh->SurfaceGetVertexArray(i)); }
+            RendererAPI::Get()->SetWireframe(false);
         }
 
         _shader->Unbind();
