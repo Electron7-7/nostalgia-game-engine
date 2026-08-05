@@ -69,7 +69,6 @@ struct ThingFactory
             return T::Invalid();
         }
 
-    static Error AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists = false);
     static Error AddThingType(pThingMakerTemplate_t,
         FPID inType, FPID inInherits, bool inIsVirtual = false, int inPriority = cDefaultPriority);
 

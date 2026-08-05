@@ -172,7 +172,6 @@ void s_ParseDeclaration(size_t& ioIndex, Farg<TokenArray> inTokens, TheatreFile:
         }
     }
     outData.type_declarations[new_type] = base_type;
-    print_error_enum(ThingFactory::AddThingDeclaration(new_type, base_type, true));
 }
 
 bool s_CheckIfComment(Comment& ioComment, Farg<Token> inToken)

@@ -37,7 +37,6 @@ static std::map<ID, Shared<Thing>> sThings{};
 static std::unordered_set<ID> sResourceUIDs{}, sThinkerUIDs{};
 static std::map<std::string, ID> sNames{};
 
-static std::map<PID, PID> sTypeDeclarations{};
 static bool sIsInitialized{false}, sImportantTypesRegistered{false};
 static std::map<ID, ThingFactory::ThingType_t> sThingTypes{};
 static std::map<ID, pThingMakerTemplate_t> sThingMakers{};
@@ -342,16 +341,6 @@ Shared<Thing> ThingFactory::GetThing(Sarg inName)
     return Thing::Invalid();
 }
 
-Error ThingFactory::AddThingDeclaration(Sarg inTypeName, Sarg inSuperName, bool doOverrideIfExists)
-{
-    if(not doOverrideIfExists and sTypeDeclarations.contains(inTypeName))
-        { return ERR_ALREADY_EXISTS; }
-    else if(not IsThing(inSuperName))
-        { return ERR_INVALID_TYPE; }
-    sTypeDeclarations[inTypeName] = inSuperName;
-    return OK;
-}
-
 Error ThingFactory::AddThingType(pThingMakerTemplate_t inPtr, FPID inType, FPID inInherits, bool inVirtual, int inPriority)
 {
     LOCK(sExternMutex)
@@ -436,7 +425,7 @@ bool ThingFactory::IsVirtual(FPID inType) noexcept
 }
 
 bool ThingFactory::IsThing(FPID inTypeID)
-{ return sTypeAncestors.contains(inTypeID) or sTypeDeclarations.contains(inTypeID); }
+{ return sTypeAncestors.contains(inTypeID); }
 
 bool ThingFactory::IsThinker(FPID inTypeID)
 { return IsDerivedFrom(inTypeID, ThingType::Thinker); }
