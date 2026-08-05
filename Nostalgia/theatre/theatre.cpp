@@ -117,6 +117,8 @@ bool Theatre::Startup()
     LOCK_THINGS;
     LOCK_CALLSHEET;
 
+    m_pPlayer = nullptr;
+
     mName  = m_pInitialState->name;
     mIndex = m_pInitialState->index;
 
