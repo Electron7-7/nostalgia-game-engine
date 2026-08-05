@@ -1,5 +1,4 @@
 #include "glfw_window.hpp"
-#include "events/event.hpp"
 #include "events/event_queue.hpp"
 #include "managers/event_manager.hpp"
 #include "managers/input_manager.hpp"

@@ -8,7 +8,6 @@
 #include <Nostalgia/application/application.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>
 #include <Nostalgia/managers/resource_manager.hpp>
-#include <Nostalgia/events/event.hpp>
 #include <Nostalgia/managers/input_manager.hpp>
 #include <Nostalgia/rendering/renderer_api.hpp>
 #include <Nostalgia/settings/engine.hpp>

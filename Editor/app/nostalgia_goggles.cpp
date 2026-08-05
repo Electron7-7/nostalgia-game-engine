@@ -5,7 +5,6 @@
 #include "things/editor_player_3d.hpp"
 #include "things/test_animated_sprite.hpp"
 #include <Nostalgia/events/event_queue.hpp>
-#include <Nostalgia/events/action.hpp>
 #include <Nostalgia/managers/physics_manager.hpp>
 #include <Nostalgia/managers/resource_manager.hpp>
 #include <Nostalgia/managers/theatre_manager.hpp>

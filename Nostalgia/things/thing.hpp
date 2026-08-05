@@ -1,8 +1,6 @@
 #ifndef THING_H
 #define THING_H
 
-#include <Nostalgia/events/event.hpp>
-
 /// Forward Declaration
 namespace TheatreFile { struct ThingData; }
 

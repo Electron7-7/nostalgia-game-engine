@@ -1,9 +1,6 @@
 #ifndef INPUT_EVENT_H
 #define INPUT_EVENT_H
 
-#include <Nostalgia/fwd/events.hpp>
-#include <Nostalgia/events/bindings.hpp>
-
 #define NEW_EVENT(NAME) inline static constinit const char* NAME{#NAME};
 #define EVENT_TYPE(TYPE) constexpr EventType Type() const noexcept final { return TYPE; }
 #define EVENT_LOG std::string DebugLog() const noexcept
@@ -94,9 +91,9 @@ public:
 
     // InputEventAction
     virtual bool IsInputAction() const;
-    virtual bool IsAction(Farg<std::string>) const;
-    virtual bool IsActive(Farg<std::string>) const;
-    virtual bool IsJustChanged(Farg<std::string>) const;
+    virtual bool IsAction(Sarg) const;
+    virtual bool IsActive(Sarg) const;
+    virtual bool IsJustChanged(Sarg) const;
 
     // InputEventBinding
     virtual bool IsInputBinding() const;
@@ -121,7 +118,9 @@ public:
     InputEventMouseScroll();
     InputEventMouseScroll(Farg<Position2D<double>> inScrollOffset);
 
-    std::string GetDebugLog() const final { return std::format("InputEventMouseScroll - scroll offset: [{}, {}]", mScrollOffset.x(), mScrollOffset.y()); }
+    std::string GetDebugLog() const final
+    { return std::format("InputEventMouseScroll - scroll offset: [{}, {}]", mScrollOffset.x(), mScrollOffset.y()); }
+
     Farg<Position2D<double>> ScrollOffset() const final;
 
 private:
@@ -135,8 +134,10 @@ public:
     InputEventMouseMotion();
     InputEventMouseMotion(Farg<Position2D<double>> inCurrentPos, Farg<Position2D<double>> inLastPos);
 
+    std::string GetDebugLog() const final
+    { return std::format("InputEventMouseMotion - mouse pos: [{}, {}], last pos: [{}, {}], motion: [{}, {}]", mMousePosition.x(), mMousePosition.y(), mLastMousePosition.x(), mLastMousePosition.y(), mMouseMotion.x(), mMouseMotion.y()); }
+
     size_t GetHash() const final;
-    std::string GetDebugLog() const final { return std::format("InputEventMouseMotion - mouse pos: [{}, {}], last pos: [{}, {}], motion: [{}, {}]", mMousePosition.x(), mMousePosition.y(), mLastMousePosition.x(), mLastMousePosition.y(), mMouseMotion.x(), mMouseMotion.y()); }
     bool IsMouseMotion() const final;
     bool IsStoppedMouseMotion() const final;
     Farg<Position2D<double>> MousePosition() const final;
@@ -154,12 +155,14 @@ class InputEventAction final : public InputEvent
 public:
     InputEventAction(Farg<InputAction> inAction);
 
+    std::string GetDebugLog() const final
+    { return std::format("InputEventAction - action: {}, active: {}, changed: {}", mAction, mActive, mJustChanged); }
+
     size_t GetHash() const final;
-    std::string GetDebugLog() const final { return std::format("InputEventAction - action: {}, active: {}, changed: {}", mAction, mActive, mJustChanged); }
     bool IsInputAction() const final { return true; }
-    bool IsAction(Farg<std::string>) const final;
-    bool IsActive(Farg<std::string>) const final;
-    bool IsJustChanged(Farg<std::string>) const final;
+    bool IsAction(Sarg) const final;
+    bool IsActive(Sarg) const final;
+    bool IsJustChanged(Sarg) const final;
 
 private:
     std::string mAction{""};
@@ -172,9 +175,14 @@ class InputEventBinding final : public InputEvent
 public:
     InputEventBinding(KeyID inBindingID, Key::Modifiers inModifiers, bool isPressed, bool isRepeated = false, bool isJustChanged = false);
 
-    size_t GetHash()                 const final;
-    std::string GetDebugLog()        const final { return std::format("InputEventBinding - key: {}, pressed: {}, changed: {}", debug_GetKeyName(mID), mPressed, mJustChanged); }
-    bool IsInputBinding()            const final { return true; }
+    std::string GetDebugLog() const final
+    {
+        return std::format("InputEventBinding - key: {}, pressed: {}, changed: {}",
+            debug_GetKeyName(mID), mPressed, mJustChanged);
+    }
+
+    bool IsInputBinding()      const final { return true; }
+    size_t GetHash()           const final;
     bool IsBinding(KeyID)      const final;
     bool IsPressed(KeyID)      const final;
     bool IsRepeated(KeyID)     const final;

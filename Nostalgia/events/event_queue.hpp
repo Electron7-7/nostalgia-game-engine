@@ -1,8 +1,6 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
-#include <Nostalgia/events/event.hpp>
-
 using event_queue_t = std::vector<Shared<IEvent>>;
 
 class EventQueue

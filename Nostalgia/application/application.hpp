@@ -2,22 +2,20 @@
 #define APPLICATION_H
 
 #include <Nostalgia/application/window.hpp>
-#include <Nostalgia/components/event_handling.hpp>
-#include <Nostalgia/components/game_loop.hpp>
 
-class IApplication : public OnInput, public OnEvent, public OnUpdate, public OnTick, public OnTheatreChanged
+class IApplication
 {
 public:
     virtual int  Main() = 0;
     virtual void Stop() = 0;
     virtual const char* Name() { return "IApplication"; }
 
-    virtual void Input(InputEvent*) override {}
-    virtual void Event(IEvent*) override {}
-    virtual void Update() override {}
-    virtual void Tick() override {}
-    virtual void TheatreEntered() override {}
-    virtual void TheatreExited() override {}
+    virtual void Input(InputEvent*) {}
+    virtual void Event(IEvent*) {}
+    virtual void Update() {}
+    virtual void Tick() {}
+    virtual void TheatreEntered() {}
+    virtual void TheatreExited() {}
 
     virtual const IWindow* MainWindow() const = 0;
     virtual IWindow* MainWindow() = 0;

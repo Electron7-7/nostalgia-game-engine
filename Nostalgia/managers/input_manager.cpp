@@ -1,8 +1,6 @@
 #include "input_manager.hpp"
 #include "application/application.hpp"
 #include "events/event_queue.hpp"
-#include "events/action.hpp"
-#include "events/bindings.hpp"
 
 static std::unordered_map<std::string, InputAction> sPreviousInputActions{};
 static std::unordered_map<std::string, InputAction> sInputActions{};

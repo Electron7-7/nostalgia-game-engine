@@ -84,6 +84,9 @@
 #include <Nostalgia/math/conversion.hpp>              // IWYU pragma: keep
 #include <Nostalgia/math/glm_format.hpp>              // IWYU pragma: keep
 #include <Nostalgia/math/glm_functions.hpp>           // IWYU pragma: keep
+#include <Nostalgia/events/action.hpp>                // IWYU pragma: keep
+#include <Nostalgia/events/bindings.hpp>              // IWYU pragma: keep
+#include <Nostalgia/events/event.hpp>                 // IWYU pragma: keep
 #include <Nostalgia/filesystem/filesystem.hpp>        // IWYU pragma: keep
 #include <Nostalgia/filesystem/file_data.hpp>         // IWYU pragma: keep
 #include <Nostalgia/theatre/parser/number_parser.hpp> // IWYU pragma: keep

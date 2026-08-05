@@ -1,7 +1,6 @@
 #ifndef GLFW_BACKEND_H
 #define GLFW_BACKEND_H
 
-#include <Nostalgia/events/bindings.hpp>
 #include <Nostalgia/application/window.hpp>
 #include <Nostalgia/thirdparty/glad/glad.h>
 #include <Nostalgia/thirdparty/glfw/include/GLFW/glfw3.h>

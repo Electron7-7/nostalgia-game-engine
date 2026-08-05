@@ -15,7 +15,6 @@
 #include <Nostalgia/settings/engine.hpp>
 #include <Nostalgia/settings/graphics.hpp>
 #include <Nostalgia/settings/player.hpp>
-#include <Nostalgia/events/event.hpp>
 #include <Nostalgia/rendering/vertex_array.hpp>
 #include <Nostalgia/rendering/buffers.hpp>
 #include <Nostalgia/things/thinkers/2d/text_2d.hpp>

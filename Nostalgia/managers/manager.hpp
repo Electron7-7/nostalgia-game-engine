@@ -1,9 +1,6 @@
 #ifndef MANAGER_H
 #define MANAGER_H
 
-#include <Nostalgia/components/game_loop.hpp>
-#include <Nostalgia/components/event_handling.hpp>
-
 namespace ManagerEnums
 {
     enum TheatreState_t : int
@@ -23,11 +20,15 @@ namespace ManagerEnums
 }
 
 // Basic idea taken from Valve's Source Engine, specifically the file -> (src/app/legion/gamemanager.h)
-class IManager : public OnUpdate, public OnTick, public OnInput, public OnEvent
+class IManager
 {
 public:
     virtual constexpr const char* DebugName() = 0;
     virtual bool Init() = 0;
+    virtual void Update() = 0;
+    virtual void Tick() = 0;
+    virtual void Input(InputEvent*) = 0;
+    virtual void Event(IEvent*) = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreInit(bool IsFirstCall) = 0;
     virtual ManagerEnums::TheatreReturnValue_t TheatreShutdown(bool IsFirstCall) = 0;
     virtual void Shutdown() = 0;
