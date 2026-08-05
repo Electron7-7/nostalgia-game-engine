@@ -3,6 +3,13 @@ project(Nostalgia)
 # Disable most messages from other CMakeLists.txt files
 set(CMAKE_REQUIRED_QUIET ON)
 set(CMAKE_RULE_MESSAGES OFF)
+set(SDL_SHARED OFF)
+set(SDL_STATIC OFF)
+set(SDL_OBJECT ON)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia/thirdparty/SDL EXCLUDE_FROM_ALL)
+
+return() # the rest of the thirdparty libraries aren't included, yet
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia/thirdparty/zlib)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia/thirdparty/bzip2)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia/thirdparty/brotli)

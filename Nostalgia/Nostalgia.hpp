@@ -10,25 +10,20 @@
 // Platform-specific includes & defines
 #ifdef _WIN32
 #   ifdef NOSTALGIA_DLL_EXPORT // Windows DLL export/import macro
-#       define NGE_API __declspec(dllexport)
+#       define NGE __declspec(dllexport)
 #   else
-#       define NGE_API __declspec(dllimport)
+#       define NGE __declspec(dllimport)
 #   endif
 #   include <tchar.h>   // IWYU pragma: keep
 #   include <windows.h> // IWYU pragma: keep
 #   define DIV 1048576
 #   define WIDTH 7
 #elifdef linux
-#   define NGE_API
+#   define NGE
 #   include <unistd.h> // IWYU pragma: keep
 #   include <stdlib.h> // IWYU pragma: keep
 #   include <string.h> // IWYU pragma: keep
 #endif // _WIN32 / linux
-
-namespace NGE
-{
-    NGE_API void say_hello_world();
-}
 
 // C++ STL
 #include <stdio.h>          // IWYU pragma: keep
@@ -53,5 +48,10 @@ namespace NGE
 #include <unordered_set>    // IWYU pragma: keep
 #include <source_location>  // IWYU pragma: keep
 #include <initializer_list> // IWYU pragma: keep
+
+// Nostalgia Core
+#include <Nostalgia/core/typedefs.hpp> // IWYU pragma: keep
+
+NGE void say_hello_world();
 
 #endif // NOSTALGIA_ENGINE_H

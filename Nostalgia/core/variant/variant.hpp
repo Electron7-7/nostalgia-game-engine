@@ -1,0 +1,6 @@
+#ifndef NOSTALGIA_VARIANT_H
+#define NOSTALGIA_VARIANT_H
+
+
+
+#endif // NOSTALGIA_VARIANT_H

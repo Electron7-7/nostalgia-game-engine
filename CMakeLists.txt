@@ -65,10 +65,10 @@ set(NOSTALGIA_PCH_SRC ${NOSTALGIA_ROOT}/Nostalgia.hpp)
 #     ARGS -D_EMBED_NOSTALGIA=ON -DSOURCE_DIR=${NOSTALGIA_ROOT}/embedded -P ${NOSTALGIA_ROOT}/embedded/EmbedAssets.cmake)
 
 include(Sources.cmake)
-# include(Thirdparty.cmake)
+include(Thirdparty.cmake)
 
 add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EMBED_FILES})
-# add_dependencies(Nostalgia
+add_dependencies(Nostalgia
 #     freetype-object
 #     zlib-object
 #     bz2-object
@@ -77,7 +77,8 @@ add_library(Nostalgia ${NOSTALGIA_SRC_FILES} ${NOSTALGIA_HEADERS} ${NOSTALGIA_EM
 #     brotlienc-object
 #     png-object
 #     glfw-object
-#     Jolt-object)
+#     Jolt-object
+    SDL3-object)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
     ${NOSTALGIA_JPH_DEFINITIONS}
@@ -86,7 +87,7 @@ target_compile_definitions(Nostalgia PUBLIC
 target_compile_options(Nostalgia
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
     PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
-# target_link_libraries(Nostalgia PRIVATE
+target_link_libraries(Nostalgia PRIVATE
 #     freetype-object
 #     zlib-object
 #     bz2-object
@@ -95,7 +96,8 @@ target_compile_options(Nostalgia
 #     brotlienc-object
 #     png-object
 #     glfw-object
-#     Jolt-object)
+#     Jolt-object
+    SDL3-object)
 target_precompile_headers(Nostalgia PUBLIC
     "$<$<COMPILE_LANGUAGE:CXX>:${NOSTALGIA_PCH_SRC}>"
     "$<$<COMPILE_LANGUAGE:C>:<stddef.h$<ANGLE-R>>")
@@ -105,6 +107,7 @@ target_include_directories(Nostalgia
     PUBLIC ${NOSTALGIA_ROOT}
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/glfw/include
+    PRIVATE ${NOSTALGIA_ROOT}/thirdparty/SDL/include
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/freetype/include)
 
 if(MSVC)
@@ -207,7 +210,8 @@ function(add_test_target TARGET_NAME)
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_include_directories(${TARGET_NAME}
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-        PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
+        PRIVATE ${NOSTALGIA_ROOT}/thirdparty
+        PRIVATE ${NOSTALGIA_ROOT})
     if(MSVC)
         target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
         target_compile_options(${TARGET_NAME} PUBLIC -EHsc)
