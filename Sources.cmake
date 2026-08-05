@@ -204,16 +204,12 @@ set(NOSTALGIA_HEADERS
     ${NOSTALGIA_ROOT}/rendering/shader.hpp
     ${NOSTALGIA_ROOT}/rendering/texture_buffer.hpp
     ${NOSTALGIA_ROOT}/console/console.hpp
-    ${NOSTALGIA_ROOT}/components/game_loop.hpp
-    ${NOSTALGIA_ROOT}/components/event_handling.hpp
     ${NOSTALGIA_ROOT}/fwd/ui.hpp
     ${NOSTALGIA_ROOT}/fwd/theatre.hpp
     ${NOSTALGIA_ROOT}/fwd/rendering.hpp
     ${NOSTALGIA_ROOT}/fwd/things.hpp
     ${NOSTALGIA_ROOT}/fwd/managers.hpp
     ${NOSTALGIA_ROOT}/fwd/core.hpp
-    ${NOSTALGIA_ROOT}/fwd/events.hpp
-    ${NOSTALGIA_ROOT}/fwd/event_types.hpp
     ${NOSTALGIA_ROOT}/fwd/application.hpp
     ${NOSTALGIA_ROOT}/Nostalgia.hpp
     ${NOSTALGIA_ROOT}/math/transform.hpp
