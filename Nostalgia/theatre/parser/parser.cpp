@@ -131,8 +131,8 @@ void s_SetupNamesAndTypes(Farg<TokenArray> inTokens, TheatreFile::TheatreData& o
             if(ThingFactory::IsThing(_token.token))
                 { _type = _token.token; }
             else if(auto found_it{outData.type_declarations.find(_token.token)};
-                    found_it != outData.type_declarations.end())
-                { _type = _token.token; }
+                found_it != outData.type_declarations.end() and ThingFactory::IsThing(found_it->second))
+                { _type = found_it->second; }
             else
                 { continue; }
 
