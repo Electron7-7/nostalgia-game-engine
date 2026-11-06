@@ -8,7 +8,7 @@
     "configurePresets": [
         {
             "name": "linux-static-debug",
-            "binaryDir": "${sourceDir}/Linux_Debug",
+            "binaryDir": "${sourceDir}/Build/Linux_Debug_Static",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -17,7 +17,7 @@
         },
         {
             "name": "linux-dynamic-debug",
-            "binaryDir": "${sourceDir}/Linux_Debug",
+            "binaryDir": "${sourceDir}/Build/Linux_Debug_Dynamic",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "GENERATE_DEBUG_SYMBOLS": "ON",
@@ -26,7 +26,7 @@
         },
         {
             "name": "linux-static-release",
-            "binaryDir": "${sourceDir}/Linux_Release",
+            "binaryDir": "${sourceDir}/Build/Linux_Release_Static",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -36,7 +36,7 @@
         },
         {
             "name": "linux-dynamic-release",
-            "binaryDir": "${sourceDir}/Linux_Release",
+            "binaryDir": "${sourceDir}/Build/Linux_Release_Dynamic",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
@@ -47,7 +47,7 @@
         {
             "name": "windows-static",
             "generator": "Visual Studio 18 2026",
-            "binaryDir": "${sourceDir}/Windows",
+            "binaryDir": "${sourceDir}/Build/Windows",
             "toolset": "ClangCL",
             "cacheVariables": {
                 "GENERATE_DEBUG_SYMBOLS": "OFF",
