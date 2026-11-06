@@ -6,9 +6,7 @@
 Testing/
 
 # build system
-Linux_Debug/
-Linux_Release/
-Windows/
+Build/
 
 # thirdparty
 Nostalgia/thirdparty/libpng/PNGConfigVersion.cmake
