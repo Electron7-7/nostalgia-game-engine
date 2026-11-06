@@ -2,7 +2,7 @@
 #define INPUT_MANAGER_H
 
 #include <Nostalgia/managers/manager.hpp>
-#include <Nostalgia/fwd/events.hpp>
+#include <Nostalgia/events/event_queue.hpp>
 
 typedef void (*pInputCallback_f)(InputEvent*);
 
