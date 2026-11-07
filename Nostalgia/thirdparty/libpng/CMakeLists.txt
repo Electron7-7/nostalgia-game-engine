@@ -138,7 +138,9 @@ if(PNG_BUILD_ZLIB)
 endif()
 
 # Find the zlib library.
-find_package(ZLIB REQUIRED)
+if(NOT NOSTALGIA_THIRDPARTY_OBJECT_LIBRARIES)
+  find_package(ZLIB REQUIRED)
+endif()
 set(PNG_LINK_LIBRARIES ZLIB::ZLIB)
 
 # Find the math library (unless we already know it's not available or
