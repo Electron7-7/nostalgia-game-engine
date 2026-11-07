@@ -4,8 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG // generate user friendly error messages
-#include "stb_image/stb_image.h"
-#include "stb_image/stb_image_write.h"
+#include "stb/stb_image.h"
+#include "stb/stb_image_write.h"
 
 static int sDataFormatToSTBI(DataFormat inFormat)
 {

@@ -32,17 +32,24 @@ if(MSVC OR "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Append this to the debug library's name")
 endif()
 
+set(JPH_PROFILE_ENABLED CACHE BOOL ON)
+
 if(MSVC)
     if(BUILD_SHARED_LIBS)
         message(FATAL_ERROR "Sorry, but building Nostalgia as a DLL is not supported yet; feel free to try and do it yourself, though (and if you can get it working, make a pull request!)")
     endif()
 
-    set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_DX12)
+    set(JPH_USE_DX12 CACHE BOOL ON)
     set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
     set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_CURRENT_BINARY_DIR}/NostalgiaHeaderFiles)
     message(STATUS "Available Configurations: Debug, Release")
 else()
-    set(NOSTALGIA_JPH_DEFINITIONS JPH_PROFILE_ENABLED JPH_USE_VK)
+    if(APPLE)
+        set(JPH_USE_VK CACHE BOOL OFF)
+        set(JPH_USE_MTL CACHE BOOL ON)
+    else()
+        set(JPH_USE_VK CACHE BOOL ON)
+    endif()
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build" FORCE)
     endif()
@@ -86,7 +93,6 @@ add_dependencies(Nostalgia
     Jolt-object)
 target_compile_definitions(Nostalgia PUBLIC
     ${NOSTALGIA_VERSION_DEFINITION}
-    ${NOSTALGIA_JPH_DEFINITIONS}
     $<$<CONFIG:Debug>:NOSTALGIA_DEBUGGING>)
 target_compile_options(Nostalgia
     PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
@@ -109,7 +115,9 @@ target_include_directories(Nostalgia
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     PUBLIC ${NOSTALGIA_ROOT}
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty
+    PRIVATE ${NOSTALGIA_ROOT}/thirdparty/glm
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/glfw/include
+    PRIVATE ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics
     PRIVATE ${NOSTALGIA_ROOT}/thirdparty/freetype/include)
 
 if(MSVC)
@@ -173,7 +181,7 @@ if(BUILD_EDITOR)
         PUBLIC $<$<CONFIG:Debug>:-Wall -O0>
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_include_directories(NostalgiaGoggles
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype ${EDITOR_ROOT}/thirdparty/DearImGui
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${EDITOR_ROOT}/thirdparty/freetype ${EDITOR_ROOT}/thirdparty/DearImGui ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics
         PUBLIC ${EDITOR_ROOT} ${EDITOR_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty ${NOSTALGIA_ROOT}/thirdparty/glfw/include)
     target_link_libraries(NostalgiaGoggles PUBLIC
         $<IF:$<BOOL:${EDITOR_AND_APPS_USE_GLOBAL_LIBRARY}>,${NOSTALGIA_LIB},$<TARGET_FILE:Nostalgia>>)
@@ -209,7 +217,8 @@ function(add_test_target TARGET_NAME)
         PUBLIC $<$<BOOL:${NOSTALGIA_USE_ADDRESS_SANITIZER}>:-g -fsanitize=address>)
     target_include_directories(${TARGET_NAME}
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-        PRIVATE ${NOSTALGIA_ROOT}/thirdparty)
+        PRIVATE ${NOSTALGIA_ROOT}/thirdparty
+        PRIVATE ${NOSTALGIA_ROOT}/thirdparty/JoltPhysics)
     if(MSVC)
         target_compile_features(${TARGET_NAME} PUBLIC cxx_std_23)
         target_compile_options(${TARGET_NAME} PUBLIC -EHsc)

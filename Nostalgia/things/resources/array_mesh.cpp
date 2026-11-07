@@ -4,7 +4,7 @@
 #include "rendering/buffers.hpp"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_USE_MAPBOX_EARCUT
-#include "thirdparty/TinyOBJLoader/tiny_obj_loader.h"
+#include "thirdparty/tinyobjloader/tiny_obj_loader.h"
 #include <numeric>
 
 #define ASSERT_SURFACE_INDEX(INDEX, ...) if(INDEX >= mSurfaces.size()) { return __VA_ARGS__; }
