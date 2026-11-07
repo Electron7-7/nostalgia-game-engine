@@ -1446,3 +1446,5 @@ Took a long ass break and feel refreshed. Decided to dip my toes back into the p
 Woops, gotta unmake these submodules bc it fucks things up when I edit their files.
 
 Yeah, and I fucked up the git config so I had to delete and re-add all those files, lmfao.
+
+Also had to remove '/zconf.h' from zlib's gitignore file; I don't know why, but that fixes an error when cloning the repo and configuring it on Windows (haven't tested Linux).
