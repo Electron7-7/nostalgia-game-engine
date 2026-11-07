@@ -417,7 +417,7 @@ endif(ZLIB_INSTALL)
 if(NOSTALGIA_THIRDPARTY_OBJECT_LIBRARIES)
     add_library(zlib-object OBJECT ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS}
                                   ${ZLIB_PRIVATE_HDRS})
-    add_library(ZLIB::ZLIBOBJECT ALIAS zlib-object)
+    add_library(ZLIB::ZLIB ALIAS zlib-object)
     target_include_directories(
         zlib-object
         PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
