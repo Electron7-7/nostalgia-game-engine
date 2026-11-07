@@ -1442,3 +1442,5 @@ Use `std::is_abstract` in `ThingFactory::MakeThing` to automatically label abstr
 
 [11/06/26]
 Took a long ass break and feel refreshed. Decided to dip my toes back into the project by overhauling how thirdparty libraries are implemented and built. Summarizing the commits, most of them are imported directly as git submodules, their CMakeLists.txt files only contain minor additions instead of major deletions and changes, and I fixed some stupid mistakes with Jolt variables and shit like that. Basically, took a step back and went "woah... I had no idea what I was doing, huh?".
+
+Woops, gotta unmake these submodules bc it fucks things up when I edit their files.
