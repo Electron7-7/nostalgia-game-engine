@@ -272,7 +272,6 @@ if(ENABLE_STATIC_LIB)
 endif()
 
 if(ENABLE_APP)
-    message("FUCK YOU")
     # The bzip2 executable.
     add_executable(bzip2)
     target_sources(bzip2

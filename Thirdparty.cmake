@@ -23,7 +23,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Nostalgia/thirdparty/zlib)
 
 # bzip2
 message("Configuring bzip2")
-set(ENABLE_APP OFF)
+set(ENABLE_APP CACHE BOOL OFF)
 set(ENABLE_APP_DEFAULT OFF)
 set(ENABLE_LIB_ONLY CACHE BOOL ON)
 set(ENABLE_STATIC_LIB CACHE BOOL OFF)
