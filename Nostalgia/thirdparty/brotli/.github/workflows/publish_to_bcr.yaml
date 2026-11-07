@@ -1,0 +1,28 @@
+name: Publish to BCR
+
+on:
+  # Manually trigger the publish workflow
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to publish to the Bazel Central Registry
+        required: true
+        type: string
+      registry_fork:
+        description: Registry fork to push to (e.g., username/bazel-central-registry)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@fa5bb3803983c621c90721669ee7857afe139836 # v1.5.1
+    with:
+      tag_name: ${{ inputs.tag_name }}
+      registry_fork: ${{ inputs.registry_fork }}
+      attest: false # requires {attestations, contents, id-token} write
+      download_default_release_artifacts: false
+    secrets:
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
